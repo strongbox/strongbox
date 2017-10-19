@@ -1,18 +1,18 @@
 package org.carlspring.strongbox.event;
 
-public enum SbEventType
+public enum CommonEventType
 {
 
-    REMOTE_REPOSITORY_SEARCH_EVENT(105);
+    REPOSITORY_SEARCH_EVENT(105);
     
     private final int typeId;
 
-    private SbEventType(int typeId)
+    private CommonEventType(int typeId)
     {
         this.typeId = typeId;
     }
 
-    protected int getTypeId()
+    public int getTypeId()
     {
         return typeId;
     }

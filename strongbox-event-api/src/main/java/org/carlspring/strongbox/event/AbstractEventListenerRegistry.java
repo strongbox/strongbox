@@ -6,36 +6,36 @@ import java.util.List;
 /**
  * @author carlspring
  */
-public abstract class AbstractEventListenerRegistry<T extends Event>
+public abstract class AbstractEventListenerRegistry
 {
 
-    private List<EventListener> eventListeners = new ArrayList<>();
+    private List<EventListener<?>> eventListeners = new ArrayList<>();
 
     
-    public void dispatchEvent(T event)
+    public <T extends Event> void dispatchEvent(T event)
     {
-        for (EventListener listener : eventListeners)
+        for (EventListener<?> listener : eventListeners)
         {
-            listener.handle(event);
+            ((EventListener<T>)listener).handle(event);
         }
     }
 
-    public void addListener(EventListener listener)
+    public <T extends Event> void addListener(EventListener<T> listener)
     {
         eventListeners.add(listener);
     }
 
-    public boolean removeListener(EventListener listener)
+    public <T extends Event> boolean removeListener(EventListener<T> listener)
     {
         return eventListeners.remove(listener);
     }
 
-    public List<EventListener> getEventListeners()
+    public List<EventListener<?>> getEventListeners()
     {
         return eventListeners;
     }
 
-    public void setEventListeners(List<EventListener> eventListeners)
+    public void setEventListeners(List<EventListener<?>> eventListeners)
     {
         this.eventListeners = eventListeners;
     }

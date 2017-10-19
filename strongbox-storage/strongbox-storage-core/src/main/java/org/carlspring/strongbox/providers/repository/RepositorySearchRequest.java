@@ -21,72 +21,72 @@ public class RepositorySearchRequest
         this.repositoryId = repositoryId;
     }
 
-    protected String getStorageId()
+    public String getStorageId()
     {
         return storageId;
     }
 
-    protected void setStorageId(String storageId)
+    public void setStorageId(String storageId)
     {
         this.storageId = storageId;
     }
 
-    protected String getRepositoryId()
+    public String getRepositoryId()
     {
         return repositoryId;
     }
 
-    protected void setRepositoryId(String repositoryId)
+    public void setRepositoryId(String repositoryId)
     {
         this.repositoryId = repositoryId;
     }
 
-    protected Map<String, String> getCoordinates()
+    public Map<String, String> getCoordinates()
     {
         return coordinates;
     }
 
-    protected void setCoordinates(Map<String, String> coordinates)
+    public void setCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
     }
 
-    protected int getSkip()
+    public int getSkip()
     {
         return skip;
     }
 
-    protected void setSkip(int skip)
+    public void setSkip(int skip)
     {
         this.skip = skip;
     }
 
-    protected int getLimit()
+    public int getLimit()
     {
         return limit;
     }
 
-    protected void setLimit(int limit)
+    public void setLimit(int limit)
     {
         this.limit = limit;
     }
 
-    protected String getOrderBy()
+    public String getOrderBy()
     {
         return orderBy;
     }
 
-    protected void setOrderBy(String orderBy)
+    public void setOrderBy(String orderBy)
     {
         this.orderBy = orderBy;
     }
 
-    protected boolean isStrict()
+    public boolean isStrict()
     {
         return strict;
     }
 
-    protected void setStrict(boolean strict)
+    public void setStrict(boolean strict)
     {
         this.strict = strict;
     }

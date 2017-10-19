@@ -12,10 +12,15 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.event.CommonEventListener;
+import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
+import org.carlspring.strongbox.providers.repository.event.RepositorySearchEvent;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import ru.aristar.jnuget.client.NugetClient;
@@ -32,6 +37,8 @@ import ru.aristar.jnuget.rss.PackageFeed;
 public class NugetRepositoryFeatures
         implements RepositoryFeatures
 {
+    
+    private static final Logger logger = LoggerFactory.getLogger(NugetRepositoryFeatures.class);
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -115,4 +122,29 @@ public class NugetRepositoryFeatures
         return configurationManager.getConfiguration();
     }
 
+    @Component
+    public class RepositorySearchEventListener implements CommonEventListener<RepositorySearchEvent> {
+
+        @Override
+        public void handle(RepositorySearchEvent event)
+        {
+            RepositorySearchRequest repositorySearchRequest = event.getEventData();
+            //TODO: construct filter by coordinates
+            Expression filter = null;
+            String searchTerm = null;
+            try
+            {
+                downloadRemoteFeed(repositorySearchRequest.getStorageId(), repositorySearchRequest.getStorageId(), filter,
+                                   searchTerm, null);
+            }
+            catch (RepositoryInitializationException | ArtifactTransportException e)
+            {
+                logger.error(String.format("Failed to fetch Nuget remote feed",
+                                           repositorySearchRequest.getCoordinates()),
+                             e);
+            }
+        }
+        
+    }
+    
 }
