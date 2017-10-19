@@ -7,6 +7,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -61,10 +62,13 @@ public class Maven2LayoutProviderTest
     public void initialize()
             throws Exception
     {
+        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(true);
+
         Repository repository = new Repository(REPOSITORY_RELEASES);
         repository.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repository.setAllowsForceDeletion(true);
-        repository.setIndexingEnabled(true);
+        repository.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repository);
 

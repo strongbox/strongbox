@@ -6,6 +6,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -71,11 +72,14 @@ public class TrashControllerTest
         // - Used by testForceDeleteArtifactNotAllowed()
         // - Forced deletions are not allowed
         // - Has enabled trash
+        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
+
         Repository repositoryWithTrash = new Repository(REPOSITORY_WITH_TRASH);
         repositoryWithTrash.setStorage(storage);
         repositoryWithTrash.setAllowsForceDeletion(false);
         repositoryWithTrash.setTrashEnabled(true);
-        repositoryWithTrash.setIndexingEnabled(false);
+        repositoryWithTrash.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repositoryWithTrash);
 
@@ -88,7 +92,7 @@ public class TrashControllerTest
         Repository repositoryWithForceDeletions = new Repository(REPOSITORY_WITH_FORCE_DELETE);
         repositoryWithForceDeletions.setStorage(storage);
         repositoryWithForceDeletions.setAllowsForceDeletion(false);
-        repositoryWithForceDeletions.setIndexingEnabled(false);
+        repositoryWithForceDeletions.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repositoryWithForceDeletions);
 

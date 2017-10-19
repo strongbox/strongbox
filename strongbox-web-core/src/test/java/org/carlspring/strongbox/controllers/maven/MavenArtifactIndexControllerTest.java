@@ -2,11 +2,10 @@ package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
-import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -33,9 +32,6 @@ public class MavenArtifactIndexControllerTest
 
     private static final String REPOSITORY_RELEASES_2 = "aict-releases-2";
 
-    @Inject
-    private ArtifactSearchService artifactSearchService;
-
 
     @BeforeClass
     public static void cleanUp()
@@ -58,20 +54,21 @@ public class MavenArtifactIndexControllerTest
         // - testRebuildIndexForRepository()
         // - testRebuildIndexesInStorage()
         // - testRebuildIndexesInStorage()
+        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(true);
+
         Repository repository1 = new Repository(REPOSITORY_RELEASES_1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository1.setStorage(configurationManager.getConfiguration()
-                                                   .getStorage(STORAGE_ID));
-        repository1.setIndexingEnabled(true);
+        repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE_ID));
+        repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repository1);
 
         // Used by testRebuildIndexesInStorage()
         Repository repository2 = new Repository(REPOSITORY_RELEASES_2);
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository2.setStorage(configurationManager.getConfiguration()
-                                                   .getStorage(STORAGE_ID));
-        repository2.setIndexingEnabled(true);
+        repository2.setStorage(configurationManager.getConfiguration().getStorage(STORAGE_ID));
+        repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repository2);
     }

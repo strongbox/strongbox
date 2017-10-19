@@ -3,19 +3,13 @@ package org.carlspring.strongbox.xml.parsers;
 import org.carlspring.strongbox.url.ClasspathURLStreamHandler;
 import org.carlspring.strongbox.url.ClasspathURLStreamHandlerFactory;
 import org.carlspring.strongbox.xml.CustomTagService;
+import org.carlspring.strongbox.xml.repository.CustomRepositoryConfigurationTagService;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -61,6 +55,7 @@ public class GenericParser<T>
     public GenericParser()
     {
         this.classes.addAll(CustomTagService.getInstance().getImplementations());
+        this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
     }
 
     public GenericParser(boolean useServiceLoader)
@@ -68,6 +63,7 @@ public class GenericParser<T>
         if (useServiceLoader)
         {
             this.classes.addAll(CustomTagService.getInstance().getImplementations());
+            this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
         }
     }
 
@@ -78,13 +74,16 @@ public class GenericParser<T>
         if (useServiceLoader)
         {
             this.classes.addAll(CustomTagService.getInstance().getImplementations());
+            this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
         }
     }
 
     public GenericParser(Class... classes)
     {
         Collections.addAll(this.classes, classes);
+
         this.classes.addAll(CustomTagService.getInstance().getImplementations());
+        this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
     }
 
     public T parse(File file)

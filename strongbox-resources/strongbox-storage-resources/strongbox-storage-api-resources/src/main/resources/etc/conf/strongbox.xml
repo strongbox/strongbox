@@ -20,10 +20,9 @@
                             layout="Nuget Hierarchical"
                             type="hosted"
                             allows-force-deletion="true"
-                            checksum-headers-enabled="true"
-                            indexing-enabled="false"/>
+                            checksum-headers-enabled="true"/>
                             
-                <repository id="nuget.org" policy="release" implementation="file-system" layout="Nuget Hierarchical" type="proxy" indexing-enabled="false">
+                <repository id="nuget.org" policy="release" implementation="file-system" layout="Nuget Hierarchical" type="proxy">
                     <remote-repository url="https://www.nuget.org/api/v2"/>
                 </repository>
             </repositories>
@@ -32,8 +31,12 @@
         <storage id="storage0">
             <repositories>
                 <!-- Secured repositories do not allow anonymous access -->
-                <repository id="releases" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true" indexing-enabled="true"/>
-                <repository id="snapshots" policy="snapshot" implementation="file-system" layout="Maven 2" type="hosted" secured="true" checksum-headers-enabled="true"/>
+                <repository id="releases" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true">
+                    <maven-repository-configuration indexing-enabled="true" />
+                </repository>
+                <repository id="snapshots" policy="snapshot" implementation="file-system" layout="Maven 2" type="hosted" secured="true" checksum-headers-enabled="true">
+                    <maven-repository-configuration indexing-enabled="true" />
+                </repository>
 
                 <!--
                 <repository id="proxied-releases" policy="release" implementation="proxy" layout="Maven 2" type="proxy">
@@ -52,12 +55,13 @@
 
         <storage id="storage-common-proxies">
             <repositories>
-                <repository id="maven-central" policy="release" implementation="file-system" layout="Maven 2" type="proxy" indexing-enabled="true">
+                <repository id="maven-central" policy="release" implementation="file-system" layout="Maven 2" type="proxy">
                     <remote-repository url="https://repo.maven.apache.org/maven2/"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true"
                                        check-interval-seconds="20" />
+                    <maven-repository-configuration indexing-enabled="true" />
                 </repository>
 
                 <repository id="carlspring" policy="mixed" implementation="file-system" layout="Maven 2" type="proxy">

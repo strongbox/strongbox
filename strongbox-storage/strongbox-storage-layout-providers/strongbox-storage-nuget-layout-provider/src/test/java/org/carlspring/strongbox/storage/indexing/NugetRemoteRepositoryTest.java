@@ -87,8 +87,7 @@ public class NugetRemoteRepositoryTest
 
         Repository repository = new Repository(REPOSITORY_PROXY);
         repository.setStorage(storage);
-        repository.setIndexingEnabled(false);
-        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERACHLICAL.getLayout());
+        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
         repository.setType("proxy");
         repository.setRemoteRepository(new RemoteRepository());
         repository.getRemoteRepository().setUrl("https://www.nuget.org/api/v2");
@@ -104,9 +103,7 @@ public class NugetRemoteRepositoryTest
     {
         for (Repository repository : getRepositoriesToClean())
         {
-            configurationManagementService.removeRepository(repository.getStorage()
-                                                                      .getId(),
-                                                            repository.getId());
+            configurationManagementService.removeRepository(repository.getStorage().getId(), repository.getId());
         }
     }
 
@@ -121,8 +118,11 @@ public class NugetRemoteRepositoryTest
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryFeatures features = layoutProvider.getRepositoryFeatures();
 
-        ((NugetRepositoryFeatures) features).downloadRemoteFeed(storage.getId(), repository.getId(),
-                                                                 new IdEqIgnoreCase("NHibernate"), null, null);
+        ((NugetRepositoryFeatures) features).downloadRemoteFeed(storage.getId(),
+                                                                repository.getId(),
+                                                                new IdEqIgnoreCase("NHibernate"),
+                                                                null,
+                                                                null);
 
         NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates("NHibernate", "4.0.4.4000", "nupkg");
         Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOne(NUGET_COMMON_STORAGE, REPOSITORY_PROXY, c.toPath());

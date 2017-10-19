@@ -49,12 +49,15 @@ public class ArtifactIndexesServiceImpl
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        if (!repository.isIndexingEnabled())
+
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        MavenRepositoryFeatures repositoryFeatures = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
+
+        if (repositoryFeatures.isIndexingEnabled(repository))
         {
             return;
         }
         
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath repostitoryPath = layoutProvider.resolve(repository);
         if (artifactPath != null && artifactPath.trim().length() > 0)
         {
