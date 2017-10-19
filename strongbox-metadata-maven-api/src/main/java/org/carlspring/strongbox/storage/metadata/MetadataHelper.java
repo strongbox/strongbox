@@ -277,7 +277,7 @@ public class MetadataHelper
             case PLUGIN_GROUP_LEVEL:
                 return artifactBasePath.getParent().resolve(MAVEN_METADATA_XML);
             case SNAPSHOT_VERSION_LEVEL:
-                return artifactBasePath.getParent().resolve(version).resolve(MAVEN_METADATA_XML);
+                return artifactBasePath.resolve(version).resolve(MAVEN_METADATA_XML);
             case ARTIFACT_ROOT_LEVEL:
             default:
                 return artifactBasePath.resolve(MAVEN_METADATA_XML);
