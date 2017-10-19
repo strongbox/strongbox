@@ -139,7 +139,7 @@ public class NugetRepositoryFeatures
             }
             catch (RepositoryInitializationException | ArtifactTransportException e)
             {
-                logger.error(String.format("Failed to fetch Nuget remote feed",
+                logger.error(String.format("Failed to fetch Nuget remote feed [%s]",
                                            repositorySearchRequest.getCoordinates()),
                              e);
             }
