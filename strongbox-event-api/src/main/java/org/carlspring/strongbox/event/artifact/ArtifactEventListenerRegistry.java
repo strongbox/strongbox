@@ -352,4 +352,19 @@ public class ArtifactEventListenerRegistry
         dispatchEvent(event);
     }
 
+    public void dispatchArtifactFetchedFromRemoteEvent(String storageId,
+                                                String repositoryId,
+                                                String path)
+    {
+        ArtifactEvent event = new ArtifactEvent(storageId,
+                                                repositoryId,
+                                                path,
+                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_FETCHED_FROM_REMOTE.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_FETCHED_FROM_REMOTE event for " +
+                     storageId + ":" + repositoryId + "/" + path + "...");
+
+        dispatchEvent(event);
+    }
+
 }
