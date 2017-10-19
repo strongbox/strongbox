@@ -48,4 +48,7 @@ public interface UserService
     void verifySecurityToken(String userName,
                              String token);
 
+    User updatePassword(User userToUpdate);
+
+    User updateByUsername(User userToUpdate);
 }

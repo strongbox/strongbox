@@ -1,20 +1,20 @@
 package org.carlspring.strongbox.data.service;
 
-import java.util.*;
+import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
+import java.lang.reflect.Field;
+import java.util.*;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ReflectionUtils;
 
 @Transactional
 public abstract class CommonCrudService<T extends GenericEntity>
@@ -26,18 +26,42 @@ public abstract class CommonCrudService<T extends GenericEntity>
     @PersistenceContext
     protected EntityManager entityManager;
 
+    protected void cascadeEntityIdentification(T entity)
+    {
+        identifyEntity(entity);
 
-    @Override
-    public <S extends T> S save(S entity)
+        for (Field field : entity.getClass().getDeclaredFields())
+        {
+            ReflectionUtils.makeAccessible(field);
+            if (GenericEntity.class.isAssignableFrom(field.getType()))
+            {
+                final GenericEntity subEntity = (GenericEntity) ReflectionUtils.getField(field, entity);
+                if (subEntity != null)
+                {
+                    identifyDbRecordIfPossible(subEntity);
+                }
+            }
+        }
+    }
+
+    protected void identifyEntity(T entity)
     {
         if (entity.getObjectId() == null && entity.getUuid() == null)
         {
             entity.setUuid(UUID.randomUUID().toString());
         }
-        else if (entity.getObjectId() == null && entity.getUuid() != null)
+        else
+        {
+            identifyDbRecordIfPossible(entity);
+        }
+    }
+
+    protected <E extends GenericEntity> void identifyDbRecordIfPossible(E entity)
+    {
+        if (entity.getObjectId() == null && entity.getUuid() != null)
         {
             String sQuery = String.format("SELECT @rid AS objectId FROM %s WHERE uuid = :uuid",
-                                          getEntityClass().getSimpleName());
+                                          entity.getClass().getSimpleName());
 
             OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
             oQuery.setLimit(1);
@@ -53,7 +77,12 @@ public abstract class CommonCrudService<T extends GenericEntity>
                 entity.setObjectId(value.getIdentity().toString());
             }
         }
+    }
 
+    @Override
+    public <S extends T> S save(S entity)
+    {
+        cascadeEntityIdentification(entity);
         return getDelegate().save(entity);
     }
 
@@ -179,7 +208,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
     /**
      * We can get an internal OrientDB transaction API with this, which can be needed to execute some OrientDB queries,
      * for example.
-     * 
+     *
      * @return
      */
     protected OObjectDatabaseTx getDelegate()

@@ -4,9 +4,13 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
@@ -14,10 +18,13 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -26,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author carlspring
@@ -41,6 +48,9 @@ public class ProxyRepositoryProviderTestIT
 
     @Inject
     private ArtifactResolutionService artifactResolutionService;
+
+    @Inject
+    private MavenMetadataManager mavenMetadataManager;
 
     @Before
     public void setUp()
@@ -94,6 +104,65 @@ public class ProxyRepositoryProviderTestIT
 
         mavenOracleRepository.setUsername(initialUsername);
         mavenOracleRepository.setPassword(initialPassword);
+    }
+
+    @Test
+    public void whenDownloadingArtifactMetadaFileShouldAlsoBeResolved()
+            throws Exception
+    {
+        String storageId = "storage-common-proxies";
+        String repositoryId = "maven-central";
+
+        assertStreamNotNull(storageId, repositoryId,
+                            "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
+
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+
+        assertTrue(layoutProvider.containsPath(repository, "org/carlspring/properties-injector/maven-metadata.xml"));
+    }
+
+    @Test
+    public void whenDownloadingArtifactMetadataFileShouldBeMergedWhenExist()
+            throws Exception
+    {
+        String storageId = "storage-common-proxies";
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        // 1. download the artifact and artifactId-level maven metadata-file from maven-central
+        String repositoryId = "maven-central";
+        assertStreamNotNull(storageId, repositoryId, "javax/media/jai_core/1.1.3/jai_core-1.1.3-javadoc.jar");
+
+        // 2. resolve downloaded artifact base path
+        Repository repository = storage.getRepository(repositoryId);
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        final Path mavenCentralArtifactBaseBath = layoutProvider.resolve(repository).resolve("javax/media/jai_core");
+
+        // 3. copy the content to carlspring repository
+        repositoryId = "carlspring";
+        repository = storage.getRepository(repositoryId);
+        final Path carlspringArtifactBaseBath = layoutProvider.resolve(repository).resolve("javax/media/jai_core");
+        FileUtils.copyDirectory(mavenCentralArtifactBaseBath.toFile(), carlspringArtifactBaseBath.toFile());
+
+        // 4. confirm maven-metadata.xml lies in the carlspring repository
+        assertTrue(layoutProvider.containsPath(repository, "javax/media/jai_core/maven-metadata.xml"));
+
+        // 5. confirm some pre-merge state
+        Path artifactBasePath = layoutProvider.resolve(repository).resolve("javax/media/jai_core/");
+        Metadata metadata = mavenMetadataManager.readMetadata(artifactBasePath);
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
+        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.1.2_01"));
+
+        // 6. download the artifact from remote carlspring repository - it contains different maven-metadata.xml file
+        assertStreamNotNull(storageId, repositoryId, "javax/media/jai_core/1.1.3/jai_core-1.1.3.jar");
+
+        // 7. confirm the state of maven-metadata.xml file has changed
+        metadata = mavenMetadataManager.readMetadata(artifactBasePath);
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
+        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.1.2_01"));
+        assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.1.3"));
     }
 
     @Test

@@ -444,7 +444,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             return;
         }
 
-        String repositoryRelativePath = repositoryPath.getRepositoryRelative().toString();
+        String repositoryRelativePath = repositoryPath.getResourceLocation();
         Artifact artifact = ArtifactUtils.convertPathToArtifact(repositoryRelativePath);
 
         File storageBasedir = new File(storage.getBasedir());

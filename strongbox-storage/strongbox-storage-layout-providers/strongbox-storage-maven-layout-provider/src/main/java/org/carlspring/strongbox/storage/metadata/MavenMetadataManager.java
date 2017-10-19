@@ -6,7 +6,6 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
@@ -17,19 +16,14 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.maven.artifact.Artifact;
@@ -65,6 +59,7 @@ public class MavenMetadataManager
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
 
+    private ConcurrentHashMap<String, String> metadataSynchronizationContainer = new ConcurrentHashMap<>();
 
     public MavenMetadataManager()
     {
@@ -384,7 +379,7 @@ public class MavenMetadataManager
             try
             {
                 Metadata metadata = readMetadata(repository, artifact);
-                metadata.merge(mergeMetadata);
+                mergeSynchronized(metadata, mergeMetadata, artifactBasePath);
 
                 Versioning versioning = metadata.getVersioning();
                 if (versioning.getVersions() != null)
@@ -409,6 +404,18 @@ public class MavenMetadataManager
         {
             throw new IOException("Artifact " + artifact.toString() + " does not exist in " +
                                   repository.getStorage().getBasedir() +"/" + repository.getBasedir() + " !");
+        }
+    }
+
+    private void mergeSynchronized(Metadata metadata,
+                                   Metadata mergeMetadata,
+                                   Path artifactBasePath)
+    {
+        final String artifactBasePathAsAbsolutePathString = artifactBasePath.toAbsolutePath().toString();
+        metadataSynchronizationContainer.putIfAbsent(artifactBasePathAsAbsolutePathString, artifactBasePathAsAbsolutePathString);
+        synchronized (metadataSynchronizationContainer.get(artifactBasePathAsAbsolutePathString))
+        {
+            metadata.merge(mergeMetadata);
         }
     }
 

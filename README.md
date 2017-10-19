@@ -46,7 +46,6 @@ Welcome to the Strongbox artifact repository manager's home.
 * [Proxy repositories](https://github.com/strongbox/strongbox/wiki/Repositories#proxy)
 * [Maven Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
 * NuGet repository layout
-* Cron tasks for core functionality
 * Security
   * Expression-based roles and privileges subsystem
 * Web UI

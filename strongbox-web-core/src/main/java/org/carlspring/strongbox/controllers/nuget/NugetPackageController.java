@@ -3,7 +3,6 @@ package org.carlspring.strongbox.controllers.nuget;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,14 +10,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,22 +21,17 @@ import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
-import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,16 +83,7 @@ public class NugetPackageController extends BaseArtifactController
     private ArtifactManagementService nugetArtifactManagementService;
 
     @Inject
-    private UserService userService;
-
-    @Inject
-    private ArtifactEventListenerRegistry artifactEventListenerRegistry;
-
-    @Inject
     private NugetSearchPackageSource packageSource;
-    
-    @Inject
-    private ArtifactEntryService artifactEntryService;
     
     @RequestMapping(path = { "{storageId}/{repositoryId}/{packageId}/{version}" }, method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
@@ -270,7 +251,7 @@ public class NugetPackageController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Storage requires authorization.") })
     @RequestMapping(path = { "{storageId}/{repositoryId}", "greet" }, method = RequestMethod.GET)
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    public ResponseEntity greet()
+    public ResponseEntity<String> greet()
     {
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
