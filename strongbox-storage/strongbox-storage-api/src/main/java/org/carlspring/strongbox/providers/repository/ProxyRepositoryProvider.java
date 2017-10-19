@@ -1,27 +1,18 @@
 package org.carlspring.strongbox.providers.repository;
 
 
-import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 
-import org.carlspring.commons.io.MultipleDigestInputStream;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -31,13 +22,6 @@ import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRe
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -100,15 +84,6 @@ public class ProxyRepositoryProvider
         RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
 
         return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
-    }
-
-    @Override
-    public Iterator<Path> search(Map<String, String> coordinates,
-                                 int skip,
-                                 int top,
-                                 String orderBy)
-    {
-        return null;
     }
     
     @Override
