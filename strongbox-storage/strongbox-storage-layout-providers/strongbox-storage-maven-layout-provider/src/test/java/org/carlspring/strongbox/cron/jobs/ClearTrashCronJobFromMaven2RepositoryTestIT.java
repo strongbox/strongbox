@@ -10,6 +10,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -88,12 +89,15 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     public void initialize()
             throws Exception
     {
+        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
+
         repository1 = new Repository(REPOSITORY_RELEASES_1);
         repository1.setStorage(configurationManager.getConfiguration()
                                                    .getStorage(STORAGE0));
         repository1.setAllowsForceDeletion(false);
         repository1.setTrashEnabled(true);
-        repository1.setIndexingEnabled(false);
+        repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repository1);
 
@@ -105,7 +109,8 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
                                                    .getStorage(STORAGE0));
         repository2.setAllowsForceDeletion(false);
         repository2.setTrashEnabled(true);
-        repository2.setIndexingEnabled(false);
+        repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
+        repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
         createRepository(repository2);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(),
@@ -118,7 +123,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
                                                    .getStorage(STORAGE1));
         repository3.setAllowsForceDeletion(false);
         repository3.setTrashEnabled(true);
-        repository3.setIndexingEnabled(false);
+        repository3.setRepositoryConfiguration(mavenRepositoryConfiguration);
         createRepository(repository3);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_3.getAbsolutePath(),

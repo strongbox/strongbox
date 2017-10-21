@@ -64,12 +64,13 @@ public class TestCaseWithRepository
     {
         for (Repository repository : repositoriesToClean)
         {
-            configurationManagementService.removeRepository(repository.getStorage()
-                                                                      .getId(), repository.getId());
+            configurationManagementService.removeRepository(repository.getStorage().getId(), repository.getId());
+            /*
             if (repository.isIndexingEnabled())
             {
-                // repositoryIndexManager.closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
+                repositoryIndexManager.closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
             }
+            */
         }
     }
 

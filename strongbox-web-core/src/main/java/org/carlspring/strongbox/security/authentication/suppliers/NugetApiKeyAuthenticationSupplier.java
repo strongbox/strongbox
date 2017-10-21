@@ -9,7 +9,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
-import org.carlspring.strongbox.utils.UrlUtils;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -73,7 +73,7 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
             return false;
         }
 
-        return RepositoryLayoutEnum.NUGET_HIERACHLICAL.getLayout().equals(repository.getLayout());
+        return RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout().equals(repository.getLayout());
     }
 
 }

@@ -14,6 +14,8 @@ import org.carlspring.strongbox.cron.exceptions.CronTaskException;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -50,6 +52,9 @@ public class MavenRepositoryManagementStrategy
     @Inject
     private CronJobSchedulerService cronJobSchedulerService;
 
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
+
 
     @Override
     protected void createRepositoryInternal(Storage storage, Repository repository)
@@ -57,10 +62,13 @@ public class MavenRepositoryManagementStrategy
     {
         String storageId = storage.getId();
         String repositoryId = repository.getId();
-        
+
         final File repositoryBasedir = getRepositoryBaseDir(storageId, repositoryId);
 
-        if (repository.isIndexingEnabled())
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        MavenRepositoryFeatures repositoryFeatures = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
+
+        if (repositoryFeatures.isIndexingEnabled(repository))
         {
             if (repository.isProxyRepository())
             {
@@ -197,11 +205,15 @@ public class MavenRepositoryManagementStrategy
 
             final File repositoryBasedir = new File(storage.getBasedir(), repositoryId);
 
-            if (storage.getRepository(repositoryId).isIndexingEnabled())
+            Repository repository = storage.getRepository(repositoryId);
+            LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+            MavenRepositoryFeatures repositoryFeatures = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
+
+            if (repositoryFeatures.isIndexingEnabled(repository))
             {
                 initializeRepositoryIndex(storage, repositoryId, IndexTypeEnum.LOCAL.getType(), repositoryBasedir);
 
-                if (storage.getRepository(repositoryId).isProxyRepository())
+                if (repository.isProxyRepository())
                 {
                     initializeRepositoryIndex(storage, repositoryId, IndexTypeEnum.REMOTE.getType(), repositoryBasedir);
                 }

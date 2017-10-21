@@ -1,8 +1,16 @@
 package org.carlspring.strongbox.controllers.nuget;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.CoreMatchers.equalTo;
+import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,27 +22,17 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
-import org.carlspring.strongbox.data.PropertyUtils;
-import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import ru.aristar.jnuget.files.NugetFormatException;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
  * @author Sergey Bespalov
@@ -82,11 +80,14 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
 
         createStorage(STORAGE_ID);
 
+        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
+
         Repository repository1 = new Repository(REPOSITORY_RELEASES_1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE_ID));
         repository1.setLayout("Nuget Hierarchical");
-        repository1.setIndexingEnabled(false);
+        repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repository1);
     }

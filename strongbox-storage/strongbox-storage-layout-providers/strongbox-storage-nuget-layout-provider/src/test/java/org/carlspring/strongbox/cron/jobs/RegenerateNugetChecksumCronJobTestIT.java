@@ -366,9 +366,8 @@ public class RegenerateNugetChecksumCronJobTestIT
                    RepositoryManagementStrategyException
     {
         Repository repository = new Repository(repositoryId);
-        repository.setIndexingEnabled(indexing);
         repository.setPolicy(policy);
-        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERACHLICAL.getLayout());
+        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
         repository.setStorage(configurationManagementService.getStorage(storageId));
 
         createRepository(repository);

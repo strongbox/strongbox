@@ -19,6 +19,7 @@ import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.*;
@@ -99,11 +100,13 @@ public class MavenArtifactControllerTest
 
         GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
+        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(true);
+
         Repository repository1 = new Repository(REPOSITORY_RELEASES1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository1.setStorage(configurationManager.getConfiguration()
-                                                   .getStorage(STORAGE0));
-        repository1.setIndexingEnabled(true);
+        repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repository1);
 
@@ -167,7 +170,7 @@ public class MavenArtifactControllerTest
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository2.setStorage(configurationManager.getConfiguration()
                                                    .getStorage(STORAGE0));
-        repository2.setIndexingEnabled(true);
+        repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repository2.setAllowsRedeployment(true);
 
         createRepository(repository2);

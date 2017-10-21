@@ -24,7 +24,7 @@ public class NugetSnapshotVersionValidatorTest
             throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.toString());
-        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERACHLICAL.getLayout());
+        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
     }
 
     @Test

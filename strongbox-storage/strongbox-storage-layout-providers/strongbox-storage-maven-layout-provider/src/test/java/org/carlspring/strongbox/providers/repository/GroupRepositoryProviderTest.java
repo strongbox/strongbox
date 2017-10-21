@@ -9,6 +9,7 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -90,13 +91,16 @@ public class GroupRepositoryProviderTest
                                       "com.artifacts.in.releases.two:foo",
                                       "1.2.4");
 
+        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
+
         Repository repositoryGroup = new Repository(REPOSITORY_GROUP);
         repositoryGroup.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
         repositoryGroup.setAllowsForceDeletion(false);
-        repositoryGroup.setIndexingEnabled(false);
+        repositoryGroup.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_1);
         repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_2);
 
@@ -108,7 +112,7 @@ public class GroupRepositoryProviderTest
         repositoryWithNestedGroupLevel1.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel1.setAllowsDelete(false);
         repositoryWithNestedGroupLevel1.setAllowsForceDeletion(false);
-        repositoryWithNestedGroupLevel1.setIndexingEnabled(false);
+        repositoryWithNestedGroupLevel1.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repositoryWithNestedGroupLevel1.addRepositoryToGroup(REPOSITORY_GROUP);
 
         createRepository(repositoryWithNestedGroupLevel1);
@@ -119,7 +123,7 @@ public class GroupRepositoryProviderTest
         repositoryWithNestedGroupLevel2.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel2.setAllowsDelete(false);
         repositoryWithNestedGroupLevel2.setAllowsForceDeletion(false);
-        repositoryWithNestedGroupLevel2.setIndexingEnabled(false);
+        repositoryWithNestedGroupLevel2.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repositoryWithNestedGroupLevel2.addRepositoryToGroup(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
 
         createRepository(repositoryWithNestedGroupLevel2);
