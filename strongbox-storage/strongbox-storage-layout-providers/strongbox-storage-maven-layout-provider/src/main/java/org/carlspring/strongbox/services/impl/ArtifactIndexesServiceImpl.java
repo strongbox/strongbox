@@ -53,7 +53,7 @@ public class ArtifactIndexesServiceImpl
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         MavenRepositoryFeatures repositoryFeatures = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
 
-        if (repositoryFeatures.isIndexingEnabled(repository))
+        if (!repositoryFeatures.isIndexingEnabled(repository))
         {
             return;
         }
