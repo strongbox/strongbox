@@ -93,27 +93,6 @@ public class MavenRepositoryManagementStrategy
         }
     }
 
-    public static boolean shouldDownloadAllRemoteRepositoryIndexes()
-    {
-        return System.getProperty("strongbox.download.indexes") == null ||
-               Boolean.parseBoolean(System.getProperty("strongbox.download.indexes"));
-    }
-
-    public static boolean shouldDownloadRepositoryIndex(String storageId, String repositoryId)
-    {
-        return (System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId) == null ||
-               Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId))) &&
-               isIncludedDespiteWildcard(storageId, repositoryId);
-    }
-
-    public static boolean isIncludedDespiteWildcard(String storageId, String repositoryId)
-    {
-        return // is excluded by wildcard
-               !Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + ".*")) &&
-               // and is explicitly included
-               Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId));
-    }
-
     private void createRemoteIndexDownloaderCronTask(String storageId,
                                                      String repositoryId)
             throws RepositoryManagementStrategyException

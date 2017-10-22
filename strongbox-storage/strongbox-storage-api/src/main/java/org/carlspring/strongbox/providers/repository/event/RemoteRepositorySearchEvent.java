@@ -1,17 +1,16 @@
 package org.carlspring.strongbox.providers.repository.event;
 
 import org.carlspring.strongbox.event.Event;
-import org.carlspring.strongbox.event.CommonEventType;
 import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 
-public class RepositorySearchEvent extends Event
+public class RemoteRepositorySearchEvent extends Event
 {
 
     private RepositorySearchRequest eventData;
 
-    public RepositorySearchEvent(int type, RepositorySearchRequest data)
+    public RemoteRepositorySearchEvent(RepositorySearchRequest data)
     {
-        super(CommonEventType.REPOSITORY_SEARCH_EVENT.getTypeId());
+        super(-1);
         this.eventData = data;
     }
 

@@ -1,7 +1,11 @@
 package org.carlspring.strongbox.event;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.core.GenericTypeResolver;
 
 /**
  * @author carlspring
@@ -9,12 +13,18 @@ import java.util.List;
 public abstract class AbstractEventListenerRegistry
 {
 
-    private List<EventListener<?>> eventListeners = new ArrayList<>();
+    private Map<Class<?>,List<EventListener<?>>> eventListenerMap = new ConcurrentHashMap<>();
 
     
     public <T extends Event> void dispatchEvent(T event)
     {
-        for (EventListener<?> listener : eventListeners)
+    	Class<? extends Event> eventType = event.getClass();
+		List<EventListener<?>> eventListenerList = eventListenerMap.get(eventType);
+		if (eventListenerList == null) 
+		{
+			return;
+		}
+        for (EventListener<?> listener : eventListenerList)
         {
             ((EventListener<T>)listener).handle(event);
         }
@@ -22,22 +32,19 @@ public abstract class AbstractEventListenerRegistry
 
     public <T extends Event> void addListener(EventListener<T> listener)
     {
-        eventListeners.add(listener);
+    	Class<T> eventType = (Class<T>) GenericTypeResolver.resolveTypeArgument(listener.getClass(), EventListener.class);
+		List<EventListener<?>> eventListenerList = eventListenerMap.get(eventType);
+		if (eventListenerList == null) 
+		{
+			eventListenerList = new LinkedList<>();
+			eventListenerMap.putIfAbsent(eventType, eventListenerList);
+		}
+		eventListenerList.add(listener);
     }
 
     public <T extends Event> boolean removeListener(EventListener<T> listener)
     {
-        return eventListeners.remove(listener);
-    }
-
-    public List<EventListener<?>> getEventListeners()
-    {
-        return eventListeners;
-    }
-
-    public void setEventListeners(List<EventListener<?>> eventListeners)
-    {
-        this.eventListeners = eventListeners;
+        return eventListenerMap.values().remove(listener);
     }
 
 }

@@ -16,7 +16,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.event.CommonEventListener;
 import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
-import org.carlspring.strongbox.providers.repository.event.RepositorySearchEvent;
+import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -103,14 +103,14 @@ public class NugetRepositoryFeatures
             PackageFeed packageFeed;
             try
             {
-                packageFeed = nugetClient.getPackages(filter == null ? null : filter.toString(), searchTerm, top,
+                packageFeed = nugetClient.getPackages(filter == null ? null : filter.toString(), searchTerm, top == -1 ? null : top,
                                                       targetFramework, skip);
             }
             catch (IOException | URISyntaxException e)
             {
                 throw new ArtifactTransportException(e);
             }
-            if (packageFeed.getEntries().isEmpty())
+            if (packageFeed == null || packageFeed.getEntries() == null)
             {
                 return false;
             }
@@ -146,10 +146,10 @@ public class NugetRepositoryFeatures
     }
 
     @Component
-    public class RepositorySearchEventListener implements CommonEventListener<RepositorySearchEvent> {
+    public class RepositorySearchEventListener implements CommonEventListener<RemoteRepositorySearchEvent> {
 
         @Override
-        public void handle(RepositorySearchEvent event)
+        public void handle(RemoteRepositorySearchEvent event)
         {
             RepositorySearchRequest repositorySearchRequest = event.getEventData();
             Map<String, String> coordinates = repositorySearchRequest.getCoordinates();
@@ -162,7 +162,7 @@ public class NugetRepositoryFeatures
             
             try
             {
-                downloadRemoteFeed(repositorySearchRequest.getStorageId(), repositorySearchRequest.getStorageId(),
+                downloadRemoteFeed(repositorySearchRequest.getStorageId(), repositorySearchRequest.getRepositoryId(),
                                    filter,
                                    searchTerm, null, repositorySearchRequest.getSkip(),
                                    repositorySearchRequest.getLimit());

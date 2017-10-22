@@ -10,9 +10,11 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.event.CommonEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.slf4j.Logger;
@@ -37,6 +39,9 @@ public class ProxyRepositoryProvider
 
     @Inject
     private HostedRepositoryProvider hostedRepositoryProvider;
+    
+    @Inject
+    private CommonEventListenerRegistry commonEventListenerRegistry;
     
     @PostConstruct
     @Override
@@ -80,6 +85,8 @@ public class ProxyRepositoryProvider
     @Override
     public List<Path> search(RepositorySearchRequest request)
     {
+    	commonEventListenerRegistry.dispatchEvent(new RemoteRepositorySearchEvent(request));
+    	
         return hostedRepositoryProvider.search(request);
     }
     

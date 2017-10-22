@@ -39,7 +39,7 @@ public class NugetRepositoryManagementStrategy
     {
         String storageId = storage.getId();
         String repositoryId = repository.getId();
-
+        
         if (repository.isProxyRepository())
         {
             createRemoteFeedDownloaderCronTask(storageId, repositoryId);
@@ -75,8 +75,16 @@ public class NugetRepositoryManagementStrategy
                                                     String repositoryId)
         throws RepositoryManagementStrategyException
     {
+    	boolean shouldDownloadIndexes = shouldDownloadAllRemoteRepositoryIndexes();
+        boolean shouldDownloadRepositoryIndex = shouldDownloadRepositoryIndex(storageId, repositoryId);
+
+        if (shouldDownloadIndexes || shouldDownloadRepositoryIndex)
+        {
+        	return;
+        }
+    	
         CronTaskConfiguration configuration = new CronTaskConfiguration();
-        configuration.setName("Remote index download for " + storageId + ":" + repositoryId);
+        configuration.setName("Remote feed download for " + storageId + ":" + repositoryId);
         configuration.addProperty("jobClass", DownloadRemoteFeedCronJob.class.getName());
         configuration.addProperty("cronExpression", "0 0 0 * * ?"); // Execute once daily at 00:00:00
         configuration.addProperty("storageId", storageId);
