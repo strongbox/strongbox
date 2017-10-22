@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
@@ -162,9 +164,7 @@ public class MavenMetadataManager
             throws IOException, NoSuchAlgorithmException
     {
         final String artifactBasePathAsAbsolutePathString = artifactBasePath.toAbsolutePath().toString();
-        metadataSynchronizationContainer.putIfAbsent(artifactBasePathAsAbsolutePathString,
-                                                     artifactBasePathAsAbsolutePathString);
-        synchronized (metadataSynchronizationContainer.get(artifactBasePathAsAbsolutePathString))
+        synchronized (getMetadataSynchronizationLock(artifactBasePathAsAbsolutePathString))
         {
             FileUtils.deleteIfExists(metadataFile);
 
@@ -411,11 +411,16 @@ public class MavenMetadataManager
                                    Path artifactBasePath)
     {
         final String artifactBasePathAsAbsolutePathString = artifactBasePath.toAbsolutePath().toString();
-        metadataSynchronizationContainer.putIfAbsent(artifactBasePathAsAbsolutePathString, artifactBasePathAsAbsolutePathString);
-        synchronized (metadataSynchronizationContainer.get(artifactBasePathAsAbsolutePathString))
+        synchronized (getMetadataSynchronizationLock(artifactBasePathAsAbsolutePathString))
         {
             metadata.merge(mergeMetadata);
         }
+    }
+
+    private String getMetadataSynchronizationLock(String artifactBasePathAsAbsolutePathString) {
+        artifactBasePathAsAbsolutePathString = FilenameUtils.normalizeNoEndSeparator(artifactBasePathAsAbsolutePathString);
+        metadataSynchronizationContainer.putIfAbsent(artifactBasePathAsAbsolutePathString, artifactBasePathAsAbsolutePathString);
+        return metadataSynchronizationContainer.get(artifactBasePathAsAbsolutePathString);
     }
 
 }

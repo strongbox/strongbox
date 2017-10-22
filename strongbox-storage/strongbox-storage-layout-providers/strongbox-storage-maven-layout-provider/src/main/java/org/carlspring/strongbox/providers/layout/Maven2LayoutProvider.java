@@ -38,6 +38,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.index.ArtifactInfo;
@@ -276,6 +277,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         try
         {
             RepositoryPath artifactPath = resolve(repository).resolve(path);
+            RepositoryPath artifactBasePath = artifactPath;
+            RepositoryPath artifactIdLevelPath = artifactBasePath.getParent();
+
             RepositoryFileAttributes artifactFileAttributes = (RepositoryFileAttributes) Files.readAttributes(
                     artifactPath, BasicFileAttributes.class);
 
@@ -292,26 +296,26 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                                  pomPath.getParent().getFileName().toString();
 
                 deleteMetadataAtVersionLevel(artifactPath, version);
+
+                artifactBasePath = artifactBasePath.getParent();
+                artifactIdLevelPath = artifactIdLevelPath.getParent();
             }
-            else
+
+            // This is at the artifact level
+            try (Stream<Path> pathStream = Files.list(artifactIdLevelPath))
             {
-                // This is at the artifact level
-                try (Stream<Path> pathStream = Files.list(artifactPath.getParent()))
+                Path mavenMetadataPath = pathStream.filter(p -> p.getFileName()
+                                                                 .toString()
+                                                                 .endsWith("maven-metadata.xml"))
+                                                   .findFirst()
+                                                   .orElse(null);
+
+                if (mavenMetadataPath != null)
                 {
-                    Path mavenMetadataPath = pathStream.filter(p -> p.getFileName()
-                                                                     .toString()
-                                                                     .endsWith("maven-metadata.xml"))
-                                                       .findFirst()
-                                                       .orElse(null);
+                    String version = FilenameUtils.getName(artifactBasePath.toString());
 
-                    if (mavenMetadataPath != null)
-                    {
-                        String version = path.substring(path.lastIndexOf('/') + 1, path.length());
-
-                        deleteMetadataAtArtifactLevel((RepositoryPath) mavenMetadataPath.getParent(), version);
-                    }
+                    deleteMetadataAtArtifactLevel((RepositoryPath) mavenMetadataPath.getParent(), version);
                 }
-
             }
         }
         catch (IOException | NoSuchAlgorithmException | XmlPullParserException e)
