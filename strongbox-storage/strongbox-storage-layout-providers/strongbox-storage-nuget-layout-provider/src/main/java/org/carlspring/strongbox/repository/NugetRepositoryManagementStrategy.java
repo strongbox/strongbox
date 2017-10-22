@@ -75,12 +75,12 @@ public class NugetRepositoryManagementStrategy
                                                     String repositoryId)
         throws RepositoryManagementStrategyException
     {
-    	boolean shouldDownloadIndexes = shouldDownloadAllRemoteRepositoryIndexes();
+        boolean shouldDownloadIndexes = shouldDownloadAllRemoteRepositoryIndexes();
         boolean shouldDownloadRepositoryIndex = shouldDownloadRepositoryIndex(storageId, repositoryId);
 
         if (shouldDownloadIndexes || shouldDownloadRepositoryIndex)
         {
-        	return;
+            return;
         }
     	
         CronTaskConfiguration configuration = new CronTaskConfiguration();

@@ -34,27 +34,27 @@ import ru.aristar.jnuget.sources.AbstractPackageSource;
 public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(NugetSearchPackageSource.class); 
-    
+    private static final Logger logger = LoggerFactory.getLogger(NugetSearchPackageSource.class);
+
     private String searchTerm;
 
     private String storageId;
-    
+
     private String repositoryId;
-    
+
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
-    
+
     private String orderBy = "id";
-    
+
     public NugetSearchPackageSource(String storageId,
                                     String repositoryId,
                                     String searchTerm)
     {
-        setSearchTerm(searchTerm);;
+        setSearchTerm(searchTerm);
         setStorageId(storageId);
         setRepositoryId(repositoryId);
     }
@@ -98,7 +98,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
     {
         this.orderBy = orderBy;
     }
-    
+
     protected String getOrderBy()
     {
         return orderBy;
@@ -113,7 +113,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         {
             coordinates.put("id", searchTerm + "%");
         }
-        
+
         return doSearch(coordinates, false);
     }
 
@@ -135,11 +135,15 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
 
     public Nupkg createPackage(RepositoryPath repositoryPath)
     {
-        try {
-			return new PathNupkg(repositoryPath);
-		} catch (NugetFormatException | IOException e) {
-			throw new RuntimeException(String.format("Failed to create Nupkg file for [%s]", repositoryPath.toString()), e);
-		}
+        try
+        {
+            return new PathNupkg(repositoryPath);
+        }
+        catch (NugetFormatException | IOException e)
+        {
+            throw new RuntimeException(String.format("Failed to create Nupkg file for [%s]", repositoryPath.toString()),
+                    e);
+        }
     }
 
     @Override
@@ -155,7 +159,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         Map<String, String> coordinates = new HashMap<>();
         coordinates.put("extension", "nupkg");
         coordinates.put("id", id);
-        
+
         return doSearch(coordinates, true);
     }
 
@@ -175,27 +179,28 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         coordinates.put("extension", "nupkg");
         coordinates.put("id", id);
         coordinates.put("version", version.toString());
-        
+
         List<Nupkg> packageList = doSearch(coordinates, true);
-		
+
         return packageList.isEmpty() ? null : packageList.iterator().next();
     }
 
-	private List<Nupkg> doSearch(Map<String, String> coordinates, boolean strict) 
-	{
+    private List<Nupkg> doSearch(Map<String, String> coordinates,
+                                 boolean strict)
+    {
         Storage storage = layoutProviderRegistry.getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        
+
         RepositorySearchRequest searchRequest = new RepositorySearchRequest(storageId, repositoryId);
         searchRequest.setStrict(strict);
         searchRequest.setCoordinates(coordinates);
-        
+
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-		List<Path> searchResult = repositoryProvider.search(searchRequest);
-        
-		List<Nupkg> packageList = createPackageList(searchResult);
-		return packageList;
-	}
+        List<Path> searchResult = repositoryProvider.search(searchRequest);
+
+        List<Nupkg> packageList = createPackageList(searchResult);
+        return packageList;
+    }
 
     @Override
     public void removePackage(Nupkg nupkg)

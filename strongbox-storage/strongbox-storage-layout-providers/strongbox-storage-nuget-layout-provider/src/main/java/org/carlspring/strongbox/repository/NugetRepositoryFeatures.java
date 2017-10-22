@@ -44,7 +44,7 @@ import ru.aristar.jnuget.rss.PackageFeed;
 public class NugetRepositoryFeatures
         implements RepositoryFeatures
 {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(NugetRepositoryFeatures.class);
 
     @Inject
@@ -77,7 +77,7 @@ public class NugetRepositoryFeatures
             }
         }
     }
-    
+
     public boolean downloadRemoteFeed(String storageId,
                                       String repositoryId,
                                       Expression filter,
@@ -103,7 +103,8 @@ public class NugetRepositoryFeatures
             PackageFeed packageFeed;
             try
             {
-                packageFeed = nugetClient.getPackages(filter == null ? null : filter.toString(), searchTerm, top == -1 ? null : top,
+                packageFeed = nugetClient.getPackages(filter == null ? null : filter.toString(), searchTerm,
+                                                      top == -1 ? null : top,
                                                       targetFramework, skip);
             }
             catch (IOException | URISyntaxException e)
@@ -146,7 +147,8 @@ public class NugetRepositoryFeatures
     }
 
     @Component
-    public class RepositorySearchEventListener implements CommonEventListener<RemoteRepositorySearchEvent> {
+    public class RepositorySearchEventListener implements CommonEventListener<RemoteRepositorySearchEvent>
+    {
 
         @Override
         public void handle(RemoteRepositorySearchEvent event)
@@ -155,11 +157,11 @@ public class NugetRepositoryFeatures
             Map<String, String> coordinates = repositorySearchRequest.getCoordinates();
             String packageId = coordinates.get(NugetArtifactCoordinates.ID);
             String version = coordinates.get(NugetArtifactCoordinates.VERSION);
-            
+
             Expression filter = repositorySearchRequest.isStrict() ? createPackageEq(packageId, null) : null;
             filter = createVersionEq(version, filter);
             String searchTerm = !repositorySearchRequest.isStrict() ? packageId : null;
-            
+
             try
             {
                 downloadRemoteFeed(repositorySearchRequest.getStorageId(), repositorySearchRequest.getRepositoryId(),
@@ -174,7 +176,7 @@ public class NugetRepositoryFeatures
                              e);
             }
         }
-      
+
     }
 
     public static Expression createVersionEq(String version,

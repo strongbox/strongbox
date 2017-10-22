@@ -21,5 +21,4 @@ public class CommonEventListenerRegistry extends AbstractEventListenerRegistry
         eventListenerList.forEach(this::addListener);
     }
 
-    
 }
