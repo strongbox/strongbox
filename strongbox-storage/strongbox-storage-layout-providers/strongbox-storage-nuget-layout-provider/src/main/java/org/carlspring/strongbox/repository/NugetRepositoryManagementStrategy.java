@@ -78,7 +78,7 @@ public class NugetRepositoryManagementStrategy
         boolean shouldDownloadIndexes = shouldDownloadAllRemoteRepositoryIndexes();
         boolean shouldDownloadRepositoryIndex = shouldDownloadRepositoryIndex(storageId, repositoryId);
 
-        if (shouldDownloadIndexes || shouldDownloadRepositoryIndex)
+        if (shouldDownloadIndexes && shouldDownloadRepositoryIndex)
         {
             return;
         }
