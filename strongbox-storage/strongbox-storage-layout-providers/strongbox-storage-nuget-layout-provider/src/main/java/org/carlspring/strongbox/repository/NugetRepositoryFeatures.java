@@ -71,7 +71,7 @@ public class NugetRepositoryFeatures
     {
         for (int i = 0; true; i++)
         {
-            if (!downloadRemoteFeed(storageId, repositoryId, filter, searchTerm, targetFramework, 100, i * 100))
+            if (!downloadRemoteFeed(storageId, repositoryId, filter, searchTerm, targetFramework, i * 100, 100))
             {
                 break;
             }
