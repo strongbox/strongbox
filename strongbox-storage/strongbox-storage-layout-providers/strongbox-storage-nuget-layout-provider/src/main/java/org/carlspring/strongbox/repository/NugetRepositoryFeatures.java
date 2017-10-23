@@ -111,7 +111,7 @@ public class NugetRepositoryFeatures
             {
                 throw new ArtifactTransportException(e);
             }
-            if (packageFeed == null || packageFeed.getEntries() == null)
+            if (packageFeed == null || packageFeed.getEntries() == null || packageFeed.getEntries().size() == 0)
             {
                 return false;
             }
