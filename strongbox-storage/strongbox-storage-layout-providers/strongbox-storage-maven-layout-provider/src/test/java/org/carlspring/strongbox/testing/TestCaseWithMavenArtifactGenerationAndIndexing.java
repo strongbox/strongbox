@@ -43,21 +43,6 @@ import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiFields;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.util.Bits;
-import org.apache.maven.index.ArtifactInfo;
-import org.apache.maven.index.context.IndexUtils;
-import org.apache.maven.index.context.IndexingContext;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,6 +192,10 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
             generateArtifact(repositoryBaseDir, ga + ":" + version + ":jar");
         }
 
+        Repository repository = configurationManagementService.getConfiguration()
+                .getStorage(storageId)
+                .getRepository(repositoryId);
+        
         if (features.isIndexingEnabled(repository))
         {
             features.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/").replaceAll("\\:", "\\/"));
@@ -219,6 +208,10 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                         String path)
             throws IOException
     {
+        Repository repository = configurationManagementService.getConfiguration()
+                .getStorage(storageId)
+                .getRepository(repositoryId);
+
         if (features.isIndexingEnabled(repository))
         {
             features.reIndex(storageId, repositoryId, path != null ? path : ".");
@@ -229,6 +222,10 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                           String repositoryId)
             throws IOException
     {
+        Repository repository = configurationManagementService.getConfiguration()
+                .getStorage(storageId)
+                .getRepository(repositoryId);
+
         if (features.isIndexingEnabled(repository))
         {
             features.pack(storageId, repositoryId);
