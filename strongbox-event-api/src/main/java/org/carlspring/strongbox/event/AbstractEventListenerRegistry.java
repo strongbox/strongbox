@@ -37,8 +37,8 @@ public abstract class AbstractEventListenerRegistry
         List<EventListener<?>> eventListenerList = eventListenerMap.get(eventType);
         if (eventListenerList == null)
         {
-            eventListenerList = new LinkedList<>();
-            eventListenerMap.putIfAbsent(eventType, eventListenerList);
+            eventListenerMap.putIfAbsent(eventType, new LinkedList<>());
+            eventListenerList = eventListenerMap.get(eventType);
         }
         eventListenerList.add(listener);
     }
