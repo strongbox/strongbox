@@ -111,7 +111,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         coordinates.put("extension", "nupkg");
         if (searchTerm != null && !searchTerm.trim().isEmpty())
         {
-            coordinates.put("id", searchTerm + "%");
+            coordinates.put("id", searchTerm);
         }
 
         return doSearch(coordinates, false);

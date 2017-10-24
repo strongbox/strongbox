@@ -44,6 +44,11 @@ public interface ArtifactEntryService
                                           String orderBy,
                                           boolean strict);
     
+    Long countByCoordinates(String storageId,
+                            String repositoryId,
+                            Map<String, String> coordinates,
+                            boolean strict);
+    
     boolean exists(String storageId, String repositoryId, String path);
     
     Optional<ArtifactEntry> findOne(String storageId, String repositoryId, String path);

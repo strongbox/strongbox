@@ -1,20 +1,23 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
-import javax.inject.Inject;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
 
 /**
  * Functional test and usage example scenarios for {@link ArtifactEntryService}.
@@ -107,6 +110,9 @@ public class ArtifactEntryServiceTest
                            assertEquals(artifactId, artifactEntry.getArtifactCoordinates().getCoordinate("artifactId"));
                        });
 
+        Long c = artifactEntryService.countByCoordinates(storageId, repositoryId, query.getCoordinates(), true);
+        assertEquals(Long.valueOf(1), c);
+        
         artifactEntryService.deleteAll();
     }
 
