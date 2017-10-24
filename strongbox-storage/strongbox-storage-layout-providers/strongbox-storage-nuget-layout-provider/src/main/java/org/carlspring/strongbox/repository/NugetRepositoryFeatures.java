@@ -118,7 +118,8 @@ public class NugetRepositoryFeatures
             Set<NugetHierarchicalArtifactCoordinates> artifactToSaveSet = new HashSet<>();
             for (PackageEntry packageEntry : packageFeed.getEntries())
             {
-                String packageId = packageEntry.getTitle();
+                String packageId = packageEntry.getProperties().getId();
+                packageId = packageId == null ? packageEntry.getTitle() : packageId;
                 String packageVersion = packageEntry.getProperties().getVersion().toString();
 
                 NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates(packageId,

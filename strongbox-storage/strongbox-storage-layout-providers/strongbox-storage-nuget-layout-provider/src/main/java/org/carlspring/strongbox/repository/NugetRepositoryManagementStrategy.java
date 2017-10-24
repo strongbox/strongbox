@@ -95,8 +95,6 @@ public class NugetRepositoryManagementStrategy
         try
         {
             cronTaskConfigurationService.saveConfiguration(configuration);
-
-            // Run the scheduled task once, immediately, so that the remote's index would become available
             cronJobSchedulerService.executeJob(configuration);
         }
         catch (ClassNotFoundException | SchedulerException | CronTaskException | InstantiationException
