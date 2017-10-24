@@ -15,10 +15,12 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Przemyslaw Fusik
  */
+@Component
 public class MavenGroupRepositoryComponent
 {
 

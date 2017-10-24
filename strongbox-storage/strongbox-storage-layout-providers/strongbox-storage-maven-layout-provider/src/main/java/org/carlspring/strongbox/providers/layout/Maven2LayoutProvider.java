@@ -51,16 +51,15 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component("maven2LayoutProvider")
-public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCoordinates,
-                                                                 MavenRepositoryFeatures,
-                                                                 MavenRepositoryManagementStrategy>
-                                  implements RepositoryPathHandler
+public class Maven2LayoutProvider
+        extends AbstractLayoutProvider<MavenArtifactCoordinates,
+                                              MavenRepositoryFeatures,
+                                              MavenRepositoryManagementStrategy>
+        implements RepositoryPathHandler
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
-
     public static final String ALIAS = "Maven 2";
-
+    private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
     @Inject
     private MavenMetadataManager mavenMetadataManager;
 
@@ -211,7 +210,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         final RepositoryIndexer indexer = getRepositoryIndexer(path);
         if (indexer != null)
         {
-            String extension = path.getFileName().toString().substring(path.getFileName().toString().lastIndexOf('.') + 1);
+            String extension = path.getFileName().toString().substring(
+                    path.getFileName().toString().lastIndexOf('.') + 1);
 
             MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) a.getCoordinates();
 
@@ -279,42 +279,60 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             RepositoryPath artifactPath = resolve(repository).resolve(path);
             RepositoryPath artifactBasePath = artifactPath;
             RepositoryPath artifactIdLevelPath = artifactBasePath.getParent();
+            boolean onArtifactFileLevel = false;
 
-            RepositoryFileAttributes artifactFileAttributes = (RepositoryFileAttributes) Files.readAttributes(
-                    artifactPath, BasicFileAttributes.class);
-
-            if (!artifactFileAttributes.isDirectory())
+            if (Files.exists(artifactPath))
             {
-                // This is at the version level
-                Path pomPath = Files.list(artifactPath.getParent())
-                                    .filter(p -> p.getFileName().toString().endsWith(".pom"))
-                                    .findFirst()
-                                    .orElse(null);
 
-                String version = ArtifactUtils.convertPathToArtifact(path).getVersion() != null ?
-                                 ArtifactUtils.convertPathToArtifact(path).getVersion() :
-                                 pomPath.getParent().getFileName().toString();
+                RepositoryFileAttributes artifactFileAttributes = (RepositoryFileAttributes) Files.readAttributes(
+                        artifactPath, BasicFileAttributes.class);
 
-                deleteMetadataAtVersionLevel(artifactPath, version);
+                if (!artifactFileAttributes.isDirectory())
+                {
+                    // This is at the version level
+                    Path pomPath = Files.list(artifactPath.getParent())
+                                        .filter(p -> p.getFileName().toString().endsWith(".pom"))
+                                        .findFirst()
+                                        .orElse(null);
 
+                    String version = ArtifactUtils.convertPathToArtifact(path).getVersion() != null ?
+                                     ArtifactUtils.convertPathToArtifact(path).getVersion() :
+                                     pomPath.getParent().getFileName().toString();
+
+                    deleteMetadataAtVersionLevel(artifactPath, version);
+
+                    onArtifactFileLevel = true;
+                }
+            }
+            else
+            {
+                onArtifactFileLevel = true;
+            }
+
+            if (onArtifactFileLevel)
+            {
                 artifactBasePath = artifactBasePath.getParent();
                 artifactIdLevelPath = artifactIdLevelPath.getParent();
             }
 
-            // This is at the artifact level
-            try (Stream<Path> pathStream = Files.list(artifactIdLevelPath))
+
+            if (Files.exists(artifactIdLevelPath))
             {
-                Path mavenMetadataPath = pathStream.filter(p -> p.getFileName()
-                                                                 .toString()
-                                                                 .endsWith("maven-metadata.xml"))
-                                                   .findFirst()
-                                                   .orElse(null);
-
-                if (mavenMetadataPath != null)
+                // This is at the artifact level
+                try (Stream<Path> pathStream = Files.list(artifactIdLevelPath))
                 {
-                    String version = FilenameUtils.getName(artifactBasePath.toString());
+                    Path mavenMetadataPath = pathStream.filter(p -> p.getFileName()
+                                                                     .toString()
+                                                                     .endsWith("maven-metadata.xml"))
+                                                       .findFirst()
+                                                       .orElse(null);
 
-                    deleteMetadataAtArtifactLevel((RepositoryPath) mavenMetadataPath.getParent(), version);
+                    if (mavenMetadataPath != null)
+                    {
+                        String version = FilenameUtils.getName(artifactBasePath.toString());
+
+                        deleteMetadataAtArtifactLevel((RepositoryPath) mavenMetadataPath.getParent(), version);
+                    }
                 }
             }
         }
@@ -325,7 +343,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         }
     }
 
-    public void deleteMetadataAtVersionLevel(RepositoryPath artifactVersionPath, String version)
+    public void deleteMetadataAtVersionLevel(RepositoryPath artifactVersionPath,
+                                             String version)
             throws IOException,
                    NoSuchAlgorithmException,
                    XmlPullParserException
@@ -348,7 +367,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         }
     }
 
-    public void deleteMetadataAtArtifactLevel(RepositoryPath artifactPath, String version)
+    public void deleteMetadataAtArtifactLevel(RepositoryPath artifactPath,
+                                              String version)
             throws IOException,
                    NoSuchAlgorithmException,
                    XmlPullParserException
@@ -421,14 +441,14 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
     @Override
     public void postProcess(RepositoryPath repositoryPath)
-        throws IOException
+            throws IOException
     {
         Boolean artifactAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.ARTIFACT);
         if (!Boolean.TRUE.equals(artifactAttribute))
         {
             return;
         }
-        
+
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
 
