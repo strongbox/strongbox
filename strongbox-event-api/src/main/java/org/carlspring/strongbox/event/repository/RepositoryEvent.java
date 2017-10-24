@@ -13,19 +13,15 @@ public class RepositoryEvent extends RepositoryBasedEvent
                            String path,
                            int type)
     {
-        setStorageId(storageId);
-        setRepositoryId(repositoryId);
+        super(storageId, repositoryId, type);
         setPath(path);
-        setType(type);
     }
 
     public RepositoryEvent(String storageId,
                            String repositoryId,
                            int type)
     {
-        setType(type);
-        setStorageId(storageId);
-        setRepositoryId(repositoryId);
+        super(storageId, repositoryId, type);
     }
 
 }

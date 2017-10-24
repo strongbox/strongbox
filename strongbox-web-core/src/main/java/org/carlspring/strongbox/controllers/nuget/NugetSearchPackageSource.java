@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.nuget;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,12 +10,12 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.providers.repository.RepositoryProvider;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
 import ru.aristar.jnuget.Version;
+import ru.aristar.jnuget.files.NugetFormatException;
 import ru.aristar.jnuget.files.Nupkg;
 import ru.aristar.jnuget.sources.AbstractPackageSource;
 
@@ -32,27 +34,27 @@ import ru.aristar.jnuget.sources.AbstractPackageSource;
 public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(NugetSearchPackageSource.class); 
-    
+    private static final Logger logger = LoggerFactory.getLogger(NugetSearchPackageSource.class);
+
     private String searchTerm;
 
     private String storageId;
-    
+
     private String repositoryId;
-    
-    @Inject
-    private ArtifactEntryService artifactEntryService;
-    
+
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
+    @Inject
+    private RepositoryProviderRegistry repositoryProviderRegistry;
+
     private String orderBy = "id";
-    
+
     public NugetSearchPackageSource(String storageId,
                                     String repositoryId,
                                     String searchTerm)
     {
-        setSearchTerm(searchTerm);;
+        setSearchTerm(searchTerm);
         setStorageId(storageId);
         setRepositoryId(repositoryId);
     }
@@ -96,7 +98,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
     {
         this.orderBy = orderBy;
     }
-    
+
     protected String getOrderBy()
     {
         return orderBy;
@@ -109,20 +111,18 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         coordinates.put("extension", "nupkg");
         if (searchTerm != null && !searchTerm.trim().isEmpty())
         {
-            coordinates.put("id", searchTerm + "%");
+            coordinates.put("id", searchTerm);
         }
-        
-        List<ArtifactEntry> searchResultList = artifactEntryService.findByCoordinates(storageId, repositoryId, coordinates, orderBy, false);
-        
-        return createPackageList(searchResultList);
+
+        return doSearch(coordinates, false);
     }
 
-    public List<Nupkg> createPackageList(List<ArtifactEntry> searchResultList)
+    public List<Nupkg> createPackageList(List<Path> artifactPathList)
     {
         List<Nupkg> result = new ArrayList<>();
-        for (ArtifactEntry searchResult : searchResultList)
+        for (Path artifactPath : artifactPathList)
         {
-            Nupkg nupkg = createPackage(searchResult);
+            Nupkg nupkg = createPackage((RepositoryPath) artifactPath);
             if (nupkg == null)
             {
                 continue;
@@ -133,22 +133,17 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         return result;
     }
 
-    public Nupkg createPackage(ArtifactEntry searchResult)
+    public Nupkg createPackage(RepositoryPath repositoryPath)
     {
-        ArtifactCoordinates artifactCoordinates = searchResult.getArtifactCoordinates();
-        Storage storage = layoutProviderRegistry.getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-        LayoutProvider provider = layoutProviderRegistry.getProvider(repository.getLayout());
         try
         {
-            return new PathNupkg(provider.resolve(repository, artifactCoordinates));
+            return new PathNupkg(repositoryPath);
         }
-        catch (IOException e)
+        catch (NugetFormatException | IOException e)
         {
-            logger.error(String.format("Failed to resolve package RepositoryPath for [%s]",
-                                       artifactCoordinates.toPath()));
+            throw new RuntimeException(String.format("Failed to create Nupkg file for [%s]", repositoryPath.toString()),
+                    e);
         }
-        return null;
     }
 
     @Override
@@ -164,10 +159,8 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         Map<String, String> coordinates = new HashMap<>();
         coordinates.put("extension", "nupkg");
         coordinates.put("id", id);
-        
-        List<ArtifactEntry> searchResultList = artifactEntryService.findByCoordinates(storageId, repositoryId, coordinates, orderBy, true);
-        
-        return createPackageList(searchResultList);
+
+        return doSearch(coordinates, true);
     }
 
     @Override
@@ -186,11 +179,27 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         coordinates.put("extension", "nupkg");
         coordinates.put("id", id);
         coordinates.put("version", version.toString());
-        
-        List<ArtifactEntry> searchResultList = artifactEntryService.findByCoordinates(storageId, repositoryId, coordinates);
-        List<Nupkg> result = createPackageList(searchResultList);
-        
-        return result.isEmpty() ? null : result.iterator().next();
+
+        List<Nupkg> packageList = doSearch(coordinates, true);
+
+        return packageList.isEmpty() ? null : packageList.iterator().next();
+    }
+
+    private List<Nupkg> doSearch(Map<String, String> coordinates,
+                                 boolean strict)
+    {
+        Storage storage = layoutProviderRegistry.getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        RepositorySearchRequest searchRequest = new RepositorySearchRequest(storageId, repositoryId);
+        searchRequest.setStrict(strict);
+        searchRequest.setCoordinates(coordinates);
+
+        RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+        List<Path> searchResult = repositoryProvider.search(searchRequest);
+
+        List<Nupkg> packageList = createPackageList(searchResult);
+        return packageList;
     }
 
     @Override

@@ -25,9 +25,6 @@ public class ArtifactEvent extends RepositoryBasedEvent
     private String destinationRepositoryId;
 
 
-    public ArtifactEvent()
-    {
-    }
 
     public ArtifactEvent(String storageId,
                          String repositoryId,
@@ -35,7 +32,6 @@ public class ArtifactEvent extends RepositoryBasedEvent
                          int type)
     {
         super(storageId, repositoryId, type);
-
         setPath(path);
     }
 
@@ -46,12 +42,10 @@ public class ArtifactEvent extends RepositoryBasedEvent
                          String path,
                          int type)
     {
-        setStorageId(srcStorageId);
-        setRepositoryId(srcRepositoryId);
+        super(srcStorageId, srcRepositoryId, type);
         setDestinationStorageId(destStorageId);
         setDestinationRepositoryId(destRepositoryId);
         setPath(path);
-        setType(type);
     }
 
     public String getDestinationStorageId()

@@ -85,6 +85,7 @@
                         <logging.config.file>${project.build.directory}/strongbox/etc/logback.xml</logging.config.file>
                         <java.io.tmpdir>${dir.strongbox.vault}/tmp</java.io.tmpdir>
                         <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
+                        <strongbox.download.indexes>false</strongbox.download.indexes>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

@@ -115,8 +115,6 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     boolean isChecksum(RepositoryPath path);
 
-    RepositoryFeatures getRepositoryFeatures();
-
     RepositoryManagementStrategy getRepositoryManagementStrategy();
 
     ArtifactManagementService getArtifactManagementService();

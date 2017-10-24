@@ -1,43 +1,51 @@
 package org.carlspring.strongbox.event;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.core.GenericTypeResolver;
 
 /**
  * @author carlspring
  */
-public abstract class AbstractEventListenerRegistry<T extends Event>
+public abstract class AbstractEventListenerRegistry
 {
 
-    private List<EventListener> eventListeners = new ArrayList<>();
+    private Map<Class<?>,List<EventListener<?>>> eventListenerMap = new ConcurrentHashMap<>();
 
     
-    public void dispatchEvent(T event)
+    public <T extends Event> void dispatchEvent(T event)
     {
-        for (EventListener listener : eventListeners)
+        Class<? extends Event> eventType = event.getClass();
+        List<EventListener<?>> eventListenerList = eventListenerMap.get(eventType);
+        if (eventListenerList == null)
         {
-            listener.handle(event);
+            return;
+        }
+        for (EventListener<?> listener : eventListenerList)
+        {
+            ((EventListener<T>) listener).handle(event);
         }
     }
 
-    public void addListener(EventListener listener)
+    public <T extends Event> void addListener(EventListener<T> listener)
     {
-        eventListeners.add(listener);
+        Class<T> eventType = (Class<T>) GenericTypeResolver.resolveTypeArgument(listener.getClass(),
+                                                                                EventListener.class);
+        List<EventListener<?>> eventListenerList = eventListenerMap.get(eventType);
+        if (eventListenerList == null)
+        {
+            eventListenerMap.putIfAbsent(eventType, new LinkedList<>());
+            eventListenerList = eventListenerMap.get(eventType);
+        }
+        eventListenerList.add(listener);
     }
 
-    public boolean removeListener(EventListener listener)
+    public <T extends Event> boolean removeListener(EventListener<T> listener)
     {
-        return eventListeners.remove(listener);
-    }
-
-    public List<EventListener> getEventListeners()
-    {
-        return eventListeners;
-    }
-
-    public void setEventListeners(List<EventListener> eventListeners)
-    {
-        this.eventListeners = eventListeners;
+        return eventListenerMap.values().remove(listener);
     }
 
 }

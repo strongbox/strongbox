@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.event.server;
 
 import org.carlspring.strongbox.event.AbstractEventListenerRegistry;
-
 import org.springframework.stereotype.Component;
 
 /**
@@ -9,7 +8,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ServerEventListenerRegistry
-        extends AbstractEventListenerRegistry<ServerEvent>
+        extends AbstractEventListenerRegistry
 {
 
 }

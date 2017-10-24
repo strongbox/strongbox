@@ -13,17 +13,14 @@ public class RepositoryBasedEvent extends Event
     private String path;
 
 
-    public RepositoryBasedEvent()
-    {
-    }
 
     public RepositoryBasedEvent(String storageId,
                                 String repositoryId,
                                 int type)
     {
+        super(type);
         setStorageId(storageId);
         setRepositoryId(repositoryId);
-        setType(type);
     }
 
     public String getStorageId()

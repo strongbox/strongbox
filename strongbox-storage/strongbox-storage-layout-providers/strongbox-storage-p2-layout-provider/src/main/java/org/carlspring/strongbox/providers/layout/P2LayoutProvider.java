@@ -31,9 +31,6 @@ public class P2LayoutProvider
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
-    private P2RepositoryFeatures p2RepositoryFeatures;
-
-    @Inject
     private P2RepositoryManagementStrategy p2RepositoryManagementStrategy;
 
     @Inject
@@ -128,12 +125,6 @@ public class P2LayoutProvider
             throws IOException
     {
         return containsArtifact(repository, P2ArtifactCoordinates.create(path));
-    }
-
-    @Override
-    public P2RepositoryFeatures getRepositoryFeatures()
-    {
-        return p2RepositoryFeatures;
     }
 
     @Override
