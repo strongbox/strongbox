@@ -75,12 +75,10 @@ public class NugetRepositoryManagementStrategy
                                                     String repositoryId)
         throws RepositoryManagementStrategyException
     {
-        boolean shouldDownloadIndexes = shouldDownloadAllRemoteRepositoryIndexes();
-        boolean shouldDownloadRepositoryIndex = shouldDownloadRepositoryIndex(storageId, repositoryId);
-
-        logger.info(String.format("%s/%s: shouldDownloadIndexes-[%s], shouldDownloadRepositoryIndex-[%s]", storageId,
-                                  repositoryId, shouldDownloadIndexes, shouldDownloadRepositoryIndex));
-        if (!shouldDownloadIndexes || !shouldDownloadRepositoryIndex)
+        boolean shouldDownloadRemoteRepositoryFeed = shouldDownloadRemoteRepositoryFeed();
+        logger.info(String.format("%s/%s: shouldDownloadRemoteRepositoryFeed-[%s]", storageId, repositoryId,
+                                  shouldDownloadRemoteRepositoryFeed));
+        if (!shouldDownloadRemoteRepositoryFeed)
         {
             return;
         }
@@ -105,4 +103,11 @@ public class NugetRepositoryManagementStrategy
             throw new RepositoryManagementStrategyException(e.getMessage(), e);
         }
     }
+    
+    public static boolean shouldDownloadRemoteRepositoryFeed()
+    {
+        return System.getProperty("strongbox.nuget.download.feed") == null ||
+               Boolean.parseBoolean(System.getProperty("strongbox.nuget.download.feed"));
+    }
+
 }
