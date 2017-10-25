@@ -55,7 +55,7 @@ public class MavenArtifactDownloadedEventListener
             return;
         }
 
-        if (event.getType() != ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADED.getType())
+        if (event.getType() != ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_FETCHED_FROM_REMOTE.getType())
         {
             return;
         }

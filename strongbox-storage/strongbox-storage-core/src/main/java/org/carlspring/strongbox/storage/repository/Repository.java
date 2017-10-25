@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage.repository;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 
 import javax.xml.bind.annotation.*;
 import java.io.File;
@@ -48,9 +49,6 @@ public class Repository
     @XmlAttribute(name = "trash-enabled")
     private boolean trashEnabled;
 
-    @XmlAttribute(name = "indexing-enabled")
-    private boolean indexingEnabled = false;
-
     @XmlAttribute(name = "allows-force-deletion")
     private boolean allowsForceDeletion;
 
@@ -83,6 +81,9 @@ public class Repository
 
     @XmlElementRef
     private List<CustomConfiguration> customConfigurations = new ArrayList<>();
+
+    @XmlElementRef
+    private CustomRepositoryConfiguration repositoryConfiguration;
 
     @XmlElement(name = "repository")
     @XmlElementWrapper(name = "group")
@@ -225,16 +226,6 @@ public class Repository
         this.trashEnabled = trashEnabled;
     }
 
-    public boolean isIndexingEnabled()
-    {
-        return indexingEnabled;
-    }
-
-    public void setIndexingEnabled(boolean indexingEnabled)
-    {
-        this.indexingEnabled = indexingEnabled;
-    }
-
     public boolean allowsDeletion()
     {
         return allowsDelete;
@@ -366,6 +357,16 @@ public class Repository
         this.customConfigurations = customConfigurations;
     }
 
+    public CustomRepositoryConfiguration getRepositoryConfiguration()
+    {
+        return repositoryConfiguration;
+    }
+
+    public void setRepositoryConfiguration(CustomRepositoryConfiguration repositoryConfiguration)
+    {
+        this.repositoryConfiguration = repositoryConfiguration;
+    }
+
     public boolean isAllowsForceDeletion()
     {
         return allowsForceDeletion;
@@ -455,4 +456,5 @@ public class Repository
     {
         this.versionValidators = versionValidators;
     }
+
 }

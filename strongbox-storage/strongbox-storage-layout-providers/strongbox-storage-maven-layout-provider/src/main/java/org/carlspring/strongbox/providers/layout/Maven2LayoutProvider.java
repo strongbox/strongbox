@@ -38,7 +38,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.index.ArtifactInfo;
@@ -51,15 +50,16 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component("maven2LayoutProvider")
-public class Maven2LayoutProvider
-        extends AbstractLayoutProvider<MavenArtifactCoordinates,
-                                              MavenRepositoryFeatures,
-                                              MavenRepositoryManagementStrategy>
-        implements RepositoryPathHandler
+public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCoordinates,
+                                                                 MavenRepositoryFeatures,
+                                                                 MavenRepositoryManagementStrategy>
+                                  implements RepositoryPathHandler
 {
 
-    public static final String ALIAS = "Maven 2";
     private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
+
+    public static final String ALIAS = "Maven 2";
+
     @Inject
     private MavenMetadataManager mavenMetadataManager;
 
@@ -190,9 +190,9 @@ public class Maven2LayoutProvider
             // Otherwise, this is either not an artifact directory, or not a valid Maven artifact
         }
 
-        deleteMetadata(storageId, repositoryId, path);
-
         super.delete(storageId, repositoryId, path, force);
+
+        deleteMetadata(storageId, repositoryId, path);
     }
 
     //TODO: move this method call into `RepositoryFileSystemProvider.delete(Path path)` 
@@ -202,7 +202,7 @@ public class Maven2LayoutProvider
         Repository repository = path.getFileSystem().getRepository();
         RepositoryFileAttributes a = (RepositoryFileAttributes) Files.readAttributes(path, BasicFileAttributes.class);
 
-        if (!repository.isIndexingEnabled() || a.isMetadata())
+        if (!getRepositoryFeatures().isIndexingEnabled(repository) || a.isMetadata())
         {
             return;
         }
@@ -210,8 +210,7 @@ public class Maven2LayoutProvider
         final RepositoryIndexer indexer = getRepositoryIndexer(path);
         if (indexer != null)
         {
-            String extension = path.getFileName().toString().substring(
-                    path.getFileName().toString().lastIndexOf('.') + 1);
+            String extension = path.getFileName().toString().substring(path.getFileName().toString().lastIndexOf('.') + 1);
 
             MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) a.getCoordinates();
 
@@ -252,10 +251,9 @@ public class Maven2LayoutProvider
 
     private RepositoryIndexer getRepositoryIndexer(RepositoryPath path)
     {
-
         Repository repository = path.getFileSystem().getRepository();
 
-        if (!repository.isIndexingEnabled())
+        if (!getRepositoryFeatures().isIndexingEnabled(repository))
         {
             return null;
         }
@@ -276,50 +274,26 @@ public class Maven2LayoutProvider
 
         try
         {
-            RepositoryPath artifactPath = resolve(repository).resolve(path);
-            RepositoryPath artifactBasePath = artifactPath;
-            RepositoryPath artifactIdLevelPath = artifactBasePath.getParent();
-            boolean onArtifactFileLevel = false;
+            RepositoryPath artifactVersionPath = resolve(repository).resolve(path);
 
-            if (Files.exists(artifactPath))
+            if (Files.exists(artifactVersionPath))
             {
+                // This is at the version level
+                Path pomPath = Files.list(artifactVersionPath)
+                                    .filter(p -> p.getFileName().toString().endsWith(".pom"))
+                                    .findFirst()
+                                    .orElse(null);
 
-                RepositoryFileAttributes artifactFileAttributes = (RepositoryFileAttributes) Files.readAttributes(
-                        artifactPath, BasicFileAttributes.class);
+                String version = ArtifactUtils.convertPathToArtifact(path).getVersion() != null ?
+                                 ArtifactUtils.convertPathToArtifact(path).getVersion() :
+                                 pomPath.getParent().getFileName().toString();
 
-                if (!artifactFileAttributes.isDirectory())
-                {
-                    // This is at the version level
-                    Path pomPath = Files.list(artifactPath.getParent())
-                                        .filter(p -> p.getFileName().toString().endsWith(".pom"))
-                                        .findFirst()
-                                        .orElse(null);
-
-                    String version = ArtifactUtils.convertPathToArtifact(path).getVersion() != null ?
-                                     ArtifactUtils.convertPathToArtifact(path).getVersion() :
-                                     pomPath.getParent().getFileName().toString();
-
-                    deleteMetadataAtVersionLevel(artifactPath, version);
-
-                    onArtifactFileLevel = true;
-                }
+                deleteMetadataAtVersionLevel(artifactVersionPath, version);
             }
             else
             {
-                onArtifactFileLevel = true;
-            }
-
-            if (onArtifactFileLevel)
-            {
-                artifactBasePath = artifactBasePath.getParent();
-                artifactIdLevelPath = artifactIdLevelPath.getParent();
-            }
-
-
-            if (Files.exists(artifactIdLevelPath))
-            {
                 // This is at the artifact level
-                try (Stream<Path> pathStream = Files.list(artifactIdLevelPath))
+                try (Stream<Path> pathStream = Files.list(artifactVersionPath.getParent()))
                 {
                     Path mavenMetadataPath = pathStream.filter(p -> p.getFileName()
                                                                      .toString()
@@ -329,11 +303,12 @@ public class Maven2LayoutProvider
 
                     if (mavenMetadataPath != null)
                     {
-                        String version = FilenameUtils.getName(artifactBasePath.toString());
+                        String version = path.substring(path.lastIndexOf('/') + 1, path.length());
 
                         deleteMetadataAtArtifactLevel((RepositoryPath) mavenMetadataPath.getParent(), version);
                     }
                 }
+
             }
         }
         catch (IOException | NoSuchAlgorithmException | XmlPullParserException e)
@@ -343,8 +318,7 @@ public class Maven2LayoutProvider
         }
     }
 
-    public void deleteMetadataAtVersionLevel(RepositoryPath artifactVersionPath,
-                                             String version)
+    public void deleteMetadataAtVersionLevel(RepositoryPath artifactVersionPath, String version)
             throws IOException,
                    NoSuchAlgorithmException,
                    XmlPullParserException
@@ -367,8 +341,7 @@ public class Maven2LayoutProvider
         }
     }
 
-    public void deleteMetadataAtArtifactLevel(RepositoryPath artifactPath,
-                                              String version)
+    public void deleteMetadataAtArtifactLevel(RepositoryPath artifactPath, String version)
             throws IOException,
                    NoSuchAlgorithmException,
                    XmlPullParserException
@@ -376,19 +349,27 @@ public class Maven2LayoutProvider
         Metadata metadataVersionLevel = mavenMetadataManager.readMetadata(artifactPath);
         if (metadataVersionLevel != null && metadataVersionLevel.getVersioning() != null)
         {
-            metadataVersionLevel.getVersioning().getVersions().remove(version);
-
-            if (version.equals(metadataVersionLevel.getVersioning().getLatest()))
+            if (metadataVersionLevel.getVersioning().getVersions().contains(version))
             {
-                MetadataHelper.setLatest(metadataVersionLevel);
+                metadataVersionLevel.getVersioning().getVersions().remove(version);
+                MetadataHelper.setLastUpdated(metadataVersionLevel.getVersioning());
             }
 
-            if (version.equals(metadataVersionLevel.getVersioning().getRelease()))
+            if (metadataVersionLevel.getVersioning().getLatest() != null &&
+                metadataVersionLevel.getVersioning().getLatest().equals(version))
             {
-                MetadataHelper.setRelease(metadataVersionLevel);
-            }
+                if (metadataVersionLevel.getVersioning().getVersions() != null &&
+                    metadataVersionLevel.getVersioning().getVersions().isEmpty())
+                {
+                    metadataVersionLevel.getVersioning().setLatest(null);
+                }
+                else
+                {
+                    MetadataHelper.setLatest(metadataVersionLevel);
+                }
 
-            MetadataHelper.setLastUpdated(metadataVersionLevel.getVersioning());
+                MetadataHelper.setLastUpdated(metadataVersionLevel.getVersioning());
+            }
 
             mavenMetadataManager.storeMetadata(artifactPath,
                                                null,
@@ -441,14 +422,14 @@ public class Maven2LayoutProvider
 
     @Override
     public void postProcess(RepositoryPath repositoryPath)
-            throws IOException
+        throws IOException
     {
         Boolean artifactAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.ARTIFACT);
         if (!Boolean.TRUE.equals(artifactAttribute))
         {
             return;
         }
-
+        
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
 
@@ -458,7 +439,7 @@ public class Maven2LayoutProvider
 
         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
 
-        if (!repository.isIndexingEnabled() || indexer == null)
+        if (!getRepositoryFeatures().isIndexingEnabled(repository) || indexer == null)
         {
             return;
         }

@@ -35,13 +35,19 @@ public class ConfigurationManagerTest
 {
 
     public static final String TEST_CLASSES = "target/test-classes";
+
     public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/xml";
+
     public static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.xml";
+
     private GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
+
     @Inject
     private ConfigurationManager configurationManager;
+
     @Inject
     private ArtifactResolutionService artifactResolutionService;
+
 
     @Before
     public void setUp()

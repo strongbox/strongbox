@@ -12,6 +12,7 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloadRequest;
 import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -192,6 +193,22 @@ public class MavenRepositoryFeatures
         {
             context.releaseIndexSearcher(indexSearcher);
         }
+    }
+
+    public boolean isIndexingEnabled(Repository repository)
+    {
+        MavenRepositoryConfiguration repositoryConfiguration = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
+
+        return repositoryConfiguration != null && repositoryConfiguration.isIndexingEnabled();
+    }
+
+    public boolean isIndexingEnabled(String storageId, String repositoryId)
+    {
+        Configuration configuration = configurationManager.getConfiguration();
+
+        Repository repository = configuration.getStorage(storageId).getRepository(repositoryId);
+
+        return isIndexingEnabled(repository);
     }
 
     public Configuration getConfiguration()

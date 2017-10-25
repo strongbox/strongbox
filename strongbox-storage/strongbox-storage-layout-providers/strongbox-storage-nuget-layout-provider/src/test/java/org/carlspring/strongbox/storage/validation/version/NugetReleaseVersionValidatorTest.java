@@ -23,7 +23,7 @@ public class NugetReleaseVersionValidatorTest
             throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.toString());
-        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERACHLICAL.getLayout());
+        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
     }
 
     @Test
