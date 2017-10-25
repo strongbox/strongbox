@@ -91,7 +91,7 @@ public class MavenArtifactDownloadedEventListener
             final RepositoryPath artifactAbsolutePath = repositoryAbsolutePath.resolve(event.getPath());
             final RepositoryPath artifactBaseAbsolutePath = artifactAbsolutePath.getParent();
             
-            final RepositoryPath metadataAbsolutePath = (RepositoryPath) MetadataHelper.getMetadataFile(artifactBaseAbsolutePath,
+            final RepositoryPath metadataAbsolutePath = (RepositoryPath) MetadataHelper.getMetadataPath(artifactBaseAbsolutePath,
                                                                                        null,
                                                                                        MetadataType.PLUGIN_GROUP_LEVEL);
             final Path metadataRelativePath = metadataAbsolutePath.getRepositoryRelative();

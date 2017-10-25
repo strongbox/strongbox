@@ -27,7 +27,7 @@ import ru.aristar.jnuget.files.nuspec.NuspecFile.Metadata;
 
 public class PathNupkg implements Nupkg
 {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(PathNupkg.class);
 
     private RepositoryPath path;
@@ -35,8 +35,11 @@ public class PathNupkg implements Nupkg
     private Hash hash;
     private NugetArtifactCoordinates artifactCoordinates;
     private boolean exists;
-    
-    public PathNupkg(RepositoryPath path) throws NugetFormatException, UnsupportedEncodingException, IOException
+
+    public PathNupkg(RepositoryPath path)
+        throws NugetFormatException,
+        UnsupportedEncodingException,
+        IOException
     {
         this.path = path;
         this.artifactCoordinates = readArtifactCooridnates();
@@ -58,17 +61,20 @@ public class PathNupkg implements Nupkg
         return hash;
     }
 
-	private Hash createHash() throws IOException, UnsupportedEncodingException {
-		Map<String, RepositoryPath> checksumPathMap = path.getFileSystem().provider().resolveChecksumPathMap(path);
+    private Hash createHash()
+        throws IOException,
+        UnsupportedEncodingException
+    {
+        Map<String, RepositoryPath> checksumPathMap = path.getFileSystem().provider().resolveChecksumPathMap(path);
         if (checksumPathMap.isEmpty())
         {
             return null;
         }
-        //Nuget package should have only one checksum digest algorithm.
+        // Nuget package should have only one checksum digest algorithm.
         RepositoryPath checkSumPath = checksumPathMap.values().iterator().next();
         if (!Files.exists(checkSumPath))
         {
-        	logger.debug(String.format("Failed to resolve checksum file for [%s]", path));
+            logger.debug(String.format("Failed to resolve checksum file for [%s]", path));
             return new Hash(new byte[] {});
         }
         List<String> checkSumContents = Files.readAllLines(checkSumPath);
@@ -79,7 +85,7 @@ public class PathNupkg implements Nupkg
         }
         String checkSumStr = checkSumContents.iterator().next();
         return new Hash(Base64.getDecoder().decode(checkSumStr.getBytes("UTF-8")));
-	}
+    }
 
     @Override
     public NuspecFile getNuspecFile()
@@ -88,8 +94,10 @@ public class PathNupkg implements Nupkg
         return nuspecFile;
     }
 
-	private NuspecFile createNuspecFile() throws NugetFormatException {
-		NugetArtifactCoordinates artifactCoordinates = readArtifactCooridnates();
+    private NuspecFile createNuspecFile()
+        throws NugetFormatException
+    {
+        NugetArtifactCoordinates artifactCoordinates = readArtifactCooridnates();
         RepositoryPath parentPath = path.getParent();
         RepositoryPath nuspecPath = parentPath.resolve(artifactCoordinates.getId() + ".nuspec");
         if (!Files.exists(nuspecPath))
@@ -98,9 +106,9 @@ public class PathNupkg implements Nupkg
             NuspecFile result = new NuspecFile();
             Metadata metadata = result.getMetadata();
             metadata.id = artifactCoordinates.getId();
-			metadata.version = Version.parse(artifactCoordinates.getVersion());
+            metadata.version = Version.parse(artifactCoordinates.getVersion());
             metadata.title = metadata.id;
-			return result;
+            return result;
         }
         exists = true;
         try
@@ -112,7 +120,7 @@ public class PathNupkg implements Nupkg
             logger.error(String.format("Failed to read .nuspec file for [%s]", path), e);
             return null;
         }
-	}
+    }
 
     private NugetArtifactCoordinates readArtifactCooridnates()
     {
@@ -133,10 +141,10 @@ public class PathNupkg implements Nupkg
     @Override
     public Long getSize()
     {
-    	if (!exists) 
-    	{
-    		return -1L;
-    	}
+        if (!exists)
+        {
+            return -1L;
+        }
         try
         {
             return Files.size(path);
@@ -158,10 +166,10 @@ public class PathNupkg implements Nupkg
     @Override
     public Date getUpdated()
     {
-    	if (!exists) 
-    	{
-    		return null;
-    	}
+        if (!exists)
+        {
+            return null;
+        }
         BasicFileAttributes attributes;
         try
         {
@@ -198,7 +206,7 @@ public class PathNupkg implements Nupkg
     @Override
     public EnumSet<Framework> getTargetFramework()
     {
-        //TODO: add framework into RepositoryPath attributes for nuget packages.
+        // TODO: add framework into RepositoryPath attributes for nuget packages.
         return EnumSet.allOf(Framework.class);
     }
 
@@ -207,5 +215,5 @@ public class PathNupkg implements Nupkg
         throws IOException
     {
     }
-    
+
 }

@@ -123,8 +123,8 @@ public class NugetRepositoryFeatures
                 String packageVersion = packageEntry.getProperties().getVersion().toString();
 
                 NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates(packageId,
-                        packageVersion,
-                        "nupkg");
+                                                                                                  packageVersion, 
+                                                                                                  "nupkg");
                 if (!artifactEntryService.exists(storageId, repositoryId, c.toPath()))
                 {
                     artifactToSaveSet.add(c);

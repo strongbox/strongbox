@@ -235,7 +235,7 @@ public class MetadataHelper
      * @param artifactBasePath Path
      * @return File
      */
-    public static Path getMetadataFile(Path artifactBasePath)
+    public static Path getMetadataPath(Path artifactBasePath)
             throws FileNotFoundException
     {
         if (Files.exists(artifactBasePath))
@@ -249,19 +249,19 @@ public class MetadataHelper
         }
     }
 
-    public static Path getArtifactMetadataFile(Path artifactBasePath)
+    public static Path getArtifactMetadataPath(Path artifactBasePath)
     {
-        return getMetadataFile(artifactBasePath, null, MetadataType.ARTIFACT_ROOT_LEVEL);
+        return getMetadataPath(artifactBasePath, null, MetadataType.ARTIFACT_ROOT_LEVEL);
     }
 
-    public static Path getSnapshotMetadataFile(Path artifactBasePath, String version)
+    public static Path getSnapshotMetadataPath(Path artifactBasePath, String version)
     {
-        return getMetadataFile(artifactBasePath, version, MetadataType.SNAPSHOT_VERSION_LEVEL);
+        return getMetadataPath(artifactBasePath, version, MetadataType.SNAPSHOT_VERSION_LEVEL);
     }
 
-    public static Path getPluginMetadataFile(Path artifactBasePath)
+    public static Path getPluginMetadataPath(Path artifactBasePath)
     {
-        return getMetadataFile(artifactBasePath, null, MetadataType.PLUGIN_GROUP_LEVEL);
+        return getMetadataPath(artifactBasePath, null, MetadataType.PLUGIN_GROUP_LEVEL);
     }
 
     /**
@@ -270,7 +270,7 @@ public class MetadataHelper
      * @param artifactBasePath Path
      * @return File
      */
-    public static Path getMetadataFile(Path artifactBasePath, String version, MetadataType metadataType)
+    public static Path getMetadataPath(Path artifactBasePath, String version, MetadataType metadataType)
     {
         switch (metadataType)
         {

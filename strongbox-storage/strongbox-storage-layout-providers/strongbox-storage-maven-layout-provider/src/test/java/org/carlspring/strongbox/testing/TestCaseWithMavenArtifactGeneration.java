@@ -367,8 +367,7 @@ public class TestCaseWithMavenArtifactGeneration
         return new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + storageId + "/" + repositoryId);
     }
 
-    public RepositoryFeatures getFeatures(String storageId,
-                                          String repositoryId)
+    public MavenRepositoryFeatures getFeatures()
     {
         return features;
     }

@@ -72,7 +72,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
             return (ArtifactInputStream) Files.newInputStream(artifactPath);
         }
 
-        logger.debug("The artifact {} as not found in the local cache", artifactPath);
+        logger.debug("The artifact {} was not found in the local cache", artifactPath);
         return null;
     }
 
@@ -114,7 +114,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
             }
             catch (IOException e)
             {
-                logger.error(String.format("Failed to resolve Remote Artifact [%s]", artifactEntry.getArtifactPath()),
+                logger.error(String.format("Failed to resolve Artifact [%s]", artifactEntry.getArtifactPath()),
                              e);
                 continue;
             }

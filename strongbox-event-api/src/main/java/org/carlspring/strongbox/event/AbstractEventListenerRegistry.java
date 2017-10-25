@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.event;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,12 @@ public abstract class AbstractEventListenerRegistry
 
     public <T extends Event> boolean removeListener(EventListener<T> listener)
     {
-        return eventListenerMap.values().remove(listener);
+        boolean result = false;
+        for (List<EventListener<?>> eventListenerList : eventListenerMap.values())
+        {
+            result = result || eventListenerList.remove(listener);
+        }
+        return result;
     }
 
 }

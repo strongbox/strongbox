@@ -209,8 +209,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
             throws IOException
     {
         Repository repository = configurationManagementService.getConfiguration()
-                .getStorage(storageId)
-                .getRepository(repositoryId);
+                                                              .getStorage(storageId)
+                                                              .getRepository(repositoryId);
 
         if (features.isIndexingEnabled(repository))
         {
@@ -223,8 +223,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
             throws IOException
     {
         Repository repository = configurationManagementService.getConfiguration()
-                .getStorage(storageId)
-                .getRepository(repositoryId);
+                                                              .getStorage(storageId)
+                                                              .getRepository(repositoryId);
 
         if (features.isIndexingEnabled(repository))
         {

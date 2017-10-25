@@ -112,7 +112,7 @@ public class MavenMetadataManager
     public Metadata readMetadata(Path artifactBasePath)
             throws IOException, XmlPullParserException
     {
-        Path metadataFile = MetadataHelper.getMetadataFile(artifactBasePath);
+        Path metadataFile = MetadataHelper.getMetadataPath(artifactBasePath);
         Metadata metadata = null;
 
         try (InputStream is = Files.newInputStream(metadataFile))
@@ -154,7 +154,7 @@ public class MavenMetadataManager
             throws IOException,
                    NoSuchAlgorithmException
     {
-        Path metadataFile = MetadataHelper.getMetadataFile(metadataBasePath, version, metadataType);
+        Path metadataFile = MetadataHelper.getMetadataPath(metadataBasePath, version, metadataType);
 
         OutputStream os = null;
         Writer writer = null;
