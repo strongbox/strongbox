@@ -153,7 +153,6 @@ public class MavenGroupRepositoryComponentTest
         Repository repository = new Repository(repositoryId);
         repository.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repository.setAllowsForceDeletion(true);
-        repository.setIndexingEnabled(true);
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         createRepository(repository);
         return repository;

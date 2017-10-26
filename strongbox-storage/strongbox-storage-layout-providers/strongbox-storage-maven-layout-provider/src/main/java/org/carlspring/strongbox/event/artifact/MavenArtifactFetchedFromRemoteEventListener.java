@@ -6,6 +6,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.SimpleProxyRepositoryArtifactResolver;
+import org.carlspring.strongbox.repository.MavenGroupRepositoryComponent;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -13,6 +14,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 
 import javax.inject.Inject;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -30,11 +32,11 @@ import org.springframework.stereotype.Component;
  * @author Przemyslaw Fusik
  */
 @Component
-public class MavenArtifactDownloadedEventListener
+public class MavenArtifactFetchedFromRemoteEventListener
         extends BaseMavenArtifactEventListener
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactDownloadedEventListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactFetchedFromRemoteEventListener.class);
 
     @Inject
     @SimpleProxyRepositoryArtifactResolver.SimpleProxyRepositoryArtifactResolverQualifier
@@ -44,6 +46,8 @@ public class MavenArtifactDownloadedEventListener
     @LocalStorageProxyRepositoryArtifactResolver.LocalStorageProxyRepositoryArtifactResolverQualifier
     private ProxyRepositoryArtifactResolver localStorageProxyRepositoryArtifactResolver;
 
+    @Inject
+    private MavenGroupRepositoryComponent mavenGroupRepositoryComponent;
 
     @Override
     public void handle(final ArtifactEvent event)
@@ -61,6 +65,23 @@ public class MavenArtifactDownloadedEventListener
         }
 
         resolveArtifactMetadataAtArtifactIdLevel(event);
+        updateParentGroupRepositoriesMetadata(event);
+    }
+
+    private void updateParentGroupRepositoriesMetadata(ArtifactEvent event)
+    {
+        try
+        {
+            mavenGroupRepositoryComponent.update(event.getStorageId(),
+                                                 event.getRepositoryId(),
+                                                 event.getPath());
+        }
+        catch (Exception e)
+        {
+            logger.error("Unable to update parent group repositories metadata of file " + event.getPath() +
+                         " of repository " +
+                         event.getRepositoryId(), e);
+        }
     }
 
 
