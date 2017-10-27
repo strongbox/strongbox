@@ -85,8 +85,7 @@ public class NugetRepositoryFeatures
                                       String targetFramework,
                                       int skip,
                                       int top)
-        throws ArtifactTransportException,
-        RepositoryInitializationException
+        throws ArtifactTransportException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -155,22 +154,54 @@ public class NugetRepositoryFeatures
         public void handle(RemoteRepositorySearchEvent event)
         {
             RepositorySearchRequest repositorySearchRequest = event.getEventData();
+            
+            Storage storage = getConfiguration().getStorage(repositorySearchRequest.getStorageId());
+            Repository repository = storage.getRepository(repositorySearchRequest.getRepositoryId());
+            RemoteRepository remoteRepository = repository.getRemoteRepository();
+            if (remoteRepository == null)
+            {
+                return;
+            }
+            
             Map<String, String> coordinates = repositorySearchRequest.getCoordinates();
             String packageId = coordinates.get(NugetArtifactCoordinates.ID);
             String version = coordinates.get(NugetArtifactCoordinates.VERSION);
 
+            Long packageCount = artifactEntryService.countByCoordinates(storage.getId(), repository.getId(), coordinates, repositorySearchRequest.isStrict());
+            logger.debug(String.format("Remote repository [%s] cached package count is [%s]", repository.getId(), packageCount));
+            
             Expression filter = repositorySearchRequest.isStrict() ? createPackageEq(packageId, null) : null;
             filter = createVersionEq(version, filter);
             String searchTerm = !repositorySearchRequest.isStrict() ? packageId : null;
 
             try
             {
+                int remotePackageCount;
+                try (NugetClient nugetClient = new NugetClient())
+                {
+                    nugetClient.setUrl(remoteRepository.getUrl());
+                    remotePackageCount = nugetClient.getPackageCount(filter == null ? null : filter.toString(),
+                                                                   searchTerm,
+                                                                   null);
+                    logger.debug(String.format("Remote repository [%s] remote package count is [%s]", repository.getId(), packageCount));
+                }
+                
+                if (Long.valueOf(remotePackageCount).compareTo(packageCount) == 0)
+                {
+                    logger.debug(String.format("No need to download remote feed, there was no changes in remote repository [%s] against local cache.",
+                                               remoteRepository.getUrl()));
+                    return;
+                }
+
+                logger.debug(String.format("Downloading remote feed for [%s].",
+                                           remoteRepository.getUrl()));
+                
                 downloadRemoteFeed(repositorySearchRequest.getStorageId(), repositorySearchRequest.getRepositoryId(),
                                    filter,
                                    searchTerm, null, repositorySearchRequest.getSkip(),
                                    repositorySearchRequest.getLimit());
             }
-            catch (RepositoryInitializationException | ArtifactTransportException e)
+            catch (Exception e)
             {
                 logger.error(String.format("Failed to fetch Nuget remote feed [%s]",
                                            repositorySearchRequest.getCoordinates()),
