@@ -4,7 +4,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
@@ -64,16 +66,12 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
             return findAll().orElse(Collections.EMPTY_LIST);
         }
 
-        coordinates = coordinates.entrySet()
-                                 .stream()
-                                 .filter(e -> e.getValue() != null)
-                                 .collect(Collectors.toMap(Map.Entry::getKey,
-                                                           e -> e.getValue() == null ? null
-                                                                   : e.getValue().toLowerCase()));
+        coordinates = prepareParameterMap(coordinates, true);
         
         // Prepare a custom query based on all non-null coordinates that were joined by logical AND.
         // Read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
-        String sQuery = buildCoordinatesQuery(storageId, repositoryId, coordinates, skip, limit, orderBy, strict);
+        String sQuery = buildCoordinatesQuery(storageId, repositoryId, coordinates.keySet(), skip,
+                                              limit, orderBy, strict);
         OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
         
         Map<String, Object> parameterMap = new HashMap<>(coordinates);
@@ -90,8 +88,6 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    // don't try to use second level cache here until you make all coordinates properly serializable
     public List<ArtifactEntry> findByCoordinates(String storageId,
                                                  String repositoryId,
                                                  ArtifactCoordinates coordinates)
@@ -103,9 +99,31 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         return findByCoordinates(storageId, repositoryId, coordinates.getCoordinates());
     }
 
+    @Override
+    public Long countByCoordinates(String storageId,
+                                   String repositoryId,
+                                   Map<String, String> coordinates,
+                                   boolean strict)
+    {
+        coordinates = prepareParameterMap(coordinates, strict);
+        String sQuery = buildCoordinatesQuery(storageId, repositoryId, coordinates.keySet(), 0, 0, null, strict);
+        sQuery = sQuery.replace("*", "count(*)");
+        OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
+        
+        Map<String, Object> parameterMap = new HashMap<>(coordinates);
+        if (storageId != null && !storageId.trim().isEmpty()){
+            parameterMap.put("storageId", storageId);
+        }
+        if (repositoryId != null && !repositoryId.trim().isEmpty()){
+            parameterMap.put("repositoryId", repositoryId);
+        }
+        List<ODocument> result = getDelegate().command(oQuery).execute(parameterMap);
+        return (Long) result.iterator().next().field("count");
+    }
+    
     protected String buildCoordinatesQuery(String storageId,
                                            String repositoryId,
-                                           Map<String, String> map,
+                                           Set<String> parameterNameSet,
                                            int skip,
                                            int limit,                                           
                                            String orderBy,
@@ -114,7 +132,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
 
-        if (map == null || map.isEmpty())
+        if (parameterNameSet == null || parameterNameSet.isEmpty())
         {
             return sb.toString();
         }
@@ -122,13 +140,12 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         sb.append(" WHERE ");
 
         // process only coordinates with non-null values
-        map.entrySet()
+        parameterNameSet
            .stream()
-           .filter(entry -> entry.getValue() != null)
-           .forEach(entry -> sb.append("artifactCoordinates.coordinates.")
-                               .append(entry.getKey()).append(".toLowerCase()")
+           .forEach(e -> sb.append("artifactCoordinates.coordinates.")
+                               .append(e).append(".toLowerCase()")
                                .append(strict ? " = " : " like ")
-                               .append(String.format(":%s", entry.getKey()))
+                               .append(String.format(":%s", e))
                                .append(" AND "));
         
         if (storageId != null && !storageId.trim().isEmpty())
@@ -166,7 +183,27 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         return query;
     }
 
+    private Map<String, String> prepareParameterMap(Map<String, String> coordinates,
+                                                    boolean strict)
+    {
+        return coordinates.entrySet()
+                          .stream()
+                          .filter(e -> e.getValue() != null)
+                          .collect(Collectors.toMap(Map.Entry::getKey,
+                                                    e -> calculatePatameterValue(e, strict)));
+    }
 
+    private String calculatePatameterValue(Entry<String, String> e,
+                                           boolean strict)
+    {
+        String result = e.getValue() == null ? null : e.getValue().toLowerCase();
+        if (!strict)
+        {
+            result += "%" + result + "%";
+        }
+        return result;
+    }
+    
     @Override
     public Class<ArtifactEntry> getEntityClass()
     {
