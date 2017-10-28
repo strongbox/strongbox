@@ -323,7 +323,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             requestLocal.setOrderBy(request.getOrderBy());
             requestLocal.setSkip(groupSkip);
             requestLocal.setStrict(request.isStrict());
-
+            
+            groupLimit = 0;
+            
             for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext();)
             {
                 Repository r = i.next();
@@ -340,13 +342,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                     continue;
                 }
 
-                groupLimit = repositoryResult.stream()
+                //count coordinates intersection
+                groupLimit += repositoryResult.stream()
                                              .map((p) -> resultMap.put(getArtifactCoordinates(p),
                                                                        p))
                                              .filter(p -> p != null)
                                              .collect(Collectors.toList())
                                              .size();
-                ;
 
                 if (resultMap.size() >= limit + skip)
                 {
