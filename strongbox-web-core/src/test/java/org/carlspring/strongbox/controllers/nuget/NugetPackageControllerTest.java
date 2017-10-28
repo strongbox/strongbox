@@ -323,7 +323,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
     }
     
     @Test
-    public void testRemoteProxyDownload()
+    public void testRemoteProxyGroup()
             throws Exception
     {
         given().header("User-Agent", "NuGet/*")
