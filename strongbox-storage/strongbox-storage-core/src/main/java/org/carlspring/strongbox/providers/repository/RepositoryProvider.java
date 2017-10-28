@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.providers.repository;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * @author carlspring
@@ -28,5 +30,7 @@ public interface RepositoryProvider
                                          String repositoryId,
                                          String path)
             throws IOException, NoSuchAlgorithmException;
+    
+    List<Path> search(RepositorySearchRequest request);
 
 }

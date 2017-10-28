@@ -10,7 +10,7 @@ public class ServerEvent extends Event
 
     public ServerEvent(int type)
     {
-        setType(type);
+        super(type);
     }
 
 }

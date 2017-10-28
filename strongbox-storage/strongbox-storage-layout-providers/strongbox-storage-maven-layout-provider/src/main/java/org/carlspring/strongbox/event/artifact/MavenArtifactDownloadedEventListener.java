@@ -1,5 +1,18 @@
 package org.carlspring.strongbox.event.artifact;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.function.Consumer;
+
+import javax.inject.Inject;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.mutable.MutableObject;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -14,18 +27,6 @@ import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
-
-import javax.inject.Inject;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.function.Consumer;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -85,12 +86,15 @@ public class MavenArtifactDownloadedEventListener
         {
             final Repository repository = getRepository(event);
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+            
             final RepositoryPath repositoryAbsolutePath = layoutProvider.resolve(repository);
             final RepositoryPath artifactAbsolutePath = repositoryAbsolutePath.resolve(event.getPath());
-            final Path artifactBaseAbsolutePath = artifactAbsolutePath.getParent();
-            final Path metadataAbsolutePath = MetadataHelper.getMetadataPath(artifactBaseAbsolutePath, null,
-                                                                             MetadataType.PLUGIN_GROUP_LEVEL);
-            final Path metadataRelativePath = repositoryAbsolutePath.relativize(metadataAbsolutePath);
+            final RepositoryPath artifactBaseAbsolutePath = artifactAbsolutePath.getParent();
+            
+            final RepositoryPath metadataAbsolutePath = (RepositoryPath) MetadataHelper.getMetadataPath(artifactBaseAbsolutePath,
+                                                                                       null,
+                                                                                       MetadataType.PLUGIN_GROUP_LEVEL);
+            final Path metadataRelativePath = metadataAbsolutePath.getRepositoryRelative();
 
             try
             {

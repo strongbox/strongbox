@@ -9,6 +9,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.repository.HostedRepositoryProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -40,25 +41,17 @@ public class LocalStorageProxyRepositoryArtifactResolver
 
     @Inject
     private ArtifactEntryService artifactEntryService;
+    
+    @Inject
+    private HostedRepositoryProvider hostedRepositoryProvider;
 
     @Override
     protected InputStream preProxyRepositoryAccessAttempt(final Repository repository,
                                                           final String path)
             throws IOException
     {
-
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-
-        logger.debug(" -> Checking local cache for {} ...", artifactPath);
-        if (layoutProvider.containsPath(repository, path))
-        {
-            logger.debug("The artifact {} was found in the local cache", artifactPath);
-            return Files.newInputStream(artifactPath);
-        }
-
-        logger.debug("The artifact {} as not found in the local cache", artifactPath);
-        return null;
+        Storage storage = repository.getStorage();
+        return hostedRepositoryProvider.getInputStream(storage.getId(), repository.getId(), path);
     }
 
     @Override

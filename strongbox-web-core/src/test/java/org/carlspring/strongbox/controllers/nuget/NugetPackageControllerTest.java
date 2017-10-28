@@ -8,6 +8,8 @@ import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -19,12 +21,27 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+
+import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
+import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +69,8 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
     @Inject
     private ConfigurationManager configurationManager;
 
+    @Inject
+    private ArtifactEntryService artifactEntryService;
 
     @BeforeClass
     public static void cleanUp()
@@ -307,6 +326,29 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
     public void testRemoteProxyDownload()
             throws Exception
     {
+        given().header("User-Agent", "NuGet/*")
+               .when()
+               .get(getContextBaseUrl() + "/storages/nuget-common-storage/nuget.org/FindPackagesById()?id=NHibernate")
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .and()
+               .assertThat()
+               .body("feed.title", equalTo("Packages"))
+               .and()
+               .assertThat()
+               .body("feed.entry[0].title", equalTo("NHibernate"));
+        
+        Map<String, String> coordinates = new HashMap<>();
+        coordinates.put("id", "NHibernate");
+        coordinates.put("version", "4.1.1.4000");
+
+        List<ArtifactEntry> artifactEntryList = artifactEntryService.findByCoordinates("nuget-common-storage", "nuget.org", coordinates);
+        assertTrue(artifactEntryList.size() > 0);
+        
+        ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
+        assertTrue(artifactEntry instanceof RemoteArtifactEntry);
+        assertFalse(((RemoteArtifactEntry)artifactEntry).getIsCached());
+        
         PrintStream originalSysOut = muteSystemOutput();
         try
         {

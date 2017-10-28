@@ -39,7 +39,7 @@ public class NugetRepositoryManagementStrategy
     {
         String storageId = storage.getId();
         String repositoryId = repository.getId();
-
+        
         if (repository.isProxyRepository())
         {
             createRemoteFeedDownloaderCronTask(storageId, repositoryId);
@@ -75,8 +75,16 @@ public class NugetRepositoryManagementStrategy
                                                     String repositoryId)
         throws RepositoryManagementStrategyException
     {
+        boolean shouldDownloadRemoteRepositoryFeed = shouldDownloadRemoteRepositoryFeed();
+        logger.info(String.format("%s/%s: shouldDownloadRemoteRepositoryFeed-[%s]", storageId, repositoryId,
+                                  shouldDownloadRemoteRepositoryFeed));
+        if (!shouldDownloadRemoteRepositoryFeed)
+        {
+            return;
+        }
+    	
         CronTaskConfiguration configuration = new CronTaskConfiguration();
-        configuration.setName("Remote index download for " + storageId + ":" + repositoryId);
+        configuration.setName("Remote feed download for " + storageId + ":" + repositoryId);
         configuration.addProperty("jobClass", DownloadRemoteFeedCronJob.class.getName());
         configuration.addProperty("cronExpression", "0 0 0 * * ?"); // Execute once daily at 00:00:00
         configuration.addProperty("storageId", storageId);
@@ -85,8 +93,6 @@ public class NugetRepositoryManagementStrategy
         try
         {
             cronTaskConfigurationService.saveConfiguration(configuration);
-
-            // Run the scheduled task once, immediately, so that the remote's index would become available
             cronJobSchedulerService.executeJob(configuration);
         }
         catch (ClassNotFoundException | SchedulerException | CronTaskException | InstantiationException
@@ -97,4 +103,11 @@ public class NugetRepositoryManagementStrategy
             throw new RepositoryManagementStrategyException(e.getMessage(), e);
         }
     }
+    
+    public static boolean shouldDownloadRemoteRepositoryFeed()
+    {
+        return System.getProperty("strongbox.nuget.download.feed") == null ||
+               Boolean.parseBoolean(System.getProperty("strongbox.nuget.download.feed"));
+    }
+
 }

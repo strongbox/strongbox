@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ArtifactEventListenerRegistry
-        extends AbstractEventListenerRegistry<ArtifactEvent>
+        extends AbstractEventListenerRegistry
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEventListenerRegistry.class);

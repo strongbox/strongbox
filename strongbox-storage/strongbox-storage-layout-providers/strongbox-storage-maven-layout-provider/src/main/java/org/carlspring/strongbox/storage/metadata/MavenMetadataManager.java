@@ -1,5 +1,29 @@
 package org.carlspring.strongbox.storage.metadata;
 
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.inject.Inject;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
@@ -14,30 +38,11 @@ import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
-
-import javax.inject.Inject;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
-import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author Martin Todorov
@@ -107,7 +112,7 @@ public class MavenMetadataManager
     public Metadata readMetadata(Path artifactBasePath)
             throws IOException, XmlPullParserException
     {
-        Path metadataFile = MetadataHelper.getMetadataFile(artifactBasePath);
+        Path metadataFile = MetadataHelper.getMetadataPath(artifactBasePath);
         Metadata metadata = null;
 
         try (InputStream is = Files.newInputStream(metadataFile))
@@ -149,7 +154,7 @@ public class MavenMetadataManager
             throws IOException,
                    NoSuchAlgorithmException
     {
-        File metadataFile = MetadataHelper.getMetadataFile(metadataBasePath, version, metadataType);
+        Path metadataFile = MetadataHelper.getMetadataPath(metadataBasePath, version, metadataType);
 
         OutputStream os = null;
         Writer writer = null;
@@ -158,13 +163,13 @@ public class MavenMetadataManager
         {
             lock.lock();
 
-            if (metadataFile.exists())
+            if (Files.exists(metadataFile))
             {
                 //noinspection ResultOfMethodCallIgnored
-                metadataFile.delete();
+                Files.delete(metadataFile);
             }
 
-            os = new MultipleDigestOutputStream(metadataFile, new FileOutputStream(metadataFile));
+            os = new MultipleDigestOutputStream(metadataFile, Files.newOutputStream(metadataFile));
 
             writer = WriterFactory.newXmlWriter(os);
             MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();

@@ -5,6 +5,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -37,6 +38,8 @@ public class TestCaseWithMavenArtifactGeneration
     @Inject
     LayoutProviderRegistry layoutProviderRegistry;
 
+    @Inject
+    MavenRepositoryFeatures features;
 
     public Artifact generateArtifact(String basedir, String gavtc)
             throws IOException,
@@ -364,15 +367,9 @@ public class TestCaseWithMavenArtifactGeneration
         return new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + storageId + "/" + repositoryId);
     }
 
-    public RepositoryFeatures getFeatures(String storageId,
-                                          String repositoryId)
+    public MavenRepositoryFeatures getFeatures()
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-
-        return layoutProvider.getRepositoryFeatures();
+        return features;
     }
 
     public RepositoryManagementStrategy getManagementStrategy(String storageId,

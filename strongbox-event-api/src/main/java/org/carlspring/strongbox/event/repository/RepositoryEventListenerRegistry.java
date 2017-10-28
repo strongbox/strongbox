@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.event.repository;
 
-import org.carlspring.strongbox.event.AbstractEventListenerRegistry;
-
-import javax.annotation.PostConstruct;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
+import org.carlspring.strongbox.event.AbstractEventListenerRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class RepositoryEventListenerRegistry
-        extends AbstractEventListenerRegistry<RepositoryEvent>
+        extends AbstractEventListenerRegistry
 {
 
     @Autowired(required = false)

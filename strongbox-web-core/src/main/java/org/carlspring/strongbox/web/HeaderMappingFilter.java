@@ -91,7 +91,17 @@ public class HeaderMappingFilter
             throws IOException,
                    ServletException
     {
-        String layout = getRequestedLayout(((HttpServletRequest) request).getPathInfo());
+        String layout;
+        try
+        {
+            layout = getRequestedLayout(((HttpServletRequest) request).getPathInfo());
+        }
+        catch (IllegalArgumentException e)
+        {
+            ((HttpServletResponse)response).setStatus(404);
+            ((HttpServletResponse)response).getWriter().append(e.getMessage());
+            return;
+        }
 
         ServletRequest targetRequest = request instanceof HttpServletRequest
                                        ? new ServletRequestDecorator((HttpServletRequest) request, layout)
@@ -108,7 +118,7 @@ public class HeaderMappingFilter
         String[] pathParts = pathInfo.split("/");
         if (pathParts.length < 4)
         {
-            return null;
+            throw new IllegalArgumentException(String.format("Illegal format of `storages` request [%s].%nRequest path should be in the form of:%n%n\t'storages/{storageId}/{repositoryId}/...'", pathInfo));
         }
         String storageId = pathParts[2];
         String repositoryId = pathParts[3];
@@ -117,13 +127,13 @@ public class HeaderMappingFilter
                                               .getStorage(storageId);
         if (storage == null)
         {
-            return null;
+            throw new IllegalArgumentException(String.format("Storage not found [%s]", storageId));
         }
         
         Repository repository = storage.getRepository(repositoryId);
         if (repository == null)
         {
-            return null;
+            throw new IllegalArgumentException(String.format("Repository not found [%s]", repositoryId));
         }
 
         return repository.getLayout();

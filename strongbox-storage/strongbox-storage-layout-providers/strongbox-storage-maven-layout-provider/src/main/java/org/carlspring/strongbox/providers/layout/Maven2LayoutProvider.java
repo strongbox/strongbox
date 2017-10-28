@@ -1,5 +1,21 @@
 package org.carlspring.strongbox.providers.layout;
 
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
@@ -26,21 +42,6 @@ import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.util.IndexContextHelper;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.stream.Stream;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.index.ArtifactInfo;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,9 +74,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     private ArtifactSearchService artifactSearchService;
 
     @Inject
-    private MavenRepositoryFeatures mavenRepositoryFeatures;
-
-    @Inject
     private MavenRepositoryManagementStrategy mavenRepositoryManagementStrategy;
 
     @Inject
@@ -84,6 +82,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     @Inject
     private ArtifactIndexesService artifactIndexesService;
 
+    @Inject
+    private MavenRepositoryFeatures repositoryFeatures;
+    
     @PostConstruct
     @Override
     public void register()
@@ -202,7 +203,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         Repository repository = path.getFileSystem().getRepository();
         RepositoryFileAttributes a = (RepositoryFileAttributes) Files.readAttributes(path, BasicFileAttributes.class);
 
-        if (!getRepositoryFeatures().isIndexingEnabled(repository) || a.isMetadata())
+        if (!repositoryFeatures.isIndexingEnabled(repository) || a.isMetadata())
         {
             return;
         }
@@ -253,7 +254,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     {
         Repository repository = path.getFileSystem().getRepository();
 
-        if (!getRepositoryFeatures().isIndexingEnabled(repository))
+        if (!repositoryFeatures.isIndexingEnabled(repository))
         {
             return null;
         }
@@ -439,7 +440,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
 
-        if (!getRepositoryFeatures().isIndexingEnabled(repository) || indexer == null)
+        if (!repositoryFeatures.isIndexingEnabled(repository) || indexer == null)
         {
             return;
         }
@@ -452,12 +453,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                                      repositoryRelativePath).getCanonicalFile();
 
         indexer.addArtifactToIndex(repository.getId(), artifactFile, artifact);
-    }
-
-    @Override
-    public MavenRepositoryFeatures getRepositoryFeatures()
-    {
-        return mavenRepositoryFeatures;
     }
 
     @Override

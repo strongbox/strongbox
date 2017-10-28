@@ -14,7 +14,7 @@ public class CronTaskEvent
 
     public CronTaskEvent(int type, String name)
     {
-        setType(type);
+        super(type);
         setName(name);
     }
 
