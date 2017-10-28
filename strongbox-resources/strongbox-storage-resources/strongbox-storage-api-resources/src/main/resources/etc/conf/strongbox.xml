@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <configuration >
 
     <version>${project.version}</version>
@@ -21,10 +22,6 @@
                             type="hosted"
                             allows-force-deletion="true"
                             checksum-headers-enabled="true"/>
-                            
-                <repository id="nuget.org" policy="release" implementation="file-system" layout="Nuget Hierarchical" type="proxy">
-                    <remote-repository url="https://www.nuget.org/api/v2"/>
-                </repository>
             </repositories>
         </storage>
 
@@ -102,6 +99,14 @@
                         <repository>jboss-public-releases</repository>
                     </group>
                 </repository>
+                
+                <repository id="nuget.org" 
+                            policy="release" 
+                            implementation="file-system" 
+                            layout="Nuget Hierarchical" 
+                            type="proxy">
+                    <remote-repository url="https://www.nuget.org/api/v2"/>
+                </repository>
             </repositories>
         </storage>
         <storage id="storage-springsource-proxies">
@@ -176,8 +181,23 @@
         </storage>
         <storage id="storage-third-party">
             <repositories>
-                <repository id="third-party" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true" />
+                <repository id="third-party" 
+                            policy="release" 
+                            implementation="file-system" 
+                            layout="Maven 2" 
+                            type="hosted" 
+                            allows-force-deletion="true" 
+                            checksum-headers-enabled="true" />
+            
+                <repository id="nuget-third-party" 
+                            policy="release"
+                            implementation="file-system" 
+                            layout="Nuget Hierarchical" 
+                            type="hosted"
+                            allows-force-deletion="true" 
+                            checksum-headers-enabled="true" />            
             </repositories>
+
         </storage>
 
         <storage id="public">
@@ -188,7 +208,14 @@
                         <repository>storage-springsource-proxies:springsource-proxies</repository>
                         <repository>storage-ivy-proxies:group-ivy-proxies</repository>
                         <repository>storage-sbt-proxies:group-sbt-proxies</repository>
-                        <repository>storage-third-party:third-party</repository>
+                        <repository>storage-third-party:nuget-third-party</repository>
+                    </group>
+                </repository>
+                
+                <repository id="nuget-public" policy="mixed" implementation="file-system" layout="Nuget Hierarchical" type="group" secured="true">
+                    <group>
+                        <repository>storage-common-proxies:nuget.org</repository>
+                        <repository>storage-third-party:nuget-third-party</repository>
                     </group>
                 </repository>
             </repositories>

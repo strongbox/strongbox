@@ -328,7 +328,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
     {
         given().header("User-Agent", "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/nuget-common-storage/nuget.org/FindPackagesById()?id=NHibernate")
+               .get(getContextBaseUrl() + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -354,7 +354,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         {
             given().header("User-Agent", "NuGet/*")
                    .when()
-                   .get(getContextBaseUrl() + "/storages/nuget-common-storage/nuget.org/package/NHibernate/4.1.1.4000")
+                   .get(getContextBaseUrl() + "/storages/public/nuget-public/package/NHibernate/4.1.1.4000")
                    .peek()
                    .then()
                    .statusCode(HttpStatus.OK.value())
