@@ -292,7 +292,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         Storage storage = getConfiguration().getStorage(storageId);
 
         String repositoryId = request.getRepositoryId();
-        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
+        logger.debug("Search in " + storage.getId() + ":" + repositoryId + "...");
 
         Repository groupRepository = storage.getRepository(repositoryId);
 
