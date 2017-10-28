@@ -365,7 +365,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         } while (groupLimit > 0 && !groupRepositorySet.isEmpty());
 
         LinkedList<Path> resultList = new LinkedList<>(resultMap.values());
-        return resultList.subList(skip, resultList.size());
+        int toIndex = resultList.size() - skip > limit ? limit + skip : resultList.size();
+        
+        return resultList.subList(skip, toIndex - 1);
     }
 
     private ArtifactCoordinates getArtifactCoordinates(Path p)
