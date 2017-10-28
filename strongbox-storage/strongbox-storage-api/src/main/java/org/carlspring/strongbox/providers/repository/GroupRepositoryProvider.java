@@ -305,16 +305,19 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         int skip = request.getSkip();
         int limit = request.getLimit();
-        limit = limit < 0 ? Integer.MAX_VALUE : limit;
+        if (limit < 0) {
+            limit = Integer.MAX_VALUE;
+        }
         
         int groupSize = groupRepositorySet.size();
         int groupSkip = skip / groupSize;
+        int groupLimit = limit;
         
-        outer: while (!groupRepositorySet.isEmpty())
+        outer: do
         {
             RepositorySearchRequest requestLocal = new RepositorySearchRequest(null, null);
             requestLocal.setCoordinates(request.getCoordinates());
-            requestLocal.setLimit(limit);
+            requestLocal.setLimit(groupLimit);
             requestLocal.setOrderBy(request.getOrderBy());
             requestLocal.setSkip(groupSkip);
             requestLocal.setStrict(request.isStrict());
@@ -334,16 +337,22 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                     i.remove();
                     continue;
                 }
-                repositoryResult.stream()
-                                .forEach((p) -> resultMap.put(getArtifactCoordinates(p),
-                                                              p));
+                
+                groupLimit = repositoryResult.stream()
+                                             .map((p) -> resultMap.put(getArtifactCoordinates(p),
+                                                                       p))
+                                             .filter(p -> p != null)
+                                             .collect(Collectors.toList())
+                                             .size();
+                 ;
+                
                 if (resultMap.size() >= limit + skip)
                 {
                     break outer;
                 }
             }
             groupSkip += limit;
-        }
+        } while (groupLimit > 0 && !groupRepositorySet.isEmpty());
 
         LinkedList<Path> resultList = new LinkedList<>(resultMap.values());
         return resultList.subList(skip, resultList.size());
