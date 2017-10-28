@@ -310,7 +310,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         }
         
         int groupSize = groupRepositorySet.size();
-        // `skip` for groups is a multiple of the number of groups
+        // `skip` for repositories in group is a multiple of the repositories
+        // number in group
         int groupSkip = skip / groupSize;
         int groupLimit = limit;
         
