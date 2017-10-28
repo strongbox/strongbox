@@ -310,6 +310,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         }
         
         int groupSize = groupRepositorySet.size();
+        // `skip` for groups is a multiple of the number of groups
         int groupSkip = skip / groupSize;
         int groupLimit = limit;
         
@@ -325,10 +326,10 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext();)
             {
                 Repository r = i.next();
-                
+
                 requestLocal.setStorageId(r.getStorage().getId());
                 requestLocal.setRepositoryId(r.getId());
-                
+
                 RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(r.getType());
 
                 List<Path> repositoryResult = repositoryProvider.search(requestLocal);
@@ -337,21 +338,29 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                     i.remove();
                     continue;
                 }
-                
+
                 groupLimit = repositoryResult.stream()
                                              .map((p) -> resultMap.put(getArtifactCoordinates(p),
                                                                        p))
                                              .filter(p -> p != null)
                                              .collect(Collectors.toList())
                                              .size();
-                 ;
-                
+                ;
+
                 if (resultMap.size() >= limit + skip)
                 {
                     break outer;
                 }
             }
             groupSkip += limit;
+            
+            // There should be 1 or 2 `outer` iterations:
+            // - one iteration in case of we have no coordinates intersection
+            // within group repositories
+            // - one iteration if there is no more search results within group
+            // repositories
+            // - two iterations if we have coordinates intersection and there is
+            // more search results within group repositories
         } while (groupLimit > 0 && !groupRepositorySet.isEmpty());
 
         LinkedList<Path> resultList = new LinkedList<>(resultMap.values());
