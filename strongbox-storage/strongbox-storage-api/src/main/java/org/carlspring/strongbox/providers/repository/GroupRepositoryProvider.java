@@ -3,23 +3,32 @@ package org.carlspring.strongbox.providers.repository;
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -277,7 +286,79 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     @Override
     public List<Path> search(RepositorySearchRequest request)
     {
-        return null;
+        Map<ArtifactCoordinates, Path> resultMap = new LinkedHashMap<>();
+
+        String storageId = request.getStorageId();
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        String repositoryId = request.getRepositoryId();
+        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
+
+        Repository groupRepository = storage.getRepository(repositoryId);
+
+        Set<Repository> groupRepositorySet = groupRepository.getGroupRepositories().stream().map((e) -> {
+            String sId = getConfigurationManager().getStorageId(storage, e);
+            String rId = getConfigurationManager().getRepositoryId(e);
+
+            return getConfiguration().getStorage(sId).getRepository(rId);
+        }).collect(Collectors.toSet());
+
+        int skip = request.getSkip();
+        int limit = request.getLimit();
+        limit = limit < 0 ? Integer.MAX_VALUE : limit;
+        
+        int groupSize = groupRepositorySet.size();
+        int groupSkip = skip / groupSize;
+        
+        outer: while (!groupRepositorySet.isEmpty())
+        {
+            RepositorySearchRequest requestLocal = new RepositorySearchRequest(null, null);
+            requestLocal.setCoordinates(request.getCoordinates());
+            requestLocal.setLimit(limit);
+            requestLocal.setOrderBy(request.getOrderBy());
+            requestLocal.setSkip(groupSkip);
+            requestLocal.setStrict(request.isStrict());
+
+            for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext();)
+            {
+                Repository r = i.next();
+                
+                requestLocal.setStorageId(r.getStorage().getId());
+                requestLocal.setRepositoryId(r.getId());
+                
+                RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(r.getType());
+
+                List<Path> repositoryResult = repositoryProvider.search(requestLocal);
+                if (repositoryResult.isEmpty())
+                {
+                    i.remove();
+                    continue;
+                }
+                repositoryResult.stream()
+                                .forEach((p) -> resultMap.put(getArtifactCoordinates(p),
+                                                              p));
+                if (resultMap.size() >= limit + skip)
+                {
+                    break outer;
+                }
+            }
+            groupSkip += limit;
+        }
+
+        LinkedList<Path> resultList = new LinkedList<>(resultMap.values());
+        return resultList.subList(skip, resultList.size());
+    }
+
+    private ArtifactCoordinates getArtifactCoordinates(Path p)
+    {
+        try
+        {
+            return (ArtifactCoordinates) Files.getAttribute(p, RepositoryFileAttributes.COORDINATES);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(String.format("Failed to resolve ArtifactCoordinates for [%s]", p), e);
+        }
     }
     
 }
