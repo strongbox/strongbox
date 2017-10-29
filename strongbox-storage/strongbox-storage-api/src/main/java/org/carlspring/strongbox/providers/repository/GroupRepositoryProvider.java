@@ -331,7 +331,6 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext();)
             {
                 Repository r = i.next();
-                System.out.println(r);
                 requestLocal.setStorageId(r.getStorage().getId());
                 requestLocal.setRepositoryId(r.getId());
 
