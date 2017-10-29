@@ -89,7 +89,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     {
         if (coordinates == null)
         {
-            return findByCoordinates(storageId, repositoryId, (Map<String, String>)null);
+            return findByCoordinates(storageId, repositoryId, new HashMap<>());
         }
         return findByCoordinates(storageId, repositoryId, coordinates.getCoordinates());
     }
