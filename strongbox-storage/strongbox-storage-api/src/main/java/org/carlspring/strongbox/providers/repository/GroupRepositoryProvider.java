@@ -352,6 +352,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                                               .collect(Collectors.toList())
                                               .size();
 
+                //Break search iterations if we have reached enough list size.
                 if (resultMap.size() >= limit + skip)
                 {
                     break outer;
