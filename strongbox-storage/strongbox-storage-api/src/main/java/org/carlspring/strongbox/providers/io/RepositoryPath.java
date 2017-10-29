@@ -163,13 +163,13 @@ public class RepositoryPath
         return wrap(getTarget().relativize(other));
     }
     
-    public RepositoryPath getRepositoryRelative()
+    public RepositoryPath relativize()
     {
         return getFileSystem().getRootDirectory().relativize(this); 
     }
 
     public String getResourceLocation() {
-        String resourceLocation = getRepositoryRelative().toString();
+        String resourceLocation = relativize().toString();
         String separator = getFileSystem().getSeparator();
         if (separator.equals("/")){
             return resourceLocation;

@@ -108,7 +108,7 @@ public class RemoveTimestampedSnapshotOperation
                 }
             }
             
-            RepositoryPath artifactPath = path.getRepositoryRelative();
+            RepositoryPath artifactPath = path.relativize();
             try
             {
                 mavenSnapshotManager.deleteTimestampedSnapshotArtifacts(artifactPath.getFileSystem().getRepository(), artifactPath.toString(), request,

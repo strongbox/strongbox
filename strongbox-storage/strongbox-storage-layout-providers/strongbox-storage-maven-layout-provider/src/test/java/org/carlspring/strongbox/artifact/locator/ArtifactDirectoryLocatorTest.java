@@ -209,7 +209,7 @@ public class ArtifactDirectoryLocatorTest
         
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setBasedir(repositoryPath);
-        locator.setOperation(new ArtifactLocationReportOperation(repositoryPath.resolve("org/carlspring").getRepositoryRelative()));
+        locator.setOperation(new ArtifactLocationReportOperation(repositoryPath.resolve("org/carlspring").relativize()));
         locator.locateArtifactDirectories();
 
         os.flush();
