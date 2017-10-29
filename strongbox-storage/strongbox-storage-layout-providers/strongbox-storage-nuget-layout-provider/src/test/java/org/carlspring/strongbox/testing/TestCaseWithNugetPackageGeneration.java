@@ -45,7 +45,7 @@ public class TestCaseWithNugetPackageGeneration
         nugetPackageGenerator.generateNugetPackage(packageId, packageVersion, dependencyList);
 
         Path basePath = Paths.get(basedir).normalize().toAbsolutePath();
-        return basePath.resolve(packageVersion).resolve(packageFileName).normalize().toAbsolutePath();
+        return basePath.resolve(packageId).resolve(packageVersion).resolve(packageFileName).normalize().toAbsolutePath();
     }
     
     public void generateNugetPackage(String repositoryDir,
