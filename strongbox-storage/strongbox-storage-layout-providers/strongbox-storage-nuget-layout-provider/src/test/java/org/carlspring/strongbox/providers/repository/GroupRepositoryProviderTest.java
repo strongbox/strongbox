@@ -214,6 +214,25 @@ public class GroupRepositoryProviderTest
         List<Path> result = repositoryProvider.search(request);
         
         assertEquals(2, result.size());
+        
+        request.setLimit(-1);
+        result = repositoryProvider.search(request);
+        
+        assertEquals(2, result.size());
+        
+        repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
+        repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+        request = new RepositorySearchRequest(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
+        request.setSkip(11);
+        request.setLimit(10);
+        result = repositoryProvider.search(request);
+        
+        assertEquals(1, result.size());
+        
+        request.setLimit(-1);
+        result = repositoryProvider.search(request);
+        
+        assertEquals(1, result.size());
     }
 
 }

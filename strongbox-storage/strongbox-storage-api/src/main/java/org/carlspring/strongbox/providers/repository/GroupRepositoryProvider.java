@@ -302,18 +302,25 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
             return getConfiguration().getStorage(sId).getRepository(rId);
         }).collect(Collectors.toCollection(LinkedHashSet::new));
-
+        
+        if (groupRepositorySet.isEmpty())
+        {
+            return new LinkedList<>();
+        }
+        
         int skip = request.getSkip();
         int limit = request.getLimit();
         if (limit < 0)
         {
-            limit = Integer.MAX_VALUE;
+            limit = Short.MAX_VALUE;
         }
 
         int groupSize = groupRepositorySet.size();
         int groupSkip = (skip / (limit * groupSize)) * limit;
         int groupLimit = limit;
 
+        skip = skip - groupSkip;
+        
         outer: do
         {
             RepositorySearchRequest requestLocal = new RepositorySearchRequest(null, null);
