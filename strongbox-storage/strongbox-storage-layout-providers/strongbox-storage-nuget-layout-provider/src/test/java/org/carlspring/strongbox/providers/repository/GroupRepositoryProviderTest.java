@@ -209,8 +209,9 @@ public class GroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
         RepositorySearchRequest request = new RepositorySearchRequest(STORAGE0, REPOSITORY_GROUP);
+        request.setOrderBy("id");
         request.setSkip(10);
-        request.setLimit(2);
+        request.setLimit(10);
         List<Path> result = repositoryProvider.search(request);
         
         assertEquals(2, result.size());

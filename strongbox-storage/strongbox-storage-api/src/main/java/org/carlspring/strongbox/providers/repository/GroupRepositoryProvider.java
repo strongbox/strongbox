@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -300,7 +301,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             String rId = getConfigurationManager().getRepositoryId(e);
 
             return getConfiguration().getStorage(sId).getRepository(rId);
-        }).collect(Collectors.toSet());
+        }).collect(Collectors.toCollection(LinkedHashSet::new));
 
         int skip = request.getSkip();
         int limit = request.getLimit();
@@ -310,9 +311,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         }
 
         int groupSize = groupRepositorySet.size();
-        // `skip` for repositories in group is a multiple of the repositories
-        // number in group
-        int groupSkip = skip / groupSize;
+        int groupSkip = (skip/(limit * groupSize)) * limit;
         int groupLimit = limit;
 
         outer: do
@@ -369,7 +368,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         LinkedList<Path> resultList = new LinkedList<>(resultMap.values());
         int toIndex = resultList.size() - skip > limit ? limit + skip : resultList.size();
 
-        return resultList.subList(skip, toIndex - 1);
+        return resultList.subList(skip, toIndex);
     }
 
     private ArtifactCoordinates getArtifactCoordinates(Path p)
