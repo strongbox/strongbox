@@ -98,7 +98,7 @@ public class GroupRepositoryProviderTest
         //REPOSITORY_RELEASES_1
         createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1),
                          RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
-        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, 10);
+        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, 9);
 
         //REPOSITORY_RELEASES_2
         createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2),
@@ -209,7 +209,6 @@ public class GroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
         RepositorySearchRequest request = new RepositorySearchRequest(STORAGE0, REPOSITORY_GROUP);
-        //request.setOrderBy("id");
         request.setSkip(10);
         request.setLimit(10);
         List<Path> result = repositoryProvider.search(request);

@@ -311,7 +311,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         }
 
         int groupSize = groupRepositorySet.size();
-        int groupSkip = (skip/(limit * groupSize)) * limit;
+        int groupSkip = (skip / (limit * groupSize)) * limit;
         int groupLimit = limit;
 
         outer: do
@@ -345,7 +345,10 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 groupLimit += repositoryResult.stream()
                                               .map((p) -> resultMap.put(getArtifactCoordinates(p),
                                                                         p))
-                                              .filter(p -> {System.out.println(p!=null);return p != null;})
+                                              .filter(p -> {
+                                                  System.out.println(p != null);
+                                                  return p != null;
+                                              })
                                               .collect(Collectors.toList())
                                               .size();
 
@@ -356,21 +359,17 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             }
             groupSkip += limit;
 
-            // There should be 1 or 2 `outer` iterations:
-            // - one iteration in case of we have no coordinates intersection
-            // within group repositories
-            // - one iteration if there is no more search results within group
-            // repositories
-            // - two iterations if we have coordinates intersection and there is
-            // more search results within group repositories
+            // Will iterate until there is no more coordinates intersection and
+            // there is more search results within group repositories
         } while (groupLimit > 0 && !groupRepositorySet.isEmpty());
 
         LinkedList<Path> resultList = new LinkedList<>();
-        if (skip >= resultMap.size()) {
+        if (skip >= resultMap.size())
+        {
             return resultList;
         }
         resultList.addAll(resultMap.values());
-        
+
         int toIndex = resultList.size() - skip > limit ? limit + skip : resultList.size();
         return resultList.subList(skip, toIndex);
     }
