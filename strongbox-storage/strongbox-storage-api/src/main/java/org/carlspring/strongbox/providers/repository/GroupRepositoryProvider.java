@@ -305,16 +305,17 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         int skip = request.getSkip();
         int limit = request.getLimit();
-        if (limit < 0) {
+        if (limit < 0)
+        {
             limit = Integer.MAX_VALUE;
         }
-        
+
         int groupSize = groupRepositorySet.size();
         // `skip` for repositories in group is a multiple of the repositories
         // number in group
         int groupSkip = skip / groupSize;
         int groupLimit = limit;
-        
+
         outer: do
         {
             RepositorySearchRequest requestLocal = new RepositorySearchRequest(null, null);
@@ -323,9 +324,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             requestLocal.setOrderBy(request.getOrderBy());
             requestLocal.setSkip(groupSkip);
             requestLocal.setStrict(request.isStrict());
-            
+
             groupLimit = 0;
-            
+
             for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext();)
             {
                 Repository r = i.next();
@@ -342,13 +343,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                     continue;
                 }
 
-                //count coordinates intersection
+                // count coordinates intersection
                 groupLimit += repositoryResult.stream()
-                                             .map((p) -> resultMap.put(getArtifactCoordinates(p),
-                                                                       p))
-                                             .filter(p -> p != null)
-                                             .collect(Collectors.toList())
-                                             .size();
+                                              .map((p) -> resultMap.put(getArtifactCoordinates(p),
+                                                                        p))
+                                              .filter(p -> p != null)
+                                              .collect(Collectors.toList())
+                                              .size();
 
                 if (resultMap.size() >= limit + skip)
                 {
@@ -356,7 +357,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 }
             }
             groupSkip += limit;
-            
+
             // There should be 1 or 2 `outer` iterations:
             // - one iteration in case of we have no coordinates intersection
             // within group repositories
@@ -368,7 +369,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         LinkedList<Path> resultList = new LinkedList<>(resultMap.values());
         int toIndex = resultList.size() - skip > limit ? limit + skip : resultList.size();
-        
+
         return resultList.subList(skip, toIndex - 1);
     }
 
