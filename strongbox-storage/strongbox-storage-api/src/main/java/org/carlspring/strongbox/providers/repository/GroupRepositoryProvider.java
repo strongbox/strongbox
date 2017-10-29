@@ -328,7 +328,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext();)
             {
                 Repository r = i.next();
-
+                System.out.println(r);
                 requestLocal.setStorageId(r.getStorage().getId());
                 requestLocal.setRepositoryId(r.getId());
 
@@ -345,7 +345,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 groupLimit += repositoryResult.stream()
                                               .map((p) -> resultMap.put(getArtifactCoordinates(p),
                                                                         p))
-                                              .filter(p -> p != null)
+                                              .filter(p -> {System.out.println(p!=null);return p != null;})
                                               .collect(Collectors.toList())
                                               .size();
 
@@ -375,7 +375,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     {
         try
         {
-            return (ArtifactCoordinates) Files.getAttribute(p, RepositoryFileAttributes.COORDINATES);
+            ArtifactCoordinates c = (ArtifactCoordinates) Files.getAttribute(p, RepositoryFileAttributes.COORDINATES);
+            System.out.println(c.getCoordinate("id"));
+            return c;
         }
         catch (IOException e)
         {

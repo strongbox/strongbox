@@ -61,6 +61,9 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
                                                  String orderBy,
                                                  boolean strict)
     {
+        if (orderBy == null) {
+            orderBy = "uuid";
+        }
         coordinates = prepareParameterMap(coordinates, true);
         
         // Prepare a custom query based on all non-null coordinates that were joined by logical AND.
