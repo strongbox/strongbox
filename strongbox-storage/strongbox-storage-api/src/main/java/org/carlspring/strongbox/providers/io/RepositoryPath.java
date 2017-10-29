@@ -168,10 +168,12 @@ public class RepositoryPath
         return getFileSystem().getRootDirectory().relativize(this); 
     }
 
-    public String getResourceLocation() {
+    public String getResourceLocation()
+    {
         String resourceLocation = relativize().toString();
         String separator = getFileSystem().getSeparator();
-        if (separator.equals("/")){
+        if (separator.equals("/"))
+        {
             return resourceLocation;
         }
         return resourceLocation.replaceAll(Pattern.quote(separator), Matcher.quoteReplacement("/"));

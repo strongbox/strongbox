@@ -41,6 +41,10 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
     private String storageId;
 
     private String repositoryId;
+    
+    private Integer skip;
+    
+    private Integer top;
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
@@ -64,34 +68,54 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         super();
     }
 
-    protected String getStorageId()
+    public String getStorageId()
     {
         return storageId;
     }
 
-    protected void setStorageId(String storageId)
+    public void setStorageId(String storageId)
     {
         this.storageId = storageId;
     }
 
-    protected String getRepositoryId()
+    public String getRepositoryId()
     {
         return repositoryId;
     }
 
-    protected void setRepositoryId(String repositoryId)
+    public void setRepositoryId(String repositoryId)
     {
         this.repositoryId = repositoryId;
     }
 
-    protected String getSearchTerm()
+    public String getSearchTerm()
     {
         return searchTerm == null ? "" : searchTerm;
     }
 
-    protected void setSearchTerm(String searchTerm)
+    public void setSearchTerm(String searchTerm)
     {
         this.searchTerm = searchTerm == null ? null : getSearchTerm().replaceAll("'", "");
+    }
+
+    public Integer getSkip()
+    {
+        return skip;
+    }
+
+    public void setSkip(Integer skip)
+    {
+        this.skip = skip;
+    }
+
+    public Integer getTop()
+    {
+        return top;
+    }
+
+    public void setTop(Integer top)
+    {
+        this.top = top;
     }
 
     public void setOrderBy(String orderBy)
@@ -99,7 +123,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         this.orderBy = orderBy;
     }
 
-    protected String getOrderBy()
+    public String getOrderBy()
     {
         return orderBy;
     }
@@ -194,6 +218,8 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         RepositorySearchRequest searchRequest = new RepositorySearchRequest(storageId, repositoryId);
         searchRequest.setStrict(strict);
         searchRequest.setCoordinates(coordinates);
+        searchRequest.setSkip(skip);
+        searchRequest.setLimit(top);
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
         List<Path> searchResult = repositoryProvider.search(searchRequest);

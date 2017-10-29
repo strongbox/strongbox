@@ -5,11 +5,13 @@ import java.util.Map;
 
 public class RepositorySearchRequest
 {
+    public static final Integer MAX_LIMIT = 1000;
+
     private String storageId;
     private String repositoryId;
     private Map<String, String> coordinates = new HashMap<>();
-    private int skip;
-    private int limit = -1;
+    private Integer skip;
+    private Integer limit;
     private String orderBy;
     private boolean strict;
 
@@ -51,22 +53,22 @@ public class RepositorySearchRequest
         this.coordinates = coordinates;
     }
 
-    public int getSkip()
+    public Integer getSkip()
     {
-        return skip;
+        return skip == null ? 0 : skip;
     }
 
-    public void setSkip(int skip)
+    public void setSkip(Integer skip)
     {
         this.skip = skip;
     }
 
-    public int getLimit()
+    public Integer getLimit()
     {
-        return limit;
+        return limit == null || limit < 0 || limit > MAX_LIMIT ? MAX_LIMIT : limit;
     }
 
-    public void setLimit(int limit)
+    public void setLimit(Integer limit)
     {
         this.limit = limit;
     }
