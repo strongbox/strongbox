@@ -1,19 +1,26 @@
 package org.carlspring.strongbox.providers.repository;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
+import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.config.NugetLayoutProviderConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithRepository;
+import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
 import org.carlspring.strongbox.xml.configuration.repository.NugetRepositoryConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -27,6 +34,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
 
+import ru.aristar.jnuget.files.NugetFormatException;
+
 /**
  * @author sbespalov
  *
@@ -34,7 +43,7 @@ import com.carmatechnologies.commons.testing.logging.api.LogLevel;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = NugetLayoutProviderConfig.class)
 public class GroupRepositoryProviderTest
-        extends TestCaseWithRepository
+        extends TestCaseWithNugetPackageGeneration
 {
 
     private static final String REPOSITORY_RELEASES_1 = "grpt-releases-1";
@@ -59,6 +68,9 @@ public class GroupRepositoryProviderTest
     @Inject
     private RepositoryManagementService repositoryManagementService;
     
+    @Inject
+    private ArtifactManagementService artifactManagementService;
+    
     @Rule
     public final ExpectedLogs logs = new ExpectedLogs()
     {{
@@ -75,14 +87,22 @@ public class GroupRepositoryProviderTest
 
     @Before
     public void setUp()
-            throws Exception
+        throws Exception
     {
         NugetRepositoryConfiguration nugetRepositoryConfiguration = new NugetRepositoryConfiguration();
 
-        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1), RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
-        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2), RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());      
-        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3), RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1),
+                         RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, 10);
+
+        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2),
+                         RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_2, 12);
         
+        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3),
+                         RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_3, 8);
+
         Repository repositoryGroup = new Repository(REPOSITORY_GROUP);
         repositoryGroup.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
@@ -120,6 +140,23 @@ public class GroupRepositoryProviderTest
         repositoryWithNestedGroupLevel2.addRepositoryToGroup(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
 
         createRepository(repositoryWithNestedGroupLevel2);
+    }
+
+    private void generateRepositoryPackages(String storageId,
+                                            String repositoryId,
+                                            int count)
+        throws NoSuchAlgorithmException,
+        NugetFormatException,
+        JAXBException,
+        IOException,
+        ProviderImplementationException
+    {
+        for (int i = 1; i <= count; i++)
+        {
+            Path packageFilePath = generatePackageFile(String.format("grpt.search.p%s", i), "1.0.0");
+            artifactManagementService.validateAndStore(storageId, repositoryId, packageFilePath.toString(),
+                                                       Files.newInputStream(packageFilePath));
+        }
     }
 
     private void createRepository(Repository repository)
