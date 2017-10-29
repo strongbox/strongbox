@@ -56,9 +56,6 @@ public class GroupRepositoryProviderTest
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
     @Inject
-    private ConfigurationManagementService configurationManagementService;
-
-    @Inject
     private ConfigurationManager configurationManager;
 
     @Rule
