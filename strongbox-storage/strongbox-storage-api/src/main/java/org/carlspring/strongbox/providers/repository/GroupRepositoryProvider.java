@@ -365,9 +365,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             // more search results within group repositories
         } while (groupLimit > 0 && !groupRepositorySet.isEmpty());
 
-        LinkedList<Path> resultList = new LinkedList<>(resultMap.values());
+        LinkedList<Path> resultList = new LinkedList<>();
+        if (skip >= resultMap.size()) {
+            return resultList;
+        }
+        resultList.addAll(resultMap.values());
+        
         int toIndex = resultList.size() - skip > limit ? limit + skip : resultList.size();
-
         return resultList.subList(skip, toIndex);
     }
 
