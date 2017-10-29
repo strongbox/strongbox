@@ -61,11 +61,6 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
                                                  String orderBy,
                                                  boolean strict)
     {
-        if (coordinates == null || coordinates.keySet().isEmpty())
-        {
-            return findAll().orElse(Collections.EMPTY_LIST);
-        }
-
         coordinates = prepareParameterMap(coordinates, true);
         
         // Prepare a custom query based on all non-null coordinates that were joined by logical AND.
@@ -131,11 +126,6 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
-
-        if (parameterNameSet == null || parameterNameSet.isEmpty())
-        {
-            return sb.toString();
-        }
 
         sb.append(" WHERE ");
 

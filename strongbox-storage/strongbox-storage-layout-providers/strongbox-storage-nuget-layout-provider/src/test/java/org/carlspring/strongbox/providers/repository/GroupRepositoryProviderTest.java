@@ -1,10 +1,13 @@
 package org.carlspring.strongbox.providers.repository;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -203,9 +206,14 @@ public class GroupRepositoryProviderTest
     public void testGroupSearch()
             throws Exception
     {
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
+        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-
+        RepositorySearchRequest request = new RepositorySearchRequest(STORAGE0, REPOSITORY_GROUP);
+        request.setSkip(10);
+        request.setLimit(2);
+        List<Path> result = repositoryProvider.search(request);
+        
+        assertEquals(2, result.size());
     }
 
 }
