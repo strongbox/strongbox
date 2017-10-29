@@ -157,7 +157,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
 
         if ("uuid".equals(orderBy))
         {
-            query += String.format(" ORDER BY artifactCoordinates.uuid", orderBy);
+            query += " ORDER BY artifactCoordinates.uuid";
         }
         else if (orderBy != null && !orderBy.trim().isEmpty())
         {
