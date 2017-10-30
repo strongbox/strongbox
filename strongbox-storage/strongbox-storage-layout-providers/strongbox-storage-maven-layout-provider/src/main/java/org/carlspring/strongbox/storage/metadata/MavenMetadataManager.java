@@ -428,18 +428,17 @@ public class MavenMetadataManager
 
     }
 
-    private void doInLock(final Path metadataBasePath,
-                          final Consumer<Path> operation)
+    private void doInLock(final Path metadataBasePath, final Consumer<Path> operation)
     {
-        final String artifactBasePathAsAbsolutePathString = metadataBasePath.toAbsolutePath().toString();
-        synchronized (getMetadataSynchronizationLock(artifactBasePathAsAbsolutePathString))
+        synchronized (getMetadataSynchronizationLock(metadataBasePath))
         {
             operation.accept(metadataBasePath);
         }
     }
 
-    private String getMetadataSynchronizationLock(final String artifactBasePathAsAbsolutePathString)
+    private String getMetadataSynchronizationLock(final Path metadataBasePath)
     {
+        final String artifactBasePathAsAbsolutePathString = metadataBasePath.toAbsolutePath().toString();
         final String normalizedPath = FilenameUtils.normalizeNoEndSeparator(artifactBasePathAsAbsolutePathString);
         metadataSynchronizationContainer.putIfAbsent(normalizedPath, normalizedPath);
         return metadataSynchronizationContainer.get(normalizedPath);
