@@ -83,11 +83,18 @@ public class ProxyRepositoryProvider
     }
     
     @Override
-    public List<Path> search(RepositorySearchRequest request)
+    public List<Path> search(RepositorySearchRequest searchRequest,
+                             RepositoryPageRequest pageRequest)
     {
-    	commonEventListenerRegistry.dispatchEvent(new RemoteRepositorySearchEvent(request));
+    	commonEventListenerRegistry.dispatchEvent(new RemoteRepositorySearchEvent(searchRequest, pageRequest));
     	
-        return hostedRepositoryProvider.search(request);
+        return hostedRepositoryProvider.search(searchRequest, pageRequest);
+    }
+    
+    @Override
+    public Long count(RepositorySearchRequest searchRequest)
+    {
+        return null;
     }
     
 }

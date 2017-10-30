@@ -15,6 +15,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.event.CommonEventListener;
+import org.carlspring.strongbox.providers.repository.RepositoryPageRequest;
 import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -153,7 +154,9 @@ public class NugetRepositoryFeatures
         @Override
         public void handle(RemoteRepositorySearchEvent event)
         {
-            RepositorySearchRequest repositorySearchRequest = event.getEventData();
+            RepositorySearchRequest repositorySearchRequest = event.getSearchRequest();
+            RepositoryPageRequest repositoryPageRequest = event.getPageRequest();
+
             
             Storage storage = getConfiguration().getStorage(repositorySearchRequest.getStorageId());
             Repository repository = storage.getRepository(repositorySearchRequest.getRepositoryId());
@@ -198,8 +201,8 @@ public class NugetRepositoryFeatures
                 
                 downloadRemoteFeed(repositorySearchRequest.getStorageId(), repositorySearchRequest.getRepositoryId(),
                                    filter,
-                                   searchTerm, null, repositorySearchRequest.getSkip(),
-                                   repositorySearchRequest.getLimit());
+                                   searchTerm, null, repositoryPageRequest.getSkip(),
+                                   repositoryPageRequest.getLimit());
             }
             catch (Exception e)
             {

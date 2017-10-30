@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.repository.RepositoryPageRequest;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
@@ -218,11 +219,13 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         RepositorySearchRequest searchRequest = new RepositorySearchRequest(storageId, repositoryId);
         searchRequest.setStrict(strict);
         searchRequest.setCoordinates(coordinates);
-        searchRequest.setSkip(skip);
-        searchRequest.setLimit(top);
+        
+        RepositoryPageRequest pageRequest = new RepositoryPageRequest();
+        pageRequest.setSkip(skip);
+        pageRequest.setLimit(top);
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-        List<Path> searchResult = repositoryProvider.search(searchRequest);
+        List<Path> searchResult = repositoryProvider.search(searchRequest, pageRequest);
 
         List<Nupkg> packageList = createPackageList(searchResult);
         return packageList;

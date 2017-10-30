@@ -208,29 +208,32 @@ public class GroupRepositoryProviderTest
     {
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-        RepositorySearchRequest request = new RepositorySearchRequest(STORAGE0, REPOSITORY_GROUP);
-        request.setSkip(10);
-        request.setLimit(10);
-        List<Path> result = repositoryProvider.search(request);
+        
+        RepositorySearchRequest searchRequest = new RepositorySearchRequest(STORAGE0, REPOSITORY_GROUP);
+        RepositoryPageRequest pageRequest = new RepositoryPageRequest();
+        pageRequest.setSkip(10);
+        pageRequest.setLimit(10);
+        
+        List<Path> result = repositoryProvider.search(searchRequest, pageRequest);
         
         assertEquals(2, result.size());
         
-        request.setLimit(-1);
-        result = repositoryProvider.search(request);
+        pageRequest.setLimit(-1);
+        result = repositoryProvider.search(searchRequest, pageRequest);
         
         assertEquals(2, result.size());
         
         repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
         repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-        request = new RepositorySearchRequest(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
-        request.setSkip(11);
-        request.setLimit(10);
-        result = repositoryProvider.search(request);
+        searchRequest = new RepositorySearchRequest(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
+        pageRequest.setSkip(11);
+        pageRequest.setLimit(10);
+        result = repositoryProvider.search(searchRequest, pageRequest);
         
         assertEquals(1, result.size());
         
-        request.setLimit(-1);
-        result = repositoryProvider.search(request);
+        pageRequest.setLimit(-1);
+        result = repositoryProvider.search(searchRequest, pageRequest);
         
         assertEquals(1, result.size());
     }

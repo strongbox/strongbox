@@ -284,14 +284,15 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public List<Path> search(RepositorySearchRequest request)
+    public List<Path> search(RepositorySearchRequest searchRequest,
+                             RepositoryPageRequest pageRequest)
     {
         Map<ArtifactCoordinates, Path> resultMap = new LinkedHashMap<>();
 
-        String storageId = request.getStorageId();
+        String storageId = searchRequest.getStorageId();
         Storage storage = getConfiguration().getStorage(storageId);
 
-        String repositoryId = request.getRepositoryId();
+        String repositoryId = searchRequest.getRepositoryId();
         logger.debug("Search in " + storage.getId() + ":" + repositoryId + "...");
 
         Repository groupRepository = storage.getRepository(repositoryId);
@@ -308,8 +309,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             return new LinkedList<>();
         }
         
-        int skip = request.getSkip();
-        int limit = request.getLimit();
+        int skip = pageRequest.getSkip();
+        int limit = pageRequest.getLimit();
 
         int groupSize = groupRepositorySet.size();
         int groupSkip = (skip / (limit * groupSize)) * limit;
@@ -319,24 +320,22 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         
         outer: do
         {
-            RepositorySearchRequest requestLocal = new RepositorySearchRequest(null, null);
-            requestLocal.setCoordinates(request.getCoordinates());
-            requestLocal.setLimit(groupLimit);
-            requestLocal.setOrderBy(request.getOrderBy());
-            requestLocal.setSkip(groupSkip);
-            requestLocal.setStrict(request.isStrict());
+            RepositoryPageRequest pageRequestLocal = new RepositoryPageRequest();
+            pageRequestLocal.setLimit(groupLimit);
+            pageRequestLocal.setOrderBy(pageRequest.getOrderBy());
+            pageRequestLocal.setSkip(groupSkip);
 
             groupLimit = 0;
 
             for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext();)
             {
                 Repository r = i.next();
-                requestLocal.setStorageId(r.getStorage().getId());
-                requestLocal.setRepositoryId(r.getId());
+                searchRequest.setStorageId(r.getStorage().getId());
+                searchRequest.setRepositoryId(r.getId());
 
                 RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(r.getType());
 
-                List<Path> repositoryResult = repositoryProvider.search(requestLocal);
+                List<Path> repositoryResult = repositoryProvider.search(searchRequest, pageRequestLocal);
                 if (repositoryResult.isEmpty())
                 {
                     i.remove();
@@ -386,4 +385,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         }
     }
     
+    @Override
+    public Long count(RepositorySearchRequest searchRequest)
+    {
+        return null;
+    }
 }

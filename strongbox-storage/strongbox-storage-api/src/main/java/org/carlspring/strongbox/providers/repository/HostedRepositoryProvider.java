@@ -6,13 +6,10 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
@@ -90,20 +87,21 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public List<Path> search(RepositorySearchRequest request)
+    public List<Path> search(RepositorySearchRequest searchRequest,
+                             RepositoryPageRequest pageRequest)
     {
         List<Path> result = new LinkedList<Path>();
         
-        Storage storage = configurationManager.getConfiguration().getStorage(request.getStorageId());
-        Repository repository = storage.getRepository(request.getRepositoryId());
+        Storage storage = configurationManager.getConfiguration().getStorage(searchRequest.getStorageId());
+        Repository repository = storage.getRepository(searchRequest.getRepositoryId());
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         
-        List<ArtifactEntry> artifactEntryList = artifactEntryService.findByCoordinates(request.getStorageId(),
-                                                                                       request.getRepositoryId(),
-                                                                                       request.getCoordinates(),
-                                                                                       request.getSkip(),
-                                                                                       request.getLimit(),
-                                                                                       request.getOrderBy(), false);
+        List<ArtifactEntry> artifactEntryList = artifactEntryService.findByCoordinates(searchRequest.getStorageId(),
+                                                                                       searchRequest.getRepositoryId(),
+                                                                                       searchRequest.getCoordinates(),
+                                                                                       pageRequest.getSkip(),
+                                                                                       pageRequest.getLimit(),
+                                                                                       pageRequest.getOrderBy(), false);
         
         for (ArtifactEntry artifactEntry : artifactEntryList)
         {
@@ -124,5 +122,10 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         return result;
     }
 
-    
+    @Override
+    public Long count(RepositorySearchRequest searchRequest)
+    {
+        return null;
+    }
+
 }
