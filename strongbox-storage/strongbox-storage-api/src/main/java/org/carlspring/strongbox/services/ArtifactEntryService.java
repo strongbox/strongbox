@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,6 +44,10 @@ public interface ArtifactEntryService
                                           int limit,
                                           String orderBy,
                                           boolean strict);
+    
+    Long countByCoordinates(Collection<String> repositoryIdList,
+                            Map<String, String> coordinates,
+                            boolean strict);
     
     Long countByCoordinates(String storageId,
                             String repositoryId,

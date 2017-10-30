@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -24,6 +25,7 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
@@ -44,6 +46,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
     private static final String ALIAS = "group";
 
+    @Inject
+    private ArtifactEntryService artifactEntryService;
 
     @PostConstruct
     @Override
@@ -436,9 +440,12 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         Repository groupRepository = storage.getRepository(repositoryId);
         
-        Set<Repository> groupRepositorySet = calculateGroupRepositorySet(storage, groupRepository, true);
+        Set<String> groupRepositoryIdSet = calculateGroupRepositorySet(storage, groupRepository,
+                                                                       true).stream()
+                                                                            .map(r -> r.getId())
+                                                                            .collect(Collectors.toCollection(LinkedHashSet::new));
         
-        
-        return null;
+        return artifactEntryService.countByCoordinates(groupRepositoryIdSet, searchRequest.getCoordinates(),
+                                                       searchRequest.isStrict());
     }
 }

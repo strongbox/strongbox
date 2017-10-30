@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.services.impl;
 
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +95,14 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
             return findByCoordinates(storageId, repositoryId, new HashMap<>());
         }
         return findByCoordinates(storageId, repositoryId, coordinates.getCoordinates());
+    }
+    
+    @Override
+    public Long countByCoordinates(Collection<String> repositoryIdList,
+                                   Map<String, String> coordinates,
+                                   boolean strict)
+    {
+        return null;
     }
 
     @Override
