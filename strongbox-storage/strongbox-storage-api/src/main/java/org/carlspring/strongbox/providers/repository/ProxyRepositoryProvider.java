@@ -1,22 +1,22 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
-import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.event.CommonEventListenerRegistry;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
+import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
+import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -37,6 +37,12 @@ public class ProxyRepositoryProvider
     @LocalStorageProxyRepositoryArtifactResolver.LocalStorageProxyRepositoryArtifactResolverQualifier
     private ProxyRepositoryArtifactResolver proxyRepositoryArtifactResolver;
 
+    @Inject
+    private HostedRepositoryProvider hostedRepositoryProvider;
+    
+    @Inject
+    private CommonEventListenerRegistry commonEventListenerRegistry;
+    
     @PostConstruct
     @Override
     public void register()
@@ -72,13 +78,16 @@ public class ProxyRepositoryProvider
             throws IOException,
                    NoSuchAlgorithmException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
-
-        return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
+        throw new UnsupportedOperationException(String.format("Can't write artifact into Proxy repository [%s/%s/%s].",
+                                                              storageId, repositoryId, artifactPath));
     }
-
+    
+    @Override
+    public List<Path> search(RepositorySearchRequest request)
+    {
+    	commonEventListenerRegistry.dispatchEvent(new RemoteRepositorySearchEvent(request));
+    	
+        return hostedRepositoryProvider.search(request);
+    }
+    
 }

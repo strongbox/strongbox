@@ -236,7 +236,7 @@ public class MetadataHelper
      * @param artifactBasePath Path
      * @return File
      */
-    public static Path getMetadataFile(Path artifactBasePath)
+    public static Path getMetadataPath(Path artifactBasePath)
             throws FileNotFoundException
     {
         if (Files.exists(artifactBasePath))
@@ -250,19 +250,19 @@ public class MetadataHelper
         }
     }
 
-    public static File getArtifactMetadataFile(Path artifactBasePath)
+    public static Path getArtifactMetadataPath(Path artifactBasePath)
     {
-        return getMetadataFile(artifactBasePath, null, MetadataType.ARTIFACT_ROOT_LEVEL);
+        return getMetadataPath(artifactBasePath, null, MetadataType.ARTIFACT_ROOT_LEVEL);
     }
 
-    public static File getSnapshotMetadataFile(Path artifactBasePath, String version)
+    public static Path getSnapshotMetadataPath(Path artifactBasePath, String version)
     {
-        return getMetadataFile(artifactBasePath, version, MetadataType.SNAPSHOT_VERSION_LEVEL);
+        return getMetadataPath(artifactBasePath, version, MetadataType.SNAPSHOT_VERSION_LEVEL);
     }
 
-    public static File getPluginMetadataFile(Path artifactBasePath)
+    public static Path getPluginMetadataPath(Path artifactBasePath)
     {
-        return getMetadataFile(artifactBasePath, null, MetadataType.PLUGIN_GROUP_LEVEL);
+        return getMetadataPath(artifactBasePath, null, MetadataType.PLUGIN_GROUP_LEVEL);
     }
 
     /**
@@ -271,27 +271,18 @@ public class MetadataHelper
      * @param artifactBasePath Path
      * @return File
      */
-    public static File getMetadataFile(Path artifactBasePath, String version, MetadataType metadataType)
+    public static Path getMetadataPath(Path artifactBasePath, String version, MetadataType metadataType)
     {
         switch (metadataType)
         {
             case PLUGIN_GROUP_LEVEL:
-                return new File(artifactBasePath.getParent()
-                                                .toFile()
-                                                .getAbsolutePath() + "/" + MAVEN_METADATA_XML);
+                return artifactBasePath.getParent().resolve(MAVEN_METADATA_XML);
             case SNAPSHOT_VERSION_LEVEL:
-                return new File(artifactBasePath.toFile()
-                                                .getAbsolutePath() + "/" + version + "/" + MAVEN_METADATA_XML);
+                return artifactBasePath.resolve(version).resolve(MAVEN_METADATA_XML);
             case ARTIFACT_ROOT_LEVEL:
             default:
-                return new File(artifactBasePath.toFile()
-                                                .getAbsolutePath() + "/" + MAVEN_METADATA_XML);
+                return artifactBasePath.resolve(MAVEN_METADATA_XML);
         }
-    }
-
-    public static Path getMetadataPath(Path artifactBasePath, String version, MetadataType metadataType)
-    {
-        return getMetadataFile(artifactBasePath, version, metadataType).toPath();
     }
 
 }

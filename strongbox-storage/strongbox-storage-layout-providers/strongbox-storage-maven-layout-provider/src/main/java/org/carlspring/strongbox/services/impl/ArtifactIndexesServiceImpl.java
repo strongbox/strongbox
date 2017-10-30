@@ -40,6 +40,8 @@ public class ArtifactIndexesServiceImpl
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
+    @Inject
+    private MavenRepositoryFeatures features;
 
     @Override
     public void rebuildIndex(String storageId,
@@ -50,14 +52,12 @@ public class ArtifactIndexesServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        MavenRepositoryFeatures repositoryFeatures = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
-
-        if (!repositoryFeatures.isIndexingEnabled(repository))
+        if (!features.isIndexingEnabled(repository))
         {
             return;
         }
-        
+
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath repostitoryPath = layoutProvider.resolve(repository);
         if (artifactPath != null && artifactPath.trim().length() > 0)
         {
@@ -72,8 +72,6 @@ public class ArtifactIndexesServiceImpl
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setOperation(operation);
         locator.locateArtifactDirectories();
-
-        MavenRepositoryFeatures features = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
 
         features.pack(storageId, repositoryId);
     }

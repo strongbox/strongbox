@@ -14,7 +14,6 @@ import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 
 import javax.inject.Inject;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -91,12 +90,16 @@ public class MavenArtifactFetchedFromRemoteEventListener
         {
             final Repository repository = getRepository(event);
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+
             final RepositoryPath repositoryAbsolutePath = layoutProvider.resolve(repository);
             final RepositoryPath artifactAbsolutePath = repositoryAbsolutePath.resolve(event.getPath());
-            final Path artifactBaseAbsolutePath = artifactAbsolutePath.getParent();
-            final Path metadataAbsolutePath = MetadataHelper.getMetadataPath(artifactBaseAbsolutePath, null,
-                                                                             MetadataType.PLUGIN_GROUP_LEVEL);
-            final Path metadataRelativePath = repositoryAbsolutePath.relativize(metadataAbsolutePath);
+            final RepositoryPath artifactBaseAbsolutePath = artifactAbsolutePath.getParent();
+
+            final RepositoryPath metadataAbsolutePath = (RepositoryPath) MetadataHelper.getMetadataPath(
+                    artifactBaseAbsolutePath,
+                    null,
+                    MetadataType.PLUGIN_GROUP_LEVEL);
+            final Path metadataRelativePath = metadataAbsolutePath.getRepositoryRelative();
 
             try
             {

@@ -14,7 +14,6 @@ import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
-import org.carlspring.strongbox.util.FileUtils;
 
 import javax.inject.Inject;
 import java.io.*;
@@ -104,10 +103,10 @@ public class MavenMetadataManager
     public Metadata readMetadata(Path artifactBasePath)
             throws IOException, XmlPullParserException
     {
-        Path metadataFile = MetadataHelper.getMetadataFile(artifactBasePath);
+        Path metadataPath = MetadataHelper.getMetadataPath(artifactBasePath);
         Metadata metadata;
 
-        try (InputStream is = Files.newInputStream(metadataFile))
+        try (InputStream is = Files.newInputStream(metadataPath))
         {
             metadata = readMetadata(is);
         }
@@ -144,11 +143,11 @@ public class MavenMetadataManager
                  {
                      try
                      {
-                         File metadataFile = MetadataHelper.getMetadataFile(metadataBasePath, version, metadataType);
-                         FileUtils.deleteIfExists(metadataFile);
+                         Path metadataPath = MetadataHelper.getMetadataPath(metadataBasePath, version, metadataType);
+                         Files.deleteIfExists(metadataPath);
 
-                         try (OutputStream os = new MultipleDigestOutputStream(metadataFile,
-                                                                               new FileOutputStream(metadataFile));
+                         try (OutputStream os = new MultipleDigestOutputStream(metadataPath,
+                                                                               Files.newOutputStream(metadataPath));
                               Writer writer = WriterFactory.newXmlWriter(os))
                          {
 
@@ -428,7 +427,8 @@ public class MavenMetadataManager
 
     }
 
-    private void doInLock(final Path metadataBasePath, final Consumer<Path> operation)
+    private void doInLock(final Path metadataBasePath,
+                          final Consumer<Path> operation)
     {
         synchronized (getMetadataSynchronizationLock(metadataBasePath))
         {

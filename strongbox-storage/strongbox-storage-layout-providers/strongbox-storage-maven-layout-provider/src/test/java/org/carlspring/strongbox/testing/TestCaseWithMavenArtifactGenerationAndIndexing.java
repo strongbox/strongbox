@@ -8,7 +8,6 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactSearchService;
@@ -55,12 +54,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         extends TestCaseWithMavenArtifactGeneration
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestCaseWithMavenArtifactGenerationAndIndexing.class);
-
     public static final int ROUTING_RULE_TYPE_DENIED = 0;
-
     public static final int ROUTING_RULE_TYPE_ACCEPTED = 1;
-
+    private static final Logger logger = LoggerFactory.getLogger(TestCaseWithMavenArtifactGenerationAndIndexing.class);
     @Inject
     protected RepositoryIndexManager repositoryIndexManager;
 
@@ -200,15 +196,10 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                                               .getStorage(storageId)
                                                               .getRepository(repositoryId);
 
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        MavenRepositoryFeatures repositoryFeatures = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
-
-        if (repositoryFeatures.isIndexingEnabled(repository))
+        if (features.isIndexingEnabled(repository))
         {
-            Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-
-            repositoryFeatures.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/").replaceAll("\\:", "\\/"));
-            repositoryFeatures.pack(storageId, repositoryId);
+            features.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/").replaceAll("\\:", "\\/"));
+            features.pack(storageId, repositoryId);
         }
     }
 
@@ -221,12 +212,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                                               .getStorage(storageId)
                                                               .getRepository(repositoryId);
 
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        MavenRepositoryFeatures repositoryFeatures = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
-
-        if (repositoryFeatures.isIndexingEnabled(repository))
+        if (features.isIndexingEnabled(repository))
         {
-            repositoryFeatures.reIndex(storageId, repositoryId, path != null ? path : ".");
+            features.reIndex(storageId, repositoryId, path != null ? path : ".");
         }
     }
 
@@ -238,12 +226,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                                               .getStorage(storageId)
                                                               .getRepository(repositoryId);
 
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        MavenRepositoryFeatures repositoryFeatures = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
-
-        if (repositoryFeatures.isIndexingEnabled(repository))
+        if (features.isIndexingEnabled(repository))
         {
-            repositoryFeatures.pack(storageId, repositoryId);
+            features.pack(storageId, repositoryId);
         }
     }
 
@@ -343,7 +328,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         locator.setOperation(new GenerateMavenMetadataOperation(mavenMetadataManager));
         locator.locateArtifactDirectories();
     }
-
+ 
     public void assertIndexContainsArtifact(String storageId,
                                             String repositoryId,
                                             String query)

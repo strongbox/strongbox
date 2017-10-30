@@ -13,15 +13,15 @@ Welcome to the Strongbox artifact repository manager's home.
     * Support for nested group repositories
 * Layout providers:
   * Maven 2.x/3.x
+  * NuGet v2
 * [Search providers](https://github.com/strongbox/strongbox/wiki/Searching):
   * OrientDB (default implementation for all repositories and layout formats)
   * [Maven Indexer](https://github.com/strongbox/strongbox/wiki/Maven-Indexer) (additional implementation for Maven repositories)
-* Cache
-  * For performance optimisation and for resolving concurrency issues when authenticate using OrientDB second-level cache EhCache is used
 * Directory browsing
 * Security
   * HTTP Basic authentication
   * JWT authentication
+  * LDAP
   * Custom authentication provider based on users that resides in second-level cache that exists in OrientDB
   * Users are predefined in the `etc/conf/strongbox-security-users.xml` file
 * [REST API](https://github.com/strongbox/strongbox/wiki/REST-API):
@@ -42,16 +42,15 @@ Welcome to the Strongbox artifact repository manager's home.
 * Logging:
   * Retrieve logs over HTTP
 
-# What's in the works:
+# What's in the works (Q4/2017):
 * [Proxy repositories](https://github.com/strongbox/strongbox/wiki/Repositories#proxy)
 * [Maven Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
-* NuGet repository layout
-* Security
-  * Expression-based roles and privileges subsystem
+* NuGet groups
 * Web UI
 * Logging:
   * Log tailing over HTTP
-* Deploy as transaction
+* Deploy as a transaction
+* Dependency snippet generator over REST API
 * Maven settings.xml generator over REST API
 * ~~OSGI repository layouts (P2, OBR)~~ [on hold]
 

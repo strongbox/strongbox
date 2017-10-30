@@ -98,8 +98,8 @@ public abstract class ProxyRepositoryArtifactResolver
 
             is = onSuccessfulProxyRepositoryResponse(is, storageId, repositoryId, path);
 
-            final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-            final RepositoryFileAttributes artifactFileAttributes = (RepositoryFileAttributes) Files.readAttributes(
+            RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
+            RepositoryFileAttributes artifactFileAttributes = (RepositoryFileAttributes) Files.readAttributes(
                     artifactPath,
                     BasicFileAttributes.class);
             if (!artifactFileAttributes.isChecksum() && !artifactFileAttributes.isMetadata())
