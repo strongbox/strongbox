@@ -125,7 +125,8 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     @Override
     public Long count(RepositorySearchRequest searchRequest)
     {
-        return null;
+        return artifactEntryService.countByCoordinates(searchRequest.getStorageId(), searchRequest.getRepositoryId(),
+                                                       searchRequest.getCoordinates(), searchRequest.isStrict());
     }
 
 }

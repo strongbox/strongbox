@@ -297,12 +297,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         Repository groupRepository = storage.getRepository(repositoryId);
 
-        Set<Repository> groupRepositorySet = groupRepository.getGroupRepositories().stream().map((e) -> {
-            String sId = getConfigurationManager().getStorageId(storage, e);
-            String rId = getConfigurationManager().getRepositoryId(e);
-
-            return getConfiguration().getStorage(sId).getRepository(rId);
-        }).collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<Repository> groupRepositorySet = calculateGroupRepositorySet(storage, groupRepository);
         
         if (groupRepositorySet.isEmpty())
         {
@@ -373,6 +368,51 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return resultList.subList(skip, toIndex);
     }
 
+    private Set<Repository> calculateGroupRepositorySet(Storage storage, Repository repository)
+    {
+        return calculateGroupRepositorySet(storage, repository, false);
+    }
+
+    private Set<Repository> calculateGroupRepositorySet(Storage storage,
+                                                        Repository groupRepository,
+                                                        boolean traverse)
+    {
+        Set<Repository> result = groupRepository.getGroupRepositories()
+                                                            .stream()
+                                                            .map(groupRepoId -> {
+                                                                return getRepository(storage, groupRepoId);
+                                                            })
+                                                            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        if (!traverse)
+        {
+            return result;
+        }
+
+        Set<Repository> traverseResult = new LinkedHashSet<>();
+        for (Iterator<Repository> i = result.iterator(); i.hasNext();)
+        {
+            Repository r = i.next();
+            if (r.getGroupRepositories().isEmpty()) {
+                traverseResult.add(r);
+                continue;
+            }
+            
+            i.remove();
+            traverseResult.addAll(calculateGroupRepositorySet(storage, r, true));
+        }
+        
+        return result;
+    }
+
+    private Repository getRepository(Storage storage, String id)
+    {
+        String sId = getConfigurationManager().getStorageId(storage, id);
+        String rId = getConfigurationManager().getRepositoryId(id);
+
+        return getConfiguration().getStorage(sId).getRepository(rId);
+    }
+
     private ArtifactCoordinates getArtifactCoordinates(Path p)
     {
         try
@@ -388,6 +428,17 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     @Override
     public Long count(RepositorySearchRequest searchRequest)
     {
+        String storageId = searchRequest.getStorageId();
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        String repositoryId = searchRequest.getRepositoryId();
+        logger.debug("Count in " + storage.getId() + ":" + repositoryId + "...");
+
+        Repository groupRepository = storage.getRepository(repositoryId);
+        
+        Set<Repository> groupRepositorySet = calculateGroupRepositorySet(storage, groupRepository, true);
+        
+        
         return null;
     }
 }

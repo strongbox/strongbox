@@ -94,7 +94,7 @@ public class ProxyRepositoryProvider
     @Override
     public Long count(RepositorySearchRequest searchRequest)
     {
-        return null;
+        return hostedRepositoryProvider.count(searchRequest);
     }
     
 }
