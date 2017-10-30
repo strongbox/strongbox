@@ -31,6 +31,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -439,11 +440,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         logger.debug("Count in " + storage.getId() + ":" + repositoryId + "...");
 
         Repository groupRepository = storage.getRepository(repositoryId);
-        
-        Set<String> groupRepositoryIdSet = calculateGroupRepositorySet(storage, groupRepository,
-                                                                       true).stream()
-                                                                            .map(r -> r.getId())
-                                                                            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        Set<Pair<String, String>> groupRepositoryIdSet = calculateGroupRepositorySet(storage, groupRepository,
+                                                                                     true).stream()
+                                                                                          .map(r -> Pair.with(r.getStorage()
+                                                                                                               .getId(),
+                                                                                                              r.getId()))
+                                                                                          .collect(Collectors.toCollection(LinkedHashSet::new));
         
         return artifactEntryService.countByCoordinates(groupRepositoryIdSet, searchRequest.getCoordinates(),
                                                        searchRequest.isStrict());

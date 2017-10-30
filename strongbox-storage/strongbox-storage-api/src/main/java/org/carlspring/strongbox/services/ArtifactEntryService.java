@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.CrudService;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.javatuples.Pair;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -45,7 +46,7 @@ public interface ArtifactEntryService
                                           String orderBy,
                                           boolean strict);
     
-    Long countByCoordinates(Collection<String> repositoryIdList,
+    Long countByCoordinates(Collection<Pair<String, String>> storageRepositoryPairList,
                             Map<String, String> coordinates,
                             boolean strict);
     

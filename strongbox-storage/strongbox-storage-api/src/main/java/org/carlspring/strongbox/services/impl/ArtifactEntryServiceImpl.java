@@ -13,6 +13,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.CommonCrudService;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -98,7 +99,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     }
     
     @Override
-    public Long countByCoordinates(Collection<String> repositoryIdList,
+    public Long countByCoordinates(Collection<Pair<String, String>> storageRepositoryPairList,
                                    Map<String, String> coordinates,
                                    boolean strict)
     {
