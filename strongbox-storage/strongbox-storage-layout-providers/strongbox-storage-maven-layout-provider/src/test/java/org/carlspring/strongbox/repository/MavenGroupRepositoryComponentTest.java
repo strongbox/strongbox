@@ -1,12 +1,9 @@
 package org.carlspring.strongbox.repository;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -16,6 +13,7 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -58,17 +56,9 @@ public class MavenGroupRepositoryComponentTest
 
     private static final String REPOSITORY_LEAF_K = "leaf-repo-k";
 
-    private static final File REPOSITORY_LEAF_E_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                   "/storages/" + STORAGE0 + "/" +
-                                                                   REPOSITORY_LEAF_E);
-
     private static final File REPOSITORY_LEAF_L_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                    "/storages/" + STORAGE0 + "/" +
                                                                    REPOSITORY_LEAF_L);
-
-    private static final File REPOSITORY_LEAF_Z_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                   "/storages/" + STORAGE0 + "/" +
-                                                                   REPOSITORY_LEAF_Z);
 
     private static final File REPOSITORY_LEAF_D_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                    "/storages/" + STORAGE0 + "/" +
@@ -92,35 +82,8 @@ public class MavenGroupRepositoryComponentTest
 
     private static final String REPOSITORY_GROUP_H = "group-repo-h";
 
-    private static final File REPOSITORY_GROUP_A_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_GROUP_A);
-
-    private static final File REPOSITORY_GROUP_B_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_GROUP_B);
-
-    private static final File REPOSITORY_GROUP_C_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_GROUP_C);
-
-    private static final File REPOSITORY_GROUP_F_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_GROUP_F);
-
-    private static final File REPOSITORY_GROUP_H_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_GROUP_H);
-
     @Inject
-    private ArtifactMetadataService artifactMetadataService;
-
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
-    private ConfigurationManager configurationManager;
-
+    private MavenGroupRepositoryComponent mavenGroupRepositoryComponent;
 
     @BeforeClass
     public static void cleanUp()
@@ -208,26 +171,35 @@ public class MavenGroupRepositoryComponentTest
         createGroup(REPOSITORY_GROUP_F, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
         createGroup(REPOSITORY_GROUP_H, REPOSITORY_GROUP_F, REPOSITORY_LEAF_K);
 
+        // whenAnArtifactWasDeletedAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible
         generateArtifact(REPOSITORY_LEAF_L_BASEDIR.getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-group",
                          new String[]{ "1.2.1",
-                                       // testDeleteArtifact()
-                                       "1.2.2"
-                                       // testDeleteArtifactDirectory()
-                         }
+                                       "1.2.2" }
         );
 
+        // whenAnArtifactWasDeletedAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible
         generateArtifact(REPOSITORY_LEAF_G_BASEDIR.getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-group",
                          new String[]{ "1.2.1",
-                                       // testDeleteArtifact()
-                                       "1.2.2"
-                                       // testDeleteArtifactDirectory()
-                         }
+                                       "1.2.2" }
+        );
+
+        generateArtifact(REPOSITORY_LEAF_D_BASEDIR.getAbsolutePath(),
+                         "com.artifacts.to.update.releases:update-group",
+                         new String[]{ "1.2.1",
+                                       "1.2.2" }
+        );
+
+        generateArtifact(REPOSITORY_LEAF_K_BASEDIR.getAbsolutePath(),
+                         "com.artifacts.to.update.releases:update-group",
+                         new String[]{ "1.2.1" }
         );
 
         generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_L);
         generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_G);
+        generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_D);
+        generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_K);
 
         copyArtifactMetadata(REPOSITORY_LEAF_L, REPOSITORY_GROUP_F, FilenameUtils.normalize(
                 "com/artifacts/to/delete/releases/delete-group/maven-metadata.xml"));
@@ -237,6 +209,8 @@ public class MavenGroupRepositoryComponentTest
                 "com/artifacts/to/delete/releases/delete-group/maven-metadata.xml"));
         copyArtifactMetadata(REPOSITORY_LEAF_L, REPOSITORY_GROUP_H, FilenameUtils.normalize(
                 "com/artifacts/to/delete/releases/delete-group/maven-metadata.xml"));
+        copyArtifactMetadata(REPOSITORY_LEAF_K, REPOSITORY_GROUP_H, FilenameUtils.normalize(
+                "com/artifacts/to/update/releases/update-group/maven-metadata.xml"));
     }
 
     @After
@@ -299,6 +273,120 @@ public class MavenGroupRepositoryComponentTest
         metadata = mavenMetadataManager.readMetadata(
                 layoutProvider.resolve(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A)).resolve(
                         "com/artifacts/to/delete/releases/delete-group"));
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
+        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
+        assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
+    }
+
+    @Test
+    public void whenMetadataWasUploadedInRepositoryAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible()
+            throws Exception
+    {
+        Repository repository = configurationManager.getConfiguration()
+                                                    .getStorage(STORAGE0)
+                                                    .getRepository(REPOSITORY_LEAF_D);
+
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        Metadata metadata;
+
+        // BEFORE
+        metadata = mavenMetadataManager.readMetadata(
+                layoutProvider.resolve(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_D)).resolve(
+                        "com/artifacts/to/update/releases/update-group"));
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
+        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
+        assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
+
+        metadata = mavenMetadataManager.readMetadata(
+                layoutProvider.resolve(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_K)).resolve(
+                        "com/artifacts/to/update/releases/update-group"));
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
+        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
+
+        metadata = mavenMetadataManager.readMetadata(
+                layoutProvider.resolve(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H)).resolve(
+                        "com/artifacts/to/update/releases/update-group"));
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
+        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
+
+        try
+        {
+            metadata = mavenMetadataManager.readMetadata(
+                    layoutProvider.resolve(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_F)).resolve(
+                            "com/artifacts/to/update/releases/update-group"));
+
+            fail("metadata SHOULD NOT exist");
+        }
+        catch (FileNotFoundException expected)
+        {
+            // do nothing, by design
+        }
+
+        try
+        {
+            metadata = mavenMetadataManager.readMetadata(
+                    layoutProvider.resolve(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B)).resolve(
+                            "com/artifacts/to/update/releases/update-group"));
+
+            fail("metadata SHOULD NOT exist");
+        }
+        catch (FileNotFoundException expected)
+        {
+            // do nothing, by design
+        }
+
+        try
+        {
+            metadata = mavenMetadataManager.readMetadata(
+                    layoutProvider.resolve(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A)).resolve(
+                            "com/artifacts/to/update/releases/update-group"));
+
+            fail("metadata SHOULD NOT exist");
+        }
+        catch (FileNotFoundException expected)
+        {
+            // do nothing, by design
+        }
+
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
+        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
+
+        // IMITATE THE EVENT
+        mavenGroupRepositoryComponent.updateMetadataInRepositoryParents(STORAGE0, REPOSITORY_LEAF_D,
+                                                                        "com/artifacts/to/update/releases/update-group/maven-metadata.xml",
+                                                                        Path::getParent);
+
+        // AFTER
+        metadata = mavenMetadataManager.readMetadata(
+                layoutProvider.resolve(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_D)).resolve(
+                        "com/artifacts/to/update/releases/update-group"));
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
+        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
+        assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
+
+        metadata = mavenMetadataManager.readMetadata(
+                layoutProvider.resolve(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_K)).resolve(
+                        "com/artifacts/to/update/releases/update-group"));
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
+        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
+
+        metadata = mavenMetadataManager.readMetadata(
+                layoutProvider.resolve(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H)).resolve(
+                        "com/artifacts/to/update/releases/update-group"));
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
+        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
+        assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
+
+        metadata = mavenMetadataManager.readMetadata(
+                layoutProvider.resolve(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B)).resolve(
+                        "com/artifacts/to/update/releases/update-group"));
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
+        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
+        assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
+
+        metadata = mavenMetadataManager.readMetadata(
+                layoutProvider.resolve(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A)).resolve(
+                        "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
         assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));

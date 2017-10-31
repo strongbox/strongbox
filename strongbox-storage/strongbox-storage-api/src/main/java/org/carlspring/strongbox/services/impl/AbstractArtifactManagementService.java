@@ -105,7 +105,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                    ProviderImplementationException,
                    NoSuchAlgorithmException
     {
-        try (final ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath))
+        try (final ArtifactOutputStream aos = getLayoutProvider(repositoryPath.getFileSystem().getRepository(),
+                                                                layoutProviderRegistry).getOutputStream(repositoryPath))
         {
             storeArtifact(repositoryPath, is, aos);
             storeArtifactEntry(repositoryPath);
@@ -184,6 +185,10 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(storageId,
                                                                                    repositoryId,
                                                                                    artifactPath);
+
+            artifactEventListenerRegistry.dispatchArtifactMetadataFileUploadedEvent(storageId,
+                                                                                    repositoryId,
+                                                                                    artifactPath);
         }
         if (updatedArtifactChecksumFile)
         {
@@ -196,12 +201,6 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         if (updatedArtifactFile)
         {
             // If this is an artifact file and it has been updated:
-            artifactEventListenerRegistry.dispatchArtifactUploadedEvent(storageId, repositoryId, artifactPath);
-        }
-
-        if (!layoutProvider.isChecksum(repositoryPath) && !layoutProvider.isMetadata(repositoryPath.toString()))
-        {
-            // If this us just a regular upload of a new artifact file:
             artifactEventListenerRegistry.dispatchArtifactUploadedEvent(storageId, repositoryId, artifactPath);
         }
 

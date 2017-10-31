@@ -8,8 +8,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 
 import com.google.common.base.Throwables;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,8 +17,6 @@ import org.springframework.stereotype.Component;
 public class MavenArtifactDeletedEventListener
         extends BaseMavenArtifactEventListener
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactDeletedEventListener.class);
 
     @Inject
     private MavenGroupRepositoryComponent mavenGroupRepositoryComponent;

@@ -4,21 +4,23 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,9 +38,6 @@ public class MavenGroupRepositoryComponent
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
-    private ArtifactMetadataService artifactMetadataService;
 
     @Inject
     private MavenMetadataManager mavenMetadataManager;
@@ -130,36 +129,57 @@ public class MavenGroupRepositoryComponent
         }
     }
 
-    public void update(final String storageId,
-                       final String repositoryId,
-                       final String artifactRelativePath)
-            throws Exception
+    public void updateMetadataInRepositoryParents(final String storageId,
+                                                  final String repositoryId,
+                                                  final String artifactRelativePath,
+                                                  final Function<Path, Path> artifactBasePathCalculation)
+            throws IOException, XmlPullParserException
     {
 
-        final Repository repository = configurationManager.getConfiguration().getStorage(storageId).getRepository(
-                repositoryId);
+        final Repository repository = configurationManagementService.getConfiguration().getStorage(
+                storageId).getRepository(repositoryId);
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         final RepositoryPath repositoryAbsolutePath = layoutProvider.resolve(repository);
         final RepositoryPath artifactAbsolutePath = repositoryAbsolutePath.resolve(artifactRelativePath);
-        final Path artifactBaseAbsolutePath = artifactAbsolutePath.getParent();
 
-        final Metadata metadata = mavenMetadataManager.readMetadata(artifactBaseAbsolutePath.getParent());
+        Metadata mergeMetadata;
+        try
+        {
+            mergeMetadata = mavenMetadataManager.readMetadata(artifactBasePathCalculation.apply(artifactAbsolutePath));
+        }
+        catch (FileNotFoundException ex)
+        {
+            // there is no metadata file - exit silently
+            return;
+        }
 
+        updateMetadataInRepositoryParents(repository, artifactRelativePath, artifactBasePathCalculation, mergeMetadata);
+    }
+
+    private void updateMetadataInRepositoryParents(final Repository repository,
+                                                   final String artifactRelativePath,
+                                                   final Function<Path, Path> artifactBasePathCalculation,
+                                                   final Metadata mergeMetadata)
+            throws IOException
+    {
         final List<Repository> groupRepositories = configurationManagementService.getGroupRepositoriesContaining(
-                repositoryId);
+                repository.getId());
         if (CollectionUtils.isEmpty(groupRepositories))
         {
             return;
         }
-        for (Repository parent : groupRepositories)
+        for (final Repository parent : groupRepositories)
         {
             final LayoutProvider parentLayoutProvider = layoutProviderRegistry.getProvider(parent.getLayout());
             final RepositoryPath parentRepositoryAbsolutePath = parentLayoutProvider.resolve(parent);
             final RepositoryPath parentRepositoryArtifactAbsolutePath = parentRepositoryAbsolutePath.resolve(
                     artifactRelativePath);
-            final Path parentRepositoryArtifactBaseAbsolutePath = parentRepositoryArtifactAbsolutePath.getParent().getParent();
 
-            mavenMetadataManager.mergeAndStore(parentRepositoryArtifactBaseAbsolutePath, metadata);
+            mavenMetadataManager.mergeAndStore(artifactBasePathCalculation.apply(parentRepositoryArtifactAbsolutePath),
+                                               mergeMetadata);
+
+            // go higher in the hierarchy
+            updateMetadataInRepositoryParents(parent, artifactRelativePath, artifactBasePathCalculation, mergeMetadata);
         }
     }
 
