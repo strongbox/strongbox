@@ -320,6 +320,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         
         outer: do
         {
+            RepositorySearchRequest searchRequestLocal = new RepositorySearchRequest(null, null);
+            searchRequestLocal.setCoordinates(searchRequest.getCoordinates());
+            
             RepositoryPageRequest pageRequestLocal = new RepositoryPageRequest();
             pageRequestLocal.setLimit(groupLimit);
             pageRequestLocal.setOrderBy(pageRequest.getOrderBy());
@@ -330,12 +333,12 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext();)
             {
                 Repository r = i.next();
-                searchRequest.setStorageId(r.getStorage().getId());
-                searchRequest.setRepositoryId(r.getId());
+                searchRequestLocal.setStorageId(r.getStorage().getId());
+                searchRequestLocal.setRepositoryId(r.getId());
 
                 RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(r.getType());
 
-                List<Path> repositoryResult = repositoryProvider.search(searchRequest, pageRequestLocal);
+                List<Path> repositoryResult = repositoryProvider.search(searchRequestLocal, pageRequestLocal);
                 if (repositoryResult.isEmpty())
                 {
                     i.remove();

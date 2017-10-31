@@ -162,7 +162,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
                                         .append(".toLowerCase()")
                                         .append(strict ? " = " : " like ")
                                         .append(String.format(":%s", e)));
-        sb.append(" WHERE ").append(c1.length() > 0 ? c1.append(" AND ").toString() : " true AND ");
+        sb.append(" WHERE ").append(c1.length() > 0 ? c1.append(" AND ").toString() : " true = true AND ");
 
         //REPOSITORIES
         StringBuffer c2 = new StringBuffer();
