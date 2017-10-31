@@ -11,7 +11,7 @@ public class RepositoryPageRequest
 
     public Integer getSkip()
     {
-        return skip == null ? 0 : skip;
+        return skip == null ? Integer.valueOf(0) : skip;
     }
 
     public void setSkip(Integer skip)

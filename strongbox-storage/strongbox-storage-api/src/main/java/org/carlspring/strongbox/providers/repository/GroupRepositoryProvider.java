@@ -302,7 +302,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         Repository groupRepository = storage.getRepository(repositoryId);
 
-        Set<Repository> groupRepositorySet = collectGroupRepositorySet(storage, groupRepository);
+        Set<Repository> groupRepositorySet = collectGroupRepositorySet(groupRepository);
         
         if (groupRepositorySet.isEmpty())
         {
@@ -373,21 +373,20 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return resultList.subList(skip, toIndex);
     }
 
-    private Set<Repository> collectGroupRepositorySet(Storage storage, Repository repository)
+    private Set<Repository> collectGroupRepositorySet(Repository repository)
     {
-        return collectGroupRepositorySet(storage, repository, false);
+        return collectGroupRepositorySet(repository, false);
     }
 
-    private Set<Repository> collectGroupRepositorySet(Storage storage,
-                                                      Repository groupRepository,
+    private Set<Repository> collectGroupRepositorySet(Repository groupRepository,
                                                       boolean traverse)
     {
         Set<Repository> result = groupRepository.getGroupRepositories()
-                                                            .stream()
-                                                            .map(groupRepoId -> {
-                                                                return getRepository(storage, groupRepoId);
-                                                            })
-                                                            .collect(Collectors.toCollection(LinkedHashSet::new));
+                                                .stream()
+                                                .map(groupRepoId -> {
+                                                    return getRepository(groupRepository.getStorage(), groupRepoId);
+                                                })
+                                                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         if (!traverse)
         {
@@ -404,10 +403,10 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             }
             
             i.remove();
-            traverseResult.addAll(collectGroupRepositorySet(storage, r, true));
+            traverseResult.addAll(collectGroupRepositorySet(r, true));
         }
         
-        return result;
+        return traverseResult;
     }
 
     private Repository getRepository(Storage storage, String id)
@@ -441,12 +440,12 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         Repository groupRepository = storage.getRepository(repositoryId);
 
-        Set<Pair<String, String>> storageRepositoryPairSet = collectGroupRepositorySet(storage, groupRepository,
-                                                                                   true).stream()
-                                                                                        .map(r -> Pair.with(r.getStorage()
-                                                                                                             .getId(),
-                                                                                                            r.getId()))
-                                                                                        .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<Pair<String, String>> storageRepositoryPairSet = collectGroupRepositorySet(groupRepository,
+                                                                                       true).stream()
+                                                                                            .map(r -> Pair.with(r.getStorage()
+                                                                                                                 .getId(),
+                                                                                                                r.getId()))
+                                                                                            .collect(Collectors.toCollection(LinkedHashSet::new));
 
         return artifactEntryService.countByCoordinates(storageRepositoryPairSet, searchRequest.getCoordinates(),
                                                        searchRequest.isStrict());

@@ -236,6 +236,9 @@ public class GroupRepositoryProviderTest
         result = repositoryProvider.search(searchRequest, pageRequest);
         
         assertEquals(1, result.size());
+        
+        Long count = repositoryProvider.count(searchRequest);
+        assertEquals(Long.valueOf(12), count);
     }
 
 }
