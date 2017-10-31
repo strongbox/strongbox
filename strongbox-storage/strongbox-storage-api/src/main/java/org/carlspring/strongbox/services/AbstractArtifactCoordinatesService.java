@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
 import org.carlspring.strongbox.data.service.CommonCrudService;
-import org.carlspring.strongbox.domain.ArtifactEntry;
 
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
