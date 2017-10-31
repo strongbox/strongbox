@@ -119,7 +119,7 @@ public class NugetRemoteRepositoryTest
                                                                 null);
 
         NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates("NHibernate", "4.0.4.4000", "nupkg");
-        Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOne(NUGET_COMMON_STORAGE, REPOSITORY_PROXY, c.toPath());
+        Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneAritifact(NUGET_COMMON_STORAGE, REPOSITORY_PROXY, c.toPath());
         assertTrue(artifactEntry.isPresent());
         assertFalse(((RemoteArtifactEntry)artifactEntry.get()).getIsCached());
     }

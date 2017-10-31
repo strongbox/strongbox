@@ -41,6 +41,11 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryService.class);
 
     
+    @Override
+    public Class<ArtifactEntry> getEntityClass()
+    {
+        return ArtifactEntry.class;
+    }
     
     @Override
     public <S extends ArtifactEntry> S save(S entity)
@@ -49,16 +54,16 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     }
 
     @Override
-    public List<ArtifactEntry> findByCoordinates(String storageId,
+    public List<ArtifactEntry> findAritifactList(String storageId,
                                                  String repositoryId,
                                                  Map<String, String> coordinates)
     {
-        return findByCoordinates(storageId , repositoryId, coordinates, 0, -1, null, false);
+        return findAritifactList(storageId, repositoryId, coordinates, 0, -1, null, false);
     }
 
     @Override
     @Transactional
-    public List<ArtifactEntry> findByCoordinates(String storageId,
+    public List<ArtifactEntry> findAritifactList(String storageId,
                                                  String repositoryId,
                                                  Map<String, String> coordinates,
                                                  int skip,
@@ -88,19 +93,42 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     }
 
     @Override
-    public List<ArtifactEntry> findByCoordinates(String storageId,
+    public List<ArtifactEntry> findAritifactList(String storageId,
                                                  String repositoryId,
                                                  ArtifactCoordinates coordinates)
     {
         if (coordinates == null)
         {
-            return findByCoordinates(storageId, repositoryId, new HashMap<>());
+            return findAritifactList(storageId, repositoryId, new HashMap<>());
         }
-        return findByCoordinates(storageId, repositoryId, coordinates.getCoordinates());
+        return findAritifactList(storageId, repositoryId, coordinates.getCoordinates());
     }
     
     @Override
-    public Long countByCoordinates(Collection<Pair<String, String>> storageRepositoryPairList,
+    public Long countCoordinates(Collection<Pair<String, String>> storageRepositoryPairList,
+                                 Map<String, String> coordinates,
+                                 boolean strict)
+    {
+        coordinates = prepareParameterMap(coordinates, strict);
+        String sQuery = buildCoordinatesQuery(storageRepositoryPairList, coordinates.keySet(), 0, 0, null, strict);
+        sQuery = sQuery.replace("*", "count(artifactCoordinates)");
+        OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
+        
+        Map<String, Object> parameterMap = new HashMap<>(coordinates);
+        
+        Pair<String, String>[] p = storageRepositoryPairList.toArray(new Pair[storageRepositoryPairList.size()]);
+        IntStream.range(0, storageRepositoryPairList.size()).forEach(idx -> {
+            parameterMap.put(String.format("storageId%s", idx), p[idx].getValue0());
+            parameterMap.put(String.format("repositoryId%s", idx), p[idx].getValue1());
+        });
+        
+        
+        List<ODocument> result = getDelegate().command(oQuery).execute(parameterMap);
+        return (Long) result.iterator().next().field("count");
+    }
+
+    @Override
+    public Long countAritifacts(Collection<Pair<String, String>> storageRepositoryPairList,
                                    Map<String, String> coordinates,
                                    boolean strict)
     {
@@ -120,16 +148,15 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         
         List<ODocument> result = getDelegate().command(oQuery).execute(parameterMap);
         return (Long) result.iterator().next().field("count");
-
     }
 
     @Override
-    public Long countByCoordinates(String storageId,
-                                   String repositoryId,
-                                   Map<String, String> coordinates,
-                                   boolean strict)
+    public Long countAritifacts(String storageId,
+                                String repositoryId,
+                                Map<String, String> coordinates,
+                                boolean strict)
     {
-        return countByCoordinates(toList(storageId, repositoryId), coordinates,
+        return countAritifacts(toList(storageId, repositoryId), coordinates,
                                   strict);
     }
 
@@ -220,23 +247,19 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         }
         return result;
     }
-    
-    @Override
-    public Class<ArtifactEntry> getEntityClass()
-    {
-        return ArtifactEntry.class;
-    }
 
     @Override
-    public boolean exists(String storageId, String repositoryId, String path)
+    public boolean aritifactExists(String storageId,
+                                   String repositoryId,
+                                   String path)
     {
         return findArtifactEntryId(storageId, repositoryId, path) != null;
     }
 
     @Override
-    public Optional<ArtifactEntry> findOne(String storageId,
-                                           String repositoryId,
-                                           String path)
+    public Optional<ArtifactEntry> findOneAritifact(String storageId,
+                                                    String repositoryId,
+                                                    String path)
     {
         ORID artifactEntryIdId = findArtifactEntryId(storageId, repositoryId, path);
         return artifactEntryIdId == null ? Optional.empty()

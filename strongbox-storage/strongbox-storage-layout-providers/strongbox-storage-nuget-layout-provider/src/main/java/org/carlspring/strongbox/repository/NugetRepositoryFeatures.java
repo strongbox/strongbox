@@ -125,7 +125,7 @@ public class NugetRepositoryFeatures
                 NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates(packageId,
                                                                                                   packageVersion, 
                                                                                                   "nupkg");
-                if (!artifactEntryService.exists(storageId, repositoryId, c.toPath()))
+                if (!artifactEntryService.aritifactExists(storageId, repositoryId, c.toPath()))
                 {
                     artifactToSaveSet.add(c);
                 }
@@ -170,7 +170,7 @@ public class NugetRepositoryFeatures
             String packageId = coordinates.get(NugetArtifactCoordinates.ID);
             String version = coordinates.get(NugetArtifactCoordinates.VERSION);
 
-            Long packageCount = artifactEntryService.countByCoordinates(storage.getId(), repository.getId(), coordinates, repositorySearchRequest.isStrict());
+            Long packageCount = artifactEntryService.countAritifacts(storage.getId(), repository.getId(), coordinates, repositorySearchRequest.isStrict());
             logger.debug(String.format("Remote repository [%s] cached package count is [%s]", repository.getId(), packageCount));
             
             Expression filter = repositorySearchRequest.isStrict() ? createPackageEq(packageId, null) : null;

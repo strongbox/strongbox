@@ -96,7 +96,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         Repository repository = storage.getRepository(searchRequest.getRepositoryId());
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         
-        List<ArtifactEntry> artifactEntryList = artifactEntryService.findByCoordinates(searchRequest.getStorageId(),
+        List<ArtifactEntry> artifactEntryList = artifactEntryService.findAritifactList(searchRequest.getStorageId(),
                                                                                        searchRequest.getRepositoryId(),
                                                                                        searchRequest.getCoordinates(),
                                                                                        pageRequest.getSkip(),
@@ -125,7 +125,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     @Override
     public Long count(RepositorySearchRequest searchRequest)
     {
-        return artifactEntryService.countByCoordinates(searchRequest.getStorageId(), searchRequest.getRepositoryId(),
+        return artifactEntryService.countAritifacts(searchRequest.getStorageId(), searchRequest.getRepositoryId(),
                                                        searchRequest.getCoordinates(), searchRequest.isStrict());
     }
 

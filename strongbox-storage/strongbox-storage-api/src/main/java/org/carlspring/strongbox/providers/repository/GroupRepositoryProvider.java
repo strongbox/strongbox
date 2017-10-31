@@ -450,7 +450,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                                                                                                                 r.getId()))
                                                                                             .collect(Collectors.toCollection(LinkedHashSet::new));
 
-        return artifactEntryService.countByCoordinates(storageRepositoryPairSet, searchRequest.getCoordinates(),
-                                                       searchRequest.isStrict());
+        return artifactEntryService.countCoordinates(storageRepositoryPairSet, searchRequest.getCoordinates(),
+                                                     searchRequest.isStrict());
     }
 }
