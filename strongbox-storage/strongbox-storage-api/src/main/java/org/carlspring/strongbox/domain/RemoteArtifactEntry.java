@@ -12,6 +12,11 @@ public class RemoteArtifactEntry
 {
 
     private Boolean isCached = Boolean.FALSE;
+    
+    public RemoteArtifactEntry()
+    {
+        super();
+    }
 
     public Boolean getIsCached()
     {
