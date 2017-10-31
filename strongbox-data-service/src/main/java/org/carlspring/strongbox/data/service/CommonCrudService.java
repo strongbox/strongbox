@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.data.service;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.service.impl.EntityServiceRegistry;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -30,6 +32,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
     @PersistenceContext
     protected EntityManager entityManager;
 
+    @Inject
     private EntityServiceRegistry entityServiceRegistry;
 
     @PostConstruct
@@ -51,13 +54,14 @@ public abstract class CommonCrudService<T extends GenericEntity>
             {
                 continue;
             }
+            
             GenericEntity subEntity = (GenericEntity) ReflectionUtils.getField(field, entity);
             if (subEntity == null)
             {
                 continue;
             }
 
-            CommonCrudService<GenericEntity> entityService = (CommonCrudService<GenericEntity>) entityServiceRegistry.getEntityService(t);
+            CommonCrudService<GenericEntity> entityService = (CommonCrudService<GenericEntity>) entityServiceRegistry.getEntityService(subEntity.getClass());
             entityService.identifyEntity(subEntity);
         }
     }

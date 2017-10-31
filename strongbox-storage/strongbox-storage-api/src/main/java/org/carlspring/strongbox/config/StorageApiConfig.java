@@ -82,9 +82,9 @@ public class StorageApiConfig
                                                                                            .getClass(AbstractArtifactCoordinates.class);
         if (artifactCoordinatesClass.getIndexes()
                                     .stream()
-                                    .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact_path")))
+                                    .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact_coordinates")))
         {
-            artifactEntryClass.createIndex("idx_artifact_coordinates", OClass.INDEX_TYPE.UNIQUE, "path");
+            artifactCoordinatesClass.createIndex("idx_artifact_coordinates", OClass.INDEX_TYPE.UNIQUE, "path");
         }
         
     }

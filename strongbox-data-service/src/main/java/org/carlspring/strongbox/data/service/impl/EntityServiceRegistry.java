@@ -1,9 +1,11 @@
-package org.carlspring.strongbox.data.service;
+package org.carlspring.strongbox.data.service.impl;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.service.CommonCrudService;
+import org.carlspring.strongbox.data.service.CrudService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,7 +25,7 @@ public class EntityServiceRegistry
         CrudService result = entityServiceMap.get(entityClass);
         if (result == null)
         {
-            throw new RuntimeException(String.format("Failed to resolve service for [%s]", entityClass));
+            return entityServiceMap.get(GenericEntity.class);
         }
         return (CommonCrudService<T>) result;
     }
