@@ -66,9 +66,5 @@ public interface ArtifactEntryService
     Optional<ArtifactEntry> findOneAritifact(String storageId,
                                              String repositoryId,
                                              String path);
-    
-    public ArtifactEntry create(String storageId,
-                                String repositoryId,
-                                Class<? extends ArtifactCoordinates> coordinatesType,
-                                String path);
+
 }

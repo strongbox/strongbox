@@ -288,48 +288,4 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         return result == null ? null : ((ODocument)result.field("rid")).getIdentity();
     }
 
-    @Override
-    public ArtifactEntry create(String storageId,
-                                String repositoryId,
-                                Class<? extends ArtifactCoordinates> coordinatesType,
-                                String path)
-    {
-        ArtifactEntry result = new ArtifactEntry();
-        result.setStorageId(storageId);
-        result.setRepositoryId(repositoryId);
-        
-        String sQuery = String.format("SELECT FROM INDEX:idx_artifact_coordinates WHERE key = :path");
-
-        OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
-        oQuery.setLimit(1);
-
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("path", path);
-
-        List<ODocument> coordinatesIdList = getDelegate().command(oQuery).execute(params);
-        ODocument coordinatesIdResult = coordinatesIdList.isEmpty() ? null : coordinatesIdList.iterator().next();
-        ORID coordinatesEntityId = coordinatesIdResult == null ? null
-                : ((ODocument) coordinatesIdResult.field("rid")).getIdentity();
-
-        AbstractArtifactCoordinates artifactCoordinates = entityManager.find(AbstractArtifactCoordinates.class,
-                                                                             coordinatesEntityId);
-        if (artifactCoordinates == null)
-        {
-            try
-            {
-                Constructor<? extends ArtifactCoordinates> constructor = coordinatesType.getConstructor(String.class);
-                constructor.setAccessible(true);
-                artifactCoordinates = (AbstractArtifactCoordinates) constructor.newInstance(path);
-            }
-            catch (Exception e)
-            {
-                logger.error(String.format("Failed to create [%s] instance using path [%s].", coordinatesType, path),
-                             e);
-            }
-        }
-        result.setArtifactCoordinates(artifactCoordinates);
-        
-        return result;
-    }
-    
 }
