@@ -48,25 +48,23 @@ public abstract class CommonCrudService<T extends GenericEntity>
     protected void cascadeEntityIdentification(T entity)
     {
         identifyEntity(entity);
-
-        for (Field field : entity.getClass().getDeclaredFields())
-        {
+        ReflectionUtils.doWithFields(entity.getClass(), (field)->{
             ReflectionUtils.makeAccessible(field);
             Class<? extends GenericEntity> t = (Class<? extends GenericEntity>) field.getType();
             if (!GenericEntity.class.isAssignableFrom(t))
             {
-                continue;
+                return;
             }
             
             GenericEntity subEntity = (GenericEntity) ReflectionUtils.getField(field, entity);
             if (subEntity == null)
             {
-                continue;
+                return;
             }
 
             CommonCrudService<GenericEntity> entityService = (CommonCrudService<GenericEntity>) entityServiceRegistry.getEntityService(subEntity.getClass());
             entityService.identifyEntity(subEntity);
-        }
+        });
     }
 
     protected boolean identifyEntity(T entity)
