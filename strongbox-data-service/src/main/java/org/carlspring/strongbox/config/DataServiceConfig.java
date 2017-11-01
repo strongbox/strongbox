@@ -4,11 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
+import org.carlspring.strongbox.data.service.impl.EntityServiceRegistry;
+import org.carlspring.strongbox.data.service.impl.GenericEntityCrudService;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +75,12 @@ public class DataServiceConfig
     @Value("${strongbox.orientdb.password:password}")
     private String password;
 
+    /**
+     * This dependency used to bootstrap {@link EntityServiceRegistry}
+     */
+    @Inject
+    public GenericEntityCrudService genericEntityCrudService;
+    
     private static EmbeddedOrientDbServer embeddableServer;
 
     @PostConstruct
