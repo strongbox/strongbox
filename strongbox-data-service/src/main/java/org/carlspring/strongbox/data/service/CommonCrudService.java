@@ -1,26 +1,29 @@
 package org.carlspring.strongbox.data.service;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
-import org.carlspring.strongbox.data.service.impl.EntityServiceRegistry;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-
-import java.lang.reflect.Field;
-import java.util.*;
+import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.service.impl.EntityServiceRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ReflectionUtils;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ReflectionUtils;
 
 @Transactional
 public abstract class CommonCrudService<T extends GenericEntity>
@@ -68,10 +71,16 @@ public abstract class CommonCrudService<T extends GenericEntity>
 
     protected boolean identifyEntity(T entity)
     {
-        if (entity.getObjectId() != null || entity.getUuid() == null)
+        if (entity.getObjectId() != null)
         {
+            return true;
+        }
+        else if (entity.getUuid() == null)
+        {
+            entity.setUuid(UUID.randomUUID().toString());
             return false;
         }
+        
         String sQuery = String.format("SELECT @rid AS objectId FROM %s WHERE uuid = :uuid",
                                       entity.getClass().getSimpleName());
 

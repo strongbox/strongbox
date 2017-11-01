@@ -22,11 +22,17 @@ public class EntityServiceRegistry
 
     public <T extends GenericEntity> CommonCrudService<T> getEntityService(Class<T> entityClass)
     {
-        CrudService result = entityServiceMap.get(entityClass);
-        if (result == null)
+        Class<?> t = entityClass;
+        do
         {
-            return entityServiceMap.get(GenericEntity.class);
-        }
-        return (CommonCrudService<T>) result;
+            CrudService result = entityServiceMap.get(t);
+            if (result != null)
+            {
+                return (CommonCrudService<T>) result;
+            }
+            t = t.getSuperclass();
+        } while (!t.equals(Object.class));
+
+        throw new RuntimeException(String.format("Failed to locate service for [%s]", entityClass));
     }
 }

@@ -241,7 +241,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                                                                                       storage.getId(),
                                                                                       repository.getId(),
                                                                                       artifactPath));
-        artifactEntryService.save(artifactEntry);
+        artifactEntry = artifactEntryService.save(artifactEntry);
+        System.out.println(artifactEntry.getObjectId());
     }
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,

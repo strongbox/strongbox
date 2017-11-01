@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -22,7 +23,7 @@ public class GenericEntityHook extends ORecordHookAbstract
     @Override
     public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode()
     {
-        return DISTRIBUTED_EXECUTION_MODE.BOTH;
+        return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
     }
 
     @Override
@@ -41,8 +42,10 @@ public class GenericEntityHook extends ORecordHookAbstract
             uuid = UUID.randomUUID().toString();
             logger.debug(String.format("Found empty 'uuid', default unique value generated [%s].", uuid));
             doc.field("uuid", uuid);
-
             result = RESULT.RECORD_CHANGED;
+            throw new OValidationException(
+                    String.format("Failed to persist document [%s]. UUID can't be empty or null.",
+                                  doc.getSchemaClass()));
         }
 
         for (OClass oClass : doc.getSchemaClass().getAllSuperClasses())
@@ -66,7 +69,7 @@ public class GenericEntityHook extends ORecordHookAbstract
             logger.debug(String.format("Set 'artifactPath' value [%s] for [%s]:[%s].", path, doc.getClass(), doc.getIdentity()));
             break;
         }
-
+        
         return result;
     }
 
