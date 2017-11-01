@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.repository;
+package org.carlspring.strongbox.repository.metadata;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -21,14 +21,18 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Component
-public class MavenGroupRepositoryComponent
+public class MavenMetadataGroupRepositoryComponent
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(MavenMetadataGroupRepositoryComponent.class);
 
     @Inject
     private ConfigurationManagementService configurationManagementService;
@@ -42,19 +46,20 @@ public class MavenGroupRepositoryComponent
     @Inject
     private MavenMetadataManager mavenMetadataManager;
 
-    public void deleteMetadataInRepositoryParents(final String storageId,
-                                                  final String repositoryId,
-                                                  final String artifactRelativePath)
+    public void deleteMetadataInGroupRepositoriesContainingPath(final String storageId,
+                                                                final String repositoryId,
+                                                                final String artifactRelativePath)
             throws IOException
     {
         final Map<String, MutableBoolean> repositoryArtifactExistence = new HashMap<>();
-        deleteMetadataInRepositoryParents(storageId, repositoryId, artifactRelativePath, repositoryArtifactExistence);
+        deleteMetadataInGroupRepositoriesContainingPath(storageId, repositoryId, artifactRelativePath,
+                                                        repositoryArtifactExistence);
     }
 
-    private void deleteMetadataInRepositoryParents(final String storageId,
-                                                   final String repositoryId,
-                                                   final String artifactRelativePath,
-                                                   final Map<String, MutableBoolean> repositoryArtifactExistence)
+    private void deleteMetadataInGroupRepositoriesContainingPath(final String storageId,
+                                                                 final String repositoryId,
+                                                                 final String artifactRelativePath,
+                                                                 final Map<String, MutableBoolean> repositoryArtifactExistence)
             throws IOException
     {
         final List<Repository> directParents = configurationManagementService.getGroupRepositoriesContaining(
@@ -75,9 +80,10 @@ public class MavenGroupRepositoryComponent
                                               artifactRelativePath);
             }
             // go higher in the hierarchy
-            deleteMetadataInRepositoryParents(groupRepository.getStorage().getId(), groupRepository.getId(),
-                                              artifactRelativePath,
-                                              repositoryArtifactExistence);
+            deleteMetadataInGroupRepositoriesContainingPath(groupRepository.getStorage().getId(),
+                                                            groupRepository.getId(),
+                                                            artifactRelativePath,
+                                                            repositoryArtifactExistence);
         }
     }
 
@@ -95,9 +101,9 @@ public class MavenGroupRepositoryComponent
             final String subStorageId = configurationManager.getStorageId(groupRepository.getStorage(),
                                                                           maybeStorageAndRepositoryId);
             final String subRepositoryId = configurationManager.getRepositoryId(maybeStorageAndRepositoryId);
-            final Repository subRepository = configurationManager.getConfiguration().getStorage(
-                    subStorageId).getRepository(
-                    subRepositoryId);
+            final Repository subRepository = configurationManager.getConfiguration()
+                                                                 .getStorage(subStorageId)
+                                                                 .getRepository(subRepositoryId);
 
             final String storageAndRepositoryId = subStorageId + ":" + subRepositoryId;
             repositoryArtifactExistence.putIfAbsent(storageAndRepositoryId, new MutableBoolean());
@@ -129,10 +135,10 @@ public class MavenGroupRepositoryComponent
         }
     }
 
-    public void updateMetadataInRepositoryParents(final String storageId,
-                                                  final String repositoryId,
-                                                  final String artifactRelativePath,
-                                                  final Function<Path, Path> artifactBasePathCalculation)
+    public void updateMetadataInGroupsContainingRepository(final String storageId,
+                                                           final String repositoryId,
+                                                           final String artifactRelativePath,
+                                                           final Function<Path, Path> artifactBasePathCalculation)
             throws IOException, XmlPullParserException
     {
 
@@ -143,23 +149,27 @@ public class MavenGroupRepositoryComponent
         final RepositoryPath artifactAbsolutePath = repositoryAbsolutePath.resolve(artifactRelativePath);
 
         Metadata mergeMetadata;
+        Path artifactBasePath = null;
         try
         {
-            mergeMetadata = mavenMetadataManager.readMetadata(artifactBasePathCalculation.apply(artifactAbsolutePath));
+            artifactBasePath = artifactBasePathCalculation.apply(artifactAbsolutePath);
+            mergeMetadata = mavenMetadataManager.readMetadata(artifactBasePath);
         }
-        catch (FileNotFoundException ex)
+        catch (final FileNotFoundException ex)
         {
-            // there is no metadata file - exit silently
+            // ex not propagated, intentional
+            logger.warn("Unable to read metadata in repository path {}.", artifactBasePath);
             return;
         }
 
-        updateMetadataInRepositoryParents(repository, artifactRelativePath, artifactBasePathCalculation, mergeMetadata);
+        updateMetadataInGroupsContainingRepository(repository, artifactRelativePath, artifactBasePathCalculation,
+                                                   mergeMetadata);
     }
 
-    private void updateMetadataInRepositoryParents(final Repository repository,
-                                                   final String artifactRelativePath,
-                                                   final Function<Path, Path> artifactBasePathCalculation,
-                                                   final Metadata mergeMetadata)
+    private void updateMetadataInGroupsContainingRepository(final Repository repository,
+                                                            final String artifactRelativePath,
+                                                            final Function<Path, Path> artifactBasePathCalculation,
+                                                            final Metadata mergeMetadata)
             throws IOException
     {
         final List<Repository> groupRepositories = configurationManagementService.getGroupRepositoriesContaining(
@@ -179,7 +189,8 @@ public class MavenGroupRepositoryComponent
                                                mergeMetadata);
 
             // go higher in the hierarchy
-            updateMetadataInRepositoryParents(parent, artifactRelativePath, artifactBasePathCalculation, mergeMetadata);
+            updateMetadataInGroupsContainingRepository(parent, artifactRelativePath, artifactBasePathCalculation,
+                                                       mergeMetadata);
         }
     }
 

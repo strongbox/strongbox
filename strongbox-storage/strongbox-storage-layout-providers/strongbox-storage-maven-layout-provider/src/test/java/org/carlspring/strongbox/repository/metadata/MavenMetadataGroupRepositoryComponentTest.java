@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.repository;
+package org.carlspring.strongbox.repository.metadata;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -16,12 +16,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -40,7 +36,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
-public class MavenGroupRepositoryComponentTest
+public class MavenMetadataGroupRepositoryComponentTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
@@ -83,7 +79,7 @@ public class MavenGroupRepositoryComponentTest
     private static final String REPOSITORY_GROUP_H = "group-repo-h";
 
     @Inject
-    private MavenGroupRepositoryComponent mavenGroupRepositoryComponent;
+    private MavenMetadataGroupRepositoryComponent mavenGroupRepositoryComponent;
 
     @BeforeClass
     public static void cleanUp()
@@ -352,9 +348,9 @@ public class MavenGroupRepositoryComponentTest
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
 
         // IMITATE THE EVENT
-        mavenGroupRepositoryComponent.updateMetadataInRepositoryParents(STORAGE0, REPOSITORY_LEAF_D,
-                                                                        "com/artifacts/to/update/releases/update-group/maven-metadata.xml",
-                                                                        Path::getParent);
+        mavenGroupRepositoryComponent.updateMetadataInGroupsContainingRepository(STORAGE0, REPOSITORY_LEAF_D,
+                                                                                 "com/artifacts/to/update/releases/update-group/maven-metadata.xml",
+                                                                                 Path::getParent);
 
         // AFTER
         metadata = mavenMetadataManager.readMetadata(
@@ -391,28 +387,5 @@ public class MavenGroupRepositoryComponentTest
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
         assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
     }
-
-    /*
-    @Test
-    public void testDeleteArtifactDirectory()
-            throws IOException, NoSuchAlgorithmException, SearchException
-    {
-        Repository repository = configurationManager.getConfiguration()
-                                                    .getStorage(STORAGE0)
-                                                    .getRepository(REPOSITORY_RELEASES);
-
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-
-        String path = "com/artifacts/to/delete/releases/delete-foo/1.2.2";
-        File artifactFile = new File(repository.getBasedir(), path);
-
-        assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
-
-        layoutProvider.delete(STORAGE0, REPOSITORY_RELEASES, path, false);
-        ((Maven2LayoutProvider) layoutProvider).closeIndex(STORAGE0, REPOSITORY_RELEASES, path);
-
-        assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
-    }
-    */
 
 }

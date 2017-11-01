@@ -340,9 +340,9 @@ public class MavenMetadataManager
                 }
                 catch (Exception e)
                 {
-                    logger.error("Unable to merge the metadata to " + metadataBasePath + " by source metadata" +
+                    logger.error("Unable to merge the metadata to " + metadataBasePath + " by source metadata " +
                                  ReflectionToStringBuilder.toString(mergeMetadata) +
-                                 " Continuing with storing new metadata", e);
+                                 ". Continuing with storing new metadata ...", e);
                 }
             }
 

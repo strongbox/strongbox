@@ -30,6 +30,6 @@ public class MavenArtifactUploadedEventListener
             return;
         }
 
-        updateParentGroupRepositoriesMetadata(event, Path::getParent);
+        updateMetadataInGroupsContainingRepository(event, Path::getParent);
     }
 }

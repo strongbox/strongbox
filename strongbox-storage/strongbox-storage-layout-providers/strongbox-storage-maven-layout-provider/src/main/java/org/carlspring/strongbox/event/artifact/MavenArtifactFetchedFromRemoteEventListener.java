@@ -56,7 +56,7 @@ public class MavenArtifactFetchedFromRemoteEventListener
         }
 
         resolveArtifactMetadataAtArtifactIdLevel(event);
-        updateParentGroupRepositoriesMetadata(event, path -> path.getParent().getParent());
+        updateMetadataInGroupsContainingRepository(event, path -> path.getParent().getParent());
     }
 
     private void resolveArtifactMetadataAtArtifactIdLevel(final ArtifactEvent event)

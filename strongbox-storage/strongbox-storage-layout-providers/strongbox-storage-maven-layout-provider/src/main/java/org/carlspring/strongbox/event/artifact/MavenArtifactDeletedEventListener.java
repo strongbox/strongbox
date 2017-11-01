@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.event.artifact;
 
-import org.carlspring.strongbox.repository.MavenGroupRepositoryComponent;
+import org.carlspring.strongbox.repository.metadata.MavenMetadataGroupRepositoryComponent;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 
@@ -19,7 +19,7 @@ public class MavenArtifactDeletedEventListener
 {
 
     @Inject
-    private MavenGroupRepositoryComponent mavenGroupRepositoryComponent;
+    private MavenMetadataGroupRepositoryComponent mavenGroupRepositoryComponent;
 
     @Override
     public void handle(final ArtifactEvent event)
@@ -38,9 +38,9 @@ public class MavenArtifactDeletedEventListener
 
         try
         {
-            mavenGroupRepositoryComponent.deleteMetadataInRepositoryParents(event.getStorageId(),
-                                                                            event.getRepositoryId(),
-                                                                            event.getPath());
+            mavenGroupRepositoryComponent.deleteMetadataInGroupRepositoriesContainingPath(event.getStorageId(),
+                                                                                          event.getRepositoryId(),
+                                                                                          event.getPath());
         }
         catch (IOException e)
         {

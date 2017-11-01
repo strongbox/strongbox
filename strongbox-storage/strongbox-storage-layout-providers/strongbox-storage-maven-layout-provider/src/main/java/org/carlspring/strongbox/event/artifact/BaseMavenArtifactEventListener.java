@@ -2,7 +2,7 @@ package org.carlspring.strongbox.event.artifact;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.repository.MavenGroupRepositoryComponent;
+import org.carlspring.strongbox.repository.metadata.MavenMetadataGroupRepositoryComponent;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -36,7 +36,7 @@ abstract class BaseMavenArtifactEventListener
     MavenMetadataManager mavenMetadataManager;
 
     @Inject
-    MavenGroupRepositoryComponent mavenGroupRepositoryComponent;
+    MavenMetadataGroupRepositoryComponent mavenGroupRepositoryComponent;
 
     Repository getRepository(final ArtifactEvent event)
     {
@@ -44,15 +44,15 @@ abstract class BaseMavenArtifactEventListener
                 event.getRepositoryId());
     }
 
-    void updateParentGroupRepositoriesMetadata(final ArtifactEvent event,
-                                               final Function<Path, Path> artifactBasePathCalculation)
+    void updateMetadataInGroupsContainingRepository(final ArtifactEvent event,
+                                                    final Function<Path, Path> artifactBasePathCalculation)
     {
         try
         {
-            mavenGroupRepositoryComponent.updateMetadataInRepositoryParents(event.getStorageId(),
-                                                                            event.getRepositoryId(),
-                                                                            event.getPath(),
-                                                                            artifactBasePathCalculation);
+            mavenGroupRepositoryComponent.updateMetadataInGroupsContainingRepository(event.getStorageId(),
+                                                                                     event.getRepositoryId(),
+                                                                                     event.getPath(),
+                                                                                     artifactBasePathCalculation);
         }
         catch (Exception e)
         {
