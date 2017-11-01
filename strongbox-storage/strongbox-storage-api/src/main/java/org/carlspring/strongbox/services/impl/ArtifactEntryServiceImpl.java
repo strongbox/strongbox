@@ -116,7 +116,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     {
         coordinates = prepareParameterMap(coordinates, strict);
         String sQuery = buildCoordinatesQuery(storageRepositoryPairList, coordinates.keySet(), 0, 0, null, strict);
-        sQuery = sQuery.replace("*", "count(artifactCoordinates)");
+        sQuery = sQuery.replace("*", "count(distinct(artifactCoordinates))");
         OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
         
         Map<String, Object> parameterMap = new HashMap<>(coordinates);
