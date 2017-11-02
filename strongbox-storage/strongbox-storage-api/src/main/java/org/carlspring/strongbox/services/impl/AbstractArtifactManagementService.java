@@ -314,7 +314,6 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
         artifactEntry.setArtifactCoordinates(artifactCoordinates);
-        artifactEntry.setArtifactPath(path);
         return artifactEntry;
     }
     

@@ -112,7 +112,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
             }
             catch (IOException e)
             {
-                logger.error(String.format("Failed to resolve Artifact [%s]", artifactEntry.getArtifactPath()),
+                logger.error(String.format("Failed to resolve Artifact [%s]", artifactEntry.getArtifactCoordinates()),
                              e);
                 continue;
             }

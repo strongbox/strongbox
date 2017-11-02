@@ -1,10 +1,11 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Collections;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.GenericEntityHook;
 
 
 /**
@@ -16,7 +17,10 @@ public abstract class AbstractArtifactCoordinates
 {
 
     private Map<String, String> coordinates = new LinkedHashMap<>();
-    private String path;
+    /**
+     * This field is used as unique OrientDB index.
+     */
+    protected String path;
 
     public AbstractArtifactCoordinates()
     {
@@ -78,11 +82,6 @@ public abstract class AbstractArtifactCoordinates
         this.path = toPath();
     }
     
-    public String getPath()
-    {
-        return path;
-    }
-
     @Override
     public String toString()
     {

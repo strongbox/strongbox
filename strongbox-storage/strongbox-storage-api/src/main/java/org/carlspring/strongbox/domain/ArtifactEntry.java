@@ -29,7 +29,7 @@ public class ArtifactEntry
      * This field is used as part of [storageId, repositoryId, artifactPath] unique index. The value of this field is
      * populated within {@link GenericEntityHook}.
      */
-    private String artifactPath;
+    protected String artifactPath;
 
     public ArtifactEntry()
     {
@@ -63,17 +63,6 @@ public class ArtifactEntry
     public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
         this.artifactCoordinates = (AbstractArtifactCoordinates) artifactCoordinates;
-        getArtifactPath();
-    }
-
-    public final String getArtifactPath()
-    {
-        return artifactCoordinates == null ? artifactPath : (artifactPath = artifactCoordinates.toPath());
-    }
-    
-    public void setArtifactPath(String artifactPath)
-    {
-        this.artifactPath = artifactCoordinates != null ? artifactCoordinates.toPath() : artifactPath;
     }
 
     @Override
