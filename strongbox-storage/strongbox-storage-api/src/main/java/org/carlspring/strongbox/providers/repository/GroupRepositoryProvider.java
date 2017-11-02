@@ -322,6 +322,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         {
             RepositorySearchRequest searchRequestLocal = new RepositorySearchRequest(null, null);
             searchRequestLocal.setCoordinates(searchRequest.getCoordinates());
+            searchRequestLocal.setStrict(searchRequest.isStrict());
             
             RepositoryPageRequest pageRequestLocal = new RepositoryPageRequest();
             pageRequestLocal.setLimit(groupLimit);
@@ -335,6 +336,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 Repository r = i.next();
                 searchRequestLocal.setStorageId(r.getStorage().getId());
                 searchRequestLocal.setRepositoryId(r.getId());
+                
 
                 RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(r.getType());
 
