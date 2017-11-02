@@ -86,16 +86,13 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
         
         Map<String, Object> parameterMap = new HashMap<>(coordinates);
-        if (storageId != null && !storageId.trim().isEmpty() && repositoryId != null && !repositoryId.trim().isEmpty())
+        if (storageId != null && !storageId.trim().isEmpty())
         {
-            if (storageId != null && !storageId.trim().isEmpty())
-            {
-                parameterMap.put("storageId0", storageId);
-            }
-            if (repositoryId != null && !repositoryId.trim().isEmpty())
-            {
-                parameterMap.put("repositoryId0", repositoryId);
-            }
+            parameterMap.put("storageId0", storageId);
+        }
+        if (repositoryId != null && !repositoryId.trim().isEmpty())
+        {
+            parameterMap.put("repositoryId0", repositoryId);
         }
         
         List<ArtifactEntry> entries = getDelegate().command(oQuery).execute(parameterMap);

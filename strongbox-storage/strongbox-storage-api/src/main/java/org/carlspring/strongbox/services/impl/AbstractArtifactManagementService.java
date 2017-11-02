@@ -243,6 +243,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                                                                                       repository.getId(),
                                                                                       artifactPath));
         artifactEntry = artifactEntryService.save(artifactEntry);
+        logger.debug(String.format("ArtifactEntry created/updated: id-[%s]; uuid-[%s];", artifactEntry.getObjectId(),
+                                   artifactEntry.getUuid()));
     }
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,

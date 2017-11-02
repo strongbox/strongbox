@@ -46,7 +46,7 @@ import ru.aristar.jnuget.files.NugetFormatException;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = NugetLayoutProviderConfig.class)
-public class GroupRepositoryProviderTest
+public class NugetGroupRepositoryProviderTest
         extends TestCaseWithNugetPackageGeneration
 {
 
