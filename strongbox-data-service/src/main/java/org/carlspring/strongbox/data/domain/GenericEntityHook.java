@@ -39,10 +39,6 @@ public class GenericEntityHook extends ORecordHookAbstract
         String uuid = doc.field("uuid");
         if (uuid == null || uuid.trim().isEmpty())
         {
-            uuid = UUID.randomUUID().toString();
-            logger.debug(String.format("Found empty 'uuid', default unique value generated [%s].", uuid));
-            doc.field("uuid", uuid);
-            result = RESULT.RECORD_CHANGED;
             throw new OValidationException(
                     String.format("Failed to persist document [%s]. UUID can't be empty or null.",
                                   doc.getSchemaClass()));
@@ -55,18 +51,24 @@ public class GenericEntityHook extends ORecordHookAbstract
                 continue;
             }
             ODocument artifactCoordinates = doc.field("artifactCoordinates");
-            if (artifactCoordinates == null)
+            String artifactCoordinatesPath = artifactCoordinates == null ? "" : artifactCoordinates.field("path");
+            
+            String artifactEntryPath = doc.field("artifactPath");
+            artifactEntryPath = artifactEntryPath == null ? "" : artifactEntryPath.trim();
+            
+            if (artifactCoordinatesPath.trim().isEmpty() && artifactEntryPath.trim().isEmpty())
             {
-                continue;
+                throw new OValidationException(
+                        String.format("Failed to persist document [%s]. 'artifactPath' can't be empty or null.",
+                                      doc.getSchemaClass()));
             }
-            String path = artifactCoordinates.field("path");
-            if (path == null)
+            else if (artifactCoordinates != null && !artifactEntryPath.equals(artifactCoordinatesPath))
             {
-                continue;
+                throw new OValidationException(
+                        String.format("Failed to persist document [%s]. Paths [%s] and [%s] dont match.",
+                                      doc.getSchemaClass(), artifactEntryPath, artifactCoordinatesPath));
             }
-            doc.field("artifactPath", path);
-            result = RESULT.RECORD_CHANGED;
-            logger.debug(String.format("Set 'artifactPath' value [%s] for [%s]:[%s].", path, doc.getClass(), doc.getIdentity()));
+            
             break;
         }
         
