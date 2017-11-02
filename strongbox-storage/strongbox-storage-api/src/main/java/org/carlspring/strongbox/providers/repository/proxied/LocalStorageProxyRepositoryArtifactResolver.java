@@ -93,6 +93,7 @@ public class LocalStorageProxyRepositoryArtifactResolver
             artifactEntry.setRepositoryId(storageId);
             artifactEntry.setRepositoryId(repositoryId);
             artifactEntry.setIsCached(Boolean.TRUE);
+            artifactEntry.setArtifactPath(path);
             artifactEntryService.save(artifactEntry);
 
             return result;
