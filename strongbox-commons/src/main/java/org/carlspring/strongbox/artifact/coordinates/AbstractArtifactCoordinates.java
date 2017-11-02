@@ -19,7 +19,7 @@ public abstract class AbstractArtifactCoordinates
     /**
      * This field is used as unique OrientDB index.
      */
-    protected String path;
+    private String path;
 
     public AbstractArtifactCoordinates()
     {
@@ -81,6 +81,11 @@ public abstract class AbstractArtifactCoordinates
         this.path = toPath();
     }
     
+    public String getPath()
+    {
+        return path;
+    }
+
     @Override
     public String toString()
     {
