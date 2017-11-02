@@ -74,7 +74,7 @@ public class MavenArtifactFetchedFromRemoteEventListener
                     artifactBaseAbsolutePath,
                     null,
                     MetadataType.PLUGIN_GROUP_LEVEL);
-            final Path metadataRelativePath = metadataAbsolutePath.getRepositoryRelative();
+            final Path metadataRelativePath = metadataAbsolutePath.relativize();
 
             try
             {
