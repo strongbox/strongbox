@@ -88,8 +88,14 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         Map<String, Object> parameterMap = new HashMap<>(coordinates);
         if (storageId != null && !storageId.trim().isEmpty() && repositoryId != null && !repositoryId.trim().isEmpty())
         {
-            parameterMap.put("storageId0", storageId);
-            parameterMap.put("repositoryId0", repositoryId);
+            if (storageId != null && !storageId.trim().isEmpty())
+            {
+                parameterMap.put("storageId0", storageId);
+            }
+            if (repositoryId != null && !repositoryId.trim().isEmpty())
+            {
+                parameterMap.put("repositoryId0", repositoryId);
+            }
         }
         
         List<ArtifactEntry> entries = getDelegate().command(oQuery).execute(parameterMap);
@@ -123,8 +129,17 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         
         Pair<String, String>[] p = storageRepositoryPairList.toArray(new Pair[storageRepositoryPairList.size()]);
         IntStream.range(0, storageRepositoryPairList.size()).forEach(idx -> {
-            parameterMap.put(String.format("storageId%s", idx), p[idx].getValue0());
-            parameterMap.put(String.format("repositoryId%s", idx), p[idx].getValue1());
+            String storageId = p[idx].getValue0();
+            String repositoryId = p[idx].getValue1();
+            
+            if (storageId != null && !storageId.trim().isEmpty())
+            {
+                parameterMap.put(String.format("storageId%s", idx), p[idx].getValue0());
+            }
+            if (repositoryId != null && !repositoryId.trim().isEmpty())
+            {
+                parameterMap.put(String.format("repositoryId%s", idx), p[idx].getValue1());
+            }
         });
         
         
@@ -146,8 +161,17 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         
         Pair<String, String>[] p = storageRepositoryPairList.toArray(new Pair[storageRepositoryPairList.size()]);
         IntStream.range(0, storageRepositoryPairList.size()).forEach(idx -> {
-            parameterMap.put(String.format("storageId%s", idx), p[idx].getValue0());
-            parameterMap.put(String.format("repositoryId%s", idx), p[idx].getValue1());
+            String storageId = p[idx].getValue0();
+            String repositoryId = p[idx].getValue1();
+            
+            if (storageId != null && !storageId.trim().isEmpty())
+            {
+                parameterMap.put(String.format("storageId%s", idx), p[idx].getValue0());
+            }
+            if (repositoryId != null && !repositoryId.trim().isEmpty())
+            {
+                parameterMap.put(String.format("repositoryId%s", idx), p[idx].getValue1());
+            }
         });
         
         
@@ -168,11 +192,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     public List<Pair<String, String>> toList(String storageId,
                                              String repositoryId)
     {
-        if (storageId != null && !storageId.trim().isEmpty() && repositoryId != null && !repositoryId.trim().isEmpty())
-        {
-            return Arrays.asList(new Pair[] { Pair.with(storageId, repositoryId) });            
-        }
-        throw new IllegalArgumentException("Both parameters 'storageId' and 'repositoryId' should be provided.");
+        return Arrays.asList(new Pair[] { Pair.with(storageId, repositoryId) });
     }
     
     protected String buildCoordinatesQuery(Collection<Pair<String, String>> storageRepositoryPairList,
@@ -185,6 +205,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
 
+        Pair<String, String>[] storageRepositoryPairArray = storageRepositoryPairList.toArray(new Pair[storageRepositoryPairList.size()]);
         //COODRINATES
         StringBuffer c1 = new StringBuffer();
         parameterNameSet.stream()
@@ -200,8 +221,8 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         StringBuffer c2 = new StringBuffer();
         IntStream.range(0, storageRepositoryPairList.size())
                  .forEach(idx -> c2.append(idx > 0 ? " OR " : "")
-                                   .append(String.format("(storageId = :storageId%s AND repositoryId = :repositoryId%s)",
-                                                         idx, idx)));
+                                   .append(calculateStoregeAndRepositoryCondition(storageRepositoryPairArray[idx],
+                                                                                  idx)));
         sb.append(c2.length() > 0 ? c2.toString() : "true");
 
         //ORDER
@@ -230,6 +251,35 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         logger.debug("Executing SQL query> " + sb.toString());
 
         return sb.toString();
+    }
+
+    public String calculateStoregeAndRepositoryCondition(Pair<String, String> storageRepositoryPairArray,
+                                                         int idx)
+    {
+        StringBuffer result = new StringBuffer();
+        String storageId = storageRepositoryPairArray.getValue0();
+        String repositoryId = storageRepositoryPairArray.getValue1();
+        if (storageId != null && !storageId.trim().isEmpty())
+        {
+            result.append(String.format("storageId = :storageId%s", idx));
+        }
+        if (result.length() > 0)
+        {
+            result.append(" AND ");
+        }
+        if (repositoryId != null && !repositoryId.trim().isEmpty())
+        {
+            result.append(String.format("repositoryId = :repositoryId%s", idx));
+        }
+        if (result.length() > 0)
+        {
+            result.insert(0, "(").append(")");
+        }
+        else
+        {
+            result.append(" true = true");
+        }
+        return result.toString();
     }
 
     private Map<String, String> prepareParameterMap(Map<String, String> coordinates,
