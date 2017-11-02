@@ -294,16 +294,18 @@ public class Maven2LayoutProvider
                     artifactIdLevelPath = artifactIdLevelPath.getParent();
 
                     // This is at the version level
-                    Path pomPath = Files.list(artifactBasePath)
-                                        .filter(p -> p.getFileName().toString().endsWith(".pom"))
-                                        .findFirst()
-                                        .orElse(null);
+                    try (Stream<Path> pathStream = Files.list(artifactBasePath))
+                    {
+                        Path pomPath = pathStream.filter(
+                                p -> p.getFileName().toString().endsWith(".pom")).findFirst().orElse(null);
 
-                    String version = ArtifactUtils.convertPathToArtifact(path).getVersion() != null ?
-                                     ArtifactUtils.convertPathToArtifact(path).getVersion() :
-                                     pomPath.getParent().getFileName().toString();
+                        String version = ArtifactUtils.convertPathToArtifact(path).getVersion() != null ?
+                                         ArtifactUtils.convertPathToArtifact(path).getVersion() :
+                                         pomPath.getParent().getFileName().toString();
 
-                    deleteMetadataAtVersionLevel(artifactBasePath, version);
+                        deleteMetadataAtVersionLevel(artifactBasePath, version);
+                    }
+
                 }
             }
             else
