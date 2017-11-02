@@ -1,22 +1,42 @@
 package org.carlspring.strongbox.providers.repository.event;
 
 import org.carlspring.strongbox.event.Event;
+import org.carlspring.strongbox.providers.repository.RepositoryPageRequest;
 import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 
 public class RemoteRepositorySearchEvent extends Event
 {
 
-    private RepositorySearchRequest eventData;
+    private RepositorySearchRequest searchRequest;
 
-    public RemoteRepositorySearchEvent(RepositorySearchRequest data)
+    private RepositoryPageRequest pageRequest;
+
+    public RemoteRepositorySearchEvent(RepositorySearchRequest searchRequest,
+                                       RepositoryPageRequest pageRequest)
     {
         super(-1);
-        this.eventData = data;
+        this.searchRequest = searchRequest;
+        this.pageRequest = pageRequest;
     }
 
-    public RepositorySearchRequest getEventData()
+    public RepositorySearchRequest getSearchRequest()
     {
-        return eventData;
+        return searchRequest;
+    }
+
+    public void setSearchRequest(RepositorySearchRequest searchRequest)
+    {
+        this.searchRequest = searchRequest;
+    }
+
+    public RepositoryPageRequest getPageRequest()
+    {
+        return pageRequest;
+    }
+
+    public void setPageRequest(RepositoryPageRequest pageRequest)
+    {
+        this.pageRequest = pageRequest;
     }
 
 }

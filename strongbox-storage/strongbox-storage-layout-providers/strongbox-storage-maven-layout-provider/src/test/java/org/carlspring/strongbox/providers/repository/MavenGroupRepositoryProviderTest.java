@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNull;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
-public class GroupRepositoryProviderTest
+public class MavenGroupRepositoryProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
@@ -54,9 +54,6 @@ public class GroupRepositoryProviderTest
 
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
-
-    @Inject
-    private ConfigurationManagementService configurationManagementService;
 
     @Inject
     private ConfigurationManager configurationManager;

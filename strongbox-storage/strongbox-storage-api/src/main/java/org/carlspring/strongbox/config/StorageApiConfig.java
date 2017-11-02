@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -65,16 +66,27 @@ public class StorageApiConfig
         oEntityManager.registerEntityClass(ArtifactEntry.class);
         oEntityManager.registerEntityClass(RemoteArtifactEntry.class);
 
-        OClass oClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
-                                                                         .getSchema()
-                                                                         .getClass(ArtifactEntry.class);
-
-        if (oClass.getIndexes()
-                  .stream()
-                  .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact")))
+        OClass artifactEntryClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
+                                                                                     .getSchema()
+                                                                                     .getClass(ArtifactEntry.class);
+        if (artifactEntryClass.getIndexes()
+                              .stream()
+                              .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact")))
         {
-            oClass.createIndex("idx_artifact", OClass.INDEX_TYPE.UNIQUE, "storageId", "repositoryId", "artifactPath");
+            artifactEntryClass.createIndex("idx_artifact", OClass.INDEX_TYPE.UNIQUE, "storageId", "repositoryId",
+                                           "artifactPath");
         }
+
+        OClass artifactCoordinatesClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
+                                                                                           .getSchema()
+                                                                                           .getClass(AbstractArtifactCoordinates.class);
+        if (artifactCoordinatesClass.getIndexes()
+                                    .stream()
+                                    .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact_coordinates")))
+        {
+            artifactCoordinatesClass.createIndex("idx_artifact_coordinates", OClass.INDEX_TYPE.UNIQUE, "path");
+        }
+        
     }
 
     @Bean(name = "checksumCacheManager")

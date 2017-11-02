@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -7,6 +8,7 @@ import java.util.Optional;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.CrudService;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.javatuples.Pair;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -20,36 +22,49 @@ public interface ArtifactEntryService
 {
 
     /**
-     * Returns list of artifacts that matches search query defined as {@link ArtifactCoordinates} fields.
-     * By default all fields are optional and combined using logical AND operator.
-     * If all coordinates aren't present this query will delegate request to {@link #findAll()}
-     * (because in that case every ArtifactEntry will match the query).
+     * Returns list of artifacts that matches search query defined as {@link ArtifactCoordinates} fields. By default all
+     * fields are optional and combined using logical AND operator. If all coordinates aren't present this query will
+     * delegate request to {@link #findAll()} (because in that case every ArtifactEntry will match the query).
      *
-     * @param coordinates search query defined as a set of coordinates (id ,version, groupID etc.)
+     * @param coordinates
+     *            search query defined as a set of coordinates (id ,version, groupID etc.)
      * @return list of artifacts or empty list if nothing was found
      */
-    List<ArtifactEntry> findByCoordinates(String storageId,
+    List<ArtifactEntry> findAritifactList(String storageId,
                                           String repositoryId,
                                           ArtifactCoordinates coordinates);
-    
-    List<ArtifactEntry> findByCoordinates(String storageId,
+
+    List<ArtifactEntry> findAritifactList(String storageId,
                                           String repositoryId,
                                           Map<String, String> coordinates);
-    
-    List<ArtifactEntry> findByCoordinates(String storageId,
+
+    List<ArtifactEntry> findAritifactList(String storageId,
                                           String repositoryId,
                                           Map<String, String> coordinates,
                                           int skip,
                                           int limit,
                                           String orderBy,
                                           boolean strict);
-    
-    Long countByCoordinates(String storageId,
+
+    Long countCoordinates(Collection<Pair<String, String>> storageRepositoryPairList,
+                          Map<String, String> coordinates,
+                          boolean strict);
+
+    Long countAritifacts(Collection<Pair<String, String>> storageRepositoryPairList,
+                         Map<String, String> coordinates,
+                         boolean strict);
+
+    Long countAritifacts(String storageId,
+                         String repositoryId,
+                         Map<String, String> coordinates,
+                         boolean strict);
+
+    boolean aritifactExists(String storageId,
                             String repositoryId,
-                            Map<String, String> coordinates,
-                            boolean strict);
-    
-    boolean exists(String storageId, String repositoryId, String path);
-    
-    Optional<ArtifactEntry> findOne(String storageId, String repositoryId, String path);
+                            String path);
+
+    Optional<ArtifactEntry> findOneAritifact(String storageId,
+                                             String repositoryId,
+                                             String path);
+
 }

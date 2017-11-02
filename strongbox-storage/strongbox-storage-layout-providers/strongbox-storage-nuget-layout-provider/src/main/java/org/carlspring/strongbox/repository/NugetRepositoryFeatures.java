@@ -15,6 +15,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.event.CommonEventListener;
+import org.carlspring.strongbox.providers.repository.RepositoryPageRequest;
 import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -124,7 +125,7 @@ public class NugetRepositoryFeatures
                 NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates(packageId,
                                                                                                   packageVersion, 
                                                                                                   "nupkg");
-                if (!artifactEntryService.exists(storageId, repositoryId, c.toPath()))
+                if (!artifactEntryService.aritifactExists(storageId, repositoryId, c.toPath()))
                 {
                     artifactToSaveSet.add(c);
                 }
@@ -153,7 +154,9 @@ public class NugetRepositoryFeatures
         @Override
         public void handle(RemoteRepositorySearchEvent event)
         {
-            RepositorySearchRequest repositorySearchRequest = event.getEventData();
+            RepositorySearchRequest repositorySearchRequest = event.getSearchRequest();
+            RepositoryPageRequest repositoryPageRequest = event.getPageRequest();
+
             
             Storage storage = getConfiguration().getStorage(repositorySearchRequest.getStorageId());
             Repository repository = storage.getRepository(repositorySearchRequest.getRepositoryId());
@@ -167,7 +170,7 @@ public class NugetRepositoryFeatures
             String packageId = coordinates.get(NugetArtifactCoordinates.ID);
             String version = coordinates.get(NugetArtifactCoordinates.VERSION);
 
-            Long packageCount = artifactEntryService.countByCoordinates(storage.getId(), repository.getId(), coordinates, repositorySearchRequest.isStrict());
+            Long packageCount = artifactEntryService.countAritifacts(storage.getId(), repository.getId(), coordinates, repositorySearchRequest.isStrict());
             logger.debug(String.format("Remote repository [%s] cached package count is [%s]", repository.getId(), packageCount));
             
             Expression filter = repositorySearchRequest.isStrict() ? createPackageEq(packageId, null) : null;
@@ -198,8 +201,8 @@ public class NugetRepositoryFeatures
                 
                 downloadRemoteFeed(repositorySearchRequest.getStorageId(), repositorySearchRequest.getRepositoryId(),
                                    filter,
-                                   searchTerm, null, repositorySearchRequest.getSkip(),
-                                   repositorySearchRequest.getLimit());
+                                   searchTerm, null, repositoryPageRequest.getSkip(),
+                                   repositoryPageRequest.getLimit());
             }
             catch (Exception e)
             {

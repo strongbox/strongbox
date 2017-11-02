@@ -72,7 +72,7 @@ public class NugetPackageGenerator
                                      String... dependencyList)
             throws NugetFormatException, JAXBException, IOException, NoSuchAlgorithmException
     {
-        File file = new File(getBasedir(), String.format("%s/%s.%s.nupkg", version, id, version));
+        File file = new File(getBasedir(), String.format("%s/%s/%s.%s.nupkg", id, version, id, version));
         file.getParentFile()
             .mkdirs();
         ClassicNupkg nupkgFile = new ClassicNupkg(file);

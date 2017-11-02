@@ -491,7 +491,7 @@ public abstract class RepositoryFileSystemProvider
         }
         
         RepositoryPath repositoryPath = (RepositoryPath) path;
-        RepositoryPath repositoryRelativePath = repositoryPath.getRepositoryRelative();
+        RepositoryPath repositoryRelativePath = repositoryPath.relativize();
         
         RepositoryFileAttributes repositoryFileAttributes = new RepositoryFileAttributes(targetAttributes,
                 getRepositoryFileAttributes(repositoryRelativePath));
@@ -526,7 +526,7 @@ public abstract class RepositoryFileSystemProvider
         
         //TODO: Make an implementation in accordance with the specification
         RepositoryPath repositoryPath = (RepositoryPath) path;
-        RepositoryPath repositoryRelativePath = repositoryPath.getRepositoryRelative();
+        RepositoryPath repositoryRelativePath = repositoryPath.relativize();
         
         return getRepositoryFileAttributes(repositoryRelativePath);
     }

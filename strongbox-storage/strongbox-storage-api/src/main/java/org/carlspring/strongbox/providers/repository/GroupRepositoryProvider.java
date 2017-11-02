@@ -3,23 +3,35 @@ package org.carlspring.strongbox.providers.repository;
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -35,6 +47,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
     private static final String ALIAS = "group";
 
+    @Inject
+    private ArtifactEntryService artifactEntryService;
 
     @PostConstruct
     @Override
@@ -275,9 +289,170 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public List<Path> search(RepositorySearchRequest request)
+    public List<Path> search(RepositorySearchRequest searchRequest,
+                             RepositoryPageRequest pageRequest)
     {
-        return null;
+        Map<ArtifactCoordinates, Path> resultMap = new LinkedHashMap<>();
+
+        String storageId = searchRequest.getStorageId();
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        String repositoryId = searchRequest.getRepositoryId();
+        logger.debug("Search in " + storage.getId() + ":" + repositoryId + "...");
+
+        Repository groupRepository = storage.getRepository(repositoryId);
+
+        Set<Repository> groupRepositorySet = collectGroupRepositorySet(groupRepository);
+        
+        if (groupRepositorySet.isEmpty())
+        {
+            return new LinkedList<>();
+        }
+        
+        int skip = pageRequest.getSkip();
+        int limit = pageRequest.getLimit();
+
+        int groupSize = groupRepositorySet.size();
+        int groupSkip = (skip / (limit * groupSize)) * limit;
+        int groupLimit = limit;
+
+        skip = skip - groupSkip;
+        
+        outer: do
+        {
+            RepositorySearchRequest searchRequestLocal = new RepositorySearchRequest(null, null);
+            searchRequestLocal.setCoordinates(searchRequest.getCoordinates());
+            searchRequestLocal.setStrict(searchRequest.isStrict());
+            
+            RepositoryPageRequest pageRequestLocal = new RepositoryPageRequest();
+            pageRequestLocal.setLimit(groupLimit);
+            pageRequestLocal.setOrderBy(pageRequest.getOrderBy());
+            pageRequestLocal.setSkip(groupSkip);
+
+            groupLimit = 0;
+
+            for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext();)
+            {
+                Repository r = i.next();
+                searchRequestLocal.setStorageId(r.getStorage().getId());
+                searchRequestLocal.setRepositoryId(r.getId());
+                
+
+                RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(r.getType());
+
+                List<Path> repositoryResult = repositoryProvider.search(searchRequestLocal, pageRequestLocal);
+                if (repositoryResult.isEmpty())
+                {
+                    i.remove();
+                    continue;
+                }
+
+                // count coordinates intersection
+                groupLimit += repositoryResult.stream()
+                                              .map((p) -> resultMap.put(getArtifactCoordinates(p),
+                                                                        p))
+                                              .filter(p ->  p != null)
+                                              .collect(Collectors.toList())
+                                              .size();
+
+                //Break search iterations if we have reached enough list size.
+                if (resultMap.size() >= limit + skip)
+                {
+                    break outer;
+                }
+            }
+            groupSkip += limit;
+
+            // Will iterate until there is no more coordinates intersection and
+            // there is more search results within group repositories
+        } while (groupLimit > 0 && !groupRepositorySet.isEmpty());
+
+        LinkedList<Path> resultList = new LinkedList<>();
+        if (skip >= resultMap.size())
+        {
+            return resultList;
+        }
+        resultList.addAll(resultMap.values());
+
+        int toIndex = resultList.size() - skip > limit ? limit + skip : resultList.size();
+        return resultList.subList(skip, toIndex);
+    }
+
+    private Set<Repository> collectGroupRepositorySet(Repository repository)
+    {
+        return collectGroupRepositorySet(repository, false);
+    }
+
+    private Set<Repository> collectGroupRepositorySet(Repository groupRepository,
+                                                      boolean traverse)
+    {
+        Set<Repository> result = groupRepository.getGroupRepositories()
+                                                .stream()
+                                                .map(groupRepoId -> {
+                                                    return getRepository(groupRepository.getStorage(), groupRepoId);
+                                                })
+                                                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        if (!traverse)
+        {
+            return result;
+        }
+
+        Set<Repository> traverseResult = new LinkedHashSet<>();
+        for (Iterator<Repository> i = result.iterator(); i.hasNext();)
+        {
+            Repository r = i.next();
+            if (r.getGroupRepositories().isEmpty()) {
+                traverseResult.add(r);
+                continue;
+            }
+            
+            i.remove();
+            traverseResult.addAll(collectGroupRepositorySet(r, true));
+        }
+        
+        return traverseResult;
+    }
+
+    private Repository getRepository(Storage storage, String id)
+    {
+        String sId = getConfigurationManager().getStorageId(storage, id);
+        String rId = getConfigurationManager().getRepositoryId(id);
+
+        return getConfiguration().getStorage(sId).getRepository(rId);
+    }
+
+    private ArtifactCoordinates getArtifactCoordinates(Path p)
+    {
+        try
+        {
+            return (ArtifactCoordinates) Files.getAttribute(p, RepositoryFileAttributes.COORDINATES);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(String.format("Failed to resolve ArtifactCoordinates for [%s]", p), e);
+        }
     }
     
+    @Override
+    public Long count(RepositorySearchRequest searchRequest)
+    {
+        String storageId = searchRequest.getStorageId();
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        String repositoryId = searchRequest.getRepositoryId();
+        logger.debug("Count in " + storage.getId() + ":" + repositoryId + "...");
+
+        Repository groupRepository = storage.getRepository(repositoryId);
+
+        Set<Pair<String, String>> storageRepositoryPairSet = collectGroupRepositorySet(groupRepository,
+                                                                                       true).stream()
+                                                                                            .map(r -> Pair.with(r.getStorage()
+                                                                                                                 .getId(),
+                                                                                                                r.getId()))
+                                                                                            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        return artifactEntryService.countCoordinates(storageRepositoryPairSet, searchRequest.getCoordinates(),
+                                                     searchRequest.isStrict());
+    }
 }

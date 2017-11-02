@@ -31,6 +31,8 @@ public interface RepositoryProvider
                                          String path)
             throws IOException, NoSuchAlgorithmException;
     
-    List<Path> search(RepositorySearchRequest request);
+    List<Path> search(RepositorySearchRequest searchRequest, RepositoryPageRequest pageRequest);
+    
+    Long count(RepositorySearchRequest searchRequest);
 
 }

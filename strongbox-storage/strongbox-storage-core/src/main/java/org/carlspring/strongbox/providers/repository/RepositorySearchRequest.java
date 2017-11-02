@@ -8,9 +8,6 @@ public class RepositorySearchRequest
     private String storageId;
     private String repositoryId;
     private Map<String, String> coordinates = new HashMap<>();
-    private int skip;
-    private int limit = -1;
-    private String orderBy;
     private boolean strict;
 
     public RepositorySearchRequest(String storageId,
@@ -49,36 +46,6 @@ public class RepositorySearchRequest
     public void setCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
-    }
-
-    public int getSkip()
-    {
-        return skip;
-    }
-
-    public void setSkip(int skip)
-    {
-        this.skip = skip;
-    }
-
-    public int getLimit()
-    {
-        return limit;
-    }
-
-    public void setLimit(int limit)
-    {
-        this.limit = limit;
-    }
-
-    public String getOrderBy()
-    {
-        return orderBy;
-    }
-
-    public void setOrderBy(String orderBy)
-    {
-        this.orderBy = orderBy;
     }
 
     public boolean isStrict()

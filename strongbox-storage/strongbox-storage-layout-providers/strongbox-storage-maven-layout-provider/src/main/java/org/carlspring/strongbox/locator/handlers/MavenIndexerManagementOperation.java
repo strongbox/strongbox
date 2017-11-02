@@ -53,7 +53,7 @@ public class MavenIndexerManagementOperation
             // We're using System.out.println() here for clarity and due to the length of the lines
             // System.out.println(" " + versionDirectory.getAbsolutePath());
 
-            RepositoryPath artifactVersionDirectoryRelative  = versionDirectoryAbs.getRepositoryRelative();
+            RepositoryPath artifactVersionDirectoryRelative  = versionDirectoryAbs.relativize();
             int pathElementCount = artifactVersionDirectoryRelative.getNameCount();
             
             StringBuilder groupId = new StringBuilder();

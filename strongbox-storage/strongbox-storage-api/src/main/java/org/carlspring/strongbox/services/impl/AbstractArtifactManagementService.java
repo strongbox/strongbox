@@ -1,5 +1,19 @@
 package org.carlspring.strongbox.services.impl;
 
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -26,21 +40,8 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author Sergey Bespalov
@@ -235,13 +236,15 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                                                                                            RepositoryFileAttributes.COORDINATES);
 
         String artifactPath = path.getResourceLocation();
-        ArtifactEntry artifactEntry = artifactEntryService.findOne(storage.getId(), repository.getId(),
-                                                                   artifactPath)
+        ArtifactEntry artifactEntry = artifactEntryService.findOneAritifact(storage.getId(), repository.getId(),
+                                                                            artifactPath)
                                                           .orElse(createArtifactEntry(artifactCoordinates,
                                                                                       storage.getId(),
                                                                                       repository.getId(),
                                                                                       artifactPath));
-        artifactEntryService.save(artifactEntry);
+        artifactEntry = artifactEntryService.save(artifactEntry);
+        logger.debug(String.format("ArtifactEntry created/updated: id-[%s]; uuid-[%s];", artifactEntry.getObjectId(),
+                                   artifactEntry.getUuid()));
     }
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,

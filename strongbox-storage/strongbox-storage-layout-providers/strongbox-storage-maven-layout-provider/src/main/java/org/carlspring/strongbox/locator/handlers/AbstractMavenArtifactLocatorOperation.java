@@ -91,7 +91,7 @@ public abstract class AbstractMavenArtifactLocatorOperation
             }
         }
 
-        RepositoryPath artifactPath = parentPath.getRepositoryRelative();
+        RepositoryPath artifactPath = parentPath.relativize();
         executeOperation(request, artifactPath, versionDirectories);
     }
 

@@ -26,6 +26,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
+import org.apache.lucene.util.automaton.LimitedFiniteStringsIterator;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
@@ -121,7 +122,7 @@ public class NugetPackageController extends BaseArtifactController
         try
         {
             files = getPackages(storageId, repositoryId, filter, null, searchTerm,
-                                targetFramework);
+                                targetFramework, null, null);
         }
         catch (NugetFormatException e)
         {
@@ -137,8 +138,8 @@ public class NugetPackageController extends BaseArtifactController
                                             @PathVariable(name = "searchCommandName") String searchCommandName,
                                             @RequestParam(name = "$filter", required = true) String filter,
                                             @RequestParam(name = "$orderby", required = false, defaultValue = "id") String orderBy,
-                                            @RequestParam(name = "$skip", required = false, defaultValue = "0") int skip,
-                                            @RequestParam(name = "$top", required = false, defaultValue = "-1") int top,
+                                            @RequestParam(name = "$skip", required = false) Integer skip,
+                                            @RequestParam(name = "$top", required = false) Integer top,
                                             @RequestParam(name = "searchTerm", required = false) String searchTerm,
                                             @RequestParam(name = "targetFramework", required = false) String targetFramework,
                                             HttpServletResponse response)
@@ -148,7 +149,7 @@ public class NugetPackageController extends BaseArtifactController
         try
         {
             files = getPackages(storageId, repositoryId, filter, orderBy, searchTerm,
-                                                            targetFramework);
+                                targetFramework, skip, top);
         }
         catch (NugetFormatException e)
         {
@@ -199,7 +200,10 @@ public class NugetPackageController extends BaseArtifactController
                                                    String filter,
                                                    String orderBy,
                                                    String searchTerm,
-                                                   String targetFramework) throws NugetFormatException
+                                                   String targetFramework,
+                                                   Integer skip,
+                                                   Integer top)
+        throws NugetFormatException
     {
         packageSource.setStorageId(storageId);
         packageSource.setRepositoryId(repositoryId);

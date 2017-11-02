@@ -1,36 +1,51 @@
 package org.carlspring.strongbox.event.artifact;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
-import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
-import org.carlspring.strongbox.providers.repository.proxied.SimpleProxyRepositoryArtifactResolver;
-import org.carlspring.strongbox.storage.metadata.MetadataHelper;
-import org.carlspring.strongbox.storage.metadata.MetadataType;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
-
-import javax.inject.Inject;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.function.Consumer;
+
+import javax.inject.Inject;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
+import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
+import org.carlspring.strongbox.providers.repository.proxied.SimpleProxyRepositoryArtifactResolver;
+import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
+import org.carlspring.strongbox.storage.metadata.MetadataHelper;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Component
-public class MavenArtifactFetchedFromRemoteEventListener
-        extends BaseMavenArtifactEventListener
+public class MavenArtifactDownloadedEventListener
+        implements ArtifactEventListener
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactDownloadedEventListener.class);
+
+    @Inject
+    private ConfigurationManager configurationManager;
+
+    @Inject
+    private ArtifactMetadataService artifactMetadataService;
 
     @Inject
     @SimpleProxyRepositoryArtifactResolver.SimpleProxyRepositoryArtifactResolverQualifier
@@ -39,6 +54,12 @@ public class MavenArtifactFetchedFromRemoteEventListener
     @Inject
     @LocalStorageProxyRepositoryArtifactResolver.LocalStorageProxyRepositoryArtifactResolverQualifier
     private ProxyRepositoryArtifactResolver localStorageProxyRepositoryArtifactResolver;
+
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
+
+    @Inject
+    private MavenMetadataManager mavenMetadataManager;
 
     @Override
     public void handle(final ArtifactEvent event)
@@ -56,8 +77,8 @@ public class MavenArtifactFetchedFromRemoteEventListener
         }
 
         resolveArtifactMetadataAtArtifactIdLevel(event);
-        updateMetadataInGroupsContainingRepository(event, path -> path.getParent().getParent());
     }
+
 
     private void resolveArtifactMetadataAtArtifactIdLevel(final ArtifactEvent event)
     {
@@ -65,15 +86,14 @@ public class MavenArtifactFetchedFromRemoteEventListener
         {
             final Repository repository = getRepository(event);
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-
+            
             final RepositoryPath repositoryAbsolutePath = layoutProvider.resolve(repository);
             final RepositoryPath artifactAbsolutePath = repositoryAbsolutePath.resolve(event.getPath());
             final RepositoryPath artifactBaseAbsolutePath = artifactAbsolutePath.getParent();
-
-            final RepositoryPath metadataAbsolutePath = (RepositoryPath) MetadataHelper.getMetadataPath(
-                    artifactBaseAbsolutePath,
-                    null,
-                    MetadataType.PLUGIN_GROUP_LEVEL);
+            
+            final RepositoryPath metadataAbsolutePath = (RepositoryPath) MetadataHelper.getMetadataPath(artifactBaseAbsolutePath,
+                                                                                       null,
+                                                                                       MetadataType.PLUGIN_GROUP_LEVEL);
             final Path metadataRelativePath = metadataAbsolutePath.relativize();
 
             try
@@ -151,5 +171,11 @@ public class MavenArtifactFetchedFromRemoteEventListener
                                                                                       FilenameUtils.separatorsToUnix(
                                                                                               metadataPath.toString()));
         callback.accept(metadataIs);
+    }
+
+    private Repository getRepository(final ArtifactEvent event)
+    {
+        return configurationManager.getConfiguration().getStorage(event.getStorageId()).getRepository(
+                event.getRepositoryId());
     }
 }

@@ -1,38 +1,22 @@
 package org.carlspring.strongbox.controllers.nuget;
 
-import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
-import org.carlspring.strongbox.data.PropertyUtils;
-import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import javax.inject.Inject;
 
-import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.data.PropertyUtils;
@@ -42,14 +26,15 @@ import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import ru.aristar.jnuget.files.NugetFormatException;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.CoreMatchers.equalTo;
+
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 
 /**
  * @author Sergey Bespalov
@@ -121,11 +106,9 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
     public void testPackageDelete()
         throws Exception
     {
-        String basedir = PropertyUtils.getHomeDirectory() + "/tmp";
-
         String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Delete";
         String packageVersion = "1.0.0";
-        Path packageFile = generatePackageFile(basedir, packageId, packageVersion);
+        Path packageFile = generatePackageFile(packageId, packageVersion);
         byte[] packageContent = readPackageContent(packageFile);
 
         // Push
@@ -151,11 +134,9 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
     public void testPackageCommonFlow()
         throws Exception
     {
-        String basedir = PropertyUtils.getHomeDirectory() + "/tmp";
-
         String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono";
         String packageVersion = "1.0.0";
-        Path packageFile = generatePackageFile(basedir, packageId, packageVersion);
+        Path packageFile = generatePackageFile(packageId, packageVersion);
         long packageSize = Files.size(packageFile);
         byte[] packageContent = readPackageContent(packageFile);
 
@@ -237,11 +218,9 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
     public void testPackageSearch()
         throws Exception
     {
-        String basedir = PropertyUtils.getHomeDirectory() + "/tmp";
-
         String packageId = "Org.Carlspring.Strongbox.Nuget.Test.Search";
         String packageVersion = "1.0.0";
-        byte[] packageContent = readPackageContent(generatePackageFile(basedir, packageId, packageVersion));
+        byte[] packageContent = readPackageContent(generatePackageFile(packageId, packageVersion));
 
         // Push
         createPushRequest(packageContent).when()
@@ -279,41 +258,6 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
                .body("feed.entry[0].title", equalTo("Org.Carlspring.Strongbox.Nuget.Test.Search"));
     }
 
-    public byte[] readPackageContent(Path packageFilePath)
-        throws IOException
-    {
-        ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
-
-        MultipartEntityBuilder.create()
-                              .addBinaryBody("package", Files.newInputStream(packageFilePath))
-                              .setBoundary("---------------------------123qwe")
-                              .build()
-                              .writeTo(contentStream);
-        contentStream.flush();
-
-        byte[] packageContent = contentStream.toByteArray();
-
-        return packageContent;
-    }
-
-    public Path generatePackageFile(String basedir,
-                                    String packageId,
-                                    String packageVersion,
-                                    String...dependencyList)
-        throws NugetFormatException,
-               JAXBException,
-               IOException,
-               NoSuchAlgorithmException
-    {
-        String packageFileName = packageId + "." + packageVersion + ".nupkg";
-
-        NugetPackageGenerator nugetPackageGenerator = new NugetPackageGenerator(basedir);
-        nugetPackageGenerator.generateNugetPackage(packageId, packageVersion, dependencyList);
-
-        Path packageFilePath = Paths.get(basedir).resolve(packageVersion).resolve(packageFileName);
-        return packageFilePath;
-    }
-
     public MockMvcRequestSpecification createPushRequest(byte[] packageContent)
     {
         return given().header("User-Agent", "NuGet/*")
@@ -323,12 +267,12 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
     }
     
     @Test
-    public void testRemoteProxyDownload()
+    public void testRemoteProxyGroup()
             throws Exception
     {
         given().header("User-Agent", "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/nuget-common-storage/nuget.org/FindPackagesById()?id=NHibernate")
+               .get(getContextBaseUrl() + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -342,7 +286,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         coordinates.put("id", "NHibernate");
         coordinates.put("version", "4.1.1.4000");
 
-        List<ArtifactEntry> artifactEntryList = artifactEntryService.findByCoordinates("nuget-common-storage", "nuget.org", coordinates);
+        List<ArtifactEntry> artifactEntryList = artifactEntryService.findAritifactList("storage-common-proxies", "nuget.org", coordinates);
         assertTrue(artifactEntryList.size() > 0);
         
         ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
@@ -354,7 +298,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         {
             given().header("User-Agent", "NuGet/*")
                    .when()
-                   .get(getContextBaseUrl() + "/storages/nuget-common-storage/nuget.org/package/NHibernate/4.1.1.4000")
+                   .get(getContextBaseUrl() + "/storages/public/nuget-public/package/NHibernate/4.1.1.4000")
                    .peek()
                    .then()
                    .statusCode(HttpStatus.OK.value())

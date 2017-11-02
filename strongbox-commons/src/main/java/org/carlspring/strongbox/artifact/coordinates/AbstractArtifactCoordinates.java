@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Collections;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
@@ -16,6 +16,9 @@ public abstract class AbstractArtifactCoordinates
 {
 
     private Map<String, String> coordinates = new LinkedHashMap<>();
+    /**
+     * This field is used as unique OrientDB index.
+     */
     private String path;
 
     public AbstractArtifactCoordinates()

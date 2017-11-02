@@ -1,5 +1,20 @@
 package org.carlspring.strongbox.rest.common;
 
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -7,16 +22,8 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithRepository;
+import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
 import org.carlspring.strongbox.users.domain.Roles;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -25,9 +32,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.Assert.assertTrue;
+
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 
 /**
  * General settings for the testing sub-system.
@@ -35,7 +41,7 @@ import static org.junit.Assert.assertTrue;
  * @author Alex Oreshkevich
  */
 public abstract class NugetRestAssuredBaseTest
-        extends TestCaseWithRepository
+        extends TestCaseWithNugetPackageGeneration
 {
 
     public final static int DEFAULT_PORT = 48080;
@@ -206,6 +212,23 @@ public abstract class NugetRestAssuredBaseTest
 
         // Create the repository
         repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
+    }
+    
+    public byte[] readPackageContent(Path packageFilePath)
+        throws IOException
+    {
+        ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
+
+        MultipartEntityBuilder.create()
+                              .addBinaryBody("package", Files.newInputStream(packageFilePath))
+                              .setBoundary("---------------------------123qwe")
+                              .build()
+                              .writeTo(contentStream);
+        contentStream.flush();
+
+        byte[] packageContent = contentStream.toByteArray();
+
+        return packageContent;
     }
 
 }
