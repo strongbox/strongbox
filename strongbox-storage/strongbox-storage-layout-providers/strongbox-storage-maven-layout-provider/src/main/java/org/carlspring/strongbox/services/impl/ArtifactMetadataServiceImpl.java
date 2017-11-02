@@ -151,7 +151,7 @@ public class ArtifactMetadataServiceImpl
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
-        mavenMetadataManager.mergeMetadata(repository, artifact, mergeMetadata);
+        mavenMetadataManager.mergeAndStore(repository, artifact, mergeMetadata);
     }
 
     @Override
@@ -374,7 +374,7 @@ public class ArtifactMetadataServiceImpl
                 mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
             }
         }
-        catch (IOException | NoSuchAlgorithmException | XmlPullParserException e)
+        catch (IOException | XmlPullParserException e)
         {
             // We won't do anything in this case because it doesn't have an impact to the deletion
         }

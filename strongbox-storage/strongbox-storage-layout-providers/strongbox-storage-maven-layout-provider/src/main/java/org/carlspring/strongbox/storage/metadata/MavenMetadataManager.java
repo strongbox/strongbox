@@ -1,29 +1,5 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.inject.Inject;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
-import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
@@ -38,11 +14,33 @@ import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
+
+import javax.inject.Inject;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+
+import com.google.common.base.Throwables;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author Martin Todorov
@@ -56,13 +54,11 @@ public class MavenMetadataManager
 
     private static final Logger logger = LoggerFactory.getLogger(MavenMetadataManager.class);
 
-    private ReentrantLock lock = new ReentrantLock();
+    @Inject
+    protected StorageProviderRegistry storageProviderRegistry;
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
-    protected StorageProviderRegistry storageProviderRegistry;
 
     private ConcurrentHashMap<String, String> metadataSynchronizationContainer = new ConcurrentHashMap<>();
 
@@ -70,7 +66,8 @@ public class MavenMetadataManager
     {
     }
 
-    public Metadata readMetadata(Repository repository, Artifact artifact)
+    public Metadata readMetadata(Repository repository,
+                                 Artifact artifact)
             throws IOException,
                    XmlPullParserException,
                    ProviderImplementationException
@@ -78,7 +75,8 @@ public class MavenMetadataManager
         Metadata metadata;
 
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(ArtifactUtils.convertArtifactToPath(artifact));
+        ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(
+                ArtifactUtils.convertArtifactToPath(artifact));
 
         if (layoutProvider.containsArtifact(repository, coordinates))
         {
@@ -95,27 +93,20 @@ public class MavenMetadataManager
         }
         else
         {
-            throw new IOException("Artifact " + artifact.toString() + " does not exist in " + repository.getStorage().getBasedir() +"/" + repository.getBasedir() + " !");
+            throw new IOException("Artifact " + artifact.toString() + " does not exist in " +
+                                  repository.getStorage().getBasedir() + "/" + repository.getBasedir() + " !");
         }
 
         return metadata;
     }
 
-    /**
-     * Returns an artifact metadata instance
-     *
-     * @param artifactBasePath Path
-     * @return Metadata
-     * @throws java.io.IOException
-     * @throws org.codehaus.plexus.util.xml.pull.XmlPullParserException
-     */
     public Metadata readMetadata(Path artifactBasePath)
             throws IOException, XmlPullParserException
     {
-        Path metadataFile = MetadataHelper.getMetadataPath(artifactBasePath);
-        Metadata metadata = null;
+        Path metadataPath = MetadataHelper.getMetadataPath(artifactBasePath);
+        Metadata metadata;
 
-        try (InputStream is = Files.newInputStream(metadataFile))
+        try (InputStream is = Files.newInputStream(metadataPath))
         {
             metadata = readMetadata(is);
         }
@@ -123,18 +114,10 @@ public class MavenMetadataManager
         return metadata;
     }
 
-    /**
-     * Returns artifact metadata instance
-     *
-     * @param is    The InputStream from which to read the Metadata.
-     * @return Metadata
-     * @throws java.io.IOException
-     * @throws org.codehaus.plexus.util.xml.pull.XmlPullParserException
-     */
     public Metadata readMetadata(InputStream is)
             throws IOException, XmlPullParserException
     {
-        Metadata metadata = null;
+        Metadata metadata;
 
         try
         {
@@ -150,51 +133,44 @@ public class MavenMetadataManager
         return metadata;
     }
 
-    public void storeMetadata(Path metadataBasePath, String version, Metadata metadata, MetadataType metadataType)
-            throws IOException,
-                   NoSuchAlgorithmException
+    public void storeMetadata(final Path metadataBasePath,
+                              final String version,
+                              final Metadata metadata,
+                              final MetadataType metadataType)
     {
-        Path metadataFile = MetadataHelper.getMetadataPath(metadataBasePath, version, metadataType);
 
-        OutputStream os = null;
-        Writer writer = null;
+        doInLock(metadataBasePath, path ->
+                 {
+                     try
+                     {
+                         Path metadataPath = MetadataHelper.getMetadataPath(metadataBasePath, version, metadataType);
+                         Files.deleteIfExists(metadataPath);
 
-        try
-        {
-            lock.lock();
+                         try (OutputStream os = new MultipleDigestOutputStream(metadataPath,
+                                                                               Files.newOutputStream(metadataPath));
+                              Writer writer = WriterFactory.newXmlWriter(os))
+                         {
 
-            if (Files.exists(metadataFile))
-            {
-                //noinspection ResultOfMethodCallIgnored
-                Files.delete(metadataFile);
-            }
+                             MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
+                             mappingWriter.write(writer, metadata);
 
-            os = new MultipleDigestOutputStream(metadataFile, Files.newOutputStream(metadataFile));
-
-            writer = WriterFactory.newXmlWriter(os);
-            MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
-            mappingWriter.write(writer, metadata);
-
-            os.flush();
-        }
-        finally
-        {
-            lock.unlock();
-
-            ResourceCloser.close(writer, logger);
-            ResourceCloser.close(os, logger);
-        }
+                             os.flush();
+                         }
+                     }
+                     catch (Exception ex)
+                     {
+                         throw Throwables.propagate(ex);
+                     }
+                 }
+        );
     }
 
     /**
      * Generate a metadata file for an artifact.
-     *
-     * @param repository Repository
-     * @throws IOException
-     * @throws XmlPullParserException
-     * @throws NoSuchAlgorithmException
      */
-    public void generateMetadata(Repository repository, String path, VersionCollectionRequest request)
+    public void generateMetadata(Repository repository,
+                                 String path,
+                                 VersionCollectionRequest request)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException,
                    UnknownRepositoryTypeException
     {
@@ -257,7 +233,7 @@ public class MavenMetadataManager
                 if (!versioning.getVersions().isEmpty())
                 {
                     // Set <latest>
-                    String latestVersion = versioning.getVersions().get(versioning.getVersions().size()-1);
+                    String latestVersion = versioning.getVersions().get(versioning.getVersions().size() - 1);
                     versioning.setLatest(latestVersion);
 
                     metadata.setVersioning(versioning);
@@ -299,7 +275,8 @@ public class MavenMetadataManager
         }
     }
 
-    private void generateMavenPluginMetadata(VersionCollectionRequest request, Artifact artifact)
+    private void generateMavenPluginMetadata(VersionCollectionRequest request,
+                                             Artifact artifact)
             throws IOException, NoSuchAlgorithmException
     {
         Metadata pluginMetadata = new Metadata();
@@ -348,23 +325,50 @@ public class MavenMetadataManager
         return snapshotMetadata;
     }
 
-    /**
-     * Merge the existing metadata file of an artifact with the incoming new metadata.
-     *
-     * @param repository    Repository
-     * @param artifact      Artifact
-     * @param mergeMetadata Metadata
-     * @throws IOException
-     * @throws XmlPullParserException
-     */
-    public void mergeMetadata(Repository repository, Artifact artifact, Metadata mergeMetadata)
+    public void mergeAndStore(final Path metadataBasePath,
+                              final Metadata mergeMetadata)
+    {
+        doInLock(metadataBasePath, path ->
+        {
+            if (Files.exists(metadataBasePath))
+            {
+                try
+                {
+                    final Metadata metadata = readMetadata(metadataBasePath);
+                    mergeAndStore(metadataBasePath, metadata, mergeMetadata);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    logger.error("Unable to merge the metadata to " + metadataBasePath + " by source metadata " +
+                                 ReflectionToStringBuilder.toString(mergeMetadata) +
+                                 ". Continuing with storing new metadata ...", e);
+                }
+            }
+
+            try
+            {
+                Files.createDirectories(metadataBasePath);
+            }
+            catch (IOException e)
+            {
+                throw Throwables.propagate(e);
+            }
+            storeMetadata(metadataBasePath, null, mergeMetadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+        });
+    }
+
+    public void mergeAndStore(Repository repository,
+                              Artifact artifact,
+                              Metadata mergeMetadata)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException,
                    ProviderImplementationException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(ArtifactUtils.convertArtifactToPath(artifact));
+        ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(
+                ArtifactUtils.convertArtifactToPath(artifact));
 
         if (layoutProvider.containsArtifact(repository, coordinates))
         {
@@ -379,24 +383,12 @@ public class MavenMetadataManager
             }
 
             logger.debug("Artifact merge metadata triggered for " + artifact.toString() +
-                         "(" +artifactBasePath + "). " + repository.getType());
+                         "(" + artifactBasePath + "). " + repository.getType());
 
             try
             {
                 Metadata metadata = readMetadata(repository, artifact);
-                mergeSynchronized(metadata, mergeMetadata, artifactBasePath);
-
-                Versioning versioning = metadata.getVersioning();
-                if (versioning.getVersions() != null)
-                {
-                    Collections.sort(versioning.getVersions(), new VersionComparator());
-                }
-                if (versioning.getSnapshotVersions() != null)
-                {
-                    Collections.sort(versioning.getSnapshotVersions(), new SnapshotVersionComparator());
-                }
-
-                storeMetadata(artifactBasePath, artifact.getVersion(), metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+                mergeAndStore(artifactBasePath, metadata, mergeMetadata);
             }
             catch (FileNotFoundException e)
             {
@@ -408,20 +400,48 @@ public class MavenMetadataManager
         else
         {
             throw new IOException("Artifact " + artifact.toString() + " does not exist in " +
-                                  repository.getStorage().getBasedir() +"/" + repository.getBasedir() + " !");
+                                  repository.getStorage().getBasedir() + "/" + repository.getBasedir() + " !");
         }
     }
 
-    private void mergeSynchronized(Metadata metadata,
-                                   Metadata mergeMetadata,
-                                   Path artifactBasePath)
+    public void mergeAndStore(final Path metadataBasePath,
+                              final Metadata metadata,
+                              final Metadata mergeMetadata)
     {
-        final String artifactBasePathAsAbsolutePathString = artifactBasePath.toAbsolutePath().toString();
-        metadataSynchronizationContainer.putIfAbsent(artifactBasePathAsAbsolutePathString, artifactBasePathAsAbsolutePathString);
-        synchronized (metadataSynchronizationContainer.get(artifactBasePathAsAbsolutePathString))
+        doInLock(metadataBasePath, path ->
         {
             metadata.merge(mergeMetadata);
+
+            Versioning versioning = metadata.getVersioning();
+            if (versioning.getVersions() != null)
+            {
+                Collections.sort(versioning.getVersions(), new VersionComparator());
+            }
+            if (versioning.getSnapshotVersions() != null)
+            {
+                Collections.sort(versioning.getSnapshotVersions(), new SnapshotVersionComparator());
+            }
+
+            storeMetadata(metadataBasePath, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+        });
+
+    }
+
+    private void doInLock(final Path metadataBasePath,
+                          final Consumer<Path> operation)
+    {
+        synchronized (getMetadataSynchronizationLock(metadataBasePath))
+        {
+            operation.accept(metadataBasePath);
         }
+    }
+
+    private String getMetadataSynchronizationLock(final Path metadataBasePath)
+    {
+        final String artifactBasePathAsAbsolutePathString = metadataBasePath.toAbsolutePath().toString();
+        final String normalizedPath = FilenameUtils.normalizeNoEndSeparator(artifactBasePathAsAbsolutePathString);
+        metadataSynchronizationContainer.putIfAbsent(normalizedPath, normalizedPath);
+        return metadataSynchronizationContainer.get(normalizedPath);
     }
 
 }

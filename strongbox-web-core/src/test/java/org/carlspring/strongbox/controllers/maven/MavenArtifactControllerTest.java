@@ -4,13 +4,19 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
+import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
+import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -140,6 +146,7 @@ public class MavenArtifactControllerTest
                                        // Used by testDeleteArtifactDirectory
                          }
         );
+        generateMavenMetadata(STORAGE0, REPOSITORY_RELEASES1);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.partial:partial-foo",
