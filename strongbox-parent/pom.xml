@@ -742,7 +742,13 @@
                 <groupId>ru.aristar.nuget</groupId>
                 <artifactId>jnuget-server</artifactId>
                 <version>${version.jnuget}</version>
-            </dependency>	        
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.ws.rs</groupId>
+                        <artifactId>jsr311-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>    
 	        <dependency>
 	            <groupId>xerces</groupId>
 	            <artifactId>xercesImpl</artifactId>

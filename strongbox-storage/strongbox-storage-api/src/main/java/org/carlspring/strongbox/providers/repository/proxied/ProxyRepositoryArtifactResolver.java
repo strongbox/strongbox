@@ -1,5 +1,15 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.NoSuchAlgorithmException;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -15,16 +25,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.NoSuchAlgorithmException;
-
 import org.slf4j.Logger;
 
 /**
@@ -72,42 +72,46 @@ public abstract class ProxyRepositoryArtifactResolver
             return null;
         }
 
-        final ArtifactResolver client = new ArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getRestClient());
-        client.setRepositoryBaseUrl(remoteRepository.getUrl());
-        client.setUsername(remoteRepository.getUsername());
-        client.setPassword(remoteRepository.getPassword());
-
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        final String resourcePath = layoutProvider.resolveResourcePath(repository, path);
-
-        try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse =
-                     new CloseableProxyRepositoryResponse(client.getResourceWithResponse(resourcePath)))
+        try (final ArtifactResolver client = new ArtifactResolver(
+                proxyRepositoryConnectionPoolConfigurationService.getRestClient()))
         {
-            final Response response = closeableProxyRepositoryResponse.response;
+            client.setRepositoryBaseUrl(remoteRepository.getUrl());
+            client.setUsername(remoteRepository.getUsername());
+            client.setPassword(remoteRepository.getPassword());
 
-            if (response.getStatus() != 200 || response.getEntity() == null)
+            final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+            final String resourcePath = layoutProvider.resolveResourcePath(repository, path);
+
+            try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse = new CloseableProxyRepositoryResponse(
+                    client.getResourceWithResponse(resourcePath)))
             {
-                return null;
+                final Response response = closeableProxyRepositoryResponse.response;
+
+                if (response.getStatus() != 200 || response.getEntity() == null)
+                {
+                    return null;
+                }
+
+                InputStream is = response.readEntity(InputStream.class);
+                if (is == null)
+                {
+                    return null;
+                }
+
+                is = onSuccessfulProxyRepositoryResponse(is, storageId, repositoryId, path);
+
+                RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
+                RepositoryFileAttributes artifactFileAttributes = (RepositoryFileAttributes) Files.readAttributes(
+                                                                                                                  artifactPath,
+                                                                                                                  BasicFileAttributes.class);
+                if (!artifactFileAttributes.isChecksum() && !artifactFileAttributes.isMetadata())
+                {
+                    artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(storageId, repositoryId, path);
+                }
+                
+                
+                return is;
             }
-
-            InputStream is = response.readEntity(InputStream.class);
-            if (is == null)
-            {
-                return null;
-            }
-
-            is = onSuccessfulProxyRepositoryResponse(is, storageId, repositoryId, path);
-
-            RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-            RepositoryFileAttributes artifactFileAttributes = (RepositoryFileAttributes) Files.readAttributes(
-                    artifactPath,
-                    BasicFileAttributes.class);
-            if (!artifactFileAttributes.isChecksum() && !artifactFileAttributes.isMetadata())
-            {
-                artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(storageId, repositoryId, path);
-            }
-
-            return is;
         }
     }
 

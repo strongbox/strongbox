@@ -106,6 +106,7 @@
                             layout="Nuget Hierarchical" 
                             type="proxy">
                     <remote-repository url="https://www.nuget.org/api/v2"/>
+                    <nuget-repository-configuration remote-feed-page-size="1000"/>
                 </repository>
             </repositories>
         </storage>

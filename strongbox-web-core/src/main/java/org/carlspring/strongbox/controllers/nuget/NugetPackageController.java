@@ -26,7 +26,6 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.util.automaton.LimitedFiniteStringsIterator;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
@@ -356,7 +355,8 @@ public class NugetPackageController extends BaseArtifactController
             return;
         }
 
-        String path = String.format("%s/%s/%s.%s.nupkg", packageId, packageVersion, packageId, packageVersion);
+        String fileName = String.format("%s.%s.nupkg", packageId, packageVersion);
+        String path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
 
         try
         {
@@ -371,16 +371,13 @@ public class NugetPackageController extends BaseArtifactController
                 return;
             }
 
-            try (TempNupkgFile nupkgFile = new TempNupkgFile(is))
-            {
-                response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", nupkgFile.getFileName()));
-                ArtifactControllerHelper.setHeadersForChecksums(is, response);
+            response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
+            ArtifactControllerHelper.setHeadersForChecksums(is, response);
 
-                // unfortunately 'new TempNupkgFile(is)' closes 'is' stream :(
-                try (InputStream isCopy = getArtifactManagementService().resolve(storageId, repositoryId, path))
-                {
-                    copyToResponse(isCopy, response);
-                }
+            // unfortunately 'new TempNupkgFile(is)' closes 'is' stream :(
+            try (InputStream isCopy = getArtifactManagementService().resolve(storageId, repositoryId, path))
+            {
+                copyToResponse(isCopy, response);
             }
 
         }
