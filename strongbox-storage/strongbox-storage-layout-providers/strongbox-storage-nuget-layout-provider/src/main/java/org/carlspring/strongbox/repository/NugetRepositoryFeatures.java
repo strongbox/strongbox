@@ -3,7 +3,9 @@ package org.carlspring.strongbox.repository;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -20,8 +22,11 @@ import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.CustomConfiguration;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.xml.configuration.repository.NugetRepositoryConfiguration;
+import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -45,6 +50,8 @@ import ru.aristar.jnuget.rss.PackageFeed;
 public class NugetRepositoryFeatures
         implements RepositoryFeatures
 {
+
+    private static final int REMOTE_FEED_PAGE_SIZE = 1000;
 
     private static final Logger logger = LoggerFactory.getLogger(NugetRepositoryFeatures.class);
 
@@ -70,9 +77,16 @@ public class NugetRepositoryFeatures
         throws RepositoryInitializationException,
         ArtifactTransportException
     {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        Optional<NugetRepositoryConfiguration> repositoryConfiguration = Optional.ofNullable((NugetRepositoryConfiguration) repository.getRepositoryConfiguration());
+        Integer remoteFeedPageSize = repositoryConfiguration.map(c -> c.getRemoteFeedPageSize())
+                                                            .orElse(REMOTE_FEED_PAGE_SIZE);
         for (int i = 0; true; i++)
         {
-            if (!downloadRemoteFeed(storageId, repositoryId, filter, searchTerm, targetFramework, i * 100, 100))
+            if (!downloadRemoteFeed(storageId, repositoryId, filter, searchTerm, targetFramework,
+                                    i * remoteFeedPageSize, remoteFeedPageSize))
             {
                 break;
             }
@@ -90,6 +104,7 @@ public class NugetRepositoryFeatures
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
+
         RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (remoteRepository == null)
         {
@@ -123,8 +138,8 @@ public class NugetRepositoryFeatures
                 String packageVersion = packageEntry.getProperties().getVersion().toString();
 
                 NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates(packageId,
-                                                                                                  packageVersion, 
-                                                                                                  "nupkg");
+                        packageVersion,
+                        "nupkg");
                 if (!artifactEntryService.aritifactExists(storageId, repositoryId, c.toPath()))
                 {
                     artifactToSaveSet.add(c);
@@ -157,7 +172,6 @@ public class NugetRepositoryFeatures
             RepositorySearchRequest repositorySearchRequest = event.getSearchRequest();
             RepositoryPageRequest repositoryPageRequest = event.getPageRequest();
 
-            
             Storage storage = getConfiguration().getStorage(repositorySearchRequest.getStorageId());
             Repository repository = storage.getRepository(repositorySearchRequest.getRepositoryId());
             RemoteRepository remoteRepository = repository.getRemoteRepository();
@@ -165,14 +179,16 @@ public class NugetRepositoryFeatures
             {
                 return;
             }
-            
+
             Map<String, String> coordinates = repositorySearchRequest.getCoordinates();
             String packageId = coordinates.get(NugetArtifactCoordinates.ID);
             String version = coordinates.get(NugetArtifactCoordinates.VERSION);
 
-            Long packageCount = artifactEntryService.countAritifacts(storage.getId(), repository.getId(), coordinates, repositorySearchRequest.isStrict());
-            logger.debug(String.format("Remote repository [%s] cached package count is [%s]", repository.getId(), packageCount));
-            
+            Long packageCount = artifactEntryService.countAritifacts(storage.getId(), repository.getId(), coordinates,
+                                                                     repositorySearchRequest.isStrict());
+            logger.debug(String.format("Remote repository [%s] cached package count is [%s]", repository.getId(),
+                                       packageCount));
+
             Expression filter = repositorySearchRequest.isStrict() ? createPackageEq(packageId, null) : null;
             filter = createVersionEq(version, filter);
             String searchTerm = !repositorySearchRequest.isStrict() ? packageId : null;
@@ -184,11 +200,12 @@ public class NugetRepositoryFeatures
                 {
                     nugetClient.setUrl(remoteRepository.getUrl());
                     remotePackageCount = nugetClient.getPackageCount(filter == null ? null : filter.toString(),
-                                                                   searchTerm,
-                                                                   null);
-                    logger.debug(String.format("Remote repository [%s] remote package count is [%s]", repository.getId(), packageCount));
+                                                                     searchTerm,
+                                                                     null);
+                    logger.debug(String.format("Remote repository [%s] remote package count is [%s]",
+                                               repository.getId(), packageCount));
                 }
-                
+
                 if (Long.valueOf(remotePackageCount).compareTo(packageCount) == 0)
                 {
                     logger.debug(String.format("No need to download remote feed, there was no changes in remote repository [%s] against local cache.",
@@ -198,7 +215,7 @@ public class NugetRepositoryFeatures
 
                 logger.debug(String.format("Downloading remote feed for [%s].",
                                            remoteRepository.getUrl()));
-                
+
                 downloadRemoteFeed(repositorySearchRequest.getStorageId(), repositorySearchRequest.getRepositoryId(),
                                    filter,
                                    searchTerm, null, repositoryPageRequest.getSkip(),

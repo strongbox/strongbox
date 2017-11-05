@@ -18,6 +18,9 @@ public class NugetRepositoryConfiguration
 
     @XmlAttribute(name = "feed-version")
     private String feedVersion = "2.0";
+    
+    @XmlAttribute(name = "remote-feed-page-size")
+    private Integer remoteFeedPageSize;
 
 
     public NugetRepositoryConfiguration()
@@ -34,4 +37,14 @@ public class NugetRepositoryConfiguration
         this.feedVersion = feedVersion;
     }
 
+    public Integer getRemoteFeedPageSize()
+    {
+        return remoteFeedPageSize;
+    }
+
+    public void setRemoteFeedPageSize(Integer remoteFeedPageSize)
+    {
+        this.remoteFeedPageSize = remoteFeedPageSize;
+    }
+    
 }
