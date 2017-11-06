@@ -57,7 +57,7 @@ public class TestCaseWithNugetPackageGeneration
                    NugetFormatException,
                    JAXBException
     {
-        NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir.concat("/").concat(id));
+        NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir);
         generator.generateNugetPackage(id, version, dependencyList);
     }
 
@@ -67,7 +67,7 @@ public class TestCaseWithNugetPackageGeneration
                                           String... dependencyList)
             throws IOException, NoSuchAlgorithmException, NugetFormatException, JAXBException
     {
-        NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir.concat("/").concat(id));
+        NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir);
 
         generator.generateNugetPackage(id, getNugetSnapshotVersion(version), dependencyList);
     }
