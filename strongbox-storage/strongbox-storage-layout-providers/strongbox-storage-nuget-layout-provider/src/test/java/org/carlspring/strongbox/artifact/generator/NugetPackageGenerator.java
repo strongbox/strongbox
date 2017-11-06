@@ -249,9 +249,12 @@ public class NugetPackageGenerator
     private void generateNuspecFile(Nupkg nupkgFile)
             throws IOException, NugetFormatException, JAXBException, NoSuchAlgorithmException
     {
-        File nuspecFile = new File(getBasedir(), String.format("%s/%s.nuspec", nupkgFile.getVersion()
-                                                                                        .toString(),
-                                                               nupkgFile.getId()));
+        String packageId = nupkgFile.getId();
+        String packageVersion = nupkgFile.getVersion()
+                                         .toString();
+        File nuspecFile = new File(getBasedir(),
+                String.format("%s/%s/%s.nuspec", packageId, packageVersion,
+                              packageId));
         nuspecFile.getParentFile()
                   .mkdirs();
 
