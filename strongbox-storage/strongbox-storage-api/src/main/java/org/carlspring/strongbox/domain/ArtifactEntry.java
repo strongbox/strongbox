@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.domain;
 
-import java.io.Serializable;
-
-import javax.persistence.OneToOne;
-
 import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.data.domain.GenericEntityHook;
+
+import javax.persistence.OneToOne;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * @author carlspring
@@ -30,6 +30,12 @@ public class ArtifactEntry
      * populated within {@link GenericEntityHook}.
      */
     private String artifactPath;
+
+    private Long sizeInBytes;
+
+    private LocalDateTime lastUpdated;
+
+    private LocalDateTime lastUsed;
 
     public ArtifactEntry()
     {
@@ -76,6 +82,36 @@ public class ArtifactEntry
         this.artifactPath = artifactCoordinates != null ? artifactCoordinates.toPath() : artifactPath;
     }
 
+    public Long getSizeInBytes()
+    {
+        return sizeInBytes;
+    }
+
+    public void setSizeInBytes(Long sizeInBytes)
+    {
+        this.sizeInBytes = sizeInBytes;
+    }
+
+    public LocalDateTime getLastUpdated()
+    {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(LocalDateTime lastUpdated)
+    {
+        this.lastUpdated = lastUpdated;
+    }
+
+    public LocalDateTime getLastUsed()
+    {
+        return lastUsed;
+    }
+
+    public void setLastUsed(LocalDateTime lastUsed)
+    {
+        this.lastUsed = lastUsed;
+    }
+
     @Override
     public String toString()
     {
@@ -85,6 +121,15 @@ public class ArtifactEntry
           .append('\'');
         sb.append(", \n\trepositoryId='")
           .append(repositoryId)
+          .append('\'');
+        sb.append(", \n\tlastUpdated='")
+          .append(lastUpdated)
+          .append('\'');
+        sb.append(", \n\tlastUsed='")
+          .append(lastUsed)
+          .append('\'');
+        sb.append(", \n\tsizeInBytes='")
+          .append(sizeInBytes)
           .append('\'');
         sb.append(", \n\tartifactCoordinates=")
           .append(artifactCoordinates);

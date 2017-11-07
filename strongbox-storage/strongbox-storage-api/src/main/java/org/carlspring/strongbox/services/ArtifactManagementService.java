@@ -15,7 +15,10 @@ import org.carlspring.strongbox.storage.Storage;
 public interface ArtifactManagementService extends ConfigurationService
 {
 
-    void validateAndStore(String storageId,
+    /**
+     * @return total number of bytes stored
+     */
+    long validateAndStore(String storageId,
                           String repositoryId,
                           String path,
                           InputStream is)
@@ -23,7 +26,10 @@ public interface ArtifactManagementService extends ConfigurationService
                    ProviderImplementationException,
                    NoSuchAlgorithmException;
 
-    void store(RepositoryPath path,
+    /**
+     * @return total number of bytes stored
+     */
+    long store(RepositoryPath path,
                InputStream is)
             throws IOException,
                    ProviderImplementationException,

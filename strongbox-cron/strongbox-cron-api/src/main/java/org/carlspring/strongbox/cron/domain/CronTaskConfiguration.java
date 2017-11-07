@@ -9,6 +9,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.util.Assert;
+
 /**
  * @author Yougeshwar
  */
@@ -53,6 +55,13 @@ public class CronTaskConfiguration
     public void setProperties(Map<String, String> properties)
     {
         this.properties = properties;
+    }
+
+    public String getRequiredProperty(String key)
+    {
+        String value = getProperty(key);
+        Assert.notNull("No property of key '" + key + "' found");
+        return value;
     }
 
     public String getProperty(String key)
