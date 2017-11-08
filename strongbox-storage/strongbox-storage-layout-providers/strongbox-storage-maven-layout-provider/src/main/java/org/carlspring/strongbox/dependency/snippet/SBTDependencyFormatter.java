@@ -22,7 +22,7 @@ public class SBTDependencyFormatter
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractLayoutProvider.class);
 
-    public static String ALIAS = "SBT";
+    public static final String ALIAS = "SBT";
 
     @Inject
     private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;

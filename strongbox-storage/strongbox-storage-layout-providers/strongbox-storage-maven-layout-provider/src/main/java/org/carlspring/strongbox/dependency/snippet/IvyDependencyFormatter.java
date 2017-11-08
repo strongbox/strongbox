@@ -22,7 +22,7 @@ public class IvyDependencyFormatter
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractLayoutProvider.class);
 
-    public static String ALIAS = "Ivy";
+    public static final String ALIAS = "Ivy";
 
     @Inject
     private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;

@@ -22,7 +22,7 @@ public class LeiningenDependencyFormatter
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractLayoutProvider.class);
 
-    public static String ALIAS = "Leiningen";
+    public static final String ALIAS = "Leiningen";
 
     @Inject
     private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;

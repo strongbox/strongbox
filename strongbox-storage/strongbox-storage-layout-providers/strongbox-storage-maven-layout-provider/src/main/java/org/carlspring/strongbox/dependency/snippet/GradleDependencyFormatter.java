@@ -22,7 +22,7 @@ public class GradleDependencyFormatter
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractLayoutProvider.class);
 
-    public static String ALIAS = "Gradle";
+    public static final String ALIAS = "Gradle";
 
     @Inject
     private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;
