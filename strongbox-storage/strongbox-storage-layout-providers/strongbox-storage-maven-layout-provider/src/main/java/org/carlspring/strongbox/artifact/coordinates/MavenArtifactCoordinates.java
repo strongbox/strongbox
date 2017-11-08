@@ -82,6 +82,12 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
 
             i++;
         }
+
+        if (extension == null)
+        {
+            extension = "jar";
+        }
+
     }
 
     public MavenArtifactCoordinates(Artifact artifact)
