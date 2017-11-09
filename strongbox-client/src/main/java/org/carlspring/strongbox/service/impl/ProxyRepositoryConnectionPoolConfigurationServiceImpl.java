@@ -1,22 +1,21 @@
 package org.carlspring.strongbox.service.impl;
 
-import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.collections.bag.SynchronizedSortedBag;
 import org.apache.http.HttpHost;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
