@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.bag.SynchronizedSortedBag;
 import org.apache.http.HttpHost;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -86,6 +87,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     public CloseableHttpClient getHttpClient()
     {
         return HttpClients.custom()
+                          .setConnectionManagerShared(true)
                           .setConnectionManager(poolingHttpClientConnectionManager)
                           .build();
     }
