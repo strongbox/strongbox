@@ -25,7 +25,7 @@ public class CleanupObsoleteProxyRepositoriesArtifactsCronJob
             throws Throwable
     {
         final String uselessnessDaysText = config.getRequiredProperty("uselessnessDays");
-        final String minSizeText = config.getProperty("minSize");
+        final String minSizeInBytesText = config.getProperty("minSizeInBytes");
 
         final Integer uselessnessDays;
         try
@@ -39,22 +39,22 @@ public class CleanupObsoleteProxyRepositoriesArtifactsCronJob
             return;
         }
 
-        Integer minSize = null;
-        if (minSizeText != null)
+        Integer minSizeInBytes = Integer.valueOf(-1);
+        if (minSizeInBytesText != null)
         {
             try
             {
-                minSize = Integer.valueOf(minSizeText);
+                minSizeInBytes = Integer.valueOf(minSizeInBytesText);
             }
             catch (NumberFormatException ex)
             {
-                logger.error("Invalid integer value [" + minSizeText +
+                logger.error("Invalid integer value [" + minSizeInBytesText +
                              "] of 'minSize' property. Cron job won't be fired.", ex);
                 return;
             }
         }
 
-        proxyRepositoryObsoleteArtifactsCleaner.cleanup(uselessnessDays, minSize);
+        proxyRepositoryObsoleteArtifactsCleaner.cleanup(uselessnessDays, minSizeInBytes);
     }
 
 }

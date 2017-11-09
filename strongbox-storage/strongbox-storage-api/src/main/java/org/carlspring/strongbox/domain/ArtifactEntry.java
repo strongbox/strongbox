@@ -7,7 +7,6 @@ import org.carlspring.strongbox.data.domain.GenericEntityHook;
 
 import javax.persistence.OneToOne;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * @author carlspring
@@ -24,18 +23,15 @@ public class ArtifactEntry
     // if you have to rename this field please update ArtifactEntryServiceImpl.findByCoordinates() implementation
     @OneToOne(orphanRemoval = true)
     private AbstractArtifactCoordinates artifactCoordinates;
-    
+
+    @OneToOne(orphanRemoval = true, optional = false)
+    private ArtifactAttributes artifactAttributes = new ArtifactAttributes();
+
     /**
      * This field is used as part of [storageId, repositoryId, artifactPath] unique index. The value of this field is
      * populated within {@link GenericEntityHook}.
      */
     private String artifactPath;
-
-    private Long sizeInBytes;
-
-    private LocalDateTime lastUpdated;
-
-    private LocalDateTime lastUsed;
 
     public ArtifactEntry()
     {
@@ -72,44 +68,24 @@ public class ArtifactEntry
         getArtifactPath();
     }
 
+    public ArtifactAttributes getArtifactAttributes()
+    {
+        return artifactAttributes;
+    }
+
+    public void setArtifactAttributes(ArtifactAttributes artifactAttributes)
+    {
+        this.artifactAttributes = artifactAttributes;
+    }
+
     public final String getArtifactPath()
     {
         return artifactCoordinates == null ? artifactPath : (artifactPath = artifactCoordinates.toPath());
     }
-    
+
     public void setArtifactPath(String artifactPath)
     {
         this.artifactPath = artifactCoordinates != null ? artifactCoordinates.toPath() : artifactPath;
-    }
-
-    public Long getSizeInBytes()
-    {
-        return sizeInBytes;
-    }
-
-    public void setSizeInBytes(Long sizeInBytes)
-    {
-        this.sizeInBytes = sizeInBytes;
-    }
-
-    public LocalDateTime getLastUpdated()
-    {
-        return lastUpdated;
-    }
-
-    public void setLastUpdated(LocalDateTime lastUpdated)
-    {
-        this.lastUpdated = lastUpdated;
-    }
-
-    public LocalDateTime getLastUsed()
-    {
-        return lastUsed;
-    }
-
-    public void setLastUsed(LocalDateTime lastUsed)
-    {
-        this.lastUsed = lastUsed;
     }
 
     @Override
@@ -122,14 +98,8 @@ public class ArtifactEntry
         sb.append(", \n\trepositoryId='")
           .append(repositoryId)
           .append('\'');
-        sb.append(", \n\tlastUpdated='")
-          .append(lastUpdated)
-          .append('\'');
-        sb.append(", \n\tlastUsed='")
-          .append(lastUsed)
-          .append('\'');
-        sb.append(", \n\tsizeInBytes='")
-          .append(sizeInBytes)
+        sb.append(", \n\tartifactAttributes='")
+          .append(artifactAttributes)
           .append('\'');
         sb.append(", \n\tartifactCoordinates=")
           .append(artifactCoordinates);

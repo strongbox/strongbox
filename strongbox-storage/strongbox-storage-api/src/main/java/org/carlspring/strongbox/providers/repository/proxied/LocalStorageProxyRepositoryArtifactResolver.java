@@ -62,7 +62,7 @@ public class LocalStorageProxyRepositoryArtifactResolver
         if (artifactEntry.isPresent())
         {
             final ArtifactEntry artifactEntryItself = artifactEntry.get();
-            artifactEntryItself.setLastUpdated(LocalDateTime.now());
+            artifactEntryItself.getArtifactAttributes().setLastUsed(LocalDateTime.now());
             artifactEntryService.save(artifactEntryItself);
 
             if (result == null)
@@ -120,10 +120,10 @@ public class LocalStorageProxyRepositoryArtifactResolver
             artifactEntry.setRepositoryId(repositoryId);
             artifactEntry.setIsCached(Boolean.TRUE);
             artifactEntry.setArtifactPath(path);
-            artifactEntry.setSizeInBytes(totalNumberOfArtifactBytes);
             LocalDateTime now = LocalDateTime.now();
-            artifactEntry.setLastUpdated(now);
-            artifactEntry.setLastUsed(now);
+            artifactEntry.getArtifactAttributes().setLastUpdated(now);
+            artifactEntry.getArtifactAttributes().setLastUsed(now);
+            artifactEntry.getArtifactAttributes().setSizeInBytes(totalNumberOfArtifactBytes);
             artifactEntryService.save(artifactEntry);
 
             // Serve the downloaded artifact
