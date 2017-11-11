@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,7 @@ public abstract class AbstractArtifactLocationHandler
     {
         try
         {
-            return Boolean.TRUE.equals(Files.getAttribute(p, RepositoryFileAttributes.METADATA));
+            return Boolean.TRUE.equals(RepositoryFiles.isMetadata((RepositoryPath) p));
         }
         catch (IOException e)
         {

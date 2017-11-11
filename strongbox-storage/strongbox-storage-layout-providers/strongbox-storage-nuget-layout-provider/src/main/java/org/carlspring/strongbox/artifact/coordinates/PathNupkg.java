@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,8 +128,7 @@ public class PathNupkg implements Nupkg
         NugetArtifactCoordinates artifactCoordinates;
         try
         {
-            artifactCoordinates = (NugetArtifactCoordinates) Files.getAttribute(path,
-                                                                                RepositoryFileAttributes.COORDINATES);
+            artifactCoordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(path);
         }
         catch (IOException e)
         {

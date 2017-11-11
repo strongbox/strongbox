@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
 
@@ -37,8 +38,7 @@ public class ArtifactLocationGenerateChecksumOperation
                                           {
                                               try
                                               {
-                                                  return Boolean.TRUE.equals(Files.getAttribute(p,
-                                                                                                RepositoryFileAttributes.METADATA));
+                                                  return RepositoryFiles.isMetadata((RepositoryPath) p);
                                               }
                                               catch (IOException e)
                                               {

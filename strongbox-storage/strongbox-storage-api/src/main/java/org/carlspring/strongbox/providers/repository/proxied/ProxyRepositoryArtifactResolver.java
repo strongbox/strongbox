@@ -101,9 +101,7 @@ public abstract class ProxyRepositoryArtifactResolver
                 is = onSuccessfulProxyRepositoryResponse(is, storageId, repositoryId, path);
 
                 RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-                RepositoryFileAttributes artifactFileAttributes = (RepositoryFileAttributes) Files.readAttributes(
-                                                                                                                  artifactPath,
-                                                                                                                  BasicFileAttributes.class);
+                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath, RepositoryFileAttributes.class);
                 if (!artifactFileAttributes.isChecksum() && !artifactFileAttributes.isMetadata())
                 {
                     artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(storageId, repositoryId, path);
