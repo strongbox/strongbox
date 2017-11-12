@@ -8,14 +8,28 @@ public class ArtifactEntrySearchCriteria
 
     private Integer uselessnessDays;
 
-    private Integer minSizeInBytes;
+    private Long minSizeInBytes;
 
+    public boolean isEmpty()
+    {
+        return uselessnessDays == null && minSizeInBytes == null;
+    }
+
+    public Integer getUselessnessDays()
+    {
+        return uselessnessDays;
+    }
+
+    public Long getMinSizeInBytes()
+    {
+        return minSizeInBytes;
+    }
 
     public static final class Builder
     {
 
         private Integer uselessnessDays;
-        private Integer minSizeInBytes;
+        private Long minSizeInBytes;
 
         private Builder()
         {
@@ -32,7 +46,7 @@ public class ArtifactEntrySearchCriteria
             return this;
         }
 
-        public Builder withMinSizeInBytes(Integer minSizeInBytes)
+        public Builder withMinSizeInBytes(Long minSizeInBytes)
         {
             this.minSizeInBytes = minSizeInBytes;
             return this;

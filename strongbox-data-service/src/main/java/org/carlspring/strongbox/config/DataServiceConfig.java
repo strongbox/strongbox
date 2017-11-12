@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.OLocalDateTime;
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.slf4j.Logger;
@@ -89,6 +90,7 @@ public class DataServiceConfig
     private void doInit(TransactionStatus s)
     {
         oEntityManager().registerEntityClass(GenericEntity.class);
+        oEntityManager().registerEntityClass(OLocalDateTime.class);
         EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(entityManagerFactory());
         OClass oGenericEntityClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
                                                                                       .getSchema()

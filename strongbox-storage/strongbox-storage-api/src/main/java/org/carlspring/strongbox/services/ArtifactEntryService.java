@@ -1,13 +1,16 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.data.service.CrudService;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
+import org.carlspring.strongbox.services.support.search.PagingCriteria;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.data.service.CrudService;
-import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.javatuples.Pair;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +49,9 @@ public interface ArtifactEntryService
                                           String orderBy,
                                           boolean strict);
 
+    List<ArtifactEntry> findMatching(ArtifactEntrySearchCriteria searchCriteria,
+                                     PagingCriteria pagingCriteria);
+
     Long countCoordinates(Collection<Pair<String, String>> storageRepositoryPairList,
                           Map<String, String> coordinates,
                           boolean strict);
@@ -66,5 +72,7 @@ public interface ArtifactEntryService
     Optional<ArtifactEntry> findOneAritifact(String storageId,
                                              String repositoryId,
                                              String path);
+
+    int delete(List<ArtifactEntry> artifactEntries);
 
 }

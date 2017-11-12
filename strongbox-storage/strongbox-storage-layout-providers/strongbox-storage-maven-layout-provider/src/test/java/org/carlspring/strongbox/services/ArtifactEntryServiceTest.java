@@ -1,23 +1,24 @@
 package org.carlspring.strongbox.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.services.support.search.PagingCriteria;
+
+import javax.inject.Inject;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria.Builder.anArtifactEntrySearchCriteria;
+import static org.junit.Assert.*;
 
 /**
  * Functional test and usage example scenarios for {@link ArtifactEntryService}.
@@ -31,17 +32,67 @@ public class ArtifactEntryServiceTest
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryServiceTest.class);
-
+    final String storageId = "storage0";
+    final String repositoryId = "release";
+    final String groupId = "org.carlspring.strongbox";
+    final String artifactId = "coordinates-test";
     @Inject
     ArtifactEntryService artifactEntryService;
 
-    final String storageId = "storage0";
+    @Test
+    public void searchBySizeShouldWork()
+            throws Exception
+    {
+        artifactEntryService.deleteAll();
+        createArtifacts(groupId, artifactId, storageId, repositoryId);
+        long all = artifactEntryService.count();
+        updateArtifactAttributes();
 
-    final String repositoryId = "release";
+        List<ArtifactEntry> entries = artifactEntryService.findMatching(
+                anArtifactEntrySearchCriteria()
+                        .withMinSizeInBytes(500l)
+                        .build(),
+                PagingCriteria.ALL);
 
-    final String groupId = "org.carlspring.strongbox";
+        assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
+    }
 
-    final String artifactId = "coordinates-test";
+    @Test
+    public void searchByLastUsedShouldWork()
+            throws Exception
+    {
+        artifactEntryService.deleteAll();
+        createArtifacts(groupId, artifactId, storageId, repositoryId);
+        long all = artifactEntryService.count();
+        updateArtifactAttributes();
+
+        List<ArtifactEntry> entries = artifactEntryService.findMatching(
+                anArtifactEntrySearchCriteria()
+                        .withUselessnessDays(5)
+                        .build(),
+                PagingCriteria.ALL);
+
+        assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
+    }
+
+    @Test
+    public void searchByLastUsedAndBySizeShouldWork()
+            throws Exception
+    {
+        artifactEntryService.deleteAll();
+        createArtifacts(groupId, artifactId, storageId, repositoryId);
+        long all = artifactEntryService.count();
+        updateArtifactAttributes();
+
+        List<ArtifactEntry> entries = artifactEntryService.findMatching(
+                anArtifactEntrySearchCriteria()
+                        .withMinSizeInBytes(500l)
+                        .withUselessnessDays(5)
+                        .build(),
+                PagingCriteria.ALL);
+
+        assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
+    }
 
     /**
      * Make sure that we are able to search artifacts by single coordinate.
@@ -112,7 +163,7 @@ public class ArtifactEntryServiceTest
 
         Long c = artifactEntryService.countAritifacts(storageId, repositoryId, query.getCoordinates(), true);
         assertEquals(Long.valueOf(1), c);
-        
+
         artifactEntryService.deleteAll();
     }
 
@@ -178,6 +229,29 @@ public class ArtifactEntryServiceTest
                                             "1.2.3",
                                             null,
                                             "jar");
+    }
+
+    private void updateArtifactAttributes()
+    {
+        List<ArtifactEntry> artifactEntries = artifactEntryService.findAll().get();
+        for (int i = 0; i < artifactEntries.size(); i++)
+        {
+            final ArtifactEntry artifactEntry = artifactEntries.get(i);
+            if (i == 0)
+            {
+                artifactEntry.getArtifactAttributes().setLastUsed(LocalDateTime.now());
+                artifactEntry.getArtifactAttributes().setLastUpdated(LocalDateTime.now());
+                artifactEntry.getArtifactAttributes().setSizeInBytes(1l);
+            }
+            else
+            {
+                artifactEntry.getArtifactAttributes().setLastUsed(LocalDateTime.now().minusDays(10));
+                artifactEntry.getArtifactAttributes().setLastUpdated(LocalDateTime.now().minusDays(10));
+                artifactEntry.getArtifactAttributes().setSizeInBytes(100000l);
+            }
+
+            artifactEntryService.save(artifactEntry);
+        }
     }
 
 }

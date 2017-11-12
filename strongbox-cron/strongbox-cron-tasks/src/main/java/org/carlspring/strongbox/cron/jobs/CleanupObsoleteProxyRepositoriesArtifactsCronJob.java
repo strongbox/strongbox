@@ -39,17 +39,17 @@ public class CleanupObsoleteProxyRepositoriesArtifactsCronJob
             return;
         }
 
-        Integer minSizeInBytes = Integer.valueOf(-1);
+        Long minSizeInBytes = Long.valueOf(-1);
         if (minSizeInBytesText != null)
         {
             try
             {
-                minSizeInBytes = Integer.valueOf(minSizeInBytesText);
+                minSizeInBytes = Long.valueOf(minSizeInBytesText);
             }
             catch (NumberFormatException ex)
             {
-                logger.error("Invalid integer value [" + minSizeInBytesText +
-                             "] of 'minSize' property. Cron job won't be fired.", ex);
+                logger.error("Invalid Long value [" + minSizeInBytesText +
+                             "] of 'minSizeInBytes' property. Cron job won't be fired.", ex);
                 return;
             }
         }
