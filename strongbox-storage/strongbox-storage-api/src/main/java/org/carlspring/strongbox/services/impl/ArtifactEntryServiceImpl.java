@@ -108,17 +108,24 @@ class ArtifactEntryServiceImpl
         if (!searchCriteria.isEmpty())
         {
             parameterMap = new HashMap<>();
+            boolean appendAnd = false;
 
             sb.append(" WHERE ");
             if (searchCriteria.getMinSizeInBytes() != null && searchCriteria.getMinSizeInBytes() > 0)
             {
-                sb.append("artifactAttributes.sizeInBytes >= :minSizeInBytes");
+                sb.append(" artifactAttributes.sizeInBytes >= :minSizeInBytes ");
                 parameterMap.put("minSizeInBytes", searchCriteria.getMinSizeInBytes());
+                appendAnd = true;
+
             }
             if (searchCriteria.getUselessnessDays() != null && searchCriteria.getUselessnessDays() > 0)
             {
+                if (appendAnd)
+                {
+                    sb.append(" AND ");
+                }
                 LocalDateTime lastUsed = LocalDateTime.now().minusDays(searchCriteria.getUselessnessDays());
-                sb.append("artifactAttributes.lastUsed < :lastUsed");
+                sb.append(" artifactAttributes.lastUsed < :lastUsed ");
                 parameterMap.put("lastUsed", lastUsed);
             }
         }

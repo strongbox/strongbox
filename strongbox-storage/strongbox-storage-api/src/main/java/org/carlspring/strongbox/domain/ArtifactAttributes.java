@@ -1,9 +1,7 @@
 package org.carlspring.strongbox.domain;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
-import org.carlspring.strongbox.data.domain.OLocalDateTime;
 
-import javax.annotation.Nonnull;
 import java.time.LocalDateTime;
 
 /**
@@ -15,16 +13,9 @@ public class ArtifactAttributes
 
     private Long sizeInBytes;
 
-    private OLocalDateTime lastUpdated;
+    private LocalDateTime lastUpdated;
 
-    private OLocalDateTime lastUsed;
-
-    ArtifactAttributes()
-    {
-        LocalDateTime now = LocalDateTime.now();
-        lastUpdated = new OLocalDateTime(now);
-        lastUpdated = new OLocalDateTime(now);
-    }
+    private LocalDateTime lastUsed;
 
     public Long getSizeInBytes()
     {
@@ -36,26 +27,24 @@ public class ArtifactAttributes
         this.sizeInBytes = sizeInBytes;
     }
 
-    @Nonnull
     public LocalDateTime getLastUpdated()
     {
-        return lastUpdated != null ? lastUpdated.getSubject() : null;
+        return lastUpdated;
     }
 
     public void setLastUpdated(LocalDateTime lastUpdated)
     {
-        this.lastUpdated = new OLocalDateTime(lastUpdated);
+        this.lastUpdated = lastUpdated;
     }
 
-    @Nonnull
     public LocalDateTime getLastUsed()
     {
-        return lastUsed != null ? lastUsed.getSubject() : null;
+        return lastUsed;
     }
 
     public void setLastUsed(LocalDateTime lastUsed)
     {
-        this.lastUsed = new OLocalDateTime(lastUsed);
+        this.lastUsed = lastUsed;
     }
 
 

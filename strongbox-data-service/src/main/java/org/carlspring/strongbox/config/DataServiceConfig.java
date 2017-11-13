@@ -8,7 +8,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
-import org.carlspring.strongbox.data.domain.OLocalDateTime;
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.slf4j.Logger;
@@ -46,7 +45,7 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 @EnableTransactionManagement(proxyTargetClass = true, order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.data" })
-@Import(DataServicePropertiesConfig.class)
+@Import({DataServicePropertiesConfig.class, CustomTypesConfig.class})
 @EnableCaching(order = 105)
 public class DataServiceConfig
 {
@@ -90,7 +89,6 @@ public class DataServiceConfig
     private void doInit(TransactionStatus s)
     {
         oEntityManager().registerEntityClass(GenericEntity.class);
-        oEntityManager().registerEntityClass(OLocalDateTime.class);
         EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(entityManagerFactory());
         OClass oGenericEntityClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
                                                                                       .getSchema()

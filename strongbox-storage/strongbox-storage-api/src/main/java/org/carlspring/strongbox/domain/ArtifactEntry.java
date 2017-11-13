@@ -25,7 +25,7 @@ public class ArtifactEntry
     private AbstractArtifactCoordinates artifactCoordinates;
 
     @OneToOne(orphanRemoval = true, optional = false)
-    private ArtifactAttributes artifactAttributes = new ArtifactAttributes();
+    private ArtifactAttributes artifactAttributes;
 
     /**
      * This field is used as part of [storageId, repositoryId, artifactPath] unique index. The value of this field is
@@ -70,7 +70,7 @@ public class ArtifactEntry
 
     public ArtifactAttributes getArtifactAttributes()
     {
-        return artifactAttributes;
+        return artifactAttributes != null ? artifactAttributes : (artifactAttributes = new ArtifactAttributes());
     }
 
     public void setArtifactAttributes(ArtifactAttributes artifactAttributes)

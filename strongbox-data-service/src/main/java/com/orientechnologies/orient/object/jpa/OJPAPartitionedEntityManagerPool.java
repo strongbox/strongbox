@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.object.jpa;
 
-import java.util.Map;
-import java.util.logging.Logger;
+import org.carlspring.strongbox.data.domain.MyOObjectSerializer;
 
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
@@ -9,9 +8,14 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
+import java.util.Map;
+import java.util.logging.Logger;
 
+import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.serialization.OObjectSerializerContext;
+import com.orientechnologies.orient.object.serialization.OObjectSerializerHelper;
 
 /**
  * @author Sergey Bespalov
@@ -53,7 +57,15 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
         Boolean automaticSchemaGeneration = Boolean.valueOf(properties.get(OJPAObjectDatabaseTxPersistence.PROPERTY_AUTOMATIC_SCHEMA_GENERATION)
                                                                       .toString());
         db.setAutomaticSchemaGeneration(Boolean.TRUE.equals(automaticSchemaGeneration));
+        registerCustomTypes(db);
         return new OJPAObjectDatabaseTxEntityManager(db, this, properties);
+    }
+
+    private void registerCustomTypes(ODatabase db)
+    {
+        OObjectSerializerContext serializerContext = new OObjectSerializerContext();
+        serializerContext.bind(MyOObjectSerializer.INSTANCE, db);
+        OObjectSerializerHelper.bindSerializerContext(null, serializerContext);
     }
 
     @Override

@@ -45,7 +45,7 @@ public class ArtifactEntryServiceTest
     {
         artifactEntryService.deleteAll();
         createArtifacts(groupId, artifactId, storageId, repositoryId);
-        long all = artifactEntryService.count();
+        int all = (int) artifactEntryService.count();
         updateArtifactAttributes();
 
         List<ArtifactEntry> entries = artifactEntryService.findMatching(
@@ -63,7 +63,7 @@ public class ArtifactEntryServiceTest
     {
         artifactEntryService.deleteAll();
         createArtifacts(groupId, artifactId, storageId, repositoryId);
-        long all = artifactEntryService.count();
+        int all = (int) artifactEntryService.count();
         updateArtifactAttributes();
 
         List<ArtifactEntry> entries = artifactEntryService.findMatching(
@@ -81,8 +81,10 @@ public class ArtifactEntryServiceTest
     {
         artifactEntryService.deleteAll();
         createArtifacts(groupId, artifactId, storageId, repositoryId);
-        long all = artifactEntryService.count();
+        int all = (int) artifactEntryService.count();
         updateArtifactAttributes();
+
+        Object o = artifactEntryService.findAll();
 
         List<ArtifactEntry> entries = artifactEntryService.findMatching(
                 anArtifactEntrySearchCriteria()

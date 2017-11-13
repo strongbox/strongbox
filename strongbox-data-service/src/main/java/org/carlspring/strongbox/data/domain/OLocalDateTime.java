@@ -9,8 +9,7 @@ import com.orientechnologies.orient.core.serialization.OSerializableStream;
 /**
  * @author Przemyslaw Fusik
  */
-public class OLocalDateTime extends GenericEntity
-        implements OSerializableStream
+public class OLocalDateTime implements OSerializableStream
 {
 
     private final LocalDateTime subject;
