@@ -45,7 +45,7 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 @EnableTransactionManagement(proxyTargetClass = true, order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.data" })
-@Import({DataServicePropertiesConfig.class, CustomTypesConfig.class})
+@Import(DataServicePropertiesConfig.class)
 @EnableCaching(order = 105)
 public class DataServiceConfig
 {

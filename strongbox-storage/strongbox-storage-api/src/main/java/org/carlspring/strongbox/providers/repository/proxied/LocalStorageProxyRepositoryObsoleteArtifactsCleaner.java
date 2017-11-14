@@ -1,11 +1,15 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.carlspring.strongbox.services.support.search.PagingCriteria;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -28,10 +32,13 @@ public class LocalStorageProxyRepositoryObsoleteArtifactsCleaner
     private final Logger logger = LoggerFactory.getLogger(LocalStorageProxyRepositoryObsoleteArtifactsCleaner.class);
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    protected ConfigurationManager configurationManager;
 
     @Inject
-    private ArtifactManagementService artifactManagementService;
+    protected LayoutProviderRegistry layoutProviderRegistry;
+
+    @Inject
+    private ArtifactEntryService artifactEntryService;
 
     @Transactional(rollbackFor = Exception.class)
     public void cleanup(final Integer uselessnessDays,
@@ -57,19 +64,24 @@ public class LocalStorageProxyRepositoryObsoleteArtifactsCleaner
         deleteFromStorage(artifactEntries);
     }
 
-    private void deleteFromStorage(List<ArtifactEntry> artifactEntries)
+    private void deleteFromStorage(final List<ArtifactEntry> artifactEntries)
             throws IOException
     {
         for (final ArtifactEntry artifactEntry : artifactEntries)
         {
-            artifactManagementService.delete(artifactEntry.getStorageId(), artifactEntry.getRepositoryId(),
-                                             artifactEntry.getArtifactPath(), true);
+            final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
+            final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
+            final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+
+            layoutProvider.getArtifactManagementService().delete(artifactEntry.getStorageId(),
+                                                                 artifactEntry.getRepositoryId(),
+                                                                 artifactEntry.getArtifactPath(), true);
         }
     }
 
-    private void deleteFromDatabase(List<ArtifactEntry> artifactEntries)
+    private void deleteFromDatabase(final List<ArtifactEntry> artifactEntries)
     {
-        int deletedCount = artifactEntryService.delete(artifactEntries);
+        final int deletedCount = artifactEntryService.delete(artifactEntries);
         if (deletedCount != artifactEntries.size())
         {
             logger.warn(

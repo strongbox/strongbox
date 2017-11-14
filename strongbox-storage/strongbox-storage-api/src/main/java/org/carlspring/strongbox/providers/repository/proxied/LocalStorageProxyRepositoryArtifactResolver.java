@@ -22,7 +22,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -62,7 +62,7 @@ public class LocalStorageProxyRepositoryArtifactResolver
         if (artifactEntry.isPresent())
         {
             final ArtifactEntry artifactEntryItself = artifactEntry.get();
-            artifactEntryItself.getArtifactAttributes().setLastUsed(LocalDateTime.now());
+            artifactEntryItself.getArtifactAttributes().setLastUsed(new Date());
             artifactEntryService.save(artifactEntryItself);
 
             if (result == null)
@@ -120,7 +120,7 @@ public class LocalStorageProxyRepositoryArtifactResolver
             artifactEntry.setRepositoryId(repositoryId);
             artifactEntry.setIsCached(Boolean.TRUE);
             artifactEntry.setArtifactPath(path);
-            LocalDateTime now = LocalDateTime.now();
+            Date now = new Date();
             artifactEntry.getArtifactAttributes().setLastUpdated(now);
             artifactEntry.getArtifactAttributes().setLastUsed(now);
             artifactEntry.getArtifactAttributes().setSizeInBytes(totalNumberOfArtifactBytes);

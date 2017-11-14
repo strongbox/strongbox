@@ -7,7 +7,6 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.carlspring.strongbox.services.support.search.PagingCriteria;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -15,10 +14,12 @@ import java.util.stream.IntStream;
 
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,32 +103,33 @@ class ArtifactEntryServiceImpl
                                             PagingCriteria pagingCriteria)
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
+        sb.append("SELECT FROM ").append(getEntityClass().getSimpleName());
         Map<String, Object> parameterMap = Collections.emptyMap();
+
 
         if (!searchCriteria.isEmpty())
         {
-            parameterMap = new HashMap<>();
-            boolean appendAnd = false;
-
+            StringBuilder criteriaQueryClasuse = new StringBuilder();
             sb.append(" WHERE ");
+            parameterMap = new HashMap<>();
+
             if (searchCriteria.getMinSizeInBytes() != null && searchCriteria.getMinSizeInBytes() > 0)
             {
-                sb.append(" artifactAttributes.sizeInBytes >= :minSizeInBytes ");
+                criteriaQueryClasuse.append(" artifactAttributes.sizeInBytes >= :minSizeInBytes ");
                 parameterMap.put("minSizeInBytes", searchCriteria.getMinSizeInBytes());
-                appendAnd = true;
-
             }
             if (searchCriteria.getUselessnessDays() != null && searchCriteria.getUselessnessDays() > 0)
             {
-                if (appendAnd)
+                if (criteriaQueryClasuse.length() > 0)
                 {
-                    sb.append(" AND ");
+                    criteriaQueryClasuse.append(" AND ");
                 }
-                LocalDateTime lastUsed = LocalDateTime.now().minusDays(searchCriteria.getUselessnessDays());
-                sb.append(" artifactAttributes.lastUsed < :lastUsed ");
+                Date lastUsed = DateUtils.addDays(new Date(), -searchCriteria.getUselessnessDays());
+                criteriaQueryClasuse.append(" artifactAttributes.lastUsed < :lastUsed ");
                 parameterMap.put("lastUsed", lastUsed);
             }
+
+            sb.append(criteriaQueryClasuse);
         }
 
         appendPagingCriteria(sb, pagingCriteria);
@@ -383,13 +385,13 @@ class ArtifactEntryServiceImpl
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("DELETE FROM ").append(getEntityClass().getSimpleName()).append(" WHERE uuid in :uuids RETURN COUNT");
+        sb.append("DELETE FROM ").append(getEntityClass().getSimpleName()).append(" WHERE uuid in :uuids");
 
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("uuids", artifactEntries.stream().map(ArtifactEntry::getUuid).collect(Collectors.toList()));
 
-        OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sb.toString());
-        return getDelegate().command(oQuery).execute(parameterMap);
+        OCommandSQL oCommandSQL = new OCommandSQL(sb.toString());
+        return getDelegate().command(oCommandSQL).execute(parameterMap);
     }
 
     private ORID findArtifactEntryId(String storageId,

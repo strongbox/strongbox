@@ -5,6 +5,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.data.domain.GenericEntityHook;
 
+import javax.persistence.CascadeType;
 import javax.persistence.OneToOne;
 import java.io.Serializable;
 
@@ -24,7 +25,7 @@ public class ArtifactEntry
     @OneToOne(orphanRemoval = true)
     private AbstractArtifactCoordinates artifactCoordinates;
 
-    @OneToOne(orphanRemoval = true, optional = false)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
     private ArtifactAttributes artifactAttributes;
 
     /**
