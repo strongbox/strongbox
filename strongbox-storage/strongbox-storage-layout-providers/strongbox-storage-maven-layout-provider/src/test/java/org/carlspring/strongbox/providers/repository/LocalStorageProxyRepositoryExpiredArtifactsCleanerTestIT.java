@@ -2,7 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryObsoleteArtifactsCleaner;
+import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryExpiredArtifactsCleaner;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 
@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -29,7 +28,7 @@ import static org.junit.Assert.assertThat;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
-public class LocalStorageProxyRepositoryObsoleteArtifactsCleanerTestIT
+public class LocalStorageProxyRepositoryExpiredArtifactsCleanerTestIT
 {
 
     @Inject
@@ -39,7 +38,7 @@ public class LocalStorageProxyRepositoryObsoleteArtifactsCleanerTestIT
     private ArtifactEntryService artifactEntryService;
 
     @Inject
-    private LocalStorageProxyRepositoryObsoleteArtifactsCleaner localStorageProxyRepositoryObsoleteArtifactsCleaner;
+    private LocalStorageProxyRepositoryExpiredArtifactsCleaner localStorageProxyRepositoryExpiredArtifactsCleaner;
 
     @Before
     @After
@@ -62,7 +61,7 @@ public class LocalStorageProxyRepositoryObsoleteArtifactsCleanerTestIT
     }
 
     @Test
-    public void cleanupTest()
+    public void expiredArtifactsCleanerShouldCleanupDatabase()
             throws Exception
     {
         String storageId = "storage-common-proxies";
@@ -80,32 +79,35 @@ public class LocalStorageProxyRepositoryObsoleteArtifactsCleanerTestIT
         artifactEntryOptional = artifactEntryService.findOneAritifact(storageId, repositoryId, path);
         ArtifactEntry artifactEntry = artifactEntryOptional.orElse(null);
         assertThat(artifactEntry, CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getArtifactAttributes(), CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getArtifactAttributes().getLastUpdated(), CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getArtifactAttributes().getLastUsed(), CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getArtifactAttributes().getSizeInBytes(), CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getArtifactAttributes().getSizeInBytes(), Matchers.greaterThan(0l));
+        assertThat(artifactEntry.getLastUpdated(), CoreMatchers.notNullValue());
+        assertThat(artifactEntry.getLastUsed(), CoreMatchers.notNullValue());
+        assertThat(artifactEntry.getSizeInBytes(), CoreMatchers.notNullValue());
+        assertThat(artifactEntry.getSizeInBytes(), Matchers.greaterThan(0l));
 
-        artifactEntry.getArtifactAttributes().setLastUsed(
-                DateUtils.addDays(artifactEntry.getArtifactAttributes().getLastUsed(), -10));
-        Long sizeInBytes = artifactEntry.getArtifactAttributes().getSizeInBytes();
-        artifactEntry.getArtifactAttributes().setSizeInBytes(1000000000l);
-        artifactEntry.getArtifactCoordinates().setVersion("1.5");
+        artifactEntry.setLastUsed(
+                DateUtils.addDays(artifactEntry.getLastUsed(), -10));
+        Long sizeInBytes = artifactEntry.getSizeInBytes();
 
         artifactEntryService.save(artifactEntry);
 
-        artifactEntryOptional = artifactEntryService.findOneAritifact(storageId, repositoryId, path);
-
-        assertEquals(artifactEntryOptional.get().getUuid(), artifactEntry.getUuid());
-        assertEquals(artifactEntryOptional.get().getArtifactAttributes().getUuid(),
-                     artifactEntry.getArtifactAttributes().getUuid());
-        assertThat(artifactEntryOptional.get().getArtifactAttributes().getSizeInBytes(),
-                   CoreMatchers.equalTo(1000000000l));
-
-        /*
-        localStorageProxyRepositoryObsoleteArtifactsCleaner.cleanup(5, sizeInBytes - 1);
+        localStorageProxyRepositoryExpiredArtifactsCleaner.cleanup(5, sizeInBytes - 1);
         artifactEntryOptional = artifactEntryService.findOneAritifact(storageId, repositoryId, path);
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
+
+        Optional<ArtifactEntry> artfactMetadataOptional = artifactEntryService.findOneAritifact(storageId, repositoryId,
+                                                                                                "org/carlspring/properties-injector/maven-metadata.xml");
+        // we haven't touched the last used of the maven-metadata ;)
+        assertThat(artfactMetadataOptional, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
+
+        // TODO test storage removal
+        /*
+        final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
+        final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
+        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+
+        layoutProvider.getArtifactManagementService().delete(artifactEntry.getStorageId(),
+                                                             artifactEntry.getRepositoryId(),
+                                                             artifactEntry.getArtifactPath(), true);
         */
     }
 

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryObsoleteArtifactsCleaner;
+import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryExpiredArtifactsCleaner;
 
 import javax.inject.Inject;
 
@@ -18,7 +18,7 @@ public class CleanupObsoleteProxyRepositoriesArtifactsCronJob
     private final Logger logger = LoggerFactory.getLogger(CleanupObsoleteProxyRepositoriesArtifactsCronJob.class);
 
     @Inject
-    private LocalStorageProxyRepositoryObsoleteArtifactsCleaner proxyRepositoryObsoleteArtifactsCleaner;
+    private LocalStorageProxyRepositoryExpiredArtifactsCleaner proxyRepositoryObsoleteArtifactsCleaner;
 
     @Override
     public void executeTask(final CronTaskConfiguration config)

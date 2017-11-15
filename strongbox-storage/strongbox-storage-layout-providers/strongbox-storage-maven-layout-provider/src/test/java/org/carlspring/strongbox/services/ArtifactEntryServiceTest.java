@@ -281,15 +281,15 @@ public class ArtifactEntryServiceTest
             final ArtifactEntry artifactEntry = artifactEntries.get(i);
             if (i == 0)
             {
-                artifactEntry.getArtifactAttributes().setLastUsed(new Date());
-                artifactEntry.getArtifactAttributes().setLastUpdated(new Date());
-                artifactEntry.getArtifactAttributes().setSizeInBytes(1l);
+                artifactEntry.setLastUsed(new Date());
+                artifactEntry.setLastUpdated(new Date());
+                artifactEntry.setSizeInBytes(1l);
             }
             else
             {
-                artifactEntry.getArtifactAttributes().setLastUsed(DateUtils.addDays(new Date(), -10));
-                artifactEntry.getArtifactAttributes().setLastUpdated(DateUtils.addDays(new Date(), -10));
-                artifactEntry.getArtifactAttributes().setSizeInBytes(100000l);
+                artifactEntry.setLastUsed(DateUtils.addDays(new Date(), -10));
+                artifactEntry.setLastUpdated(DateUtils.addDays(new Date(), -10));
+                artifactEntry.setSizeInBytes(100000l);
             }
 
             artifactEntryService.save(artifactEntry);

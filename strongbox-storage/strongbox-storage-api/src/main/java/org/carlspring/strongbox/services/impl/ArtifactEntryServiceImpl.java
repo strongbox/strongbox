@@ -115,7 +115,7 @@ class ArtifactEntryServiceImpl
 
             if (searchCriteria.getMinSizeInBytes() != null && searchCriteria.getMinSizeInBytes() > 0)
             {
-                criteriaQueryClasuse.append(" artifactAttributes.sizeInBytes >= :minSizeInBytes ");
+                criteriaQueryClasuse.append(" sizeInBytes >= :minSizeInBytes ");
                 parameterMap.put("minSizeInBytes", searchCriteria.getMinSizeInBytes());
             }
             if (searchCriteria.getUselessnessDays() != null && searchCriteria.getUselessnessDays() > 0)
@@ -125,7 +125,7 @@ class ArtifactEntryServiceImpl
                     criteriaQueryClasuse.append(" AND ");
                 }
                 Date lastUsed = DateUtils.addDays(new Date(), -searchCriteria.getUselessnessDays());
-                criteriaQueryClasuse.append(" artifactAttributes.lastUsed < :lastUsed ");
+                criteriaQueryClasuse.append(" lastUsed < :lastUsed ");
                 parameterMap.put("lastUsed", lastUsed);
             }
 

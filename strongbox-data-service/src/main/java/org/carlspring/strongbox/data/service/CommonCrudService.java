@@ -90,7 +90,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
         ODocument record = resultList.iterator().next();
         ODocument value = record.field("objectId");
         entity.setObjectId(value.getIdentity().toString());
-        
+
         return true;
     }
 

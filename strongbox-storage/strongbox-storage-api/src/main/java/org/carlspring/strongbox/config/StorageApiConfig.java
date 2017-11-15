@@ -1,30 +1,27 @@
 package org.carlspring.strongbox.config;
 
-import java.util.LinkedHashSet;
-import java.util.List;
+import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
+import org.carlspring.strongbox.booters.ResourcesBooter;
+import org.carlspring.strongbox.booters.StorageBooter;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
+import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
-import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.booters.ResourcesBooter;
-import org.carlspring.strongbox.booters.StorageBooter;
-import org.carlspring.strongbox.domain.ArtifactAttributes;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
-import org.carlspring.strongbox.storage.validation.version.VersionValidator;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.support.TransactionTemplate;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.artifact",
@@ -64,7 +61,6 @@ public class StorageApiConfig
     private void doInit()
     {
         // register all domain entities
-        oEntityManager.registerEntityClass(ArtifactAttributes.class);
         oEntityManager.registerEntityClass(ArtifactEntry.class);
         oEntityManager.registerEntityClass(RemoteArtifactEntry.class);
 

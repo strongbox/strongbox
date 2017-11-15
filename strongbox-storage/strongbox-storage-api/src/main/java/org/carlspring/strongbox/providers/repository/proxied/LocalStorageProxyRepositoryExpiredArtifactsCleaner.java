@@ -26,10 +26,10 @@ import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCrite
  * @author Przemyslaw Fusik
  */
 @Component
-public class LocalStorageProxyRepositoryObsoleteArtifactsCleaner
+public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
 {
 
-    private final Logger logger = LoggerFactory.getLogger(LocalStorageProxyRepositoryObsoleteArtifactsCleaner.class);
+    private final Logger logger = LoggerFactory.getLogger(LocalStorageProxyRepositoryExpiredArtifactsCleaner.class);
 
     @Inject
     protected ConfigurationManager configurationManager;
