@@ -1,29 +1,22 @@
 package org.carlspring.strongbox.data.service;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.service.impl.EntityServiceRegistry;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
-import org.carlspring.strongbox.data.domain.GenericEntity;
-import org.carlspring.strongbox.data.service.impl.EntityServiceRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ReflectionUtils;
+import java.util.*;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ReflectionUtils;
 
 @Transactional
 public abstract class CommonCrudService<T extends GenericEntity>

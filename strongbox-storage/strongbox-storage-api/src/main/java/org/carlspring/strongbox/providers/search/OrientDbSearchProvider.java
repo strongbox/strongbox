@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.providers.search;
 
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
@@ -27,7 +25,7 @@ import org.springframework.stereotype.Component;
  */
 @Component("orientDbSearchProvider")
 public class OrientDbSearchProvider
-        implements SearchProvider
+        extends AbstractSearchProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(OrientDbSearchProvider.class);
@@ -72,11 +70,6 @@ public class OrientDbSearchProvider
         Pattern pattern = Pattern.compile(QUERY_PATTERN_DB);
         Matcher matcher = pattern.matcher(query);
 
-        // TODO: Sergey:
-        // TODO: Sergey: I think this is wrong in (at least) the following ways:
-        // TODO: Sergey: 1) What if there is just one parameter?
-        // TODO: Sergey: 2) The syntax is not clear to anyone, nor is it documented
-        // TODO: Sergey:
         if (matcher.find())
         {
             Map<String, String> coordinates = new HashMap<>();
@@ -87,56 +80,21 @@ public class OrientDbSearchProvider
             while (matcher.find());
 
             List<SearchResult> results = new LinkedList<>();
-            results.addAll(artifactEntryService.findAritifactList(searchRequest.getStorageId(),
-                                                                  searchRequest.getRepositoryId(), coordinates)
+            results.addAll(artifactEntryService.findArtifactList(searchRequest.getStorageId(),
+                                                                 searchRequest.getRepositoryId(),
+                                                                 coordinates)
                                                .stream()
                                                .map(this::createSearchResult)
                                                .collect(Collectors.toList()));
 
-            searchResults.getResults()
-                         .addAll(results);
+            searchResults.getResults().addAll(results);
 
             return searchResults;
         }
 
-        logger.debug("Results: {}", searchResults.getResults()
-                                                 .size());
+        logger.debug("Results: {}", searchResults.getResults().size());
 
         return searchResults;
-    }
-
-    @Override
-    public boolean contains(SearchRequest searchRequest)
-            throws SearchException
-    {
-        return !search(searchRequest).getResults()
-                                     .isEmpty();
-    }
-
-    protected SearchResult createSearchResult(ArtifactEntry a)
-    {
-        String storageId = a.getStorageId();
-        String url = getURLForArtifact(storageId, a.getRepositoryId(), a.getArtifactCoordinates()
-                                                                        .toPath());
-
-        return new SearchResult(storageId, a.getRepositoryId(),
-                                a.getArtifactCoordinates(), url);
-    }
-
-    // TODO: Sergey: Extract this logic into some common utility class
-    public String getURLForArtifact(String storageId,
-                                    String repositoryId,
-                                    String pathToArtifactFile)
-    {
-        String baseUrl = getConfiguration().getBaseUrl();
-        baseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
-
-        return baseUrl + "storages/" + storageId + "/" + repositoryId + "/" + pathToArtifactFile;
-    }
-
-    public Configuration getConfiguration()
-    {
-        return configurationManager.getConfiguration();
     }
 
 }

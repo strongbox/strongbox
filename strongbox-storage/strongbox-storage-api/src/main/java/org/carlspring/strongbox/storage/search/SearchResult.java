@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage.search;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 import javax.xml.bind.annotation.*;
+import java.util.List;
 
 /**
  * @author mtodorov
@@ -23,6 +24,9 @@ public class SearchResult
 
     @XmlElement
     private String url;
+
+    @XmlElement
+    private List<String> snippets;
 
 
     public SearchResult()
@@ -83,6 +87,16 @@ public class SearchResult
     public void setUrl(String url)
     {
         this.url = url;
+    }
+
+    public List<String> getSnippets()
+    {
+        return snippets;
+    }
+
+    public void setSnippets(List<String> snippets)
+    {
+        this.snippets = snippets;
     }
 
     @Override

@@ -85,9 +85,9 @@ public class LocalStorageProxyRepositoryArtifactResolver
             ArtifactCoordinates c = (ArtifactCoordinates) Files.getAttribute(artifactPath, RepositoryFileAttributes.COORDINATES);
             String p = artifactPath.getResourceLocation();
 
-            RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOneAritifact(storageId,
-                                                                                                            repositoryId,
-                                                                                                            p)
+            RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOneArtifact(storageId,
+                                                                                                           repositoryId,
+                                                                                                           p)
                                                                                           .orElse(new RemoteArtifactEntry());
             artifactEntry.setArtifactCoordinates(c);
             artifactEntry.setRepositoryId(storageId);

@@ -236,8 +236,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                                                                                            RepositoryFileAttributes.COORDINATES);
 
         String artifactPath = path.getResourceLocation();
-        ArtifactEntry artifactEntry = artifactEntryService.findOneAritifact(storage.getId(), repository.getId(),
-                                                                            artifactPath)
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storage.getId(), repository.getId(),
+                                                                           artifactPath)
                                                           .orElse(createArtifactEntry(artifactCoordinates,
                                                                                       storage.getId(),
                                                                                       repository.getId(),

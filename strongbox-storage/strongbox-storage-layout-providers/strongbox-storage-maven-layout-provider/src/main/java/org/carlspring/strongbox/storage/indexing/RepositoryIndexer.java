@@ -180,9 +180,9 @@ public class RepositoryIndexer
                                        indexingContext.getId(),
                                        indexingContext.getIndexDirectory().toString() });
 
-            FlatSearchRequest searchRequest = new FlatSearchRequest(query, (a1,
-                                                                            a2) -> calculateArtifactInfo(a1).compareTo(calculateArtifactInfo(a2)),
-                    indexingContext);
+            FlatSearchRequest searchRequest = new FlatSearchRequest(query,
+                                                                    Comparator.comparing(this::calculateArtifactInfo),
+                                                                    indexingContext);
             
             try (final FlatSearchResponse response = getIndexer().searchFlat(searchRequest))
             {
