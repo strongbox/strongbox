@@ -119,9 +119,9 @@ public class LocalStorageProxyRepositoryArtifactResolver
             // TODO: Validate the local checksum against the remote's checksums
             fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
 
-            RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOneAritifact(storageId,
-                                                                                                            repositoryId,
-                                                                                                            path)
+            RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOneArtifact(storageId,
+                                                                                                           repositoryId,
+                                                                                                           p)
                                                                                           .orElse(new RemoteArtifactEntry());
 
             ArtifactCoordinates c = RepositoryFiles.readCoordinates(artifactPath);

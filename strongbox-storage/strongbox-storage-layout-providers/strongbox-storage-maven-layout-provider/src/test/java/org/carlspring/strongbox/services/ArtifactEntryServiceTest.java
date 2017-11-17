@@ -154,8 +154,7 @@ public class ArtifactEntryServiceTest
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
         coordinates.setGroupId(groupId);
 
-        List<ArtifactEntry> artifactEntries = artifactEntryService.findAritifactList(storageId, repositoryId,
-                                                                                     coordinates);
+        List<ArtifactEntry> artifactEntries = artifactEntryService.findArtifactList(storageId, repositoryId, coordinates);
 
         assertNotNull(artifactEntries);
         assertFalse(artifactEntries.isEmpty());
@@ -189,7 +188,7 @@ public class ArtifactEntryServiceTest
         query.setGroupId(groupId);
         query.setArtifactId(artifactId);
 
-        List<ArtifactEntry> result = artifactEntryService.findAritifactList(storageId, repositoryId, query);
+        List<ArtifactEntry> result = artifactEntryService.findArtifactList(storageId, repositoryId, query);
         assertNotNull(result);
         assertFalse(result.isEmpty());
 
@@ -203,7 +202,7 @@ public class ArtifactEntryServiceTest
                            assertEquals(artifactId, artifactEntry.getArtifactCoordinates().getCoordinate("artifactId"));
                        });
 
-        Long c = artifactEntryService.countAritifacts(storageId, repositoryId, query.getCoordinates(), true);
+        Long c = artifactEntryService.countArtifacts(storageId, repositoryId, query.getCoordinates(), true);
         assertEquals(Long.valueOf(1), c);
 
         artifactEntryService.deleteAll();

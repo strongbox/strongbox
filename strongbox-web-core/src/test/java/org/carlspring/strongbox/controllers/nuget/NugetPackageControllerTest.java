@@ -19,7 +19,6 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
-import org.carlspring.strongbox.data.PropertyUtils;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
@@ -286,7 +285,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         coordinates.put("id", "NHibernate");
         coordinates.put("version", "4.1.1.4000");
 
-        List<ArtifactEntry> artifactEntryList = artifactEntryService.findAritifactList("storage-common-proxies", "nuget.org", coordinates);
+        List<ArtifactEntry> artifactEntryList = artifactEntryService.findArtifactList("storage-common-proxies", "nuget.org", coordinates);
         assertTrue(artifactEntryList.size() > 0);
         
         ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
