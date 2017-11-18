@@ -1,11 +1,11 @@
-package org.npmmtpj;
+package org.npmjsmt.test;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.npmmtpj.metadata.pojo.Package;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.npmjsmt.pojo.Package;
 
 public class NpmPackageJsonTestCase {
 

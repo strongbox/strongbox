@@ -3,12 +3,17 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.npmmtpj</groupId>
-    <artifactId>npm-metadata-pojo</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <parent>
+        <groupId>org.npmjsmt</groupId>
+        <artifactId>npm-metadata-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../npm-metadata-parent</relativePath>
+    </parent>
 
-    <description>Usefull POJO mapper</description>
-    <url>https://github.com/carlspring/cs-mapper</url>
+    <artifactId>npm-metadata-jackson</artifactId>
+    <packaging>jar</packaging>
+
+    <url>https://github.com/sbespalov/npm-metadata</url>
     <licenses>
         <license>
             <name>Apache 2.0</name>
@@ -25,28 +30,13 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:sbespalov/npm-metedata-pojo.git</connection>
-        <url>scm:git:git@github.com:sbespalov/npm-metedata-pojo.git</url>
-        <developerConnection>scm:git:git@github.com:sbespalov/npm-metedata-pojo.git</developerConnection>
+        <connection>scm:git:git@github.com:sbespalov/npm-metedata.git</connection>
+        <url>scm:git:git@github.com:sbespalov/npm-metedata.git</url>
+        <developerConnection>scm:git:git@github.com:sbespalov/npm-metedata.git</developerConnection>
     </scm>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.6</java.version>
-        <jackson.version>2.9.2</jackson.version>
-    </properties>
 
     <build>
         <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -61,12 +51,37 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>metadata-unpack</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>npm-metadata-schema</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <includes>**/*.schema.json</includes>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.jsonschema2pojo</groupId>
                 <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-                <version>0.5.1</version>
                 <configuration>
-                    <sourceDirectory>${basedir}/src/main/resources/schema/json</sourceDirectory>
-                    <targetPackage>org.npmmtpj.metadata.pojo</targetPackage>
+                    <sourceDirectory>${project.build.directory}/META-INF</sourceDirectory>
+                    <targetPackage>org.npmjsmt.pojo</targetPackage>
                     <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
                 </configuration>
                 <executions>
@@ -84,27 +99,22 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
         </dependency>
     </dependencies>
 </project>
