@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Przemyslaw Fusik
  */
-public class CleanupObsoleteProxyRepositoriesArtifactsCronJob
+public class CleanupExpiredProxyRepositoriesArtifactsCronJob
         extends JavaCronJob
 {
 
-    private final Logger logger = LoggerFactory.getLogger(CleanupObsoleteProxyRepositoriesArtifactsCronJob.class);
+    private final Logger logger = LoggerFactory.getLogger(CleanupExpiredProxyRepositoriesArtifactsCronJob.class);
 
     @Inject
     private LocalStorageProxyRepositoryExpiredArtifactsCleaner proxyRepositoryObsoleteArtifactsCleaner;

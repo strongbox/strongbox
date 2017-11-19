@@ -2,9 +2,13 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryExpiredArtifactsCleaner;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -13,6 +17,7 @@ import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.codehaus.plexus.util.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -21,7 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 /**
  * @author Przemyslaw Fusik
@@ -29,6 +34,8 @@ import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 public class LocalStorageProxyRepositoryExpiredArtifactsCleanerTestIT
+        extends
+        TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     @Inject
@@ -61,7 +68,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleanerTestIT
     }
 
     @Test
-    public void expiredArtifactsCleanerShouldCleanupDatabase()
+    public void expiredArtifactsCleanerShouldCleanupDatabaseAndStorage()
             throws Exception
     {
         String storageId = "storage-common-proxies";
@@ -94,21 +101,23 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleanerTestIT
         artifactEntryOptional = artifactEntryService.findOneAritifact(storageId, repositoryId, path);
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
-        Optional<ArtifactEntry> artfactMetadataOptional = artifactEntryService.findOneAritifact(storageId, repositoryId,
-                                                                                                "org/carlspring/properties-injector/maven-metadata.xml");
-        // we haven't touched the last used of the maven-metadata ;)
-        assertThat(artfactMetadataOptional, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
+        Optional<ArtifactEntry> artifactMetadataOptional = artifactEntryService.findOneAritifact(storageId,
+                                                                                                 repositoryId,
+                                                                                                 StringUtils.replace(
+                                                                                                         path,
+                                                                                                         "1.6/properties-injector-1.6.jar",
+                                                                                                         "maven-metadata.xml"));
 
-        // TODO test storage removal
-        /*
-        final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
+        // we haven't touched the last used of the maven-metadata ;)
+        assertThat(artifactMetadataOptional, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
+
+        final Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());
         final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
-        layoutProvider.getArtifactManagementService().delete(artifactEntry.getStorageId(),
-                                                             artifactEntry.getRepositoryId(),
-                                                             artifactEntry.getArtifactPath(), true);
-        */
+        assertFalse(layoutProvider.containsPath(repository, path));
+        assertTrue(layoutProvider.containsPath(repository, StringUtils.replace(path, "1.6/properties-injector-1.6.jar",
+                                                                               "maven-metadata.xml")));
     }
 
 }
