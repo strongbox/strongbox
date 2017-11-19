@@ -108,7 +108,9 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         try (final ArtifactOutputStream aos = getLayoutProvider(repositoryPath.getFileSystem().getRepository(),
                                                                 layoutProviderRegistry).getOutputStream(repositoryPath))
         {
-            return storeArtifact(repositoryPath, is, aos);
+            long totalAmountOfBytes = storeArtifact(repositoryPath, is, aos);
+            storeArtifactEntry(repositoryPath);
+            return totalAmountOfBytes;
         }
         catch (IOException e)
         {
@@ -225,7 +227,33 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                 validateUploadedChecksumAgainstCache(checksumValue, artifactPath);
             }
         }
+
         return totalAmountOfBytes;
+    }
+
+    /**
+     * TODO: Consider removal of this internal method, if point 2 will be implemented:
+     * 1. RemoteArtifactEntry are saved in LocalStorageProxyRepositoryArtifactResolver#onSuccessfulProxyRepositoryResponse
+     * 2. There will be separated implementation for uploaded hosted artifact entries
+     */
+    private void storeArtifactEntry(RepositoryPath path) throws IOException
+    {
+        Repository repository = path.getFileSystem().getRepository();
+        Storage storage = repository.getStorage();
+
+        ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(path,
+                                                                                           RepositoryFileAttributes.COORDINATES);
+
+        String artifactPath = path.getResourceLocation();
+        ArtifactEntry artifactEntry = artifactEntryService.findOneAritifact(storage.getId(), repository.getId(),
+                                                                            artifactPath)
+                                                          .orElse(createArtifactEntry(artifactCoordinates,
+                                                                                      storage.getId(),
+                                                                                      repository.getId(),
+                                                                                      artifactPath));
+        artifactEntry = artifactEntryService.save(artifactEntry);
+        logger.debug(String.format("ArtifactEntry created/updated: id-[%s]; uuid-[%s];", artifactEntry.getObjectId(),
+                                   artifactEntry.getUuid()));
     }
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,

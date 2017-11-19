@@ -17,7 +17,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import edu.emory.mathcs.backport.java.util.Arrays;
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.javatuples.Pair;
@@ -33,8 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
-class ArtifactEntryServiceImpl
-        extends CommonCrudService<ArtifactEntry>
+class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         implements ArtifactEntryService
 {
 
@@ -73,8 +71,7 @@ class ArtifactEntryServiceImpl
                                                  String orderBy,
                                                  boolean strict)
     {
-        if (orderBy == null)
-        {
+        if (orderBy == null) {
             orderBy = "uuid";
         }
         coordinates = prepareParameterMap(coordinates, true);
@@ -166,27 +163,19 @@ class ArtifactEntryServiceImpl
         Map<String, Object> parameterMap = new HashMap<>(coordinates);
 
         Pair<String, String>[] p = storageRepositoryPairList.toArray(new Pair[storageRepositoryPairList.size()]);
-        IntStream.range(0, storageRepositoryPairList.size()).forEach(idx ->
-                                                                     {
-                                                                         String storageId = p[idx].getValue0();
-                                                                         String repositoryId = p[idx].getValue1();
+        IntStream.range(0, storageRepositoryPairList.size()).forEach(idx -> {
+            String storageId = p[idx].getValue0();
+            String repositoryId = p[idx].getValue1();
 
-                                                                         if (storageId != null &&
-                                                                             !storageId.trim().isEmpty())
-                                                                         {
-                                                                             parameterMap.put(
-                                                                                     String.format("storageId%s", idx),
-                                                                                     p[idx].getValue0());
-                                                                         }
-                                                                         if (repositoryId != null &&
-                                                                             !repositoryId.trim().isEmpty())
-                                                                         {
-                                                                             parameterMap.put(
-                                                                                     String.format("repositoryId%s",
-                                                                                                   idx),
-                                                                                     p[idx].getValue1());
-                                                                         }
-                                                                     });
+            if (storageId != null && !storageId.trim().isEmpty())
+            {
+                parameterMap.put(String.format("storageId%s", idx), p[idx].getValue0());
+            }
+            if (repositoryId != null && !repositoryId.trim().isEmpty())
+            {
+                parameterMap.put(String.format("repositoryId%s", idx), p[idx].getValue1());
+            }
+        });
 
 
         List<ODocument> result = getDelegate().command(oQuery).execute(parameterMap);
@@ -206,27 +195,19 @@ class ArtifactEntryServiceImpl
         Map<String, Object> parameterMap = new HashMap<>(coordinates);
 
         Pair<String, String>[] p = storageRepositoryPairList.toArray(new Pair[storageRepositoryPairList.size()]);
-        IntStream.range(0, storageRepositoryPairList.size()).forEach(idx ->
-                                                                     {
-                                                                         String storageId = p[idx].getValue0();
-                                                                         String repositoryId = p[idx].getValue1();
+        IntStream.range(0, storageRepositoryPairList.size()).forEach(idx -> {
+            String storageId = p[idx].getValue0();
+            String repositoryId = p[idx].getValue1();
 
-                                                                         if (storageId != null &&
-                                                                             !storageId.trim().isEmpty())
-                                                                         {
-                                                                             parameterMap.put(
-                                                                                     String.format("storageId%s", idx),
-                                                                                     p[idx].getValue0());
-                                                                         }
-                                                                         if (repositoryId != null &&
-                                                                             !repositoryId.trim().isEmpty())
-                                                                         {
-                                                                             parameterMap.put(
-                                                                                     String.format("repositoryId%s",
-                                                                                                   idx),
-                                                                                     p[idx].getValue1());
-                                                                         }
-                                                                     });
+            if (storageId != null && !storageId.trim().isEmpty())
+            {
+                parameterMap.put(String.format("storageId%s", idx), p[idx].getValue0());
+            }
+            if (repositoryId != null && !repositoryId.trim().isEmpty())
+            {
+                parameterMap.put(String.format("repositoryId%s", idx), p[idx].getValue1());
+            }
+        });
 
 
         List<ODocument> result = getDelegate().command(oQuery).execute(parameterMap);
@@ -246,7 +227,7 @@ class ArtifactEntryServiceImpl
     public List<Pair<String, String>> toList(String storageId,
                                              String repositoryId)
     {
-        return Arrays.asList(new Pair[]{ Pair.with(storageId, repositoryId) });
+        return Arrays.asList(new Pair[] { Pair.with(storageId, repositoryId) });
     }
 
     protected String buildCoordinatesQuery(Collection<Pair<String, String>> storageRepositoryPairList,
@@ -259,8 +240,7 @@ class ArtifactEntryServiceImpl
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
 
-        Pair<String, String>[] storageRepositoryPairArray = storageRepositoryPairList.toArray(
-                new Pair[storageRepositoryPairList.size()]);
+        Pair<String, String>[] storageRepositoryPairArray = storageRepositoryPairList.toArray(new Pair[storageRepositoryPairList.size()]);
         //COODRINATES
         StringBuffer c1 = new StringBuffer();
         parameterNameSet.stream()
@@ -410,7 +390,7 @@ class ArtifactEntryServiceImpl
 
         List<ODocument> resultList = getDelegate().command(oQuery).execute(params);
         ODocument result = resultList.isEmpty() ? null : resultList.iterator().next();
-        return result == null ? null : ((ODocument) result.field("rid")).getIdentity();
+        return result == null ? null : ((ODocument)result.field("rid")).getIdentity();
     }
 
     private void appendPagingCriteria(StringBuilder queryBuilder,
