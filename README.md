@@ -44,14 +44,12 @@ Welcome to the Strongbox artifact repository manager's home.
 
 # What's in the works (Q4/2017):
 * [Proxy repositories](https://github.com/strongbox/strongbox/wiki/Repositories#proxy)
-* [Maven Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
-* NuGet groups
+* NPM layout provider
 * Web UI
 * Logging:
   * Log tailing over HTTP
 * Deploy as a transaction
 * Dependency snippet generator over REST API
-* Maven settings.xml generator over REST API
 * ~~OSGI repository layouts (P2, OBR)~~ [on hold]
 
 # Upcoming:
