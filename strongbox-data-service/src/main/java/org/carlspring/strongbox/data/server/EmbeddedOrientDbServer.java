@@ -57,8 +57,8 @@ public class EmbeddedOrientDbServer
         hookConfiguration.clazz = GenericEntityHook.class.getName();
 
         OServerNetworkListenerConfiguration binaryListener = new OServerNetworkListenerConfiguration();
-        binaryListener.ipAddress = "0.0.0.0";
-        binaryListener.portRange = "2424-2424";
+        binaryListener.ipAddress = dataServiceConfig.getHost();
+        binaryListener.portRange = dataServiceConfig.getPort().toString();
         binaryListener.protocol = "binary";
         binaryListener.socket = "default";
 
