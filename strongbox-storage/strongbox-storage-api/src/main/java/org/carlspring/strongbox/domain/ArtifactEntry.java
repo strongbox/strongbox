@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.domain;
 
-import java.io.Serializable;
-
-import javax.persistence.OneToOne;
-
 import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.data.domain.GenericEntityHook;
+
+import javax.persistence.CascadeType;
+import javax.persistence.OneToOne;
+import java.io.Serializable;
 
 /**
  * @author carlspring
@@ -22,9 +22,9 @@ public class ArtifactEntry
     private String repositoryId;
 
     // if you have to rename this field please update ArtifactEntryServiceImpl.findByCoordinates() implementation
-    @OneToOne(orphanRemoval = true)
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
     private AbstractArtifactCoordinates artifactCoordinates;
-    
+
     /**
      * This field is used as part of [storageId, repositoryId, artifactPath] unique index. The value of this field is
      * populated within {@link GenericEntityHook}.
@@ -70,7 +70,7 @@ public class ArtifactEntry
     {
         return artifactCoordinates == null ? artifactPath : (artifactPath = artifactCoordinates.toPath());
     }
-    
+
     public void setArtifactPath(String artifactPath)
     {
         this.artifactPath = artifactCoordinates != null ? artifactCoordinates.toPath() : artifactPath;
