@@ -30,10 +30,14 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
@@ -327,6 +331,22 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         locator.setBasedir(repositoryPath);
         locator.setOperation(new GenerateMavenMetadataOperation(mavenMetadataManager));
         locator.locateArtifactDirectories();
+    }
+
+    protected void deleteDirectoryRelativeToVaultDirectory(String dirPathToDelete)
+            throws Exception
+    {
+        String base = FilenameUtils.normalize(ConfigurationResourceResolver.getVaultDirectory());
+        if (StringUtils.isBlank(base))
+        {
+            throw new IllegalStateException("ConfigurationResourceResolver.getVaultDirectory() resolves to '" + base +
+                                            "' which is illegal base path here.");
+        }
+        File dirFileToDelete = new File(base + dirPathToDelete);
+        if (dirFileToDelete.exists())
+        {
+            FileUtils.deleteDirectory(dirFileToDelete);
+        }
     }
  
     public void assertIndexContainsArtifact(String storageId,

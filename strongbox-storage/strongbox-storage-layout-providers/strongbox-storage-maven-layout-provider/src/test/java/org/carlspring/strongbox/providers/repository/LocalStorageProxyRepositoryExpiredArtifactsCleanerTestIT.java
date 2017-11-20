@@ -4,18 +4,15 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryExpiredArtifactsCleaner;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.InputStream;
 import java.util.Optional;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.hamcrest.CoreMatchers;
@@ -52,19 +49,10 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleanerTestIT
     public void cleanup()
             throws Exception
     {
-        deleteDirectory("/storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
+        deleteDirectoryRelativeToVaultDirectory(
+                "/storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
 
         artifactEntryService.deleteAll();
-    }
-
-    private void deleteDirectory(String dirPathToDelete)
-            throws Exception
-    {
-        File dirFileToDelete = new File(ConfigurationResourceResolver.getVaultDirectory() + dirPathToDelete);
-        if (dirFileToDelete.exists())
-        {
-            FileUtils.deleteDirectory(dirFileToDelete);
-        }
     }
 
     @Test

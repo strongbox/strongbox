@@ -7,7 +7,6 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
@@ -17,7 +16,6 @@ import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -64,23 +62,14 @@ public class ProxyRepositoryProviderTestIT
     public void cleanup()
             throws Exception
     {
-
-        deleteDirectory("/storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin");
-        deleteDirectory("/storages/storage-common-proxies/maven-oracle/com/oracle/jdbc/ojdbc8");
-        deleteDirectory("/storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
-        deleteDirectory("/storages/storage-common-proxies/maven-central/javax/media/jai_core");
+        deleteDirectoryRelativeToVaultDirectory(
+                "/storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin");
+        deleteDirectoryRelativeToVaultDirectory("/storages/storage-common-proxies/maven-oracle/com/oracle/jdbc/ojdbc8");
+        deleteDirectoryRelativeToVaultDirectory(
+                "/storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
+        deleteDirectoryRelativeToVaultDirectory("/storages/storage-common-proxies/maven-central/javax/media/jai_core");
 
         artifactEntryService.deleteAll();
-    }
-
-    private void deleteDirectory(String dirPathToDelete)
-            throws Exception
-    {
-        File dirFileToDelete = new File(ConfigurationResourceResolver.getVaultDirectory() + dirPathToDelete);
-        if (dirFileToDelete.exists())
-        {
-            FileUtils.deleteDirectory(dirFileToDelete);
-        }
     }
 
     @Test

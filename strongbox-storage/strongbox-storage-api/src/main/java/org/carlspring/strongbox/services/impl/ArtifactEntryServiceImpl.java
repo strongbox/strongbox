@@ -115,13 +115,13 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
                 criteriaQueryClasuse.append(" sizeInBytes >= :minSizeInBytes ");
                 parameterMap.put("minSizeInBytes", searchCriteria.getMinSizeInBytes());
             }
-            if (searchCriteria.getUselessnessDays() != null && searchCriteria.getUselessnessDays() > 0)
+            if (searchCriteria.getLastAccessedTimeInDays() != null && searchCriteria.getLastAccessedTimeInDays() > 0)
             {
                 if (criteriaQueryClasuse.length() > 0)
                 {
                     criteriaQueryClasuse.append(" AND ");
                 }
-                Date lastUsed = DateUtils.addDays(new Date(), -searchCriteria.getUselessnessDays());
+                Date lastUsed = DateUtils.addDays(new Date(), -searchCriteria.getLastAccessedTimeInDays());
                 criteriaQueryClasuse.append(" lastUsed < :lastUsed ");
                 parameterMap.put("lastUsed", lastUsed);
             }

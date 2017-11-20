@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Przemyslaw Fusik
  */
-public class CleanupExpiredProxyRepositoriesArtifactsCronJob
+public class CleanupExpiredArtifactsFromProxyRepositoriesCronJob
         extends JavaCronJob
 {
 
-    private final Logger logger = LoggerFactory.getLogger(CleanupExpiredProxyRepositoriesArtifactsCronJob.class);
+    private final Logger logger = LoggerFactory.getLogger(CleanupExpiredArtifactsFromProxyRepositoriesCronJob.class);
 
     @Inject
     private LocalStorageProxyRepositoryExpiredArtifactsCleaner proxyRepositoryObsoleteArtifactsCleaner;
@@ -24,18 +24,18 @@ public class CleanupExpiredProxyRepositoriesArtifactsCronJob
     public void executeTask(final CronTaskConfiguration config)
             throws Throwable
     {
-        final String uselessnessDaysText = config.getRequiredProperty("uselessnessDays");
+        final String lastAccessedTimeInDaysText = config.getRequiredProperty("lastAccessedTimeInDays");
         final String minSizeInBytesText = config.getProperty("minSizeInBytes");
 
-        final Integer uselessnessDays;
+        final Integer lastAccessedTimeInDays;
         try
         {
-            uselessnessDays = Integer.valueOf(uselessnessDaysText);
+            lastAccessedTimeInDays = Integer.valueOf(lastAccessedTimeInDaysText);
         }
         catch (NumberFormatException ex)
         {
-            logger.error("Invalid integer value [" + uselessnessDaysText +
-                         "] of 'uselessnessDays' property. Cron job won't be fired.", ex);
+            logger.error("Invalid integer value [" + lastAccessedTimeInDaysText +
+                         "] of 'lastAccessedTimeInDays' property. Cron job won't be fired.", ex);
             return;
         }
 
@@ -54,7 +54,7 @@ public class CleanupExpiredProxyRepositoriesArtifactsCronJob
             }
         }
 
-        proxyRepositoryObsoleteArtifactsCleaner.cleanup(uselessnessDays, minSizeInBytes);
+        proxyRepositoryObsoleteArtifactsCleaner.cleanup(lastAccessedTimeInDays, minSizeInBytes);
     }
 
 }

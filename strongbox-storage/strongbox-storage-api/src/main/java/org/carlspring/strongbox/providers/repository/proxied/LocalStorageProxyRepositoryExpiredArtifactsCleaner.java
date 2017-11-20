@@ -41,12 +41,12 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
     private ArtifactEntryService artifactEntryService;
 
     @Transactional(rollbackFor = Exception.class)
-    public void cleanup(final Integer uselessnessDays,
+    public void cleanup(final Integer lastAccessedTimeInDays,
                         final Long minSizeInBytes)
             throws IOException, SearchException
     {
         final ArtifactEntrySearchCriteria searchCriteria = anArtifactEntrySearchCriteria()
-                                                                   .withUselessnessDays(uselessnessDays)
+                                                                   .withLastAccessedTimeInDays(lastAccessedTimeInDays)
                                                                    .withMinSizeInBytes(minSizeInBytes)
                                                                    .build();
 

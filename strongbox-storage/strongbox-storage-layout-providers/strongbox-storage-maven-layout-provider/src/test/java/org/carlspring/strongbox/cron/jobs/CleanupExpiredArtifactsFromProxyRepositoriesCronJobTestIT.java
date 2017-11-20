@@ -5,19 +5,16 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
 import com.google.common.base.Throwables;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.hamcrest.CoreMatchers;
@@ -35,7 +32,7 @@ import static org.junit.Assert.*;
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
-public class CleanupExpiredProxyRepositoriesArtifactsCronJobTestIT
+public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
 
@@ -50,19 +47,10 @@ public class CleanupExpiredProxyRepositoriesArtifactsCronJobTestIT
     public void cleanup()
             throws Exception
     {
-        deleteDirectory("/storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
+        deleteDirectoryRelativeToVaultDirectory(
+                "/storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
 
         artifactEntryService.deleteAll();
-    }
-
-    private void deleteDirectory(String dirPathToDelete)
-            throws Exception
-    {
-        File dirFileToDelete = new File(ConfigurationResourceResolver.getVaultDirectory() + dirPathToDelete);
-        if (dirFileToDelete.exists())
-        {
-            FileUtils.deleteDirectory(dirFileToDelete);
-        }
     }
 
     @Test
@@ -134,11 +122,11 @@ public class CleanupExpiredProxyRepositoriesArtifactsCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobName, CleanupExpiredProxyRepositoriesArtifactsCronJob.class, storageId, repositoryId,
+        addCronJobConfig(jobName, CleanupExpiredArtifactsFromProxyRepositoriesCronJob.class, storageId, repositoryId,
                          properties ->
                          {
-                             properties.put("uselessnessDays", "5");
-                             properties.put("forceRegeneration", Long.valueOf(sizeInBytes - 1).toString());
+                             properties.put("lastAccessedTimeInDays", "5");
+                             properties.put("minSizeInBytes", Long.valueOf(sizeInBytes - 1).toString());
                          });
 
         assertTrue("Failed to execute task!",

@@ -6,18 +6,18 @@ package org.carlspring.strongbox.services.support;
 public class ArtifactEntrySearchCriteria
 {
 
-    private Integer uselessnessDays;
+    private Integer lastAccessedTimeInDays;
 
     private Long minSizeInBytes;
 
     public boolean isEmpty()
     {
-        return uselessnessDays == null && minSizeInBytes == null;
+        return lastAccessedTimeInDays == null && minSizeInBytes == null;
     }
 
-    public Integer getUselessnessDays()
+    public Integer getLastAccessedTimeInDays()
     {
-        return uselessnessDays;
+        return lastAccessedTimeInDays;
     }
 
     public Long getMinSizeInBytes()
@@ -28,7 +28,7 @@ public class ArtifactEntrySearchCriteria
     public static final class Builder
     {
 
-        private Integer uselessnessDays;
+        private Integer lastAccessedTimeInDays;
         private Long minSizeInBytes;
 
         private Builder()
@@ -40,9 +40,9 @@ public class ArtifactEntrySearchCriteria
             return new Builder();
         }
 
-        public Builder withUselessnessDays(Integer uselessnessDays)
+        public Builder withLastAccessedTimeInDays(Integer lastAccessedTimeInDays)
         {
-            this.uselessnessDays = uselessnessDays;
+            this.lastAccessedTimeInDays = lastAccessedTimeInDays;
             return this;
         }
 
@@ -55,7 +55,7 @@ public class ArtifactEntrySearchCriteria
         public ArtifactEntrySearchCriteria build()
         {
             ArtifactEntrySearchCriteria artifactEntrySearchCriteria = new ArtifactEntrySearchCriteria();
-            artifactEntrySearchCriteria.uselessnessDays = this.uselessnessDays;
+            artifactEntrySearchCriteria.lastAccessedTimeInDays = this.lastAccessedTimeInDays;
             artifactEntrySearchCriteria.minSizeInBytes = this.minSizeInBytes;
             return artifactEntrySearchCriteria;
         }

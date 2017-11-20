@@ -70,7 +70,7 @@ public class ArtifactEntryServiceTest
 
         List<ArtifactEntry> entries = artifactEntryService.findMatching(
                 anArtifactEntrySearchCriteria()
-                        .withUselessnessDays(5)
+                        .withLastAccessedTimeInDays(5)
                         .build(),
                 PagingCriteria.ALL);
 
@@ -128,7 +128,7 @@ public class ArtifactEntryServiceTest
         List<ArtifactEntry> entries = artifactEntryService.findMatching(
                 anArtifactEntrySearchCriteria()
                         .withMinSizeInBytes(500l)
-                        .withUselessnessDays(5)
+                        .withLastAccessedTimeInDays(5)
                         .build(),
                 PagingCriteria.ALL);
 
