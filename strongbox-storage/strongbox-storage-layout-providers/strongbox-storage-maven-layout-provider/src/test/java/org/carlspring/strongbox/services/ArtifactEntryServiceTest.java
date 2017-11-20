@@ -1,23 +1,22 @@
 package org.carlspring.strongbox.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Optional;
+
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.*;
 
 /**
  * Functional test and usage example scenarios for {@link ArtifactEntryService}.
@@ -31,17 +30,59 @@ public class ArtifactEntryServiceTest
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryServiceTest.class);
-
+    final String storageId = "storage0";
+    final String repositoryId = "release";
+    final String groupId = "org.carlspring.strongbox";
+    final String artifactId = "coordinates-test";
     @Inject
     ArtifactEntryService artifactEntryService;
 
-    final String storageId = "storage0";
+    @Test
+    public void confirmCascadeUpdateDoesNotWork()
+            throws Exception
+    {
+        artifactEntryService.deleteAll();
+        createArtifacts(groupId, artifactId, storageId, repositoryId);
+        displayAllEntries();
 
-    final String repositoryId = "release";
+        Optional<ArtifactEntry> artifactEntryOptional = artifactEntryService.findOneAritifact(storageId, repositoryId,
+                                                                                              "org/carlspring/strongbox/coordinates-test123/1.2.3/coordinates-test123-1.2.3.jar");
 
-    final String groupId = "org.carlspring.strongbox";
 
-    final String artifactId = "coordinates-test";
+        assertThat(artifactEntryOptional, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
+
+        ArtifactEntry artifactEntry = artifactEntryOptional.get();
+        assertThat(artifactEntry.getArtifactCoordinates(), CoreMatchers.notNullValue());
+        assertThat(artifactEntry.getArtifactCoordinates().getCoordinate("extension"), CoreMatchers.equalTo("jar"));
+        assertThat(artifactEntry.getArtifactCoordinates().getCoordinate("version"), CoreMatchers.equalTo("1.2.3"));
+
+        artifactEntry.getArtifactCoordinates().setCoordinate("extension", "pom");
+        artifactEntry.getArtifactCoordinates().setCoordinate("version", "7.8.9");
+
+        artifactEntryService.save(artifactEntry);
+
+        artifactEntryOptional = artifactEntryService.findOneAritifact(storageId, repositoryId,
+                                                                      "org/carlspring/strongbox/coordinates-test123/1.2.3/coordinates-test123-1.2.3.jar");
+
+
+        assertThat(artifactEntryOptional, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
+
+        // nothing has changed :(
+        artifactEntry = artifactEntryOptional.get();
+        assertThat(artifactEntry.getArtifactCoordinates(), CoreMatchers.notNullValue());
+        assertThat(artifactEntry.getArtifactCoordinates().getCoordinate("extension"), CoreMatchers.equalTo("jar"));
+        assertThat(artifactEntry.getArtifactCoordinates().getCoordinate("version"), CoreMatchers.equalTo("1.2.3"));
+
+        // but simple field will be updated
+        artifactEntry.setRepositoryId(repositoryId + "abc");
+        artifactEntryService.save(artifactEntry);
+
+        artifactEntryOptional = artifactEntryService.findOneAritifact(storageId, repositoryId,
+                                                                      "org/carlspring/strongbox/coordinates-test123/1.2.3/coordinates-test123-1.2.3.jar");
+        assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
+
+
+    }
 
     /**
      * Make sure that we are able to search artifacts by single coordinate.
@@ -62,7 +103,8 @@ public class ArtifactEntryServiceTest
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
         coordinates.setGroupId(groupId);
 
-        List<ArtifactEntry> artifactEntries = artifactEntryService.findAritifactList(storageId, repositoryId, coordinates);
+        List<ArtifactEntry> artifactEntries = artifactEntryService.findAritifactList(storageId, repositoryId,
+                                                                                     coordinates);
 
         assertNotNull(artifactEntries);
         assertFalse(artifactEntries.isEmpty());
@@ -112,7 +154,7 @@ public class ArtifactEntryServiceTest
 
         Long c = artifactEntryService.countAritifacts(storageId, repositoryId, query.getCoordinates(), true);
         assertEquals(Long.valueOf(1), c);
-        
+
         artifactEntryService.deleteAll();
     }
 
