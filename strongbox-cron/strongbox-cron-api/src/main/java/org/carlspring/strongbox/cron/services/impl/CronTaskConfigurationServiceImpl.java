@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.cron.services.impl;
 
-import org.carlspring.strongbox.cron.jobs.AbstractCronJob;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
-import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
+import org.carlspring.strongbox.cron.jobs.AbstractCronJob;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
@@ -52,30 +52,32 @@ class CronTaskConfigurationServiceImpl
         {
             throw new CronTaskException("cronExpression property does not exists");
         }
+        if (!configuration.contains("jobClass"))
+        {
+            throw new CronTaskException("jobClass property does not exists");
+        }
 
         cronTaskDataService.save(configuration);
 
         cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(configuration.getName());
 
-        if (configuration.contains("jobClass"))
+        Class c = Class.forName(configuration.getProperty("jobClass"));
+        Object classInstance = c.newInstance();
+
+        logger.debug("> " + c.getSuperclass().getCanonicalName());
+
+        if (!(classInstance instanceof AbstractCronJob))
         {
-            Class c = Class.forName(configuration.getProperty("jobClass"));
-            Object classInstance = c.newInstance();
-
-            logger.debug("> " + c.getSuperclass().getCanonicalName());
-
-            if (!(classInstance instanceof AbstractCronJob))
-            {
-                throw new CronTaskException(c + " does not extend " + AbstractCronJob.class);
-            }
-
-            cronJobSchedulerService.scheduleJob(configuration);
-
-            if (configuration.shouldExecuteImmediately())
-            {
-                cronJobSchedulerService.executeJob(configuration);
-            }
+            throw new CronTaskException(c + " does not extend " + AbstractCronJob.class);
         }
+
+        cronJobSchedulerService.scheduleJob(configuration);
+
+        if (configuration.shouldExecuteImmediately())
+        {
+            cronJobSchedulerService.executeJob(configuration);
+        }
+
     }
 
     public void deleteConfiguration(CronTaskConfiguration configuration)

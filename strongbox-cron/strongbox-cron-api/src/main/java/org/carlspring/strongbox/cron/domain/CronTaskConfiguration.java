@@ -9,10 +9,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 /**
  * @author Yougeshwar
  */
-@XmlRootElement
+@XmlRootElement(name = "cron-task-configuration")
 @XmlAccessorType(XmlAccessType.NONE)
 public class CronTaskConfiguration
         extends GenericEntity
@@ -96,4 +98,15 @@ public class CronTaskConfiguration
         this.immediateExecution = immediateExecution;
     }
 
+    @Override
+    public String toString()
+    {
+        return new ToStringBuilder(this)
+                       .append("name", name)
+                       .append("properties", properties)
+                       .append("oneTimeExecution", oneTimeExecution)
+                       .append("immediateExecution", immediateExecution)
+                       .append("uuid", uuid)
+                       .toString();
+    }
 }

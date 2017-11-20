@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cron-tasks-configuration>
+
+    <cron-task-configuration>
+        <name>ClearRepositoryTrashCronTask</name>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+        <properties>
+            <entry>
+                <key>cronExpression</key>
+                <value>0 11 11 11 11 ? 2100</value>
+            </entry>
+            <entry>
+                <key>jobClass</key>
+                <value>org.carlspring.strongbox.cron.jobs.ClearRepositoryTrashCronJob</value>
+            </entry>
+        </properties>
+    </cron-task-configuration>
+
+</cron-tasks-configuration>
