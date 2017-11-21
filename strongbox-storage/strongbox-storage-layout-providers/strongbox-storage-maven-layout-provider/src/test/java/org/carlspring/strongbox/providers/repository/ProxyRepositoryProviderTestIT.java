@@ -63,11 +63,11 @@ public class ProxyRepositoryProviderTestIT
             throws Exception
     {
         deleteDirectoryRelativeToVaultDirectory(
-                "/storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin");
-        deleteDirectoryRelativeToVaultDirectory("/storages/storage-common-proxies/maven-oracle/com/oracle/jdbc/ojdbc8");
+                "storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin");
+        deleteDirectoryRelativeToVaultDirectory("storages/storage-common-proxies/maven-oracle/com/oracle/jdbc/ojdbc8");
         deleteDirectoryRelativeToVaultDirectory(
-                "/storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
-        deleteDirectoryRelativeToVaultDirectory("/storages/storage-common-proxies/maven-central/javax/media/jai_core");
+                "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
+        deleteDirectoryRelativeToVaultDirectory("storages/storage-common-proxies/maven-central/javax/media/jai_core");
 
         artifactEntryService.deleteAll();
     }

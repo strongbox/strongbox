@@ -48,7 +48,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
             throws Exception
     {
         deleteDirectoryRelativeToVaultDirectory(
-                "/storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
+                "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
 
         artifactEntryService.deleteAll();
     }

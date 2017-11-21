@@ -31,8 +31,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 public class LocalStorageProxyRepositoryExpiredArtifactsCleanerTestIT
-        extends
-        TestCaseWithMavenArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     @Inject
@@ -50,7 +49,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleanerTestIT
             throws Exception
     {
         deleteDirectoryRelativeToVaultDirectory(
-                "/storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
+                "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
 
         artifactEntryService.deleteAll();
     }

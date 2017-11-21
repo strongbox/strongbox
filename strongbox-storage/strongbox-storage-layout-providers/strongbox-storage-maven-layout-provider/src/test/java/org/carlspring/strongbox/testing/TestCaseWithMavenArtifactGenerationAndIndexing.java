@@ -30,12 +30,13 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.document.Document;
@@ -342,13 +343,11 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
             throw new IllegalStateException("ConfigurationResourceResolver.getVaultDirectory() resolves to '" + base +
                                             "' which is illegal base path here.");
         }
-        File dirFileToDelete = new File(base + dirPathToDelete);
-        if (dirFileToDelete.exists())
-        {
-            FileUtils.deleteDirectory(dirFileToDelete);
-        }
+        Path basePath = Paths.get(base);
+        Path fullDirPathToDelete = basePath.resolve(dirPathToDelete);
+        Files.deleteIfExists(fullDirPathToDelete);
     }
- 
+
     public void assertIndexContainsArtifact(String storageId,
                                             String repositoryId,
                                             String query)
