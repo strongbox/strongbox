@@ -97,13 +97,11 @@ public class MavenRepositoryManagementStrategy
         configuration.addProperty("cronExpression", "0 0 0 * * ?"); // Execute once daily at 00:00:00
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
+        configuration.setImmediateExecution(true);
 
         try
         {
             cronTaskConfigurationService.saveConfiguration(configuration);
-
-            // Run the scheduled task once, immediately, so that the remote's index would become available
-            cronJobSchedulerService.executeJob(configuration);
         }
         catch (ClassNotFoundException |
                SchedulerException |

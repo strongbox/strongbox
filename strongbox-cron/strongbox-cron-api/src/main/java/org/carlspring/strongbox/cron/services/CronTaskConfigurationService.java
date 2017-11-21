@@ -14,11 +14,7 @@ public interface CronTaskConfigurationService
 
 
     void saveConfiguration(CronTaskConfiguration cronTaskConfiguration)
-            throws ClassNotFoundException,
-                   SchedulerException,
-                   CronTaskException,
-                   IllegalAccessException,
-                   InstantiationException;
+            throws Exception;
 
     void deleteConfiguration(CronTaskConfiguration cronTaskConfiguration)
             throws SchedulerException,

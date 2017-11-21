@@ -40,11 +40,7 @@ class CronTaskConfigurationServiceImpl
 
 
     public void saveConfiguration(CronTaskConfiguration configuration)
-            throws ClassNotFoundException,
-                   SchedulerException,
-                   CronTaskException,
-                   IllegalAccessException,
-                   InstantiationException
+            throws Exception
     {
         logger.debug("CronTaskConfigurationService.saveConfiguration()");
 
@@ -52,32 +48,32 @@ class CronTaskConfigurationServiceImpl
         {
             throw new CronTaskException("cronExpression property does not exists");
         }
-        if (!configuration.contains("jobClass"))
-        {
-            throw new CronTaskException("jobClass property does not exists");
-        }
 
         cronTaskDataService.save(configuration);
 
         cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(configuration.getName());
 
-        Class c = Class.forName(configuration.getProperty("jobClass"));
-        Object classInstance = c.newInstance();
-
-        logger.debug("> " + c.getSuperclass().getCanonicalName());
-
-        if (!(classInstance instanceof AbstractCronJob))
+        if (configuration.contains("jobClass"))
         {
-            throw new CronTaskException(c + " does not extend " + AbstractCronJob.class);
+            Class c = Class.forName(configuration.getProperty("jobClass"));
+            Object classInstance = c.newInstance();
+
+            logger.debug("> " + c.getSuperclass().getCanonicalName());
+
+            if (!(classInstance instanceof AbstractCronJob))
+            {
+                throw new CronTaskException(c + " does not extend " + AbstractCronJob.class);
+            }
+
+            ((AbstractCronJob)classInstance).beforeScheduleCallback(configuration);
+
+            cronJobSchedulerService.scheduleJob(configuration);
+
+            if (configuration.shouldExecuteImmediately())
+            {
+                cronJobSchedulerService.executeJob(configuration);
+            }
         }
-
-        cronJobSchedulerService.scheduleJob(configuration);
-
-        if (configuration.shouldExecuteImmediately())
-        {
-            cronJobSchedulerService.executeJob(configuration);
-        }
-
     }
 
     public void deleteConfiguration(CronTaskConfiguration configuration)

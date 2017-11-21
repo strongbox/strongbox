@@ -89,11 +89,11 @@ public class NugetRepositoryManagementStrategy
         configuration.addProperty("cronExpression", "0 0 0 * * ?"); // Execute once daily at 00:00:00
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
+        configuration.setImmediateExecution(true);
 
         try
         {
             cronTaskConfigurationService.saveConfiguration(configuration);
-            cronJobSchedulerService.executeJob(configuration);
         }
         catch (ClassNotFoundException | SchedulerException | CronTaskException | InstantiationException
                 | IllegalAccessException e)
