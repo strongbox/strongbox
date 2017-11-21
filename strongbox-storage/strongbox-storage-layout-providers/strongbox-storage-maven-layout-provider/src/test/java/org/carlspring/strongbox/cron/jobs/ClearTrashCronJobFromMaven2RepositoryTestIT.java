@@ -75,8 +75,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     @Inject
     private ConfigurationManager configurationManager;
 
-    @Inject
-    private JobManager jobManager;
+
 
     @BeforeClass
     public static void cleanUp()
