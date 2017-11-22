@@ -5,7 +5,7 @@ import org.carlspring.strongbox.data.service.CommonCrudService;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
-import org.carlspring.strongbox.services.support.search.PagingCriteria;
+import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -391,22 +391,6 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         List<ODocument> resultList = getDelegate().command(oQuery).execute(params);
         ODocument result = resultList.isEmpty() ? null : resultList.iterator().next();
         return result == null ? null : ((ODocument)result.field("rid")).getIdentity();
-    }
-
-    private void appendPagingCriteria(StringBuilder queryBuilder,
-                                      PagingCriteria pagingCriteria)
-    {
-
-        queryBuilder.append(String.format(" ORDER BY %s", pagingCriteria.getSort()));
-
-        if (pagingCriteria.getSkip() > 0)
-        {
-            queryBuilder.append(String.format(" SKIP %s", pagingCriteria.getSkip()));
-        }
-        if (pagingCriteria.getLimit() > 0)
-        {
-            queryBuilder.append(String.format(" LIMIT %s", pagingCriteria.getLimit()));
-        }
     }
 
 }

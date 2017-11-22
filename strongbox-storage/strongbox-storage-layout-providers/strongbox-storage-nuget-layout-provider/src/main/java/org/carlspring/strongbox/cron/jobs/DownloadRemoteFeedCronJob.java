@@ -10,7 +10,7 @@ import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
  *
  */
 public class DownloadRemoteFeedCronJob
-        extends JavaCronJob
+        extends OnePerRepositoryJavaCronJob
 {
 
     @Inject

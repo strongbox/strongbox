@@ -18,26 +18,33 @@ import org.apache.commons.collections.IteratorUtils;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
 class CronTaskConfigurationServiceImpl
-        implements CronTaskConfigurationService
+        implements CronTaskConfigurationService, ApplicationContextAware
 {
 
     private final Logger logger = LoggerFactory.getLogger(CronTaskConfigurationServiceImpl.class);
-
     @Inject
     protected CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
-
+    private AutowireCapableBeanFactory beanFactory;
     @Inject
     private CronTaskDataService cronTaskDataService;
-
     @Inject
     private CronJobSchedulerService cronJobSchedulerService;
 
+    @Override
+    public void setApplicationContext(final ApplicationContext context)
+    {
+        beanFactory = context.getAutowireCapableBeanFactory();
+    }
 
     public void saveConfiguration(CronTaskConfiguration configuration)
             throws Exception
@@ -48,10 +55,6 @@ class CronTaskConfigurationServiceImpl
         {
             throw new CronTaskException("cronExpression property does not exists");
         }
-
-        cronTaskDataService.save(configuration);
-
-        cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(configuration.getName());
 
         if (configuration.contains("jobClass"))
         {
@@ -65,7 +68,8 @@ class CronTaskConfigurationServiceImpl
                 throw new CronTaskException(c + " does not extend " + AbstractCronJob.class);
             }
 
-            ((AbstractCronJob)classInstance).beforeScheduleCallback(configuration);
+            beanFactory.autowireBean(classInstance);
+            ((AbstractCronJob) classInstance).beforeScheduleCallback(configuration);
 
             cronJobSchedulerService.scheduleJob(configuration);
 
@@ -74,6 +78,10 @@ class CronTaskConfigurationServiceImpl
                 cronJobSchedulerService.executeJob(configuration);
             }
         }
+
+        cronTaskDataService.save(configuration);
+
+        cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(configuration.getName());
     }
 
     public void deleteConfiguration(CronTaskConfiguration configuration)

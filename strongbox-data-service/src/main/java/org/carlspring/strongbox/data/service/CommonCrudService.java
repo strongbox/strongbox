@@ -2,6 +2,7 @@ package org.carlspring.strongbox.data.service;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.data.service.impl.EntityServiceRegistry;
+import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -201,7 +202,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
 
         // remove last 'and' statement (that doesn't relate to any value)
         String query = sb.toString();
-        query = query.substring(0, query.length() - 5) + ";";
+        query = query.substring(0, query.length() - 5);
 
         // now query should looks like
         // SELECT * FROM Foo WHERE blah = :blah AND moreBlah = :moreBlah
@@ -218,6 +219,22 @@ public abstract class CommonCrudService<T extends GenericEntity>
         simpleName = simpleName.substring(0, 1).toLowerCase() + simpleName.substring(1, simpleName.length());
 
         return simpleName;
+    }
+
+    protected void appendPagingCriteria(StringBuilder queryBuilder,
+                                        PagingCriteria pagingCriteria)
+    {
+
+        queryBuilder.append(String.format(" ORDER BY %s", pagingCriteria.getSort()));
+
+        if (pagingCriteria.getSkip() > 0)
+        {
+            queryBuilder.append(String.format(" SKIP %s", pagingCriteria.getSkip()));
+        }
+        if (pagingCriteria.getLimit() > 0)
+        {
+            queryBuilder.append(String.format(" LIMIT %s", pagingCriteria.getLimit()));
+        }
     }
 
     /**

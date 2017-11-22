@@ -6,14 +6,8 @@
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
-            <entry> <!-- mandatory -->
-                <key>cronExpression</key>
-                <value>0 11 11 11 11 ? 2100</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>jobClass</key>
-                <value>org.carlspring.strongbox.cron.jobs.ClearRepositoryTrashCronJob</value>
-            </entry>
+            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.ClearRepositoryTrashCronJob</jobClass> <!-- mandatory -->
         </properties>
     </cron-task-configuration>
 
@@ -22,22 +16,10 @@
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
-            <entry> <!-- mandatory -->
-                <key>cronExpression</key>
-                <value>0 11 11 11 11 ? 2100</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>jobClass</key>
-                <value>org.carlspring.strongbox.cron.jobs.ClearRepositoryTrashCronJob</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>storageId</key>
-                <value>storage-common-proxies</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>repositoryId</key>
-                <value>maven-central</value>
-            </entry>
+            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.ClearRepositoryTrashCronJob</jobClass> <!-- mandatory -->
+            <storageId>storage-common-proxies</storageId> <!-- optional -->
+            <repositoryId>maven-central</repositoryId> <!-- optional -->
         </properties>
     </cron-task-configuration>
 
@@ -46,54 +28,24 @@
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
-            <entry> <!-- mandatory -->
-                <key>cronExpression</key>
-                <value>0 11 11 11 11 ? 2100</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>jobClass</key>
-                <value>org.carlspring.strongbox.cron.jobs.RegenerateChecksumCronJob</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>storageId</key>
-                <value>storage-common-proxies</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>repositoryId</key>
-                <value>maven-central</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>basePath</key>
-                <value>org</value>
-            </entry>
-            <entry> <!-- optional, default false -->
-                <key>forceRegeneration</key>
-                <value>true</value>
-            </entry>
+            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.RegenerateChecksumCronJob</jobClass> <!-- mandatory -->
+            <storageId>storage-common-proxies</storageId> <!-- optional -->
+            <repositoryId>maven-central</repositoryId> <!-- optional -->
+            <basePath>org</basePath> <!-- optional -->
+            <forceRegeneration>true</forceRegeneration> <!-- optional, default false -->
         </properties>
     </cron-task-configuration>
 
     <cron-task-configuration>
-        <name>name2</name>
+        <name>DownloadRemoteMavenIndexCronJob</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
-            <entry> <!-- mandatory -->
-                <key>cronExpression</key>
-                <value>0 11 11 11 11 ? 2100</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>jobClass</key>
-                <value>org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>storageId</key>
-                <value>storage-common-proxies</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>repositoryId</key>
-                <value>maven-central</value>
-            </entry>
+            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob</jobClass> <!-- mandatory -->
+            <storageId>storage-common-proxies</storageId> <!-- mandatory -->
+            <repositoryId>maven-central</repositoryId> <!-- mandatory -->
         </properties>
     </cron-task-configuration>
 
@@ -102,22 +54,10 @@
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
-            <entry> <!-- mandatory -->
-                <key>cronExpression</key>
-                <value>0 11 11 11 11 ? 2100</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>jobClass</key>
-                <value>org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>storageId</key>
-                <value>storage-common-proxies</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>repositoryId</key>
-                <value>carlspring</value>
-            </entry>
+            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob</jobClass> <!-- mandatory -->
+            <storageId>storage-common-proxies</storageId> <!-- mandatory -->
+            <repositoryId>carlspring</repositoryId> <!-- mandatory -->
         </properties>
     </cron-task-configuration>
 
@@ -126,26 +66,11 @@
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
-            <entry> <!-- mandatory -->
-                <key>cronExpression</key>
-                <value>0 11 11 11 11 ? 2100</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>jobClass</key>
-                <value>org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>storageId</key>
-                <value>storage-common-proxies</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>repositoryId</key>
-                <value>maven-central</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>basePath</key>
-                <value>org</value>
-            </entry>
+            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob</jobClass> <!-- mandatory -->
+            <storageId>storage-common-proxies</storageId> <!-- optional -->
+            <repositoryId>maven-central</repositoryId> <!-- optional -->
+            <basePath>org</basePath> <!-- optional -->
         </properties>
     </cron-task-configuration>
 
@@ -154,26 +79,11 @@
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
-            <entry> <!-- mandatory -->
-                <key>cronExpression</key>
-                <value>0 11 11 11 11 ? 2100</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>jobClass</key>
-                <value>org.carlspring.strongbox.cron.jobs.RebuildMavenMetadataCronJob</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>storageId</key>
-                <value>storage-common-proxies</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>repositoryId</key>
-                <value>maven-central</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>basePath</key>
-                <value>org</value>
-            </entry>
+            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.RebuildMavenMetadataCronJob</jobClass> <!-- mandatory -->
+            <storageId>storage-common-proxies</storageId> <!-- optional -->
+            <repositoryId>maven-central</repositoryId> <!-- optional -->
+            <basePath>org</basePath> <!-- optional -->
         </properties>
     </cron-task-configuration>
 
@@ -182,34 +92,13 @@
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
-            <entry> <!-- mandatory -->
-                <key>cronExpression</key>
-                <value>0 11 11 11 11 ? 2100</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>jobClass</key>
-                <value>org.carlspring.strongbox.cron.jobs.RemoveTimestampedMavenSnapshotCronJob</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>storageId</key>
-                <value>storage-common-proxies</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>repositoryId</key>
-                <value>maven-central</value>
-            </entry>
-            <entry> <!-- optional -->
-                <key>basePath</key>
-                <value>org</value>
-            </entry>
-            <entry> <!-- optional, default 10 -->
-                <key>numberToKeep</key>
-                <value>10</value>
-            </entry>
-            <entry> <!-- optional, default 30 -->
-                <key>keepPeriod</key>
-                <value>30</value>
-            </entry>
+            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.RemoveTimestampedMavenSnapshotCronJob</jobClass> <!-- mandatory -->
+            <storageId>storage-common-proxies</storageId> <!-- optional -->
+            <repositoryId>maven-central</repositoryId> <!-- optional -->
+            <basePath>org</basePath> <!-- optional -->
+            <numberToKeep>10</numberToKeep> <!-- optional, default 10 -->
+            <keepPeriod>30</keepPeriod> <!-- optional, default 30 -->
         </properties>
     </cron-task-configuration>
 
@@ -218,22 +107,10 @@
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
-            <entry> <!-- mandatory -->
-                <key>cronExpression</key>
-                <value>0 11 11 11 11 ? 2100</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>jobClass</key>
-                <value>org.carlspring.strongbox.cron.jobs.DownloadRemoteFeedCronJob</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>storageId</key>
-                <value>storage-common-proxies</value>
-            </entry>
-            <entry> <!-- mandatory -->
-                <key>repositoryId</key>
-                <value>maven-central</value>
-            </entry>
+            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.DownloadRemoteFeedCronJob</jobClass> <!-- mandatory -->
+            <storageId>nuget-common-storage</storageId> <!-- mandatory -->
+            <repositoryId>nuget-releases</repositoryId> <!-- mandatory -->
         </properties>
     </cron-task-configuration>
 
