@@ -3,10 +3,11 @@ package org.carlspring.strongbox.providers.repository;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
@@ -15,16 +16,17 @@ import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -50,19 +52,24 @@ public class ProxyRepositoryProviderTestIT
     private ArtifactResolutionService artifactResolutionService;
 
     @Inject
+    private ArtifactEntryService artifactEntryService;
+
+    @Inject
     private MavenMetadataManager mavenMetadataManager;
 
     @Before
-    public void setUp()
+    @After
+    public void cleanup()
             throws Exception
     {
-        File derbyPluginBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                           "/storages/storage-common-proxies/maven-central/" +
-                                           "org/carlspring/maven/derby-maven-plugin");
-        if (derbyPluginBaseDir.exists())
-        {
-            FileUtils.deleteDirectory(derbyPluginBaseDir);
-        }
+        deleteDirectoryRelativeToVaultDirectory(
+                "storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin");
+        deleteDirectoryRelativeToVaultDirectory("storages/storage-common-proxies/maven-oracle/com/oracle/jdbc/ojdbc8");
+        deleteDirectoryRelativeToVaultDirectory(
+                "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
+        deleteDirectoryRelativeToVaultDirectory("storages/storage-common-proxies/maven-central/javax/media/jai_core");
+
+        artifactEntryService.deleteAll();
     }
 
     @Test
@@ -163,6 +170,23 @@ public class ProxyRepositoryProviderTestIT
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.1.2_01"));
         assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.1.3"));
+    }
+
+    @Test
+    public void whenDownloadingArtifactDatabaseShouldBeAffectedByArtifactEntry()
+            throws Exception
+    {
+        String storageId = "storage-common-proxies";
+        String repositoryId = "maven-central";
+        String path = "org/carlspring/properties-injector/1.6/properties-injector-1.6.jar";
+
+        Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneAritifact(storageId, repositoryId, path);
+        assertThat(artifactEntry, CoreMatchers.equalTo(Optional.empty()));
+
+        assertStreamNotNull(storageId, repositoryId, path);
+
+        artifactEntry = artifactEntryService.findOneAritifact(storageId, repositoryId, path);
+        assertThat(artifactEntry, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
     }
 
     @Test

@@ -2,7 +2,6 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
@@ -76,9 +75,6 @@ public class RebuildMavenMetadataCronJobTestIT
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
-
-    @Inject
-    private JobManager jobManager;
 
     @BeforeClass
     public static void cleanUp()

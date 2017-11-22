@@ -6,7 +6,6 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.transaction.TransactionManager;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import org.springframework.context.ApplicationContext;

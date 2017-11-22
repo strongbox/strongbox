@@ -3,6 +3,7 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
 import org.carlspring.strongbox.event.cron.CronTaskEventListener;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
@@ -34,6 +35,9 @@ public class BaseCronJobWithMavenIndexingTestCase
 
     @Inject
     protected CronTaskConfigurationService cronTaskConfigurationService;
+
+    @Inject
+    protected JobManager jobManager;
 
     /**
      * A map containing the cron task configurations used by this test.

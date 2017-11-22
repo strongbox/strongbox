@@ -3,7 +3,6 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -68,9 +67,6 @@ public class RegenerateMavenChecksumCronJobTestIT
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
-    private JobManager jobManager;
 
     @BeforeClass
     public static void cleanUp()

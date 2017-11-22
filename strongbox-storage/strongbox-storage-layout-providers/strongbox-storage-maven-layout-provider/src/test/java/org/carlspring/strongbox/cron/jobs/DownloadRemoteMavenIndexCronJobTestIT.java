@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -42,9 +41,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
 
     @Inject
     private ArtifactSearchService artifactSearchService;
-
-    @Inject
-    private JobManager jobManager;
 
     @BeforeClass
     public static void cleanUp()
