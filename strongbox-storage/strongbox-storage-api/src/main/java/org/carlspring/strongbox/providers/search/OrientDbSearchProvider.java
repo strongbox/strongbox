@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.providers.search;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
@@ -39,9 +38,6 @@ public class OrientDbSearchProvider
 
     @Inject
     private ArtifactEntryService artifactEntryService;
-
-    @Inject
-    private ConfigurationManager configurationManager;
 
 
     @PostConstruct
