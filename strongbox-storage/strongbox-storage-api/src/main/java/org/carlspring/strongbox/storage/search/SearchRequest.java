@@ -52,6 +52,16 @@ public class SearchRequest
         this.implementation = implementation;
     }
 
+    public SearchRequest(String storageId,
+                         String repositoryId,
+                         ArtifactCoordinates coordinates,
+                         String implementation)
+    {
+        this.storageId = storageId;
+        this.repositoryId = repositoryId;
+        this.artifactCoordinates = coordinates;
+        this.implementation = implementation;
+    }
 
     public String getStorageId()
     {
