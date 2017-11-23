@@ -137,7 +137,8 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
     public static NpmArtifactCoordinates of(String name,
                                             String version)
     {
-        if (name.contains("/")){
+        if (name.contains("/"))
+        {
             String[] nameSplit = name.split("/");
             return new NpmArtifactCoordinates(nameSplit[0], nameSplit[1], version);
         }

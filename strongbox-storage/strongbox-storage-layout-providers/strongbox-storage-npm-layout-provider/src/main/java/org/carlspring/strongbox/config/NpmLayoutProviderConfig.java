@@ -40,7 +40,8 @@ public class NpmLayoutProviderConfig
     }
     
     @Bean
-    public ObjectMapper npmJackasonMapper() {
+    public ObjectMapper npmJackasonMapper()
+    {
         return new ObjectMapper();
     }
     

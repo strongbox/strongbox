@@ -13,7 +13,7 @@
 
     <storages>
 
-        <storage id="storage-npm-common">
+        <storage id="storage-common-npm">
             <repositories>
                 <repository id="npm-releases"
                             policy="release"

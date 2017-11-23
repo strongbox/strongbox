@@ -51,15 +51,15 @@ public abstract class AbstractArtifactLocationHandler
         return new ArrayList<>(versionDirectorySet);
     }
 
-    protected boolean isMetadata(Path p)
+    protected boolean isMetadata(Path path)
     {
         try
         {
-            return Boolean.TRUE.equals(RepositoryFiles.isMetadata((RepositoryPath) p));
+            return Boolean.TRUE.equals(RepositoryFiles.isMetadata((RepositoryPath) path));
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to read Path attributes for [%s]", p), e);
+            logger.error(String.format("Failed to read Path attributes for [%s]", path), e);
             return false;
         }
     }

@@ -145,7 +145,7 @@ public class NpmPackageController extends BaseArtifactController
         RepositoryPath checksumPath = repositoryPath.resolveSibling(packageFileName + ".sha1");
         npmArtifactManagementService.validateAndStore(repository.getStorage().getId(), repository.getId(),
                                                       checksumPath.relativize().toString(),
-                                                      new ByteArrayInputStream(shasum.getBytes()));
+                                                      new ByteArrayInputStream(shasum.getBytes("UTF-8")));
 
         Files.delete(packageTgzTmp);
         Files.delete(packageJsonTmp);
@@ -242,7 +242,7 @@ public class NpmPackageController extends BaseArtifactController
             packageJsonSource = extrectPackageJson(packageTgzIn);
         }
         Path packageJsonTmp = Files.createTempFile("package", "json");
-        Files.write(packageJsonTmp, packageJsonSource.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        Files.write(packageJsonTmp, packageJsonSource.getBytes("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING);
 
         return packageJsonTmp;
     }
