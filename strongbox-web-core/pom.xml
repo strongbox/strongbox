@@ -324,6 +324,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-npm-layout-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency> 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-nuget-layout-provider</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
@@ -500,6 +505,11 @@
 		    <groupId>commons-fileupload</groupId>
 		    <artifactId>commons-fileupload</artifactId>
 		</dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
         
         <!-- Other utils: swagger, .. -->
         <dependency>

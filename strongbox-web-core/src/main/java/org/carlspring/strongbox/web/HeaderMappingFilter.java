@@ -1,12 +1,17 @@
 package org.carlspring.strongbox.web;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
-import org.carlspring.strongbox.controllers.nuget.NugetPackageController;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.providers.layout.NugetHierarchicalLayoutProvider;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -27,18 +32,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
+import org.carlspring.strongbox.controllers.nuget.NugetPackageController;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
+import org.carlspring.strongbox.providers.layout.NugetHierarchicalLayoutProvider;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * This filter used to map HTTP header values from one to another.<br>
@@ -57,6 +59,7 @@ public class HeaderMappingFilter
     private static final String USER_AGENT_UNKNOWN = "unknown";
     private static final String USER_AGENT_NUGET = "NuGet";
     private static final String USER_AGENT_MAVEN = "Maven";
+    private static final String USER_AGENT_NPM= "npm";
 
     private Map<String, String> userAgentMap = new HashMap<>();
     private Map<String, String> layoutMap = new HashMap<>();
@@ -82,6 +85,7 @@ public class HeaderMappingFilter
 
         layoutMap.put(NugetHierarchicalLayoutProvider.ALIAS, String.format(format, USER_AGENT_NUGET));
         layoutMap.put(Maven2LayoutProvider.ALIAS, String.format(format, USER_AGENT_MAVEN));
+        layoutMap.put(NpmLayoutProvider.ALIAS, String.format(format, USER_AGENT_NPM));
     }
 
     @Override

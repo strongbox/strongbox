@@ -23,6 +23,7 @@ import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -33,6 +34,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -55,6 +57,18 @@ public class SecurityConfig
 
     @Inject
     private List<AuthenticationSupplier> suppliers;
+
+    
+    
+    @Override
+    public void init(WebSecurity web)
+        throws Exception
+    {
+        super.init(web);
+        DefaultHttpFirewall httpFirewall = new DefaultHttpFirewall();
+        httpFirewall.setAllowUrlEncodedSlash(true);
+        web.httpFirewall(httpFirewall);
+    }
 
     @Override
     protected void configure(HttpSecurity http)
@@ -134,6 +148,8 @@ public class SecurityConfig
                                                        "anonymousUser",
                                                        anonymousRoles);
     }
+    
+    
 
     /**
      * This Configuration enables @PreAuthorize annotations

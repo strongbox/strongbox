@@ -24,6 +24,8 @@ import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
@@ -426,7 +428,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     {
         try
         {
-            return (ArtifactCoordinates) Files.getAttribute(p, RepositoryFileAttributes.COORDINATES);
+            return RepositoryFiles.readCoordinates((RepositoryPath) p);
         }
         catch (IOException e)
         {

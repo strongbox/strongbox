@@ -4,6 +4,7 @@ package org.carlspring.strongbox.providers.layout;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
@@ -203,7 +204,7 @@ public class Maven2LayoutProvider
             throws IOException
     {
         Repository repository = path.getFileSystem().getRepository();
-        RepositoryFileAttributes a = (RepositoryFileAttributes) Files.readAttributes(path, BasicFileAttributes.class);
+        RepositoryFileAttributes a = Files.readAttributes(path, RepositoryFileAttributes.class);
 
         if (!repositoryFeatures.isIndexingEnabled(repository) || a.isMetadata())
         {
@@ -285,8 +286,7 @@ public class Maven2LayoutProvider
             if (Files.exists(artifactPath))
             {
 
-                RepositoryFileAttributes artifactFileAttributes = (RepositoryFileAttributes) Files.readAttributes(
-                        artifactPath, BasicFileAttributes.class);
+                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath, RepositoryFileAttributes.class);
 
                 if (!artifactFileAttributes.isDirectory())
                 {
@@ -441,7 +441,7 @@ public class Maven2LayoutProvider
     public void postProcess(RepositoryPath repositoryPath)
             throws IOException
     {
-        Boolean artifactAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.ARTIFACT);
+        Boolean artifactAttribute = RepositoryFiles.isArtifact(repositoryPath);
         if (!Boolean.TRUE.equals(artifactAttribute))
         {
             return;

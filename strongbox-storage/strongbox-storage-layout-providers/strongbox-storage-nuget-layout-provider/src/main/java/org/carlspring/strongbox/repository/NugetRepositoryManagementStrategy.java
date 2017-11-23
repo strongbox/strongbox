@@ -15,10 +15,12 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
  */
+@Component
 public class NugetRepositoryManagementStrategy
         extends AbstractRepositoryManagementStrategy
 {

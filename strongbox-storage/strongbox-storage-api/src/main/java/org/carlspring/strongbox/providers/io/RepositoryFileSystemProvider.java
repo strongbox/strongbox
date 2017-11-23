@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -484,52 +485,65 @@ public abstract class RepositoryFileSystemProvider
                                                             LinkOption... options)
         throws IOException
     {
-        A targetAttributes = storageFileSystemProvider.readAttributes(unwrap(path), type, options);
-        if (!(path instanceof RepositoryPath))
+        if (RepositoryFileAttributes.class.isAssignableFrom(type) && !RepositoryPath.class.isInstance(path))
         {
-            return targetAttributes;
+            throw new IOException(String.format("Requested path is not [%s].", RepositoryPath.class.getSimpleName()));
+        }
+
+        BasicFileAttributes targetAttributes = storageFileSystemProvider.readAttributes(unwrap(path), BasicFileAttributes.class, options);
+        if (!RepositoryFileAttributes.class.isAssignableFrom(type))
+        {
+            return (A) targetAttributes;
         }
         
         RepositoryPath repositoryPath = (RepositoryPath) path;
         RepositoryPath repositoryRelativePath = repositoryPath.relativize();
         
         RepositoryFileAttributes repositoryFileAttributes = new RepositoryFileAttributes(targetAttributes,
-                getRepositoryFileAttributes(repositoryRelativePath));
+                getRepositoryFileAttributes(repositoryRelativePath,
+                                            RepositoryFiles.parseAttributes("*")
+                                                           .toArray(new RepositoryFileAttributeType[] {})));
         
         return (A) repositoryFileAttributes;
     }
 
-    protected abstract Map<String,Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath);
-    
-    public boolean isChecksum(RepositoryPath path)
-    {
-        for (String e : path.getFileSystem().getDigestAlgorithmSet())
-        {
-            if (path.getFileName().toString().endsWith("." + e.replaceAll("-", "").toLowerCase()))
-            {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
     public Map<String, Object> readAttributes(Path path,
                                               String attributes,
                                               LinkOption... options)
-            throws IOException
+        throws IOException
     {
-        if (!(path instanceof RepositoryPath))
+        if (!RepositoryPath.class.isInstance(path))
         {
-            return storageFileSystemProvider.readAttributes(unwrap(path), attributes, options);
+            return storageFileSystemProvider.readAttributes(path, attributes, options);
         }
-        
-        //TODO: Make an implementation in accordance with the specification
+        Map<String, Object> result = new HashMap<>();
+        if (!attributes.startsWith("strongbox"))
+        {
+            result.putAll(storageFileSystemProvider.readAttributes(unwrap(path), attributes, options));
+            if (!attributes.equals("*"))
+            {
+                return result;
+            }
+        }
+
         RepositoryPath repositoryPath = (RepositoryPath) path;
         RepositoryPath repositoryRelativePath = repositoryPath.relativize();
+
+        RepositoryFileAttributeType[] targetRepositoryAttributes = RepositoryFiles.parseAttributes(attributes)
+                                                                                  .toArray(new RepositoryFileAttributeType[] {});
+        Map<String, Object> repositoryFileAttributes = getRepositoryFileAttributes(repositoryRelativePath,
+                                                                                   targetRepositoryAttributes).entrySet()
+                                                                                                              .stream()
+                                                                                                              .collect(Collectors.toMap(e -> e.getKey()
+                                                                                                                                              .getName(),
+                                                                                                                                        e -> e.getValue()));
+        result.putAll(repositoryFileAttributes);
         
-        return getRepositoryFileAttributes(repositoryRelativePath);
+        return result;
     }
+
+    protected abstract Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath,
+                                                                                            RepositoryFileAttributeType... attributeTypes);
 
     public void setAttribute(Path path,
                              String attribute,
