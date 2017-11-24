@@ -16,10 +16,12 @@ import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -49,8 +51,15 @@ public class MavenDependencyFormatterTest
     private ArtifactEntryService artifactEntryService;
 
 
+    @BeforeClass
+    public static void cleanUp()
+            throws Exception
+    {
+        cleanUp(getRepositoriesToClean());
+    }
+
     @Before
-    public void initialize()
+    public void setUp()
             throws Exception
     {
         // Because there is no smarter way to cleanup... :-|
@@ -71,6 +80,15 @@ public class MavenDependencyFormatterTest
                             REPOSITORY_RELEASES);
     }
 
+    @After
+    public void removeRepositories()
+            throws IOException, JAXBException
+    {
+        getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
+
+        removeRepositories(getRepositoriesToClean());
+    }
+
     private void removeEntriesIfAnyExist()
     {
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates("org.carlspring.strongbox",
@@ -88,13 +106,6 @@ public class MavenDependencyFormatterTest
         {
             artifactEntryService.delete(artifactEntry);
         }
-    }
-
-    @BeforeClass
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
     }
 
     public static Set<Repository> getRepositoriesToClean()
