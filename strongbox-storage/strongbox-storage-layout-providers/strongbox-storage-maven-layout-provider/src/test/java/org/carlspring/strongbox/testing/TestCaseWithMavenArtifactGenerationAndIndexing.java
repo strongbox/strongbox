@@ -37,6 +37,7 @@ import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.document.Document;
@@ -345,7 +346,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         }
         Path basePath = Paths.get(base);
         Path fullDirPathToDelete = basePath.resolve(dirPathToDelete);
-        Files.deleteIfExists(fullDirPathToDelete);
+        FileUtils.deleteDirectory(fullDirPathToDelete.toFile());
     }
 
     public void assertIndexContainsArtifact(String storageId,
