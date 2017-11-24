@@ -223,7 +223,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     }
 
     @Override
-    @Override
     public Long countArtifacts(String storageId,
                                String repositoryId,
                                Map<String, String> coordinates,

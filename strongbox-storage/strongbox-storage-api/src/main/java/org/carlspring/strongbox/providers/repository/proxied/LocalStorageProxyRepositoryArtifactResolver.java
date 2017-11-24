@@ -65,7 +65,7 @@ public class LocalStorageProxyRepositoryArtifactResolver
     {
         final Storage storage = repository.getStorage();
 
-        final Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneAritifact(storage.getId(),
+        final Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneArtifact(storage.getId(),
                                                                                             repository.getId(),
                                                                                             path);
         final InputStream result = hostedRepositoryProvider.getInputStream(storage.getId(), repository.getId(), path);
@@ -121,7 +121,7 @@ public class LocalStorageProxyRepositoryArtifactResolver
 
             RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOneArtifact(storageId,
                                                                                                            repositoryId,
-                                                                                                           p)
+                                                                                                           path)
                                                                                           .orElse(new RemoteArtifactEntry());
 
             ArtifactCoordinates c = RepositoryFiles.readCoordinates(artifactPath);
