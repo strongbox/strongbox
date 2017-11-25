@@ -17,14 +17,15 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.google.common.io.Files;
 
 /**
  * @author mtodorov
@@ -95,20 +96,29 @@ public class StorageBooter
         logger.debug("Removed lock file '" + lockFile.getAbsolutePath() + "'.");
     }
 
-    public void createTempDir()
+    public void createTempDir() throws IOException
     {
-        File tempDir = Files.createTempDir();
-        logger.debug("Temporary directory: " + tempDir.getAbsolutePath() + ".");
-
-        if (System.getProperty("java.tmp.dir") == null)
+        String tempDirLocation = System.getProperty("java.io.tmpdir",
+                                                Paths.get(ConfigurationResourceResolver.getVaultDirectory(), "tmp")
+                                                     .toAbsolutePath()
+                                                     .toString());
+        Path tempDirPath = Paths.get(tempDirLocation).toAbsolutePath();
+        if (!Files.exists(tempDirPath))
         {
-            System.setProperty("java.tmp.dir", tempDir.getAbsolutePath());
+            Files.createDirectories(tempDirPath);
+        }
 
-            logger.debug("Set java.tmp.dir to " + tempDir.getAbsolutePath() + ".");
+        logger.debug("Temporary directory: " + tempDirPath.toString() + ".");
+
+        if (System.getProperty("java.io.tmpdir") == null)
+        {
+            System.setProperty("java.io.tmpdir", tempDirPath.toString());
+
+            logger.debug("Set java.io.tmpdir to " + tempDirPath.toString() + ".");
         }
         else
         {
-            logger.debug("The java.tmp.dir is already set to " + System.getProperty("java.tmp.dir") + ".");
+            logger.debug("The java.io.tmpdir is already set to " + System.getProperty("java.io.tmpdir") + ".");
         }
     }
 
