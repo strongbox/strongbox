@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.google.common.io.Files;
+
 /**
  * @author mtodorov
  */
@@ -95,14 +97,8 @@ public class StorageBooter
 
     public void createTempDir()
     {
-        File tempDir = new File(ConfigurationResourceResolver.getVaultDirectory(), "tmp");
-        if (!tempDir.exists())
-        {
-            //noinspection ResultOfMethodCallIgnored
-            tempDir.mkdirs();
-
-            logger.debug("Created temporary directory: " + tempDir.getAbsolutePath() + ".");
-        }
+        File tempDir = Files.createTempDir();
+        logger.debug("Temporary directory: " + tempDir.getAbsolutePath() + ".");
 
         if (System.getProperty("java.tmp.dir") == null)
         {
