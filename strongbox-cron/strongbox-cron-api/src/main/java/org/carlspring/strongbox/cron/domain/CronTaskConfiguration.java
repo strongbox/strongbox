@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.cron.domain;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
-import org.carlspring.strongbox.xml.StorageMapAdapter;
+import org.carlspring.strongbox.xml.PropertiesAdapter;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -28,7 +28,7 @@ public class CronTaskConfiguration
     private String name;
 
     @XmlElement(name = "properties")
-    @XmlJavaTypeAdapter(MapAdapter.class)
+    @XmlJavaTypeAdapter(PropertiesAdapter.class)
     private Map<String, String> properties = new HashMap<>();
 
     @XmlElement(name = "one-time-execution")

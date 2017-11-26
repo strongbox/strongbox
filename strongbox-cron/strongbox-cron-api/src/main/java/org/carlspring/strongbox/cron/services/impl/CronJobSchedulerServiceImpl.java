@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.cron.services.impl;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 import org.carlspring.strongbox.cron.quartz.CronTask;
-import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 
 import javax.inject.Inject;
@@ -121,7 +121,9 @@ public class CronJobSchedulerServiceImpl
         Scheduler scheduler = schedulerFactoryBean.getScheduler();
         if (!jobsMap.containsKey(cronTaskConfiguration.getName()))
         {
-            throw new CronTaskNotFoundException("Could not find cron task under the specified name!");
+            logger.warn("Could not find cron task under the specified name! Existing jobs map: {}, lookup name: {}", jobsMap,
+                        cronTaskConfiguration.getName());
+            return;
         }
 
         CronTask cronTask = jobsMap.get(cronTaskConfiguration.getName());
