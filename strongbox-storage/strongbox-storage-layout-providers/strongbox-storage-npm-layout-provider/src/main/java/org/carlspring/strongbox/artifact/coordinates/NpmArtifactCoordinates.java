@@ -80,7 +80,10 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
     @Override
     public String getId()
     {
-        return getName();
+        if (getScope() == null){
+            return getName();
+        }
+        return String.format("%s/%s", getScope(), getName());
     }
 
     @Override

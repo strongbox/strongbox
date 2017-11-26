@@ -147,8 +147,8 @@ public class NpmPackageController extends BaseArtifactController
                                                       checksumPath.relativize().toString(),
                                                       new ByteArrayInputStream(shasum.getBytes("UTF-8")));
 
-        Files.delete(packageTgzTmp);
-        Files.delete(packageJsonTmp);
+        //Files.delete(packageTgzTmp);
+        //Files.delete(packageJsonTmp);
     }
 
     private Pair<Package, Path> extractPackage(String storageId,
@@ -175,7 +175,6 @@ public class NpmPackageController extends BaseArtifactController
             {
                 String fieldname = jp.getCurrentName();
                 // read value
-                jp.nextToken();
                 if (fieldname == null)
                 {
                     continue;
@@ -183,6 +182,7 @@ public class NpmPackageController extends BaseArtifactController
                 switch (fieldname)
                 {
                 case FIELD_NAME_VERSION:
+                    jp.nextValue();
                     JsonNode node = jp.readValueAsTree();
                     Assert.isTrue(node.size() == 1, "npm package source should contain only one version.");
 
@@ -191,18 +191,24 @@ public class NpmPackageController extends BaseArtifactController
 
                     break;
                 case FIELD_NAME_ATTACHMENTS:
-                    String packageAttachmentName = jp.getCurrentName();
+                    Assert.isTrue(jp.nextToken() == JsonToken.START_OBJECT,
+                    String.format("Failed to parse npm package source for illegal type [%s] of attachment.", jp.currentToken().name()));
+                    
+                    String packageAttachmentName = jp.nextFieldName();
                     logger.info(String.format("Found npm package attachment [%s]", packageAttachmentName));
 
                     moveToAttachment(jp, packageAttachmentName);
                     packageTgzPath = extrectPackage(jp);
-
+                    
+                    jp.nextToken();
+                    jp.nextToken();
+                    
                     break;
                 }
             }
         }
 
-        Files.delete(packageSourceTmp);
+        //Files.delete(packageSourceTmp);
 
         if (packageJson == null || packageTgzPath == null)
         {
@@ -226,10 +232,11 @@ public class NpmPackageController extends BaseArtifactController
         long packageSize = Files.size(packageTgzTmp);
 
         Assert.isTrue(FIELD_NAME_LENGTH.equals(jp.nextFieldName()), "Failed to validate package content length.");
-
         jp.nextToken();
+        
         Assert.isTrue(packageSize == jp.getLongValue(), "Invalid package content length.");
-
+        jp.nextToken();
+        
         return packageTgzTmp;
     }
 
@@ -252,8 +259,8 @@ public class NpmPackageController extends BaseArtifactController
         throws IOException
     {
         Assert.isTrue(jp.nextToken() == JsonToken.START_OBJECT,
-                      String.format("Failed to parse npm package source for [%s], illegal attachment.",
-                                    packageAttachmentName));
+                      String.format("Failed to parse npm package source for [%s], illegal attachment content type [%s].",
+                                    packageAttachmentName, jp.currentToken().name()));
 
         jp.nextToken();
         String contentType = jp.nextTextValue();
