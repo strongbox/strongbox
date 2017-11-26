@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -17,8 +18,9 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.ByteRangeInputStream;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
 import org.carlspring.strongbox.util.MessageDigestUtils;
@@ -55,7 +57,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
             throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
                                                           path.toString()));
         }
-        ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(path, RepositoryFileAttributes.COORDINATES);
+        ArtifactCoordinates artifactCoordinates = RepositoryFiles.readCoordinates((RepositoryPath) path);
         
         InputStream is = super.newInputStream(path, options);
         ByteRangeInputStream bris;
@@ -91,7 +93,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
 
         };
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
-        if (Boolean.TRUE.equals(Files.getAttribute(path, RepositoryFileAttributes.CHECKSUM)))
+        if (Boolean.TRUE.equals(RepositoryFiles.isChecksum(path)))
         {
             return result;
         }
@@ -154,7 +156,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
         }
         
         Files.createDirectories(path.getParent());
-        ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(path, RepositoryFileAttributes.COORDINATES);
+        ArtifactCoordinates artifactCoordinates = RepositoryFiles.readCoordinates((RepositoryPath) path);
         
         OutputStream os = super.newOutputStream(path, options);
         try
@@ -190,7 +192,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
             
         };
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
-        if (Boolean.TRUE.equals(Files.getAttribute(path, RepositoryFileAttributes.CHECKSUM)))
+        if (Boolean.TRUE.equals(RepositoryFiles.isChecksum(path)))
         {
             return result;
         }
@@ -217,7 +219,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
              .filter(p -> {
                  try
                  {
-                     return !Boolean.TRUE.equals(Files.getAttribute(p, RepositoryFileAttributes.CHECKSUM));
+                     return !Boolean.TRUE.equals(RepositoryFiles.isChecksum((RepositoryPath) p));
                  }
                  catch (IOException e)
                  {
@@ -268,9 +270,10 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
     }
     
     @Override
-    protected Map<String, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath)
+    protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath,
+                                                                                   RepositoryFileAttributeType... attributeTypes)
     {
-        return layoutProvider.getRepositoryFileAttributes(repositoryRelativePath);
+        return layoutProvider.getRepositoryFileAttributes(repositoryRelativePath, attributeTypes);
     }
     
 }

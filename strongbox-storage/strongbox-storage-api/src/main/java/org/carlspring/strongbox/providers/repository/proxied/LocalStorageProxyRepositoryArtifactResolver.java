@@ -1,12 +1,24 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+
+import javax.inject.Inject;
+import javax.inject.Qualifier;
+
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.HostedRepositoryProvider;
@@ -28,7 +40,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author Przemyslaw Fusik
@@ -54,7 +65,7 @@ public class LocalStorageProxyRepositoryArtifactResolver
     {
         final Storage storage = repository.getStorage();
 
-        final Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneAritifact(storage.getId(),
+        final Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneArtifact(storage.getId(),
                                                                                             repository.getId(),
                                                                                             path);
         final InputStream result = hostedRepositoryProvider.getInputStream(storage.getId(), repository.getId(), path);
@@ -108,13 +119,12 @@ public class LocalStorageProxyRepositoryArtifactResolver
             // TODO: Validate the local checksum against the remote's checksums
             fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
 
-            RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOneAritifact(storageId,
-                                                                                                            repositoryId,
-                                                                                                            path)
+            RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOneArtifact(storageId,
+                                                                                                           repositoryId,
+                                                                                                           path)
                                                                                           .orElse(new RemoteArtifactEntry());
 
-            ArtifactCoordinates c = (ArtifactCoordinates) Files.getAttribute(artifactPath,
-                                                                             RepositoryFileAttributes.COORDINATES);
+            ArtifactCoordinates c = RepositoryFiles.readCoordinates(artifactPath);
             artifactEntry.setArtifactCoordinates(c);
             artifactEntry.setStorageId(storageId);
             artifactEntry.setRepositoryId(repositoryId);

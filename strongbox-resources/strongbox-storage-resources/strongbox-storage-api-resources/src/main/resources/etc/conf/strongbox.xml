@@ -13,6 +13,18 @@
 
     <storages>
 
+        <storage id="storage-common-npm">
+            <repositories>
+                <repository id="npm-releases"
+                            policy="release"
+                            implementation="file-system"
+                            layout="npm"
+                            type="hosted"
+                            allows-force-deletion="true"
+                            checksum-headers-enabled="true"/>
+            </repositories>
+        </storage>
+
         <storage id="nuget-common-storage">
             <repositories>
                 <repository id="nuget-releases"

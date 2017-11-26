@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.providers.io;
 
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.*;
+
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.HashMap;
@@ -10,33 +12,18 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 public class RepositoryFileAttributes implements BasicFileAttributes
 {
 
-    public static final String COORDINATES = "coordinates";
-
-    public static final String METADATA = "metadata";
-
-    public static final String CHECKSUM = "checksum";
-
-    public static final String TRASH = "trash";
-
-    public static final String TEMP = "temp";
-
-    public static final String INDEX = "index";
-
-    public static final String ARTIFACT = "artifact";
-    
     private BasicFileAttributes basicAttributes;
 
-    private Map<String, Object> attributes = new HashMap<>();
-
+    private Map<RepositoryFileAttributeType, Object> attributes = new HashMap<>();
 
     public RepositoryFileAttributes(BasicFileAttributes basicAttributes)
     {
         super();
         this.basicAttributes = basicAttributes;
     }
-    
+
     public RepositoryFileAttributes(BasicFileAttributes basicAttributes,
-                                    Map<String, Object> attributes)
+                                    Map<RepositoryFileAttributeType, Object> attributes)
     {
         super();
         this.basicAttributes = basicAttributes;

@@ -8,6 +8,11 @@ import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 
 import java.util.*;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.services.ArtifactEntryService;
+
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -19,6 +24,10 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +37,11 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * DAO implementation for {@link ArtifactEntry} entities.
  *
- * @author Alex Oreshkevich
+ * @author Sergey Bespalov
  */
 @Service
 @Transactional
-class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
-        implements ArtifactEntryService
+class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryService.class);
@@ -48,32 +56,32 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     @Override
     public <S extends ArtifactEntry> S save(S entity)
     {
-
-
         return super.save(entity);
     }
 
     @Override
-    public List<ArtifactEntry> findAritifactList(String storageId,
-                                                 String repositoryId,
-                                                 Map<String, String> coordinates)
+    public List<ArtifactEntry> findArtifactList(String storageId,
+                                                String repositoryId,
+                                                Map<String, String> coordinates)
     {
-        return findAritifactList(storageId, repositoryId, coordinates, 0, -1, null, false);
+        return findArtifactList(storageId, repositoryId, coordinates, 0, -1, null, false);
     }
 
     @Override
     @Transactional
-    public List<ArtifactEntry> findAritifactList(String storageId,
-                                                 String repositoryId,
-                                                 Map<String, String> coordinates,
-                                                 int skip,
-                                                 int limit,
-                                                 String orderBy,
-                                                 boolean strict)
+    public List<ArtifactEntry> findArtifactList(String storageId,
+                                                String repositoryId,
+                                                Map<String, String> coordinates,
+                                                int skip,
+                                                int limit,
+                                                String orderBy,
+                                                boolean strict)
     {
-        if (orderBy == null) {
+        if (orderBy == null)
+        {
             orderBy = "uuid";
         }
+
         coordinates = prepareParameterMap(coordinates, true);
 
         String sQuery = buildCoordinatesQuery(toList(storageId, repositoryId), coordinates.keySet(), skip,
@@ -139,15 +147,15 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     }
 
     @Override
-    public List<ArtifactEntry> findAritifactList(String storageId,
-                                                 String repositoryId,
-                                                 ArtifactCoordinates coordinates)
+    public List<ArtifactEntry> findArtifactList(String storageId,
+                                                String repositoryId,
+                                                ArtifactCoordinates coordinates)
     {
         if (coordinates == null)
         {
-            return findAritifactList(storageId, repositoryId, new HashMap<>());
+            return findArtifactList(storageId, repositoryId, new HashMap<>());
         }
-        return findAritifactList(storageId, repositoryId, coordinates.getCoordinates());
+        return findArtifactList(storageId, repositoryId, coordinates.getCoordinates());
     }
 
     @Override
@@ -183,9 +191,9 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     }
 
     @Override
-    public Long countAritifacts(Collection<Pair<String, String>> storageRepositoryPairList,
-                                Map<String, String> coordinates,
-                                boolean strict)
+    public Long countArtifacts(Collection<Pair<String, String>> storageRepositoryPairList,
+                               Map<String, String> coordinates,
+                               boolean strict)
     {
         coordinates = prepareParameterMap(coordinates, strict);
         String sQuery = buildCoordinatesQuery(storageRepositoryPairList, coordinates.keySet(), 0, 0, null, strict);
@@ -215,13 +223,13 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     }
 
     @Override
-    public Long countAritifacts(String storageId,
-                                String repositoryId,
-                                Map<String, String> coordinates,
-                                boolean strict)
+    public Long countArtifacts(String storageId,
+                               String repositoryId,
+                               Map<String, String> coordinates,
+                               boolean strict)
     {
-        return countAritifacts(toList(storageId, repositoryId), coordinates,
-                               strict);
+        return countArtifacts(toList(storageId, repositoryId), coordinates,
+                              strict);
     }
 
     public List<Pair<String, String>> toList(String storageId,
@@ -241,7 +249,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
 
         Pair<String, String>[] storageRepositoryPairArray = storageRepositoryPairList.toArray(new Pair[storageRepositoryPairList.size()]);
-        //COODRINATES
+        // COORDINATES
         StringBuffer c1 = new StringBuffer();
         parameterNameSet.stream()
                         .forEach(e -> c1.append(c1.length() > 0 ? " AND " : "")
@@ -256,8 +264,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         StringBuffer c2 = new StringBuffer();
         IntStream.range(0, storageRepositoryPairList.size())
                  .forEach(idx -> c2.append(idx > 0 ? " OR " : "")
-                                   .append(calculateStoregeAndRepositoryCondition(storageRepositoryPairArray[idx],
-                                                                                  idx)));
+                                   .append(calculateStorageAndRepositoryCondition(storageRepositoryPairArray[idx], idx)));
         sb.append(c2.length() > 0 ? c2.toString() : "true");
 
         //ORDER
@@ -288,7 +295,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         return sb.toString();
     }
 
-    public String calculateStoregeAndRepositoryCondition(Pair<String, String> storageRepositoryPairArray,
+    public String calculateStorageAndRepositoryCondition(Pair<String, String> storageRepositoryPairArray,
                                                          int idx)
     {
         StringBuffer result = new StringBuffer();
@@ -314,6 +321,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         {
             result.append(" true = true");
         }
+
         return result.toString();
     }
 
@@ -324,10 +332,10 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
                           .stream()
                           .filter(e -> e.getValue() != null)
                           .collect(Collectors.toMap(Map.Entry::getKey,
-                                                    e -> calculatePatameterValue(e, strict)));
+                                                    e -> calculateParameterValue(e, strict)));
     }
 
-    private String calculatePatameterValue(Entry<String, String> e,
+    private String calculateParameterValue(Entry<String, String> e,
                                            boolean strict)
     {
         String result = e.getValue() == null ? null : e.getValue().toLowerCase();
@@ -339,17 +347,17 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     }
 
     @Override
-    public boolean aritifactExists(String storageId,
-                                   String repositoryId,
-                                   String path)
+    public boolean artifactExists(String storageId,
+                                  String repositoryId,
+                                  String path)
     {
         return findArtifactEntryId(storageId, repositoryId, path) != null;
     }
 
     @Override
-    public Optional<ArtifactEntry> findOneAritifact(String storageId,
-                                                    String repositoryId,
-                                                    String path)
+    public Optional<ArtifactEntry> findOneArtifact(String storageId,
+                                                   String repositoryId,
+                                                   String path)
     {
         ORID artifactEntryIdId = findArtifactEntryId(storageId, repositoryId, path);
         return artifactEntryIdId == null ? Optional.empty()
@@ -390,6 +398,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
 
         List<ODocument> resultList = getDelegate().command(oQuery).execute(params);
         ODocument result = resultList.isEmpty() ? null : resultList.iterator().next();
+
         return result == null ? null : ((ODocument)result.field("rid")).getIdentity();
     }
 

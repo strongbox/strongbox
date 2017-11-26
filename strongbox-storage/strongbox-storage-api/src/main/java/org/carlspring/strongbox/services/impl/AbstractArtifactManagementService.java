@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -9,7 +8,7 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -87,13 +86,12 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                    ProviderImplementationException,
                    NoSuchAlgorithmException
     {
-        performRepositoryAcceptanceValidation(storageId, repositoryId, path);
-
         Storage storage = layoutProviderRegistry.getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
         
+        performRepositoryAcceptanceValidation(repositoryPath);        
         return store(repositoryPath, is);
     }
 
@@ -133,18 +131,18 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         String artifactPathRelative = repositoryPath.getResourceLocation();
         String artifactPath = storageId + "/" + repositoryId + "/" + artifactPathRelative;
 
-        LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-
+        Boolean checksumAttribute = RepositoryFiles.isChecksum(repositoryPath);
+        
         boolean updatedMetadataFile = false;
         boolean updatedArtifactFile = false;
         boolean updatedArtifactChecksumFile = false;
-        if (Files.exists(repositoryPath.getTarget()))
+        if (Files.exists(repositoryPath))
         {
-            if (layoutProvider.isMetadata(artifactPath))
+            if (RepositoryFiles.isMetadata(repositoryPath))
             {
                 updatedMetadataFile = true;
             }
-            else if (layoutProvider.isChecksum(repositoryPath))
+            else if (checksumAttribute)
             {
                 updatedArtifactChecksumFile = true;
             }
@@ -153,8 +151,6 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                 updatedArtifactFile = true;
             }
         }
-
-        Boolean checksumAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.CHECKSUM);
         
         // If we have no digests, then we have a checksum to store.
         if (Boolean.TRUE.equals(checksumAttribute))
@@ -217,7 +213,7 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         if (Boolean.TRUE.equals(checksumAttribute))
         {
             byte[] checksumValue = ((ByteArrayOutputStream) aos.getCacheOutputStream()).toByteArray();
-            if (checksumValue != null && checksumValue.length > 0 && !updatedArtifactChecksumFile)
+            if (checksumValue != null && checksumValue.length > 0)
             {
                 artifactEventListenerRegistry.dispatchArtifactChecksumUploadedEvent(storageId,
                                                                                     repositoryId,
@@ -241,12 +237,11 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         Repository repository = path.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
 
-        ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(path,
-                                                                                           RepositoryFileAttributes.COORDINATES);
+        ArtifactCoordinates artifactCoordinates = RepositoryFiles.readCoordinates(path);
 
         String artifactPath = path.getResourceLocation();
-        ArtifactEntry artifactEntry = artifactEntryService.findOneAritifact(storage.getId(), repository.getId(),
-                                                                            artifactPath)
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storage.getId(), repository.getId(),
+                                                                           artifactPath)
                                                           .orElse(createArtifactEntry(artifactCoordinates,
                                                                                       storage.getId(),
                                                                                       repository.getId(),
@@ -270,7 +265,7 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             logger.error(String.format("The checksum for %s [%s] is invalid!", artifactPath, new String(checksum)));
         }
 
-        checksumCacheManager.removeArtifactChecksum(artifactBasePath);
+        checksumCacheManager.removeArtifactChecksum(artifactBasePath, checksumExtension);
     }
 
     private boolean matchesChecksum(byte[] pChecksum,
@@ -329,24 +324,21 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         return artifactEntry;
     }
     
-    private boolean performRepositoryAcceptanceValidation(String storageId,
-                                                          String repositoryId,
-                                                          String path)
+    private boolean performRepositoryAcceptanceValidation(RepositoryPath path)
             throws IOException, ProviderImplementationException
     {
         logger.info(String.format("Validate artifact with path [%s]", path));
         
-        artifactOperationsValidator.validate(storageId, repositoryId, path);
+        Repository repository = path.getFileSystem().getRepository();
+        Storage storage = repository.getStorage();
+        
+        artifactOperationsValidator.validate(storage.getId(), repository.getId(), path.relativize().toString());
 
-        final Storage storage = getStorage(storageId);
-        final Repository repository = storage.getRepository(repositoryId);
+        ;
 
-        if (!path.contains("/maven-metadata.") &&
-            !ArtifactUtils.isMetadata(path) && !ArtifactUtils.isChecksum(path))
+        if (!RepositoryFiles.isMetadata(path) && !RepositoryFiles.isChecksum(path))
         {
-            LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-            ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(path);
-            
+            ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(path);
             logger.info(String.format("Validate artifact with coordinates [%s]", coordinates));
             
             try

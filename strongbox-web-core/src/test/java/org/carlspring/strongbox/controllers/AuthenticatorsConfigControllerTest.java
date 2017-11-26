@@ -72,7 +72,7 @@ public class AuthenticatorsConfigControllerTest
     public void registryShouldReturnExpectedInitialArrayinJson()
             throws Exception
     {
-        registryShouldReturnExpectedInitialArray("application/json", StringUtils.EMPTY);
+        registryShouldReturnExpectedInitialArray("application/json", "");
     }
 
     @Test
@@ -173,7 +173,7 @@ public class AuthenticatorsConfigControllerTest
     public void registryShouldBeReloadableWithResponseInJson()
             throws Exception
     {
-        registryShouldBeReloadable("application/json", StringUtils.EMPTY);
+        registryShouldBeReloadable("application/json", "");
     }
 
     private void registryShouldBeAbleToReorderElement(String acceptHeader,
@@ -219,7 +219,7 @@ public class AuthenticatorsConfigControllerTest
     public void registryShouldBeAbleToReorderElementsWithResponseInJson()
             throws Exception
     {
-        registryShouldBeReloadable("application/json", StringUtils.EMPTY);
+        registryShouldBeReloadable("application/json", "");
     }
 
     private static class OrientDbAuthenticator

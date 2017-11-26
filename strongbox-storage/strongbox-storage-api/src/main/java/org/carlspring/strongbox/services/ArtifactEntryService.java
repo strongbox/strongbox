@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
  * CRUD service for managing {@link ArtifactEntry} entities.
  *
  * @author Alex Oreshkevich
+ * @author Sergey Bespalov
+ * @author carlspring
  */
 @Transactional
 public interface ArtifactEntryService
@@ -33,21 +35,21 @@ public interface ArtifactEntryService
      *            search query defined as a set of coordinates (id ,version, groupID etc.)
      * @return list of artifacts or empty list if nothing was found
      */
-    List<ArtifactEntry> findAritifactList(String storageId,
-                                          String repositoryId,
-                                          ArtifactCoordinates coordinates);
+    List<ArtifactEntry> findArtifactList(String storageId,
+                                         String repositoryId,
+                                         ArtifactCoordinates coordinates);
 
-    List<ArtifactEntry> findAritifactList(String storageId,
-                                          String repositoryId,
-                                          Map<String, String> coordinates);
+    List<ArtifactEntry> findArtifactList(String storageId,
+                                         String repositoryId,
+                                         Map<String, String> coordinates);
 
-    List<ArtifactEntry> findAritifactList(String storageId,
-                                          String repositoryId,
-                                          Map<String, String> coordinates,
-                                          int skip,
-                                          int limit,
-                                          String orderBy,
-                                          boolean strict);
+    List<ArtifactEntry> findArtifactList(String storageId,
+                                         String repositoryId,
+                                         Map<String, String> coordinates,
+                                         int skip,
+                                         int limit,
+                                         String orderBy,
+                                         boolean strict);
 
     List<ArtifactEntry> findMatching(ArtifactEntrySearchCriteria searchCriteria,
                                      PagingCriteria pagingCriteria);
@@ -56,22 +58,30 @@ public interface ArtifactEntryService
                           Map<String, String> coordinates,
                           boolean strict);
 
-    Long countAritifacts(Collection<Pair<String, String>> storageRepositoryPairList,
-                         Map<String, String> coordinates,
-                         boolean strict);
+    Long countArtifacts(Collection<Pair<String, String>> storageRepositoryPairList,
+                        Map<String, String> coordinates,
+                        boolean strict);
 
-    Long countAritifacts(String storageId,
-                         String repositoryId,
-                         Map<String, String> coordinates,
-                         boolean strict);
+    Long countArtifacts(String storageId,
+                        String repositoryId,
+                        Map<String, String> coordinates,
+                        boolean strict);
 
-    boolean aritifactExists(String storageId,
-                            String repositoryId,
-                            String path);
+    boolean artifactExists(String storageId,
+                           String repositoryId,
+                           String path);
 
-    Optional<ArtifactEntry> findOneAritifact(String storageId,
-                                             String repositoryId,
-                                             String path);
+    Optional<ArtifactEntry> findOneArtifact(String storageId,
+                                            String repositoryId,
+                                            String path);
+
+    String constructArtifactURL(String storageId,
+                                String repositoryId,
+                                ArtifactCoordinates artifactCoordinates);
+
+    String getURLForArtifact(String storageId,
+                             String repositoryId,
+                             String path);
 
     int delete(List<ArtifactEntry> artifactEntries);
 

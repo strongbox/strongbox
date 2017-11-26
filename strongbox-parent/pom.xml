@@ -279,7 +279,12 @@
                     <groupId>org.codehaus.gmavenplus</groupId>
                     <artifactId>gmavenplus-plugin</artifactId>
                     <version>1.5</version>
-                </plugin>                
+                </plugin>
+                <plugin>
+                    <groupId>org.jsonschema2pojo</groupId>
+                    <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+                    <version>0.5.1</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -457,6 +462,12 @@
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
                 <version>1.9.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.15</version>
             </dependency>
 
             <dependency>
@@ -851,7 +862,19 @@
                 <artifactId>javatuples</artifactId>
                 <version>1.2</version>
             </dependency>
-                        
+
+            <dependency>
+                <groupId>org.semver</groupId>
+                <artifactId>api</artifactId>
+                <version>0.9.33</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-lang</groupId>
+                        <artifactId>commons-lang</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

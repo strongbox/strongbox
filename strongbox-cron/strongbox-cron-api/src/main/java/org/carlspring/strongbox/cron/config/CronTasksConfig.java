@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
-@ComponentScan({ "org.carlspring.strongbox.cron" })
+@ComponentScan({ "org.carlspring.strongbox.cron", "org.carlspring.strongbox.dependency.snippet" })
 @Import({ DataServiceConfig.class,
           StorageCoreConfig.class
 })

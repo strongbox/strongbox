@@ -1,5 +1,19 @@
 package org.carlspring.strongbox.providers.layout;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.spi.FileSystemProvider;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.inject.Inject;
+
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -7,7 +21,11 @@ import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.providers.io.*;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
@@ -15,19 +33,6 @@ import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.spi.FileSystemProvider;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +61,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     @Inject
     private RepositoryEventListenerRegistry repositoryEventListenerRegistry;
-
 
     public LayoutProviderRegistry getLayoutProviderRegistry()
     {
@@ -406,7 +410,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     @Override
     public boolean isChecksum(RepositoryPath repositoryPath)
     {
-        return repositoryPath.getFileSystem().provider().isChecksum(repositoryPath);
+        return isChecksum(repositoryPath.getFileName().toString());
     }
 
     @Override
@@ -422,31 +426,83 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         artifactEventListenerRegistry.dispatchArtifactArchivedEvent(storageId, repositoryId, path);
     }
 
-    protected Map<String, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath)
+    protected boolean isChecksum(String fileName)
     {
-        RepositoryFileSystemProvider provider = repositoryRelativePath.getFileSystem().provider();
-
-        boolean isChecksum = provider.isChecksum(repositoryRelativePath);
-        boolean isIndex = repositoryRelativePath.startsWith(".index");
-        boolean isTemp = repositoryRelativePath.startsWith(".temp");
-        boolean isTrash = repositoryRelativePath.startsWith(".trash");
-        boolean isMetadata = isMetadata(repositoryRelativePath.toString());
-        boolean isHidden = isTemp || isTrash || isMetadata;
-        boolean isArtifact = !isChecksum && !isIndex && !isHidden;
-
-        Map<String, Object> result = new HashMap<>();
-        result.put(RepositoryFileAttributes.CHECKSUM, isChecksum);
-        result.put(RepositoryFileAttributes.INDEX, isIndex);
-        result.put(RepositoryFileAttributes.TEMP, isTemp);
-        result.put(RepositoryFileAttributes.TRASH, isTrash);
-        result.put(RepositoryFileAttributes.METADATA, isMetadata);
-        result.put(RepositoryFileAttributes.ARTIFACT, isArtifact);
-
-        if (!Files.isDirectory(repositoryRelativePath.getTarget()) && isArtifact)
+        for (String e : getDigestAlgorithmSet())
         {
-            result.put(RepositoryFileAttributes.COORDINATES, getArtifactCoordinates(repositoryRelativePath.toString()));
+            if (fileName.toString().endsWith("." + e.replaceAll("-", "").toLowerCase()))
+            {
+                return true;
+            }
         }
         
+        return false;
+    }
+
+    
+    protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryPath,
+                                                                                   RepositoryFileAttributeType... attributeTypes)
+    {
+        if (attributeTypes == null || attributeTypes.length == 0)
+        {
+            return Collections.emptyMap();
+        }
+
+        Map<RepositoryFileAttributeType, Object> result = new HashMap<>();
+        for (RepositoryFileAttributeType repositoryFileAttributeType : attributeTypes)
+        {
+            Object value;
+            switch (repositoryFileAttributeType)
+            {
+            default:
+                Map<RepositoryFileAttributeType, Object> attributesLocal;
+                value = null;
+                break;
+            case CHECKSUM:
+                value = isChecksum(repositoryPath);
+                break;
+            case INDEX:
+                value = repositoryPath.startsWith(".index");
+                break;
+            case TEMP:
+                value = repositoryPath.startsWith(".temp");
+                break;
+            case TRASH:
+                value = repositoryPath.startsWith(".trash");
+                break;
+            case METADATA:
+                value = isMetadata(repositoryPath.toString());
+                break;
+            case ARTIFACT:
+                attributesLocal = getRepositoryFileAttributes(repositoryPath,
+                                                              RepositoryFileAttributeType.TEMP,
+                                                              RepositoryFileAttributeType.TRASH,
+                                                              RepositoryFileAttributeType.METADATA,
+                                                              RepositoryFileAttributeType.INDEX,
+                                                              RepositoryFileAttributeType.CHECKSUM);
+                boolean isMetadata = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.METADATA));
+                boolean isTrash = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.TRASH));
+                boolean isTemp = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.TEMP));
+                boolean isIndex = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.INDEX));
+                boolean isChecksum = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.CHECKSUM));
+                boolean isHidden = isTemp || isTrash || isMetadata;
+                boolean isDirectory = Files.isDirectory(repositoryPath.getTarget());
+                value = !isChecksum && !isIndex && !isHidden && !isDirectory;
+                break;
+            case COORDINATES:
+                attributesLocal = getRepositoryFileAttributes(repositoryPath,
+                                                              RepositoryFileAttributeType.ARTIFACT);
+                boolean isArtifact = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.ARTIFACT));
+                value = isArtifact ? getArtifactCoordinates(repositoryPath.toString()) : null;
+                break;
+
+            }
+            if (value != null)
+            {
+                result.put(repositoryFileAttributeType, value);
+            }
+        }
+
         return result;
     }
     

@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component("mavenIndexerSearchProvider")
 public class MavenIndexerSearchProvider
-        implements SearchProvider
+        extends AbstractSearchProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenIndexerSearchProvider.class);
@@ -142,8 +142,7 @@ public class MavenIndexerSearchProvider
 
                         final String contextId = storage.getId() + ":" + r.getId() + ":" + indexType;
 
-                        final RepositoryIndexer
-                                repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+                        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
                         if (repositoryIndexer != null)
                         {
                             final Set<SearchResult> sr = repositoryIndexer.search(searchRequest.getQuery());

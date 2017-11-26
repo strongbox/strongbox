@@ -141,7 +141,8 @@ public class MetadataHelper
         else
         {
             // Regular mode
-            versioning.setRelease(versions.get(versions.size() - 1));
+            String newRelease = versions.isEmpty() ? null : versions.get(versions.size() - 1);
+            versioning.setRelease(newRelease);
         }
     }
 
