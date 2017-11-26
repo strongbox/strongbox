@@ -3,6 +3,8 @@ package org.carlspring.strongbox.storage.search;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 import javax.xml.bind.annotation.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author mtodorov
@@ -23,6 +25,13 @@ public class SearchResult
 
     @XmlElement
     private String url;
+
+    /**
+     * K: The compatible dependency format's alias
+     * V: The string representation of the snippet.
+     */
+    @XmlElement
+    private Map<String, String> snippets = new LinkedHashMap<>();
 
 
     public SearchResult()
@@ -83,6 +92,16 @@ public class SearchResult
     public void setUrl(String url)
     {
         this.url = url;
+    }
+
+    public Map<String, String> getSnippets()
+    {
+        return snippets;
+    }
+
+    public void setSnippets(Map<String, String> snippets)
+    {
+        this.snippets = snippets;
     }
 
     @Override

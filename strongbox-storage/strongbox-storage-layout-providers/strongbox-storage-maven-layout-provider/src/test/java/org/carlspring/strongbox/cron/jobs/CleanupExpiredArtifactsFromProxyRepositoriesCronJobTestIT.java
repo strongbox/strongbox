@@ -61,7 +61,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         final String repositoryId = "maven-central";
         final String path = "org/carlspring/properties-injector/1.6/properties-injector-1.6.jar";
 
-        Optional<ArtifactEntry> artifactEntryOptional = artifactEntryService.findOneAritifact(storageId, repositoryId,
+        Optional<ArtifactEntry> artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId,
                                                                                               path);
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
@@ -69,7 +69,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         {
         }
 
-        artifactEntryOptional = artifactEntryService.findOneAritifact(storageId, repositoryId, path);
+        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId, path);
         ArtifactEntry artifactEntry = artifactEntryOptional.orElse(null);
         assertThat(artifactEntry, CoreMatchers.notNullValue());
         assertThat(artifactEntry.getLastUpdated(), CoreMatchers.notNullValue());
@@ -88,12 +88,12 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         {
             if (jobName1.equals(jobName) && statusExecuted)
             {
-                Optional<ArtifactEntry> optionalArtifactEntryFromDb = artifactEntryService.findOneAritifact(storageId,
+                Optional<ArtifactEntry> optionalArtifactEntryFromDb = artifactEntryService.findOneArtifact(storageId,
                                                                                                             repositoryId,
                                                                                                             path);
                 assertThat(optionalArtifactEntryFromDb, CoreMatchers.equalTo(Optional.empty()));
 
-                Optional<ArtifactEntry> artifactMetadataOptional = artifactEntryService.findOneAritifact(storageId,
+                Optional<ArtifactEntry> artifactMetadataOptional = artifactEntryService.findOneArtifact(storageId,
                                                                                                          repositoryId,
                                                                                                          StringUtils.replace(
                                                                                                                  path,

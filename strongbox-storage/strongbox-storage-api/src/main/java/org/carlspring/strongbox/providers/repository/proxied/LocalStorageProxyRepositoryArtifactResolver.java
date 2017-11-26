@@ -65,7 +65,7 @@ public class LocalStorageProxyRepositoryArtifactResolver
     {
         final Storage storage = repository.getStorage();
 
-        final Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneAritifact(storage.getId(),
+        final Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneArtifact(storage.getId(),
                                                                                             repository.getId(),
                                                                                             path);
         final InputStream result = hostedRepositoryProvider.getInputStream(storage.getId(), repository.getId(), path);
@@ -119,9 +119,9 @@ public class LocalStorageProxyRepositoryArtifactResolver
             // TODO: Validate the local checksum against the remote's checksums
             fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
 
-            RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOneAritifact(storageId,
-                                                                                                            repositoryId,
-                                                                                                            path)
+            RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOneArtifact(storageId,
+                                                                                                           repositoryId,
+                                                                                                           path)
                                                                                           .orElse(new RemoteArtifactEntry());
 
             ArtifactCoordinates c = RepositoryFiles.readCoordinates(artifactPath);

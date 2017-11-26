@@ -62,7 +62,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleanerTestIT
         String repositoryId = "maven-central";
         String path = "org/carlspring/properties-injector/1.6/properties-injector-1.6.jar";
 
-        Optional<ArtifactEntry> artifactEntryOptional = artifactEntryService.findOneAritifact(storageId, repositoryId,
+        Optional<ArtifactEntry> artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId,
                                                                                               path);
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
@@ -70,7 +70,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleanerTestIT
         {
         }
 
-        artifactEntryOptional = artifactEntryService.findOneAritifact(storageId, repositoryId, path);
+        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId, path);
         ArtifactEntry artifactEntry = artifactEntryOptional.orElse(null);
         assertThat(artifactEntry, CoreMatchers.notNullValue());
         assertThat(artifactEntry.getLastUpdated(), CoreMatchers.notNullValue());
@@ -85,10 +85,10 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleanerTestIT
         artifactEntryService.save(artifactEntry);
 
         localStorageProxyRepositoryExpiredArtifactsCleaner.cleanup(5, sizeInBytes - 1);
-        artifactEntryOptional = artifactEntryService.findOneAritifact(storageId, repositoryId, path);
+        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId, path);
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
-        Optional<ArtifactEntry> artifactMetadataOptional = artifactEntryService.findOneAritifact(storageId,
+        Optional<ArtifactEntry> artifactMetadataOptional = artifactEntryService.findOneArtifact(storageId,
                                                                                                  repositoryId,
                                                                                                  StringUtils.replace(
                                                                                                          path,

@@ -3,7 +3,6 @@ package org.carlspring.strongbox.repository;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -22,11 +21,10 @@ import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.CustomConfiguration;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.xml.configuration.repository.NugetRepositoryConfiguration;
-import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -140,7 +138,7 @@ public class NugetRepositoryFeatures
                 NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates(packageId,
                         packageVersion,
                         "nupkg");
-                if (!artifactEntryService.aritifactExists(storageId, repositoryId, c.toPath()))
+                if (!artifactEntryService.artifactExists(storageId, repositoryId, c.toPath()))
                 {
                     artifactToSaveSet.add(c);
                 }
@@ -184,8 +182,8 @@ public class NugetRepositoryFeatures
             String packageId = coordinates.get(NugetArtifactCoordinates.ID);
             String version = coordinates.get(NugetArtifactCoordinates.VERSION);
 
-            Long packageCount = artifactEntryService.countAritifacts(storage.getId(), repository.getId(), coordinates,
-                                                                     repositorySearchRequest.isStrict());
+            Long packageCount = artifactEntryService.countArtifacts(storage.getId(), repository.getId(), coordinates,
+                                                                    repositorySearchRequest.isStrict());
             logger.debug(String.format("Remote repository [%s] cached package count is [%s]", repository.getId(),
                                        packageCount));
 

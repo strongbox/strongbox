@@ -96,12 +96,12 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         Repository repository = storage.getRepository(searchRequest.getRepositoryId());
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         
-        List<ArtifactEntry> artifactEntryList = artifactEntryService.findAritifactList(searchRequest.getStorageId(),
-                                                                                       searchRequest.getRepositoryId(),
-                                                                                       searchRequest.getCoordinates(),
-                                                                                       pageRequest.getSkip(),
-                                                                                       pageRequest.getLimit(),
-                                                                                       pageRequest.getOrderBy(), false);
+        List<ArtifactEntry> artifactEntryList = artifactEntryService.findArtifactList(searchRequest.getStorageId(),
+                                                                                      searchRequest.getRepositoryId(),
+                                                                                      searchRequest.getCoordinates(),
+                                                                                      pageRequest.getSkip(),
+                                                                                      pageRequest.getLimit(),
+                                                                                      pageRequest.getOrderBy(), false);
         
         for (ArtifactEntry artifactEntry : artifactEntryList)
         {
@@ -125,8 +125,8 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     @Override
     public Long count(RepositorySearchRequest searchRequest)
     {
-        return artifactEntryService.countAritifacts(searchRequest.getStorageId(), searchRequest.getRepositoryId(),
-                                                       searchRequest.getCoordinates(), searchRequest.isStrict());
+        return artifactEntryService.countArtifacts(searchRequest.getStorageId(), searchRequest.getRepositoryId(),
+                                                   searchRequest.getCoordinates(), searchRequest.isStrict());
     }
 
 }

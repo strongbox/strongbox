@@ -14,7 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orientechnologies.orient.core.entity.OEntityManager;
 
 @Configuration
-@ComponentScan({ "org.carlspring.strongbox.event",
+@ComponentScan({ "org.carlspring.strongbox.dependency.snippet",
+                 "org.carlspring.strongbox.event",
                  "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
