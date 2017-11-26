@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.checksum;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -11,21 +12,19 @@ public class ArtifactChecksum
 {
 
     /**
-     * Key:   Algorithm
-     * Value: Checksum
+     * Key: Algorithm Value: Checksum
      */
     private Map<String, String> checksums = new LinkedHashMap<>();
 
     /**
-     * The last time this checksum object was accessed in any way.
-     * Used to determine when to remove entries from the cache manager.
+     * The last time this checksum object was accessed in any way. Used to determine when to remove entries from the
+     * cache manager.
      */
     private long lastAccessed;
 
     private AtomicInteger numberOfChecksums = new AtomicInteger(0);
 
     private AtomicInteger numberOfValidatedChecksums = new AtomicInteger(0);
-
 
     public ArtifactChecksum()
     {
@@ -45,10 +44,18 @@ public class ArtifactChecksum
         lastAccessed = System.currentTimeMillis();
     }
 
-    public synchronized void removeChecksum(String algorithm)
+    public synchronized String removeChecksum(String algorithm)
     {
-        checksums.remove(algorithm);
+        String result = checksums.keySet()
+                                 .stream()
+                                 .filter(k -> k.replace("-", "")
+                                               .toLowerCase()
+                                               .equals(algorithm.replace("-", "").toLowerCase()))
+                                 .findFirst()
+                                 .map(a -> checksums.remove(a))
+                                 .get();
         updateLastAccessedTime();
+        return result;
     }
 
     public String getChecksum(String algorithm)
@@ -85,6 +92,14 @@ public class ArtifactChecksum
     public void setLastAccessed(long lastAccessed)
     {
         this.lastAccessed = lastAccessed;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer();
+        checksums.entrySet().stream().map(e -> "[" + e.getKey() + "]-[" + e.getValue() + "];").forEach(sb::append);
+        return sb.toString();
     }
 
 }

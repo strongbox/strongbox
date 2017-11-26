@@ -265,7 +265,7 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             logger.error(String.format("The checksum for %s [%s] is invalid!", artifactPath, new String(checksum)));
         }
 
-        checksumCacheManager.removeArtifactChecksum(artifactBasePath);
+        checksumCacheManager.removeArtifactChecksum(artifactBasePath, checksumExtension);
     }
 
     private boolean matchesChecksum(byte[] pChecksum,

@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage.checksum;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -120,14 +121,18 @@ public class ChecksumCacheManager
     public synchronized void removeArtifactChecksum(String artifactBasePath,
                                                     String algorithm)
     {
-        logger.debug("Removing " + algorithm + " checksum for artifact '" + artifactBasePath + "' from cache.");
-        getArtifactChecksum(artifactBasePath).removeChecksum(algorithm);
+        Optional.ofNullable(getArtifactChecksum(artifactBasePath)).map(ac -> {
+            logger.debug(String.format("Removed [%s] artifact checksum value [%s] from cache.", artifactBasePath,
+                                       ac.removeChecksum(algorithm)));
+            return ac;
+        }).filter(ac -> ac.getChecksums().isEmpty()).ifPresent(ac -> cachedChecksums.values().remove(ac));
     }
 
     public synchronized void removeArtifactChecksum(String artifactBasePath)
     {
-        logger.debug("Removing artifact '" + artifactBasePath + "' from cache.");
-        cachedChecksums.remove(artifactBasePath);
+        Optional.ofNullable(cachedChecksums.remove(artifactBasePath))
+                .ifPresent(ac -> logger.debug(String.format("Removed [%s] artifact checksum value [%s] from cache.",
+                                                            artifactBasePath, ac)));
     }
 
     public synchronized void removeExpiredChecksums()
