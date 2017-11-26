@@ -36,4 +36,13 @@ public class CronTasksConfiguration
     {
         this.cronTaskConfigurations = cronTaskConfigurations;
     }
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("CronTasksConfiguration{");
+        sb.append("cronTaskConfigurations=").append(cronTaskConfigurations);
+        sb.append('}');
+        return sb.toString();
+    }
 }

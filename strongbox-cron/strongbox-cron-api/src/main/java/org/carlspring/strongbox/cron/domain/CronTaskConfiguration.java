@@ -13,8 +13,6 @@ import java.util.Map;
 
 import org.springframework.util.Assert;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 /**
  * @author Yougeshwar
  */
@@ -113,12 +111,13 @@ public class CronTaskConfiguration
     @Override
     public String toString()
     {
-        return new ToStringBuilder(this)
-                       .append("name", name)
-                       .append("properties", properties)
-                       .append("oneTimeExecution", oneTimeExecution)
-                       .append("immediateExecution", immediateExecution)
-                       .append("uuid", uuid)
-                       .toString();
+        final StringBuilder sb = new StringBuilder("CronTaskConfiguration{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", properties=").append(properties);
+        sb.append(", oneTimeExecution=").append(oneTimeExecution);
+        sb.append(", immediateExecution=").append(immediateExecution);
+        sb.append(", uuid='").append(uuid).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }
