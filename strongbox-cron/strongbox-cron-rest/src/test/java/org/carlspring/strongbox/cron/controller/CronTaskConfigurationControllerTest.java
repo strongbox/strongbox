@@ -2,6 +2,7 @@ package org.carlspring.strongbox.cron.controller;
 
 import org.carlspring.strongbox.cron.context.CronTaskRestTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTasksConfiguration;
 import org.carlspring.strongbox.cron.jobs.MyTask;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
@@ -9,8 +10,11 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import io.restassured.module.mockmvc.response.MockMvcResponse;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -19,6 +23,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Alex Oreshkevich
@@ -33,13 +38,54 @@ public class CronTaskConfigurationControllerTest
 
     private final String cronName2 = "CRJG001";
 
-
     @Override
     public void init()
             throws Exception
     {
         super.init();
         setContextBaseUrl(getContextBaseUrl() + "/configuration/crontasks");
+    }
+
+    @Test
+    public void downloadRemoteMavenIndexCronJobShouldHaveWorkingPreCreateCallback()
+            throws Exception
+    {
+        List<CronTaskConfiguration> configurationList = getDownloadRemoteMavenIndexOfCarlspringCronJobs();
+
+        assertThat(configurationList.size(), CoreMatchers.equalTo(1));
+        CronTaskConfiguration configuration = configurationList.get(0);
+        assertThat(configuration.getProperties().keySet().size(), CoreMatchers.equalTo(4));
+        assertThat(configuration.getProperties().get("cronExpression"), CoreMatchers.equalTo("0 11 11 11 11 ? 2100"));
+        assertThat(configuration.getName(),
+                   CoreMatchers.not(CoreMatchers.equalTo("This is completely new name for this job")));
+
+        configuration.addProperty("cronExpression", "0 0 0 * * ?");
+        configuration.setName("This is completely new name for this job");
+
+        client.put2(getContextBaseUrl() + "/cron", configuration,
+                    MediaType.APPLICATION_JSON_VALUE);
+
+        configurationList = getDownloadRemoteMavenIndexOfCarlspringCronJobs();
+        assertThat(configurationList.size(), CoreMatchers.equalTo(1));
+        configuration = configurationList.get(0);
+        assertThat(configuration.getProperties().keySet().size(), CoreMatchers.equalTo(4));
+        assertThat(configuration.getProperties().get("cronExpression"), CoreMatchers.equalTo("0 0 0 * * ?"));
+        assertThat(configuration.getName(), CoreMatchers.equalTo("This is completely new name for this job"));
+    }
+
+    private List<CronTaskConfiguration> getDownloadRemoteMavenIndexOfCarlspringCronJobs()
+    {
+        final CronTasksConfiguration cronTasksConfiguration = given().accept(MediaType.APPLICATION_XML_VALUE)
+                                                                     .when()
+                                                                     .get(getContextBaseUrl() + "/")
+                                                                     .peek()
+                                                                     .as(CronTasksConfiguration.class);
+
+        return cronTasksConfiguration.getCronTaskConfigurations().stream().filter(
+                p -> "org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob".equals(
+                        p.getRequiredProperty("jobClass"))).filter(
+                p -> "storage-common-proxies".equals(p.getProperty("storageId"))).filter(
+                p -> "carlspring".equals(p.getProperty("repositoryId"))).collect(Collectors.toList());
     }
 
     @Test

@@ -32,11 +32,15 @@ class CronTaskConfigurationServiceImpl
 {
 
     private final Logger logger = LoggerFactory.getLogger(CronTaskConfigurationServiceImpl.class);
+
     @Inject
     protected CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
+
     private AutowireCapableBeanFactory beanFactory;
+
     @Inject
     private CronTaskDataService cronTaskDataService;
+
     @Inject
     private CronJobSchedulerService cronJobSchedulerService;
 

@@ -1,22 +1,18 @@
 package org.carlspring.strongbox.cron.controller;
 
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.cron.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.exceptions.CronTaskException;
+import org.carlspring.strongbox.cron.domain.CronTasksConfiguration;
 import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
+import org.carlspring.strongbox.cron.exceptions.CronTaskException;
+import org.carlspring.strongbox.cron.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,9 +39,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class CronTaskController
         extends BaseController
 {
-
-    private final GenericParser<CronTaskConfiguration> configParser = new GenericParser<>(CronTaskConfiguration.class);
-
     @Inject
     CronTaskConfigurationService cronTaskConfigurationService;
 
@@ -136,7 +129,7 @@ public class CronTaskController
 
         try
         {
-            return ResponseEntity.ok(configParser.serialize(config));
+            return ResponseEntity.ok(config);
         }
         catch (Exception e)
         {
@@ -161,7 +154,7 @@ public class CronTaskController
                                  .body("There are no cron task configs");
         }
 
-        return ResponseEntity.ok(configList);
+        return ResponseEntity.ok(new CronTasksConfiguration(configList));
     }
 
     @ApiOperation(value = "Used to upload groovy script for groovy cron task", position = 4)

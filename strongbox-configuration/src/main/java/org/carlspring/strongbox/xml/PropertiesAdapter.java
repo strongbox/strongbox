@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.xml;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,11 +20,25 @@ public class PropertiesAdapter
         extends XmlAdapter<ElementWrapper<Node>, Map<String, String>>
 {
 
+    private DocumentBuilder documentBuilder;
+
+    private DocumentBuilder getDocumentBuilder()
+            throws Exception
+    {
+        if (null == documentBuilder)
+        {
+            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            documentBuilder = dbf.newDocumentBuilder();
+        }
+        return documentBuilder;
+
+    }
+
     @Override
     public ElementWrapper<Node> marshal(final Map<String, String> map)
             throws Exception
     {
-        final Document document = new DocumentImpl();
+        final Document document = getDocumentBuilder().newDocument();
         final List<Node> nodes = new ArrayList<>();
         for (final Map.Entry<String, String> entry : map.entrySet())
         {

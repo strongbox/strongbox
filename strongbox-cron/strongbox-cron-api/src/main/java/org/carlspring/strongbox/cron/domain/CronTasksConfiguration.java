@@ -18,6 +18,15 @@ public class CronTasksConfiguration
     @XmlElement(name = "cron-task-configuration")
     private List<CronTaskConfiguration> cronTaskConfigurations = new ArrayList<>();
 
+    public CronTasksConfiguration()
+    {
+    }
+
+    public CronTasksConfiguration(final List<CronTaskConfiguration> cronTaskConfigurations)
+    {
+        this.cronTaskConfigurations = cronTaskConfigurations;
+    }
+
     public List<CronTaskConfiguration> getCronTaskConfigurations()
     {
         return cronTaskConfigurations;
