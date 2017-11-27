@@ -59,7 +59,8 @@ public class BaseCronTestCase
     @Override
     public void handle(CronTaskEvent event)
     {
-        logger.debug("Received event type " + event.getType() + " for " + event.getName());
+        logger.debug("Received event type {} for {}. Expected event type {}, Expected event name {}", event.getType(),
+                     event.getName(), expectedEventType, expectedCronTaskName);
 
         if (event.getType() == expectedEventType &&
             (event.getName() != null && event.getName().equals(expectedCronTaskName)))
