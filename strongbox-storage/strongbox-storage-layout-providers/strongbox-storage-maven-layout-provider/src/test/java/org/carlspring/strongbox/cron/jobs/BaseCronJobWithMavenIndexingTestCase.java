@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
 import org.carlspring.strongbox.event.cron.CronTaskEventListener;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
@@ -25,13 +25,11 @@ public class BaseCronJobWithMavenIndexingTestCase
         extends TestCaseWithMavenArtifactGenerationAndIndexing
         implements CronTaskEventListener
 {
+
     public static final long CRON_TASK_CHECK_INTERVAL = 500L;
 
     @Inject
     protected CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
-
-    @Inject
-    protected CronJobSchedulerService cronJobSchedulerService;
 
     @Inject
     protected CronTaskConfigurationService cronTaskConfigurationService;
@@ -44,11 +42,11 @@ public class BaseCronJobWithMavenIndexingTestCase
      */
     protected Map<String, CronTaskConfiguration> cronTaskConfigurations = new LinkedHashMap<>();
 
-    protected int expectedEventType;
+    protected int expectedEventType = CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType();
 
     protected CronTaskEvent receivedEvent;
 
-    protected boolean receivedExpectedEvent = false;
+    protected boolean receivedExpectedEvent;
 
     protected String expectedJobName;
 
@@ -74,7 +72,7 @@ public class BaseCronJobWithMavenIndexingTestCase
                                                      String repositoryId)
             throws Exception
     {
-        return addCronJobConfig(jobName,className,storageId, repositoryId,null);
+        return addCronJobConfig(jobName, className, storageId, repositoryId, null);
     }
 
     protected CronTaskConfiguration addCronJobConfig(String jobName,
@@ -95,7 +93,9 @@ public class BaseCronJobWithMavenIndexingTestCase
         return addCronJobConfig(jobName, className, properties);
     }
 
-    protected CronTaskConfiguration addCronJobConfig(String jobName, Class<? extends JavaCronJob> className, Map<String, String> properties)
+    protected CronTaskConfiguration addCronJobConfig(String jobName,
+                                                     Class<? extends JavaCronJob> className,
+                                                     Map<String, String> properties)
             throws Exception
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
@@ -130,29 +130,26 @@ public class BaseCronJobWithMavenIndexingTestCase
         }
     }
 
-    public boolean expectEvent(String jobName, int expectedEventType)
+    public boolean expectEvent()
             throws InterruptedException
     {
-        return expectEvent(jobName, expectedEventType, 5000, CRON_TASK_CHECK_INTERVAL);
+        return expectEvent(5000, CRON_TASK_CHECK_INTERVAL);
     }
 
     /**
      * Waits for an event to occur.
      *
-     * @param expectedEventType     The event type to wait for
-     * @param maxWaitTime           The maximum wait time (in milliseconds)
-     * @param checkInterval         The interval (in milliseconds) at which to check for the occurrence of the event
+     * @param maxWaitTime   The maximum wait time (in milliseconds)
+     * @param checkInterval The interval (in milliseconds) at which to check for the occurrence of the event
      */
-    public boolean expectEvent(String jobName, int expectedEventType, long maxWaitTime, long checkInterval)
+    public boolean expectEvent(long maxWaitTime,
+                               long checkInterval)
             throws InterruptedException
     {
-        this.expectedJobName = jobName;
-        this.expectedEventType = expectedEventType;
-
         int totalWait = 0;
         while (!receivedExpectedEvent &&
                (maxWaitTime > 0 && totalWait <= maxWaitTime || // If a maxWaitTime has been defined,
-                maxWaitTime == 0 ))                            // otherwise, default to forever
+                maxWaitTime == 0))                            // otherwise, default to forever
         {
             Thread.sleep(checkInterval);
             totalWait += checkInterval;
@@ -161,50 +158,10 @@ public class BaseCronJobWithMavenIndexingTestCase
         return receivedExpectedEvent;
     }
 
-    public CronTaskConfiguration getCronTaskConfiguration(String key)
-    {
-        return cronTaskConfigurations.get(key);
-    }
-
     public CronTaskConfiguration addCronTaskConfiguration(String key,
                                                           CronTaskConfiguration value)
     {
         return cronTaskConfigurations.put(key, value);
-    }
-
-    public CronTaskConfiguration removeCronTaskConfiguration(String key)
-    {
-        return cronTaskConfigurations.remove(key);
-    }
-
-    public int getExpectedEventType()
-    {
-        return expectedEventType;
-    }
-
-    public void setExpectedEventType(int expectedEventType)
-    {
-        this.expectedEventType = expectedEventType;
-    }
-
-    public CronTaskEvent getReceivedEvent()
-    {
-        return receivedEvent;
-    }
-
-    public void setReceivedEvent(CronTaskEvent receivedEvent)
-    {
-        this.receivedEvent = receivedEvent;
-    }
-
-    public boolean isReceivedExpectedEvent()
-    {
-        return receivedExpectedEvent;
-    }
-
-    public void setReceivedExpectedEvent(boolean receivedExpectedEvent)
-    {
-        this.receivedExpectedEvent = receivedExpectedEvent;
     }
 
 }

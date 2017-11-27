@@ -4,17 +4,13 @@ import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,11 +18,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -62,6 +57,16 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED = "org/carlspring/strongbox/strongbox-timestamped-first";
 
+    @Rule
+    public TestRule watcher = new TestWatcher()
+    {
+        @Override
+        protected void starting(final Description description)
+        {
+            expectedJobName = description.getMethodName();
+        }
+    };
+
     private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     @Inject
@@ -75,6 +80,15 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS_2));
+        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_SNAPSHOTS_1));
+        return repositories;
     }
 
     @Before
@@ -149,15 +163,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         cleanUp();
     }
 
-    public static Set<Repository> getRepositoriesToClean()
-    {
-        Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS_2));
-        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_SNAPSHOTS_1));
-        return repositories;
-    }
-
     private void rebuildArtifactsMetadata()
             throws Exception
     {
@@ -175,7 +180,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     public void testRemoveTimestampedSnapshot()
             throws Exception
     {
-        String jobName = "RemoveSnapshot-1";
+        String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-timestamped-first";
 
@@ -206,15 +211,14 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                              properties.put("keepPeriod", "0");
                          });
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
     @Test
     public void testRemoveTimestampedSnapshotInRepository()
             throws Exception
     {
-        String jobName = "RemoveSnapshot-2";
+        String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-timestamped-second";
 
@@ -251,15 +255,14 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                              properties.put("keepPeriod", "0");
                          });
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
     @Test
     public void testRemoveTimestampedSnapshotInStorage()
             throws Exception
     {
-        String jobName = "RemoveSnapshot-3";
+        String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_2 + "/org/carlspring/strongbox/strongbox-timestamped-first";
 
@@ -299,15 +302,14 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                              properties.put("keepPeriod", "0");
                          });
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
     @Test
     public void testRemoveTimestampedSnapshotInStorages()
             throws Exception
     {
-        String jobName = "RemoveSnapshot-4";
+        String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_3 + "/org/carlspring/strongbox/strongbox-timestamped-first";
 
@@ -341,8 +343,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                              properties.put("keepPeriod", "3");
                          });
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
     private String getSnapshotArtifactVersion(File artifactFile)

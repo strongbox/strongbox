@@ -2,7 +2,6 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
@@ -15,10 +14,10 @@ import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -53,6 +52,16 @@ public class RebuildMavenIndexesCronJobTestIT
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_INDEXES = "org/carlspring/strongbox/indexes/strongbox-test-one";
 
+    @Rule
+    public TestRule watcher = new TestWatcher()
+    {
+        @Override
+        protected void starting(final Description description)
+        {
+            expectedJobName = description.getMethodName();
+        }
+    };
+
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
@@ -67,6 +76,16 @@ public class RebuildMavenIndexesCronJobTestIT
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
+        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
+
+        return repositories;
     }
 
     @Before
@@ -102,21 +121,11 @@ public class RebuildMavenIndexesCronJobTestIT
         removeRepositories(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
-    {
-        Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
-
-        return repositories;
-    }
-
     @Test
     public void testRebuildArtifactsIndexes()
             throws Exception
     {
-        String jobName = "RebuildIndex-1";
+        String jobName = expectedJobName;
 
         // Checking if job was executed
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
@@ -144,15 +153,14 @@ public class RebuildMavenIndexesCronJobTestIT
         addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, REPOSITORY_RELEASES_1,
                          properties -> properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_INDEXES));
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
     @Test
     public void testRebuildIndexesInRepository()
             throws Exception
     {
-        String jobName = "RebuildIndex-2";
+        String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             if (jobName1.equals(jobName) && statusExecuted)
@@ -188,15 +196,14 @@ public class RebuildMavenIndexesCronJobTestIT
 
         addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, REPOSITORY_RELEASES_1);
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
     @Test
     public void testRebuildIndexesInStorage()
             throws Exception
     {
-        String jobName = "RebuildIndex-3";
+        String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             if (jobName1.equals(jobName) && statusExecuted)
@@ -232,15 +239,14 @@ public class RebuildMavenIndexesCronJobTestIT
 
         addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, null);
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
     @Test
     public void testRebuildIndexesInStorages()
             throws Exception
     {
-        String jobName = "RebuildIndex-4";
+        String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             if (jobName1.equals(jobName) && statusExecuted)
@@ -276,8 +282,7 @@ public class RebuildMavenIndexesCronJobTestIT
 
         addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, null, null);
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
 }

@@ -3,7 +3,6 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -19,10 +18,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -59,6 +58,16 @@ public class RegenerateMavenChecksumCronJobTestIT
 
     private static Artifact snapshotArtifact_2;
 
+    @Rule
+    public TestRule watcher = new TestWatcher()
+    {
+        @Override
+        protected void starting(final Description description)
+        {
+            expectedJobName = description.getMethodName();
+        }
+    };
+
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
@@ -73,6 +82,15 @@ public class RegenerateMavenChecksumCronJobTestIT
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
+        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES));
+        return repositories;
     }
 
     @Before
@@ -116,20 +134,11 @@ public class RegenerateMavenChecksumCronJobTestIT
         removeRepositories(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
-    {
-        Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
-        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES));
-        return repositories;
-    }
-
     @Test
     public void testRegenerateArtifactChecksum()
             throws Exception
     {
-        String jobName = "Regenerate-1";
+        String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/strongbox-checksum-one";
 
@@ -202,15 +211,14 @@ public class RegenerateMavenChecksumCronJobTestIT
                              properties.put("forceRegeneration", "false");
                          });
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
     @Test
     public void testRegenerateChecksumInRepository()
             throws Exception
     {
-        String jobName = "Regenerate-2";
+        String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/strongbox-checksum-second";
 
@@ -278,15 +286,14 @@ public class RegenerateMavenChecksumCronJobTestIT
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE0, REPOSITORY_SNAPSHOTS,
                          properties -> properties.put("forceRegeneration", "false"));
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
     @Test
     public void testRegenerateChecksumInStorage()
             throws Exception
     {
-        String jobName = "Regenerate-3";
+        String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org/carlspring/strongbox/checksum/strongbox-checksum";
 
@@ -341,15 +348,14 @@ public class RegenerateMavenChecksumCronJobTestIT
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE0, null,
                          properties -> properties.put("forceRegeneration", "false"));
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
     @Test
     public void testRegenerateChecksumInStorages()
             throws Exception
     {
-        String jobName = "Regenerate-4";
+        String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_2 + "/org/carlspring/strongbox/checksum/strongbox-checksum";
 
@@ -403,8 +409,7 @@ public class RegenerateMavenChecksumCronJobTestIT
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, null, null,
                          properties -> properties.put("forceRegeneration", "false"));
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
     private LayoutProvider getLayoutProvider(String repositoryId)
