@@ -54,8 +54,10 @@ public class GradleDependencyFormatter
     {
         MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactCoordinates;
 
-        return "<dependency org=" + coordinates.getGroupId() +
-               " name=\"" + coordinates.getArtifactId() + "\" rev=\"" + coordinates.getVersion() + "\" />\n";
+        return "compile " +
+               coordinates.getGroupId() + ":" +
+               coordinates.getArtifactId() + ":" +
+               coordinates.getVersion() + "\n";
     }
 
 }

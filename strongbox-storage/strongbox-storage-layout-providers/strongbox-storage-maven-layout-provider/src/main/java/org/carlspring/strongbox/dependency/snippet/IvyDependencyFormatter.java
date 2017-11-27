@@ -54,10 +54,9 @@ public class IvyDependencyFormatter
     {
         MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactCoordinates;
 
-        return "compile " +
-               coordinates.getGroupId() + ":" +
-               coordinates.getArtifactId() + ":" +
-               coordinates.getVersion() + "\n";
+        return "<dependency org=\"" + coordinates.getGroupId() + "\"" +
+               " name=\"" + coordinates.getArtifactId() + "\"" +
+               " rev=\"" + coordinates.getVersion() + "\" />\n";
     }
 
 }

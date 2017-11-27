@@ -54,7 +54,10 @@ public class SBTDependencyFormatter
     {
         MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactCoordinates;
 
-        return "libraryDependencies += \"" + coordinates.getGroupId() + "\" % \"" + coordinates.getArtifactId() + "\" % \"" + coordinates.getVersion() + "\"\n";
+        return "libraryDependencies += \"" + coordinates.getGroupId() + "\" % \"" +
+               coordinates.getArtifactId() + "\" % \"" +
+               coordinates.getVersion() + "\"" +
+               (coordinates.getClassifier() != null ? " classifier \"" + coordinates.getClassifier() + "\"" : "") + "\n";
     }
 
 }
