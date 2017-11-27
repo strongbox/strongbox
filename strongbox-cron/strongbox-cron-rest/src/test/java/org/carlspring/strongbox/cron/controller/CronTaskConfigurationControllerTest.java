@@ -55,7 +55,7 @@ public class CronTaskConfigurationControllerTest
         assertThat(configurationList.size(), CoreMatchers.equalTo(1));
         CronTaskConfiguration configuration = configurationList.get(0);
         assertThat(configuration.getProperties().keySet().size(), CoreMatchers.equalTo(4));
-        assertThat(configuration.getProperties().get("cronExpression"), CoreMatchers.equalTo("0 11 11 11 11 ? 2100"));
+        assertThat(configuration.getProperties().get("cronExpression"), CoreMatchers.equalTo("0 0 5 * * ?"));
         assertThat(configuration.getName(),
                    CoreMatchers.not(CoreMatchers.equalTo("This is completely new name for this job")));
 

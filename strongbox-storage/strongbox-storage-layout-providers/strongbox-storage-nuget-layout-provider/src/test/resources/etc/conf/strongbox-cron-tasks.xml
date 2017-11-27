@@ -2,45 +2,45 @@
 <cron-tasks-configuration>
 
     <cron-task-configuration>
-        <name>ClearRepositoryTrashCronTask</name>
+        <name>Clear Every Repository Trash Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
-            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
+            <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
             <jobClass>org.carlspring.strongbox.cron.jobs.ClearRepositoryTrashCronJob</jobClass> <!-- mandatory -->
+            <!-- <storageId>storage-common-proxies</storageId> optional -->
+            <!-- <repositoryId>maven-central</repositoryId> optional -->
         </properties>
     </cron-task-configuration>
 
     <cron-task-configuration>
-        <name>ClearRepositoryTrashCronJob</name>
+        <name>Regenerate Artifacts Checksums Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
-            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
-            <jobClass>org.carlspring.strongbox.cron.jobs.ClearRepositoryTrashCronJob</jobClass> <!-- mandatory -->
-        </properties>
-    </cron-task-configuration>
-
-    <cron-task-configuration>
-        <name>RegenerateChecksumCronJob</name>
-        <one-time-execution>false</one-time-execution>
-        <immediate-execution>false</immediate-execution>
-        <properties>
-            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
+            <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
             <jobClass>org.carlspring.strongbox.cron.jobs.RegenerateChecksumCronJob</jobClass> <!-- mandatory -->
+            <!-- <storageId>storage-common-proxies</storageId> optional -->
+            <!-- <repositoryId>maven-central</repositoryId> optional -->
+            <!-- <basePath>org</basePath> optional -->
+            <!-- <forceRegeneration>true</forceRegeneration> optional, default false -->
         </properties>
     </cron-task-configuration>
 
+    <!--
+        - By default, this cron job is enabled by the system for every nuget proxy repository
+        - Override, if needed.
     <cron-task-configuration>
-        <name>DownloadRemoteFeedCronJob</name>
+        <name>Remote feed download for nuget-common-storage:nuget-releases</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
-            <cronExpression>0 11 11 11 11 ? 2100</cronExpression> <!-- mandatory -->
-            <jobClass>org.carlspring.strongbox.cron.jobs.DownloadRemoteFeedCronJob</jobClass> <!-- mandatory -->
-            <storageId>nuget-common-storage</storageId> <!-- mandatory -->
-            <repositoryId>nuget-releases</repositoryId> <!-- mandatory -->
+            <cronExpression>0 0 0 * * ?</cronExpression> mandatory
+            <jobClass>org.carlspring.strongbox.cron.jobs.DownloadRemoteFeedCronJob</jobClass> mandatory
+            <storageId>nuget-common-storage</storageId> mandatory
+            <repositoryId>nuget-releases</repositoryId> mandatory
         </properties>
     </cron-task-configuration>
+    -->
 
 </cron-tasks-configuration>
