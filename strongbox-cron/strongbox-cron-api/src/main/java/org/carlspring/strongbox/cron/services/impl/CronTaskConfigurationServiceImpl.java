@@ -60,6 +60,8 @@ class CronTaskConfigurationServiceImpl
             throw new CronTaskException("cronExpression property does not exists");
         }
 
+        configuration = cronTaskDataService.save(configuration);
+
         if (configuration.contains("jobClass"))
         {
             Class c = Class.forName(configuration.getProperty("jobClass"));
@@ -82,8 +84,6 @@ class CronTaskConfigurationServiceImpl
                 cronJobSchedulerService.executeJob(configuration);
             }
         }
-
-        cronTaskDataService.save(configuration);
 
         cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(configuration.getName());
     }

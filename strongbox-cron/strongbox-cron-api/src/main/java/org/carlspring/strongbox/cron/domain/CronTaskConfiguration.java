@@ -120,4 +120,27 @@ public class CronTaskConfiguration
         sb.append('}');
         return sb.toString();
     }
+
+    @Override
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (!(o instanceof CronTaskConfiguration))
+        {
+            return false;
+        }
+
+        final CronTaskConfiguration that = (CronTaskConfiguration) o;
+
+        return getUuid() != null ? getUuid().equals(that.getUuid()) : that.getUuid() == null;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return getUuid() != null ? getUuid().hashCode() : 0;
+    }
 }

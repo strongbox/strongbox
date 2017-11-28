@@ -25,11 +25,11 @@ public abstract class OnePerRepositoryJavaCronJob
     private CronTaskConfigurationService cronTaskConfigurationService;
 
     @Override
-    public void beforeScheduleCallback(final CronTaskConfiguration config)
+    public void beforeScheduleCallback(final CronTaskConfiguration notYetScheduledConfiguration)
             throws Exception
     {
-        final String storageId = config.getProperty("storageId");
-        final String repositoryId = config.getProperty("repositoryId");
+        final String storageId = notYetScheduledConfiguration.getProperty("storageId");
+        final String repositoryId = notYetScheduledConfiguration.getProperty("repositoryId");
 
         final CronTaskConfigurationSearchCriteria searchCriteria = aCronTaskConfigurationSearchCriteria()
                                                                            .withProperty("storageId", storageId)
@@ -40,10 +40,14 @@ public abstract class OnePerRepositoryJavaCronJob
 
         final List<CronTaskConfiguration> previousConfigurations = cronTaskDataService.findMatching(searchCriteria,
                                                                                                     PagingCriteria.ALL);
-        for (final CronTaskConfiguration configuration : previousConfigurations)
+        for (final CronTaskConfiguration storedConfiguration : previousConfigurations)
         {
-            // remove previous configurations for the same job and repository
-            cronTaskConfigurationService.deleteConfiguration(configuration);
+            if (!storedConfiguration.equals(notYetScheduledConfiguration))
+            {
+                // remove previous configurations for the same job and repository
+                cronTaskConfigurationService.deleteConfiguration(storedConfiguration);
+            }
+
         }
     }
 
