@@ -300,7 +300,7 @@ public class NugetPackageController extends BaseArtifactController
         {
             // Return 501 status in case of empty package recieved.
             // For some reason nuget.exe sends empty package first.
-            return ResponseEntity.status(HttpURLConnection.HTTP_NOT_IMPLEMENTED).build();
+            return ResponseEntity.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
         }
 
         return ResponseEntity.created(resourceUri).build();
