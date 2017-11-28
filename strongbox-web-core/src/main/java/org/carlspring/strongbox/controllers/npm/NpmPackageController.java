@@ -147,8 +147,8 @@ public class NpmPackageController extends BaseArtifactController
                                                       checksumPath.relativize().toString(),
                                                       new ByteArrayInputStream(shasum.getBytes("UTF-8")));
 
-        //Files.delete(packageTgzTmp);
-        //Files.delete(packageJsonTmp);
+        Files.delete(packageTgzTmp);
+        Files.delete(packageJsonTmp);
     }
 
     private Pair<Package, Path> extractPackage(String storageId,
@@ -192,23 +192,24 @@ public class NpmPackageController extends BaseArtifactController
                     break;
                 case FIELD_NAME_ATTACHMENTS:
                     Assert.isTrue(jp.nextToken() == JsonToken.START_OBJECT,
-                    String.format("Failed to parse npm package source for illegal type [%s] of attachment.", jp.currentToken().name()));
-                    
+                                  String.format("Failed to parse npm package source for illegal type [%s] of attachment.",
+                                                jp.currentToken().name()));
+
                     String packageAttachmentName = jp.nextFieldName();
                     logger.info(String.format("Found npm package attachment [%s]", packageAttachmentName));
 
                     moveToAttachment(jp, packageAttachmentName);
                     packageTgzPath = extrectPackage(jp);
-                    
+
                     jp.nextToken();
                     jp.nextToken();
-                    
+
                     break;
                 }
             }
         }
 
-        //Files.delete(packageSourceTmp);
+        Files.delete(packageSourceTmp);
 
         if (packageJson == null || packageTgzPath == null)
         {
@@ -233,10 +234,10 @@ public class NpmPackageController extends BaseArtifactController
 
         Assert.isTrue(FIELD_NAME_LENGTH.equals(jp.nextFieldName()), "Failed to validate package content length.");
         jp.nextToken();
-        
+
         Assert.isTrue(packageSize == jp.getLongValue(), "Invalid package content length.");
         jp.nextToken();
-        
+
         return packageTgzTmp;
     }
 

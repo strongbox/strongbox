@@ -16,7 +16,7 @@ public class RestAssuredConfig
     public final static String DEFAULT_PORT = "48080";
 
     public final static String DEFAULT_HOST = "localhost";
-    
+
     @Inject
     protected WebApplicationContext context;
 
@@ -26,9 +26,10 @@ public class RestAssuredConfig
     {
         RestAssuredMockMvc.webAppContextSetup(context);
     }
-    
+
     @Bean
-    public String contextBaseUrl(){
+    public String contextBaseUrl()
+    {
         // initialize host
         String host = System.getProperty("strongbox.host", DEFAULT_HOST);
         String strongboxPort = System.getProperty("strongbox.port", DEFAULT_PORT);
