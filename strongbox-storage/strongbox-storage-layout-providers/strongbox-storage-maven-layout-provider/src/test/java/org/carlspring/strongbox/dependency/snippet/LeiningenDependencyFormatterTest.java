@@ -7,6 +7,7 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 
 import javax.inject.Inject;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -25,6 +26,17 @@ public class LeiningenDependencyFormatterTest
     @Inject
     private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;
 
+    MavenArtifactCoordinates coordinates;
+
+    @Before
+    public void setUp()
+            throws Exception
+    {
+        coordinates = new MavenArtifactCoordinates();
+        coordinates.setGroupId("org.carlspring.strongbox");
+        coordinates.setArtifactId("maven-snippet");
+        coordinates.setVersion("1.0");
+    }
 
     @Test
     public void testIvyDependencyGenerationWithoutClassifier()
@@ -33,12 +45,6 @@ public class LeiningenDependencyFormatterTest
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             LeiningenDependencyFormatter.ALIAS);
         assertNotNull("Failed to look up dependency synonym formatter!", formatter);
-
-        MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
-        coordinates.setGroupId("org.carlspring.strongbox");
-        coordinates.setArtifactId("maven-snippet");
-        coordinates.setVersion("1.0");
-        coordinates.setExtension("jar");
 
         String snippet = formatter.getDependencySnippet(coordinates);
 
@@ -50,6 +56,45 @@ public class LeiningenDependencyFormatterTest
     }
 
     @Test
+    public void testIvyDependencyGenerationWithNonStandardType()
+            throws ProviderImplementationException
+    {
+        DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
+                                                                                                            LeiningenDependencyFormatter.ALIAS);
+        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+
+        coordinates.setExtension("zip");
+
+        String snippet = formatter.getDependencySnippet(coordinates);
+
+        System.out.println(snippet);
+
+        assertEquals("Failed to generate dependency!",
+                     "[org.carlspring.strongbox/maven-snippet \"1.0\" :extension \"zip\"]\n",
+                     snippet);
+    }
+
+    @Test
+    public void testIvyDependencyGenerationWithNonStandardTypeAndClassifier()
+            throws ProviderImplementationException
+    {
+        DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
+                                                                                                            LeiningenDependencyFormatter.ALIAS);
+        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+
+        coordinates.setExtension("zip");
+        coordinates.setClassifier("jdk12");
+
+        String snippet = formatter.getDependencySnippet(coordinates);
+
+        System.out.println(snippet);
+
+        assertEquals("Failed to generate dependency!",
+                     "[org.carlspring.strongbox/maven-snippet \"1.0\" :extension \"zip\" :classifier \"jdk12\"]\n",
+                     snippet);
+    }
+
+    @Test
     public void testIvyDependencyGenerationWithClassifier()
             throws ProviderImplementationException
     {
@@ -57,11 +102,6 @@ public class LeiningenDependencyFormatterTest
                                                                                                             LeiningenDependencyFormatter.ALIAS);
         assertNotNull("Failed to look up dependency synonym formatter!", formatter);
 
-        MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
-        coordinates.setGroupId("org.carlspring.strongbox");
-        coordinates.setArtifactId("maven-snippet");
-        coordinates.setVersion("1.0");
-        coordinates.setExtension("jar");
         coordinates.setClassifier("jdk12");
 
         String snippet = formatter.getDependencySnippet(coordinates);

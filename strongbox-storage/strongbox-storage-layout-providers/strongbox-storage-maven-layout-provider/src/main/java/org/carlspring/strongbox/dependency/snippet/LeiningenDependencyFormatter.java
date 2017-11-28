@@ -56,6 +56,7 @@ public class LeiningenDependencyFormatter
 
         return "[" + coordinates.getGroupId() + "/" + coordinates.getArtifactId() + " " +
                "\"" + coordinates.getVersion() +"\"" +
+               (coordinates.getExtension() != null && !coordinates.getExtension().equals("jar") ? " :extension \"" + coordinates.getExtension() + "\"" : "") +
                (coordinates.getClassifier() != null ? " :classifier \"" + coordinates.getClassifier() + "\"" : "") +
                "]\n";
     }
