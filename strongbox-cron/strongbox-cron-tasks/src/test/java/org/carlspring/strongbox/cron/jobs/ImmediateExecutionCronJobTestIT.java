@@ -4,13 +4,16 @@ import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
-import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 
 import javax.inject.Inject;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertTrue;
@@ -24,12 +27,21 @@ public class ImmediateExecutionCronJobTestIT
         extends BaseCronTestCase
 {
 
+    @Rule
+    public TestRule watcher = new TestWatcher()
+    {
+        @Override
+        protected void starting(final Description description)
+        {
+            expectedCronTaskName = description.getMethodName();
+        }
+    };
+
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
     @Inject
     private JobManager jobManager;
-
 
     @Before
     public void initialize()
@@ -64,7 +76,7 @@ public class ImmediateExecutionCronJobTestIT
     public void testImmediateExecutionCronJob()
             throws Exception
     {
-        String jobName = "ImmediateExecution";
+        String jobName = expectedCronTaskName;
 
         // Checking if job was executed
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
@@ -74,8 +86,7 @@ public class ImmediateExecutionCronJobTestIT
 
         addImmediateExecutionCronJobConfig(jobName);
 
-        assertTrue("Failed to execute task within a reasonable time!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task within a reasonable time!", expectEvent());
     }
 
 }

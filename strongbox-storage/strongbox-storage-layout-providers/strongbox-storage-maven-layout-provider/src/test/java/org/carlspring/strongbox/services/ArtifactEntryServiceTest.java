@@ -4,7 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.services.support.search.PagingCriteria;
+import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 
 import javax.inject.Inject;
 import java.util.Date;

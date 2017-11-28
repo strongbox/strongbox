@@ -7,7 +7,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
-import org.carlspring.strongbox.services.support.search.PagingCriteria;
+import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 

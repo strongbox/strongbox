@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.cron.CronJobStatusEnum;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.quartz.CronTask;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
+
+import javax.inject.Inject;
+
 import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -101,6 +102,11 @@ public abstract class AbstractCronJob
     @Override
     public void interrupt()
             throws UnableToInterruptJobException
+    {
+    }
+
+    public void beforeScheduleCallback(CronTaskConfiguration config)
+            throws Exception
     {
     }
 

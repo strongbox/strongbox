@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactSearchService;
@@ -16,7 +15,11 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -39,6 +42,16 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                                                                      "/storages/" + STORAGE0 + "/" +
                                                                      REPOSITORY_RELEASES);
 
+    @Rule
+    public TestRule watcher = new TestWatcher()
+    {
+        @Override
+        protected void starting(final Description description)
+        {
+            expectedJobName = description.getMethodName();
+        }
+    };
+
     @Inject
     private ArtifactSearchService artifactSearchService;
 
@@ -47,6 +60,15 @@ public class DownloadRemoteMavenIndexCronJobTestIT
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXIED_RELEASES));
+
+        return repositories;
     }
 
     @Before
@@ -100,20 +122,11 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         System.out.println(request2.getQuery() + " found matches!");
     }
 
-    public static Set<Repository> getRepositoriesToClean()
-    {
-        Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXIED_RELEASES));
-
-        return repositories;
-    }
-
     @Test
     public void testDownloadRemoteIndexAndExecuteSearch()
             throws Exception
     {
-        String jobName = "Download remote indexes for " + STORAGE0 + ":" + "drmicj-releases";
+        String jobName = expectedJobName;
 
         // Checking if job was executed
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
@@ -164,8 +177,7 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         addCronJobConfig(jobName, DownloadRemoteMavenIndexCronJob.class, STORAGE0,
                          REPOSITORY_PROXIED_RELEASES);
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
 }

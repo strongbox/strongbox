@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.services.support.search;
+package org.carlspring.strongbox.data.service.support.search;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;

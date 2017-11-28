@@ -3,8 +3,6 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.cron.services.JobManager;
-import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -22,10 +20,12 @@ import java.util.Set;
 import com.google.common.base.Throwables;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static junit.framework.Assert.assertEquals;
@@ -39,8 +39,6 @@ import static org.junit.Assert.assertTrue;
 public class ClearTrashCronJobFromMaven2RepositoryTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
-
-    private final Logger logger = LoggerFactory.getLogger(ClearTrashCronJobFromMaven2RepositoryTestIT.class);
 
     private static final String STORAGE1 = "storage1";
 
@@ -66,6 +64,16 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
     private static Repository repository3;
 
+    @Rule
+    public TestRule watcher = new TestWatcher()
+    {
+        @Override
+        protected void starting(final Description description)
+        {
+            expectedJobName = description.getMethodName();
+        }
+    };
+
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
@@ -76,12 +84,21 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     private ConfigurationManager configurationManager;
 
 
-
     @BeforeClass
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
+        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
+
+        return repositories;
     }
 
     @Before
@@ -141,16 +158,6 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         }
     }
 
-    public static Set<Repository> getRepositoriesToClean()
-    {
-        Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
-
-        return repositories;
-    }
-
     @Test
     public void testRemoveTrashInRepository()
             throws Exception
@@ -169,7 +176,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         assertTrue("There is no path to the repository trash!", dirs != null);
         assertEquals("The repository trash is empty!", 1, dirs.length);
 
-        final String jobName = "RemoveTrash-1";
+        final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             if (jobName1.equals(jobName) && statusExecuted)
@@ -186,8 +193,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
         addCronJobConfig(jobName, ClearRepositoryTrashCronJob.class, STORAGE0, REPOSITORY_RELEASES_1);
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
     private File[] getDirs()
@@ -229,7 +235,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         assertEquals("The repository trash is empty!", 1, dirs2.length);
 
         // Checking if job was executed
-        String jobName = "RemoveTrash-2";
+        String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             File[] dirs11 = basedirTrash1.listFiles();
@@ -245,8 +251,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
         addCronJobConfig(jobName, ClearRepositoryTrashCronJob.class, null, null);
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
 }

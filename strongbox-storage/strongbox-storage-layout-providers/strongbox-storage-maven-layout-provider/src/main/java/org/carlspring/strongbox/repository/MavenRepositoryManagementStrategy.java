@@ -1,16 +1,8 @@
 package org.carlspring.strongbox.repository;
 
-import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
-
-import java.io.File;
-import java.io.IOException;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.exceptions.CronTaskException;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
@@ -20,10 +12,15 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.quartz.SchedulerException;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
  * @author carlspring
@@ -97,19 +94,13 @@ public class MavenRepositoryManagementStrategy
         configuration.addProperty("cronExpression", "0 0 0 * * ?"); // Execute once daily at 00:00:00
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
+        configuration.setImmediateExecution(true);
 
         try
         {
             cronTaskConfigurationService.saveConfiguration(configuration);
-
-            // Run the scheduled task once, immediately, so that the remote's index would become available
-            cronJobSchedulerService.executeJob(configuration);
         }
-        catch (ClassNotFoundException |
-               SchedulerException |
-               CronTaskException |
-               InstantiationException |
-               IllegalAccessException e)
+        catch (Exception e)
         {
             throw new RepositoryManagementStrategyException(e.getMessage(), e);
         }

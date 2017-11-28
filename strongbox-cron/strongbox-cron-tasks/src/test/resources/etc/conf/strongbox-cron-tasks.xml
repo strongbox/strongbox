@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cron-tasks-configuration>
+
+    <cron-task-configuration>
+        <name>Clear Every Repository Trash Cron Job</name>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.ClearRepositoryTrashCronJob</jobClass> <!-- mandatory -->
+            <!-- <storageId>storage-common-proxies</storageId> optional -->
+            <!-- <repositoryId>maven-central</repositoryId> optional -->
+        </properties>
+    </cron-task-configuration>
+
+    <cron-task-configuration>
+        <name>Regenerate Artifacts Checksums Cron Job</name>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.RegenerateChecksumCronJob</jobClass> <!-- mandatory -->
+            <!-- <storageId>storage-common-proxies</storageId> optional -->
+            <!-- <repositoryId>maven-central</repositoryId> optional -->
+            <!-- <basePath>org</basePath> optional -->
+            <!-- <forceRegeneration>true</forceRegeneration> optional, default false -->
+        </properties>
+    </cron-task-configuration>
+
+</cron-tasks-configuration>

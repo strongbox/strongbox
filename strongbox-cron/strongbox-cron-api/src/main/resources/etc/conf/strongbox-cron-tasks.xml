@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cron-tasks-configuration>
+
+    <cron-task-configuration>
+        <name>Clear Every Repository Trash Cron Job</name>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.ClearRepositoryTrashCronJob</jobClass> <!-- mandatory -->
+            <!-- <storageId>storage-common-proxies</storageId> optional -->
+            <!-- <repositoryId>maven-central</repositoryId> optional -->
+        </properties>
+    </cron-task-configuration>
+
+    <cron-task-configuration>
+        <name>Regenerate Artifacts Checksums Cron Job</name>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.RegenerateChecksumCronJob</jobClass> <!-- mandatory -->
+            <!-- <storageId>storage-common-proxies</storageId> optional -->
+            <!-- <repositoryId>maven-central</repositoryId> optional -->
+            <!-- <basePath>org</basePath> optional -->
+            <!-- <forceRegeneration>true</forceRegeneration> optional, default false -->
+        </properties>
+    </cron-task-configuration>
+
+    <!--
+        - By default, this cron job is enabled by the system for every maven proxy repository supporting indexing.
+        - Override, if needed.
+    <cron-task-configuration>
+        <name>Remote index download for storage-common-proxies:maven-central</name>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+        <properties>
+            <cronExpression>0 0 0 * * ?</cronExpression> mandatory
+            <jobClass>org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob</jobClass> mandatory
+            <storageId>storage-common-proxies</storageId> mandatory
+            <repositoryId>maven-central</repositoryId> mandatory
+        </properties>
+    </cron-task-configuration>
+    -->
+
+    <cron-task-configuration>
+        <name>Rebuild All Maven Repositories Local Indexes Cron Job</name>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob</jobClass> <!-- mandatory -->
+            <!-- <storageId>storage-common-proxies</storageId> optional -->
+            <!-- <repositoryId>maven-central</repositoryId> optional -->
+            <!-- <basePath>org</basePath> optional -->
+        </properties>
+    </cron-task-configuration>
+
+    <cron-task-configuration>
+        <name>Rebuild All Maven Repositories Metadata Files Cron Job</name>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.RebuildMavenMetadataCronJob</jobClass> <!-- mandatory -->
+            <!-- <storageId>storage-common-proxies</storageId> optional -->
+            <!-- <repositoryId>maven-central</repositoryId> optional -->
+            <!-- <basePath>org</basePath> optional -->
+        </properties>
+    </cron-task-configuration>
+
+    <cron-task-configuration>
+        <name>Remove Timestamped Maven Snapshots Cron Job</name>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.RemoveTimestampedMavenSnapshotCronJob</jobClass> <!-- mandatory -->
+            <!-- <storageId>storage-common-proxies</storageId> optional -->
+            <!-- <repositoryId>maven-central</repositoryId> optional -->
+            <!-- <basePath>org</basePath> optional -->
+            <!-- <numberToKeep>10</numberToKeep> optional, default 10 -->
+            <!-- <keepPeriod>30</keepPeriod> optional, default 30 -->
+        </properties>
+    </cron-task-configuration>
+
+    <!--
+        - By default, this cron job is enabled by the system for every nuget proxy repository
+        - Override, if needed.
+    <cron-task-configuration>
+        <name>Remote feed download for nuget-common-storage:nuget-releases</name>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+        <properties>
+            <cronExpression>0 0 0 * * ?</cronExpression> mandatory
+            <jobClass>org.carlspring.strongbox.cron.jobs.DownloadRemoteFeedCronJob</jobClass> mandatory
+            <storageId>nuget-common-storage</storageId> mandatory
+            <repositoryId>nuget-releases</repositoryId> mandatory
+        </properties>
+    </cron-task-configuration>
+    -->
+
+</cron-tasks-configuration>

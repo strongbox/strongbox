@@ -2,7 +2,6 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -21,7 +20,11 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -35,6 +38,16 @@ import static org.junit.Assert.*;
 public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
+
+    @Rule
+    public TestRule watcher = new TestWatcher()
+    {
+        @Override
+        protected void starting(final Description description)
+        {
+            expectedJobName = description.getMethodName();
+        }
+    };
 
     @Inject
     private ProxyRepositoryProvider proxyRepositoryProvider;
@@ -62,7 +75,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         final String path = "org/carlspring/properties-injector/1.6/properties-injector-1.6.jar";
 
         Optional<ArtifactEntry> artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId,
-                                                                                              path);
+                                                                                             path);
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
         try (final InputStream ignored = proxyRepositoryProvider.getInputStream(storageId, repositoryId, path))
@@ -83,22 +96,22 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
         artifactEntryService.save(artifactEntry);
 
-        final String jobName = "CleanupExpiredProxyRepositoriesArtifacts-1";
+        final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             if (jobName1.equals(jobName) && statusExecuted)
             {
                 Optional<ArtifactEntry> optionalArtifactEntryFromDb = artifactEntryService.findOneArtifact(storageId,
-                                                                                                            repositoryId,
-                                                                                                            path);
+                                                                                                           repositoryId,
+                                                                                                           path);
                 assertThat(optionalArtifactEntryFromDb, CoreMatchers.equalTo(Optional.empty()));
 
                 Optional<ArtifactEntry> artifactMetadataOptional = artifactEntryService.findOneArtifact(storageId,
-                                                                                                         repositoryId,
-                                                                                                         StringUtils.replace(
-                                                                                                                 path,
-                                                                                                                 "1.6/properties-injector-1.6.jar",
-                                                                                                                 "maven-metadata.xml"));
+                                                                                                        repositoryId,
+                                                                                                        StringUtils.replace(
+                                                                                                                path,
+                                                                                                                "1.6/properties-injector-1.6.jar",
+                                                                                                                "maven-metadata.xml"));
 
                 // we haven't touched the last used of the maven-metadata ;)
                 assertThat(artifactMetadataOptional, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
@@ -129,8 +142,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                              properties.put("minSizeInBytes", Long.valueOf(sizeInBytes - 1).toString());
                          });
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     }
 
 }

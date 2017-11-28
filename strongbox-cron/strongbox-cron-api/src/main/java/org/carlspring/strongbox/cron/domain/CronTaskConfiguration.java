@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.cron.domain;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.xml.PropertiesAdapter;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +26,7 @@ public class CronTaskConfiguration
     private String name;
 
     @XmlElement(name = "properties")
+    @XmlJavaTypeAdapter(PropertiesAdapter.class)
     private Map<String, String> properties = new HashMap<>();
 
     @XmlElement(name = "one-time-execution")
@@ -105,4 +108,16 @@ public class CronTaskConfiguration
         this.immediateExecution = immediateExecution;
     }
 
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("CronTaskConfiguration{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", properties=").append(properties);
+        sb.append(", oneTimeExecution=").append(oneTimeExecution);
+        sb.append(", immediateExecution=").append(immediateExecution);
+        sb.append(", uuid='").append(uuid).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }
