@@ -57,6 +57,8 @@ public class MavenDependencyFormatter
                     "    <artifactId>" + coordinates.getArtifactId() + "</artifactId>\n" +
                     "    <version>" + coordinates.getVersion() + "</version>\n" +
                     "    <type>" + coordinates.getExtension() + "</type>\n" +
+                    (coordinates.getClassifier() != null ?
+                    "    <classifier>" + coordinates.getClassifier() + "</classifier>\n" : "" )  +
                     "    <scope>compile</scope>\n" +
                     "</dependency>\n";
 

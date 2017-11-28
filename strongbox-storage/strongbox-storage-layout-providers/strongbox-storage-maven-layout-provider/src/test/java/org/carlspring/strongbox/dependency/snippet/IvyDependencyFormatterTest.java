@@ -31,7 +31,7 @@ public class IvyDependencyFormatterTest
             throws ProviderImplementationException
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
-                                                                                                            GradleDependencyFormatter.ALIAS);
+                                                                                                            IvyDependencyFormatter.ALIAS);
         assertNotNull("Failed to look up dependency synonym formatter!", formatter);
 
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
@@ -45,7 +45,7 @@ public class IvyDependencyFormatterTest
         System.out.println(snippet);
 
         assertEquals("Failed to generate dependency!",
-                     "<dependency org=" + coordinates.getGroupId() +
+                     "<dependency org=\"" + coordinates.getGroupId() + "\"" +
                      " name=\"" + coordinates.getArtifactId() + "\"" +
                      " rev=\"" + coordinates.getVersion() + "\" />\n",
                      snippet);

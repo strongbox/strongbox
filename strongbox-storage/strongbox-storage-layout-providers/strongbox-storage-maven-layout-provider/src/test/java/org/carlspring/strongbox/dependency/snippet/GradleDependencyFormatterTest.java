@@ -31,7 +31,7 @@ public class GradleDependencyFormatterTest
             throws ProviderImplementationException
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
-                                                                                                            IvyDependencyFormatter.ALIAS);
+                                                                                                            GradleDependencyFormatter.ALIAS);
         assertNotNull("Failed to look up dependency synonym formatter!", formatter);
 
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();

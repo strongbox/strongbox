@@ -37,7 +37,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
 
     private String classifier;
 
-    private String extension;
+    private String extension = "jar";
 
 
     public MavenArtifactCoordinates()
