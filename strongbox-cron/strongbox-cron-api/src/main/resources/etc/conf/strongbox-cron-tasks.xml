@@ -14,6 +14,18 @@
     </cron-task-configuration>
 
     <cron-task-configuration>
+        <name>Cleanup Expired Artifacts From Proxy Repositories Cron Job</name>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
+            <jobClass>org.carlspring.strongbox.cron.jobs.CleanupExpiredArtifactsFromProxyRepositoriesCronJob</jobClass> <!-- mandatory -->
+            <lastAccessedTimeInDays>60</lastAccessedTimeInDays> <!-- mandatory -->
+            <!-- <minSizeInBytes>1024</minSizeInBytes> optional -->
+        </properties>
+    </cron-task-configuration>
+
+    <cron-task-configuration>
         <name>Regenerate Artifacts Checksums Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
