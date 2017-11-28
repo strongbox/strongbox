@@ -18,7 +18,6 @@ import org.carlspring.strongbox.config.NugetLayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
-import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -29,10 +28,11 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.util.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.junit.*;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -65,6 +65,16 @@ public class RegenerateNugetChecksumCronJobTestIT
     private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                        "/storages/" + STORAGE2 + "/" +
                                                                        REPOSITORY_RELEASES);
+
+    @Rule
+    public TestRule watcher = new TestWatcher()
+    {
+        @Override
+        protected void starting(final Description description)
+        {
+            expectedJobName = description.getMethodName();
+        }
+    };
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
@@ -160,7 +170,7 @@ public class RegenerateNugetChecksumCronJobTestIT
     public void testRegenerateNugetPackageChecksum()
             throws Exception
     {
-        String jobName = "RegenerateNuget-1";
+        String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org.carlspring.strongbox.checksum-second";
 
@@ -191,8 +201,7 @@ public class RegenerateNugetChecksumCronJobTestIT
                              properties.put("forceRegeneration","false");
                          });
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
     
         assertEquals(2, resultList.size());
         resultList.forEach(f -> {
@@ -207,7 +216,7 @@ public class RegenerateNugetChecksumCronJobTestIT
     public void testRegenerateNugetChecksumInRepository()
         throws Exception
     {
-        String jobName = "RegenerateNuget-2";
+        String jobName = expectedJobName;
 
         FileUtils.deleteIfExists(
                                  new File(REPOSITORY_ALPHA_BASEDIR,
@@ -235,8 +244,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE1, REPOSITORY_ALPHA,
                          properties -> properties.put("forceRegeneration", "false"));
         
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
         
         assertEquals(2, resultList.size());
         resultList.forEach(f -> {
@@ -252,7 +260,7 @@ public class RegenerateNugetChecksumCronJobTestIT
     public void testRegenerateNugetChecksumInStorage()
             throws Exception
     {
-        String jobName = "RegenerateNuget-3";
+        String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org.carlspring.strongbox.checksum-second";
 
@@ -280,8 +288,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE1, null,
                          properties -> properties.put("forceRegeneration", "false"));
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
 
         assertEquals(2, resultList.size());
         resultList.forEach(f -> {
@@ -296,7 +303,7 @@ public class RegenerateNugetChecksumCronJobTestIT
     public void testRegenerateNugetChecksumInStorages()
             throws Exception
     {
-        String jobName = "RegenerateNuget-4";
+        String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_2 + "/org.carlspring.strongbox.checksum-one";
 
@@ -322,8 +329,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, null, null,
                          properties -> properties.put("forceRegeneration","false"));
 
-        assertTrue("Failed to execute task!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!", expectEvent());
         
         assertEquals(2, resultList.size());
         resultList.forEach(f -> {
