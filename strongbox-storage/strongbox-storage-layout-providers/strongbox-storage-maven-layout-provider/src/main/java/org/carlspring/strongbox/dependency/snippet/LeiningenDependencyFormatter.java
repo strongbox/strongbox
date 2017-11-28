@@ -54,7 +54,10 @@ public class LeiningenDependencyFormatter
     {
         MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactCoordinates;
 
-        return "[" + coordinates.getGroupId() + "/" + coordinates.getArtifactId() + " \"" + coordinates.getVersion() +"\"]\n";
+        return "[" + coordinates.getGroupId() + "/" + coordinates.getArtifactId() + " " +
+               "\"" + coordinates.getVersion() +"\"" +
+               (coordinates.getClassifier() != null ? " :classifier \"" + coordinates.getClassifier() + "\"" : "") +
+               "]\n";
     }
 
 }
