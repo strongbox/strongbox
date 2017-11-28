@@ -1,18 +1,21 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
-import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -32,13 +35,16 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
     private final Logger logger = LoggerFactory.getLogger(LocalStorageProxyRepositoryExpiredArtifactsCleaner.class);
 
     @Inject
-    protected ConfigurationManager configurationManager;
+    private ConfigurationManager configurationManager;
 
     @Inject
-    protected LayoutProviderRegistry layoutProviderRegistry;
+    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private ArtifactEntryService artifactEntryService;
+
+    @Inject
+    private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
 
     @Transactional(rollbackFor = Exception.class)
     public void cleanup(final Integer lastAccessedTimeInDays,
@@ -52,6 +58,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
 
         final List<ArtifactEntry> artifactEntries = artifactEntryService.findMatching(searchCriteria,
                                                                                       PagingCriteria.ALL);
+        filterAccessibleProxiedArtifacts(artifactEntries);
 
         if (CollectionUtils.isEmpty(artifactEntries))
         {
@@ -59,9 +66,42 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
         }
 
         logger.debug("Cleaning artifacts {}", artifactEntries);
-
         deleteFromDatabase(artifactEntries);
         deleteFromStorage(artifactEntries);
+    }
+
+    private void filterAccessibleProxiedArtifacts(final List<ArtifactEntry> artifactEntries)
+    {
+        if (CollectionUtils.isEmpty(artifactEntries))
+        {
+            return;
+        }
+        for (final Iterator<ArtifactEntry> it = artifactEntries.iterator(); it.hasNext(); )
+        {
+            final ArtifactEntry artifactEntry = it.next();
+            final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
+            final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
+            if (!repository.isProxyRepository())
+            {
+                logger.debug("Repository {} is not a proxy repository.", repository.getId());
+                it.remove();
+                continue;
+            }
+            final RemoteRepository remoteRepository = repository.getRemoteRepository();
+            if (remoteRepository == null)
+            {
+                logger.warn("Repository {} is not associated with remote repository", repository.getId());
+                it.remove();
+                continue;
+            }
+            if (!remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository))
+            {
+                logger.warn("Remote repository {} is down. Artifacts won't be cleaned up.", remoteRepository.getUrl());
+                it.remove();
+                continue;
+            }
+        }
+
     }
 
     private void deleteFromStorage(final List<ArtifactEntry> artifactEntries)
