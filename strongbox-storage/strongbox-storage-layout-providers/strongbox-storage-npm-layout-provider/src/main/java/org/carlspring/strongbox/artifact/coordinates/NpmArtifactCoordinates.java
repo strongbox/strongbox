@@ -11,8 +11,10 @@ import org.semver.Version;
 import org.springframework.util.Assert;
 
 /**
- * This class is an {@link ArtifactCoordinates} implementation for npm artifacts. <br>
- * See <a href="https://docs.npmjs.com/files/package.json">Official npm package specification</a>.
+ * This class is an {@link ArtifactCoordinates} implementation for npm
+ * artifacts. <br>
+ * See <a href="https://docs.npmjs.com/files/package.json">Official npm package
+ * specification</a>.
  * 
  * @author sbespalov
  *
@@ -80,7 +82,11 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
     @Override
     public String getId()
     {
-        return getName();
+        if (getScope() == null)
+        {
+            return getName();
+        }
+        return String.format("%s/%s", getScope(), getName());
     }
 
     @Override
