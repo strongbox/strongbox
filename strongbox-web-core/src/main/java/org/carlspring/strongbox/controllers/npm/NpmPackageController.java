@@ -199,7 +199,7 @@ public class NpmPackageController extends BaseArtifactController
                     logger.info(String.format("Found npm package attachment [%s]", packageAttachmentName));
 
                     moveToAttachment(jp, packageAttachmentName);
-                    packageTgzPath = extrectPackage(jp);
+                    packageTgzPath = extractPackage(jp);
 
                     jp.nextToken();
                     jp.nextToken();
@@ -220,7 +220,7 @@ public class NpmPackageController extends BaseArtifactController
         return Pair.with(packageJson, packageTgzPath);
     }
 
-    private Path extrectPackage(JsonParser jp)
+    private Path extractPackage(JsonParser jp)
         throws IOException
     {
         Path packageTgzTmp = Files.createTempFile("package", "tgz");
