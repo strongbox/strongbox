@@ -47,7 +47,4 @@ public class WhenRepositoryIsNotAliveDontCleanExpiredArtifactsTestIT
         assertThat(artifactEntryOptional, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
     }
 
-
-
-
 }
