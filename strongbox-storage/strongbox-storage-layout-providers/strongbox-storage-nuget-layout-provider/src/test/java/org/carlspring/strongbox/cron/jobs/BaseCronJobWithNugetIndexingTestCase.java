@@ -5,6 +5,7 @@ import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
 import org.carlspring.strongbox.event.cron.CronTaskEventListener;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
 
 import javax.inject.Inject;
@@ -36,7 +37,7 @@ public class BaseCronJobWithNugetIndexingTestCase
      */
     protected Map<String, CronTaskConfiguration> cronTaskConfigurations = new LinkedHashMap<>();
 
-    protected int expectedEventType;
+    protected int expectedEventType = CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType();
 
     protected CronTaskEvent receivedEvent;
 
@@ -122,25 +123,20 @@ public class BaseCronJobWithNugetIndexingTestCase
         }
     }
 
-    public boolean expectEvent(String jobName, int expectedEventType)
+    public boolean expectEvent()
             throws InterruptedException
     {
-        return expectEvent(jobName, expectedEventType, 5000, CRON_TASK_CHECK_INTERVAL);
+        return expectEvent(5000, CRON_TASK_CHECK_INTERVAL);
     }
 
     /**
      * Waits for an event to occur.
      *
-     * @param expectedEventType     The event type to wait for
      * @param maxWaitTime           The maximum wait time (in milliseconds)
      * @param checkInterval         The interval (in milliseconds) at which to check for the occurrence of the event
      */
-    public boolean expectEvent(String jobName, int expectedEventType, long maxWaitTime, long checkInterval)
-            throws InterruptedException
+    public boolean expectEvent(long maxWaitTime, long checkInterval) throws InterruptedException
     {
-        this.expectedJobName = jobName;
-        this.expectedEventType = expectedEventType;
-
         int totalWait = 0;
         while (!receivedExpectedEvent &&
                (maxWaitTime > 0 && totalWait <= maxWaitTime || // If a maxWaitTime has been defined,
