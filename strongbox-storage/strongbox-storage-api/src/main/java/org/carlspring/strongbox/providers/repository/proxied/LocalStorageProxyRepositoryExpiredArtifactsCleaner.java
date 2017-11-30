@@ -83,7 +83,6 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
             final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
             if (!repository.isProxyRepository())
             {
-                logger.debug("Repository {} is not a proxy repository.", repository.getId());
                 it.remove();
                 continue;
             }
