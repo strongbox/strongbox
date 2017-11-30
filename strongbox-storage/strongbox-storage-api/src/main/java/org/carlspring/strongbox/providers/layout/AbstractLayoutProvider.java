@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.spi.FileSystemProvider;
@@ -136,11 +137,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     }
     
     @Override
-    public String resolveResourcePath(Repository repository,
-                                      String path)
-        throws IOException
+    public URI resolveResource(Repository repository,
+                               String path)
     {
-        return path;
+        return URI.create(path);
     }
 
     @Override

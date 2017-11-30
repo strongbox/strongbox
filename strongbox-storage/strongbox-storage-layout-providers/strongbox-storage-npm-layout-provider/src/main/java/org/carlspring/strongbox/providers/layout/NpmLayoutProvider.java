@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import org.carlspring.strongbox.repository.NpmRepositoryManagementStrategy;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.impl.NpmArtifactManagementService;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,4 +119,13 @@ public class NpmLayoutProvider
                      .collect(Collectors.toSet());
     }
 
+    @Override
+    public URI resolveResource(Repository repository,
+                               String path)
+    {
+        NpmArtifactCoordinates c = getArtifactCoordinates(path);
+        return URI.create(String.format("%s/-/%s", c.getId(), c.getArtifactFileName()));
+    }
+
+    
 }

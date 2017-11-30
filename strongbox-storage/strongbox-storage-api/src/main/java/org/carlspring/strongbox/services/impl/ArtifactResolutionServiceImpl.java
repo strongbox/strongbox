@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import java.io.IOException;
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 
 import javax.inject.Inject;
@@ -22,6 +23,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * @author mtodorov
@@ -106,4 +108,22 @@ public class ArtifactResolutionServiceImpl
         return layoutProvider.getArtifactCoordinates(artifactPath);
     }
 
+    @Override
+    public URI resolveArtifactResource(String storageId,
+                                       String repositoryId,
+                                       ArtifactCoordinates artifactCoordinates)
+    {
+        URI baseUri = configurationManager.getBaseUri();
+
+        Repository repository = getStorage(storageId).getRepository(repositoryId);
+        LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        URI artifactResource = layoutProvider.resolveResource(repository, artifactCoordinates.toPath());
+        
+        return UriComponentsBuilder.fromUri(baseUri)
+                                   .pathSegment(storageId, repositoryId, "/")
+                                   .build()
+                                   .toUri()
+                                   .resolve(artifactResource);
+    }
+    
 }

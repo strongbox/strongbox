@@ -75,14 +75,6 @@ public interface ArtifactEntryService
                                             String repositoryId,
                                             String path);
 
-    String constructArtifactURL(String storageId,
-                                String repositoryId,
-                                ArtifactCoordinates artifactCoordinates);
-
-    String getURLForArtifact(String storageId,
-                             String repositoryId,
-                             String path);
-
     int delete(List<ArtifactEntry> artifactEntries);
 
 }

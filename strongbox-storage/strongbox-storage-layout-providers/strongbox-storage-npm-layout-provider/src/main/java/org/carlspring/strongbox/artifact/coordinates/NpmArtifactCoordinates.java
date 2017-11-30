@@ -11,10 +11,8 @@ import org.semver.Version;
 import org.springframework.util.Assert;
 
 /**
- * This class is an {@link ArtifactCoordinates} implementation for npm
- * artifacts. <br>
- * See <a href="https://docs.npmjs.com/files/package.json">Official npm package
- * specification</a>.
+ * This class is an {@link ArtifactCoordinates} implementation for npm artifacts. <br>
+ * See <a href="https://docs.npmjs.com/files/package.json">Official npm package specification</a>.
  * 
  * @author sbespalov
  *
@@ -111,14 +109,20 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
     @Override
     public String toPath()
     {
+        return String.format("%s/%s/%s/%s", getGroup(), getName(), getVersion(), getArtifactFileName());
+    }
+
+    public String getGroup()
+    {
         String scopeLocal = getScope();
         String nameLocal = getName();
-        String versionLocal = getVersion();
 
-        String group = scopeLocal == null ? nameLocal : scopeLocal;
-        String packageFileName = String.format("%s-%s.tgz", nameLocal, versionLocal);
+        return scopeLocal == null ? nameLocal : scopeLocal;
+    }
 
-        return String.format("%s/%s/%s/%s", group, nameLocal, versionLocal, packageFileName);
+    public String getArtifactFileName()
+    {
+        return String.format("%s-%s.tgz", getName(), getVersion());
     }
 
     public static NpmArtifactCoordinates parse(String path)
