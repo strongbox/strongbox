@@ -1,19 +1,22 @@
 package org.carlspring.strongbox.rest.common;
 
-import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
-import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.users.domain.Roles;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.junit.Assert.assertTrue;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
+import javax.inject.Inject;
+
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
+import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.users.domain.Roles;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
@@ -23,9 +26,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.Assert.assertTrue;
 
 /**
  * General settings for the testing sub-system.
@@ -54,60 +54,20 @@ public abstract class MavenRestAssuredBaseTest
     @Inject
     protected RestAssuredArtifactClient client;
 
-    private String host;
-
-    private int port;
-
-    private String contextBaseUrl;
-
     private TestCaseWithMavenArtifactGeneration generator = new TestCaseWithMavenArtifactGeneration();
 
-
-    public MavenRestAssuredBaseTest()
-    {
-        // initialize host
-        host = System.getProperty("strongbox.host");
-        if (host == null)
-        {
-            host = DEFAULT_HOST;
-        }
-
-        // initialize port
-        String strongboxPort = System.getProperty("strongbox.port");
-        if (strongboxPort == null)
-        {
-            port = DEFAULT_PORT;
-        }
-        else
-        {
-            port = Integer.parseInt(strongboxPort);
-        }
-
-        // initialize base URL
-        contextBaseUrl = "http://" + host + ":" + port;
-    }
-
+    private String contextBaseUrl;
+    
     @Before
     public void init()
             throws Exception
     {
-        logger.debug("Initializing RestAssured...");
-
-        RestAssuredMockMvc.webAppContextSetup(context);
-
-        // Security settings for tests:
-        // By default all operations incl. deletion, etc. are allowed (be careful)!
-        // Override #provideAuthorities, if you want be more specific.
-        anonymousAuthenticationFilter.getAuthorities()
-                                     .addAll(provideAuthorities());
-
-        setContextBaseUrl(contextBaseUrl);
+        
     }
-
+    
     @After
     public void shutdown()
     {
-        RestAssuredMockMvc.reset();
     }
 
     public String getContextBaseUrl()
@@ -115,6 +75,7 @@ public abstract class MavenRestAssuredBaseTest
         return contextBaseUrl;
     }
 
+    @Inject
     public void setContextBaseUrl(String contextBaseUrl)
     {
         this.contextBaseUrl = contextBaseUrl;

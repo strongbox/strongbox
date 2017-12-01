@@ -55,7 +55,7 @@ public class NpmDependencyFormatter
         NpmArtifactCoordinates coordinates = (NpmArtifactCoordinates) artifactCoordinates;
 
         String sb = (coordinates.getScope() != null ? "\"" + coordinates.getScope() + "/" : "\"") +
-                    "" + coordinates.getId() + "\" : " +
+                    "" + coordinates.getName() + "\" : " +
                     "\"" + coordinates.getVersion() + "\"\n";
 
         // TODO: Add support for scopes

@@ -1,9 +1,11 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
-
+import org.carlspring.strongbox.cron.config.CronTasksConfig;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 
 /**
  * @author Martin Todorov
@@ -16,9 +18,16 @@ import org.springframework.context.annotation.Import;
           CommonConfig.class,
           ClientConfig.class,
           DataServiceConfig.class,
-          TestingCoreConfig.class
+          TestingCoreConfig.class,
+          CronTasksConfig.class
 })
 public class NugetLayoutProviderTestConfig
 {
 
+    @Bean
+    @Primary
+    public String ehCacheCacheManagerId() {
+        return "nugetLayoutProviderTestCacheManager";
+    }
+    
 }

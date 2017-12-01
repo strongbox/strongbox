@@ -2,7 +2,7 @@
          xsi:noNamespaceSchemaLocation="http://www.ehcache.org/ehcache.xsd"
          updateCheck="true"
          monitoring="autodetect"
-         dynamicConfig="true" name="cacheManager">
+         dynamicConfig="true" name="strongboxCacheManager">
 
     <diskStore path="ehcache.disk.store.dir"/>
 

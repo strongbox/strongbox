@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.storage.validation.resource;
 
 import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -19,8 +20,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Primary;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -29,6 +33,7 @@ import static org.junit.Assert.fail;
  * @author Kate Novik.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = StorageApiTestConfig.class)
 public class ArtifactOperationsValidatorTest
 {
 
@@ -44,12 +49,6 @@ public class ArtifactOperationsValidatorTest
     private static MockMultipartFile multipartFile;
 
     private static InputStream is;
-
-    @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox" })
-    public static class SpringConfig
-    {
-    }
 
     @Inject
     private ArtifactOperationsValidator artifactOperationsValidator;

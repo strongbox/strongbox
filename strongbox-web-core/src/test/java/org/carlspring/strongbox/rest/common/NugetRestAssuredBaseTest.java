@@ -24,7 +24,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
 import org.carlspring.strongbox.users.domain.Roles;
-import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +31,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
-
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
 
 /**
  * General settings for the testing sub-system.
@@ -71,36 +68,7 @@ public abstract class NugetRestAssuredBaseTest
     @Inject
     protected RestAssuredArtifactClient client;
 
-    private String host;
-
-    private int port;
-
     private String contextBaseUrl;
-
-
-    public NugetRestAssuredBaseTest()
-    {
-        // initialize host
-        host = System.getProperty("strongbox.host");
-        if (host == null)
-        {
-            host = DEFAULT_HOST;
-        }
-
-        // initialize port
-        String strongboxPort = System.getProperty("strongbox.port");
-        if (strongboxPort == null)
-        {
-            port = DEFAULT_PORT;
-        }
-        else
-        {
-            port = Integer.parseInt(strongboxPort);
-        }
-
-        // initialize base URL
-        contextBaseUrl = "http://" + host + ":" + port;
-    }
 
     @Before
     public void init()
@@ -108,28 +76,20 @@ public abstract class NugetRestAssuredBaseTest
     {
         logger.debug("Initializing RestAssured...");
 
-        RestAssuredMockMvc.webAppContextSetup(context);
-
         // Security settings for tests:
         // By default all operations incl. deletion, etc. are allowed (be careful)!
         // Override #provideAuthorities, if you want be more specific.
         anonymousAuthenticationFilter.getAuthorities()
                                      .addAll(provideAuthorities());
 
-        setContextBaseUrl(contextBaseUrl);
     }
-
-    @After
-    public void shutdown()
-    {
-        RestAssuredMockMvc.reset();
-    }
-
+    
     public String getContextBaseUrl()
     {
         return contextBaseUrl;
     }
 
+    @Inject
     public void setContextBaseUrl(String contextBaseUrl)
     {
         this.contextBaseUrl = contextBaseUrl;

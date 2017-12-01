@@ -173,4 +173,9 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
     {
         return parse(resource.toString());
     }
+    
+    public static void main(String args[]) throws Exception{
+        Matcher matcher = NPM_PATH_PATTERN.matcher("@carlspring/npm-test-release/-/npm-test-release-1.0.0.tgz");
+        System.out.println(matcher.matches());
+    }
 }

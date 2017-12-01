@@ -30,7 +30,8 @@ import org.springframework.transaction.support.TransactionTemplate;
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
                  "org.carlspring.strongbox.storage",
-                 "org.carlspring.strongbox.xml"
+                 "org.carlspring.strongbox.xml",
+                 "org.carlspring.strongbox.dependency"
                })
 public class StorageApiConfig
 {

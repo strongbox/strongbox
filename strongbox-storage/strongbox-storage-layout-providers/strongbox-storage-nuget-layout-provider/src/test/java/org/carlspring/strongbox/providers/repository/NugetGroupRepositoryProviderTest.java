@@ -16,6 +16,7 @@ import javax.xml.bind.JAXBException;
 import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.config.NugetLayoutProviderConfig;
+import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.data.PropertyUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -45,7 +46,7 @@ import ru.aristar.jnuget.files.NugetFormatException;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = NugetLayoutProviderConfig.class)
+@ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
 public class NugetGroupRepositoryProviderTest
         extends TestCaseWithNugetPackageGeneration
 {

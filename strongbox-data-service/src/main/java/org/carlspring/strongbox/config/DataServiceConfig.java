@@ -73,7 +73,7 @@ public class DataServiceConfig
     private String password;
 
     private static EmbeddedOrientDbServer embeddableServer;
-
+    
     @PostConstruct
     public void init()
         throws Exception
@@ -137,22 +137,28 @@ public class DataServiceConfig
     }
 
     @Bean
-    public CacheManager cacheManager()
+    public CacheManager cacheManager(net.sf.ehcache.CacheManager cacheManager)
     {
-        EhCacheCacheManager result = new EhCacheCacheManager(ehCacheCacheManager().getObject());
+        EhCacheCacheManager result = new EhCacheCacheManager(cacheManager);
         result.setTransactionAware(true);
         return result;
     }
 
     @Bean
-    public EhCacheManagerFactoryBean ehCacheCacheManager()
+    public String ehCacheCacheManagerId() {
+        return "strongboxCacheManager";
+    }
+    
+    @Bean
+    public EhCacheManagerFactoryBean ehCacheCacheManager(String ehCacheCacheManagerId)
     {
         EhCacheManagerFactoryBean cmfb = new EhCacheManagerFactoryBean();
         cmfb.setConfigLocation(new ClassPathResource("ehcache.xml"));
-        cmfb.setShared(true);
+        cmfb.setShared(false);
+        cmfb.setCacheManagerName(ehCacheCacheManagerId);
         return cmfb;
     }
-
+    
     private void startDbServer()
         throws Exception
     {
