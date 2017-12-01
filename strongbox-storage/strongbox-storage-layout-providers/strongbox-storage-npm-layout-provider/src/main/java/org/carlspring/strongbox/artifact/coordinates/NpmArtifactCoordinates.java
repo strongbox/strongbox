@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,6 +113,12 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
         return String.format("%s/%s/%s/%s", getGroup(), getName(), getVersion(), getArtifactFileName());
     }
 
+    @Override
+    public URI toResource()
+    {
+        return URI.create(String.format("%s/-/%s", getId(), getArtifactFileName()));
+    }
+
     public String getGroup()
     {
         String scopeLocal = getScope();
@@ -130,12 +137,12 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
         Matcher matcher = NPM_PATH_PATTERN.matcher(path);
 
         Assert.isTrue(matcher.matches(),
-                      String.format("Illegal artifact path [%s], NPM artifact path should be in the form of '{artifactGroup}/{artifactName}/{artifactFile}'.",
+                      String.format("Illegal artifact path [%s], NPM artifact path should be in the form of '{artifactGroup}/{artifactName}/{artifactVersion}/{artifactFile}'.",
                                     path));
 
         String group = matcher.group(1);
         String name = matcher.group(2);
-        String version = matcher.group(3);
+        String version = matcher.group(4);
 
         if (group.startsWith("@"))
         {
@@ -162,4 +169,8 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
         return new NpmArtifactCoordinates(scope, name, version);
     }
 
+    public static NpmArtifactCoordinates of(URI resource)
+    {
+        return parse(resource.toString());
+    }
 }

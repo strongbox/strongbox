@@ -25,6 +25,7 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
 import org.carlspring.strongbox.providers.search.SearchException;
@@ -138,15 +139,27 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     
     @Override
     public URI resolveResource(Repository repository,
-                               String path)
+                               String path) throws IOException
     {
+        RepositoryPath repositoryPath = resolve(repository).resolve(path);
+        if (RepositoryFiles.isArtifact(repositoryPath))
+        {
+            ArtifactCoordinates c = RepositoryFiles.readCoordinates(repositoryPath);
+            return c.toResource();
+        }
         return URI.create(path);
     }
 
     @Override
     public RepositoryPath resolve(Repository repository,
+                                  URI resource)
+    {
+        return resolve(repository).resolve(resource.toString());
+    }
+
+    @Override
+    public RepositoryPath resolve(Repository repository,
                                   ArtifactCoordinates coordinates)
-            throws IOException
     {
         RepositoryFileSystem repositoryFileSystem = getRepositoryFileSystem(repository);
         
@@ -155,7 +168,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     @Override
     public RepositoryPath resolve(Repository repository)
-            throws IOException
     {
         RepositoryFileSystem repositoryFileSystem = getRepositoryFileSystem(repository);
         

@@ -16,6 +16,7 @@ import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.data.PropertyUtils;
 import org.carlspring.strongbox.npm.metadata.Package;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -29,6 +30,7 @@ public class NpmPackageGenerator
     private Package packageJson = new Package();
     private Path basePath = Paths.get(PropertyUtils.getHomeDirectory() + "/tmp");
     private Path packagePath;
+    private Path publishJsonPath;
     private ObjectMapper mapper = new ObjectMapper();
 
     public static NpmPackageGenerator newInstance()
@@ -55,6 +57,21 @@ public class NpmPackageGenerator
     {
         this.basePath = path;
         return this;
+    }
+
+    public Package getPackageJson()
+    {
+        return packageJson;
+    }
+
+    public Path getPackagePath()
+    {
+        return packagePath;
+    }
+
+    public Path getPublishJsonPath()
+    {
+        return publishJsonPath;
     }
 
     public Path buildPackage()
@@ -131,52 +148,56 @@ public class NpmPackageGenerator
     public Path buildPublishJson()
         throws IOException
     {
-        Path publishJsonPath = buildPackage().resolveSibling("publish.json");
+        if (packagePath == null)
+        {
+            buildPackage();
+        }
+        Path publishJsonPath = packagePath.resolveSibling("publish.json");
         try (OutputStream out = Files.newOutputStream(publishJsonPath, StandardOpenOption.CREATE))
         {
             JsonFactory jfactory = new JsonFactory();
             JsonGenerator jGenerator = jfactory.createGenerator(out, JsonEncoding.UTF8);
-            
+
             jGenerator.writeStartObject();
             jGenerator.writeStringField("_id", packageJson.getName());
             jGenerator.writeStringField("name", packageJson.getName());
-            
-            //versions
+
+            // versions
             jGenerator.writeFieldName("versions");
             jGenerator.writeStartObject();
             jGenerator.writeFieldName(packageJson.getVersion());
             jGenerator.writeStartObject();
-            
-            //version
+
+            // version
             jGenerator.writeStringField("name", packageJson.getName());
             jGenerator.writeStringField("version", packageJson.getVersion());
-            
+
             jGenerator.writeEndObject();
             jGenerator.writeEndObject();
-            
-            //_attachments
+
+            // _attachments
             jGenerator.writeFieldName("_attachments");
-            
+
             jGenerator.writeStartObject();
             jGenerator.writeFieldName(coordinates.toPath());
-            
+
             jGenerator.writeStartObject();
             jGenerator.writeStringField("content_type", "application/octet-stream");
 
             jGenerator.writeFieldName("data");
             byte[] packageData = Files.readAllBytes(packagePath);
             jGenerator.writeBinary(packageData);
-            
+
             jGenerator.writeNumberField("length", packageData.length);
-            
+
             jGenerator.writeEndObject();
             jGenerator.writeEndObject();
-            
+
             jGenerator.writeEndObject();
-            
+
             jGenerator.flush();
         }
-        
+
         return publishJsonPath;
     }
 

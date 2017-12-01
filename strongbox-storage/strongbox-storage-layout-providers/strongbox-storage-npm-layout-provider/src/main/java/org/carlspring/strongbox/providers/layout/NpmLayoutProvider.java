@@ -12,6 +12,7 @@ import javax.inject.Inject;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.NpmRepositoryFeatures;
 import org.carlspring.strongbox.repository.NpmRepositoryManagementStrategy;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
@@ -120,12 +121,11 @@ public class NpmLayoutProvider
     }
 
     @Override
-    public URI resolveResource(Repository repository,
-                               String path)
+    public RepositoryPath resolve(Repository repository,
+                                  URI resource)
     {
-        NpmArtifactCoordinates c = getArtifactCoordinates(path);
-        return URI.create(String.format("%s/-/%s", c.getId(), c.getArtifactFileName()));
+        NpmArtifactCoordinates c = NpmArtifactCoordinates.of(resource);
+        return resolve(repository, c);
     }
-
     
 }

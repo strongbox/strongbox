@@ -34,14 +34,15 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     ArtifactOutputStream getOutputStream(RepositoryPath path) throws IOException;
     
     URI resolveResource(Repository repository,
-                        String path);
+                        String path) throws IOException;
+
+    RepositoryPath resolve(Repository repository,
+                           URI resource);
     
     RepositoryPath resolve(Repository repository,
-                           ArtifactCoordinates coordinates)
-        throws IOException;
+                           ArtifactCoordinates coordinates);
 
-    RepositoryPath resolve(Repository repository)
-        throws IOException;
+    RepositoryPath resolve(Repository repository);
 
     RepositoryFileSystem getRepositoryFileSystem(Repository repository);
     

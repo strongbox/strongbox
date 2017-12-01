@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.providers.search;
 
-import java.net.URI;
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -17,6 +17,8 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author carlspring
@@ -25,6 +27,8 @@ public abstract class AbstractSearchProvider
         implements SearchProvider
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(AbstractSearchProvider.class);
+    
     @Inject
     private ArtifactEntryService artifactEntryService;
 
@@ -49,9 +53,19 @@ public abstract class AbstractSearchProvider
         SearchResult searchResult = null;
         if (artifactEntry != null)
         {
-            URI artifactResource = artifactResolutionService.resolveArtifactResource(searchRequest.getStorageId(),
-                                                                                     searchRequest.getRepositoryId(),
-                                                                                     searchRequest.getArtifactCoordinates());
+            URL artifactResource;
+            try
+            {
+                artifactResource = artifactResolutionService.resolveArtifactResource(artifactEntry.getStorageId(),
+                                                                                     artifactEntry.getRepositoryId(),
+                                                                                     artifactEntry.getArtifactCoordinates());
+            }
+            catch (Exception e)
+            {
+                logger.error(String.format("Failed to resolve artifact resource for [%s]",
+                                           artifactEntry.getArtifactCoordinates()));
+                return searchResult;
+            }
 
             searchResult = new SearchResult(artifactEntry.getStorageId(),
                                             artifactEntry.getRepositoryId(),
@@ -85,12 +99,22 @@ public abstract class AbstractSearchProvider
         return !search(searchRequest).getResults().isEmpty();
     }
 
-    SearchResult createSearchResult(ArtifactEntry a)
+    protected SearchResult createSearchResult(ArtifactEntry a)
     {
         String storageId = a.getStorageId();
-        URI artifactResource = artifactResolutionService.resolveArtifactResource(storageId,
+        URL artifactResource;
+        try
+        {
+            artifactResource = artifactResolutionService.resolveArtifactResource(storageId,
                                                                                  a.getRepositoryId(),
                                                                                  a.getArtifactCoordinates());
+        }
+        catch (Exception e)
+        {
+            logger.error(String.format("Failed to resolve artifact resource for [%s]",
+                                       a.getArtifactCoordinates()), e);
+            return null;
+        }
 
         return new SearchResult(storageId,
                                 a.getRepositoryId(),

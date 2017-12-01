@@ -3,6 +3,8 @@ package org.carlspring.strongbox.artifact.coordinates;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,4 +70,10 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
         return String.format("%s/%s/%s.%s.%s", idLocal, versionLocal, idLocal, versionLocal, typeLocal);
     }
 
+    @Override
+    public URI toResource()
+    {
+        return URI.create("package/" + getId() + "/" + getVersion());
+    }
+    
 }
