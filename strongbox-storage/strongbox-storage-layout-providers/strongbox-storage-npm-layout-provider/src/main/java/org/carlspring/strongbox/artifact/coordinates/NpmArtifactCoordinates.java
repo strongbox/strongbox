@@ -25,7 +25,7 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
 {
     public static final String NPM_NAME_REGEX = "[a-z0-9][\\w-.]*";
     public static final String NPM_EXTENSION_REGEX = "\\.tgz";
-    public static final String NPM_PACKAGE_PATH_REGEX = "(@?" + NPM_NAME_REGEX + ")/(" + NPM_NAME_REGEX + ")/(.+)/"
+    public static final String NPM_PACKAGE_PATH_REGEX = "(@?" + NPM_NAME_REGEX + ")[/|\\\\\\\\](" + NPM_NAME_REGEX + ")[/|\\\\\\\\](.+)[/|\\\\\\\\]"
             + NPM_NAME_REGEX + "-(.+?(?=" + NPM_EXTENSION_REGEX + "))" + NPM_EXTENSION_REGEX;
 
     private static final Pattern NPM_NAME_PATTERN = Pattern.compile(NPM_NAME_REGEX);
