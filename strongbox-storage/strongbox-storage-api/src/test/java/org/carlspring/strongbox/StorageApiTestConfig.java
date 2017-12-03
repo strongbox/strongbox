@@ -28,7 +28,8 @@ public class StorageApiTestConfig
     
     @Bean
     @Primary
-    public String ehCacheCacheManagerId() {
+    public String ehCacheCacheManagerId()
+    {
         return "storageApiTestTestCacheManager";
     }
 
