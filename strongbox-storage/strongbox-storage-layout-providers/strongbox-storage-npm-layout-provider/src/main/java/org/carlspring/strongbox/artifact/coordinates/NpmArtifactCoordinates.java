@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,10 +12,8 @@ import org.semver.Version;
 import org.springframework.util.Assert;
 
 /**
- * This class is an {@link ArtifactCoordinates} implementation for npm
- * artifacts. <br>
- * See <a href="https://docs.npmjs.com/files/package.json">Official npm package
- * specification</a>.
+ * This class is an {@link ArtifactCoordinates} implementation for npm artifacts. <br>
+ * See <a href="https://docs.npmjs.com/files/package.json">Official npm package specification</a>.
  * 
  * @author sbespalov
  *
@@ -111,14 +110,26 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
     @Override
     public String toPath()
     {
+        return String.format("%s/%s/%s/%s", getGroup(), getName(), getVersion(), getArtifactFileName());
+    }
+
+    @Override
+    public URI toResource()
+    {
+        return URI.create(String.format("%s/-/%s", getId(), getArtifactFileName()));
+    }
+
+    public String getGroup()
+    {
         String scopeLocal = getScope();
         String nameLocal = getName();
-        String versionLocal = getVersion();
 
-        String group = scopeLocal == null ? nameLocal : scopeLocal;
-        String packageFileName = String.format("%s-%s.tgz", nameLocal, versionLocal);
+        return scopeLocal == null ? nameLocal : scopeLocal;
+    }
 
-        return String.format("%s/%s/%s/%s", group, nameLocal, versionLocal, packageFileName);
+    public String getArtifactFileName()
+    {
+        return String.format("%s-%s.tgz", getName(), getVersion());
     }
 
     public static NpmArtifactCoordinates parse(String path)
@@ -126,12 +137,12 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
         Matcher matcher = NPM_PATH_PATTERN.matcher(path);
 
         Assert.isTrue(matcher.matches(),
-                      String.format("Illegal artifact path [%s], NPM artifact path should be in the form of '{artifactGroup}/{artifactName}/{artifactFile}'.",
+                      String.format("Illegal artifact path [%s], NPM artifact path should be in the form of '{artifactGroup}/{artifactName}/{artifactVersion}/{artifactFile}'.",
                                     path));
 
         String group = matcher.group(1);
         String name = matcher.group(2);
-        String version = matcher.group(3);
+        String version = matcher.group(4);
 
         if (group.startsWith("@"))
         {
@@ -158,4 +169,13 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
         return new NpmArtifactCoordinates(scope, name, version);
     }
 
+    public static NpmArtifactCoordinates of(URI resource)
+    {
+        return parse(resource.toString());
+    }
+    
+    public static void main(String args[]) throws Exception{
+        Matcher matcher = NPM_PATH_PATTERN.matcher("@carlspring/npm-test-release/-/npm-test-release-1.0.0.tgz");
+        System.out.println(matcher.matches());
+    }
 }

@@ -171,13 +171,4 @@ public class NugetHierarchicalLayoutProvider
         return nugetArtifactManagementService;
     }
 
-    @Override
-    public String resolveResourcePath(Repository repository,
-                                      String path)
-        throws IOException
-    {
-        NugetHierarchicalArtifactCoordinates c = getArtifactCoordinates(path);
-        return "package/" + c.getId() + "/" + c.getVersion();
-    }
-
 }

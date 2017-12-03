@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -84,6 +85,12 @@ public abstract class AbstractArtifactCoordinates
     public String getPath()
     {
         return path;
+    }
+
+    @Override
+    public URI toResource()
+    {
+        return URI.create(toPath());
     }
 
     @Override

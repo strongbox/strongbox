@@ -23,7 +23,8 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
           CommonConfig.class,
           ClientConfig.class,
           DataServiceConfig.class,
-          TestingCoreConfig.class
+          TestingCoreConfig.class,
+          StorageApiConfig.class
 })
 public class Maven2LayoutProviderTestConfig
 {

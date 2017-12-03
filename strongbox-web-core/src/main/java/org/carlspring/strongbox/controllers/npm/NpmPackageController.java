@@ -1,10 +1,13 @@
 package org.carlspring.strongbox.controllers.npm;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -15,6 +18,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -23,12 +27,14 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.npm.metadata.Package;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +84,34 @@ public class NpmPackageController extends BaseArtifactController
     @Inject
     @Qualifier("npmJackasonMapper")
     private ObjectMapper npmJackasonMapper;
+
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(path = "{storageId}/{repositoryId}/{resource:.+}", method = RequestMethod.GET)
+    public void download(@PathVariable(name = "storageId") String storageId,
+                         @PathVariable(name = "repositoryId") String repositoryId,
+                         @PathVariable(name = "resource") String resource,
+                         HttpServletResponse response)
+        throws Exception
+    {
+        Repository repository = getRepository(storageId, repositoryId);
+        RepositoryPath path = npmLayoutProvider.resolve(repository, URI.create(resource));
+        ArtifactInputStream is = (ArtifactInputStream) npmArtifactManagementService.resolve(storageId,
+                                                                                            repositoryId,
+                                                                                            path.relativize()
+                                                                                                .toString());
+        if (is == null)
+        {
+            logger.debug("Unable to find artifact by path " + path);
+
+            response.setStatus(NOT_FOUND.value());
+            return;
+        }
+        response.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        
+        copyToResponse(is, response);
+        ArtifactControllerHelper.setHeadersForChecksums(is, response);
+        
+    }
 
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{name:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON)

@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.npm;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,7 +12,6 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NpmPackageGenerator;
-import org.carlspring.strongbox.config.RestAssuredConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -22,12 +22,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @IntegrationTest
-@Import(RestAssuredConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class NpmPackageControllerTest extends TestCaseWithRepositoryManagement
 {
@@ -78,9 +76,10 @@ public class NpmPackageControllerTest extends TestCaseWithRepositoryManagement
     {
         NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("@carlspring/npm-test-release",
                                                                        "1.0.0");
-        Path publishJsonPath = NpmPackageGenerator.newInstance()
-                                                  .of(coordinates)
-                                                  .buildPublishJson();
+        NpmPackageGenerator packageGenerator = NpmPackageGenerator.newInstance();
+        Path publishJsonPath = packageGenerator.of(coordinates)
+                                               .buildPublishJson();
+        Path packagePath = packageGenerator.getPackagePath();
 
         byte[] publishJsonContent = Files.readAllBytes(publishJsonPath);
 
@@ -93,6 +92,18 @@ public class NpmPackageControllerTest extends TestCaseWithRepositoryManagement
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
+
+        given().header("User-Agent", "npm/*")
+               .header("Content-Type", "application/json")
+               .when()
+               .get(contextBaseUrl + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/"
+                       + coordinates.toResource())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .assertThat()
+               .header("Content-Length", equalTo(String.valueOf(Files.size(packagePath))));
+
     }
 
 }

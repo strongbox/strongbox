@@ -11,6 +11,9 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
@@ -194,6 +197,18 @@ public class ConfigurationManager
         return (Configuration) this.configuration;
     }
 
+    public URI getBaseUri()
+    {
+        try
+        {
+            return URI.create(getConfiguration().getBaseUrl());
+        }
+        catch (IllegalArgumentException e)
+        {
+            throw new InvalidConfigurationException(e);
+        }
+    }
+    
     @Override
     public synchronized Resource getConfigurationResource()
             throws IOException

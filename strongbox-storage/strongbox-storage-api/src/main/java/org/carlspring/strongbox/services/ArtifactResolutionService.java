@@ -1,13 +1,15 @@
 package org.carlspring.strongbox.services;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * @author mtodorov
@@ -33,5 +35,11 @@ public interface ArtifactResolutionService
             throws IOException,
                    ProviderImplementationException,
                    NoSuchAlgorithmException;
+    
+    URL resolveArtifactResource(String storageId,
+                                String repositoryId,
+                                ArtifactCoordinates artifactCoordinates)
+            throws MalformedURLException, 
+                   IOException;
 
 }

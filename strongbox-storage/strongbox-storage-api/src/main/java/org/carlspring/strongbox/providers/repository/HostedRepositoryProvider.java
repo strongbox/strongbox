@@ -110,7 +110,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
             {
                 repositoryPath = layoutProvider.resolve(repository, artifactEntry.getArtifactCoordinates());
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 logger.error(String.format("Failed to resolve Artifact [%s]", artifactEntry.getArtifactCoordinates()),
                              e);

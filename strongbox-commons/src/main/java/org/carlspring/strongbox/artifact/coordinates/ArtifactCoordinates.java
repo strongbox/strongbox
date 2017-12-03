@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -22,6 +23,8 @@ public interface ArtifactCoordinates
     void setVersion(String version);
 
     String toPath();
+    
+    URI toResource();
 
     void defineCoordinates(String... coordinates);
 

@@ -372,14 +372,9 @@ public class NugetPackageController extends BaseArtifactController
             }
 
             response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
+            
+            copyToResponse(is, response);
             ArtifactControllerHelper.setHeadersForChecksums(is, response);
-
-            // unfortunately 'new TempNupkgFile(is)' closes 'is' stream :(
-            try (InputStream isCopy = getArtifactManagementService().resolve(storageId, repositoryId, path))
-            {
-                copyToResponse(isCopy, response);
-            }
-
         }
         catch (Exception e)
         {

@@ -95,12 +95,6 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         createRepository(repository1);
     }
 
-    @Override
-    public void shutdown()
-    {
-        super.shutdown();
-    }
-
     @Test
     public void testPackageDelete()
         throws Exception

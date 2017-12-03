@@ -3,8 +3,8 @@ package org.carlspring.strongbox.providers.repository.proxied;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 
 import javax.inject.Inject;
@@ -80,10 +80,10 @@ public abstract class ProxyRepositoryArtifactResolver
             client.setPassword(remoteRepository.getPassword());
 
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-            final String resourcePath = layoutProvider.resolveResourcePath(repository, path);
+            final URI resource = layoutProvider.resolveResource(repository, path);
 
             try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse = new CloseableProxyRepositoryResponse(
-                    client.getResourceWithResponse(resourcePath)))
+                    client.getResourceWithResponse(resource.toString())))
             {
                 final Response response = closeableProxyRepositoryResponse.response;
 
