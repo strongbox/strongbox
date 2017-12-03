@@ -26,7 +26,8 @@ public class NugetLayoutProviderTestConfig
 
     @Bean
     @Primary
-    public String ehCacheCacheManagerId() {
+    public String ehCacheCacheManagerId()
+    {
         return "nugetLayoutProviderTestCacheManager";
     }
     
