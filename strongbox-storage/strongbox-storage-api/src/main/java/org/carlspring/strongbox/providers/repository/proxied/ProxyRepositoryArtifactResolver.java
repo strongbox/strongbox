@@ -1,16 +1,7 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
 import org.carlspring.strongbox.client.ArtifactResolver;
+import org.carlspring.strongbox.client.ArtifactResolverFactory;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -21,10 +12,21 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+
 import org.slf4j.Logger;
 
 /**
@@ -47,6 +49,9 @@ public abstract class ProxyRepositoryArtifactResolver
 
     @Inject
     protected ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+
+    @Inject
+    protected ArtifactResolverFactory artifactResolverFactory;
 
     public InputStream getInputStream(final String storageId,
                                       final String repositoryId,
@@ -72,7 +77,7 @@ public abstract class ProxyRepositoryArtifactResolver
             return null;
         }
 
-        try (final ArtifactResolver client = new ArtifactResolver(
+        try (final ArtifactResolver client = artifactResolverFactory.newInstance(
                 proxyRepositoryConnectionPoolConfigurationService.getRestClient()))
         {
             client.setRepositoryBaseUrl(remoteRepository.getUrl());
@@ -82,8 +87,8 @@ public abstract class ProxyRepositoryArtifactResolver
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             final URI resource = layoutProvider.resolveResource(repository, path);
 
-            try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse = new CloseableProxyRepositoryResponse(
-                    client.getResourceWithResponse(resource.toString())))
+            try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse =
+                         new CloseableProxyRepositoryResponse(client.getResourceWithResponse(resource.toString())))
             {
                 final Response response = closeableProxyRepositoryResponse.response;
 
@@ -98,16 +103,22 @@ public abstract class ProxyRepositoryArtifactResolver
                     return null;
                 }
 
-                is = onSuccessfulProxyRepositoryResponse(is, storageId, repositoryId, path);
+                try
+                {
+                    is = onSuccessfulProxyRepositoryResponse(is, storageId, repositoryId, path);
+                } catch (ArtifactStorageException ex) {
+
+                }
 
                 RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath, RepositoryFileAttributes.class);
+                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath,
+                                                                                       RepositoryFileAttributes.class);
                 if (!artifactFileAttributes.isChecksum() && !artifactFileAttributes.isMetadata())
                 {
                     artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(storageId, repositoryId, path);
                 }
-                
-                
+
+
                 return is;
             }
         }

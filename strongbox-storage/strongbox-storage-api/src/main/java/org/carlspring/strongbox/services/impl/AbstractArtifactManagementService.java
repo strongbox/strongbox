@@ -169,7 +169,7 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
 
         long totalAmountOfBytes = 0l;
         int readLength;
-        byte[] bytes = new byte[4096];
+        byte[] bytes = new byte[ARTIFACT_READ_BUFFER_SIZE];
         while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
         {
             totalAmountOfBytes += readLength;
