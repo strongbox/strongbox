@@ -3,6 +3,8 @@ package org.carlspring.strongbox.artifact.coordinates;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.net.URI;
+
 import org.junit.Test;
 
 /**
@@ -39,4 +41,13 @@ public class NpmArtifactCoorinatesTest
     {
         NpmArtifactCoordinates.parse("@types/NODE/8.0.51/node-8.0.51.tgz");
     }
+
+    @Test
+    public void testOfUri()
+    {
+        NpmArtifactCoordinates c = NpmArtifactCoordinates.of(URI.create("@carlspring/npm-test-release/-/npm-test-release-1.0.0.tgz"));
+
+        assertEquals("@carlspring", c.getScope());
+        assertEquals("npm-test-release", c.getName());
+        assertEquals("1.0.0", c.getVersion());    }
 }
