@@ -145,7 +145,8 @@ public class DataServiceConfig
     }
 
     @Bean
-    public String ehCacheCacheManagerId() {
+    public String ehCacheCacheManagerId()
+    {
         return "strongboxCacheManager";
     }
     
