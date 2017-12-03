@@ -70,7 +70,7 @@ public @interface IntegrationTest
                                    AnnotatedTypeMetadata metadata)
             {
                 return !context.getRegistry().containsBeanDefinition("cronTaskConfigurationServiceImpl") &&
-                        !context.getRegistry().containsBeanDefinition("cronJobSchedulerServiceImpl");
+                       !context.getRegistry().containsBeanDefinition("cronJobSchedulerServiceImpl");
             }
         }
     }
