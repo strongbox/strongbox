@@ -33,7 +33,7 @@ public class ArtifactResolverIntegrationTest
     {
     }
 
-    private ArtifactResolver artifactResolver;
+    private RestArtifactResolver artifactResolver;
 
     // fake url
     private String repositoryUrl = "https://repo.maven.apache.org/maven2/";
@@ -44,9 +44,8 @@ public class ArtifactResolverIntegrationTest
     @Before
     public void setUp()
     {
-        artifactResolver = ArtifactResolver
-                .getTestInstance(proxyRepositoryConnectionPoolConfigurationService.getRestClient(), repositoryUrl, null,
-                                 null);
+        artifactResolver = new RestArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getRestClient(),
+                                                    repositoryUrl);
     }
 
     @Test
@@ -71,11 +70,11 @@ public class ArtifactResolverIntegrationTest
     public static final class MultiHttpClientConnThread extends Thread
     {
 
-        private ArtifactResolver artifactResolver;
+        private RestArtifactResolver artifactResolver;
 
         private String url;
 
-        public MultiHttpClientConnThread(ArtifactResolver artifactResolver,
+        public MultiHttpClientConnThread(RestArtifactResolver artifactResolver,
                                          String url)
         {
             this.artifactResolver = artifactResolver;

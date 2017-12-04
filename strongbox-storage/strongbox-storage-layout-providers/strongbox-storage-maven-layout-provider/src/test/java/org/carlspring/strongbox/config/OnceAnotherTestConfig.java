@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.client.ArtifactResolver;
-import org.carlspring.strongbox.client.ArtifactResolverFactory;
+import org.carlspring.strongbox.client.RestArtifactResolver;
+import org.carlspring.strongbox.client.RestArtifactResolverFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
@@ -26,7 +26,7 @@ public class OnceAnotherTestConfig
 
     @Bean
     @Primary
-    ArtifactResolverFactory artifactResolverFactory()
+    RestArtifactResolverFactory artifactResolverFactory()
             throws Exception
     {
         final InputStream inputStream = new BrokenInputStream();
@@ -36,10 +36,10 @@ public class OnceAnotherTestConfig
         Mockito.when(response.readEntity(InputStream.class)).thenReturn(inputStream);
         Mockito.when(response.getStatus()).thenReturn(200);
 
-        final ArtifactResolver artifactResolver = Mockito.mock(ArtifactResolver.class);
+        final RestArtifactResolver artifactResolver = Mockito.mock(RestArtifactResolver.class);
         Mockito.when(artifactResolver.getResourceWithResponse(Matchers.any(String.class))).thenReturn(response);
 
-        final ArtifactResolverFactory artifactResolverFactory = Mockito.mock(ArtifactResolverFactory.class);
+        final RestArtifactResolverFactory artifactResolverFactory = Mockito.mock(RestArtifactResolverFactory.class);
 
         Mockito.when(artifactResolverFactory.newInstance(Matchers.any(Client.class))).thenReturn(artifactResolver);
 

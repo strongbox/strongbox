@@ -5,6 +5,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.Closeable;
@@ -18,44 +19,36 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
  */
-public class ArtifactResolver
+public class RestArtifactResolver
         implements Closeable
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactResolver.class);
+    private static final Logger logger = LoggerFactory.getLogger(RestArtifactResolver.class);
 
-    private String repositoryBaseUrl;
-
-    private String username;
-
-    private String password;
-
-    private Client client;
+    private final String repositoryBaseUrl;
+    private final Client client;
+    private Feature authentication;
 
 
-    public ArtifactResolver(Client client)
+    public RestArtifactResolver(Client client,
+                                String repositoryBaseUrl)
     {
         this.client = client;
+        this.repositoryBaseUrl = normalize(repositoryBaseUrl);
     }
 
-    public static ArtifactResolver getTestInstance(Client client,
-                                                   String repositoryBaseUrl,
-                                                   String username,
-                                                   String password)
+    public RestArtifactResolver(Client client,
+                                String repositoryBaseUrl,
+                                Feature authentication)
     {
-        ArtifactResolver resolver = new ArtifactResolver(client);
-        resolver.setUsername(username);
-        resolver.setPassword(password);
-        resolver.setRepositoryBaseUrl(repositoryBaseUrl);
-
-        return resolver;
+        this(client, repositoryBaseUrl);
+        this.authentication = authentication;
     }
 
     @Override
@@ -74,7 +67,8 @@ public class ArtifactResolver
         return getResource(path, 0);
     }
 
-    public InputStream getResource(String path, long offset)
+    public InputStream getResource(String path,
+                                   long offset)
             throws ArtifactTransportException,
                    IOException
     {
@@ -130,6 +124,22 @@ public class ArtifactResolver
                                      .build();
 
         return resource.request().get();
+    }
+
+    public Response head(String path)
+            throws ArtifactTransportException,
+                   IOException
+    {
+        String url = escapeUrl(path);
+
+        logger.debug("Heading " + url + "...");
+
+        WebTarget resource = new WebTargetBuilder(url)
+                                     .withAuthentication()
+                                     .customRequestConfig()
+                                     .build();
+
+        return resource.request().head();
     }
 
     public boolean artifactExists(Artifact artifact,
@@ -242,36 +252,9 @@ public class ArtifactResolver
         return repositoryBaseUrl;
     }
 
-    public void setRepositoryBaseUrl(String repositoryBaseUrl)
+    private String normalize(String repositoryBaseUrl)
     {
-        if (repositoryBaseUrl.endsWith("/"))
-        {
-            this.repositoryBaseUrl = repositoryBaseUrl;
-        }
-        else
-        {
-            this.repositoryBaseUrl = repositoryBaseUrl + "/";
-        }
-    }
-
-    public String getUsername()
-    {
-        return username;
-    }
-
-    public void setUsername(String username)
-    {
-        this.username = username;
-    }
-
-    public String getPassword()
-    {
-        return password;
-    }
-
-    public void setPassword(String password)
-    {
-        this.password = password;
+        return repositoryBaseUrl.endsWith("/") ? repositoryBaseUrl : repositoryBaseUrl + "/";
     }
 
     private class WebTargetBuilder
@@ -286,9 +269,9 @@ public class ArtifactResolver
 
         private WebTargetBuilder withAuthentication()
         {
-            if (username != null && password != null)
+            if (authentication != null)
             {
-                target.register(HttpAuthenticationFeature.basic(username, password));
+                target.register(authentication);
             }
             return this;
         }
