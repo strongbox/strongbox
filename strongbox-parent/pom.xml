@@ -54,7 +54,7 @@
         <!-- Strongbox properties. -->
 
         <!-- Version properties: -->
-        <version.maven.indexer>6.0-SNAPSHOT</version.maven.indexer>
+        <version.maven.indexer>6.0.0</version.maven.indexer>
 
         <version.carlspring.maven.commons>1.4-SNAPSHOT</version.carlspring.maven.commons>
         <version.carlspring.commons.io>1.0-SNAPSHOT</version.carlspring.commons.io>
