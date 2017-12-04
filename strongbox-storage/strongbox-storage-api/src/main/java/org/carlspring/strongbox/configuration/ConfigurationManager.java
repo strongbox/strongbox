@@ -198,7 +198,7 @@ public class ConfigurationManager
     public synchronized Resource getConfigurationResource()
             throws IOException
     {
-        return ConfigurationResourceResolver.getConfigurationResource("repository.config.xml",
+        return ConfigurationResourceResolver.getConfigurationResource("strongbox.config.xml",
                                                                       "etc/conf/strongbox.xml");
     }
 
