@@ -4,8 +4,8 @@ import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
 import javax.inject.Inject;
-import java.io.IOException;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -84,18 +84,8 @@ public class ArtifactResolverIntegrationTest
         @Override
         public final void run()
         {
-            try
-            {
-                artifactResolver.getResource(url);
-            }
-            catch (ArtifactTransportException e)
-            {
-                LOGGER.error(e.getMessage(), e);
-            }
-            catch (IOException e)
-            {
-                LOGGER.error(e.getMessage(), e);
-            }
+            CloseableRestResponse response = artifactResolver.get(url);
+            IOUtils.closeQuietly(response);
         }
 
     }

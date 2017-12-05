@@ -9,11 +9,16 @@ import java.io.OutputStream;
 /**
  * @author Przemyslaw Fusik
  */
-public interface ArtifactByteStreams
+public interface ArtifactByteStreamsCopyStrategy
 {
 
-    long copy(InputStream inputStream,
-              OutputStream outputStream,
+    /**
+     * Default size of buffers allocated for copies.
+     */
+    int BUF_SIZE = 8192;
+
+    long copy(InputStream from,
+              OutputStream to,
               RepositoryPath artifactPath)
             throws IOException;
 }

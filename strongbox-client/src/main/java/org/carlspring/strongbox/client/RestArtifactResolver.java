@@ -1,23 +1,13 @@
 package org.carlspring.strongbox.client;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
 
-import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,17 +50,13 @@ public class RestArtifactResolver
         }
     }
 
-    public InputStream getResource(String path)
-            throws ArtifactTransportException,
-                   IOException
+    public CloseableRestResponse get(String path)
     {
-        return getResource(path, 0);
+        return get(path, 0);
     }
 
-    public InputStream getResource(String path,
-                                   long offset)
-            throws ArtifactTransportException,
-                   IOException
+    public CloseableRestResponse get(String path,
+                                     long offset)
     {
         String url = escapeUrl(path);
 
@@ -93,42 +79,10 @@ public class RestArtifactResolver
             response = request.get();
         }
 
-        try
-        {
-            if (response.getStatus() != HttpStatus.SC_OK || response.getEntity() == null)
-            {
-                return null;
-            }
-            else
-            {
-                return response.readEntity(InputStream.class);
-            }
-        }
-        finally
-        {
-            response.close();
-        }
+        return new CloseableRestResponse(response);
     }
 
-    public Response getResourceWithResponse(String path)
-            throws ArtifactTransportException,
-                   IOException
-    {
-        String url = escapeUrl(path);
-
-        logger.debug("Getting " + url + "...");
-
-        WebTarget resource = new WebTargetBuilder(url)
-                                     .withAuthentication()
-                                     .customRequestConfig()
-                                     .build();
-
-        return resource.request().get();
-    }
-
-    public Response head(String path)
-            throws ArtifactTransportException,
-                   IOException
+    public CloseableRestResponse head(String path)
     {
         String url = escapeUrl(path);
 
@@ -139,117 +93,15 @@ public class RestArtifactResolver
                                      .customRequestConfig()
                                      .build();
 
-        return resource.request().head();
-    }
-
-    public boolean artifactExists(Artifact artifact,
-                                  String storageId,
-                                  String repositoryId)
-            throws ResponseException
-    {
-        Response response = artifactExistsStatusCode(artifact, storageId, repositoryId);
-
-        try
-        {
-            if (response.getStatus() == HttpStatus.SC_OK)
-            {
-                return true;
-            }
-            else if (response.getStatus() == HttpStatus.SC_NOT_FOUND)
-            {
-                return false;
-            }
-            else
-            {
-                throw new ResponseException(response.getStatusInfo().getReasonPhrase(), response.getStatus());
-            }
-        }
-        finally
-        {
-            response.close();
-        }
-    }
-
-    public Response artifactExistsStatusCode(Artifact artifact,
-                                             String storageId,
-                                             String repositoryId)
-            throws ResponseException
-    {
-        String url = getUrlForArtifact(artifact, storageId, repositoryId);
-
-        logger.debug("Path to artifact: " + url);
-
-        WebTarget resource = new WebTargetBuilder(url)
-                                     .withAuthentication()
-                                     .customRequestConfig()
-                                     .build();
-
-        return resource.request(MediaType.TEXT_PLAIN).header("user-agent", "Maven/*").get();
-    }
-
-    public boolean pathExists(String path)
-    {
-        String url = escapeUrl(path);
-
-        logger.debug("Path to artifact: " + url);
-
-        WebTarget resource = new WebTargetBuilder(url)
-                                     .withAuthentication()
-                                     .customRequestConfig()
-                                     .build();
-
-        Response response = resource.request(MediaType.TEXT_PLAIN).header("user-agent", "Maven/*").get();
-        try
-        {
-            return response.getStatus() == HttpStatus.SC_OK;
-        }
-        finally
-        {
-            response.close();
-        }
+        return new CloseableRestResponse(resource.request().head());
     }
 
     private String escapeUrl(String path)
     {
-        String baseUrl = getRepositoryBaseUrl() + (getRepositoryBaseUrl().endsWith("/") ? "" : "/");
+        String baseUrl = repositoryBaseUrl + (repositoryBaseUrl.endsWith("/") ? "" : "/");
         String p = (path.startsWith("/") ? path.substring(1, path.length()) : path);
 
         return baseUrl + p;
-    }
-
-    public String getUrlForArtifact(Artifact artifact,
-                                    String storageId,
-                                    String repositoryId)
-    {
-        return getRepositoryBaseUrl() +
-               "storages/" + storageId + "/" + repositoryId + "/" +
-               ArtifactUtils.convertArtifactToPath(artifact);
-    }
-
-    public Metadata retrieveMetadata(String path)
-            throws ArtifactTransportException,
-                   IOException,
-                   XmlPullParserException
-    {
-        if (pathExists(path))
-        {
-            InputStream is = getResource(path);
-            try
-            {
-                MetadataXpp3Reader reader = new MetadataXpp3Reader();
-                return reader.read(is);
-            }
-            finally
-            {
-                is.close();
-            }
-        }
-        return null;
-    }
-
-    public String getRepositoryBaseUrl()
-    {
-        return repositoryBaseUrl;
     }
 
     private String normalize(String repositoryBaseUrl)

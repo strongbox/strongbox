@@ -1,8 +1,9 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.client.RestArtifactResolverFactory;
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
@@ -80,10 +81,9 @@ public abstract class ProxyRepositoryArtifactResolver
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             final URI resource = layoutProvider.resolveResource(repository, path);
 
-            try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse = new CloseableProxyRepositoryResponse(
-                    client.getResourceWithResponse(resource.toString())))
+            try (final CloseableRestResponse closeableRestResponse = client.get(resource.toString()))
             {
-                final Response response = closeableProxyRepositoryResponse.getResponse();
+                final Response response = closeableRestResponse.getResponse();
 
                 if (response.getStatus() != 200 || response.getEntity() == null)
                 {
@@ -129,7 +129,7 @@ public abstract class ProxyRepositoryArtifactResolver
 
     protected abstract Logger getLogger();
 
-    private Configuration getConfiguration()
+    protected Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
     }
