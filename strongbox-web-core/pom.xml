@@ -78,7 +78,7 @@
                         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
                         <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
-                        <repository.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</repository.config.xml>
+                        <strongbox.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</strongbox.config.xml>
                         <strongbox.host>${strongbox.host}</strongbox.host>
                         <strongbox.port>${strongbox.port}</strongbox.port>
                         <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
@@ -136,7 +136,7 @@
                             <value>${dir.strongbox.vault}</value>
                         </systemProperty>
                         <systemProperty>
-                            <name>repository.config.xml</name>
+                            <name>strongbox.config.xml</name>
                             <value>${dir.strongbox.home}/etc/conf/strongbox.xml</value>
                         </systemProperty>
                         <systemProperty>
@@ -861,7 +861,7 @@
                                     <value>${strongbox.port}</value>
                                 </systemProperty>
                                 <systemProperty>
-                                    <name>repository.config.xml</name>
+                                    <name>strongbox.config.xml</name>
                                     <value>${dir.strongbox.home}/etc/conf/strongbox.xml</value>
                                 </systemProperty>
                                 <systemProperty>

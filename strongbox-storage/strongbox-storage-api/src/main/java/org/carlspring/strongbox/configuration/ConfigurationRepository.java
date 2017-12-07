@@ -207,7 +207,7 @@ public class ConfigurationRepository
     public Resource getConfigurationResource()
             throws IOException
     {
-        return ConfigurationResourceResolver.getConfigurationResource("repository.config.xml",
+        return ConfigurationResourceResolver.getConfigurationResource("strongbox.config.xml",
                                                                       "etc/conf/strongbox.xml");
     }
 
