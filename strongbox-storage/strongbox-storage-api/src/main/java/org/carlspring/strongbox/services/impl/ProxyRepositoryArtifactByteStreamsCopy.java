@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.client.RestArtifactResolverFactory;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactByteStreamsCopyStrategy;
 import org.carlspring.strongbox.services.support.ArtifactByteStreamsCopyException;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
 
@@ -244,9 +244,21 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     private String getRestClientResourcePath(final RepositoryPath artifactPath)
             throws IOException
     {
-        final ArtifactCoordinates c = RepositoryFiles.readCoordinates(artifactPath);
-        final URI resource = c.toResource();
+        final RepositoryPath finalArtifactPath = resolveToFinalArtifactPath(artifactPath);
+        final Repository repository = finalArtifactPath.getFileSystem().getRepository();
+        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        final URI resource = layoutProvider.resolveResource(repository, finalArtifactPath.toString());
         return resource.toString();
+    }
+
+    private RepositoryPath resolveToFinalArtifactPath(final RepositoryPath artifactPath)
+    {
+        RepositoryPath finalArtifactPath = artifactPath;
+        if (artifactPath.startsWith(artifactPath.getFileSystem().getTempPath().toString()))
+        {
+            finalArtifactPath = artifactPath.getFileSystem().getTempPath().relativize(artifactPath);
+        }
+        return finalArtifactPath;
     }
 
     private RestArtifactResolver getRestArtifactResolver(final RemoteRepository remoteRepository)

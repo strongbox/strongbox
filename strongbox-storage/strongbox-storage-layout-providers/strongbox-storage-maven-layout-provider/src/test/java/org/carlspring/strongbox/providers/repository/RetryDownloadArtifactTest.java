@@ -2,7 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.OnceAnotherTestConfig;
+import org.carlspring.strongbox.config.MockedRestArtifactResolverTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -25,8 +25,8 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Przemyslaw Fusik
  */
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(classes = OnceAnotherTestConfig.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
 public class RetryDownloadArtifactTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -43,27 +43,20 @@ public class RetryDownloadArtifactTest
             throws Exception
     {
         deleteDirectoryRelativeToVaultDirectory(
-                "storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin");
-        deleteDirectoryRelativeToVaultDirectory("storages/storage-common-proxies/maven-oracle/com/oracle/jdbc/ojdbc8");
-        deleteDirectoryRelativeToVaultDirectory(
                 "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
-        deleteDirectoryRelativeToVaultDirectory("storages/storage-common-proxies/maven-central/javax/media/jai_core");
-
         artifactEntryService.deleteAll();
     }
 
-   // @Test
+    @Test
     public void whenDownloadingArtifactDatabaseShouldBeAffectedByArtifactEntry()
             throws Exception
     {
-        /*
-        TODO
+
         String storageId = "storage-common-proxies";
         String repositoryId = "maven-central";
         String path = "org/carlspring/properties-injector/1.6/properties-injector-1.6.jar";
 
         assertStreamNotNull(storageId, repositoryId, path);
-        */
     }
 
     private void assertStreamNotNull(String storageId,

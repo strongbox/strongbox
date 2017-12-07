@@ -14,8 +14,6 @@ import org.carlspring.strongbox.storage.Storage;
  */
 public interface ArtifactManagementService extends ConfigurationService
 {
-    int ARTIFACT_READ_BUFFER_SIZE = 4096;
-
     /**
      * @return total number of bytes stored
      */
