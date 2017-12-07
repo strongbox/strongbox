@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.providers.storage;
+package org.carlspring.strongbox.providers.datastore;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
