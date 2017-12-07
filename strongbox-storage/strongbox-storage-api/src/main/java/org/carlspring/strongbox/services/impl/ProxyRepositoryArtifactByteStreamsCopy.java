@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.time.StopWatch;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -252,9 +251,8 @@ public class ProxyRepositoryArtifactByteStreamsCopy
 
     private RestArtifactResolver getRestArtifactResolver(final RemoteRepository remoteRepository)
     {
-        return artifactResolverFactory.newInstance(remoteRepository.getUrl(),
-                                                   HttpAuthenticationFeature.basic(remoteRepository.getUsername(),
-                                                                                   remoteRepository.getPassword()));
+        return artifactResolverFactory.newInstance(remoteRepository.getUrl(), remoteRepository.getUsername(),
+                                                   remoteRepository.getPassword());
     }
 
 

@@ -25,7 +25,6 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 
 /**
@@ -74,9 +73,8 @@ public abstract class ProxyRepositoryArtifactResolver
         }
 
         try (final RestArtifactResolver client = artifactResolverFactory.newInstance(remoteRepository.getUrl(),
-                                                                                     HttpAuthenticationFeature.basic(
-                                                                                         remoteRepository.getUsername(),
-                                                                                         remoteRepository.getPassword())))
+                                                                                     remoteRepository.getUsername(),
+                                                                                     remoteRepository.getPassword()))
         {
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             final URI resource = layoutProvider.resolveResource(repository, path);
@@ -99,7 +97,8 @@ public abstract class ProxyRepositoryArtifactResolver
                 is = onSuccessfulProxyRepositoryResponse(is, storageId, repositoryId, path);
 
                 RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath, RepositoryFileAttributes.class);
+                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath,
+                                                                                       RepositoryFileAttributes.class);
                 if (!artifactFileAttributes.isChecksum() && !artifactFileAttributes.isMetadata())
                 {
                     artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(storageId, repositoryId, path);
