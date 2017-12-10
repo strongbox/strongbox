@@ -46,7 +46,7 @@ public abstract class ProxyRepositoryArtifactResolver
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
     @Inject
-    protected RestArtifactResolverFactory artifactResolverFactory;
+    protected RestArtifactResolverFactory restArtifactResolverFactory;
 
     public InputStream getInputStream(final String storageId,
                                       final String repositoryId,
@@ -72,9 +72,9 @@ public abstract class ProxyRepositoryArtifactResolver
             return null;
         }
 
-        try (final RestArtifactResolver client = artifactResolverFactory.newInstance(remoteRepository.getUrl(),
-                                                                                     remoteRepository.getUsername(),
-                                                                                     remoteRepository.getPassword()))
+        try (final RestArtifactResolver client = restArtifactResolverFactory.newInstance(remoteRepository.getUrl(),
+                                                                                         remoteRepository.getUsername(),
+                                                                                         remoteRepository.getPassword()))
         {
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             final URI resource = layoutProvider.resolveResource(repository, path);

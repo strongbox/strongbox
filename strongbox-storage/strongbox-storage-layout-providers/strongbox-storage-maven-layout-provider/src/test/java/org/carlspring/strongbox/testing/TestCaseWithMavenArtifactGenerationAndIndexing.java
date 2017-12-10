@@ -31,7 +31,6 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -335,8 +334,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         locator.locateArtifactDirectories();
     }
 
-    protected void deleteDirectoryRelativeToVaultDirectory(String dirPathToDelete)
-            throws Exception
+    protected Path getVaultDirectoryPath()
     {
         String base = FilenameUtils.normalize(ConfigurationResourceResolver.getVaultDirectory());
         if (StringUtils.isBlank(base))
@@ -344,7 +342,13 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
             throw new IllegalStateException("ConfigurationResourceResolver.getVaultDirectory() resolves to '" + base +
                                             "' which is illegal base path here.");
         }
-        Path basePath = Paths.get(base);
+        return Paths.get(base);
+    }
+
+    protected void deleteDirectoryRelativeToVaultDirectory(String dirPathToDelete)
+            throws Exception
+    {
+        Path basePath = getVaultDirectoryPath();
         Path fullDirPathToDelete = basePath.resolve(dirPathToDelete);
         FileUtils.deleteDirectory(fullDirPathToDelete.toFile());
     }
