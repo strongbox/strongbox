@@ -78,7 +78,7 @@
         <version.maven>3.3.9</version.maven>
         <version.mockito>2.0.2-beta</version.mockito>
         <version.orientdb>2.2.18</version.orientdb>
-        <version.quartz>2.2.3</version.quartz>
+        <version.quartz>2.3.0</version.quartz>
         <version.servlet.api>3.1.0</version.servlet.api>
         <version.slf4j>1.7.24</version.slf4j>
         <version.spring>4.3.6.RELEASE</version.spring>
