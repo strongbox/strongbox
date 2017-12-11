@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 /**
  * Created by dinesh on 12/6/17.
  */
-@Component("GroupIdCaseValidator")
+@Component("mavenGroupIdLowercaseValidator")
 public class MavenGroupIdLowercaseValidator
         implements LowercaseValidator
 {
@@ -44,3 +44,4 @@ public class MavenGroupIdLowercaseValidator
 
 
 }
+

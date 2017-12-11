@@ -4,6 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.validation.exceptions.LowercaseValidationException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -27,28 +28,30 @@ public class MavenGroupIdLowercaseValidatorTest
 
     MavenArtifactCoordinates mavenArtifactCoordinates;
     @Mock
-    RepositoryPath repositoryPath = new RepositoryPath(null,null);
+    RepositoryPath repositoryPath = new RepositoryPath(null, null);
 
     @Mock
-    RepositoryFileAttributes repositoryFileAttributes ;
-
-
+    RepositoryFileAttributes repositoryFileAttributes;
+    
     @Before
-    public void setUp(){
+    public void setUp()
+    {
         initMocks(this);
         mavenArtifactCoordinates = new MavenArtifactCoordinates("org.dinesh.artifact.is.Uppercase",
-                "my-maven-artifact",
-                "1.0",
-                "classfier",
-                "extension");
-       // repositoryFileSystem
+                                                                "my-maven-artifact",
+                                                                "1.0",
+                                                                "classfier",
+                                                                "extension");
+        // repositoryFileSystem
     }
 
 
     @Test(expected = LowercaseValidationException.class)
-    public void validateGroupIdCase() throws Exception {
-       doReturn(repositoryFileAttributes).when(groupIdCaseValidator).getAttributes(any());
-       when(repositoryFileAttributes.getCoordinates()).thenReturn(mavenArtifactCoordinates);
+    public void validateGroupIdCase()
+            throws Exception
+    {
+        doReturn(repositoryFileAttributes).when(groupIdCaseValidator).getAttributes(any());
+        when(repositoryFileAttributes.getCoordinates()).thenReturn(mavenArtifactCoordinates);
         groupIdCaseValidator.validateCase(repositoryPath);
     }
 
