@@ -1,9 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 
 /**
  * @author Przemyslaw Fusik
@@ -31,11 +28,24 @@ public class RemoteRepositoriesConfiguration
         }
     };
 
-    @XmlElement(name = "check-interval-seconds")
+    @XmlElement(name = "retry-artifact-download-configuration")
+    private RemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration = RemoteRepositoryRetryArtifactDownloadConfiguration.DEFAULT;
+
+    @XmlAttribute(name = "check-interval-seconds")
     private int checkIntervalSeconds = DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
 
-    @XmlElement(name = "heartbeat-threads-number")
+    @XmlAttribute(name = "heartbeat-threads-number")
     private int heartbeatThreadsNumber = 5;
+
+    public RemoteRepositoryRetryArtifactDownloadConfiguration getRemoteRepositoryRetryArtifactDownloadConfiguration()
+    {
+        return remoteRepositoryRetryArtifactDownloadConfiguration;
+    }
+
+    public void setRemoteRepositoryRetryArtifactDownloadConfiguration(final RemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration)
+    {
+        this.remoteRepositoryRetryArtifactDownloadConfiguration = remoteRepositoryRetryArtifactDownloadConfiguration;
+    }
 
     public int getCheckIntervalSeconds()
     {

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.testing;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
@@ -10,10 +11,7 @@ import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ArtifactSearchService;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.services.StorageManagementService;
+import org.carlspring.strongbox.services.*;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -31,11 +29,13 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
+import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -50,6 +50,7 @@ import org.apache.maven.index.context.IndexingContext;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -60,8 +61,11 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     public static final int ROUTING_RULE_TYPE_DENIED = 0;
+
     public static final int ROUTING_RULE_TYPE_ACCEPTED = 1;
+
     private static final Logger logger = LoggerFactory.getLogger(TestCaseWithMavenArtifactGenerationAndIndexing.class);
+
     @Inject
     protected RepositoryIndexManager repositoryIndexManager;
 
@@ -85,6 +89,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
 
     @Inject
     protected MavenMetadataManager mavenMetadataManager;
+
+    @Inject
+    protected ArtifactResolutionService artifactResolutionService;
 
     protected void createRepositoryWithArtifacts(Repository repository,
                                                  String ga,
@@ -351,6 +358,22 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         Path basePath = getVaultDirectoryPath();
         Path fullDirPathToDelete = basePath.resolve(dirPathToDelete);
         FileUtils.deleteDirectory(fullDirPathToDelete.toFile());
+    }
+
+    protected void assertStreamNotNull(final String storageId,
+                                     final String repositoryId,
+                                     final String path)
+            throws Exception
+    {
+        try (final InputStream is = artifactResolutionService.getInputStream(storageId, repositoryId, path))
+        {
+            assertNotNull("Failed to resolve " + path + "!", is);
+
+            if (ArtifactUtils.isMetadata(path))
+            {
+                System.out.println(ByteStreams.toByteArray(is));
+            }
+        }
     }
 
     public void assertIndexContainsArtifact(String storageId,

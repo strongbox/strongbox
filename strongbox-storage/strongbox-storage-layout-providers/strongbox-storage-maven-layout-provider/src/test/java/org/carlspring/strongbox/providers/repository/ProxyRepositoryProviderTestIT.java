@@ -1,14 +1,11 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -49,9 +46,6 @@ public class ProxyRepositoryProviderTestIT
     private static final Logger logger = LoggerFactory.getLogger(ProxyRepositoryProviderTestIT.class);
 
     @Inject
-    private ArtifactResolutionService artifactResolutionService;
-
-    @Inject
     private ArtifactEntryService artifactEntryService;
 
     @Inject
@@ -74,10 +68,7 @@ public class ProxyRepositoryProviderTestIT
 
     @Test
     public void shouldBeAbleToProvideFilesFromOracleMavenRepoWithHttpsAndAuthenticationAndRedirections()
-            throws ProviderImplementationException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   IOException
+            throws Exception
     {
 
         String providedTestOracleRepoUser = System.getProperty("strongbox.test.oracle.repo.user");
@@ -191,12 +182,7 @@ public class ProxyRepositoryProviderTestIT
 
     @Test
     public void testMavenCentral()
-            throws ProviderImplementationException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   IOException,
-                   SearchException,
-                   InterruptedException
+            throws Exception
     {
         assertStreamNotNull("storage-common-proxies",
                             "maven-central",
@@ -231,25 +217,6 @@ public class ProxyRepositoryProviderTestIT
         assertIndexContainsArtifact("storage-common-proxies",
                                     "maven-central",
                                     "+g:org.carlspring.maven +a:derby-maven-plugin +v:1.10");
-    }
-
-    private void assertStreamNotNull(String storageId,
-                                     String repositoryId,
-                                     String path)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
-    {
-        try (final InputStream is = artifactResolutionService.getInputStream(storageId, repositoryId, path))
-        {
-            assertNotNull("Failed to resolve " + path + "!", is);
-
-            if (ArtifactUtils.isMetadata(path))
-            {
-                System.out.println(ByteStreams.toByteArray(is));
-            }
-        }
     }
 
     @Ignore // Broken while Docker is being worked on, as there is no running instance of the Strongbox service.

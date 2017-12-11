@@ -3,6 +3,8 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.client.RestArtifactResolverFactory;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -35,22 +37,10 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         implements ArtifactByteStreamsCopyStrategy
 {
 
-    /**
-     * TODO move to xml
-     */
-    public static final int MAX_NB_OF_ATTEMPTS = 5;
-
-    /**
-     * TODO move to xml
-     */
-    public static final int TIMEOUT_IN_SECONDS = 60;
-
-    /**
-     * TODO move to xml
-     */
-    public static final int MIN_DELAY_BETWEEN_ATTEMPTS_IN_SECONDS = 5;
-
     private static final Logger logger = LoggerFactory.getLogger(ProxyRepositoryArtifactByteStreamsCopy.class);
+
+    @Inject
+    private ConfigurationManager configurationManager;
 
     @Inject
     private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
@@ -112,11 +102,13 @@ public class ProxyRepositoryArtifactByteStreamsCopy
                                      final IOException lastException)
             throws IOException
     {
+        logger.debug(
+                "Retrying remote stream copying ... Attempt number = [{}], Current Offset = [{}] Duration Time = [{}]",
+                attempts, currentOffset, stopWatch);
         finishUnsuccessfullyIfNumberOfAttemptsExceedTheLimit(attempts, lastException);
         tryToSleepRequestedAmountOfTimeBetweenAttempts(lastException);
         finishUnsuccessfullyIfTimeoutOccurred(stopWatch, lastException);
 
-        IOException propagatedIOException = lastException;
         if (checkRemoteRepositoryHeartbeat(artifactPath))
         {
             if (rangeRequestSupported.getValue() == null)
@@ -129,19 +121,11 @@ public class ProxyRepositoryArtifactByteStreamsCopy
                                       " does not support range requests.", lastException);
             }
 
-            try
-            {
-                return performRangeRequest(to, artifactPath, stopWatch, attempts + 1, currentOffset,
-                                           rangeRequestSupported);
-            }
-            catch (final IOException rangeRequestIOExcpetion)
-            {
-                propagatedIOException = rangeRequestIOExcpetion;
-            }
+            return performRangeRequest(to, artifactPath, stopWatch, attempts + 1, currentOffset, rangeRequestSupported);
         }
 
         return retryCopyIfPossible(to, artifactPath, stopWatch, attempts + 1, currentOffset, rangeRequestSupported,
-                                   propagatedIOException);
+                                   lastException);
     }
 
     private boolean isRangeRequestSupported(final RepositoryPath artifactPath)
@@ -211,7 +195,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     {
         try
         {
-            Thread.sleep(MIN_DELAY_BETWEEN_ATTEMPTS_IN_SECONDS * 100);
+            Thread.sleep(getSleepMillisTimeBeforeNextAttempt());
         }
         catch (final InterruptedException e)
         {
@@ -221,25 +205,28 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         }
     }
 
+
     private void finishUnsuccessfullyIfNumberOfAttemptsExceedTheLimit(final int attempts,
                                                                       final IOException ex)
             throws IOException
     {
-        if (attempts > MAX_NB_OF_ATTEMPTS)
+        if (attempts > getMaxAllowedNumberOfRetryAttempts())
         {
             throw ex;
         }
     }
 
+
     private void finishUnsuccessfullyIfTimeoutOccurred(final StopWatch stopWatch,
                                                        final IOException ex)
             throws IOException
     {
-        if (stopWatch.getTime() > TIMEOUT_IN_SECONDS * 1000L)
+        if (stopWatch.getTime() > getRetryTimeoutMillis())
         {
             throw ex;
         }
     }
+
 
     private String getRestClientResourcePath(final RepositoryPath artifactPath)
             throws IOException
@@ -265,6 +252,28 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     {
         return artifactResolverFactory.newInstance(remoteRepository.getUrl(), remoteRepository.getUsername(),
                                                    remoteRepository.getPassword());
+    }
+
+    private long getRetryTimeoutMillis()
+    {
+        return getRetryConfiguration().getTimeoutSeconds() * 1000L;
+    }
+
+    private long getSleepMillisTimeBeforeNextAttempt()
+    {
+        return getRetryConfiguration().getMinAttemptsIntervalSeconds() * 1000L;
+    }
+
+    private int getMaxAllowedNumberOfRetryAttempts()
+    {
+        return getRetryConfiguration().getMaxNumberOfAttempts();
+    }
+
+    private RemoteRepositoryRetryArtifactDownloadConfiguration getRetryConfiguration()
+    {
+        return configurationManager.getConfiguration()
+                                   .getRemoteRepositoriesConfiguration()
+                                   .getRemoteRepositoryRetryArtifactDownloadConfiguration();
     }
 
 
