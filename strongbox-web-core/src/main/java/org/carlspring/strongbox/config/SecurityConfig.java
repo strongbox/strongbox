@@ -74,24 +74,24 @@ public class SecurityConfig
     protected void configure(HttpSecurity http)
             throws Exception
     {
-        http.sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
+        http
+            .addFilterBefore(strongboxAuthenticationFilter(),
+                             BasicAuthenticationFilter.class)
+            .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
             .exceptionHandling()
-            .accessDeniedHandler(accessDeniedHandler())
-            // TODO SB-813
-            .authenticationEntryPoint(basicAuthenticationEntryPoint())
-            .and()
+                .accessDeniedHandler(accessDeniedHandler())
+                // TODO SB-813
+                .authenticationEntryPoint(basicAuthenticationEntryPoint())
+                .and()
             .anonymous()
-            .authenticationFilter(anonymousAuthenticationFilter())
-            .and()
+                .authenticationFilter(anonymousAuthenticationFilter())
+                .and()
             .cors()
-            .and()
+                .and()
             .csrf()
-            .disable();
-
-        http.addFilterBefore(strongboxAuthenticationFilter(),
-                             BasicAuthenticationFilter.class);
+                .disable();
     }
 
     @Bean
