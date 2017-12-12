@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.validation.groupId;
+package org.carlspring.strongbox.storage.validation.groupid;
 
 /**
  * Created by dinesh on 12/6/17.

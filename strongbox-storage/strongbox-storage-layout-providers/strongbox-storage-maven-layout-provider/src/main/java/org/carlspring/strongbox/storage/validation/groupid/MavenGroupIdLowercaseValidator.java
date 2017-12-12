@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.validation.groupId;
+package org.carlspring.strongbox.storage.validation.groupid;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
