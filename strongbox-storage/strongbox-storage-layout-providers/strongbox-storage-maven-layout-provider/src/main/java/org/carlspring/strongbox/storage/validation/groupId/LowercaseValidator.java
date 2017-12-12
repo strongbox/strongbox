@@ -2,7 +2,6 @@ package org.carlspring.strongbox.storage.validation.groupId;
 
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.validation.exceptions.LowercaseValidationException;
 
 import java.io.IOException;
 
@@ -13,7 +12,7 @@ public interface LowercaseValidator
 {
 
     /**
-     * This method checks if the groupId component of the path is in lowercase
+     * This method checks if the respective part of the path is lowercase
      *
      * @param repositoryPath
      * @throws LowercaseValidationException

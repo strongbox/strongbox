@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.validation.exceptions;
+package org.carlspring.strongbox.storage.validation.groupId;
 
 /**
  * Created by dinesh on 12/6/17.

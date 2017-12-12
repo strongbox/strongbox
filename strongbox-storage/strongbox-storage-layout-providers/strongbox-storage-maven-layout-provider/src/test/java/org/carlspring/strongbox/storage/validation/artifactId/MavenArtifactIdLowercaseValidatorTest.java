@@ -3,7 +3,7 @@ package org.carlspring.strongbox.storage.validation.artifactId;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.validation.exceptions.LowercaseValidationException;
+import org.carlspring.strongbox.storage.validation.groupId.LowercaseValidationException;
 
 import org.junit.Before;
 import org.junit.Test;
