@@ -9,7 +9,10 @@
 
     <session-configuration timeout-seconds="30" />
 
-    <remote-repositories-configuration check-interval-seconds="60" heartbeat-threads-number="5" />
+    <remote-repositories-configuration check-interval-seconds="60" heartbeat-threads-number="5">
+        <retry-artifact-download-configuration timeout-seconds="60" max-number-of-attempts="5"
+                                               min-attempts-interval-seconds="5"/>
+    </remote-repositories-configuration>
 
     <storages>
 

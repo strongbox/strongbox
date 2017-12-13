@@ -14,7 +14,6 @@ import org.carlspring.strongbox.storage.Storage;
  */
 public interface ArtifactManagementService extends ConfigurationService
 {
-
     /**
      * @return total number of bytes stored
      */

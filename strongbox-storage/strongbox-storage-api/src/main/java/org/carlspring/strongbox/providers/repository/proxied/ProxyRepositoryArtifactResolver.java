@@ -1,17 +1,9 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
-import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.client.CloseableRestResponse;
+import org.carlspring.strongbox.client.RestArtifactResolver;
+import org.carlspring.strongbox.client.RestArtifactResolverFactory;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
@@ -20,11 +12,19 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+
 import org.slf4j.Logger;
 
 /**
@@ -46,7 +46,7 @@ public abstract class ProxyRepositoryArtifactResolver
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
     @Inject
-    protected ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+    protected RestArtifactResolverFactory restArtifactResolverFactory;
 
     public InputStream getInputStream(final String storageId,
                                       final String repositoryId,
@@ -72,20 +72,16 @@ public abstract class ProxyRepositoryArtifactResolver
             return null;
         }
 
-        try (final ArtifactResolver client = new ArtifactResolver(
-                proxyRepositoryConnectionPoolConfigurationService.getRestClient()))
+        try (final RestArtifactResolver client = restArtifactResolverFactory.newInstance(remoteRepository.getUrl(),
+                                                                                         remoteRepository.getUsername(),
+                                                                                         remoteRepository.getPassword()))
         {
-            client.setRepositoryBaseUrl(remoteRepository.getUrl());
-            client.setUsername(remoteRepository.getUsername());
-            client.setPassword(remoteRepository.getPassword());
-
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             final URI resource = layoutProvider.resolveResource(repository, path);
 
-            try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse = new CloseableProxyRepositoryResponse(
-                    client.getResourceWithResponse(resource.toString())))
+            try (final CloseableRestResponse closeableRestResponse = client.get(resource.toString()))
             {
-                final Response response = closeableProxyRepositoryResponse.response;
+                final Response response = closeableRestResponse.getResponse();
 
                 if (response.getStatus() != 200 || response.getEntity() == null)
                 {
@@ -101,13 +97,14 @@ public abstract class ProxyRepositoryArtifactResolver
                 is = onSuccessfulProxyRepositoryResponse(is, storageId, repositoryId, path);
 
                 RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath, RepositoryFileAttributes.class);
+                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath,
+                                                                                       RepositoryFileAttributes.class);
                 if (!artifactFileAttributes.isChecksum() && !artifactFileAttributes.isMetadata())
                 {
                     artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(storageId, repositoryId, path);
                 }
-                
-                
+
+
                 return is;
             }
         }
@@ -131,28 +128,9 @@ public abstract class ProxyRepositoryArtifactResolver
 
     protected abstract Logger getLogger();
 
-    private Configuration getConfiguration()
+    protected Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
-    }
-
-    private class CloseableProxyRepositoryResponse
-            implements Closeable
-    {
-
-        private final Response response;
-
-        private CloseableProxyRepositoryResponse(Response response)
-        {
-            this.response = response;
-        }
-
-        @Override
-        public void close()
-                throws IOException
-        {
-            response.close();
-        }
     }
 
 }

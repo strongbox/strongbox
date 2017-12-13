@@ -17,6 +17,7 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.VersionValidatorService;
+import org.carlspring.strongbox.services.support.ArtifactByteStreamsCopyStrategyDeterminator;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
@@ -27,7 +28,6 @@ import org.carlspring.strongbox.storage.validation.version.VersionValidationExce
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 
 import javax.inject.Inject;
-import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
@@ -75,6 +76,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
+    @Inject
+    protected ArtifactByteStreamsCopyStrategyDeterminator artifactByteStreamsCopyStrategyDeterminator;
 
     @Override
     @Transactional
@@ -167,16 +170,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storageId, repositoryId, artifactPath);
         }
 
-        long totalAmountOfBytes = 0l;
-        int readLength;
-        byte[] bytes = new byte[4096];
-        while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
-        {
-            totalAmountOfBytes += readLength;
-            // Write the artifact
-            aos.write(bytes, 0, readLength);
-            aos.flush();
-        }
+        long totalAmountOfBytes = artifactByteStreamsCopyStrategyDeterminator.determine(repository).copy(is, aos,
+                                                                                                         repositoryPath);
 
         if (updatedMetadataFile)
         {

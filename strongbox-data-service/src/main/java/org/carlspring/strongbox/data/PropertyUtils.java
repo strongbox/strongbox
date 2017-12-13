@@ -37,4 +37,34 @@ public class PropertyUtils
             return new File(".").getAbsolutePath();
         }
     }
+
+    public static String getTempDirectory()
+    {
+        final String basedir = System.getenv("STRONGBOX_TMP") != null ?
+                               System.getenv("STRONGBOX_TMP") :
+                               System.getProperty("strongbox.tmp");
+        if (basedir != null)
+        {
+            return new File(basedir).getAbsolutePath();
+        }
+        else
+        {
+            return new File("tmp").getAbsolutePath();
+        }
+    }
+
+    public static String getEtcDirectory()
+    {
+        final String basedir = System.getenv("STRONGBOX_ETC") != null ?
+                               System.getenv("STRONGBOX_ETC") :
+                               System.getProperty("strongbox.etc");
+        if (basedir != null)
+        {
+            return new File(basedir).getAbsolutePath();
+        }
+        else
+        {
+            return new File("etc").getAbsolutePath();
+        }
+    }
 }

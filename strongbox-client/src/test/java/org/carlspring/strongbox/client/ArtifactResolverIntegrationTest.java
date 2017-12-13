@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.client;
 
 import org.carlspring.strongbox.config.ClientConfig;
+import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
 import javax.inject.Inject;
-import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class ArtifactResolverIntegrationTest
     {
     }
 
-    private ArtifactResolver artifactResolver;
+    private RestArtifactResolver artifactResolver;
 
     // fake url
     private String repositoryUrl = "https://repo.maven.apache.org/maven2/";
@@ -44,9 +44,8 @@ public class ArtifactResolverIntegrationTest
     @Before
     public void setUp()
     {
-        artifactResolver = ArtifactResolver
-                .getTestInstance(proxyRepositoryConnectionPoolConfigurationService.getRestClient(), repositoryUrl, null,
-                                 null);
+        artifactResolver = new RestArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getRestClient(),
+                                                    repositoryUrl);
     }
 
     @Test
@@ -71,11 +70,11 @@ public class ArtifactResolverIntegrationTest
     public static final class MultiHttpClientConnThread extends Thread
     {
 
-        private ArtifactResolver artifactResolver;
+        private RestArtifactResolver artifactResolver;
 
         private String url;
 
-        public MultiHttpClientConnThread(ArtifactResolver artifactResolver,
+        public MultiHttpClientConnThread(RestArtifactResolver artifactResolver,
                                          String url)
         {
             this.artifactResolver = artifactResolver;
@@ -85,18 +84,8 @@ public class ArtifactResolverIntegrationTest
         @Override
         public final void run()
         {
-            try
-            {
-                artifactResolver.getResource(url);
-            }
-            catch (ArtifactTransportException e)
-            {
-                LOGGER.error(e.getMessage(), e);
-            }
-            catch (IOException e)
-            {
-                LOGGER.error(e.getMessage(), e);
-            }
+            CloseableRestResponse response = artifactResolver.get(url);
+            ResourceCloser.close(response, LOGGER);
         }
 
     }
