@@ -51,8 +51,6 @@
         <!-- Strongbox properties: -->
         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
-        <strongbox.tmp>${project.build.directory}/strongbox/tmp</strongbox.tmp>
-        <strongbox.etc>${project.build.directory}/strongbox/etc</strongbox.etc>
         <!-- Strongbox properties. -->
 
         <!-- Version properties: -->
@@ -164,8 +162,6 @@
                         <systemPropertyVariables>
                             <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                             <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
-                            <strongbox.tmp>${project.build.directory}/strongbox/tmp</strongbox.tmp>
-                            <strongbox.etc>${project.build.directory}/strongbox/etc</strongbox.etc>
                             <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
                             <repository.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</repository.config.xml>
                             <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
@@ -185,8 +181,6 @@
                         <systemPropertyVariables>
                             <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                             <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
-                            <strongbox.tmp>${project.build.directory}/strongbox/tmp</strongbox.tmp>
-                            <strongbox.etc>${project.build.directory}/strongbox/etc</strongbox.etc>
                             <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
                             <repository.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</repository.config.xml>
                             <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>

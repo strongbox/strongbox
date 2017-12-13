@@ -4,6 +4,9 @@ import org.carlspring.strongbox.data.PropertyUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -98,8 +101,15 @@ public class ConfigurationResourceResolver
     }
 
     public static String getTempDirectory()
+            throws IOException
     {
-        return PropertyUtils.getTempDirectory();
+        final String tempDirectory = PropertyUtils.getTempDirectory();
+        final Path tempDirectoryPath = Paths.get(tempDirectory);
+        if (Files.notExists(tempDirectoryPath))
+        {
+            Files.createDirectories(tempDirectoryPath);
+        }
+        return tempDirectory;
     }
 
     public static String getEtcDirectory()

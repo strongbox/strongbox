@@ -49,7 +49,7 @@ public class PropertyUtils
         }
         else
         {
-            return new File("./tmp").getAbsolutePath();
+            return new File("tmp").getAbsolutePath();
         }
     }
 
@@ -64,7 +64,7 @@ public class PropertyUtils
         }
         else
         {
-            return new File("./etc").getAbsolutePath();
+            return new File("etc").getAbsolutePath();
         }
     }
 }
