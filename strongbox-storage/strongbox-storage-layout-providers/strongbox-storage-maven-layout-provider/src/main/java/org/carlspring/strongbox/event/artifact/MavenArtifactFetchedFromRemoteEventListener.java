@@ -6,6 +6,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.SimpleProxyRepositoryArtifactResolver;
+import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -129,7 +130,7 @@ public class MavenArtifactFetchedFromRemoteEventListener
             }
             finally
             {
-                IOUtils.closeQuietly(is);
+                ResourceCloser.close(is, logger);
             }
         });
 

@@ -3,6 +3,8 @@ package org.carlspring.strongbox.providers.repository.proxied;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.support.ArtifactByteStreamsCopyStrategyDeterminator;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -16,9 +18,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -45,7 +47,8 @@ public class SimpleProxyRepositoryArtifactResolver
                                                               String path)
             throws IOException, NoSuchAlgorithmException, ProviderImplementationException
     {
-        final Path tempPath = Files.createTempFile("strongbox", ".tmp");
+        final Path tempDir = Paths.get(ConfigurationResourceResolver.getTempDirectory());
+        final Path tempPath = Files.createTempFile(tempDir, "strongbox", ".tmp");
         try (final OutputStream tempPathOs = Files.newOutputStream(tempPath))
         {
             final Storage storage = getConfiguration().getStorage(storageId);
@@ -54,7 +57,7 @@ public class SimpleProxyRepositoryArtifactResolver
             final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
             artifactByteStreamsCopyStrategyDeterminator.determine(repository).copy(is, tempPathOs, artifactPath);
         }
-        IOUtils.closeQuietly(is);
+        ResourceCloser.close(is, logger);
         return Files.newInputStream(tempPath);
     }
 

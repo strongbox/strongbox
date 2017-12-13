@@ -97,4 +97,13 @@ public class ConfigurationResourceResolver
         return PropertyUtils.getVaultDirectory();
     }
 
+    public static String getTempDirectory()
+    {
+        return PropertyUtils.getTempDirectory();
+    }
+
+    public static String getEtcDirectory()
+    {
+        return PropertyUtils.getEtcDirectory();
+    }
 }

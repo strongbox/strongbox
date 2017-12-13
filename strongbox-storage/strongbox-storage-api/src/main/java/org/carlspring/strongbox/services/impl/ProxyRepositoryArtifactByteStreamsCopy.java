@@ -80,8 +80,13 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         }
         catch (final ArtifactByteStreamsCopyException ex)
         {
-            return retryCopyIfPossible(to, artifactPath, stopWatch, attempts, currentOffset + ex.getOffset(),
-                                       rangeRequestSupported, ex);
+            return retryCopyIfPossible(to,
+                                       artifactPath,
+                                       stopWatch,
+                                       attempts,
+                                       currentOffset + ex.getOffset(),
+                                       rangeRequestSupported,
+                                       ex);
         }
     }
 
@@ -121,10 +126,20 @@ public class ProxyRepositoryArtifactByteStreamsCopy
                                       " does not support range requests.", lastException);
             }
 
-            return performRangeRequest(to, artifactPath, stopWatch, attempts + 1, currentOffset, rangeRequestSupported);
+            return performRangeRequest(to,
+                                       artifactPath,
+                                       stopWatch,
+                                       attempts + 1,
+                                       currentOffset,
+                                       rangeRequestSupported);
         }
 
-        return retryCopyIfPossible(to, artifactPath, stopWatch, attempts + 1, currentOffset, rangeRequestSupported,
+        return retryCopyIfPossible(to,
+                                   artifactPath,
+                                   stopWatch,
+                                   attempts + 1,
+                                   currentOffset,
+                                   rangeRequestSupported,
                                    lastException);
     }
 
