@@ -74,7 +74,9 @@ public class SecurityConfig
     protected void configure(HttpSecurity http)
             throws Exception
     {
-        http.sessionManagement()
+        http.addFilterBefore(strongboxAuthenticationFilter(),
+                             BasicAuthenticationFilter.class)
+            .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .exceptionHandling()
@@ -89,21 +91,31 @@ public class SecurityConfig
             .and()
             .csrf()
             .disable();
-
-        http.addFilterBefore(strongboxAuthenticationFilter(),
-                             BasicAuthenticationFilter.class);
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource()
     {
         final CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(
-                Arrays.asList("Accept", "Accepts", "Authorization", "Access-Control-Allow-Headers",
-                              "Access-Control-Request-Headers", "Access-Control-Request-Method", "DNT", "Keep-Alive",
-                              "User-Agent", "X-Requested-With", "If-Modified-Since", "Cache-Control", "Content-Type",
-                              "Content-Range,Range"));
+        configuration.setAllowedMethods(Arrays.asList("GET",
+                                                      "PUT",
+                                                      "POST",
+                                                      "DELETE",
+                                                      "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Accept",
+                                                      "Accepts",
+                                                      "Authorization",
+                                                      "Access-Control-Allow-Headers",
+                                                      "Access-Control-Request-Headers",
+                                                      "Access-Control-Request-Method",
+                                                      "DNT",
+                                                      "Keep-Alive",
+                                                      "User-Agent",
+                                                      "X-Requested-With",
+                                                      "If-Modified-Since",
+                                                      "Cache-Control",
+                                                      "Content-Type",
+                                                      "Content-Range,Range"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(600L);
 
