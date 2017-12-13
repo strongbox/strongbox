@@ -3,7 +3,7 @@ package org.carlspring.strongbox.providers.repository;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 
 import javax.inject.Inject;
 

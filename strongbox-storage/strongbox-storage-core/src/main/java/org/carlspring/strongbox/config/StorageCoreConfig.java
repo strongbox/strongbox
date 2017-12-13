@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 
 import javax.inject.Inject;
 

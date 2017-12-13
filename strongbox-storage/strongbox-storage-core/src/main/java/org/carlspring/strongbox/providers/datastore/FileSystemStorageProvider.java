@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.providers.storage;
+package org.carlspring.strongbox.providers.datastore;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;

@@ -292,11 +292,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.maven.indexer</groupId>
-            <artifactId>indexer-core</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
             <scope>test</scope>
