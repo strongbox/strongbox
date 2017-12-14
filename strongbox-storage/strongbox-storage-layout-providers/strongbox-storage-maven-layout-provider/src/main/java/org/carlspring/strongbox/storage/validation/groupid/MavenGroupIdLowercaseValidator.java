@@ -4,6 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.validation.LowercaseValidator;
 
 import java.io.IOException;
 import java.nio.file.Files;

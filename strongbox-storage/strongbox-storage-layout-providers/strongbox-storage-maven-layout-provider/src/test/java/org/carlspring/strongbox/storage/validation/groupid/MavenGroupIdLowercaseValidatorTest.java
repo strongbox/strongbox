@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Spy;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -41,7 +40,6 @@ public class MavenGroupIdLowercaseValidatorTest
                                                                 "1.0",
                                                                 "classfier",
                                                                 "extension");
-        // repositoryFileSystem
     }
 
 

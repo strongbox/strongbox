@@ -1,7 +1,8 @@
-package org.carlspring.strongbox.storage.validation.groupid;
+package org.carlspring.strongbox.storage.validation;
 
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.validation.groupid.LowercaseValidationException;
 
 import java.io.IOException;
 
