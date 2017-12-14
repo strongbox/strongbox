@@ -72,7 +72,7 @@
         <version.jsr305>3.0.2</version.jsr305>
         <version.junit>4.12</version.junit>
         <version.jersey>2.23.1</version.jersey>
-        <version.jetty>9.4.5.v20170502</version.jetty>
+        <version.jetty>9.4.6.v20170531</version.jetty>
         <version.lucene>4.8.1</version.lucene>
         <version.logback>1.2.1</version.logback>
         <version.maven>3.3.9</version.maven>
