@@ -11,7 +11,7 @@ import java.util.Map;
  * Example: strongbox.p2/1.0.0/osgi.bundle
  */
 public class P2ArtifactCoordinates
-        extends AbstractArtifactCoordinates
+        extends AbstractArtifactCoordinates<P2ArtifactCoordinates, P2ArtifactCoordinates>
 {
 
     public static final String ID = "id";
@@ -145,4 +145,10 @@ public class P2ArtifactCoordinates
         return result;
     }
 
+    @Override
+    public P2ArtifactCoordinates getNativeVersion()
+    {
+        return null;
+    }
+    
 }

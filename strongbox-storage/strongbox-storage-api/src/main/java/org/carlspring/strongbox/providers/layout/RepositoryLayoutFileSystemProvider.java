@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -272,6 +271,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
     @Override
     protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath,
                                                                                    RepositoryFileAttributeType... attributeTypes)
+        throws IOException
     {
         return layoutProvider.getRepositoryFileAttributes(repositoryRelativePath, attributeTypes);
     }

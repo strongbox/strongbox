@@ -11,8 +11,8 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.RepositoryInputStream;
+import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -48,9 +48,9 @@ public class ArtifactResolutionServiceImpl
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Override
-    public ArtifactInputStream getInputStream(String storageId,
-                                              String repositoryId,
-                                              String artifactPath)
+    public RepositoryInputStream getInputStream(String storageId,
+                                                String repositoryId,
+                                                String artifactPath)
         throws IOException,
         NoSuchAlgorithmException,
         ArtifactTransportException,
@@ -62,7 +62,7 @@ public class ArtifactResolutionServiceImpl
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        ArtifactInputStream is = repositoryProvider.getInputStream(storageId, repositoryId, artifactPath);
+        RepositoryInputStream is = repositoryProvider.getInputStream(storageId, repositoryId, artifactPath);
         if (is == null)
         {
             throw new ArtifactResolutionException("Artifact " + artifactPath + " not found.");
@@ -72,9 +72,9 @@ public class ArtifactResolutionServiceImpl
     }
 
     @Override
-    public ArtifactOutputStream getOutputStream(String storageId,
-                                                String repositoryId,
-                                                String artifactPath)
+    public RepositoryOutputStream getOutputStream(String storageId,
+                                                  String repositoryId,
+                                                  String artifactPath)
         throws IOException,
         ProviderImplementationException,
         NoSuchAlgorithmException
@@ -85,7 +85,7 @@ public class ArtifactResolutionServiceImpl
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        ArtifactOutputStream os = repositoryProvider.getOutputStream(storageId, repositoryId, artifactPath);
+        RepositoryOutputStream os = repositoryProvider.getOutputStream(storageId, repositoryId, artifactPath);
         if (os == null)
         {
             throw new ArtifactStorageException("Artifact " + artifactPath + " cannot be stored.");
@@ -97,17 +97,6 @@ public class ArtifactResolutionServiceImpl
     public Storage getStorage(String storageId)
     {
         return configurationManager.getConfiguration().getStorage(storageId);
-    }
-
-    @Override
-    public ArtifactCoordinates getArtifactCoordinates(String storageId,
-                                                      String repositoryId,
-                                                      String artifactPath)
-    {
-        Repository repository = getStorage(storageId).getRepository(repositoryId);
-        LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        layoutProvider.getArtifactCoordinates(artifactPath); 
-        return layoutProvider.getArtifactCoordinates(artifactPath);
     }
 
     @Override

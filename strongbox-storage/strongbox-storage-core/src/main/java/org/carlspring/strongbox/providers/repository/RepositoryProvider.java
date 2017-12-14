@@ -6,8 +6,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.RepositoryInputStream;
+import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 
 /**
@@ -20,13 +20,13 @@ public interface RepositoryProvider
 
     String getAlias();
 
-    ArtifactInputStream getInputStream(String storageId, String repositoryId, String path)
+    RepositoryInputStream getInputStream(String storageId, String repositoryId, String path)
             throws IOException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException,
                    ProviderImplementationException;
 
-    ArtifactOutputStream getOutputStream(String storageId,
+    RepositoryOutputStream getOutputStream(String storageId,
                                          String repositoryId,
                                          String path)
             throws IOException, NoSuchAlgorithmException;

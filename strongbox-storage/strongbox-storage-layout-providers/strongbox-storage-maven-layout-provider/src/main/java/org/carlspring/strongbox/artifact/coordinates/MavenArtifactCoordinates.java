@@ -10,13 +10,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 
 /**
  * @author carlspring
  */
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
-public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
+public class MavenArtifactCoordinates extends AbstractArtifactCoordinates<MavenArtifactCoordinates, ComparableVersion>
 {
 
     private static final String GROUPID = "groupId";
@@ -209,6 +210,17 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
     {
         this.extension = extension;
         setCoordinate(EXTENSION, this.extension);
+    }
+
+    @Override
+    public ComparableVersion getNativeVersion()
+    {
+        String versionLocal = getVersion();
+        if (versionLocal == null)
+        {
+            return null;
+        }
+        return new ComparableVersion(versionLocal);
     }
 
     @Override

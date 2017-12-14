@@ -13,11 +13,9 @@ import javax.inject.Inject;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.repository.NpmRepositoryFeatures;
 import org.carlspring.strongbox.repository.NpmRepositoryManagementStrategy;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.services.impl.NpmArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
@@ -31,7 +29,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class NpmLayoutProvider
-        extends AbstractLayoutProvider<NpmArtifactCoordinates, NpmRepositoryFeatures, NpmRepositoryManagementStrategy>
+        extends AbstractLayoutProvider<NpmArtifactCoordinates>
 {
     private static final Logger logger = LoggerFactory.getLogger(NpmLayoutProvider.class);
 
@@ -41,7 +39,7 @@ public class NpmLayoutProvider
     private NpmRepositoryManagementStrategy npmRepositoryManagementStrategy;
 
     @Inject
-    private NpmArtifactManagementService npmArtifactManagementService;
+    private ArtifactManagementService npmArtifactManagementService;
 
     @Override
     @PostConstruct

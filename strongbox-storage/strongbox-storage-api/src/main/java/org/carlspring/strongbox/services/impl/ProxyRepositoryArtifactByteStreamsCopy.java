@@ -147,6 +147,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             throws IOException
     {
         final RemoteRepository remoteRepository = artifactPath.getFileSystem().getRepository().getRemoteRepository();
+        //TODO: we should cache this if once determined for concrete artifact
         try (final RestArtifactResolver client = getRestArtifactResolver(remoteRepository))
         {
             final String resourcePath = getRestClientResourcePath(artifactPath);
@@ -210,6 +211,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     {
         try
         {
+            //TODO: we should use Object.wait() instead
             Thread.sleep(getSleepMillisTimeBeforeNextAttempt());
         }
         catch (final InterruptedException e)

@@ -27,7 +27,6 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.npm.metadata.Package;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -95,10 +94,10 @@ public class NpmPackageController extends BaseArtifactController
     {
         Repository repository = getRepository(storageId, repositoryId);
         RepositoryPath path = npmLayoutProvider.resolve(repository, URI.create(resource));
-        ArtifactInputStream is = (ArtifactInputStream) npmArtifactManagementService.resolve(storageId,
-                                                                                            repositoryId,
-                                                                                            path.relativize()
-                                                                                                .toString());
+        InputStream is = npmArtifactManagementService.resolve(storageId,
+                                                              repositoryId,
+                                                              path.relativize()
+                                                                  .toString());
         if (is == null)
         {
             logger.debug("Unable to find artifact by path " + path);

@@ -1,23 +1,13 @@
 package org.carlspring.strongbox.controllers.maven;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.utils.ArtifactControllerHelper;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.handlePartialDownload;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.isRangedRequest;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -25,9 +15,23 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
-import io.swagger.annotations.*;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.DirectoryFileComparator;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -41,10 +45,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.handlePartialDownload;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.isRangedRequest;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * REST API for all artifact-related processes.
@@ -168,10 +173,10 @@ public class MavenArtifactController
             return;
         }
 
-        ArtifactInputStream is;
+        InputStream is;
         try
         {
-            is = (ArtifactInputStream) getArtifactManagementService().resolve(storageId, repositoryId, path);
+            is = getArtifactManagementService().resolve(storageId, repositoryId, path);
             if (is == null)
             {
                 response.setStatus(NOT_FOUND.value());

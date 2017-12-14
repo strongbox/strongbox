@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,6 +14,8 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.RepositoryInputStream;
+import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -52,9 +55,9 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public ArtifactInputStream getInputStream(String storageId,
-                                              String repositoryId,
-                                              String path)
+    public RepositoryInputStream getInputStream(String storageId,
+                                                String repositoryId,
+                                                String path)
             throws IOException
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
@@ -66,7 +69,8 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         if (layoutProvider.containsPath(repository, path))
         {
             logger.debug("The artifact {} was found in the local cache", artifactPath);
-            return (ArtifactInputStream) Files.newInputStream(artifactPath);
+            ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(artifactPath);
+            return decorate(storageId, repositoryId, path, ais);
         }
 
         logger.debug("The artifact {} was not found in the local cache", artifactPath);
@@ -74,16 +78,21 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public ArtifactOutputStream getOutputStream(String storageId,
-                                                String repositoryId,
-                                                String path)
+    public RepositoryOutputStream getOutputStream(String storageId,
+                                                  String repositoryId,
+                                                  String path)
             throws IOException, NoSuchAlgorithmException
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
         LayoutProvider layoutPtovider = getLayoutProviderRegistry().getProvider(repository.getLayout());
         RepositoryPath repositoryPath = layoutPtovider.resolve(repository).resolve(path);
-        return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
+        ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
+        
+        return decorate(storageId,
+                        repositoryId,
+                        path,
+                        aos);
     }
 
     @Override
@@ -99,6 +108,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         List<ArtifactEntry> artifactEntryList = artifactEntryService.findArtifactList(searchRequest.getStorageId(),
                                                                                       searchRequest.getRepositoryId(),
                                                                                       searchRequest.getCoordinates(),
+                                                                                      searchRequest.getTagSet(),
                                                                                       pageRequest.getSkip(),
                                                                                       pageRequest.getLimit(),
                                                                                       pageRequest.getOrderBy(), false);

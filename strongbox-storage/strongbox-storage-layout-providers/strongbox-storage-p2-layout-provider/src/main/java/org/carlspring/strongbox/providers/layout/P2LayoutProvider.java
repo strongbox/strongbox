@@ -9,10 +9,8 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
-import org.carlspring.strongbox.repository.P2RepositoryFeatures;
 import org.carlspring.strongbox.repository.P2RepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.services.impl.P2ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -20,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class P2LayoutProvider
-        extends AbstractLayoutProvider<P2ArtifactCoordinates, P2RepositoryFeatures, P2RepositoryManagementStrategy>
+        extends AbstractLayoutProvider<P2ArtifactCoordinates>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(P2LayoutProvider.class);
@@ -34,7 +32,7 @@ public class P2LayoutProvider
     private P2RepositoryManagementStrategy p2RepositoryManagementStrategy;
 
     @Inject
-    private P2ArtifactManagementService p2ArtifactManagementService;
+    private ArtifactManagementService p2ArtifactManagementService;
 
 
     @Override
