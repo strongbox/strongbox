@@ -92,6 +92,22 @@
     <build>
         <pluginManagement>
             <plugins>
+             <plugin>
+			        <groupId>org.apache.maven.plugins</groupId>
+			        <artifactId>maven-enforcer-plugin</artifactId>
+			        <version>3.0.0-M1</version>
+			       
+			           
+			            <configuration>
+			              <rules>
+			                <dependencyConvergence/>
+			              </rules>
+			            </configuration>
+			            <goals>
+			              <goal>enforce</goal>
+			            </goals>
+			       
+    			</plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -191,7 +207,7 @@
                     </configuration>
 
                     <dependencies>
-                        <dependency>
+                       <dependency>
                             <groupId>org.apache.maven.surefire</groupId>
                             <artifactId>surefire-junit47</artifactId>
                             <version>2.20</version>
@@ -885,7 +901,123 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+			
+			<dependency>
+			    <groupId>org.codehaus.plexus</groupId>
+			    <artifactId>plexus-component-annotations</artifactId>
+			    <version>1.7.1</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.codehaus.plexus</groupId>
+			    <artifactId>plexus-utils</artifactId>
+			    <version>3.1.0</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>commons-logging</groupId>
+			    <artifactId>commons-logging</artifactId>
+			    <version>1.2</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.springframework</groupId>
+			    <artifactId>spring-expression</artifactId>
+			    <version>5.0.2.RELEASE</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.apache.maven</groupId>
+			    <artifactId>maven-artifact-manager</artifactId>
+			    <version>2.2.1</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.eclipse.aether</groupId>
+			    <artifactId>aether-util</artifactId>
+			    <version>1.1.0</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.apache.maven</groupId>
+			    <artifactId>maven-model</artifactId>
+			    <version>${version.maven}</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.javassist</groupId>
+			    <artifactId>javassist</artifactId>
+			    <version>3.22.0-GA</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.apache.maven</groupId>
+			    <artifactId>maven-project</artifactId>
+			    <version>2.2.1</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.slf4j</groupId>
+			    <artifactId>slf4j-api</artifactId>
+			    <version>1.7.25</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.codehaus.plexus</groupId>
+			    <artifactId>plexus-container-default</artifactId>
+			    <version>1.7.1</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.apache.maven</groupId>
+			    <artifactId>maven-settings</artifactId>
+			    <version>${version.maven}</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.apache.maven</groupId>
+			    <artifactId>maven-plugin-api</artifactId>
+			    <version>${version.maven}</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.eclipse.aether</groupId>
+			    <artifactId>aether-api</artifactId>
+			    <version>1.1.0</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.apache.maven</groupId>
+			    <artifactId>maven-repository-metadata</artifactId>
+			    <version>${version.maven}</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.codehaus.plexus</groupId>
+			    <artifactId>plexus-interpolation</artifactId>
+			    <version>1.24</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.codehaus.plexus</groupId>
+			    <artifactId>plexus-classworlds</artifactId>
+			    <version>2.5.2</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>commons-collections</groupId>
+			    <artifactId>commons-collections</artifactId>
+			    <version>3.2.2</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.apache.commons</groupId>
+			    <artifactId>commons-lang3</artifactId>
+			    <version>3.7</version>
+			</dependency>
 
+			
+			
         </dependencies>
     </dependencyManagement>
 
