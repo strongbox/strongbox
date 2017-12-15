@@ -12,6 +12,7 @@ import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BooleanQuery.Builder;
 import org.apache.lucene.search.Query;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
@@ -112,44 +113,48 @@ public class RepositoryIndexer
                                     final String classifier)
             throws IOException
     {
-        final BooleanQuery query = new BooleanQuery();
+        final Builder booleanQueryBuiler = new Builder();
 
         if (groupId != null)
         {
-            query.add(getIndexer().constructQuery(MAVEN.GROUP_ID, new SourcedSearchExpression(groupId)), MUST);
+            booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.GROUP_ID, new SourcedSearchExpression(groupId)), MUST);
         }
 
         if (artifactId != null)
         {
-            query.add(getIndexer().constructQuery(MAVEN.ARTIFACT_ID, new SourcedSearchExpression(artifactId)), MUST);
+        	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.ARTIFACT_ID, new SourcedSearchExpression(artifactId)), MUST);
         }
 
         if (version != null)
         {
-            query.add(getIndexer().constructQuery(MAVEN.VERSION, new SourcedSearchExpression(version)), MUST);
+        	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.VERSION, new SourcedSearchExpression(version)), MUST);
         }
 
         if (packaging != null)
         {
-            query.add(getIndexer().constructQuery(MAVEN.PACKAGING, new SourcedSearchExpression(packaging)), MUST);
+        	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.PACKAGING, new SourcedSearchExpression(packaging)), MUST);
         }
         else
         {
             // Fallback to jar
-            query.add(getIndexer().constructQuery(MAVEN.PACKAGING, new SourcedSearchExpression("jar")), MUST);
+        	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.PACKAGING, new SourcedSearchExpression("jar")), MUST);
         }
 
         if (classifier != null)
         {
-            query.add(getIndexer().constructQuery(MAVEN.CLASSIFIER, new SourcedSearchExpression(classifier)), MUST);
+        	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.CLASSIFIER, new SourcedSearchExpression(classifier)), MUST);
         }
 
+        final BooleanQuery booleanQuery = booleanQueryBuiler.build();
+        
         logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
-                     new String[]{ query.toString(),
+                     new String[]{ booleanQuery.toString(),
                                    indexingContext.getId(),
                                    indexingContext.getIndexDirectory().toString() });
 
-        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
+        
+        
+        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(booleanQuery, indexingContext));
 
         logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
@@ -218,15 +223,18 @@ public class RepositoryIndexer
     public Set<SearchResult> searchBySHA1(final String checksum)
             throws IOException
     {
-        final BooleanQuery query = new BooleanQuery();
-        query.add(getIndexer().constructQuery(MAVEN.SHA1, new SourcedSearchExpression(checksum)), MUST);
-
+        final Builder booleanQueryBuilder = new Builder();
+       
+        booleanQueryBuilder.add(getIndexer().constructQuery(MAVEN.SHA1, new SourcedSearchExpression(checksum)), MUST);
+        
+        final BooleanQuery booleanQuery = booleanQueryBuilder.build();
+        
         logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
-                     new String[]{ query.toString(),
+                     new String[]{ booleanQuery.toString(),
                                    indexingContext.getId(),
                                    indexingContext.getIndexDirectory().toString() });
 
-        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
+        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(booleanQuery, indexingContext));
 
         logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
