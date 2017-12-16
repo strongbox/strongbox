@@ -1009,11 +1009,9 @@
 			    <artifactId>commons-lang3</artifactId>
 			    <version>3.7</version>
 			</dependency>
-<<<<<<< HEAD
+
         </dependencies>
-=======
-    	</dependencies>
->>>>>>> 7ddab3561d8d5c5d89bd6635ece72f67ca2a60f9
+
     </dependencyManagement>
 
     <dependencies>
