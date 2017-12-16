@@ -154,11 +154,7 @@
                     <version>2.20</version>
                     <inherited>true</inherited>
                     <configuration>
-                        <argLine>-Xmx1024m -Xms512m
-                            -Dstrongbox.download.indexes.storage-common-proxies.*=false
-                            -Dstrongbox.download.indexes.storage-springsource-proxies.*=false
-                            -Dstrongbox.download.indexes=false
-                            -Dstrongbox.download.indexes.storage-sbt-proxies.*=false</argLine>
+                        <argLine>-Xmx1024m -Xms512m -Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-springsource-proxies.*=false -Dstrongbox.download.indexes=false -Dstrongbox.download.indexes.storage-sbt-proxies.*=false</argLine>
                         <includes>
                             <include>**/*Test</include>
                         </includes>
@@ -181,10 +177,7 @@
                     <version>2.20</version>
 
                     <configuration>
-                        <argLine>-Dstrongbox.download.indexes.storage-common-proxies.*=false
-                            -Dstrongbox.download.indexes.storage-springsource-proxies.*=false
-                            -Dstrongbox.download.indexes=false
-                            -Dstrongbox.download.indexes.storage-sbt-proxies.*=false</argLine>
+                        <argLine>-Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-springsource-proxies.*=false -Dstrongbox.download.indexes=false -Dstrongbox.download.indexes.storage-sbt-proxies.*=false</argLine>
                         <systemPropertyVariables>
                             <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                             <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
