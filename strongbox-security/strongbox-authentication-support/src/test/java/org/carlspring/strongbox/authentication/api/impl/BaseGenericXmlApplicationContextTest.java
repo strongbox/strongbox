@@ -4,7 +4,7 @@ package org.carlspring.strongbox.authentication.api.impl;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.stream.Stream;
-import org.junit.*;
+
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
