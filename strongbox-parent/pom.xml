@@ -92,25 +92,8 @@
     <build>
         <pluginManagement>
             <plugins>
-             	<plugin>
-			        <groupId>org.apache.maven.plugins</groupId>
-			        <artifactId>maven-enforcer-plugin</artifactId>
-			        <version>3.0.0-M1</version>
-			       
-			           
-			            <configuration>
-			              <rules>
-			                <dependencyConvergence/>
-			              </rules>
-			            </configuration>
-			            <goals>
-			              <goal>enforce</goal>
-			            </goals>
-			       
-    			</plugin>
-    			
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
+            	<plugin>
+                	<groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.3</version>
                     <configuration>
@@ -478,14 +461,12 @@
                 <version>${version.spring.security}</version>
                 <scope>test</scope>
             </dependency>
-
-            <dependency>
+			<dependency>
                 <groupId>io.rest-assured</groupId>
                 <artifactId>spring-mock-mvc</artifactId>
                 <version>${version.rest.assured}</version>
             </dependency>
-
-            <dependency>
+			<dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.5</version>
@@ -498,14 +479,12 @@
                 <artifactId>commons-beanutils</artifactId>
                 <version>1.9.3</version>
             </dependency>
-
-            <dependency>
+			<dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>1.15</version>
             </dependency>
-
-            <dependency>
+			<dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-core</artifactId>
                 <scope>compile</scope>
@@ -1028,9 +1007,7 @@
 			    <artifactId>commons-lang3</artifactId>
 			    <version>3.7</version>
 			</dependency>
-					
-			
-        </dependencies>
+		</dependencies>
     </dependencyManagement>
 
     <dependencies>
@@ -1159,28 +1136,26 @@
         
         <profile>
         	<id>dependency-convergence-check</id>
-        	
         	<build>
         		<plugins>
-        		<plugin>
-			        <groupId>org.apache.maven.plugins</groupId>
-			        <artifactId>maven-enforcer-plugin</artifactId>
-			        <version>3.0.0-M1</version>
-			       
-			           
-			            <configuration>
-			              <rules>
-			                <dependencyConvergence/>
-			              </rules>
+        			<plugin>
+			        	<groupId>org.apache.maven.plugins</groupId>
+			       		<artifactId>maven-enforcer-plugin</artifactId>
+			       		<version>3.0.0-M1</version>
+			       		
+			       		<configuration>
+			           		<rules>
+			                	<dependencyConvergence/>
+			              	</rules>
 			            </configuration>
-			           <executions>
-			           <execution>
-			            <goals>
-			              <goal>enforce</goal>
-			            </goals>
-			       	</execution>
-			       	</executions>
-    			</plugin>
+			           	<executions>
+			           		<execution>
+			            		<goals>
+			              			<goal>enforce</goal>
+			            		</goals>
+			       			</execution>
+			       		</executions>
+    				</plugin>
     			</plugins>
         	</build>
         </profile>
