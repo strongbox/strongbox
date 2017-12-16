@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -403,14 +403,14 @@
                 <version>${version.orientdb}</version>
                 <exclusions>
                     <exclusion>
-                        <!-- Excluding this transitive dependency in order to not be exposed to:
-                             http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0114 -->
+                        <!-- Excluding this transitive dependency in order 
+                            to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0114 -->
                         <groupId>commons-beanutils</groupId>
                         <artifactId>commons-beanutils-core</artifactId>
                     </exclusion>
                     <exclusion>
-                        <!-- Excluding this transitive dependency in order to not be exposed to:
-                             http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0114 -->
+                        <!-- Excluding this transitive dependency in order 
+                            to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0114 -->
                         <groupId>commons-beanutils</groupId>
                         <artifactId>commons-beanutils</artifactId>
                     </exclusion>
@@ -432,11 +432,23 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
                 <version>${version.spring.security}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
                 <version>${version.spring.security}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
@@ -449,33 +461,29 @@
                 <version>${version.spring.security}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>io.rest-assured</groupId>
                 <artifactId>spring-mock-mvc</artifactId>
                 <version>${version.rest.assured}</version>
             </dependency>
-
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.5</version>
             </dependency>
-            <!-- Override for transitive dependencies which bring older vulnerable versions
-                 of the commons-beanutils:commons-beanutils in order to not be exposed to:
-                 http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0114 -->
+            <!-- Override for transitive dependencies which bring older vulnerable 
+                versions of the commons-beanutils:commons-beanutils in order to not be exposed 
+                to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0114 -->
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
                 <version>1.9.3</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>1.15</version>
             </dependency>
-
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-core</artifactId>
@@ -487,8 +495,8 @@
                         <artifactId>jsr311-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <!-- Excluding this transitive dependency in order to not be exposed to:
-                             http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
+                        <!-- Excluding this transitive dependency in order 
+                            to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
                         <groupId>com.fasterxml.jackson.datatype</groupId>
                         <artifactId>jackson-datatype-joda</artifactId>
                     </exclusion>
@@ -560,14 +568,14 @@
                 <version>${version.jersey}</version>
                 <exclusions>
                     <exclusion>
-                        <!-- Exclude this transitive dependency in order to not be exposed to:
-                             http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
+                        <!-- Exclude this transitive dependency in order 
+                            to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
                         <groupId>com.fasterxml.jackson.jaxrs</groupId>
                         <artifactId>jackson-jaxrs-base</artifactId>
                     </exclusion>
                     <exclusion>
-                        <!-- Exclude this transitive dependency in order to not be exposed to:
-                             http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
+                        <!-- Exclude this transitive dependency in order 
+                            to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
                         <groupId>com.fasterxml.jackson.jaxrs</groupId>
                         <artifactId>jackson-jaxrs-json-provider</artifactId>
                     </exclusion>
@@ -614,6 +622,14 @@
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-core</artifactId>
                 <version>${version.maven}</version>
+
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.inject</groupId>
+                        <artifactId>guice</artifactId>
+                    </exclusion>
+                </exclusions>
+
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
@@ -688,7 +704,7 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aspects</artifactId>
                 <version>${version.spring}</version>
-            </dependency>            
+            </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
@@ -754,12 +770,12 @@
                 <artifactId>spring-oxm</artifactId>
                 <version>${version.spring}</version>
             </dependency>
-            
-	        <dependency>
-	            <groupId>ru.aristar.nuget</groupId>
-	            <artifactId>jnuget-core</artifactId>
-	            <version>${version.jnuget}</version>
-	        </dependency>
+
+            <dependency>
+                <groupId>ru.aristar.nuget</groupId>
+                <artifactId>jnuget-core</artifactId>
+                <version>${version.jnuget}</version>
+            </dependency>
             <dependency>
                 <groupId>ru.aristar.nuget</groupId>
                 <artifactId>jnuget-server</artifactId>
@@ -770,23 +786,23 @@
                         <artifactId>jsr311-api</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>    
-	        <dependency>
-	            <groupId>xerces</groupId>
-	            <artifactId>xercesImpl</artifactId>
-	            <version>2.10.0</version>
-	        </dependency>
-	        <dependency>
-	            <groupId>commons-fileupload</groupId>
-	            <artifactId>commons-fileupload</artifactId>
-	            <version>1.3.2</version>
-	        </dependency>
+            </dependency>
+            <dependency>
+                <groupId>xerces</groupId>
+                <artifactId>xercesImpl</artifactId>
+                <version>2.10.0</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>1.3.2</version>
+            </dependency>
             <dependency>
                 <groupId>org.bitbucket.b_c</groupId>
                 <artifactId>jose4j</artifactId>
                 <version>0.5.2</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -867,7 +883,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.javatuples</groupId>
                 <artifactId>javatuples</artifactId>
@@ -886,7 +902,116 @@
                 </exclusions>
             </dependency>
 
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-annotations</artifactId>
+                <version>1.7.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>3.1.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-artifact-manager</artifactId>
+                <version>2.2.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-util</artifactId>
+                <version>1.1.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-model</artifactId>
+                <version>${version.maven}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.22.0-GA</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-project</artifactId>
+                <version>2.2.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.25</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-container-default</artifactId>
+                <version>1.7.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-settings</artifactId>
+                <version>${version.maven}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-plugin-api</artifactId>
+                <version>${version.maven}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-api</artifactId>
+                <version>1.1.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-repository-metadata</artifactId>
+                <version>${version.maven}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-interpolation</artifactId>
+                <version>1.24</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-classworlds</artifactId>
+                <version>2.5.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.7</version>
+            </dependency>
+
         </dependencies>
+
     </dependencyManagement>
 
     <dependencies>
@@ -1008,6 +1133,32 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>buildnumber-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>dependency-convergence-check</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>3.0.0-M1</version>
+
+                        <configuration>
+                            <rules>
+                                <dependencyConvergence />
+                            </rules>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
