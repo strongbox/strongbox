@@ -18,6 +18,7 @@ Work conduct
   * Code issues reported by Sonar (unless these are false-positives)
   * Code indentation issues
   * Other issues you spot with your code
+* When you open a new pull request, put the words `[in progress]` in the title, while the pull request is not yet ready for merging and remove these words, when done, so that it's clear when we can review and merge your pull 
 
 General
 -------
