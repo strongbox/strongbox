@@ -81,9 +81,9 @@
         <version.quartz>2.3.0</version.quartz>
         <version.servlet.api>3.1.0</version.servlet.api>
         <version.slf4j>1.7.24</version.slf4j>
-        <version.spring>5.0.2.RELEASE</version.spring>
-        <version.spring.data>2.0.2.RELEASE</version.spring.data>
-        <version.spring.security>5.0.0.RELEASE</version.spring.security>
+        <version.spring>4.3.6.RELEASE</version.spring>
+        <version.spring.data>0.10.0-SNAPSHOT</version.spring.data>
+        <version.spring.security>4.2.1.RELEASE</version.spring.security>
         <version.rest.assured>3.0.3</version.rest.assured>
         <version.jnuget>0.8.5-SNAPSHOT</version.jnuget>
         <!-- Version properties. -->
@@ -92,7 +92,23 @@
     <build>
         <pluginManagement>
             <plugins>
-             
+             	<plugin>
+			        <groupId>org.apache.maven.plugins</groupId>
+			        <artifactId>maven-enforcer-plugin</artifactId>
+			        <version>3.0.0-M1</version>
+			       
+			           
+			            <configuration>
+			              <rules>
+			                <dependencyConvergence/>
+			              </rules>
+			            </configuration>
+			            <goals>
+			              <goal>enforce</goal>
+			            </goals>
+			       
+    			</plugin>
+    			
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -433,11 +449,23 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
                 <version>${version.spring.security}</version>
+                <exclusions>
+                    <exclusion>
+                 		<groupId>org.springframework</groupId>
+                 		<artifactId>spring-expression</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
                 <version>${version.spring.security}</version>
+                <exclusions>
+                    <exclusion>
+                 		<groupId>org.springframework</groupId>
+                 		<artifactId>spring-expression</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
@@ -615,12 +643,12 @@
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-core</artifactId>
                 <version>${version.maven}</version>
-                <exclusions>
-                	<exclusion>
-                		<groupId>com.google.inject</groupId>
-                		<artifactId>guice</artifactId>
-                	</exclusion>
-                </exclusions>	
+               	<exclusions>
+               		<exclusion>
+               			<groupId>com.google.inject</groupId>
+               			<artifactId>guice</artifactId>
+               		</exclusion>
+               	</exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
@@ -1000,13 +1028,7 @@
 			    <artifactId>commons-lang3</artifactId>
 			    <version>3.7</version>
 			</dependency>
-			
-			<dependency>
-			    <groupId>org.eclipse.persistence</groupId>
-			    <artifactId>javax.persistence</artifactId>
-			    <version>2.2.0</version>
-			 </dependency>
-			
+					
 			
         </dependencies>
     </dependencyManagement>
@@ -1137,9 +1159,7 @@
         
         <profile>
         	<id>dependency-convergence-check</id>
-        	 <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
+        	
         	<build>
         		<plugins>
         		<plugin>
@@ -1153,10 +1173,13 @@
 			                <dependencyConvergence/>
 			              </rules>
 			            </configuration>
+			           <executions>
+			           <execution>
 			            <goals>
 			              <goal>enforce</goal>
 			            </goals>
-			       
+			       	</execution>
+			       	</executions>
     			</plugin>
     			</plugins>
         	</build>
