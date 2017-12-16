@@ -434,8 +434,8 @@
                 <version>${version.spring.security}</version>
                 <exclusions>
                     <exclusion>
-                 		<groupId>org.springframework</groupId>
-                 		<artifactId>spring-expression</artifactId>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -445,8 +445,8 @@
                 <version>${version.spring.security}</version>
                 <exclusions>
                     <exclusion>
-                 		<groupId>org.springframework</groupId>
-                 		<artifactId>spring-expression</artifactId>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -461,12 +461,12 @@
                 <version>${version.spring.security}</version>
                 <scope>test</scope>
             </dependency>
-			<dependency>
+            <dependency>
                 <groupId>io.rest-assured</groupId>
                 <artifactId>spring-mock-mvc</artifactId>
                 <version>${version.rest.assured}</version>
             </dependency>
-			<dependency>
+            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.5</version>
@@ -479,12 +479,12 @@
                 <artifactId>commons-beanutils</artifactId>
                 <version>1.9.3</version>
             </dependency>
-			<dependency>
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>1.15</version>
             </dependency>
-			<dependency>
+            <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-core</artifactId>
                 <scope>compile</scope>
@@ -624,8 +624,8 @@
                 <version>${version.maven}</version>
                	<exclusions>
                		<exclusion>
-               			<groupId>com.google.inject</groupId>
-               			<artifactId>guice</artifactId>
+                        <groupId>com.google.inject</groupId>
+                        <artifactId>guice</artifactId>
                		</exclusion>
                	</exclusions>
             </dependency>
@@ -1007,7 +1007,7 @@
 			    <artifactId>commons-lang3</artifactId>
 			    <version>3.7</version>
 			</dependency>
-		</dependencies>
+    	</dependencies>
     </dependencyManagement>
 
     <dependencies>
