@@ -622,12 +622,12 @@
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-core</artifactId>
                 <version>${version.maven}</version>
-               	<exclusions>
-               		<exclusion>
+                <exclusions>
+                    <exclusion>
                         <groupId>com.google.inject</groupId>
                         <artifactId>guice</artifactId>
-               		</exclusion>
-               	</exclusions>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
