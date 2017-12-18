@@ -1,11 +1,10 @@
 package org.carlspring.strongbox.dependency.snippet;
 
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
 import org.carlspring.strongbox.config.NugetLayoutProviderConfig;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.layout.NugetHierarchicalLayoutProvider;
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 
 import javax.inject.Inject;
 
@@ -32,11 +31,11 @@ public class NugetDependencyFormatterTest
     public void testGradleDependencyGeneration()
             throws ProviderImplementationException
     {
-        DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(NugetHierarchicalLayoutProvider.ALIAS,
+        DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(NugetLayoutProvider.ALIAS,
                                                                                                             NugetDependencyFormatter.ALIAS);
         assertNotNull("Failed to look up dependency synonym formatter!", formatter);
 
-        NugetHierarchicalArtifactCoordinates coordinates = new NugetHierarchicalArtifactCoordinates();
+        NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates();
         coordinates.setId("Org.Carlspring.Strongbox.NuGet.Snippet");
         coordinates.setVersion("1.0");
 

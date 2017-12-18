@@ -11,7 +11,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -118,7 +118,7 @@ public class NugetRemoteRepositoryTest
                                                                 null,
                                                                 null);
 
-        NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates("NHibernate", "4.0.4.4000", "nupkg");
+        NugetArtifactCoordinates c = new NugetArtifactCoordinates("NHibernate", "4.0.4.4000", "nupkg");
         Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneArtifact(NUGET_COMMON_STORAGE, REPOSITORY_PROXY, c.toPath());
         assertTrue(artifactEntry.isPresent());
         assertFalse(((RemoteArtifactEntry)artifactEntry.get()).getIsCached());

@@ -3,7 +3,7 @@ package org.carlspring.strongbox.dependency.snippet;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.providers.layout.AbstractLayoutProvider;
-import org.carlspring.strongbox.providers.layout.NugetHierarchicalLayoutProvider;
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -40,7 +40,7 @@ public class NugetDependencyFormatter
     @Override
     public String getLayout()
     {
-        return NugetHierarchicalLayoutProvider.ALIAS;
+        return NugetLayoutProvider.ALIAS;
     }
 
     @Override
