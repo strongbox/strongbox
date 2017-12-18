@@ -33,7 +33,7 @@
                 <repository id="nuget-releases"
                             policy="release"
                             data-store="file-system"
-                            layout="Nuget Hierarchical"
+                            layout="NuGet"
                             type="hosted"
                             allows-force-deletion="true"
                             checksum-headers-enabled="true"/>
@@ -118,7 +118,7 @@
                 <repository id="nuget.org" 
                             policy="release" 
                             data-store="file-system"
-                            layout="Nuget Hierarchical" 
+                            layout="NuGet" 
                             type="proxy">
                     <remote-repository url="https://www.nuget.org/api/v2"/>
                     <nuget-repository-configuration remote-feed-page-size="1000"/>
@@ -208,7 +208,7 @@
                 <repository id="nuget-third-party" 
                             policy="release"
                             data-store="file-system"
-                            layout="Nuget Hierarchical" 
+                            layout="NuGet" 
                             type="hosted"
                             allows-force-deletion="true" 
                             checksum-headers-enabled="true" />            
@@ -228,7 +228,7 @@
                     </group>
                 </repository>
                 
-                <repository id="nuget-public" policy="mixed" data-store="file-system" layout="Nuget Hierarchical" type="group" secured="true">
+                <repository id="nuget-public" policy="mixed" data-store="file-system" layout="NuGet" type="group" secured="true">
                     <group>
                         <repository>storage-common-proxies:nuget.org</repository>
                         <repository>storage-third-party:nuget-third-party</repository>
