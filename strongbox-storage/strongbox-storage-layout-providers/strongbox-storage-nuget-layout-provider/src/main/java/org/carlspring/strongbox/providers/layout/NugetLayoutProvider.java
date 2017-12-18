@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -98,7 +99,7 @@ public class NugetLayoutProvider
     {
         byte[] encoded = Base64.getEncoder()
                                .encode(digest);
-        return new String(encoded);
+        return new String(encoded,StandardCharsets.UTF_8);
     }
 
     @Override
