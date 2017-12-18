@@ -1,5 +1,13 @@
 package org.carlspring.strongbox.providers.layout;
 
+import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.ByteRangeInputStream;
+import org.carlspring.strongbox.providers.io.*;
+import org.carlspring.strongbox.util.MessageDigestUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,17 +20,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Set;
 
-import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.ByteRangeInputStream;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
-import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +29,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
 
     private AbstractLayoutProvider layoutProvider;
 
+
     public RepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider,
                                               RepositoryPathHandler repositoryPathHandler,
                                               AbstractLayoutProvider layoutProvider)
@@ -40,8 +38,6 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
         this.layoutProvider = layoutProvider;
     }
 
-    
-    
     @Override
     public ArtifactInputStream newInputStream(Path path,
                                               OpenOption... options)
@@ -133,6 +129,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
         {
             checksum = is.getMessageDigestAsHexadecimalString(digestAlgorithm);
         }
+
         return checksum;
     }
 
@@ -140,6 +137,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
                                              String digestAlgorithm)
     {
         String checksumExtension = ".".concat(digestAlgorithm.toLowerCase().replaceAll("-", ""));
+
         return path.resolveSibling(path.getFileName().toString().concat(checksumExtension));
     }
     
