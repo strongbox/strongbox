@@ -350,7 +350,7 @@ public class RegenerateNugetChecksumCronJobTestIT
     {
         Repository repository = new Repository(repositoryId);
         repository.setPolicy(policy);
-        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+        repository.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
         repository.setStorage(configurationManagementService.getStorage(storageId));
 
         createRepository(repository);

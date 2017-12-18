@@ -49,7 +49,7 @@ public class NugetLayoutProvider
 {
     private static final Logger logger = LoggerFactory.getLogger(NugetLayoutProvider.class);
 
-    public static final String ALIAS = "Nuget Hierarchical";
+    public static final String ALIAS = "NuGet";
 
     @Inject
     private NugetRepositoryManagementStrategy nugetRepositoryManagementStrategy;

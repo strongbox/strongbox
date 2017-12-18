@@ -73,7 +73,7 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
             return false;
         }
 
-        return RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout().equals(repository.getLayout());
+        return RepositoryLayoutEnum.NUGET.getLayout().equals(repository.getLayout());
     }
 
 }

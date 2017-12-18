@@ -84,7 +84,7 @@ public class NugetRemoteRepositoryTest
 
         Repository repository = new Repository(REPOSITORY_PROXY);
         repository.setStorage(storage);
-        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+        repository.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
         repository.setType("proxy");
         repository.setRemoteRepository(new RemoteRepository());
         repository.getRemoteRepository().setUrl("https://www.nuget.org/api/v2");

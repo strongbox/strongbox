@@ -13,6 +13,6 @@ interface NugetVersionValidator
     @Override
     default boolean supports(Repository repository)
     {
-        return RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout().equals(repository.getLayout());
+        return RepositoryLayoutEnum.NUGET.getLayout().equals(repository.getLayout());
     }
 }
