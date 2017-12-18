@@ -13,7 +13,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.config.NugetLayoutProviderConfig;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
@@ -163,7 +163,7 @@ public class NugetGroupRepositoryProviderTest
         {
             String packageId = String.format("grpt.search.p%s", i);
             String packageVersion = "1.0.0";
-            NugetHierarchicalArtifactCoordinates coordinates = new NugetHierarchicalArtifactCoordinates(packageId, packageVersion, "nupkg");
+            NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
             Path packageFilePath = generatePackageFile(packageId, packageVersion);
             artifactManagementService.validateAndStore(storageId, repositoryId, coordinates.toPath(),
                                                        Files.newInputStream(packageFilePath));

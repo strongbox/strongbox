@@ -38,7 +38,7 @@ import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
 import org.carlspring.strongbox.controllers.nuget.NugetPackageController;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
-import org.carlspring.strongbox.providers.layout.NugetHierarchicalLayoutProvider;
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -83,7 +83,7 @@ public class HeaderMappingFilter
         userAgentMap.put(USER_AGENT_NUGET, String.format(format, USER_AGENT_NUGET));
         userAgentMap.put(USER_AGENT_MAVEN, String.format(format, USER_AGENT_MAVEN));
 
-        layoutMap.put(NugetHierarchicalLayoutProvider.ALIAS, String.format(format, USER_AGENT_NUGET));
+        layoutMap.put(NugetLayoutProvider.ALIAS, String.format(format, USER_AGENT_NUGET));
         layoutMap.put(Maven2LayoutProvider.ALIAS, String.format(format, USER_AGENT_MAVEN));
         layoutMap.put(NpmLayoutProvider.ALIAS, String.format(format, USER_AGENT_NPM));
     }
