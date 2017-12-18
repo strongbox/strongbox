@@ -5,6 +5,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -12,6 +13,7 @@ import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +47,9 @@ public class MavenMetadataGroupRepositoryComponent
 
     @Inject
     private MavenMetadataManager mavenMetadataManager;
+
+    @Inject
+    private ArtifactRoutingRulesChecker artifactRoutingRulesChecker;
 
     public void deleteMetadataInGroupRepositoriesContainingPath(final String storageId,
                                                                 final String repositoryId,
@@ -162,11 +167,14 @@ public class MavenMetadataGroupRepositoryComponent
             return;
         }
 
-        updateMetadataInGroupsContainingRepository(repository, artifactRelativePath, artifactBasePathCalculation,
-                                                   mergeMetadata);
+        final List<Repository> updatedRepositoryGraphPathLeafs = new ArrayList<>();
+        updatedRepositoryGraphPathLeafs.add(repository);
+        updateMetadataInGroupsContainingRepository(repository, updatedRepositoryGraphPathLeafs, artifactRelativePath,
+                                                   artifactBasePathCalculation, mergeMetadata);
     }
 
     private void updateMetadataInGroupsContainingRepository(final Repository repository,
+                                                            final List<Repository> updatedRepositoryGraphPathLeafs,
                                                             final String artifactRelativePath,
                                                             final Function<Path, Path> artifactBasePathCalculation,
                                                             final Metadata mergeMetadata)
@@ -180,18 +188,39 @@ public class MavenMetadataGroupRepositoryComponent
         }
         for (final Repository parent : groupRepositories)
         {
-            final LayoutProvider parentLayoutProvider = layoutProviderRegistry.getProvider(parent.getLayout());
-            final RepositoryPath parentRepositoryAbsolutePath = parentLayoutProvider.resolve(parent);
-            final RepositoryPath parentRepositoryArtifactAbsolutePath = parentRepositoryAbsolutePath.resolve(
-                    artifactRelativePath);
+            if (!isMergeDeniedByRoutingRules(parent, updatedRepositoryGraphPathLeafs, artifactRelativePath))
+            {
+                final LayoutProvider parentLayoutProvider = layoutProviderRegistry.getProvider(parent.getLayout());
+                final RepositoryPath parentRepositoryAbsolutePath = parentLayoutProvider.resolve(parent);
+                final RepositoryPath parentRepositoryArtifactAbsolutePath = parentRepositoryAbsolutePath.resolve(
+                        artifactRelativePath);
 
-            mavenMetadataManager.mergeAndStore(artifactBasePathCalculation.apply(parentRepositoryArtifactAbsolutePath),
-                                               mergeMetadata);
+                mavenMetadataManager.mergeAndStore(
+                        artifactBasePathCalculation.apply(parentRepositoryArtifactAbsolutePath),
+                        mergeMetadata);
+            }
+
+            updatedRepositoryGraphPathLeafs.add(parent);
 
             // go higher in the hierarchy
-            updateMetadataInGroupsContainingRepository(parent, artifactRelativePath, artifactBasePathCalculation,
-                                                       mergeMetadata);
+            updateMetadataInGroupsContainingRepository(parent, updatedRepositoryGraphPathLeafs, artifactRelativePath,
+                                                       artifactBasePathCalculation, mergeMetadata);
+            updatedRepositoryGraphPathLeafs.remove(parent);
         }
+    }
+
+    private boolean isMergeDeniedByRoutingRules(final Repository groupRepository,
+                                                final List<Repository> updatedRepositoryGraphPathLeafs,
+                                                final String artifactRelativePath)
+    {
+        for (final Repository leaf : updatedRepositoryGraphPathLeafs)
+        {
+            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), leaf.getId(), artifactRelativePath))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
