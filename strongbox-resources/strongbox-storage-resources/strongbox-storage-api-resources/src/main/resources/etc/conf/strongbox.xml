@@ -10,12 +10,12 @@
     <session-configuration timeout-seconds="30" />
 
     <remote-repositories-configuration check-interval-seconds="60" heartbeat-threads-number="5">
-        <retry-artifact-download-configuration timeout-seconds="60" max-number-of-attempts="5"
+        <retry-artifact-download-configuration timeout-seconds="60"
+                                               max-number-of-attempts="5"
                                                min-attempts-interval-seconds="5"/>
     </remote-repositories-configuration>
 
     <storages>
-
         <storage id="storage-common-npm">
             <repositories>
                 <repository id="npm-releases"
@@ -42,32 +42,34 @@
 
         <storage id="storage0">
             <repositories>
-                <!-- Secured repositories do not allow anonymous access -->
-                <repository id="releases" policy="release" data-store="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true">
+                <repository id="releases"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="hosted"
+                            allows-force-deletion="true"
+                            checksum-headers-enabled="true">
                     <maven-repository-configuration indexing-enabled="true" />
                 </repository>
-                <repository id="snapshots" policy="snapshot" data-store="file-system" layout="Maven 2" type="hosted" secured="true" checksum-headers-enabled="true">
+                <repository id="snapshots"
+                            policy="snapshot"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="hosted"
+                            secured="true"
+                            checksum-headers-enabled="true">
                     <maven-repository-configuration indexing-enabled="true" />
                 </repository>
-
-                <!--
-                <repository id="proxied-releases" policy="release" implementation="proxy" layout="Maven 2" type="proxy">
-                    <proxy-configuration host="localhost" port="8180" username="testuser" password="password" />
-                    <remote-repository url="http://localhost:48080/storages/storage0/releases/"
-                                       username="maven"
-                                       password="password"
-                                       download-remote-indexes="true"
-                                       auto-blocking="true"
-                                       checksum-validation="true" />
-                </repository>
-                -->
-
             </repositories>
         </storage>
 
         <storage id="storage-common-proxies">
             <repositories>
-                <repository id="maven-central" policy="release" data-store="file-system" layout="Maven 2" type="proxy">
+                <repository id="maven-central"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="https://repo.maven.apache.org/maven2/"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
@@ -76,28 +78,44 @@
                     <maven-repository-configuration indexing-enabled="true" />
                 </repository>
 
-                <repository id="carlspring" policy="mixed" data-store="file-system" layout="Maven 2" type="proxy">
+                <repository id="carlspring"
+                            policy="mixed"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="http://dev.carlspring.org/nexus/content/groups/carlspring"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true"/>
                 </repository>
 
-                <repository id="apache-snapshots" policy="snapshot" data-store="file-system" layout="Maven 2" type="proxy">
+                <repository id="apache-snapshots"
+                            policy="snapshot"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="https://repository.apache.org/snapshots/"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="jboss-public-releases" policy="release" data-store="file-system" layout="Maven 2" type="proxy">
+                <repository id="jboss-public-releases"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="http://repository.jboss.org/nexus/content/groups/public-jboss/"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="maven-oracle" policy="release" data-store="file-system" layout="Maven 2" type="proxy">
+                <repository id="maven-oracle"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="https://maven.oracle.com"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
@@ -106,7 +124,12 @@
                                        check-interval-seconds="10" />
                 </repository>
 
-                <repository id="group-common-proxies" policy="release" data-store="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-common-proxies"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="group"
+                            secured="true">
                     <group>
                         <repository>carlspring</repository>
                         <repository>maven-central</repository>
@@ -127,26 +150,42 @@
         </storage>
         <storage id="storage-springsource-proxies">
             <repositories>
-                <repository id="springsource-snapshots" policy="snapshot" data-store="file-system" layout="Maven 2" type="proxy">
+                <repository id="springsource-snapshots"
+                            policy="snapshot"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="http://repo.spring.io/snapshot"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
-                <repository id="springsource-releases" policy="release" data-store="file-system" layout="Maven 2" type="proxy">
+                <repository id="springsource-releases"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Maven 2" type="proxy">
                     <remote-repository url="http://repo.spring.io/libs-release"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
-                <repository id="springsource-milestones" policy="release" data-store="file-system" layout="Maven 2" type="proxy">
+                <repository id="springsource-milestones"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="http://repo.spring.io/milestone"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="springsource-proxies" policy="mixed" data-store="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="springsource-proxies"
+                            policy="mixed"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="group"
+                            secured="true">
                     <group>
                         <repository>springsource-snapshots</repository>
                         <repository>springsource-releases</repository>
@@ -157,20 +196,33 @@
         </storage>
         <storage id="storage-ivy-proxies">
             <repositories>
-                <repository id="typesafe-releases" policy="release" data-store="file-system" layout="Maven 2" type="proxy">
+                <repository id="typesafe-releases"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="https://repo.typesafe.com/typesafe/releases"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
-                <repository id="typesafe-ivy-releases" policy="release" data-store="file-system" layout="Maven 2" type="proxy">
+                <repository id="typesafe-ivy-releases"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="https://repo.typesafe.com/typesafe/ivy-releases"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="group-ivy-proxies" policy="release" data-store="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-ivy-proxies"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="group"
+                            secured="true">
                     <group>
                         <repository>typesafe-releases</repository>
                         <repository>typesafe-ivy-releases</repository>
@@ -180,14 +232,23 @@
         </storage>
         <storage id="storage-sbt-proxies">
             <repositories>
-                <repository id="sbt-plugin-releases" policy="release" data-store="file-system" layout="Maven 2" type="proxy">
+                <repository id="sbt-plugin-releases"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="group-sbt-proxies" policy="release" data-store="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-sbt-proxies"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="group"
+                            secured="true">
                     <group>
                         <repository>sbt-plugin-releases</repository>
                         <repository>storage-ivy-proxies:group-ivy-proxies</repository>
@@ -218,7 +279,12 @@
 
         <storage id="public">
             <repositories>
-                <repository id="public-group" policy="mixed" data-store="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="public-group"
+                            policy="mixed"
+                            data-store="file-system"
+                            layout="Maven 2"
+                            type="group"
+                            secured="true">
                     <group>
                         <repository>storage-common-proxies:group-common-proxies</repository>
                         <repository>storage-springsource-proxies:springsource-proxies</repository>
@@ -228,7 +294,12 @@
                     </group>
                 </repository>
                 
-                <repository id="nuget-public" policy="mixed" data-store="file-system" layout="Nuget Hierarchical" type="group" secured="true">
+                <repository id="nuget-public"
+                            policy="mixed"
+                            data-store="file-system"
+                            layout="Nuget Hierarchical"
+                            type="group"
+                            secured="true">
                     <group>
                         <repository>storage-common-proxies:nuget.org</repository>
                         <repository>storage-third-party:nuget-third-party</repository>
