@@ -89,7 +89,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         Repository repository1 = new Repository(REPOSITORY_RELEASES_1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE_ID));
-        repository1.setLayout("Nuget Hierarchical");
+        repository1.setLayout("NuGet");
         repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repository1);

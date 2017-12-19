@@ -16,7 +16,7 @@ public enum RepositoryLayoutEnum
 
     YUM("YUM"),         // Unsupported
     
-    NUGET_HIERARCHICAL("Nuget Hierarchical");
+    NUGET("NuGet");
 
     private String layout;
 

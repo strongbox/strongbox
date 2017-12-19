@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -23,29 +23,29 @@ public class NugetReleaseVersionValidatorTest
             throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.toString());
-        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+        repository.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
     }
 
     @Test
     public void testReleaseValidation()
             throws VersionValidationException
     {
-        ArtifactCoordinates coordinates1 = new NugetHierarchicalArtifactCoordinates();
+        ArtifactCoordinates coordinates1 = new NugetArtifactCoordinates();
         coordinates1.setVersion("1");
 
-        ArtifactCoordinates coordinates2 = new NugetHierarchicalArtifactCoordinates();
+        ArtifactCoordinates coordinates2 = new NugetArtifactCoordinates();
         coordinates2.setVersion("1.0");
 
-        ArtifactCoordinates coordinates3 = new NugetHierarchicalArtifactCoordinates();
+        ArtifactCoordinates coordinates3 = new NugetArtifactCoordinates();
         coordinates3.setVersion("1.0-rc-1");
 
-        ArtifactCoordinates coordinates4 = new NugetHierarchicalArtifactCoordinates();
+        ArtifactCoordinates coordinates4 = new NugetArtifactCoordinates();
         coordinates4.setVersion("1.0-milestone-1");
 
-        ArtifactCoordinates coordinates5 = new NugetHierarchicalArtifactCoordinates();
+        ArtifactCoordinates coordinates5 = new NugetArtifactCoordinates();
         coordinates5.setVersion("1.0-alpha-1");
 
-        ArtifactCoordinates coordinates6 = new NugetHierarchicalArtifactCoordinates();
+        ArtifactCoordinates coordinates6 = new NugetArtifactCoordinates();
         coordinates6.setVersion("1.0-beta-1");
 
         try
@@ -67,7 +67,7 @@ public class NugetReleaseVersionValidatorTest
     public void testInvalidArtifacts()
             throws VersionValidationException
     {
-        ArtifactCoordinates coordinates1 = new NugetHierarchicalArtifactCoordinates();
+        ArtifactCoordinates coordinates1 = new NugetArtifactCoordinates();
         coordinates1.setVersion("1.0-SNAPSHOT");
 
         validator.validate(repository, coordinates1);

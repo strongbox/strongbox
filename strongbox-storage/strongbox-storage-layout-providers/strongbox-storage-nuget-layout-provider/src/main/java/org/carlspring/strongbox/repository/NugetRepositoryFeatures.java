@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -128,22 +127,21 @@ public class NugetRepositoryFeatures
             {
                 return false;
             }
-            Set<NugetHierarchicalArtifactCoordinates> artifactToSaveSet = new HashSet<>();
+            Set<NugetArtifactCoordinates> artifactToSaveSet = new HashSet<>();
             for (PackageEntry packageEntry : packageFeed.getEntries())
             {
                 String packageId = packageEntry.getProperties().getId();
                 packageId = packageId == null ? packageEntry.getTitle() : packageId;
                 String packageVersion = packageEntry.getProperties().getVersion().toString();
 
-                NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates(packageId,
-                        packageVersion,
-                        "nupkg");
+                NugetArtifactCoordinates c = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
+                
                 if (!artifactEntryService.artifactExists(storageId, repositoryId, c.toPath()))
                 {
                     artifactToSaveSet.add(c);
                 }
             }
-            for (NugetHierarchicalArtifactCoordinates c : artifactToSaveSet)
+            for (NugetArtifactCoordinates c : artifactToSaveSet)
             {
                 RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
                 remoteArtifactEntry.setStorageId(storageId);
