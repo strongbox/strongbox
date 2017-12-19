@@ -53,26 +53,6 @@ public class NugetArtifactCoordinates extends AbstractArtifactCoordinates
         setType(packageArtifactType);
     }
 
-    public String toPath()
-    {
-        String idLocal = getId();
-        String versionLocal = getVersion();
-        String typeLocal = getType();
-
-        if ("nuspec".equals(typeLocal))
-        {
-            return String.format("%s/%s/%s.%s", idLocal, versionLocal, idLocal, typeLocal);
-        }
-
-        return String.format("%s/%s/%s.%s.%s", idLocal, versionLocal, idLocal, versionLocal, typeLocal);
-    }
-
-    @Override
-    public URI toResource()
-    {
-        return URI.create("package/" + getId() + "/" + getVersion());
-    }
-
     public NugetArtifactCoordinates(String id,
                                     String version,
                                     String type)
@@ -119,5 +99,24 @@ public class NugetArtifactCoordinates extends AbstractArtifactCoordinates
     {
         setCoordinate(EXTENSION, type);
     }
+    
+    public String toPath()
+    {
+        String idLocal = getId();
+        String versionLocal = getVersion();
+        String typeLocal = getType();
 
+        if ("nuspec".equals(typeLocal))
+        {
+            return String.format("%s/%s/%s.%s", idLocal, versionLocal, idLocal, typeLocal);
+        }
+
+        return String.format("%s/%s/%s.%s.%s", idLocal, versionLocal, idLocal, versionLocal, typeLocal);
+    }
+
+    @Override
+    public URI toResource()
+    {
+        return URI.create("package/" + getId() + "/" + getVersion());
+    }
 }

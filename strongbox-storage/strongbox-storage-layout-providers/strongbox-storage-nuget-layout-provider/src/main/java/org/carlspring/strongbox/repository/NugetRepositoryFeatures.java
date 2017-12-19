@@ -134,9 +134,8 @@ public class NugetRepositoryFeatures
                 packageId = packageId == null ? packageEntry.getTitle() : packageId;
                 String packageVersion = packageEntry.getProperties().getVersion().toString();
 
-                NugetArtifactCoordinates c = new NugetArtifactCoordinates(packageId,
-                        packageVersion,
-                        "nupkg");
+                NugetArtifactCoordinates c = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
+                
                 if (!artifactEntryService.artifactExists(storageId, repositoryId, c.toPath()))
                 {
                     artifactToSaveSet.add(c);

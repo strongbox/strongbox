@@ -43,10 +43,9 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class NugetLayoutProvider
-        extends AbstractLayoutProvider<NugetArtifactCoordinates,
-                                              NugetRepositoryFeatures,
-                                              NugetRepositoryManagementStrategy>
+public class NugetLayoutProvider extends AbstractLayoutProvider<NugetArtifactCoordinates,
+                                                                NugetRepositoryFeatures, 
+                                                                NugetRepositoryManagementStrategy>
 {
     private static final Logger logger = LoggerFactory.getLogger(NugetLayoutProvider.class);
 
