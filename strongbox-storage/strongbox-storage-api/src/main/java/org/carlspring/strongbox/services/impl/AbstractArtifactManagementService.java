@@ -174,14 +174,14 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
 
         if (updatedMetadataFile)
         {
-            // If this is a metadata file and it has been updated:
             artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(storageId,
                                                                                    repositoryId,
                                                                                    artifactPathRelative);
-
-            artifactEventListenerRegistry.dispatchArtifactMetadataFileUploadedEvent(storageId,
-                                                                                    repositoryId,
-                                                                                    artifactPathRelative);
+            if (repository.isHostedRepository())
+            {
+                artifactEventListenerRegistry.dispatchArtifactMetadataFileUploadedEvent(storageId, repositoryId,
+                                                                                        artifactPathRelative);
+            }
         }
         if (updatedArtifactChecksumFile)
         {

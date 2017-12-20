@@ -4,7 +4,7 @@ package org.carlspring.strongbox.storage.repository;
  * @author carlspring
  */
 public class UnknownRepositoryTypeException
-        extends Throwable
+        extends Exception
 {
 
     public UnknownRepositoryTypeException()

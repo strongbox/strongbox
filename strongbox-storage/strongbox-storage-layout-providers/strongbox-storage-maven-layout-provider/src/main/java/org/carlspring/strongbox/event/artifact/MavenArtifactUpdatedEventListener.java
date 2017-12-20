@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * @author Przemyslaw Fusik
  */
 @Component
-public class MavenArtifactUploadedEventListener
+public class MavenArtifactUpdatedEventListener
         extends BaseMavenArtifactEventListener
 {
 
@@ -25,7 +25,7 @@ public class MavenArtifactUploadedEventListener
             return;
         }
 
-        if (event.getType() != ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPLOADED.getType())
+        if (event.getType() != ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPDATED.getType())
         {
             return;
         }

@@ -4,6 +4,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -56,6 +57,8 @@ public class ArtifactMetadataServiceImpl
     @Inject
     private MavenMetadataManager mavenMetadataManager;
 
+    @Inject
+    private ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
     public ArtifactMetadataServiceImpl()
     {
@@ -131,7 +134,7 @@ public class ArtifactMetadataServiceImpl
             repositoryBasePath = repositoryBasePath.resolve(basePath);
         }
 
-        GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager);
+        GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager, artifactEventListenerRegistry);
         operation.setBasePath(repositoryBasePath);
 
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
