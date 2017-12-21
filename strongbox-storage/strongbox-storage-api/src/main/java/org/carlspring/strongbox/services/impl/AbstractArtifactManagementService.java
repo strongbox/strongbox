@@ -121,7 +121,7 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
 
     private long storeArtifact(RepositoryPath repositoryPath,
                                InputStream is,
-                               final ArtifactOutputStream aos)
+                               ArtifactOutputStream aos)
             throws IOException,
                    ProviderImplementationException
     {
@@ -131,7 +131,7 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         String repositoryId = repository.getId();
         String storageId = storage.getId();
 
-        String artifactPathRelative = repositoryPath.getResourceLocation();
+        String path = repositoryPath.getResourceLocation();
 
         Boolean checksumAttribute = RepositoryFiles.isChecksum(repositoryPath);
         
@@ -162,25 +162,27 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
 
         if (repository.isHostedRepository())
         {
-            artifactEventListenerRegistry.dispatchArtifactUploadingEvent(storageId, repositoryId, artifactPathRelative);
+            artifactEventListenerRegistry.dispatchArtifactUploadingEvent(storageId, repositoryId, path);
         }
         else
         {
-            artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storageId, repositoryId, artifactPathRelative);
+            artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storageId, repositoryId, path);
         }
 
-        long totalAmountOfBytes = artifactByteStreamsCopyStrategyDeterminator.determine(repository).copy(is, aos,
+        long totalAmountOfBytes = artifactByteStreamsCopyStrategyDeterminator.determine(repository).copy(is,
+                                                                                                         aos,
                                                                                                          repositoryPath);
 
         if (updatedMetadataFile)
         {
             artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(storageId,
                                                                                    repositoryId,
-                                                                                   artifactPathRelative);
+                                                                                   path);
             if (repository.isHostedRepository())
             {
-                artifactEventListenerRegistry.dispatchArtifactMetadataFileUploadedEvent(storageId, repositoryId,
-                                                                                        artifactPathRelative);
+                artifactEventListenerRegistry.dispatchArtifactMetadataFileUploadedEvent(storageId,
+                                                                                        repositoryId,
+                                                                                        path);
             }
         }
         if (updatedArtifactChecksumFile)
@@ -188,20 +190,20 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             // If this is a checksum file and it has been updated:
             artifactEventListenerRegistry.dispatchArtifactChecksumFileUpdatedEvent(storageId,
                                                                                    repositoryId,
-                                                                                   artifactPathRelative);
+                                                                                   path);
         }
 
         if (updatedArtifactFile)
         {
             // If this is an artifact file and it has been updated:
-            artifactEventListenerRegistry.dispatchArtifactUploadedEvent(storageId, repositoryId, artifactPathRelative);
+            artifactEventListenerRegistry.dispatchArtifactUploadedEvent(storageId, repositoryId, path);
         }
 
         Map<String, String> digestMap = aos.getDigestMap();
         if (Boolean.FALSE.equals(checksumAttribute) && !digestMap.isEmpty())
         {
             // Store artifact digests in cache if we have them.
-            addChecksumsToCacheManager(digestMap, artifactPathRelative);
+            addChecksumsToCacheManager(digestMap, path);
         }
         
         if (Boolean.TRUE.equals(checksumAttribute))
@@ -211,10 +213,10 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             {
                 artifactEventListenerRegistry.dispatchArtifactChecksumUploadedEvent(storageId,
                                                                                     repositoryId,
-                                                                                    artifactPathRelative);
+                                                                                    path);
 
                 // Validate checksum with artifact digest cache.
-                validateUploadedChecksumAgainstCache(checksumValue, artifactPathRelative);
+                validateUploadedChecksumAgainstCache(checksumValue, path);
             }
         }
 
@@ -234,7 +236,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         ArtifactCoordinates artifactCoordinates = RepositoryFiles.readCoordinates(path);
 
         String artifactPath = path.getResourceLocation();
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storage.getId(), repository.getId(),
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storage.getId(),
+                                                                           repository.getId(),
                                                                            artifactPath)
                                                           .orElse(createArtifactEntry(artifactCoordinates,
                                                                                       storage.getId(),

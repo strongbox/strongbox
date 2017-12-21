@@ -38,15 +38,11 @@ public class MavenMetadataManagementController
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
-    @ApiOperation(value = "Used to rebuild the metadata for a given path.",
-            position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-            message = "The metadata was successfully rebuilt!"),
-                            @ApiResponse(code = 500,
-                                    message = "An error occurred.") })
+    @ApiOperation(value = "Used to rebuild the metadata for a given path.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
-    @RequestMapping(method = RequestMethod.POST,
-            produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
                                   @RequestParam("storageId") String storageId,
                                   @ApiParam(value = "The repositoryId")

@@ -60,17 +60,6 @@
                             checksum-headers-enabled="true">
                     <maven-repository-configuration indexing-enabled="true" />
                 </repository>
-                <repository id="storage0-group"
-                            policy="mixed"
-                            data-store="file-system"
-                            layout="Maven 2"
-                            type="group"
-                            secured="true">
-                    <group>
-                        <repository>releases</repository>
-                        <repository>snapshots</repository>
-                    </group>
-                </repository>
             </repositories>
         </storage>
 

@@ -57,7 +57,9 @@ public class MavenMetadataGroupRepositoryComponent
             throws IOException
     {
         final Map<String, MutableBoolean> repositoryArtifactExistence = new HashMap<>();
-        deleteMetadataInGroupRepositoriesContainingPath(storageId, repositoryId, artifactRelativePath,
+        deleteMetadataInGroupRepositoriesContainingPath(storageId,
+                                                        repositoryId,
+                                                        artifactRelativePath,
                                                         repositoryArtifactExistence);
     }
 
@@ -76,12 +78,15 @@ public class MavenMetadataGroupRepositoryComponent
         for (final Repository groupRepository : directParents)
         {
             final MutableBoolean artifactExistence = new MutableBoolean();
-            checkArtifactExistenceInTheGroupRepositorySubtree(groupRepository, artifactRelativePath,
-                                                              repositoryArtifactExistence, artifactExistence);
+            checkArtifactExistenceInTheGroupRepositorySubtree(groupRepository,
+                                                              artifactRelativePath,
+                                                              repositoryArtifactExistence,
+                                                              artifactExistence);
             if (artifactExistence.isFalse())
             {
                 final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(groupRepository.getLayout());
-                layoutProvider.deleteMetadata(groupRepository.getStorage().getId(), groupRepository.getId(),
+                layoutProvider.deleteMetadata(groupRepository.getStorage().getId(),
+                                              groupRepository.getId(),
                                               artifactRelativePath);
             }
             // go higher in the hierarchy
@@ -119,8 +124,10 @@ public class MavenMetadataGroupRepositoryComponent
 
             if (subRepository.isGroupRepository())
             {
-                checkArtifactExistenceInTheGroupRepositorySubtree(subRepository, artifactRelativePath,
-                                                                  repositoryArtifactExistence, artifactExistence);
+                checkArtifactExistenceInTheGroupRepositorySubtree(subRepository,
+                                                                  artifactRelativePath,
+                                                                  repositoryArtifactExistence,
+                                                                  artifactExistence);
                 if (artifactExistence.isTrue())
                 {
                     repositoryArtifactExistence.get(storageAndRepositoryId).setTrue();
@@ -169,8 +176,11 @@ public class MavenMetadataGroupRepositoryComponent
 
         final List<Repository> updatedRepositoryGraphPathLeafs = new ArrayList<>();
         updatedRepositoryGraphPathLeafs.add(repository);
-        updateMetadataInGroupsContainingRepository(repository, updatedRepositoryGraphPathLeafs, artifactRelativePath,
-                                                   artifactBasePathCalculation, mergeMetadata);
+        updateMetadataInGroupsContainingRepository(repository,
+                                                   updatedRepositoryGraphPathLeafs,
+                                                   artifactRelativePath,
+                                                   artifactBasePathCalculation,
+                                                   mergeMetadata);
     }
 
     private void updateMetadataInGroupsContainingRepository(final Repository repository,
@@ -196,15 +206,17 @@ public class MavenMetadataGroupRepositoryComponent
                         artifactRelativePath);
 
                 mavenMetadataManager.mergeAndStore(
-                        artifactBasePathCalculation.apply(parentRepositoryArtifactAbsolutePath),
-                        mergeMetadata);
+                        artifactBasePathCalculation.apply(parentRepositoryArtifactAbsolutePath), mergeMetadata);
             }
 
             updatedRepositoryGraphPathLeafs.add(parent);
 
             // go higher in the hierarchy
-            updateMetadataInGroupsContainingRepository(parent, updatedRepositoryGraphPathLeafs, artifactRelativePath,
-                                                       artifactBasePathCalculation, mergeMetadata);
+            updateMetadataInGroupsContainingRepository(parent,
+                                                       updatedRepositoryGraphPathLeafs,
+                                                       artifactRelativePath,
+                                                       artifactBasePathCalculation,
+                                                       mergeMetadata);
             updatedRepositoryGraphPathLeafs.remove(parent);
         }
     }
