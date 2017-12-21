@@ -3,7 +3,7 @@ package org.carlspring.strongbox.config;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -33,7 +33,7 @@ public class NugetLayoutProviderConfig
     public void init()
     {
         transactionTemplate.execute((s) -> {
-            oEntityManager.registerEntityClass(NugetHierarchicalArtifactCoordinates.class);
+            oEntityManager.registerEntityClass(NugetArtifactCoordinates.class);
             return null;
         });
     }

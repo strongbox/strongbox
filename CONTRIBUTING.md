@@ -3,6 +3,10 @@
 
 While we appreciate all the help we can get, here are some more details on the [coding convention](https://github.com/strongbox/strongbox/wiki/Coding-Convention). Please, follow these guidelines and set up your IDE to use the respective code style configuration file.
 
+# Code of Conduct
+
+If would like to contribute to our project and contribute to our work, please follow our [Code of Conduct](https://github.com/strongbox/strongbox/blob/master/CODE-OF-CONDUCT.md).
+
 # Pull Requests
 
 Please, follow these basic rules when creating pull requests. Pull requests:
@@ -54,3 +58,4 @@ To accept, please:
 | Nenko Tabakov                |                                          | Sofia, Bulgaria                         | 2016-11-07 |
 | Przemyslaw Fusik             |                                          | Maszewo, Poland                         | 2017-04-09 |
 | Dinesh Arora                 |                                          | Charlotte, USA                          | 2017-12-07 |
+| Sanket Sawant                |                                          | Mumbai, India                           | 2017-12-09 |

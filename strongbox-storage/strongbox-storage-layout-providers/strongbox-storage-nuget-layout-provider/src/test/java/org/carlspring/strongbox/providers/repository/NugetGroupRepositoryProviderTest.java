@@ -13,7 +13,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.config.NugetLayoutProviderConfig;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
@@ -98,23 +98,23 @@ public class NugetGroupRepositoryProviderTest
 
         //REPOSITORY_RELEASES_1
         createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1),
-                         RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+                         RepositoryLayoutEnum.NUGET.getLayout());
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, 9);
 
         //REPOSITORY_RELEASES_2
         createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2),
-                         RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+                         RepositoryLayoutEnum.NUGET.getLayout());
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_2, 12);
         
         //REPOSITORY_RELEASES_3
         createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3),
-                         RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+                         RepositoryLayoutEnum.NUGET.getLayout());
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_3, 8);
 
         Repository repositoryGroup = new Repository(REPOSITORY_GROUP);
         repositoryGroup.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryGroup.setLayout(RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+        repositoryGroup.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
         repositoryGroup.setAllowsForceDeletion(false);
@@ -128,7 +128,7 @@ public class NugetGroupRepositoryProviderTest
         Repository repositoryWithNestedGroupLevel1 = new Repository(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
         repositoryWithNestedGroupLevel1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryWithNestedGroupLevel1.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryWithNestedGroupLevel1.setLayout(RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+        repositoryWithNestedGroupLevel1.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
         repositoryWithNestedGroupLevel1.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel1.setAllowsDelete(false);
         repositoryWithNestedGroupLevel1.setAllowsForceDeletion(false);
@@ -140,7 +140,7 @@ public class NugetGroupRepositoryProviderTest
         Repository repositoryWithNestedGroupLevel2 = new Repository(REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
         repositoryWithNestedGroupLevel2.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryWithNestedGroupLevel2.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryWithNestedGroupLevel2.setLayout(RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+        repositoryWithNestedGroupLevel2.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
         repositoryWithNestedGroupLevel2.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel2.setAllowsDelete(false);
         repositoryWithNestedGroupLevel2.setAllowsForceDeletion(false);
@@ -163,7 +163,7 @@ public class NugetGroupRepositoryProviderTest
         {
             String packageId = String.format("grpt.search.p%s", i);
             String packageVersion = "1.0.0";
-            NugetHierarchicalArtifactCoordinates coordinates = new NugetHierarchicalArtifactCoordinates(packageId, packageVersion, "nupkg");
+            NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
             Path packageFilePath = generatePackageFile(packageId, packageVersion);
             artifactManagementService.validateAndStore(storageId, repositoryId, coordinates.toPath(),
                                                        Files.newInputStream(packageFilePath));

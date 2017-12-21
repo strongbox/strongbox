@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -14,7 +15,7 @@ import javax.inject.Inject;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -42,14 +43,13 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class NugetHierarchicalLayoutProvider
-        extends AbstractLayoutProvider<NugetHierarchicalArtifactCoordinates,
-                                              NugetRepositoryFeatures,
-                                              NugetRepositoryManagementStrategy>
+public class NugetLayoutProvider extends AbstractLayoutProvider<NugetArtifactCoordinates,
+                                                                NugetRepositoryFeatures, 
+                                                                NugetRepositoryManagementStrategy>
 {
-    private static final Logger logger = LoggerFactory.getLogger(NugetHierarchicalLayoutProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(NugetLayoutProvider.class);
 
-    public static final String ALIAS = "Nuget Hierarchical";
+    public static final String ALIAS = "NuGet";
 
     @Inject
     private NugetRepositoryManagementStrategy nugetRepositoryManagementStrategy;
@@ -74,9 +74,9 @@ public class NugetHierarchicalLayoutProvider
     }
 
     @Override
-    public NugetHierarchicalArtifactCoordinates getArtifactCoordinates(String path)
+    public NugetArtifactCoordinates getArtifactCoordinates(String path)
     {
-        return new NugetHierarchicalArtifactCoordinates(path);
+        return new NugetArtifactCoordinates(path);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class NugetHierarchicalLayoutProvider
     {
         byte[] encoded = Base64.getEncoder()
                                .encode(digest);
-        return new String(encoded);
+        return new String(encoded,StandardCharsets.UTF_8);
     }
 
     @Override
@@ -148,7 +148,7 @@ public class NugetHierarchicalLayoutProvider
 
         public NugetRepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
         {
-            super(storageFileSystemProvider, null, NugetHierarchicalLayoutProvider.this);
+            super(storageFileSystemProvider, null, NugetLayoutProvider.this);
         }
 
         @Override
@@ -159,7 +159,7 @@ public class NugetHierarchicalLayoutProvider
             IOException
         {
             ArtifactOutputStream result = super.decorateStream(path, os, artifactCoordinates);
-            result.setDigestStringifier(NugetHierarchicalLayoutProvider.this::toBase64);
+            result.setDigestStringifier(NugetLayoutProvider.this::toBase64);
             return result;
         }
         

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -24,14 +24,14 @@ public class NugetSnapshotVersionValidatorTest
             throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.toString());
-        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERARCHICAL.getLayout());
+        repository.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
     }
 
     @Test
     public void testSnapshotValidation()
             throws VersionValidationException
     {
-        ArtifactCoordinates coordinates1 = new NugetHierarchicalArtifactCoordinates();
+        ArtifactCoordinates coordinates1 = new NugetArtifactCoordinates();
         coordinates1.setVersion("1.0-SNAPSHOT");
 
         try
@@ -48,7 +48,7 @@ public class NugetSnapshotVersionValidatorTest
     public void testInvalidArtifacts()
             throws VersionValidationException
     {
-        ArtifactCoordinates coordinates1 = new NugetHierarchicalArtifactCoordinates();
+        ArtifactCoordinates coordinates1 = new NugetArtifactCoordinates();
         coordinates1.setVersion("1.0");
 
         validator.validate(repository, coordinates1);
