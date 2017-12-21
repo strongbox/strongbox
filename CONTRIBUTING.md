@@ -3,6 +3,10 @@
 
 While we appreciate all the help we can get, here are some more details on the [coding convention](https://github.com/strongbox/strongbox/wiki/Coding-Convention). Please, follow these guidelines and set up your IDE to use the respective code style configuration file.
 
+# Code of Conduct
+
+If would like to contribute to our project and contribute to our work, please follow our [Code of Conduct](https://github.com/strongbox/strongbox/blob/master/CODE-OF-CONDUCT.md).
+
 # Pull Requests
 
 Please, follow these basic rules when creating pull requests. Pull requests:
