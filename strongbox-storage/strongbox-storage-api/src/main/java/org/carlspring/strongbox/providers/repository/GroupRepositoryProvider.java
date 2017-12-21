@@ -5,8 +5,10 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
@@ -15,6 +17,8 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -42,6 +46,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     @Inject
     private ArtifactRoutingRulesChecker artifactRoutingRulesChecker;
 
+    @Inject
+    private HostedRepositoryProvider hostedRepositoryProvider;
+
     @PostConstruct
     @Override
     public void register()
@@ -67,10 +74,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                    ProviderImplementationException
     {
         Storage storage = getConfiguration().getStorage(storageId);
-
-        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
-
         Repository groupRepository = storage.getRepository(repositoryId);
+
+        ArtifactInputStream is = resolveDirectlyFromGroupPathIfPossible(storageId, repositoryId, artifactPath);
+        if (is != null)
+        {
+            return is;
+        }
 
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
         {
@@ -87,7 +97,6 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             {
                 continue;
             }
-            ArtifactInputStream is;
             try
             {
                 is = resolveArtifact(sId, r.getId(), artifactPath);
@@ -103,6 +112,29 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         }
 
         return null;
+    }
+
+    private ArtifactInputStream resolveDirectlyFromGroupPathIfPossible(final String storageId,
+                                                                       final String repositoryId,
+                                                                       final String path)
+            throws IOException
+    {
+
+        final Storage storage = getConfiguration().getStorage(storageId);
+        final Repository repository = storage.getRepository(repositoryId);
+        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
+        final RepositoryFileAttributes artifactFileAttributes;
+        try
+        {
+            artifactFileAttributes = Files.readAttributes(artifactPath, RepositoryFileAttributes.class);
+        }
+        catch (NoSuchFileException ex)
+        {
+            return null;
+        }
+        return artifactFileAttributes.isMetadata() ?
+               hostedRepositoryProvider.getInputStream(storageId, repositoryId, path) : null;
     }
 
     /**
@@ -192,12 +224,12 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         Repository groupRepository = storage.getRepository(repositoryId);
 
         Set<Repository> groupRepositorySet = collectGroupRepositorySet(groupRepository);
-        
+
         if (groupRepositorySet.isEmpty())
         {
             return new LinkedList<>();
         }
-        
+
         int skip = pageRequest.getSkip();
         int limit = pageRequest.getLimit();
 
@@ -206,13 +238,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         int groupLimit = limit;
 
         skip = skip - groupSkip;
-        
+
         outer: do
         {
             RepositorySearchRequest searchRequestLocal = new RepositorySearchRequest(null, null);
             searchRequestLocal.setCoordinates(searchRequest.getCoordinates());
             searchRequestLocal.setStrict(searchRequest.isStrict());
-            
+
             RepositoryPageRequest pageRequestLocal = new RepositoryPageRequest();
             pageRequestLocal.setLimit(groupLimit);
             pageRequestLocal.setOrderBy(pageRequest.getOrderBy());
@@ -225,7 +257,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 Repository r = i.next();
                 searchRequestLocal.setStorageId(r.getStorage().getId());
                 searchRequestLocal.setRepositoryId(r.getId());
-                
+
 
                 RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(r.getType());
 
@@ -295,11 +327,11 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 traverseResult.add(r);
                 continue;
             }
-            
+
             i.remove();
             traverseResult.addAll(collectGroupRepositorySet(r, true));
         }
-        
+
         return traverseResult;
     }
 
@@ -322,7 +354,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             throw new RuntimeException(String.format("Failed to resolve ArtifactCoordinates for [%s]", p), e);
         }
     }
-    
+
     @Override
     public Long count(RepositorySearchRequest searchRequest)
     {

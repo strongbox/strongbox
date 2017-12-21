@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ResourceCloser;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
@@ -21,16 +21,13 @@ import java.util.Set;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.hamcrest.CoreMatchers;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author mtodorov
@@ -58,6 +55,9 @@ public class MavenGroupRepositoryProviderTest
     @Inject
     private ConfigurationManager configurationManager;
 
+    @Inject
+    private ArtifactMetadataService artifactMetadataService;
+
     @Rule
     public final ExpectedLogs logs = new ExpectedLogs()
     {{
@@ -83,9 +83,21 @@ public class MavenGroupRepositoryProviderTest
                                       "1.2.3");
 
         createRepositoryWithArtifacts(STORAGE0,
+                                      REPOSITORY_RELEASES_1,
+                                      false,
+                                      "com.artifacts.in.releases.under:group",
+                                      "1.2.3");
+
+        createRepositoryWithArtifacts(STORAGE0,
                                       REPOSITORY_RELEASES_2,
                                       false,
                                       "com.artifacts.in.releases.two:foo",
+                                      "1.2.4");
+
+        createRepositoryWithArtifacts(STORAGE0,
+                                      REPOSITORY_RELEASES_2,
+                                      false,
+                                      "com.artifacts.in.releases.under:group",
                                       "1.2.4");
 
         MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
@@ -139,6 +151,9 @@ public class MavenGroupRepositoryProviderTest
                          "com.artifacts.denied.by.wildcard:foo:1.2.7");
 
         createRoutingRules();
+
+        generateMavenMetadata(STORAGE0, REPOSITORY_RELEASES_1);
+        generateMavenMetadata(STORAGE0, REPOSITORY_RELEASES_2);
     }
 
     @After
@@ -282,6 +297,26 @@ public class MavenGroupRepositoryProviderTest
                                                "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar");
 
         assertNotNull(is);
+
+        ResourceCloser.close(is, null);
+    }
+
+    @Test
+    public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository()
+            throws Exception
+    {
+        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
+        RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+
+        InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                           REPOSITORY_GROUP,
+                                                           "com/artifacts/in/releases/under/group/maven-metadata.xml");
+
+        assertNotNull(is);
+
+        Metadata metadata = artifactMetadataService.getMetadata(is);
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
+        assertThat(metadata.getVersioning().getVersions(), CoreMatchers.hasItems("1.2.3", "1.2.4"));
 
         ResourceCloser.close(is, null);
     }
