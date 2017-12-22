@@ -301,7 +301,7 @@ public class MavenArtifactController
         
        
 
-        logger.debug("Download succeeded.");
+        logger.debug("Header Download succeeded.");
     }
 
     

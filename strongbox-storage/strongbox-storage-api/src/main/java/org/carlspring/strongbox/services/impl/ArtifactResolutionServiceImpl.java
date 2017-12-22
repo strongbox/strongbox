@@ -27,8 +27,11 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+
 
 /**
  * @author mtodorov
@@ -37,7 +40,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class ArtifactResolutionServiceImpl
         implements ArtifactResolutionService
 {
-
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactResolutionServiceImpl.class);
+    
     @Inject
     private ConfigurationManager configurationManager;
 
@@ -137,15 +141,30 @@ public class ArtifactResolutionServiceImpl
     @Override
     public RepositoryFileAttributes getAttributes(String storageId,
                                                   String repositoryId,
-                                                  String path) throws IOException
+                                                  String artifactPath) throws IOException
     {
-        Repository repository = getStorage(storageId).getRepository(repositoryId);
-
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-        RepositoryFileAttributes fileAttributes = Files.readAttributes(artifactPath, RepositoryFileAttributes.class);
+        logger.debug("******");
         
+        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
+
+        final Repository repository = getStorage(storageId).getRepository(repositoryId);
+     
+        LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        //  RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+        
+       
+        RepositoryPath path = layoutProvider.resolve(repository,URI.create(artifactPath));
+        
+        logger.debug("PATH == "+path.toString());
+        
+        RepositoryFileAttributes fileAttributes = (RepositoryFileAttributes) Files.readAttributes(path, RepositoryFileAttributes.class);
+        if (fileAttributes == null)
+        {
+            throw new ArtifactResolutionException("Artifact " + artifactPath + " not found.");
+        }
+
         return fileAttributes;
     }
     
 }
+ 
