@@ -8,6 +8,7 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -419,4 +420,24 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         }
     }
 
+    @Override
+    public RepositoryFileAttributes getAttributes(String storageId,
+                               String repositoryId,
+                               String path)
+            throws ArtifactTransportException,
+                   ProviderImplementationException
+    {
+        try
+        {
+            return artifactResolutionService.getAttributes(storageId, repositoryId, path);
+        }
+        catch (IOException e)
+        {
+            // This is not necessarily an error. It could simply be a check
+            // whether a resource exists, before uploading/updating it.
+            logger.debug("The requested path does not exist: /" + storageId + "/" + repositoryId + "/" + path);
+        }
+
+        return null;
+    }
 }

@@ -10,6 +10,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 
 /**
  * @author mtodorov
@@ -41,5 +42,9 @@ public interface ArtifactResolutionService
                                 ArtifactCoordinates artifactCoordinates)
             throws MalformedURLException, 
                    IOException;
+
+    RepositoryFileAttributes getAttributes(String storageId,
+                                           String repositoryId,
+                                           String path) throws IOException;
 
 }
