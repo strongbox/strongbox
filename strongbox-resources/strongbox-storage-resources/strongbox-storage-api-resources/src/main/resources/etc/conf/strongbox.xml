@@ -297,7 +297,7 @@
                 <repository id="nuget-public"
                             policy="mixed"
                             data-store="file-system"
-                            layout="Nuget Hierarchical"
+                            layout="NuGet"
                             type="group"
                             secured="true">
                     <group>
