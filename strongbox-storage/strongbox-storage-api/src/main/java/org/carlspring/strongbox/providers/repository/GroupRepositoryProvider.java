@@ -1,3 +1,4 @@
+
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
@@ -376,4 +377,6 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return artifactEntryService.countCoordinates(storageRepositoryPairSet, searchRequest.getCoordinates(),
                                                      searchRequest.isStrict());
     }
+
+
 }

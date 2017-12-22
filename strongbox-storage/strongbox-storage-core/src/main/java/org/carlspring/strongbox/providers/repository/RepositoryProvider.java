@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+
 
 /**
  * @author carlspring
@@ -35,4 +37,5 @@ public interface RepositoryProvider
     
     Long count(RepositorySearchRequest searchRequest);
 
+    
 }

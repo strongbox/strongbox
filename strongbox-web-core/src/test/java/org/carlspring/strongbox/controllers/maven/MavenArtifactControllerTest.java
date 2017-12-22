@@ -34,6 +34,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.base.Throwables;
+
+import io.restassured.http.Headers;
 import io.restassured.response.ExtractableResponse;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -279,7 +281,19 @@ public class MavenArtifactControllerTest
         assertEquals("MD5 checksums did not match!", md5Local, md5Remote);
         assertEquals("SHA-1 checksums did not match!", sha1Local, sha1Remote);
     }
+    
+    @Test
+    public void testHeaderFetch()
+            throws Exception
+    {   
+        String artifactPath = "storages/storage0/act-releases-1/org/carlspring/strongbox/browse/foo-bar/2.4/foo-bar-2.4.jar";
 
+        Headers headers = client.getHeaders(artifactPath);
+        
+        assertEquals(1,1);
+        
+    }
+    
     @Test
     public void testPartialFetch()
             throws Exception
