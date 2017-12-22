@@ -44,7 +44,9 @@ Welcome to the Strongbox artifact repository manager's home.
 
 # What's in the works (Q4/2017):
 * [Proxy repositories](https://github.com/strongbox/strongbox/wiki/Repositories#proxy)
-* NPM layout provider
+* Layout providers
+  * NPM layout provider
+  * Raw layout provider
 * Web UI
 * Logging:
   * Log tailing over HTTP
