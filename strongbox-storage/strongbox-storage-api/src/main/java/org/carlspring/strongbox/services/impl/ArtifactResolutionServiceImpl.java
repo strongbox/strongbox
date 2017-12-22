@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
 import javax.inject.Inject;
@@ -14,6 +15,8 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
@@ -129,6 +132,20 @@ public class ArtifactResolutionServiceImpl
                                    .toUri()
                                    .resolve(artifactResource)
                                    .toURL();
+    }
+
+    @Override
+    public RepositoryFileAttributes getAttributes(String storageId,
+                                                  String repositoryId,
+                                                  String path) throws IOException
+    {
+        Repository repository = getStorage(storageId).getRepository(repositoryId);
+
+        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
+        RepositoryFileAttributes fileAttributes = Files.readAttributes(artifactPath, RepositoryFileAttributes.class);
+        
+        return fileAttributes;
     }
     
 }

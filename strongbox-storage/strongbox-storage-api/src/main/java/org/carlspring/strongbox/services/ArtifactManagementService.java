@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.Storage;
 
@@ -67,5 +68,9 @@ public interface ArtifactManagementService extends ConfigurationService
             throws IOException;
 
     Storage getStorage(String storageId);
+
+    RepositoryFileAttributes getAttributes(String storageId,
+                                           String repositoryId,
+                                           String path) throws ArtifactTransportException, ProviderImplementationException;
     
 }

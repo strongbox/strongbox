@@ -5,6 +5,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -208,7 +209,102 @@ public class MavenArtifactController
 
         logger.debug("Download succeeded.");
     }
+    
+    @ApiOperation(value = "Used to retrieve headers of an artifact", position = 2)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
+                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = RequestMethod.HEAD)
+    public void getHeaders(@ApiParam(value = "The storageId", required = true)
+                         @PathVariable String storageId,
+                         @ApiParam(value = "The repositoryId", required = true)
+                         @PathVariable String repositoryId,
+                         @RequestHeader HttpHeaders httpHeaders,
+                         @PathVariable String path,
+                         HttpServletRequest request,
+                         HttpServletResponse response)
+            throws Exception
+    {
+        logger.debug("Requested Headers for /" + storageId + "/" + repositoryId + "/" + path + ".");
 
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        if (storage == null)
+        {
+            logger.error("Unable to find storage by ID " + storageId);
+
+            response.sendError(INTERNAL_SERVER_ERROR.value(), "Unable to find storage by ID " + storageId);
+
+            return;
+        }
+
+        Repository repository = storage.getRepository(repositoryId);
+        if (repository == null)
+        {
+            logger.error("Unable to find repository by ID " + repositoryId + " for storage " + storageId);
+
+            response.sendError(INTERNAL_SERVER_ERROR.value(),
+                               "Unable to find repository by ID " + repositoryId + " for storage " + storageId);
+            return;
+        }
+
+        if (!repository.isInService())
+        {
+            logger.error("Repository is not in service...");
+
+            response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+
+            return;
+        }
+
+        if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
+        {
+            try
+            {
+                generateDirectoryListing(repository, path, request, response);
+            }
+            catch (Exception e)
+            {
+                logger.debug("Unable to generate directory listing for " +
+                             "/" + storageId + "/" + repositoryId + "/" + path, e);
+
+                response.setStatus(INTERNAL_SERVER_ERROR.value());
+            }
+
+            return;
+        }
+
+       RepositoryFileAttributes fileAttributes;
+        try
+        {
+            fileAttributes =  getArtifactManagementService().getAttributes(storageId, repositoryId, path);
+            
+            if (fileAttributes == null)
+            {
+                response.setStatus(NOT_FOUND.value());
+                return;
+            }
+        }
+        catch (ArtifactTransportException e)
+        {
+            logger.debug("Unable to find artifact by path " + path, e);
+
+            response.setStatus(NOT_FOUND.value());
+
+            return;
+        }
+
+        setMediaTypeHeader(path, response);
+
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("Creation-Date", fileAttributes.creationTime().toString());
+        response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
+        
+       
+
+        logger.debug("Download succeeded.");
+    }
+
+    
     private void setMediaTypeHeader(String path,
                                     HttpServletResponse response)
     {
