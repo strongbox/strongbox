@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.stream.Stream;
@@ -299,11 +298,14 @@ public class Maven2LayoutProvider
                         Path pomPath = pathStream.filter(
                                 p -> p.getFileName().toString().endsWith(".pom")).findFirst().orElse(null);
 
-                        String version = ArtifactUtils.convertPathToArtifact(path).getVersion() != null ?
-                                         ArtifactUtils.convertPathToArtifact(path).getVersion() :
-                                         pomPath.getParent().getFileName().toString();
+                        if (pomPath != null)
+                        {
+                            String version = ArtifactUtils.convertPathToArtifact(path).getVersion() != null ?
+                                             ArtifactUtils.convertPathToArtifact(path).getVersion() :
+                                             pomPath.getParent().getFileName().toString();
 
-                        deleteMetadataAtVersionLevel(artifactBasePath, version);
+                            deleteMetadataAtVersionLevel(artifactBasePath, version);
+                        }
                     }
 
                 }

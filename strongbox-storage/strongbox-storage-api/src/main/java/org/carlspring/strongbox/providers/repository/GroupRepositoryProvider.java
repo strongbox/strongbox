@@ -1,38 +1,25 @@
 package org.carlspring.strongbox.providers.repository;
 
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.routing.RoutingRule;
-import org.carlspring.strongbox.storage.routing.RoutingRules;
-import org.carlspring.strongbox.storage.routing.RuleSet;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +38,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
     @Inject
     private ArtifactEntryService artifactEntryService;
+
+    @Inject
+    private ArtifactRoutingRulesChecker artifactRoutingRulesChecker;
 
     @PostConstruct
     @Override
@@ -82,31 +72,6 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         Repository groupRepository = storage.getRepository(repositoryId);
 
-        // Check the routing rules first.
-        // Check the routing accept rules for the specified repository.
-        final ArtifactInputStream isRepositoryAccept = getInputStreamFromRepositoryAcceptRules(repositoryId,
-                                                                                               artifactPath,
-                                                                                               storage);
-
-        if (isRepositoryAccept != null)
-        {
-            return isRepositoryAccept;
-        }
-
-        // Check the routing rules for wildcard accept rules
-        final ArtifactInputStream isWildcardRepositoryAccept = getInputStreamFromWildcardRepositoryAcceptRules(artifactPath, storage);
-        if (isWildcardRepositoryAccept != null)
-        {
-            return isWildcardRepositoryAccept;
-        }
-
-        // Handle:
-        // - Repository deny
-        // - Repository wildcard repository deny
-        final RuleSet denyRules = getRoutingRules().getDenyRules(repositoryId);
-        final RuleSet wildcardDenyRules = getRoutingRules().getWildcardDeniedRules();
-
-        // If there are no matches in the routing rules, then loop as usual:
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
         {
             String sId = getConfigurationManager().getStorageId(storage, storageAndRepositoryId);
@@ -114,99 +79,26 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
             Repository r = getConfiguration().getStorage(sId).getRepository(rId);
 
-            if (r.isInService() &&
-                !repositoryRejects(r.getId(), artifactPath, denyRules) &&
-                !repositoryRejects(r.getId(), artifactPath, wildcardDenyRules))
+            if (!r.isInService())
             {
-                ArtifactInputStream is;
-                try
-                {
-                    is = resolveArtifact(sId, r.getId(), artifactPath);
-                }
-                catch (IOException e)
-                {
-                    continue;
-                }
-                if (is != null)
-                {
-                    return is;
-                }
+                continue;
             }
-        }
-
-        return null;
-    }
-
-    public boolean repositoryRejects(String repositoryId, String artifactPath, RuleSet denyRules)
-    {
-        if (denyRules != null && !denyRules.getRoutingRules().isEmpty())
-        {
-            for (RoutingRule rule : denyRules.getRoutingRules())
+            if (artifactRoutingRulesChecker.isDenied(repositoryId, rId, artifactPath))
             {
-                if (rule.getRepositories().contains(repositoryId) && artifactPath.matches(rule.getPattern()))
-                {
-                    return true;
-                }
+                continue;
             }
-        }
-
-        return false;
-    }
-
-    private ArtifactInputStream getInputStreamFromWildcardRepositoryAcceptRules(String artifactPath, Storage storage)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
-    {
-        RuleSet globalAcceptRules = getRoutingRules().getWildcardAcceptedRules();
-
-        return getArtifactInputStreamViaAcceptedRules(artifactPath, storage, globalAcceptRules);
-    }
-
-    private ArtifactInputStream getInputStreamFromRepositoryAcceptRules(String repositoryId,
-                                                                        String artifactPath,
-                                                                        Storage storage)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
-    {
-        RuleSet acceptRules = getRoutingRules().getAcceptRules(repositoryId);
-
-        return getArtifactInputStreamViaAcceptedRules(artifactPath, storage, acceptRules);
-    }
-
-    private ArtifactInputStream getArtifactInputStreamViaAcceptedRules(String artifactPath,
-                                                                       Storage storage,
-                                                                       RuleSet acceptRules)
-            throws ProviderImplementationException,
-                   NoSuchAlgorithmException,
-                   IOException,
-                   ArtifactTransportException
-    {
-        if (acceptRules != null && acceptRules.getRoutingRules() != null &&
-            !acceptRules.getRoutingRules().isEmpty())
-        {
-            final List<RoutingRule> routingRules = acceptRules.getRoutingRules();
-            for (RoutingRule rule : routingRules)
+            ArtifactInputStream is;
+            try
             {
-                if (artifactPath.matches(rule.getPattern()))
-                {
-                    for (String rId : rule.getRepositories())
-                    {
-                        String sId = getConfigurationManager().getStorageId(storage, rId);
-                        rId = getConfigurationManager().getRepositoryId(rId);
-
-                        Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
-                        LayoutProvider layoutProvider = getLayoutProvider(repository, getLayoutProviderRegistry());
-
-                        if (repository.isInService() && layoutProvider.containsPath(repository, artifactPath))
-                        {
-                            return resolveArtifact(sId, repository.getId(), artifactPath);
-                        }
-                    }
-                }
+                is = resolveArtifact(sId, r.getId(), artifactPath);
+            }
+            catch (IOException e)
+            {
+                continue;
+            }
+            if (is != null)
+            {
+                return is;
             }
         }
 
@@ -283,11 +175,6 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         // in the repositories within the group.
 
         throw new UnsupportedOperationException();
-    }
-
-    public RoutingRules getRoutingRules()
-    {
-        return getConfiguration().getRoutingRules();
     }
 
     @Override

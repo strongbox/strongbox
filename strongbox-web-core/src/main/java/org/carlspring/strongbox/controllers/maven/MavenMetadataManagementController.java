@@ -8,15 +8,10 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 
 import javax.inject.Inject;
-import javax.ws.rs.QueryParam;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,20 +38,17 @@ public class MavenMetadataManagementController
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
-    @ApiOperation(value = "Used to rebuild the metadata for a given path.",
-                  position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The metadata was successfully rebuilt!"),
-                            @ApiResponse(code = 500,
-                                         message = "An error occurred.") })
+    @ApiOperation(value = "Used to rebuild the metadata for a given path.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
-    @RequestMapping(method = RequestMethod.POST,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
-                                  @QueryParam("storageId") String storageId,
-                                  @ApiParam(value = "The repositoryId", required = true)
-                                  @QueryParam("repositoryId") String repositoryId,
-                                  @QueryParam("path") String path)
+                                  @RequestParam("storageId") String storageId,
+                                  @ApiParam(value = "The repositoryId")
+                                  @RequestParam(value = "repositoryId", required = false) String repositoryId,
+                                  @ApiParam(value = "The path")
+                                  @RequestParam(value = "path", required = false) String path)
             throws IOException,
                    AuthenticationException,
                    NoSuchAlgorithmException,

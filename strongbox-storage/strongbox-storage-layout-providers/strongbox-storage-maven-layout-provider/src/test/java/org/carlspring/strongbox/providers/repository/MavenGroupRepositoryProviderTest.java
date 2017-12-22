@@ -128,6 +128,9 @@ public class MavenGroupRepositoryProviderTest
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_2).getAbsolutePath(),
                          "org.carlspring.metadata.by.juan:juancho:1.2.64");
 
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_2).getAbsolutePath(),
+                         "org.carlspring.metadata.will.not.be:retrieved:1.2.64");
+
         // Used by the testGroupExcludesWildcardRule() test
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_1).getAbsolutePath(),
                          "com.artifacts.denied.by.wildcard:foo:1.2.6");
@@ -196,6 +199,40 @@ public class MavenGroupRepositoryProviderTest
                              "*",
                              new String[]{ REPOSITORY_RELEASES_1 },
                              ".*(com|org)/artifacts.denied.by.wildcard.*",
+                             ROUTING_RULE_TYPE_DENIED);
+
+        /**
+         <denied>
+            <rule-set group-repository="group-releases">
+                <rule pattern=".*(com|org)/artifacts.in.releases.*">
+                    <repositories>
+                        <repository>grpt-releases-1</repository>
+                    </repositories>
+                </rule>
+            </rule-set>
+         </denied>
+         **/
+        createRoutingRuleSet(STORAGE0,
+                             REPOSITORY_GROUP,
+                             new String[]{ REPOSITORY_RELEASES_1 },
+                             ".*(com|org)/artifacts.in.*",
+                             ROUTING_RULE_TYPE_DENIED);
+
+        /**
+         <denied>
+             <rule-set group-repository="grpt-releases-group">
+                 <rule pattern=".*(com|org)/carlspring/metadata/will/not/be/retrieved.*">
+                     <repositories>
+                        <repository>grpt-releases-2</repository>
+                     </repositories>
+                 </rule>
+             </rule-set>
+         </denied>
+         **/
+        createRoutingRuleSet(STORAGE0,
+                             REPOSITORY_GROUP,
+                             new String[]{ REPOSITORY_RELEASES_2 },
+                             ".*(com|org)/carlspring/metadata/will/not/be/retrieved.*",
                              ROUTING_RULE_TYPE_DENIED);
     }
 
@@ -386,6 +423,24 @@ public class MavenGroupRepositoryProviderTest
                                                "com/artifacts/denied/by/wildcard/foo/1.2.7/foo-1.2.7.jar");
 
         assertNotNull(is);
+    }
+
+    @Test
+    public void deniedRuleShouldBeValid()
+            throws Exception
+    {
+        System.out.println("# Testing group includes...");
+
+        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
+        RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+
+        InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                           REPOSITORY_GROUP,
+                                                           "org/carlspring/metadata/will/not/be/retrieved/1.2.64/retrieved-1.2.64.jar");
+
+        assertNull(is);
+
+        ResourceCloser.close(is, null);
     }
 
 }
