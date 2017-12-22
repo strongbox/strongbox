@@ -59,3 +59,4 @@ To accept, please:
 | Przemyslaw Fusik             |                                          | Maszewo, Poland                         | 2017-04-09 |
 | Dinesh Arora                 |                                          | Charlotte, USA                          | 2017-12-07 |
 | Sanket Sawant                |                                          | Mumbai, India                           | 2017-12-09 |
+| Andrey Mochalov              |                                          | Saint-Petersburg, Russia                | 2017-12-22 |

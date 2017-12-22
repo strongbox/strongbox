@@ -68,7 +68,7 @@
         <version.httpclient>4.5</version.httpclient>
         <version.jackson>2.8.7</version.jackson>
         <version.javaee>7.0</version.javaee>
-        <version.jcl>1.8.0-beta0</version.jcl>
+        <version.jcl>1.7.25</version.jcl>
         <version.jsr305>3.0.2</version.jsr305>
         <version.junit>4.12</version.junit>
         <version.jersey>2.23.1</version.jersey>
