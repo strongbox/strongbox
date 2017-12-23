@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -69,7 +70,17 @@ public class LoginController
         String token;
         try
         {
-            token = securityTokenProvider.getToken(authentication.getPrincipal().toString(),
+            Object principal = authentication.getPrincipal();
+            String subject;
+            if (principal instanceof UserDetails)
+            {
+                subject = ((UserDetails) principal).getUsername();
+            }
+            else
+            {
+                subject = principal.toString();
+            }
+            token = securityTokenProvider.getToken(subject,
                                                    securityTokenProvider.passwordClaimMap(
                                                            authentication.getCredentials().toString()),
                                                    configurationManagementService.getConfiguration().getSessionConfiguration().getTimeoutSeconds());
