@@ -19,6 +19,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.repository.GroupRepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -141,7 +142,7 @@ public class ArtifactResolutionServiceImpl
     @Override
     public RepositoryFileAttributes getAttributes(String storageId,
                                                   String repositoryId,
-                                                  String artifactPath) throws IOException
+                                                  String artifactPath) throws IOException, NoSuchAlgorithmException, ArtifactTransportException, ProviderImplementationException
     {
         logger.debug("******");
         
@@ -150,10 +151,25 @@ public class ArtifactResolutionServiceImpl
         final Repository repository = getStorage(storageId).getRepository(repositoryId);
      
         LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        //  RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+        RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
         
-       
-        RepositoryPath path = layoutProvider.resolve(repository,URI.create(artifactPath));
+        logger.debug("REpository TYpe = "+repositoryProvider.getAlias());
+        
+        RepositoryPath path = null;
+        
+        try
+        {
+            if(!repositoryProvider.getAlias().equals("group"))
+                path = layoutProvider.resolve(repository).resolve(artifactPath);
+            else
+                path = ((GroupRepositoryProvider)repositoryProvider).getPath(storageId,repositoryId,artifactPath);
+        }
+        catch (Exception e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
         
         logger.debug("PATH == "+path.toString());
         

@@ -12,6 +12,7 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 
 
+
 /**
  * @author carlspring
  */
@@ -37,5 +38,4 @@ public interface RepositoryProvider
     
     Long count(RepositorySearchRequest searchRequest);
 
-    
 }

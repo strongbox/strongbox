@@ -30,6 +30,7 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 import javax.inject.Inject;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -194,7 +195,7 @@ public class MavenArtifactControllerTest
         //noinspection ResultOfMethodCallIgnored
         new File(TEST_RESOURCES).mkdirs();
     }
-
+    
     @Override
     public void shutdown()
     {
@@ -286,9 +287,30 @@ public class MavenArtifactControllerTest
     public void testHeaderFetch()
             throws Exception
     {   
-        String artifactPath = "storages/storage0/act-releases-1/org/carlspring/strongbox/browse/foo-bar/2.4/foo-bar-2.4.jar";
-
-        Headers headers = client.getHeaders(artifactPath);
+        String artifactPath1 = "storages/storage0/act-releases-1/org/carlspring/strongbox/browse/foo-bar/2.4/foo-bar-2.4.jar";
+        
+       
+       
+        Headers headers1 = client.getHeaders(artifactPath1);
+       
+        
+        
+        String artifactPath2 = "storages/storage0/act-releases-1/org/carlspring/strongbox/browse/foo-bar/2.4/foo-bar-2.4.pom";
+        
+        logger.debug("Pausing now ");
+       
+       
+        Headers headers2 = client.getHeaders(artifactPath2);
+        
+        String artifactPath3 = "storages/storage-common-proxies/maven-central/" +
+                "org/carlspring/maven/derby-maven-plugin/1.9/derby-maven-plugin-1.9.jar";
+        
+        Headers headers3 = client.getHeaders(artifactPath3);
+        
+        String artifactPath4 = "storages/storage-common-proxies/group-common-proxies/" +
+                "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
+        
+        Headers headers4 = client.getHeaders(artifactPath4);
         
         assertEquals(1,1);
         

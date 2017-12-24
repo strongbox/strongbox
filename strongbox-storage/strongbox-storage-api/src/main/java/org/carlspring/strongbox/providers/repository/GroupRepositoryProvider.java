@@ -197,6 +197,109 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return is;
     }
 
+    public RepositoryPath getPath(String storageId,
+                                       String repositoryId,
+                                       String path)
+           throws IOException,
+                  NoSuchAlgorithmException,
+                  ArtifactTransportException,
+                  ProviderImplementationException
+   {
+        final Storage storage = getConfiguration().getStorage(storageId);
+        final Repository groupRepository = storage.getRepository(repositoryId);
+        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(groupRepository.getLayout());
+        RepositoryPath artifactPath = null;
+        
+        artifactPath = layoutProvider.resolve(groupRepository).resolve(path);
+        
+        if(Files.exists(artifactPath))
+                return artifactPath;
+        
+        for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
+        {
+            String sId = getConfigurationManager().getStorageId(storage, storageAndRepositoryId);
+            String rId = getConfigurationManager().getRepositoryId(storageAndRepositoryId);
+
+            Repository r = getConfiguration().getStorage(sId).getRepository(rId);
+
+            if (!r.isInService())
+            {
+                continue;
+            }
+            if (artifactRoutingRulesChecker.isDenied(repositoryId, rId, path))
+            {
+                continue;
+            }
+            try
+            {
+                artifactPath = resolvePath(sId, r.getId(), path);
+            }
+            catch (IOException e)
+            {
+                continue;
+            }
+            if (artifactPath != null)
+            {
+                return artifactPath;
+            }
+        }
+        
+        
+        return null;
+   }
+    
+    public RepositoryPath resolvePath(String storageId,
+                                      String repositoryId,
+                                      String path)
+           throws NoSuchAlgorithmException,
+                  IOException,
+                  ArtifactTransportException,
+                  ProviderImplementationException
+    {
+        RepositoryPath artifactPath;
+
+        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+
+        if (!getAlias().equals(repository.getType()))
+        {
+            artifactPath = getPath(repository, path);
+            if (artifactPath != null)
+            {
+                logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
+                return artifactPath;
+            }
+        }
+        else
+        {
+            artifactPath = getPath(storageId, repository.getId(), path);
+            if (artifactPath != null)
+            {
+                logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
+                return artifactPath;
+            }
+        }
+
+        return null;
+    }
+    
+    private RepositoryPath getPath(Repository repository, String path)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
+    {
+        RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
+       // RepositoryPath artifactPath = provider.getPath(repository.getStorage().getId(),
+        //                                                 repository.getId(),
+        //                                                 path);
+
+        LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        
+        RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
+        
+        return artifactPath;
+    }
+    
     @Override
     public ArtifactOutputStream getOutputStream(String storageId,
                                                 String repositoryId,
