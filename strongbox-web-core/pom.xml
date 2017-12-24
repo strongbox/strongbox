@@ -333,14 +333,24 @@
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>            
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-nuget-layout-provider</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
-        </dependency>        
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-npm-layout-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-raw-layout-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-p2-layout-provider</artifactId>

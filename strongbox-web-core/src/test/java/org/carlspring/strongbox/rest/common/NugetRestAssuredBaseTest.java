@@ -79,9 +79,9 @@ public abstract class NugetRestAssuredBaseTest
         // Security settings for tests:
         // By default all operations incl. deletion, etc. are allowed (be careful)!
         // Override #provideAuthorities, if you want be more specific.
-        anonymousAuthenticationFilter.getAuthorities()
-                                     .addAll(provideAuthorities());
+        anonymousAuthenticationFilter.getAuthorities().addAll(provideAuthorities());
 
+        client.setUserAgent("NuGet/*");
     }
     
     public String getContextBaseUrl()
