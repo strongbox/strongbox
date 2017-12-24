@@ -6,6 +6,7 @@ import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -201,12 +202,28 @@ public class MavenArtifactController
             return;
         }
 
-        setMediaTypeHeader(path, response);
+        RepositoryFileAttributes fileAttributes;
+        try
+        {
+            fileAttributes =  getArtifactManagementService().getAttributes(storageId, repositoryId, path);
+            
+            if (fileAttributes == null)
+            {
+                response.setStatus(NOT_FOUND.value());
+                return;
+            }
+        }
+        catch (ArtifactTransportException e)
+        {
+            logger.debug("Unable to find artifact by path " + path, e);
 
-        response.setHeader("Accept-Ranges", "bytes");
+            response.setStatus(NOT_FOUND.value());
 
-        ArtifactControllerHelper.setHeadersForChecksums(is, response);
-
+            return;
+        }
+        
+        setHeaders(is, response, fileAttributes, path);
+        
         logger.debug("Download succeeded.");
     }
     
@@ -272,7 +289,37 @@ public class MavenArtifactController
 
             return;
         }
+        
+        ArtifactInputStream is;
+        try
+        {
+            is = (ArtifactInputStream) getArtifactManagementService().resolve(storageId, repositoryId, path);
+            if (is == null)
+            {
+                response.setStatus(NOT_FOUND.value());
+                return;
+            }
 
+            if (isRangedRequest(httpHeaders))
+            {
+                logger.debug("Detecting range request....");
+
+                handlePartialDownload(is, httpHeaders, response);
+            }
+
+            artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storage.getId(), repository.getId(), path);
+
+            artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storage.getId(), repository.getId(), path);
+        }
+        catch (ArtifactResolutionException | ArtifactTransportException e)
+        {
+            logger.debug("Unable to find artifact by path " + path, e);
+
+            response.setStatus(NOT_FOUND.value());
+
+            return;
+        }
+        
        RepositoryFileAttributes fileAttributes;
         try
         {
@@ -292,19 +339,37 @@ public class MavenArtifactController
 
             return;
         }
-
-        setMediaTypeHeader(path, response);
-
-        response.setHeader("Accept-Ranges", "bytes");
-        response.setHeader("Creation-Date", fileAttributes.creationTime().toString());
-        response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
         
-       
-
+        setHeaders(is, response, fileAttributes, path);
+        
         logger.debug("Header Download succeeded.");
     }
 
-    
+    private void setHeaders(ArtifactInputStream ais,
+                            HttpServletResponse response,
+                            RepositoryFileAttributes fileAttributes,
+                            String path) 
+                 throws IOException
+    {      
+        response.setHeader("Accept-Ranges", "bytes");
+        
+        long totalBytes = 0L;
+
+        int readLength;
+        byte[] bytes = new byte[4096];
+        while ((readLength = ais.read(bytes, 0, bytes.length)) != -1)
+        {
+            totalBytes += readLength;
+        }
+        response.setHeader("Content-Length", Long.toString(totalBytes));
+        
+        response.setHeader("Last-Updated",fileAttributes.lastModifiedTime().toString());
+        
+        ArtifactControllerHelper.setHeadersForChecksums(ais, response);
+        
+        setMediaTypeHeader(path, response);
+    }
+
     private void setMediaTypeHeader(String path,
                                     HttpServletResponse response)
     {

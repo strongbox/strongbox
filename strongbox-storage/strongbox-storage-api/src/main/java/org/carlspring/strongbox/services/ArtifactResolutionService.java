@@ -45,6 +45,6 @@ public interface ArtifactResolutionService
 
     RepositoryFileAttributes getAttributes(String storageId,
                                            String repositoryId,
-                                           String path) throws IOException;
+                                           String path) throws IOException, NoSuchAlgorithmException, ArtifactTransportException, ProviderImplementationException;
 
 }
