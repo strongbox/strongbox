@@ -233,13 +233,13 @@ public class MavenArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = RequestMethod.HEAD)
     public void getHeaders(@ApiParam(value = "The storageId", required = true)
-                         @PathVariable String storageId,
-                         @ApiParam(value = "The repositoryId", required = true)
-                         @PathVariable String repositoryId,
-                         @RequestHeader HttpHeaders httpHeaders,
-                         @PathVariable String path,
-                         HttpServletRequest request,
-                         HttpServletResponse response)
+                           @PathVariable String storageId,
+                           @ApiParam(value = "The repositoryId", required = true)
+                           @PathVariable String repositoryId,
+                           @RequestHeader HttpHeaders httpHeaders,
+                           @PathVariable String path,
+                           HttpServletRequest request,
+                           HttpServletResponse response)
             throws Exception
     {
         logger.debug("Requested Headers for /" + storageId + "/" + repositoryId + "/" + path + ".");
@@ -321,24 +321,24 @@ public class MavenArtifactController
         }
         
        RepositoryFileAttributes fileAttributes;
-        try
-        {
-            fileAttributes =  getArtifactManagementService().getAttributes(storageId, repositoryId, path);
-            
-            if (fileAttributes == null)
-            {
-                response.setStatus(NOT_FOUND.value());
-                return;
-            }
-        }
-        catch (ArtifactTransportException e)
-        {
-            logger.debug("Unable to find artifact by path " + path, e);
+       try
+       {
+           fileAttributes =  getArtifactManagementService().getAttributes(storageId, repositoryId, path);
 
-            response.setStatus(NOT_FOUND.value());
+           if (fileAttributes == null)
+           {
+               response.setStatus(NOT_FOUND.value());
+               return;
+           }
+       }
+       catch (ArtifactTransportException e)
+       {
+           logger.debug("Unable to find artifact by path " + path, e);
 
-            return;
-        }
+           response.setStatus(NOT_FOUND.value());
+
+           return;
+       }
         
         setHeaders(is, response, fileAttributes, path);
         
@@ -356,17 +356,17 @@ public class MavenArtifactController
         if(!response.containsHeader("Content-Length"))
         {
             long totalBytes = 0L;
-            
             int readLength;
             byte[] bytes = new byte[4096];
+            
             while ((readLength = ais.read(bytes, 0, bytes.length)) != -1)
             {
                 totalBytes += readLength;
             }
         
-        response.setHeader("Content-Length", Long.toString(totalBytes));
-        logger.debug("len "+Long.toString(totalBytes));
+            response.setHeader("Content-Length", Long.toString(totalBytes));
         }
+        
         response.setHeader("Last-Updated",fileAttributes.lastModifiedTime().toString());
         
         ArtifactControllerHelper.setHeadersForChecksums(ais, response);

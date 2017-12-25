@@ -422,28 +422,21 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
 
     @Override
     public RepositoryFileAttributes getAttributes(String storageId,
-                               String repositoryId,
-                               String path)
+                                                  String repositoryId,
+                                                  String path)
             throws ArtifactTransportException,
-                   ProviderImplementationException, NoSuchAlgorithmException
+                   ProviderImplementationException,
+                   NoSuchAlgorithmException
     {
         try
         {
-            try
-            {
-                return artifactResolutionService.getAttributes(storageId, repositoryId, path);
-            }
-            catch (IOException e)
-            {
-                // This is not necessarily an error. It could simply be a check
-                // whether a resource exists, before uploading/updating it.
-                logger.debug("The REQUESTED path does not exist: - /" + storageId + "/" + repositoryId + "/" + path);
-            }
+            return artifactResolutionService.getAttributes(storageId, repositoryId, path);
         }
-        catch (Exception e)
+        catch (IOException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // This is not necessarily an error. It could simply be a check
+            // whether a resource exists, before uploading/updating it.
+            logger.debug("The requested path does not exist: - /" + storageId + "/" + repositoryId + "/" + path);
         }
 
         return null;
