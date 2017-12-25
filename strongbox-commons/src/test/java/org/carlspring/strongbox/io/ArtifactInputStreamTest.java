@@ -8,8 +8,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class ArtifactInputStreamTest
 {
@@ -22,11 +21,13 @@ public class ArtifactInputStreamTest
     public void setUp()
             throws FileNotFoundException, NoSuchAlgorithmException
     {
-        inputStream = new BufferedInputStream(new FileInputStream("src\\test\\resources\\testTextFile.txt"));
+        String path = "src\\test\\resources\\testTextFile.txt";
+        inputStream = new BufferedInputStream(new FileInputStream(path.trim()));
         artifactInputStream = new ArtifactInputStream(null, inputStream)
         {};
 
     }
+
 
     @Test
     public void testFileExtension_equals_txt(){
