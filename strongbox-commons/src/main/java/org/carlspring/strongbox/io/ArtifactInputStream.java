@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.io;
 
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.util.MessageDigestUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,9 +15,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.util.MessageDigestUtils;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.apache.tika.config.TikaConfig;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Note that this class is "abstract" and you don't need to instantiate it directly, see example below:
@@ -29,7 +37,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 public abstract class ArtifactInputStream
         extends FilterInputStream
 {
-
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactInputStream.class);
     public static final String[] DEFAULT_ALGORITHMS = { EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm(),
                                                         };
@@ -40,6 +48,8 @@ public abstract class ArtifactInputStream
 
     private Map<String, String> hexDigests = new LinkedHashMap<>();
 
+    private String extension;
+
     public ArtifactInputStream(ArtifactCoordinates coordinates,
                                InputStream is,
                                Set<String> checkSumDigestAlgorithmSet)
@@ -47,10 +57,12 @@ public abstract class ArtifactInputStream
     {
         super(is);
         this.artifactCoordinates = coordinates;
+        this.extension = getFileExtension();
         for (String algorithm : checkSumDigestAlgorithmSet)
         {
             addAlgorithm(algorithm);
         }
+
     }
 
     public ArtifactInputStream(ArtifactCoordinates coordinates,
@@ -176,5 +188,36 @@ public abstract class ArtifactInputStream
     {
         return in;
     }
-    
+
+    /**
+     * This method finds out the file extension using inputStream.
+     * @param inputStream
+     * @return
+     */
+    public String getFileExtension(){
+        String fileExtension = null;
+        TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
+        try
+        {
+            MediaType mediaType = tikaConfig.getMimeRepository().detect(in, new Metadata());
+            MimeType mimeType = tikaConfig.getMimeRepository().forName(mediaType.toString());
+            fileExtension = mimeType.getExtension();
+        }
+        catch (IOException e)
+        {
+            logger.info("Error reading the input Stream - " + e.getMessage());
+        }
+        catch (MimeTypeException e)
+        {
+            logger.info(e.getMessage());
+        }
+        return fileExtension;
+    }
+
+    public String getExtension()
+    {
+        return extension;
+    }
+
+
 }
