@@ -158,24 +158,22 @@ public class ArtifactResolutionServiceImpl
         logger.debug("Requested Repository Type = "+repositoryProvider.getAlias());
         
         RepositoryPath path = null;
-        
-        try
+                
+        if(!repositoryProvider.getAlias().equals("group"))
         {
-            if(!repositoryProvider.getAlias().equals("group"))
-            {
-                path = layoutProvider.resolve(repository).resolve(artifactPath);
-            }
-            else
-            {
-                path = ((GroupRepositoryProvider)repositoryProvider).getPath(storageId, repositoryId, artifactPath);
-            }
+            path = layoutProvider.resolve(repository).resolve(artifactPath);
         }
-        catch (Exception e)
+        else
         {
-           logger.error("Could not get file attributes from requested artifact");
+            path = ((GroupRepositoryProvider)repositoryProvider).getPath(storageId, repositoryId, artifactPath);
+        }
+        
+        if(path == null)
+        {
+           logger.error("Failed to resolve path for requested artifact");
            return null;
         }
-                
+                      
         RepositoryFileAttributes fileAttributes = (RepositoryFileAttributes) Files.readAttributes(path, RepositoryFileAttributes.class);
         if (fileAttributes == null)
         {
