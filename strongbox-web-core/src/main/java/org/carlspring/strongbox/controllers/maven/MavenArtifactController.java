@@ -221,7 +221,7 @@ public class MavenArtifactController
 
             return;
         }
-        
+        logger.debug("RETURNED ATTRIBUTES");
         setHeaders(is, response, fileAttributes, path);
         
         logger.debug("Download succeeded.");
@@ -353,16 +353,20 @@ public class MavenArtifactController
     {      
         response.setHeader("Accept-Ranges", "bytes");
         
-        long totalBytes = 0L;
-
-        int readLength;
-        byte[] bytes = new byte[4096];
-        while ((readLength = ais.read(bytes, 0, bytes.length)) != -1)
+        if(!response.containsHeader("Content-Length"))
         {
-            totalBytes += readLength;
-        }
-        response.setHeader("Content-Length", Long.toString(totalBytes));
+            long totalBytes = 0L;
+            
+            int readLength;
+            byte[] bytes = new byte[4096];
+            while ((readLength = ais.read(bytes, 0, bytes.length)) != -1)
+            {
+                totalBytes += readLength;
+            }
         
+        response.setHeader("Content-Length", Long.toString(totalBytes));
+        logger.debug("len "+Long.toString(totalBytes));
+        }
         response.setHeader("Last-Updated",fileAttributes.lastModifiedTime().toString());
         
         ArtifactControllerHelper.setHeadersForChecksums(ais, response);
