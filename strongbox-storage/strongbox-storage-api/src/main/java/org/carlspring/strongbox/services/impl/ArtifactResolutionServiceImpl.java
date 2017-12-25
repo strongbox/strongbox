@@ -142,10 +142,12 @@ public class ArtifactResolutionServiceImpl
     @Override
     public RepositoryFileAttributes getAttributes(String storageId,
                                                   String repositoryId,
-                                                  String artifactPath) throws IOException, NoSuchAlgorithmException, ArtifactTransportException, ProviderImplementationException
-    {
-        logger.debug("******");
-        
+                                                  String artifactPath) 
+           throws IOException,
+                  NoSuchAlgorithmException, 
+                  ArtifactTransportException, 
+                  ProviderImplementationException
+    {                
         artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
 
         final Repository repository = getStorage(storageId).getRepository(repositoryId);
@@ -153,26 +155,27 @@ public class ArtifactResolutionServiceImpl
         LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
         
-        logger.debug("REpository TYpe = "+repositoryProvider.getAlias());
+        logger.debug("Requested Repository Type = "+repositoryProvider.getAlias());
         
         RepositoryPath path = null;
         
         try
         {
             if(!repositoryProvider.getAlias().equals("group"))
+            {
                 path = layoutProvider.resolve(repository).resolve(artifactPath);
+            }
             else
-                path = ((GroupRepositoryProvider)repositoryProvider).getPath(storageId,repositoryId,artifactPath);
+            {
+                path = ((GroupRepositoryProvider)repositoryProvider).getPath(storageId, repositoryId, artifactPath);
+            }
         }
         catch (Exception e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+           logger.error("Could not get file attributes from requested artifact");
+           return null;
         }
-        
-        
-        logger.debug("PATH == "+path.toString());
-        
+                
         RepositoryFileAttributes fileAttributes = (RepositoryFileAttributes) Files.readAttributes(path, RepositoryFileAttributes.class);
         if (fileAttributes == null)
         {

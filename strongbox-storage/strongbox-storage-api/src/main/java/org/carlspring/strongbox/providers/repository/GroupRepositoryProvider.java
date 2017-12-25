@@ -183,7 +183,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return null;
     }
 
-    private ArtifactInputStream getInputStream(Repository repository, String artifactPath)
+    private ArtifactInputStream getInputStream(Repository repository, 
+                                               String artifactPath)
             throws IOException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException,
@@ -193,13 +194,12 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         ArtifactInputStream is = provider.getInputStream(repository.getStorage().getId(),
                                                          repository.getId(),
                                                          artifactPath);
-
         return is;
     }
 
     public RepositoryPath getPath(String storageId,
                                        String repositoryId,
-                                       String path)
+                                       String artifactPath)
            throws IOException,
                   NoSuchAlgorithmException,
                   ArtifactTransportException,
@@ -207,13 +207,15 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
    {
         final Storage storage = getConfiguration().getStorage(storageId);
         final Repository groupRepository = storage.getRepository(repositoryId);
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(groupRepository.getLayout());
-        RepositoryPath artifactPath = null;
+        final LayoutProvider<?>layoutProvider = layoutProviderRegistry.getProvider(groupRepository.getLayout());
+        RepositoryPath path = null;
         
-        artifactPath = layoutProvider.resolve(groupRepository).resolve(path);
+        path = layoutProvider.resolve(groupRepository).resolve(artifactPath);
         
-        if(Files.exists(artifactPath))
-                return artifactPath;
+        if(Files.exists(path))
+        {
+            return path;
+        }
         
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
         {
@@ -226,56 +228,54 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             {
                 continue;
             }
-            if (artifactRoutingRulesChecker.isDenied(repositoryId, rId, path))
+            if (artifactRoutingRulesChecker.isDenied(repositoryId, rId, artifactPath))
             {
                 continue;
             }
             try
             {
-                artifactPath = resolvePath(sId, r.getId(), path);
+                path = resolvePath(sId, r.getId(), artifactPath);
             }
             catch (IOException e)
             {
                 continue;
             }
-            if (artifactPath != null)
+            if (path != null)
             {
-                return artifactPath;
+                return path;
             }
         }
-        
-        
         return null;
    }
     
     public RepositoryPath resolvePath(String storageId,
                                       String repositoryId,
-                                      String path)
+                                      String artifactPath)
            throws NoSuchAlgorithmException,
                   IOException,
                   ArtifactTransportException,
                   ProviderImplementationException
     {
-        RepositoryPath artifactPath;
+        RepositoryPath path;
 
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
         if (!getAlias().equals(repository.getType()))
         {
-            artifactPath = getPath(repository, path);
-            if (artifactPath != null)
+            path = getPath(repository, artifactPath);
+            if (path != null)
             {
                 logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
-                return artifactPath;
+                return path;
             }
         }
         else
         {
-            artifactPath = getPath(storageId, repository.getId(), path);
-            if (artifactPath != null)
+            path = getPath(storageId, repository.getId(), artifactPath);
+            if (path != null)
             {
                 logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
-                return artifactPath;
+                return path;
             }
         }
 
@@ -287,12 +287,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                    NoSuchAlgorithmException,
                    ArtifactTransportException,
                    ProviderImplementationException
-    {
-        RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
-       // RepositoryPath artifactPath = provider.getPath(repository.getStorage().getId(),
-        //                                                 repository.getId(),
-        //                                                 path);
-
+    {     
         LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         
         RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);

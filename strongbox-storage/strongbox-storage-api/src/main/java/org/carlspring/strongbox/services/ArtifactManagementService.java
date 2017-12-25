@@ -71,6 +71,9 @@ public interface ArtifactManagementService extends ConfigurationService
 
     RepositoryFileAttributes getAttributes(String storageId,
                                            String repositoryId,
-                                           String path) throws ArtifactTransportException, ProviderImplementationException, NoSuchAlgorithmException;
+                                           String path) 
+                             throws ArtifactTransportException, 
+                                    ProviderImplementationException,
+                                    NoSuchAlgorithmException;
     
 }
