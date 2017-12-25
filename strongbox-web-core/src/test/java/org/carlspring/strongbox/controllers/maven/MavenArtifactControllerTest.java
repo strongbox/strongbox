@@ -284,25 +284,31 @@ public class MavenArtifactControllerTest
     }
     
     @Test
-    public void testHeaderFetch()
+    public void testHeadersFetch()
             throws Exception
     {   
-        String artifactPath1 = "storages/storage0/act-releases-1/org/carlspring/strongbox/browse/foo-bar/2.4/foo-bar-2.4.jar";
-        Headers headers1 = client.getHeaders(artifactPath1);
-               
-        String artifactPath2 = "storages/storage0/act-releases-1/org/carlspring/strongbox/browse/foo-bar/2.4/foo-bar-2.4.pom";
-        Headers headers2 = client.getHeaders(artifactPath2);
+        String artifactPath;
+        Headers headersFromGET, headersFromHEAD;
         
-        String artifactPath3 = "storages/storage-common-proxies/maven-central/" +
-                "org/carlspring/maven/derby-maven-plugin/1.9/derby-maven-plugin-1.9.jar";
-        Headers headers3 = client.getHeaders(artifactPath3);
-        
-        String artifactPath4 = "storages/storage-common-proxies/group-common-proxies/" +
-                "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
-        Headers headers4 = client.getHeaders(artifactPath4);
-        
-        assertNotNull(headers1);
-        
+        /* Hosted Repository */
+        artifactPath = "storages/storage0/act-releases-1/org/carlspring/strongbox/browse/foo-bar/2.4/foo-bar-2.4.pom";
+        headersFromGET = client.getHeadersFromGET(artifactPath);
+        headersFromHEAD = client.getHeadersfromHEAD(artifactPath);
+        assertHeadersEquals(headersFromGET,headersFromHEAD);
+
+        /*Proxy Repository */
+        artifactPath = "storages/storage-common-proxies/maven-central/" +
+                "org/carlspring/maven/maven-commons/1.1/maven-commons-1.1.jar";
+        headersFromGET = client.getHeadersFromGET(artifactPath);
+        headersFromHEAD = client.getHeadersfromHEAD(artifactPath);
+        assertHeadersEquals(headersFromGET,headersFromHEAD);
+
+        /*Group Repository */
+        artifactPath = "storages/storage-common-proxies/group-common-proxies/" +
+                "org/carlspring/maven/derby-maven-plugin/1.8/derby-maven-plugin-1.8.jar";
+        headersFromGET = client.getHeadersFromGET(artifactPath);
+        headersFromHEAD = client.getHeadersfromHEAD(artifactPath);
+        assertHeadersEquals(headersFromGET,headersFromHEAD);
     }
     
     @Test
