@@ -1,5 +1,8 @@
 package com.orientechnologies.orient.object.jpa;
 
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil;
+
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
@@ -11,8 +14,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil;
 import static com.orientechnologies.orient.core.entity.OEntityManager.getEntityManagerByDatabaseURL;
 import static com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil.PERSISTENCE_XML;
 
@@ -84,6 +85,16 @@ public class OJPAObjectDatabaseTxPersistence
         entityManager.registerEntityClasses(info.getManagedClassNames());
 
         return new OJPAPartitionedEntityManagerPool(properties);
+    }
+
+    @Override
+    public void generateSchema(PersistenceUnitInfo persistenceUnitInfo, Map map) {
+
+    }
+
+    @Override
+    public boolean generateSchema(String s, Map map) {
+        return false;
     }
 
     @Override

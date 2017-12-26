@@ -1,13 +1,6 @@
 package org.carlspring.strongbox.config;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.xml.bind.Marshaller;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
@@ -30,31 +23,34 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.xml.bind.Marshaller;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
-@ComponentScan({ "com.carlspring.strongbox.controllers",
-                 "org.carlspring.strongbox.controllers",
-                 "org.carlspring.strongbox.mapper",
-                 "org.carlspring.strongbox.utils",
-                 "org.carlspring.logging" })
-@Import({ CommonConfig.class,
-          StrongboxSecurityConfig.class,
-          StorageApiConfig.class,
-          Maven2LayoutProviderConfig.class,
-          NugetLayoutProviderConfig.class,
-          NpmLayoutProviderConfig.class,
-          StorageCoreConfig.class,
-          SecurityConfig.class,
-          ClientConfig.class,
-          CronTasksConfig.class })
+@ComponentScan({"com.carlspring.strongbox.controllers",
+        "org.carlspring.strongbox.controllers",
+        "org.carlspring.strongbox.mapper",
+        "org.carlspring.strongbox.utils",
+        "org.carlspring.logging"})
+@Import({CommonConfig.class,
+        StrongboxSecurityConfig.class,
+        StorageApiConfig.class,
+        Maven2LayoutProviderConfig.class,
+        NugetLayoutProviderConfig.class,
+        NpmLayoutProviderConfig.class,
+        StorageCoreConfig.class,
+        SecurityConfig.class,
+        ClientConfig.class,
+        CronTasksConfig.class})
 @EnableCaching(order = 105)
 @EnableWebMvc
-public class WebConfig
-        extends WebMvcConfigurerAdapter
-{
+public class WebConfig implements WebMvcConfigurer {
 
     private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
 
@@ -66,20 +62,17 @@ public class WebConfig
     private ObjectMapper objectMapper;
 
 
-    public WebConfig()
-    {
+    public WebConfig() {
         logger.debug("Initialized web configuration.");
     }
 
     @Bean
-    public HeaderMappingFilter headerMappingFilter()
-    {
+    public HeaderMappingFilter headerMappingFilter() {
         return new HeaderMappingFilter();
     }
 
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters)
-    {
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         StringHttpMessageConverter stringConverter = new StringHttpMessageConverter();
         stringConverter.setWriteAcceptCharset(false);
 
@@ -92,8 +85,7 @@ public class WebConfig
     }
 
     @Bean
-    public MarshallingHttpMessageConverter marshallingMessageConverter()
-    {
+    public MarshallingHttpMessageConverter marshallingMessageConverter() {
         MarshallingHttpMessageConverter converter = new MarshallingHttpMessageConverter();
         converter.setMarshaller(marshaller());
         converter.setUnmarshaller(marshaller());
@@ -101,26 +93,25 @@ public class WebConfig
     }
 
     @Bean
-    public Jaxb2Marshaller marshaller()
-    {
+    public Jaxb2Marshaller marshaller() {
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
         marshaller.setPackagesToScan("com.carlspring.strongbox.controllers",
-                                     "org.carlspring.strongbox.artifact.coordinates",
-                                     "org.carlspring.strongbox.authentication.registry",
-                                     "org.carlspring.strongbox.authentication.support",
-                                     "org.carlspring.strongbox.cron.domain",
-                                     "org.carlspring.strongbox.configuration",
-                                     "org.carlspring.strongbox.controllers",
-                                     //TODO: resolve @XmlRootElement(name = "repository") conflict with  org.carlspring.strongbox.storage.repository.Repository
-                                     //"org.carlspring.strongbox.providers.layout.p2",
-                                     "org.carlspring.strongbox.storage",
-                                     "org.carlspring.strongbox.storage.indexing",
-                                     "org.carlspring.strongbox.storage.repository",
-                                     "org.carlspring.strongbox.storage.repository.aws",
-                                     "org.carlspring.strongbox.storage.repository.gcs",
-                                     "org.carlspring.strongbox.storage.routing",
-                                     "org.carlspring.strongbox.users.security",
-                                     "org.carlspring.strongbox.xml");
+                "org.carlspring.strongbox.artifact.coordinates",
+                "org.carlspring.strongbox.authentication.registry",
+                "org.carlspring.strongbox.authentication.support",
+                "org.carlspring.strongbox.cron.domain",
+                "org.carlspring.strongbox.configuration",
+                "org.carlspring.strongbox.controllers",
+                //TODO: resolve @XmlRootElement(name = "repository") conflict with  org.carlspring.strongbox.storage.repository.Repository
+                //"org.carlspring.strongbox.providers.layout.p2",
+                "org.carlspring.strongbox.storage",
+                "org.carlspring.strongbox.storage.indexing",
+                "org.carlspring.strongbox.storage.repository",
+                "org.carlspring.strongbox.storage.repository.aws",
+                "org.carlspring.strongbox.storage.repository.gcs",
+                "org.carlspring.strongbox.storage.routing",
+                "org.carlspring.strongbox.users.security",
+                "org.carlspring.strongbox.xml");
         Map<String, Object> props = new HashMap<>();
         props.put(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.setMarshallerProperties(props);
@@ -128,25 +119,22 @@ public class WebConfig
     }
 
     @Bean
-    public MappingJackson2HttpMessageConverter jackson2Converter()
-    {
+    public MappingJackson2HttpMessageConverter jackson2Converter() {
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
         converter.setObjectMapper(objectMapper);
         return converter;
     }
 
     @Override
-    public void configurePathMatch(PathMatchConfigurer configurer)
-    {
+    public void configurePathMatch(PathMatchConfigurer configurer) {
         configurer.setUseSuffixPatternMatch(true)
-                  .setUseTrailingSlashMatch(false)
-                  .setUseRegisteredSuffixPatternMatch(true)
-                  .setPathMatcher(antPathMatcher);
+                .setUseTrailingSlashMatch(false)
+                .setUseRegisteredSuffixPatternMatch(true)
+                .setPathMatcher(antPathMatcher);
     }
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry)
-    {
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry
                 .addResourceHandler("/docs/**")
                 .addResourceLocations("/docs/")

@@ -1,22 +1,27 @@
 package com.orientechnologies.orient.object.jpa;
 
+import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+
+import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
+import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * @author Sergey Bespalov
@@ -203,9 +208,34 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
     }
 
     @Override
+    public StoredProcedureQuery createNamedStoredProcedureQuery(String s) {
+        return null;
+    }
+
+    @Override
+    public StoredProcedureQuery createStoredProcedureQuery(String s) {
+        return null;
+    }
+
+    @Override
+    public StoredProcedureQuery createStoredProcedureQuery(String s, Class... classes) {
+        return null;
+    }
+
+    @Override
+    public StoredProcedureQuery createStoredProcedureQuery(String s, String... strings) {
+        return null;
+    }
+
+    @Override
     public void joinTransaction()
     {
         throw new UnsupportedOperationException("joinTransaction");
+    }
+
+    @Override
+    public boolean isJoinedToTransaction() {
+        return false;
     }
 
     @Override
@@ -299,6 +329,16 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
     }
 
     @Override
+    public Query createQuery(CriteriaUpdate criteriaUpdate) {
+        return null;
+    }
+
+    @Override
+    public Query createQuery(CriteriaDelete criteriaDelete) {
+        return null;
+    }
+
+    @Override
     public <T> TypedQuery<T> createQuery(String qlString,
                                          Class<T> resultClass)
     {
@@ -334,6 +374,26 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
     public Metamodel getMetamodel()
     {
         throw new UnsupportedOperationException("getMetamodel");
+    }
+
+    @Override
+    public <T> EntityGraph<T> createEntityGraph(Class<T> aClass) {
+        return null;
+    }
+
+    @Override
+    public EntityGraph<?> createEntityGraph(String s) {
+        return null;
+    }
+
+    @Override
+    public EntityGraph<?> getEntityGraph(String s) {
+        return null;
+    }
+
+    @Override
+    public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> aClass) {
+        return null;
     }
 
     @Override
