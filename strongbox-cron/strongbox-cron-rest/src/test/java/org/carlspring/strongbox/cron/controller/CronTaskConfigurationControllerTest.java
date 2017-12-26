@@ -31,6 +31,7 @@ import static org.junit.Assert.assertThat;
  */
 @CronTaskRestTest
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
 public class CronTaskConfigurationControllerTest
         extends RestAssuredBaseTest
 {

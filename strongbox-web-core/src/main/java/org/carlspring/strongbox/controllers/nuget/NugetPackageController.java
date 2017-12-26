@@ -1,38 +1,5 @@
 package org.carlspring.strongbox.controllers.nuget;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBException;
-
-import org.apache.commons.fileupload.MultipartStream;
-import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
@@ -48,6 +15,31 @@ import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
+
+import javax.inject.Inject;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.apache.commons.fileupload.MultipartStream;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -55,34 +47,17 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import ru.aristar.jnuget.QueryExecutor;
 import ru.aristar.jnuget.files.NugetFormatException;
 import ru.aristar.jnuget.files.Nupkg;
 import ru.aristar.jnuget.files.TempNupkgFile;
-import ru.aristar.jnuget.rss.EntryProperties;
-import ru.aristar.jnuget.rss.NuPkgToRssTransformer;
-import ru.aristar.jnuget.rss.PackageDownloadCountComparator;
-import ru.aristar.jnuget.rss.PackageEntry;
-import ru.aristar.jnuget.rss.PackageFeed;
-import ru.aristar.jnuget.rss.PackageIdAndVersionComparator;
-import ru.aristar.jnuget.rss.PackageUpdateDateDescComparator;
+import ru.aristar.jnuget.rss.*;
 import ru.aristar.jnuget.sources.PackageSource;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * This Controller used to handle Nuget requests.
@@ -107,7 +82,7 @@ public class NugetPackageController extends BaseArtifactController
     
     @Inject
     private ArtifactTagService artifactTagService;
-    
+
     @RequestMapping(path = { "{storageId}/{repositoryId}/{packageId}/{version}" }, method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     public ResponseEntity deletePackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
@@ -117,6 +92,7 @@ public class NugetPackageController extends BaseArtifactController
                                         @PathVariable("version") String version)
     {
         logger.info(String.format("Nuget delete request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]", storageId, repositoryId, packageId));
+
         String path = String.format("%s/%s/%s.nuspec", packageId, version, packageId);
         
         try
@@ -125,8 +101,8 @@ public class NugetPackageController extends BaseArtifactController
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to process Nuget delete request: path-[%s]", path),
-                         e);
+            logger.error(String.format("Failed to process Nuget delete request: path-[%s]", path), e);
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
         
@@ -143,8 +119,14 @@ public class NugetPackageController extends BaseArtifactController
         Collection<? extends Nupkg> files;
         try
         {
-            files = getPackages(storageId, repositoryId, filter, null, searchTerm,
-                                targetFramework, null, null);
+            files = getPackages(storageId,
+                                repositoryId,
+                                filter,
+                                null,
+                                searchTerm,
+                                targetFramework,
+                                null,
+                                null);
         }
         catch (NugetFormatException e)
         {
@@ -165,17 +147,23 @@ public class NugetPackageController extends BaseArtifactController
                                             @RequestParam(name = "searchTerm", required = false) String searchTerm,
                                             @RequestParam(name = "targetFramework", required = false) String targetFramework,
                                             HttpServletResponse response)
-        throws JAXBException, IOException
+            throws JAXBException, IOException
     {
         String feedId = getFeedUri(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest(),
                                    storageId,
                                    repositoryId);
-        
+
         Collection<? extends Nupkg> files;
         try
         {
-            files = getPackages(storageId, repositoryId, filter, orderBy, searchTerm,
-                                targetFramework, skip, top);
+            files = getPackages(storageId,
+                                repositoryId,
+                                filter,
+                                orderBy,
+                                searchTerm,
+                                targetFramework,
+                                skip,
+                                top);
         }
         catch (NugetFormatException e)
         {
@@ -231,7 +219,7 @@ public class NugetPackageController extends BaseArtifactController
         ArtifactEntry artifactEntry = path.getArtifactEntry();
 
         properties.setId(nupkg.getId());
-        
+
         properties.setReportAbuseUrl("");
 
         properties.setDownloadCount(artifactEntry.getDownloadCount());
@@ -252,7 +240,7 @@ public class NugetPackageController extends BaseArtifactController
         {
             properties.setIsLatestVersion(false);
         }
-        
+
     }
 
     private PackageEntry createPackageEntry(String feedId,
@@ -285,13 +273,13 @@ public class NugetPackageController extends BaseArtifactController
         }
 
     }
-    
+
     @RequestMapping(path = { "{storageId}/{repositoryId}/FindPackagesById()" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
     public ResponseEntity<?> searchPackageById(@PathVariable(name = "storageId") String storageId,
                                                @PathVariable(name = "repositoryId") String repositoryId,
                                                @RequestParam(name = "id", required = true) String packageId,
                                                HttpServletResponse response)
-        throws JAXBException, IOException
+            throws JAXBException, IOException
     {
         packageSource.setStorageId(storageId);
         packageSource.setRepositoryId(repositoryId);
@@ -305,7 +293,7 @@ public class NugetPackageController extends BaseArtifactController
 
         PackageFeed feed = transform(feedId, files, "version", 0, -1);
 
-        response.setHeader("content-type", MediaType.APPLICATION_XML);
+        response.setHeader("Content-Type", MediaType.APPLICATION_XML);
         feed.writeXml(response.getOutputStream());
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -333,9 +321,13 @@ public class NugetPackageController extends BaseArtifactController
 
     private String getFeedUri(HttpServletRequest request, String storageId, String repositoryId)
     {
-        return String.format("%s://%s:%s%s/storages/%s/%s/", request.getScheme(), request.getServerName(),
+        return String.format("%s://%s:%s%s/storages/%s/%s/",
+                             request.getScheme(),
+                             request.getServerName(),
                              request.getServerPort(),
-                             request.getContextPath(), storageId, repositoryId);
+                             request.getContextPath(),
+                             storageId,
+                             repositoryId);
     }
 
     private Collection<? extends Nupkg> getPackages(PackageSource<Nupkg> packageSource,
@@ -353,7 +345,7 @@ public class NugetPackageController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
     @RequestMapping(path = { "{storageId}/{repositoryId}/$metadata" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
     public ResponseEntity<Resource> getMetadata()
-        throws IOException
+            throws IOException
     {
         InputStream inputStream = NugetPackageController.class.getResourceAsStream("/metadata.xml");
         return new ResponseEntity<>(new InputStreamResource(inputStream), HttpStatus.OK);
@@ -470,7 +462,7 @@ public class NugetPackageController extends BaseArtifactController
         throws IOException
     {
         logger.debug("Requested Nuget Package %s, %s, %s, %s.", storageId, repositoryId, packageId, packageVersion);
-        
+
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         if (storage == null)
         {
@@ -490,7 +482,7 @@ public class NugetPackageController extends BaseArtifactController
                                "Unable to find repository by ID " + repositoryId + " for storage " + storageId);
             return;
         }
-        
+
         if (!repository.isInService())
         {
             logger.error("Repository is not in service...");
@@ -504,7 +496,7 @@ public class NugetPackageController extends BaseArtifactController
         String path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
 
         boolean isHeadRequest = request.getMethod().equals("HEAD");
-        
+
         if(!isHeadRequest)
         {
             try
@@ -540,13 +532,13 @@ public class NugetPackageController extends BaseArtifactController
         else
         {
             RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
-            
+
             if(resolvedPath == null)
             {
                 response.setStatus(HttpStatus.NOT_FOUND.value());
                 return;
             }
-   
+
             try
             {
                 try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
@@ -569,7 +561,7 @@ public class NugetPackageController extends BaseArtifactController
                                            packageId,
                                            packageVersion),
                              e);
-    
+
                 response.setStatus(INTERNAL_SERVER_ERROR.value());
             }
         }
@@ -614,8 +606,8 @@ public class NugetPackageController extends BaseArtifactController
                                   FileOutputStream packagePartOutputStream)
         throws IOException
     {
-        // According specification the final Boundary of MultipartStream should be prefixed with `0x0D0x0A0x2D0x2D`
-        // characters, but seems that Nuget command line tool has broken Multipart Boundary format.
+        // According to the specification, the final Boundary of MultipartStream should be prefixed with
+        // `0x0D0x0A0x2D0x2D` characters, but seems that Nuget command line tool has broken Multipart Boundary format.
         // We need to fix missing starting byte of ending Mulipart boundary (0x0D), which is incorrectly generated by
         // NuGet `push` implementation.
         byte[] boundary = boundaryString.getBytes();
@@ -701,14 +693,6 @@ public class NugetPackageController extends BaseArtifactController
         }
 
         return new URI("");
-    }
-
-    private String getUserName()
-    {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext == null ? null : securityContext.getAuthentication();
-
-        return authentication == null ? null : authentication.getName();
     }
 
     public ArtifactManagementService getArtifactManagementService()
