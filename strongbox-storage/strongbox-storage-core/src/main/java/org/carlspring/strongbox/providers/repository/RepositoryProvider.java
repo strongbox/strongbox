@@ -27,8 +27,8 @@ public interface RepositoryProvider
                    ProviderImplementationException;
 
     RepositoryOutputStream getOutputStream(String storageId,
-                                         String repositoryId,
-                                         String path)
+                                           String repositoryId,
+                                           String path)
             throws IOException, NoSuchAlgorithmException;
     
     List<Path> search(RepositorySearchRequest searchRequest, RepositoryPageRequest pageRequest);
