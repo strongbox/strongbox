@@ -21,18 +21,16 @@ public class ArtifactInputStreamTest
     public void setUp()
             throws FileNotFoundException, NoSuchAlgorithmException
     {
-        String path = "src\\test\\resources\\testTextFile.txt";
+        String path = "src/test/resources/testTextFile.txt";
         inputStream = new BufferedInputStream(new FileInputStream(path.trim()));
-        artifactInputStream = new ArtifactInputStream(null, inputStream)
-        {};
-
+        artifactInputStream = new ArtifactInputStream(null, inputStream){};
     }
 
 
     @Test
-    public void testFileExtension_equals_txt(){
+    public void testFileExtensionEqualsTxt()
+    {
         assertTrue(artifactInputStream.getFileExtension().equalsIgnoreCase(".txt"));
     }
 
 }
-
