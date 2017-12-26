@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.security.authentication.JwtTokenValidationFilter;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
@@ -57,10 +56,6 @@ public class StrongboxWebInitializer
 
         DelegatingFilterProxy headerMappingFilterDelegate = new DelegatingFilterProxy("headerMappingFilter");
         registerFilter(servletContext, false, HeaderMappingFilter.class.getSimpleName(), headerMappingFilterDelegate);
-
-        DelegatingFilterProxy jwtTokenValidationFilterDelegate = new DelegatingFilterProxy("jwtTokenValidationFilter");
-        registerFilter(servletContext, false, JwtTokenValidationFilter.class.getSimpleName(),
-                       jwtTokenValidationFilterDelegate);
 
         String filterName = "springSecurityFilterChain";
         DelegatingFilterProxy springSecurityFilterChain = new DelegatingFilterProxy(filterName);
