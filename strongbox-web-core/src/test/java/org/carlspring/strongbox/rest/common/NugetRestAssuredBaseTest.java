@@ -2,6 +2,8 @@ package org.carlspring.strongbox.rest.common;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -31,6 +33,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
+
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 
 /**
  * General settings for the testing sub-system.
@@ -135,7 +140,22 @@ public abstract class NugetRestAssuredBaseTest
         //noinspection ResultOfMethodCallIgnored
         file.delete();
     }
+    
+    protected void assertHeadersEquals(Headers h1, Headers h2)
+    {
+        assertNotNull(h1);
+        assertNotNull(h2);
+        
+        assertEquals(h1.size(),h2.size());
 
+        for(Header header : h1)
+        {
+            assertTrue(h2.hasHeaderWithName(header.getName()));
+            assertEquals(header.getValue(),h2.getValue(header.getName()));
+        }
+
+    }
+    
     protected boolean pathExists(String url)
     {
         logger.trace("[pathExists] URL -> " + url);
