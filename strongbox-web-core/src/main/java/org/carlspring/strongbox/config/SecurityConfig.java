@@ -76,6 +76,7 @@ public class SecurityConfig
     {
         http.addFilterBefore(strongboxAuthenticationFilter(),
                              BasicAuthenticationFilter.class)
+            .addFilterBefore(jwtTokenValidationFilter(), StrongboxAuthenticationFilter.class)
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
