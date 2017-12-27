@@ -91,7 +91,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
         
         //If current repository is a group repository present in local cache
-        if(getAlias() == provider.getAlias() && Files.exists(artifactPath))
+        if(getAlias().equals(provider.getAlias()) && Files.exists(artifactPath))
         {
             return (ArtifactInputStream)Files.newInputStream(artifactPath);
         }
