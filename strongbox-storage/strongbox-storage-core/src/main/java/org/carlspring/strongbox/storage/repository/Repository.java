@@ -67,9 +67,6 @@ public class Repository
     @XmlAttribute(name = "checksum-headers-enabled")
     private boolean checksumHeadersEnabled;
 
-    @XmlElement(name = "semantic-versioning")
-    private Boolean semanticVersioning;
-    
     /**
      * The per-repository proxy settings that override the overall global proxy settings.
      */
@@ -263,16 +260,6 @@ public class Repository
     public void setChecksumHeadersEnabled(boolean checksumHeadersEnabled)
     {
         this.checksumHeadersEnabled = checksumHeadersEnabled;
-    }
-
-    public Boolean getSemanticVersioning()
-    {
-        return semanticVersioning == null ? Boolean.valueOf(isHostedRepository()) : semanticVersioning;
-    }
-
-    public void setSemanticVersioning(Boolean semanticVersioning)
-    {
-        this.semanticVersioning = semanticVersioning;
     }
 
     public ProxyConfiguration getProxyConfiguration()

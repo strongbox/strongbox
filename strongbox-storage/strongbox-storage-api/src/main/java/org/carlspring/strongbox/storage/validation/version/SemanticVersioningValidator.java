@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.VersionValidatorType;
 import org.semver.Version;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ public class SemanticVersioningValidator implements VersionValidator
     @Override
     public boolean supports(Repository repository)
     {
-        return repository.getSemanticVersioning();
+        return repository.getVersionValidators().contains(VersionValidatorType.SEM_VER);
     }
 
     @Override
