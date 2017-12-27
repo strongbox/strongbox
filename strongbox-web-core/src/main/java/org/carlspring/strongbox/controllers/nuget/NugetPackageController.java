@@ -476,8 +476,6 @@ public class NugetPackageController extends BaseArtifactController
         }
         
         setHeaders(is, response, storageId, repositoryId, path, fileName);
-
-        logger.debug("Header Download succeeded.");
     }
     
     private void setHeaders(ArtifactInputStream ais,

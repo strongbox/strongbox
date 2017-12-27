@@ -198,8 +198,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     public RepositoryPath getPath(String storageId,
-                                       String repositoryId,
-                                       String artifactPath)
+                                  String repositoryId,
+                                  String artifactPath)
            throws IOException,
                   NoSuchAlgorithmException,
                   ArtifactTransportException,
