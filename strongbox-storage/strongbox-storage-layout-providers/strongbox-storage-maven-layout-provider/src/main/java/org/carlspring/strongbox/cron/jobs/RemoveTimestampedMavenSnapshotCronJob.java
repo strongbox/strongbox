@@ -1,12 +1,5 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.JobManager;
@@ -14,9 +7,14 @@ import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Kate Novik.
@@ -24,8 +22,6 @@ import org.slf4j.LoggerFactory;
 public class RemoveTimestampedMavenSnapshotCronJob
         extends JavaCronJob
 {
-
-    private final Logger logger = LoggerFactory.getLogger(RemoveTimestampedMavenSnapshotCronJob.class);
 
     @Named("mavenArtifactManagementService")
     @Inject
