@@ -159,15 +159,8 @@ public class ArtifactResolutionServiceImpl
         
         RepositoryPath path = null;
                 
-        if(!repositoryProvider.getAlias().equals("group"))
-        {
-            path = layoutProvider.resolve(repository).resolve(artifactPath);
-        }
-        else
-        {
-            path = ((GroupRepositoryProvider)repositoryProvider).getPath(storageId, repositoryId, artifactPath);
-        }
-        
+        path = (RepositoryPath)repositoryProvider.getPath(storageId, repositoryId, artifactPath);
+                
         if(path == null)
         {
            logger.error("Failed to resolve path for requested artifact");
