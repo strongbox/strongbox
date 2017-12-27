@@ -1,16 +1,12 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import groovy.lang.GroovyClassLoader;
-
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author carlspring
@@ -19,9 +15,6 @@ import org.slf4j.LoggerFactory;
 public class GroovyCronJob
         extends AbstractCronJob
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(GroovyCronJob.class);
-
 
     @Override
     public void executeTask(CronTaskConfiguration config)

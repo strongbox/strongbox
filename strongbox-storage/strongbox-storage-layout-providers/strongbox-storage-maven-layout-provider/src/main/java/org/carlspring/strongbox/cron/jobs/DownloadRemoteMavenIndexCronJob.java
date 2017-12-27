@@ -5,9 +5,6 @@ import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author Kate Novik
  * @author carlspring
@@ -15,8 +12,6 @@ import org.slf4j.LoggerFactory;
 public class DownloadRemoteMavenIndexCronJob
         extends OnePerRepositoryJavaCronJob
 {
-
-    private final Logger logger = LoggerFactory.getLogger(DownloadRemoteMavenIndexCronJob.class);
 
     @Inject
     private MavenRepositoryFeatures features;

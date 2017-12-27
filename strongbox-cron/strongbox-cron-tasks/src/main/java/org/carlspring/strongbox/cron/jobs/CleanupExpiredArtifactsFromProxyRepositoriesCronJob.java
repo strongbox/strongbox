@@ -5,17 +5,12 @@ import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRe
 
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author Przemyslaw Fusik
  */
 public class CleanupExpiredArtifactsFromProxyRepositoriesCronJob
         extends JavaCronJob
 {
-
-    private final Logger logger = LoggerFactory.getLogger(CleanupExpiredArtifactsFromProxyRepositoriesCronJob.class);
 
     @Inject
     private LocalStorageProxyRepositoryExpiredArtifactsCleaner proxyRepositoryObsoleteArtifactsCleaner;
