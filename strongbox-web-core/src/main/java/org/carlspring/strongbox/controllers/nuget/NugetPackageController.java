@@ -320,7 +320,7 @@ public class NugetPackageController extends BaseArtifactController
                                 @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
                                 @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
                                 HttpServletResponse response)
-            throws IOException
+            throws Exception
     {
         getPackageInternal(storageId, repositoryId, packageId, packageVersion, response);
     }
@@ -335,7 +335,7 @@ public class NugetPackageController extends BaseArtifactController
                            @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
                            @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
                            HttpServletResponse response)
-            throws IOException
+            throws Exception
     {
         getPackageInternal(storageId, repositoryId, packageId, packageVersion, response);
     }    
@@ -344,8 +344,8 @@ public class NugetPackageController extends BaseArtifactController
                                     String repositoryId,
                                     String packageId,
                                     String packageVersion,
-                                    HttpServletResponse response)
-        throws IOException
+                                    HttpServletResponse response) 
+                    throws Exception                   
     {
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -362,34 +362,23 @@ public class NugetPackageController extends BaseArtifactController
         String fileName = String.format("%s.%s.nupkg", packageId, packageVersion);
         String path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
 
-        try
+        
+        ArtifactInputStream is = getArtifactInputStream(storageId,
+                                                            repositoryId,
+                                                            packageId,
+                                                            packageVersion,
+                                                            response,
+                                                            path,
+                                                            fileName);
+        if(is == null)
         {
-            ArtifactInputStream is = (ArtifactInputStream) getArtifactManagementService().resolve(storageId,
-                                                                                                  repositoryId,
-                                                                                                  path);
-            if (is == null)
-            {
-                logger.debug("Unable to find artifact by path " + path);
-
-                response.setStatus(NOT_FOUND.value());
-                return;
-            }
-
-            copyToResponse(is, response);
+            return;
+        }
+        
+        copyToResponse(is, response);
             
-            setHeaders(is, response, storageId, repositoryId, path, fileName);
-        }
-        catch (Exception e)
-        {
-            logger.error(String.format("Failed to process Nuget get request: %s:%s:%s:%s",
-                                       storageId,
-                                       repositoryId,
-                                       packageId,
-                                       packageVersion),
-                         e);
-
-            response.setStatus(INTERNAL_SERVER_ERROR.value());
-        }
+        setHeaders(is, response, storageId, repositoryId, path, fileName);
+       
     }
     
     @ApiOperation(value = "Used to download the headers for a package")
@@ -446,10 +435,32 @@ public class NugetPackageController extends BaseArtifactController
                                "The " + storageId + ":" + repositoryId + " repository is currently out of service.");
             return;
         }
-
+        
         String fileName = String.format("%s.%s.nupkg", packageId, packageVersion);
         String path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
-
+        
+        ArtifactInputStream is = getArtifactInputStream(storageId,
+                                                        repositoryId,
+                                                        packageId,
+                                                        packageVersion,
+                                                        response,
+                                                        path,
+                                                        fileName);
+        if(is == null)
+        {
+            return;
+        }
+        
+        setHeaders(is, response, storageId, repositoryId, path, fileName);
+    }
+    private ArtifactInputStream getArtifactInputStream(String storageId,
+                                                       String repositoryId,
+                                                       String packageId,
+                                                       String packageVersion,
+                                                       HttpServletResponse response,
+                                                       String path,
+                                                       String fileName)
+    {   
         ArtifactInputStream is;
         try
         {
@@ -459,7 +470,7 @@ public class NugetPackageController extends BaseArtifactController
                 logger.debug("Unable to find artifact by path " + path);
 
                 response.setStatus(NOT_FOUND.value());
-                return;
+                return null;
             }
         }
         catch (Exception e)
@@ -472,12 +483,11 @@ public class NugetPackageController extends BaseArtifactController
                                        e);
 
             response.setStatus(INTERNAL_SERVER_ERROR.value());
-            return;
+            return null;
         }
-        
-        setHeaders(is, response, storageId, repositoryId, path, fileName);
+        return is;
     }
-    
+  
     private void setHeaders(ArtifactInputStream ais,
                             HttpServletResponse response,
                             String storageId,
@@ -488,25 +498,16 @@ public class NugetPackageController extends BaseArtifactController
                         NoSuchAlgorithmException,
                         ProviderImplementationException
     {      
-        RepositoryFileAttributes fileAttributes;
-        try
+        RepositoryFileAttributes fileAttributes = getRepositoryFileAttributes(storageId, 
+                                                                              repositoryId, 
+                                                                              path, 
+                                                                              response);
+        
+        if(fileAttributes == null)
         {
-            fileAttributes =  getArtifactManagementService().getAttributes(storageId, repositoryId, path);
-
-            if (fileAttributes == null)
-            {
-                response.setStatus(NOT_FOUND.value());
-                return;
-            }
+            return ;
         }
-        catch (ArtifactTransportException e)
-        {
-            logger.debug("Unable to retrieve headers for artifact by path " + path, e);
-
-            response.setStatus(NOT_FOUND.value());
-
-            return;
-        }
+        
         response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
         
         response.setHeader("Last-Updated",fileAttributes.lastModifiedTime().toString());
@@ -528,6 +529,36 @@ public class NugetPackageController extends BaseArtifactController
         }
                
         ArtifactControllerHelper.setHeadersForChecksums(ais, response);
+    }
+    
+    private RepositoryFileAttributes getRepositoryFileAttributes(String storageId,
+                                                                 String repositoryId,
+                                                                 String path,
+                                                                 HttpServletResponse response) 
+                                    throws NoSuchAlgorithmException, 
+                                           ProviderImplementationException
+    {   
+        RepositoryFileAttributes fileAttributes;
+        try
+        {
+            fileAttributes =  getArtifactManagementService().getAttributes(storageId, repositoryId, path);
+
+            if (fileAttributes == null)
+            {
+                response.setStatus(NOT_FOUND.value());
+                return null;
+            }
+        }
+        catch (ArtifactTransportException e)
+        {
+            logger.debug("Unable to retrieve headers for artifact by path " + path, e);
+
+            response.setStatus(NOT_FOUND.value());
+
+            return null;
+        }
+        
+        return fileAttributes;
     }
     
     private String extractBoundary(String contentType)
