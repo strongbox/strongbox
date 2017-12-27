@@ -1,19 +1,13 @@
 package com.orientechnologies.orient.object.jpa;
 
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-
-import javax.persistence.Cache;
-import javax.persistence.EntityGraph;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnitUtil;
-import javax.persistence.Query;
-import javax.persistence.SynchronizationType;
+import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * @author Sergey Bespalov
@@ -44,12 +38,14 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
     }
 
     @Override
-    public EntityManager createEntityManager(SynchronizationType synchronizationType) {
+    public EntityManager createEntityManager(SynchronizationType synchronizationType)
+    {
         return null;
     }
 
     @Override
-    public EntityManager createEntityManager(SynchronizationType synchronizationType, Map map) {
+    public EntityManager createEntityManager(SynchronizationType synchronizationType, Map map)
+    {
         return null;
     }
 
@@ -112,17 +108,20 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
     }
 
     @Override
-    public void addNamedQuery(String s, Query query) {
+    public void addNamedQuery(String s, Query query)
+    {
         throw new UnsupportedOperationException("addNamedQuery");
     }
 
     @Override
-    public <T> T unwrap(Class<T> aClass) {
+    public <T> T unwrap(Class<T> aClass)
+    {
         throw new UnsupportedOperationException("unwrap");
     }
 
     @Override
-    public <T> void addNamedEntityGraph(String s, EntityGraph<T> entityGraph) {
+    public <T> void addNamedEntityGraph(String s, EntityGraph<T> entityGraph)
+    {
         throw new UnsupportedOperationException("addNamedEntityGraph");
     }
 }

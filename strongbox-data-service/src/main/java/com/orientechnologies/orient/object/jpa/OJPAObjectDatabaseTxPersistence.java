@@ -1,8 +1,5 @@
 package com.orientechnologies.orient.object.jpa;
 
-import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil;
-
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
@@ -14,6 +11,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil;
 import static com.orientechnologies.orient.core.entity.OEntityManager.getEntityManagerByDatabaseURL;
 import static com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil.PERSISTENCE_XML;
 
@@ -26,7 +25,7 @@ public class OJPAObjectDatabaseTxPersistence
 {
 
     public static final String PROPERTY_AUTOMATIC_SCHEMA_GENERATION = "com.orientechnologies.orient.object.jpa.automaticSchemaGeneration";
-    
+
     /** the log used by this class. */
     private static Logger logger = Logger.getLogger(OJPAObjectDatabaseTxPersistence.class.getName());
     private static OJPAProviderUtil providerUtil = new OJPAProviderUtil();
@@ -88,12 +87,14 @@ public class OJPAObjectDatabaseTxPersistence
     }
 
     @Override
-    public void generateSchema(PersistenceUnitInfo persistenceUnitInfo, Map map) {
+    public void generateSchema(PersistenceUnitInfo info, Map map)
+    {
 
     }
 
     @Override
-    public boolean generateSchema(String s, Map map) {
+    public boolean generateSchema(String persistenceUnitName, Map map)
+    {
         return false;
     }
 
