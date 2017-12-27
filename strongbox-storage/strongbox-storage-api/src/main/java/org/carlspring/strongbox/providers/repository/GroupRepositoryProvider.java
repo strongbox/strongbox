@@ -68,59 +68,30 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     @Override
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
-                                              String artifactPath)
+                                              String path)
             throws IOException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException,
                    ProviderImplementationException
-    {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository groupRepository = storage.getRepository(repositoryId);
-
-        ArtifactInputStream is = resolveDirectlyFromGroupPathIfPossible(storageId, repositoryId, artifactPath);
-        if (is != null)
-        {
-            return is;
-        }
-
-        for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
-        {
-            String sId = getConfigurationManager().getStorageId(storage, storageAndRepositoryId);
-            String rId = getConfigurationManager().getRepositoryId(storageAndRepositoryId);
-
-            Repository r = getConfiguration().getStorage(sId).getRepository(rId);
-
-            if (!r.isInService())
-            {
-                continue;
-            }
-            if (artifactRoutingRulesChecker.isDenied(repositoryId, rId, artifactPath))
-            {
-                continue;
-            }
-            try
-            {
-                is = resolveArtifact(sId, r.getId(), artifactPath);
-            }
-            catch (IOException e)
-            {
-                continue;
-            }
-            if (is != null)
-            {
-                return is;
-            }
-        }
-
-        return null;
+    {   
+        RepositoryPath artifactPath = getPath(storageId, repositoryId, path);
+        
+        
+        RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
+        ArtifactInputStream is = provider.getInputStream(repository.getStorage().getId(),
+                                                         repository.getId(),
+                                                         artifactPath);
+        
     }
 
     private ArtifactInputStream resolveDirectlyFromGroupPathIfPossible(final String storageId,
                                                                        final String repositoryId,
                                                                        final String path)
-            throws IOException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
-
         final Storage storage = getConfiguration().getStorage(storageId);
         final Repository repository = storage.getRepository(repositoryId);
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
@@ -196,7 +167,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                                                          artifactPath);
         return is;
     }
-
+    
+    @Override
     public RepositoryPath getPath(String storageId,
                                   String repositoryId,
                                   String artifactPath)
@@ -288,10 +260,10 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                    ArtifactTransportException,
                    ProviderImplementationException
     {     
-        LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        
-        RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-        
+        RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
+        RepositoryPath artifactPath = (RepositoryPath)provider.getPath(repository.getStorage().getId(),
+                                                                       repository.getId(),
+                                                                       path);
         return artifactPath;
     }
     
