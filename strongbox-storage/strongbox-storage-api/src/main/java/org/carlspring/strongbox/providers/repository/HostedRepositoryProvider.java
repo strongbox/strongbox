@@ -152,5 +152,4 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
 
         return artifactPath;
     }
-
 }

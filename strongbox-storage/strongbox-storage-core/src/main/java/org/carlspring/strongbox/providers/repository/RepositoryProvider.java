@@ -45,4 +45,5 @@ public interface RepositoryProvider
                   NoSuchAlgorithmException,
                   ArtifactTransportException,
                   ProviderImplementationException;
+
 }
