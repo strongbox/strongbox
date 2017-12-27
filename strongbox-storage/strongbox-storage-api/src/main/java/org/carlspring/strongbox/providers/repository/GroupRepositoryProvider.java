@@ -156,7 +156,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         {
             return path;
         }
-
+        
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
         {
             String sId = getConfigurationManager().getStorageId(storage, storageAndRepositoryId);
