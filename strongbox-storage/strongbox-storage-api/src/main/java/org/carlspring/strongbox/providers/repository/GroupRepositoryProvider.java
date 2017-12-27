@@ -76,14 +76,26 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     {   
         RepositoryPath artifactPath = getPath(storageId, repositoryId, path);
         
-        logger.debug("Resolved path = " + artifactPath);
+        if(artifactPath == null)
+        {
+            logger.debug("Could not resolve path to artifact in Group Repository");
+            return null;
+        }
+                        
+        logger.debug("Resolved path for Group Repository = " + artifactPath);
         
         Repository repository = artifactPath.getFileSystem().getRepository();
         String resolvedStorageId = repository.getStorage().getId();
         String resolvedRepositoryId = repository.getId();
         String resolvedPath = artifactPath.relativize().toString();
         RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
-
+        
+        //If current repository is a group repository present in local cache
+        if(getAlias() == provider.getAlias() && Files.exists(artifactPath))
+        {
+            return (ArtifactInputStream)Files.newInputStream(artifactPath);
+        }
+        
         ArtifactInputStream is = provider.getInputStream(resolvedStorageId,
                                                          resolvedRepositoryId,
                                                          resolvedPath);

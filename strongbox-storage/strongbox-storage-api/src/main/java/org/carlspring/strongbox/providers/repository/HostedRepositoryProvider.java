@@ -62,15 +62,14 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
                                        ArtifactTransportException,
                                        ProviderImplementationException
     {
-        RepositoryPath artifactPath = getPath(storageId, repositoryId, path);
+        final Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
         
         logger.debug("Path in Hosted Repository = " + artifactPath);
-        
-        Repository repository = artifactPath.getFileSystem().getRepository();
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        
+                
         logger.debug(" -> Checking local cache for {} ...", artifactPath);
-        if (layoutProvider.containsPath(repository, artifactPath.relativize().toString()))
+        if (layoutProvider.containsPath(repository, path))
         {
             logger.debug("The artifact {} was found in the local cache", artifactPath);
             return (ArtifactInputStream)Files.newInputStream(artifactPath);
@@ -79,7 +78,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         logger.debug("The artifact {} was not found in the local cache", artifactPath);
         return null;
     }
-
+        
     @Override
     public ArtifactOutputStream getOutputStream(String storageId,
                                                 String repositoryId,
@@ -151,7 +150,12 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
 
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-
-        return artifactPath;
+        
+        if(layoutProvider.containsPath(repository, path))
+        {
+            return artifactPath;
+        }
+        
+        return null;
     }
 }
