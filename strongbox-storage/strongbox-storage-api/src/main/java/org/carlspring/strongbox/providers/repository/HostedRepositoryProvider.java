@@ -64,11 +64,13 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     {
         RepositoryPath artifactPath = getPath(storageId, repositoryId, path);
         
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+        logger.debug("Path in Hosted Repository = " + artifactPath);
+        
+        Repository repository = artifactPath.getFileSystem().getRepository();
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         
         logger.debug(" -> Checking local cache for {} ...", artifactPath);
-        if (layoutProvider.containsPath(repository, path))
+        if (layoutProvider.containsPath(repository, artifactPath.relativize().toString()))
         {
             logger.debug("The artifact {} was found in the local cache", artifactPath);
             return (ArtifactInputStream)Files.newInputStream(artifactPath);

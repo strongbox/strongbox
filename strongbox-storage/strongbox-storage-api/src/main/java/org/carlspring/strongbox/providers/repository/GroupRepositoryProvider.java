@@ -75,7 +75,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                                    ProviderImplementationException
     {   
         RepositoryPath artifactPath = getPath(storageId, repositoryId, path);
-
+        
+        logger.debug("Resolved path = " + artifactPath);
+        
         Repository repository = artifactPath.getFileSystem().getRepository();
         String resolvedStorageId = repository.getStorage().getId();
         String resolvedRepositoryId = repository.getId();
