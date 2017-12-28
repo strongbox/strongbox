@@ -41,11 +41,15 @@ import org.slf4j.LoggerFactory;
  * Note that almost all {@link Path} operations in this implementation must delegate method invocations into
  * {@link Files} utility class with {@link RepositoryPath}'s target as parameters.
  *
+ * TODO: we need a proper implementation against Service Provider Interface (SPI) specification
+ *
  * @author Sergey Bespalov
  */
 public abstract class RepositoryFileSystemProvider
         extends FileSystemProvider
 {
+
+    public static final String STRONGBOX_SCHEME = "strongbox";
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryFileSystemProvider.class);
 
@@ -80,7 +84,7 @@ public abstract class RepositoryFileSystemProvider
 
     public String getScheme()
     {
-        return storageFileSystemProvider.getScheme();
+        return STRONGBOX_SCHEME;
     }
 
     public FileSystem newFileSystem(URI uri,
@@ -496,11 +500,8 @@ public abstract class RepositoryFileSystemProvider
             return (A) targetAttributes;
         }
         
-        RepositoryPath repositoryPath = (RepositoryPath) path;
-        RepositoryPath repositoryRelativePath = repositoryPath.relativize();
-        
         RepositoryFileAttributes repositoryFileAttributes = new RepositoryFileAttributes(targetAttributes,
-                getRepositoryFileAttributes(repositoryRelativePath,
+                getRepositoryFileAttributes((RepositoryPath) path,
                                             RepositoryFiles.parseAttributes("*")
                                                            .toArray(new RepositoryFileAttributeType[] {})));
         
@@ -517,7 +518,7 @@ public abstract class RepositoryFileSystemProvider
             return storageFileSystemProvider.readAttributes(path, attributes, options);
         }
         Map<String, Object> result = new HashMap<>();
-        if (!attributes.startsWith("strongbox"))
+        if (!attributes.startsWith(STRONGBOX_SCHEME))
         {
             result.putAll(storageFileSystemProvider.readAttributes(unwrap(path), attributes, options));
             if (!attributes.equals("*"))
@@ -526,12 +527,9 @@ public abstract class RepositoryFileSystemProvider
             }
         }
 
-        RepositoryPath repositoryPath = (RepositoryPath) path;
-        RepositoryPath repositoryRelativePath = repositoryPath.relativize();
-
         RepositoryFileAttributeType[] targetRepositoryAttributes = RepositoryFiles.parseAttributes(attributes)
                                                                                   .toArray(new RepositoryFileAttributeType[] {});
-        Map<String, Object> repositoryFileAttributes = getRepositoryFileAttributes(repositoryRelativePath,
+        Map<String, Object> repositoryFileAttributes = getRepositoryFileAttributes((RepositoryPath) path,
                                                                                    targetRepositoryAttributes).entrySet()
                                                                                                               .stream()
                                                                                                               .collect(Collectors.toMap(e -> e.getKey()
@@ -543,7 +541,8 @@ public abstract class RepositoryFileSystemProvider
     }
 
     protected abstract Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath,
-                                                                                            RepositoryFileAttributeType... attributeTypes);
+                                                                                            RepositoryFileAttributeType... attributeTypes)
+        throws IOException;
 
     public void setAttribute(Path path,
                              String attribute,

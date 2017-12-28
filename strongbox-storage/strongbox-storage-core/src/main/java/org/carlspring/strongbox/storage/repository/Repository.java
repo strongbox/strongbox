@@ -89,6 +89,7 @@ public class Repository
     @XmlElementWrapper(name = "group")
     private Set<String> groupRepositories = new LinkedHashSet<>();
 
+   
     @XmlElement(name = "validator")
     @XmlElementWrapper(name = "version-validators")
     private Set<VersionValidatorType> versionValidators = new LinkedHashSet<>(Arrays.asList(

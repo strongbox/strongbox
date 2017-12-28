@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,7 @@ public abstract class ArtifactOutputStream
     private Function<byte[], String> digestStringifier = MessageDigestUtils::convertToHexadecimalString;
     private ArtifactCoordinates coordinates;
     /**
-     * Used to cache Artifact contents if needed.
+     * Used to cache source {@link OutputStream} contents if needed.
      */
     private OutputStream cacheOutputStream;
     private Function<OutputStreamFunction, ?> cacheOutputStreamTemplate = this::doWithOutputStream;

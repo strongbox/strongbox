@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
 /**
  * @author Przemyslaw Fusik
  */
-@Component("NugetSnapshotVersionValidator")
+//TODO: invalid implementation
+//@Component("NugetSnapshotVersionValidator")
 public class NugetSnapshotVersionValidator
         implements NugetVersionValidator
 {

@@ -20,6 +20,7 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -97,7 +98,7 @@ public class ArtifactOutputStreamTest
         assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
 
         afos.close();
-        provider.moveFromTemporaryDirectory(artifactPath);
+        RepositoryFiles.permanent(artifactPath);
 
         assertTrue("Failed to the move temporary artifact file to original location!", Files.exists(artifactPath));
     }

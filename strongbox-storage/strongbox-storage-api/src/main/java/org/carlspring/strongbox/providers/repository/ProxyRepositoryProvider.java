@@ -2,6 +2,8 @@ package org.carlspring.strongbox.providers.repository;
 
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -10,13 +12,20 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.event.CommonEventListenerRegistry;
-import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.RepositoryInputStream;
+import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
+import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -42,6 +51,9 @@ public class ProxyRepositoryProvider
     
     @Inject
     private CommonEventListenerRegistry commonEventListenerRegistry;
+
+    @Inject
+    private ArtifactEntryService artifactEntryService;
     
     @PostConstruct
     @Override
@@ -60,26 +72,32 @@ public class ProxyRepositoryProvider
     }
 
     @Override
-    public ArtifactInputStream getInputStream(String storageId,
-                                              String repositoryId,
-                                              String path)
+    public RepositoryInputStream getInputStream(String storageId,
+                                                String repositoryId,
+                                                String path)
             throws IOException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException,
                    ProviderImplementationException
     {
-        return (ArtifactInputStream) proxyRepositoryArtifactResolver.getInputStream(storageId, repositoryId, path);
+        InputStream is = proxyRepositoryArtifactResolver.getInputStream(storageId, repositoryId, path);
+        return decorate(storageId, repositoryId, path, is);
     }
 
     @Override
-    public ArtifactOutputStream getOutputStream(String storageId,
-                                                String repositoryId,
-                                                String artifactPath)
+    public RepositoryOutputStream getOutputStream(String storageId,
+                                                  String repositoryId,
+                                                  String artifactPath)
             throws IOException,
                    NoSuchAlgorithmException
     {
-        throw new UnsupportedOperationException(String.format("Can't write artifact into Proxy repository [%s/%s/%s].",
-                                                              storageId, repositoryId, artifactPath));
+        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+
+        LayoutProvider layoutPtovider = getLayoutProviderRegistry().getProvider(repository.getLayout());
+        RepositoryPath repositoryPath = layoutPtovider.resolve(repository).resolve(artifactPath);
+        ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
+        
+        return decorate(storageId, repositoryId, artifactPath, aos);
     }
     
     @Override
@@ -97,4 +115,18 @@ public class ProxyRepositoryProvider
         return hostedRepositoryProvider.count(searchRequest);
     }
     
+    
+    protected ArtifactEntry provideArtirfactEntry(String storageId,
+                                                  String repositoryId,
+                                                  String path)
+    {
+        RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOneArtifact(storageId,
+                                                                                                       repositoryId,
+                                                                                                       path)
+                                                                                      .orElse(new RemoteArtifactEntry());
+
+        artifactEntry.setIsCached(Boolean.TRUE);
+        
+        return artifactEntry;
+    }
 }

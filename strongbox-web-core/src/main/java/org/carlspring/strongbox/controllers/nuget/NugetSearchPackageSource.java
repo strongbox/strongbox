@@ -10,13 +10,16 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
+import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryPageRequest;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
+import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -38,7 +41,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
     private static final Logger logger = LoggerFactory.getLogger(NugetSearchPackageSource.class);
 
     private String searchTerm;
-
+    
     private String storageId;
 
     private String repositoryId;
@@ -49,6 +52,9 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
+    
+    @Inject
+    private ArtifactTagService artifactTagService;
 
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
@@ -57,7 +63,8 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
 
     public NugetSearchPackageSource(String storageId,
                                     String repositoryId,
-                                    String searchTerm)
+                                    String searchTerm,
+                                    Boolean latestVersion)
     {
         setSearchTerm(searchTerm);
         setStorageId(storageId);
@@ -96,7 +103,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
 
     public void setSearchTerm(String searchTerm)
     {
-        this.searchTerm = searchTerm == null ? null : getSearchTerm().replaceAll("'", "");
+        this.searchTerm = (searchTerm == null ? null : searchTerm.replaceAll("'", ""));
     }
 
     public Integer getSkip()
@@ -139,7 +146,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
             coordinates.put("id", searchTerm);
         }
 
-        return doSearch(coordinates, false);
+        return doSearch(coordinates, false, false);
     }
 
     public List<Nupkg> createPackageList(List<Path> artifactPathList)
@@ -174,8 +181,14 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
     @Override
     public Collection<Nupkg> getLastVersionPackages()
     {
-        // TODO: implement Latest Version Package search
-        return getPackages();
+        Map<String, String> coordinates = new HashMap<>();
+        coordinates.put("extension", "nupkg");
+        if (searchTerm != null && !searchTerm.trim().isEmpty())
+        {
+            coordinates.put("id", searchTerm);
+        }
+
+        return doSearch(coordinates, true, false);
     }
 
     @Override
@@ -185,15 +198,18 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         coordinates.put("extension", "nupkg");
         coordinates.put("id", id);
 
-        return doSearch(coordinates, true);
+        return doSearch(coordinates, false, true);
     }
 
     @Override
     public Nupkg getLastVersionPackage(String id)
     {
-        // TODO: implement Latest Version Package search
-        Collection<Nupkg> packageList = getPackages(id);
-        return packageList.isEmpty() ? null : packageList.iterator().next();
+        Map<String, String> coordinates = new HashMap<>();
+        coordinates.put("extension", "nupkg");
+        coordinates.put("id", id);
+
+        List<Nupkg> result = doSearch(coordinates, true, true);
+        return result.isEmpty() ? null : result.iterator().next();
     }
 
     @Override
@@ -205,12 +221,13 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         coordinates.put("id", id);
         coordinates.put("version", version.toString());
 
-        List<Nupkg> packageList = doSearch(coordinates, true);
+        List<Nupkg> packageList = doSearch(coordinates, false, true);
 
         return packageList.isEmpty() ? null : packageList.iterator().next();
     }
 
     private List<Nupkg> doSearch(Map<String, String> coordinates,
+                                 boolean lastVersion,
                                  boolean strict)
     {
         Storage storage = layoutProviderRegistry.getStorage(storageId);
@@ -219,6 +236,12 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         RepositorySearchRequest searchRequest = new RepositorySearchRequest(storageId, repositoryId);
         searchRequest.setStrict(strict);
         searchRequest.setCoordinates(coordinates);
+        
+        if (Boolean.TRUE.booleanValue() == lastVersion)
+        {
+            ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
+            searchRequest.getTagSet().add(lastVersionTag);
+        }
         
         RepositoryPageRequest pageRequest = new RepositoryPageRequest();
         pageRequest.setSkip(skip);

@@ -9,6 +9,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.semver.Version;
+
 /**
  * @author Sergey Bespalov
  *
@@ -16,12 +18,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "nugetArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
-public class NugetArtifactCoordinates extends AbstractArtifactCoordinates
+public class NugetArtifactCoordinates extends AbstractArtifactCoordinates<NugetArtifactCoordinates, Version>
 {
     public static final String ID = "id";
     public static final String VERSION = "version";
     public static final String EXTENSION = "extension";
-    private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)[/|\\\\]([a-zA-Z0-9_.-]+)[/|\\\\]([a-zA-Z0-9_.-]+).(nupkg|nuspec|nupkg\\.sha512)";
+    private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+).(nupkg|nuspec|nupkg\\.sha512)";
 
 
     public NugetArtifactCoordinates()
@@ -119,4 +121,23 @@ public class NugetArtifactCoordinates extends AbstractArtifactCoordinates
     {
         return URI.create("package/" + getId() + "/" + getVersion());
     }
+    
+    @Override
+    public Version getNativeVersion()
+    {
+        String versionLocal = getVersion();
+        if (versionLocal == null)
+        {
+            return null;
+        }
+        try
+        {
+            return Version.parse(versionLocal);
+        }
+        catch (IllegalArgumentException e)
+        {
+            return null;
+        }
+    }
+    
 }

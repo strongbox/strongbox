@@ -81,14 +81,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
                           .get("/configuration/repositories/version-validators/storage0/releases")
                           .peek()
                           .then()
-                          .body(anyOf(
-                                  equalTo("[ \"SNAPSHOT\", \"RELEASE\", \"REDEPLOYMENT\" ]"),
-                                  equalTo("[ \"SNAPSHOT\", \"REDEPLOYMENT\", \"RELEASE\" ]"),
-                                  equalTo("[ \"RELEASE\", \"SNAPSHOT\", \"REDEPLOYMENT\" ]"),
-                                  equalTo("[ \"RELEASE\", \"REDEPLOYMENT\", \"SNAPSHOT\" ]"),
-                                  equalTo("[ \"REDEPLOYMENT\", \"SNAPSHOT\", \"RELEASE\" ]"),
-                                  equalTo("[ \"REDEPLOYMENT\", \"RELEASE\", \"SNAPSHOT\" ]")
-                          ))
+                          .body(equalTo("[ \"REDEPLOYMENT\", \"RELEASE\", \"SEM_VER\", \"SNAPSHOT\" ]"))
                           .statusCode(200);
     }
 
@@ -110,10 +103,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
                           .get("/configuration/repositories/version-validators/storage0/all-validators")
                           .peek()
                           .then()
-                          .body(anyOf(
-                                  equalTo("[ \"REDEPLOYMENT\", \"RELEASE\" ]"),
-                                  equalTo("[ \"RELEASE\", \"REDEPLOYMENT\" ]")
-                          ))
+                          .body(equalTo("[ \"REDEPLOYMENT\", \"RELEASE\", \"SEM_VER\" ]"))
                           .statusCode(200);
 
         RestAssuredMockMvc.given()
@@ -130,10 +120,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
                           .get("/configuration/repositories/version-validators/storage0/all-validators")
                           .peek()
                           .then()
-                          .body(anyOf(
-                                  equalTo("[ \"REDEPLOYMENT\", \"RELEASE\" ]"),
-                                  equalTo("[ \"RELEASE\", \"REDEPLOYMENT\" ]")
-                          ))
+                          .body(equalTo("[ \"REDEPLOYMENT\", \"RELEASE\", \"SEM_VER\" ]"))
                           .statusCode(200);
     }
 

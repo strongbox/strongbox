@@ -3,6 +3,7 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -23,9 +24,8 @@ public class RemoveTimestampedMavenSnapshotCronJob
         extends JavaCronJob
 {
 
-    @Named("mavenArtifactManagementService")
     @Inject
-    private ArtifactManagementService artifactManagementService;
+    private MavenRepositoryFeatures mavenRepositoryFeatures;
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -66,11 +66,11 @@ public class RemoveTimestampedMavenSnapshotCronJob
         }
         else
         {
-            artifactManagementService.removeTimestampedSnapshots(storageId,
-                                                                 repositoryId,
-                                                                 basePath,
-                                                                 numberToKeep,
-                                                                 keepPeriod);
+            mavenRepositoryFeatures.removeTimestampedSnapshots(storageId,
+                                                               repositoryId,
+                                                               basePath,
+                                                               numberToKeep,
+                                                               keepPeriod);
         }
     }
 
@@ -99,11 +99,11 @@ public class RemoveTimestampedMavenSnapshotCronJob
                                  {
                                      try
                                      {
-                                         artifactManagementService.removeTimestampedSnapshots(storageId,
-                                                                                              repositoryId,
-                                                                                              null,
-                                                                                              numberToKeep,
-                                                                                              keepPeriod);
+                                        mavenRepositoryFeatures.removeTimestampedSnapshots(storageId,
+                                                                                           repositoryId,
+                                                                                           null,
+                                                                                           numberToKeep,
+                                                                                           keepPeriod);
                                      }
                                      catch (IOException e)
                                      {

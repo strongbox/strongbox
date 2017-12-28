@@ -1,20 +1,24 @@
 package org.carlspring.strongbox.utils;
 
+import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
+import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
+
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.http.range.ByteRangeHeaderParser;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.io.StreamUtils;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
-import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
-import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
 
 public class ArtifactControllerHelper
 {
@@ -28,7 +32,7 @@ public class ArtifactControllerHelper
     {
     }
 
-    public static void handlePartialDownload(ArtifactInputStream is,
+    public static void handlePartialDownload(InputStream is,
                                              HttpHeaders headers,
                                              HttpServletResponse response)
             throws IOException
@@ -47,20 +51,20 @@ public class ArtifactControllerHelper
         }
     }
 
-    public static void handlePartialDownloadWithSingleRange(ArtifactInputStream is,
+    public static void handlePartialDownloadWithSingleRange(InputStream is,
                                                             ByteRange byteRange,
                                                             HttpServletResponse response)
             throws IOException
     {
-
-        long length = StreamUtils.getLength(is);
+        ByteRangeInputStream bris = StreamUtils.findSource(ByteRangeInputStream.class, (FilterInputStream)is);
+        long length = StreamUtils.getLength(bris);
         if (byteRange.getOffset() < length)
         {
             long partialLength = calculatePartialRangeLength(byteRange, length);
 
             logger.debug("Calculated partial range length ->>> " + partialLength + "\n");
 
-            StreamUtils.setCurrentByteRange(is, byteRange);
+            StreamUtils.setCurrentByteRange(bris, byteRange);
 
             response.setHeader("Content-Length", partialLength + "");
             response.setStatus(PARTIAL_CONTENT.value());
@@ -73,7 +77,7 @@ public class ArtifactControllerHelper
         }
     }
 
-    public static void handlePartialDownloadWithMultipleRanges(ArtifactInputStream is,
+    public static void handlePartialDownloadWithMultipleRanges(InputStream is,
                                                                List<ByteRange> byteRanges,
                                                                HttpServletResponse response)
             throws IOException
@@ -130,26 +134,30 @@ public class ArtifactControllerHelper
         }
     }
 
-    public static void setHeadersForChecksums(ArtifactInputStream ais,
+    public static void setHeadersForChecksums(InputStream is,
                                               HttpServletResponse response)
     {
-        ais.getHexDigests()
-           .forEach((k, v) -> response.setHeader(String.format("Checksum-%s",
-                                                               k.toUpperCase().replaceAll("-", "")),
-                                                 v));
+        ArtifactInputStream ais = StreamUtils.findSource(ArtifactInputStream.class, is);
+        ais.getHexDigests().forEach((k,
+                                     v) -> response.setHeader(String.format("Checksum-%s",
+                                                                            k.toUpperCase().replaceAll("-", "")),
+                                                              v));
 
         /*
-        ArtifactCoordinates artifactCoordinates = ais.getArtifactCoordinates();
-        if (artifactCoordinates != null)
-        {
-            response.setHeader("strongbox-layout", artifactCoordinates.getClass().getSimpleName());
-        }
-        */
+         * ArtifactCoordinates artifactCoordinates =
+         * ais.getArtifactCoordinates();
+         * if (artifactCoordinates != null)
+         * {
+         * response.setHeader("strongbox-layout",
+         * artifactCoordinates.getClass().getSimpleName());
+         * }
+         */
     }
 
-    public static void setHeadersForChecksums(ArtifactInputStream ais,
+    public static void setHeadersForChecksums(InputStream is,
                                               HttpHeaders headers)
     {
+        ArtifactInputStream ais = StreamUtils.findSource(ArtifactInputStream.class, is);
         ais.getHexDigests()
            .forEach((k, v) -> headers.add(String.format("Checksum-%s", k.toUpperCase().replaceAll("-", "")), v));
 

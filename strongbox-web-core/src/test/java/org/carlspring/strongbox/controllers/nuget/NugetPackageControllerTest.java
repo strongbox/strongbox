@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
@@ -34,6 +35,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import ru.aristar.jnuget.query.AndExpression;
+import ru.aristar.jnuget.query.Expression;
+import ru.aristar.jnuget.query.IdEqIgnoreCase;
+import ru.aristar.jnuget.query.LatestVersionExpression;
 
 /**
  * @author Sergey Bespalov
@@ -227,8 +232,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         given().header("User-Agent", "NuGet/*")
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                    String.format("/Search()/$count?$filter=%s&searchTerm=%s&targetFramework=",
-                                  "IsLatestVersion", "Test"))
+                    String.format("/Search()/$count?searchTerm=%s&targetFramework=", "Test"))
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -239,8 +243,8 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         given().header("User-Agent", "NuGet/*")
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                    String.format("/Search()?$filter=%s&$skip=%s&$top=%s&searchTerm=%s&targetFramework=",
-                                  "IsLatestVersion", 0, 30, "Test"))
+                    String.format("/Search()?$skip=%s&$top=%s&searchTerm=%s&targetFramework=",
+                                  0, 30, "Test"))
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -251,6 +255,93 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
                .body("feed.entry[0].title", equalTo("Org.Carlspring.Strongbox.Nuget.Test.Search"));
     }
 
+    @Test
+    public void testLastVersionPackageSearch()
+        throws Exception
+    {
+        String packageId = "Org.Carlspring.Strongbox.Nuget.Test.LastVersion";
+        String packageVersion = "1.0.0";
+        byte[] packageContent = readPackageContent(generatePackageFile(packageId, packageVersion));
+
+        // Push
+        createPushRequest(packageContent).when()
+                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
+                                                 REPOSITORY_RELEASES_1 + "/")
+                                         .peek()
+                                         .then()
+                                         .statusCode(HttpStatus.CREATED.value());
+
+        Expression filter = new IdEqIgnoreCase(packageId);
+        filter = new AndExpression(filter, new LatestVersionExpression());
+
+        // VERSION 1.0.0
+        // Count
+        given().header("User-Agent", "NuGet/*")
+               .when()
+               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                       String.format("/Search()/$count?$filter=%s&targetFramework=",
+                                     filter.toString()))
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .and()
+               .assertThat()
+               .body(equalTo("1"));
+
+        // Search
+        given().header("User-Agent", "NuGet/*")
+               .when()
+               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                       String.format("/Search()?$filter=%s&$skip=%s&$top=%s&targetFramework=",
+                                     filter.toString(), 0, 30))
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .and()
+               .assertThat()
+               .body("feed.title", equalTo("Packages"))
+               .and()
+               .assertThat()
+               .body("feed.entry[0].title", equalTo(packageId))
+               .body("feed.entry[0].properties.Version", equalTo(packageVersion));
+
+        // VERSION 2.0.0
+        packageVersion = "2.0.0";
+        packageContent = readPackageContent(generatePackageFile(packageId, packageVersion));
+        createPushRequest(packageContent).when()
+                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
+                                                 REPOSITORY_RELEASES_1 + "/")
+                                         .peek()
+                                         .then()
+                                         .statusCode(HttpStatus.CREATED.value());
+
+        // Count
+        given().header("User-Agent", "NuGet/*")
+               .when()
+               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                       String.format("/Search()/$count?$filter=%s&targetFramework=",
+                                     filter.toString()))
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .and()
+               .assertThat()
+               .body(equalTo("1"));
+
+        // Search
+        given().header("User-Agent", "NuGet/*")
+               .when()
+               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                       String.format("/Search()?$filter=%s&$skip=%s&$top=%s&targetFramework=",
+                                     filter.toString(), 0, 30))
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .and()
+               .assertThat()
+               .body("feed.title", equalTo("Packages"))
+               .and()
+               .assertThat()
+               .body("feed.entry[0].title", equalTo(packageId))
+               .body("feed.entry[0].properties.Version", equalTo(packageVersion));
+    }
+    
     public MockMvcRequestSpecification createPushRequest(byte[] packageContent)
     {
         return given().header("User-Agent", "NuGet/*")
@@ -279,7 +370,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         coordinates.put("id", "NHibernate");
         coordinates.put("version", "4.1.1.4000");
 
-        List<ArtifactEntry> artifactEntryList = artifactEntryService.findArtifactList("storage-common-proxies", "nuget.org", coordinates);
+        List<ArtifactEntry> artifactEntryList = artifactEntryService.findArtifactList("storage-common-proxies", "nuget.org", coordinates, true);
         assertTrue(artifactEntryList.size() > 0);
         
         ArtifactEntry artifactEntry = artifactEntryList.iterator().next();

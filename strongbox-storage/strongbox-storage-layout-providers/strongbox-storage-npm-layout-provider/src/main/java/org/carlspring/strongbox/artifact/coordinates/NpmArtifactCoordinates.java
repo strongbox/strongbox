@@ -21,11 +21,11 @@ import org.springframework.util.Assert;
 @SuppressWarnings("serial")
 @XmlRootElement(name = "npmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
-public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
+public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtifactCoordinates, Version>
 {
     public static final String NPM_NAME_REGEX = "[a-z0-9][\\w-.]*";
     public static final String NPM_EXTENSION_REGEX = "\\.tgz";
-    public static final String NPM_PACKAGE_PATH_REGEX = "(@?" + NPM_NAME_REGEX + ")[/|\\\\\\\\](" + NPM_NAME_REGEX + ")[/|\\\\\\\\](.+)[/|\\\\\\\\]"
+    public static final String NPM_PACKAGE_PATH_REGEX = "(@?" + NPM_NAME_REGEX + ")/(" + NPM_NAME_REGEX + ")/(.+)/"
             + NPM_NAME_REGEX + "-(.+?(?=" + NPM_EXTENSION_REGEX + "))" + NPM_EXTENSION_REGEX;
 
     private static final Pattern NPM_NAME_PATTERN = Pattern.compile(NPM_NAME_REGEX);
@@ -130,6 +130,24 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates
     public String getArtifactFileName()
     {
         return String.format("%s-%s.tgz", getName(), getVersion());
+    }
+
+    @Override
+    public Version getNativeVersion()
+    {
+        String versionLocal = getVersion();
+        if (versionLocal == null)
+        {
+            return null;
+        }
+        try
+        {
+            return Version.parse(versionLocal);
+        }
+        catch (IllegalArgumentException e)
+        {
+            return null;
+        }
     }
 
     public static NpmArtifactCoordinates parse(String path)

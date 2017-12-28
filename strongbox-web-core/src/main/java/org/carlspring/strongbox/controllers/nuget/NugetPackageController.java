@@ -27,7 +27,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
@@ -135,7 +134,7 @@ public class NugetPackageController extends BaseArtifactController
     public ResponseEntity<?> searchPackages(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                             @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                                             @PathVariable(name = "searchCommandName") String searchCommandName,
-                                            @RequestParam(name = "$filter", required = true) String filter,
+                                            @RequestParam(name = "$filter", required = false) String filter,
                                             @RequestParam(name = "$orderby", required = false, defaultValue = "id") String orderBy,
                                             @RequestParam(name = "$skip", required = false) Integer skip,
                                             @RequestParam(name = "$top", required = false) Integer top,
@@ -360,9 +359,9 @@ public class NugetPackageController extends BaseArtifactController
 
         try
         {
-            ArtifactInputStream is = (ArtifactInputStream) getArtifactManagementService().resolve(storageId,
-                                                                                                  repositoryId,
-                                                                                                  path);
+            InputStream is = getArtifactManagementService().resolve(storageId,
+                                                                    repositoryId,
+                                                                    path);
             if (is == null)
             {
                 logger.debug("Unable to find artifact by path " + path);
