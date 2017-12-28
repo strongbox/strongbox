@@ -1,17 +1,7 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.maven.index.ArtifactContext;
-import org.apache.maven.index.util.zip.ZipFacade;
-import org.apache.maven.index.util.zip.ZipHandle;
 import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Przemyslaw Fusik
@@ -19,8 +9,6 @@ import org.slf4j.LoggerFactory;
 public class SafeArtifactContext
         extends ArtifactContext
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(SafeArtifactContext.class);
 
     public SafeArtifactContext(ArtifactContext ac)
     {
@@ -30,61 +18,16 @@ public class SafeArtifactContext
     @Override
     public Model getPomModel()
     {
-        // First check for local pom file
-        if (getPom() != null && getPom().isFile())
+        Model pomModel = super.getPomModel();
+
+        if (pomModel == null && getArtifactInfo() != null && getArtifact() != null && !getArtifact().isFile())
         {
-            try
-            {
-                // here is the difference - close streams, guys
-                try (InputStream is = new FileInputStream(getPom()))
-                {
-                    return new MavenXpp3Reader().read(is, false);
-                }
-
-            }
-            catch (IOException | XmlPullParserException e)
-            {
-                logger.error(e.getMessage(), e);
-            }
+            pomModel = new Model();
+            pomModel.setGroupId(getArtifactInfo().getGroupId());
+            pomModel.setArtifactId(getArtifactInfo().getArtifactId());
+            pomModel.setVersion(getArtifactInfo().getVersion());
+            pomModel.setPackaging(getArtifactInfo().getPackaging());
         }
-        // Otherwise, check for pom contained in maven generated artifact
-        else if (getArtifact() != null && getArtifact().isFile())
-        {
-            ZipHandle handle = null;
-
-            try
-            {
-                handle = ZipFacade.getZipHandle(getArtifact());
-
-                final String embeddedPomPath =
-                        "META-INF/maven/" + getGav().getGroupId() + "/" + getGav().getArtifactId() + "/pom.xml";
-
-                if (handle.hasEntry(embeddedPomPath))
-                {
-                    try (InputStream is = handle.getEntryContent(embeddedPomPath))
-                    {
-                        return new MavenXpp3Reader().read(is, false);
-                    }
-
-                }
-            }
-            catch (IOException | XmlPullParserException e)
-            {
-                logger.error(e.getMessage(), e);
-            }
-            finally
-            {
-                try
-                {
-                    ZipFacade.close(handle);
-                }
-                catch (Exception e)
-                {
-                    logger.warn(e.getMessage(), e);
-                }
-            }
-        }
-        logger.warn(String.format("Failed to read POM [%s]", getArtifact()));
-        return null;
+        return pomModel;
     }
 }

@@ -57,12 +57,15 @@ public interface ConfigurationManagementService extends ConfigurationService
 
     List<Repository> getGroupRepositories();
 
-    List<Repository> getGroupRepositoriesContaining(String repositoryId);
+    List<Repository> getGroupRepositoriesContaining(String storageId,
+                                                    String repositoryId);
 
-    void removeRepositoryFromAssociatedGroups(String repositoryId)
+    void removeRepositoryFromAssociatedGroups(String storageId,
+                                              String repositoryId)
             throws IOException, JAXBException;
 
-    void removeRepository(String storageId, String repositoryId)
+    void removeRepository(String storageId,
+                          String repositoryId)
             throws IOException, JAXBException;
 
     ProxyConfiguration getProxyConfiguration()

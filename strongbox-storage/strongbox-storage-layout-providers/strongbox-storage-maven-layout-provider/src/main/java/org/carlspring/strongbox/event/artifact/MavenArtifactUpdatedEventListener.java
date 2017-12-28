@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.event.artifact;
 
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 
@@ -30,6 +31,6 @@ public class MavenArtifactUpdatedEventListener
             return;
         }
 
-        updateMetadataInGroupsContainingRepository(event, Path::getParent);
+        updateMetadataInGroupsContainingRepository(event, RepositoryPath::getParent);
     }
 }

@@ -86,7 +86,7 @@ public class RepositoryIndexer
 
             ArtifactContext artifactContext = artifactContextProducer.getArtifactContext(indexingContext, artifactFile);
 
-            getIndexer().addArtifactsToIndex(Collections.singletonList(artifactContext), indexingContext);
+            getIndexer().addArtifactToIndex(artifactContext, indexingContext);
         }
         catch (Exception e) // it's not really a critical problem, artifacts could be added to index later
         {
@@ -146,14 +146,14 @@ public class RepositoryIndexer
         }
 
         final BooleanQuery booleanQuery = booleanQueryBuiler.build();
-        
+
         logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
                      new String[]{ booleanQuery.toString(),
                                    indexingContext.getId(),
                                    indexingContext.getIndexDirectory().toString() });
 
-        
-        
+
+
         final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(booleanQuery, indexingContext));
 
         logger.debug("Hit count: {}", response.getReturnedHitsCount());
@@ -188,7 +188,7 @@ public class RepositoryIndexer
             FlatSearchRequest searchRequest = new FlatSearchRequest(query,
                                                                     Comparator.comparing(this::calculateArtifactInfo),
                                                                     indexingContext);
-            
+
             try (final FlatSearchResponse response = getIndexer().searchFlat(searchRequest))
             {
 
@@ -224,11 +224,11 @@ public class RepositoryIndexer
             throws IOException
     {
         final Builder booleanQueryBuilder = new Builder();
-       
+
         booleanQueryBuilder.add(getIndexer().constructQuery(MAVEN.SHA1, new SourcedSearchExpression(checksum)), MUST);
-        
+
         final BooleanQuery booleanQuery = booleanQueryBuilder.build();
-        
+
         logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
                      new String[]{ booleanQuery.toString(),
                                    indexingContext.getId(),

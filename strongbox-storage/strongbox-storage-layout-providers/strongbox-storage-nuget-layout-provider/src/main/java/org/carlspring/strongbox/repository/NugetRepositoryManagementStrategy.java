@@ -63,14 +63,6 @@ public class NugetRepositoryManagementStrategy
         }
     }
 
-    @Override
-    public void initializeRepository(String storageId,
-                                     String repositoryId)
-        throws RepositoryInitializationException
-    {
-
-    }
-
     private void createRemoteFeedDownloaderCronTask(String storageId,
                                                     String repositoryId)
         throws RepositoryManagementStrategyException

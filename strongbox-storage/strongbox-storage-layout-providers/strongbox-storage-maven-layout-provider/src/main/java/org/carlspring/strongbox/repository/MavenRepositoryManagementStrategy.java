@@ -6,6 +6,8 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
+import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -20,7 +22,6 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
  * @author carlspring
@@ -39,6 +40,9 @@ public class MavenRepositoryManagementStrategy
     private RepositoryIndexerFactory repositoryIndexerFactory;
 
     @Inject
+    private ArtifactIndexesService artifactIndexesService;
+
+    @Inject
     private ConfigurationManager configurationManager;
 
     @Inject
@@ -49,6 +53,9 @@ public class MavenRepositoryManagementStrategy
 
     @Inject
     private MavenRepositoryFeatures repositoryFeatures;
+
+    @Inject
+    private MavenIndexGroupRepositoryComponent mavenIndexGroupRepositoryComponent;
     
     @Override
     protected void createRepositoryInternal(Storage storage, Repository repository)
@@ -81,6 +88,11 @@ public class MavenRepositoryManagementStrategy
 
             // Create a local index
             createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.LOCAL.getType(), repositoryBasedir);
+
+            if (repository.isGroupRepository())
+            {
+                mavenIndexGroupRepositoryComponent.initialize(repository);
+            }
         }
     }
 
@@ -149,60 +161,6 @@ public class MavenRepositoryManagementStrategy
             //noinspection ResultOfMethodCallIgnored
             new File(repositoryDir, ".trash").mkdirs();
         }
-    }
-
-    @Override
-    public void initializeRepository(String storageId,
-                                     String repositoryId)
-            throws RepositoryInitializationException
-    {
-        // initializeRepositoryIndexes(storageId, repositoryId);
-    }
-
-    public void initializeRepositoryIndexes(String storageId,
-                                            String repositoryId)
-            throws RepositoryInitializationException
-    {
-        try
-        {
-            Storage storage = getConfiguration().getStorage(storageId);
-
-            final File repositoryBasedir = new File(storage.getBasedir(), repositoryId);
-
-            Repository repository = storage.getRepository(repositoryId);
-            if (repositoryFeatures.isIndexingEnabled(repository))
-            {
-                initializeRepositoryIndex(storage, repositoryId, IndexTypeEnum.LOCAL.getType(), repositoryBasedir);
-
-                if (repository.isProxyRepository())
-                {
-                    initializeRepositoryIndex(storage, repositoryId, IndexTypeEnum.REMOTE.getType(), repositoryBasedir);
-                }
-            }
-        }
-        catch (RepositoryInitializationException e)
-        {
-            logger.error(e.getMessage(), e);
-        }
-    }
-
-    public void initializeRepositoryIndex(Storage storage,
-                                          String repositoryId,
-                                          String indexType,
-                                          File repositoryBasedir)
-            throws RepositoryInitializationException
-    {
-        final File indexDir = new File(repositoryBasedir, ".index/" + indexType);
-
-        RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(storage.getId(),
-                                                                                               repositoryId,
-                                                                                               indexType,
-                                                                                               repositoryBasedir,
-                                                                                               indexDir);
-
-        String contextId = getContextId(storage.getId(), repositoryId, IndexTypeEnum.LOCAL.getType());
-
-        repositoryIndexManager.addRepositoryIndexer(contextId, repositoryIndexer);
     }
 
     public Configuration getConfiguration()

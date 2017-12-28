@@ -2,8 +2,8 @@ package org.carlspring.strongbox.booters;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -47,6 +49,9 @@ public class StorageBooter
     @Inject
     private RepositoryManagementService repositoryManagementService;
 
+    @Inject
+    private GroupRepositorySetCollector groupRepositorySetCollector;
+
     private File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
 
 
@@ -65,19 +70,17 @@ public class StorageBooter
 
             initializeStorages();
 
-            final Configuration configuration = configurationManager.getConfiguration();
-            for (String storageKey : configuration.getStorages().keySet())
+            Collection<Repository> repositories = getRepositoriesHierarchy();
+
+            for (Repository repository : repositories)
             {
                 try
                 {
-                    Storage storage = configuration.getStorages().get(storageKey);
-                    initializeRepositories(storage);
+                    initializeRepository(repository);
                 }
                 catch (IOException e)
                 {
-                    logger.error("Failed to initialize the repositories for storage '" + storageKey + "'.", e);
-
-                    throw new RuntimeException("Failed to initialize the repositories for storage '" + storageKey + "'.");
+                    throw new RuntimeException("Failed to initialize the repository '" + repository + "'.");
                 }
             }
         }
@@ -192,44 +195,48 @@ public class StorageBooter
         return storagesBaseDir;
     }
 
-    private void initializeRepositories(Storage storageId)
+    private void initializeRepository(Repository repository)
             throws IOException, RepositoryManagementStrategyException
     {
-        for (Repository repository : storageId.getRepositories().values())
-        {
-            initializeRepository(storageId, repository.getId());
-            repository.setStorage(storageId);
-        }
-    }
-
-    private void initializeRepository(Storage storage,
-                                      String repositoryId)
-            throws IOException, RepositoryManagementStrategyException
-    {
-        final File repositoryBasedir = new File(storage.getBasedir(), repositoryId);
+        final File repositoryBasedir = new File(repository.getStorage().getBasedir(), repository.getId());
 
         logger.debug("  * Initializing '" + repositoryBasedir.getAbsolutePath() + "'...");
 
-        repositoryManagementService.createRepository(storage.getId(), repositoryId);
-
-        Repository repository = storage.getRepository(repositoryId);
-        LayoutProvider provider = layoutProviderRegistry.getProvider(repository.getLayout());
-        if (provider != null)
-        {
-            provider.getRepositoryManagementStrategy().initializeRepository(storage.getId(), repositoryId);
-        }
-        else /*if (ignoreMissingLayoutProviders)*/
-        {
-            logger.warn("Could not resolve layout provider implementation (" +
-                        repository.getLayout() + ") for " + storage.getId() + ":" + repositoryId + ".");
-        }
+        repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
 
         if (RepositoryStatusEnum.IN_SERVICE.getStatus().equals(repository.getStatus()))
         {
-            repositoryManagementService.putInService(storage.getId(), repositoryId);
+            repositoryManagementService.putInService(repository.getStorage().getId(), repository.getId());
         }
     }
 
+    private Collection<Repository> getRepositoriesHierarchy()
+    {
+        final Map<String, Repository> repositoriesHierarchy = new LinkedHashMap<>();
+        final Configuration configuration = configurationManager.getConfiguration();
+        for (final Storage storage : configuration.getStorages().values())
+        {
+            for (final Repository repository : storage.getRepositories().values())
+            {
+                repository.setStorage(storage);
+                addRepositoriesByChildrenFirst(repositoriesHierarchy, repository);
+            }
+        }
+        return repositoriesHierarchy.values();
+    }
+
+    private void addRepositoriesByChildrenFirst(final Map<String, Repository> repositoriesHierarchy,
+                                                final Repository repository)
+    {
+        if (!repository.isGroupRepository())
+        {
+            repositoriesHierarchy.putIfAbsent(repository.getId(), repository);
+            return;
+        }
+        groupRepositorySetCollector.collect(repository, true).stream().forEach(
+                r -> addRepositoriesByChildrenFirst(repositoriesHierarchy, r));
+        repositoriesHierarchy.putIfAbsent(repository.getId(), repository);
+    }
 
     public RepositoryManagementService getRepositoryManagementService()
     {

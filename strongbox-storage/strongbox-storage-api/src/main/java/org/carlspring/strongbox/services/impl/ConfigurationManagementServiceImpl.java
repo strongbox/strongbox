@@ -187,28 +187,30 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public List<Repository> getGroupRepositoriesContaining(String repositoryId)
+    public List<Repository> getGroupRepositoriesContaining(String storageId,
+                                                           String repositoryId)
     {
         List<Repository> groupRepositories = new ArrayList<>();
 
-        for (Storage storage : configurationManager.getConfiguration().getStorages().values())
-        {
-            groupRepositories.addAll(storage.getRepositories().values().stream()
-                                            .filter(repository -> repository.getType()
-                                                                            .equals(RepositoryTypeEnum.GROUP.getType()))
-                                            .filter(repository -> repository.getGroupRepositories()
-                                                                            .contains(repositoryId))
-                                            .collect(Collectors.toList()));
-        }
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+
+        groupRepositories.addAll(storage.getRepositories().values().stream()
+                                        .filter(repository -> repository.getType()
+                                                                        .equals(RepositoryTypeEnum.GROUP.getType()))
+                                        .filter(repository -> repository.getGroupRepositories()
+                                                                        .contains(repositoryId))
+                                        .collect(Collectors.toList()));
+
 
         return groupRepositories;
     }
 
     @Override
-    public void removeRepositoryFromAssociatedGroups(String repositoryId)
+    public void removeRepositoryFromAssociatedGroups(String storageId,
+                                                     String repositoryId)
             throws IOException, JAXBException
     {
-        List<Repository> includedInGroupRepositories = getGroupRepositoriesContaining(repositoryId);
+        List<Repository> includedInGroupRepositories = getGroupRepositoriesContaining(storageId, repositoryId);
 
         if (!includedInGroupRepositories.isEmpty())
         {
@@ -234,7 +236,7 @@ public class ConfigurationManagementServiceImpl
     {
         Configuration configuration = configurationManager.getConfiguration();
         configuration.getStorage(storageId).removeRepository(repositoryId);
-        removeRepositoryFromAssociatedGroups(repositoryId);
+        removeRepositoryFromAssociatedGroups(storageId, repositoryId);
 
         configurationManager.setConfiguration(configuration);
         configurationManager.store();

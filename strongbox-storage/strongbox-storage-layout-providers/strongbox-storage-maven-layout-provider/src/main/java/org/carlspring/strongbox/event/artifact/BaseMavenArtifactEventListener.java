@@ -1,14 +1,15 @@
 package org.carlspring.strongbox.event.artifact;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.repository.metadata.MavenMetadataGroupRepositoryComponent;
+import org.carlspring.strongbox.repository.group.metadata.MavenMetadataGroupRepositoryComponent;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-import java.nio.file.Path;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ abstract class BaseMavenArtifactEventListener
     MavenMetadataManager mavenMetadataManager;
 
     @Inject
-    MavenMetadataGroupRepositoryComponent mavenGroupRepositoryComponent;
+    MavenMetadataGroupRepositoryComponent mavenMetadataGroupRepositoryComponent;
 
     Repository getRepository(final ArtifactEvent event)
     {
@@ -45,14 +46,20 @@ abstract class BaseMavenArtifactEventListener
     }
 
     void updateMetadataInGroupsContainingRepository(final ArtifactEvent event,
-                                                    final Function<Path, Path> artifactBasePathCalculation)
+                                                    final Function<RepositoryPath, RepositoryPath> artifactBasePathCalculation)
     {
+
+        final Repository repository = getRepository(event);
+        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        final RepositoryPath repositoryAbsolutePath = layoutProvider.resolve(repository);
+        final RepositoryPath artifactAbsolutePath = repositoryAbsolutePath.resolve(event.getPath());
+        final RepositoryPath artifactBasePath = artifactBasePathCalculation.apply(artifactAbsolutePath);
+
         try
         {
-            mavenGroupRepositoryComponent.updateMetadataInGroupsContainingRepository(event.getStorageId(),
-                                                                                     event.getRepositoryId(),
-                                                                                     event.getPath(),
-                                                                                     artifactBasePathCalculation);
+            mavenMetadataGroupRepositoryComponent.updateGroupsContaining(event.getStorageId(),
+                                                                         event.getRepositoryId(),
+                                                                         artifactBasePath.relativize().toString());
         }
         catch (Exception e)
         {

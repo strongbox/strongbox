@@ -6,7 +6,6 @@ import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
@@ -32,7 +31,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  * @author mtodorov
  */
 public class TestCaseWithMavenArtifactGeneration
-        extends TestCaseWithRepository
+        extends TestCaseWithRepositoryManagement
 {
 
     @Inject
