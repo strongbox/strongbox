@@ -30,10 +30,13 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 import javax.inject.Inject;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.base.Throwables;
+
+import io.restassured.http.Headers;
 import io.restassured.response.ExtractableResponse;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -192,7 +195,7 @@ public class MavenArtifactControllerTest
         //noinspection ResultOfMethodCallIgnored
         new File(TEST_RESOURCES).mkdirs();
     }
-
+    
     @Override
     public void shutdown()
     {
@@ -279,7 +282,35 @@ public class MavenArtifactControllerTest
         assertEquals("MD5 checksums did not match!", md5Local, md5Remote);
         assertEquals("SHA-1 checksums did not match!", sha1Local, sha1Remote);
     }
+    
+    @Test
+    public void testHeadersFetch()
+            throws Exception
+    {   
+        String artifactPath;
+        Headers headersFromGET, headersFromHEAD;
+        
+        /* Hosted Repository */
+        artifactPath = "storages/storage0/act-releases-1/org/carlspring/strongbox/browse/foo-bar/2.4/foo-bar-2.4.pom";
+        headersFromGET = client.getHeadersFromGET(artifactPath);
+        headersFromHEAD = client.getHeadersfromHEAD(artifactPath);
+        assertHeadersEquals(headersFromGET,headersFromHEAD);
 
+        /*Proxy Repository */
+        artifactPath = "storages/storage-common-proxies/maven-central/" +
+                "org/carlspring/maven/maven-commons/1.1/maven-commons-1.1.jar";
+        headersFromGET = client.getHeadersFromGET(artifactPath);
+        headersFromHEAD = client.getHeadersfromHEAD(artifactPath);
+        assertHeadersEquals(headersFromGET,headersFromHEAD);
+
+        /*Group Repository */
+        artifactPath = "storages/storage-common-proxies/group-common-proxies/" +
+                "org/carlspring/maven/derby-maven-plugin/1.8/derby-maven-plugin-1.8.jar";
+        headersFromGET = client.getHeadersFromGET(artifactPath);
+        headersFromHEAD = client.getHeadersfromHEAD(artifactPath);
+        assertHeadersEquals(headersFromGET,headersFromHEAD);
+    }
+    
     @Test
     public void testPartialFetch()
             throws Exception

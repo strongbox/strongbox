@@ -1,3 +1,4 @@
+
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
@@ -67,21 +68,107 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     @Override
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
-                                              String artifactPath)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
-    {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository groupRepository = storage.getRepository(repositoryId);
-
-        ArtifactInputStream is = resolveDirectlyFromGroupPathIfPossible(storageId, repositoryId, artifactPath);
-        if (is != null)
+                                              String path)
+                            throws IOException,
+                                   NoSuchAlgorithmException,
+                                   ArtifactTransportException,
+                                   ProviderImplementationException
+    {   
+        RepositoryPath artifactPath = getPath(storageId, repositoryId, path);
+        
+        if(artifactPath == null)
         {
-            return is;
+            logger.debug("Could not resolve path to artifact in Group Repository");
+            return null;
+        }
+                        
+        logger.debug("Resolved path for Group Repository = " + artifactPath);
+        
+        Repository repository = artifactPath.getFileSystem().getRepository();
+        String resolvedStorageId = repository.getStorage().getId();
+        String resolvedRepositoryId = repository.getId();
+        String resolvedPath = artifactPath.relativize().toString();
+        RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
+        
+        //If current repository is a group repository present in local cache
+        if(getAlias().equals(provider.getAlias()) && Files.exists(artifactPath))
+        {
+            return (ArtifactInputStream)Files.newInputStream(artifactPath);
+        }
+        
+        ArtifactInputStream is = provider.getInputStream(resolvedStorageId,
+                                                         resolvedRepositoryId,
+                                                         resolvedPath);
+        return is;
+    }
+
+    /**
+     * Returns the artifact associated to artifactPath if repository type isn't GROUP or
+     * returns the product of calling getInputStream recursively otherwise.
+     *
+     * @param storageId    The storage id
+     * @param repositoryId The repository
+     * @param artifactPath The path to the artifact
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     * @throws ArtifactTransportException
+     */
+    public RepositoryPath resolvePath(String storageId,
+                                      String repositoryId,
+                                      String artifactPath)
+                           throws NoSuchAlgorithmException,
+                                  IOException,
+                                  ArtifactTransportException,
+                                  ProviderImplementationException
+    {
+        RepositoryPath path;
+
+        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+
+        if (!getAlias().equals(repository.getType()))
+        {
+            path = getPath(repository, artifactPath);
+            if (path != null)
+            {
+                logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
+                return path;
+            }
+        }
+        else
+        {
+            path = getPath(storageId, repository.getId(), artifactPath);
+            if (path != null)
+            {
+                logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
+                return path;
+            }
         }
 
+        return null;
+    }
+
+    @Override
+    public RepositoryPath getPath(String storageId,
+                                  String repositoryId,
+                                  String artifactPath)
+                         throws IOException,
+                                NoSuchAlgorithmException,
+                                ArtifactTransportException,
+                                ProviderImplementationException
+    {
+        final Storage storage = getConfiguration().getStorage(storageId);
+        final Repository groupRepository = storage.getRepository(repositoryId);
+        final LayoutProvider<?>layoutProvider = layoutProviderRegistry.getProvider(groupRepository.getLayout());
+        RepositoryPath path = null;
+
+        path = layoutProvider.resolve(groupRepository).resolve(artifactPath);
+
+        if(Files.exists(path))
+        {
+            return path;
+        }
+        
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
         {
             String sId = getConfigurationManager().getStorageId(storage, storageAndRepositoryId);
@@ -99,108 +186,38 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             }
             try
             {
-                is = resolveArtifact(sId, r.getId(), artifactPath);
+                path = resolvePath(sId, r.getId(), artifactPath);
             }
             catch (IOException e)
             {
                 continue;
             }
-            if (is != null)
+            if (path != null)
             {
-                return is;
+                return path;
             }
         }
-
         return null;
     }
 
-    private ArtifactInputStream resolveDirectlyFromGroupPathIfPossible(final String storageId,
-                                                                       final String repositoryId,
-                                                                       final String path)
-            throws IOException
-    {
-
-        final Storage storage = getConfiguration().getStorage(storageId);
-        final Repository repository = storage.getRepository(repositoryId);
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-        final RepositoryFileAttributes artifactFileAttributes;
-        try
-        {
-            artifactFileAttributes = Files.readAttributes(artifactPath, RepositoryFileAttributes.class);
-        }
-        catch (NoSuchFileException ex)
-        {
-            return null;
-        }
-        return artifactFileAttributes.isMetadata() ?
-               hostedRepositoryProvider.getInputStream(storageId, repositoryId, path) : null;
-    }
-
-    /**
-     * Returns the artifact associated to artifactPath if repository type isn't GROUP or
-     * returns the product of calling getInputStream recursively otherwise.
-     *
-     * @param storageId    The storage id
-     * @param repositoryId The repository
-     * @param artifactPath The path to the artifact
-     * @return
-     * @throws NoSuchAlgorithmException
-     * @throws IOException
-     * @throws ArtifactTransportException
-     */
-    private ArtifactInputStream resolveArtifact(String storageId,
-                                                String repositoryId,
-                                                String artifactPath)
-            throws NoSuchAlgorithmException,
-                   IOException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
-    {
-        ArtifactInputStream is;
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-
-        if (!getAlias().equals(repository.getType()))
-        {
-            is = getInputStream(repository, artifactPath);
-            if (is != null)
-            {
-                logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
-                return is;
-            }
-        }
-        else
-        {
-            is = getInputStream(storageId, repository.getId(), artifactPath);
-            if (is != null)
-            {
-                logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
-                return is;
-            }
-        }
-
-        return null;
-    }
-
-    private ArtifactInputStream getInputStream(Repository repository, String artifactPath)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
-    {
+    private RepositoryPath getPath(Repository repository, String path)
+                            throws IOException,
+                                   NoSuchAlgorithmException,
+                                   ArtifactTransportException,
+                                   ProviderImplementationException
+    {     
         RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
-        ArtifactInputStream is = provider.getInputStream(repository.getStorage().getId(),
-                                                         repository.getId(),
-                                                         artifactPath);
-
-        return is;
+        RepositoryPath artifactPath = (RepositoryPath)provider.getPath(repository.getStorage().getId(),
+                                                                       repository.getId(),
+                                                                       path);
+        return artifactPath;
     }
 
     @Override
     public ArtifactOutputStream getOutputStream(String storageId,
                                                 String repositoryId,
                                                 String artifactPath)
-            throws IOException
+                                  throws IOException
     {
         // It should not be possible to write artifacts to a group repository.
         // A group repository should only serve artifacts that already exist
@@ -270,11 +287,11 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
                 // count coordinates intersection
                 groupLimit += repositoryResult.stream()
-                                              .map((p) -> resultMap.put(getArtifactCoordinates(p),
-                                                                        p))
-                                              .filter(p ->  p != null)
-                                              .collect(Collectors.toList())
-                                              .size();
+                        .map((p) -> resultMap.put(getArtifactCoordinates(p),
+                                                  p))
+                        .filter(p ->  p != null)
+                        .collect(Collectors.toList())
+                        .size();
 
                 //Break search iterations if we have reached enough list size.
                 if (resultMap.size() >= limit + skip)
@@ -308,11 +325,11 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                                                       boolean traverse)
     {
         Set<Repository> result = groupRepository.getGroupRepositories()
-                                                .stream()
-                                                .map(groupRepoId -> {
-                                                    return getRepository(groupRepository.getStorage(), groupRepoId);
-                                                })
-                                                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .stream()
+                .map(groupRepoId -> {
+                    return getRepository(groupRepository.getStorage(), groupRepoId);
+                })
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         if (!traverse)
         {
@@ -368,12 +385,14 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         Set<Pair<String, String>> storageRepositoryPairSet = collectGroupRepositorySet(groupRepository,
                                                                                        true).stream()
-                                                                                            .map(r -> Pair.with(r.getStorage()
-                                                                                                                 .getId(),
-                                                                                                                r.getId()))
-                                                                                            .collect(Collectors.toCollection(LinkedHashSet::new));
+                .map(r -> Pair.with(r.getStorage()
+                                    .getId(),
+                                    r.getId()))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         return artifactEntryService.countCoordinates(storageRepositoryPairSet, searchRequest.getCoordinates(),
                                                      searchRequest.isStrict());
     }
+
+
 }

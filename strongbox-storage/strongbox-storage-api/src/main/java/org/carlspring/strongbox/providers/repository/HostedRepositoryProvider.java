@@ -10,9 +10,11 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -55,24 +57,28 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
                                               String path)
-            throws IOException
+                                throws IOException, 
+                                       NoSuchAlgorithmException,
+                                       ArtifactTransportException,
+                                       ProviderImplementationException
     {
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-
+        final Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-
+        
+        logger.debug("Path in Hosted Repository = " + artifactPath);
+                
         logger.debug(" -> Checking local cache for {} ...", artifactPath);
         if (layoutProvider.containsPath(repository, path))
         {
             logger.debug("The artifact {} was found in the local cache", artifactPath);
-            return (ArtifactInputStream) Files.newInputStream(artifactPath);
+            return (ArtifactInputStream)Files.newInputStream(artifactPath);
         }
 
         logger.debug("The artifact {} was not found in the local cache", artifactPath);
         return null;
     }
-
+        
     @Override
     public ArtifactOutputStream getOutputStream(String storageId,
                                                 String repositoryId,
@@ -85,7 +91,9 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         RepositoryPath repositoryPath = layoutPtovider.resolve(repository).resolve(path);
         return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
     }
-
+    
+    
+    
     @Override
     public List<Path> search(RepositorySearchRequest searchRequest,
                              RepositoryPageRequest pageRequest)
@@ -129,4 +137,25 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
                                                    searchRequest.getCoordinates(), searchRequest.isStrict());
     }
 
+    @Override
+    public RepositoryPath getPath(String storageId,
+                                  String repositoryId,
+                                  String path)
+                 throws IOException,
+                        NoSuchAlgorithmException,
+                        ArtifactTransportException,
+                        ProviderImplementationException
+    {
+        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+
+        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
+        
+        if(layoutProvider.containsPath(repository, path))
+        {
+            return artifactPath;
+        }
+        
+        return null;
+    }
 }

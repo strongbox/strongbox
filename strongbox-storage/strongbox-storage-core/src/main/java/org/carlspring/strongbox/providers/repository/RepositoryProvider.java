@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -9,6 +10,8 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+
+
 
 /**
  * @author carlspring
@@ -34,5 +37,13 @@ public interface RepositoryProvider
     List<Path> search(RepositorySearchRequest searchRequest, RepositoryPageRequest pageRequest);
     
     Long count(RepositorySearchRequest searchRequest);
+    
+    Path getPath(String storageId,
+                 String repositoryId,
+                 String artifactPath)
+           throws IOException,
+                  NoSuchAlgorithmException,
+                  ArtifactTransportException,
+                  ProviderImplementationException;
 
 }

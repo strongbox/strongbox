@@ -13,6 +13,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,9 +27,12 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -316,7 +320,7 @@ public class NugetPackageController extends BaseArtifactController
                                 @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
                                 @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
                                 HttpServletResponse response)
-            throws IOException
+            throws Exception
     {
         getPackageInternal(storageId, repositoryId, packageId, packageVersion, response);
     }
@@ -331,7 +335,7 @@ public class NugetPackageController extends BaseArtifactController
                            @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
                            @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
                            HttpServletResponse response)
-            throws IOException
+            throws Exception
     {
         getPackageInternal(storageId, repositoryId, packageId, packageVersion, response);
     }    
@@ -340,8 +344,8 @@ public class NugetPackageController extends BaseArtifactController
                                     String repositoryId,
                                     String packageId,
                                     String packageVersion,
-                                    HttpServletResponse response)
-        throws IOException
+                                    HttpServletResponse response) 
+                    throws Exception                   
     {
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -358,23 +362,116 @@ public class NugetPackageController extends BaseArtifactController
         String fileName = String.format("%s.%s.nupkg", packageId, packageVersion);
         String path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
 
+        
+        ArtifactInputStream is = getArtifactInputStream(storageId,
+                                                            repositoryId,
+                                                            packageId,
+                                                            packageVersion,
+                                                            response,
+                                                            path,
+                                                            fileName);
+        if(is == null)
+        {
+            return;
+        }
+        
+        copyToResponse(is, response);
+            
+        setHeaders(is, response, storageId, repositoryId, path, fileName);
+       
+    }
+    
+    @ApiOperation(value = "Used to download the headers for a package")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was downloaded successfully."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(path = "{storageId}/{repositoryId}/{commandName:(?:download|package)}/{packageId}/{packageVersion}", method = RequestMethod.HEAD, produces = MediaType.APPLICATION_OCTET_STREAM)
+    public void downloadPackageHeaders(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
+                                @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
+                                HttpServletResponse response)
+            throws IOException, 
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException
+    {
+        getHeaders(storageId, repositoryId, packageId, packageVersion, response);
+    }
+    
+    @ApiOperation(value = "Used to download the headers for a package")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was downloaded successfully."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(path = "{storageId}/{repositoryId}/{packageId}/{packageVersion}", method = RequestMethod.HEAD, produces = MediaType.APPLICATION_OCTET_STREAM)
+    public void getPackageHeaders(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                           @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                           @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
+                           @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
+                           HttpServletResponse response)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException
+    {
+        getHeaders(storageId, repositoryId, packageId, packageVersion, response);
+    } 
+    
+    private void getHeaders(String storageId,
+                            String repositoryId,
+                            String packageId,
+                            String packageVersion,
+                            HttpServletResponse response)
+                   throws IOException,
+                          NoSuchAlgorithmException,
+                          ProviderImplementationException
+    {
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        if (!repository.isInService())
+        {
+            logger.error("Repository is not in service...");
+
+            response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(),
+                               "The " + storageId + ":" + repositoryId + " repository is currently out of service.");
+            return;
+        }
+        
+        String fileName = String.format("%s.%s.nupkg", packageId, packageVersion);
+        String path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
+        
+        ArtifactInputStream is = getArtifactInputStream(storageId,
+                                                        repositoryId,
+                                                        packageId,
+                                                        packageVersion,
+                                                        response,
+                                                        path,
+                                                        fileName);
+        if(is == null)
+        {
+            return;
+        }
+        
+        setHeaders(is, response, storageId, repositoryId, path, fileName);
+    }
+    private ArtifactInputStream getArtifactInputStream(String storageId,
+                                                       String repositoryId,
+                                                       String packageId,
+                                                       String packageVersion,
+                                                       HttpServletResponse response,
+                                                       String path,
+                                                       String fileName)
+    {   
+        ArtifactInputStream is;
         try
         {
-            ArtifactInputStream is = (ArtifactInputStream) getArtifactManagementService().resolve(storageId,
-                                                                                                  repositoryId,
-                                                                                                  path);
+            is = (ArtifactInputStream) getArtifactManagementService().resolve(storageId, repositoryId, path);
             if (is == null)
             {
                 logger.debug("Unable to find artifact by path " + path);
 
                 response.setStatus(NOT_FOUND.value());
-                return;
+                return null;
             }
-
-            response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
-            
-            copyToResponse(is, response);
-            ArtifactControllerHelper.setHeadersForChecksums(is, response);
         }
         catch (Exception e)
         {
@@ -383,12 +480,87 @@ public class NugetPackageController extends BaseArtifactController
                                        repositoryId,
                                        packageId,
                                        packageVersion),
-                         e);
+                                       e);
 
             response.setStatus(INTERNAL_SERVER_ERROR.value());
+            return null;
         }
+        return is;
     }
+  
+    private void setHeaders(ArtifactInputStream ais,
+                            HttpServletResponse response,
+                            String storageId,
+                            String repositoryId,
+                            String path,
+                            String fileName) 
+                 throws IOException,
+                        NoSuchAlgorithmException,
+                        ProviderImplementationException
+    {      
+        RepositoryFileAttributes fileAttributes = getRepositoryFileAttributes(storageId, 
+                                                                              repositoryId, 
+                                                                              path, 
+                                                                              response);
+        
+        if(fileAttributes == null)
+        {
+            return ;
+        }
+        
+        response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
+        
+        response.setHeader("Last-Updated",fileAttributes.lastModifiedTime().toString());
+        
+        response.setHeader("Accept-Ranges", "bytes");
+        
+        if(!response.containsHeader("Content-Length"))
+        {
+            long totalBytes = 0L;
+            int readLength;
+            byte[] bytes = new byte[4096];
+            
+            while ((readLength = ais.read(bytes, 0, bytes.length)) != -1)
+            {
+                totalBytes += readLength;
+            }
+        
+            response.setHeader("Content-Length", Long.toString(totalBytes));
+        }
+               
+        ArtifactControllerHelper.setHeadersForChecksums(ais, response);
+    }
+    
+    private RepositoryFileAttributes getRepositoryFileAttributes(String storageId,
+                                                                 String repositoryId,
+                                                                 String path,
+                                                                 HttpServletResponse response) 
+                                    throws NoSuchAlgorithmException, 
+                                           ProviderImplementationException
+    {   
+        RepositoryFileAttributes fileAttributes;
+        try
+        {
+            fileAttributes =  getArtifactManagementService().getAttributes(storageId, repositoryId, path);
 
+            if (fileAttributes == null)
+            {
+                response.setStatus(NOT_FOUND.value());
+                return null;
+            }
+        }
+        catch (ArtifactTransportException e)
+        {
+            logger.debug("Unable to retrieve headers for artifact by path " + path, e);
+
+            response.setStatus(NOT_FOUND.value());
+
+            return null;
+        }
+        
+        return fileAttributes;
+    }
+    
     private String extractBoundary(String contentType)
     {
         String boundaryString = "";

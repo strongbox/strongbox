@@ -14,9 +14,13 @@ import org.carlspring.strongbox.event.CommonEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -95,6 +99,24 @@ public class ProxyRepositoryProvider
     public Long count(RepositorySearchRequest searchRequest)
     {
         return hostedRepositoryProvider.count(searchRequest);
+    }
+
+    @Override
+    public RepositoryPath getPath(String storageId,
+                                  String repositoryId,
+                                  String path)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
+    {   
+        final Storage storage = getConfiguration().getStorage(storageId);
+        final Repository repository = storage.getRepository(repositoryId);
+        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        
+        RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
+        
+        return artifactPath;
     }
     
 }

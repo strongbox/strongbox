@@ -5,6 +5,9 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -19,6 +22,7 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -120,6 +124,76 @@ public class MavenArtifactController
                          HttpServletResponse response)
             throws Exception
     {
+        ArtifactInputStream is = getArtifactInputStream(storageId,
+                                                        repositoryId,
+                                                        path,
+                                                        response,
+                                                        request,
+                                                        httpHeaders);
+        
+        if(is == null)
+        {
+            return;
+        }
+        RepositoryFileAttributes fileAttributes = getRepositoryFileAttributes(storageId,
+                                                                              repositoryId,
+                                                                              path,
+                                                                              response);
+
+        copyToResponse(is, response);
+        
+        setHeaders(is, response, fileAttributes, path);
+
+        logger.debug("Download succeeded.");
+    }
+    
+    @ApiOperation(value = "Used to retrieve headers of an artifact", position = 2)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
+                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = RequestMethod.HEAD)
+    public void getHeaders(@ApiParam(value = "The storageId", required = true)
+                           @PathVariable String storageId,
+                           @ApiParam(value = "The repositoryId", required = true)
+                           @PathVariable String repositoryId,
+                           @RequestHeader HttpHeaders httpHeaders,
+                           @PathVariable String path,
+                           HttpServletRequest request,
+                           HttpServletResponse response)
+            throws Exception
+    {
+       ArtifactInputStream is = getArtifactInputStream(storageId,
+                                                       repositoryId,
+                                                       path,
+                                                       response,
+                                                       request,
+                                                       httpHeaders);
+       
+       if(is == null)
+       {
+           return;
+       }
+       
+       RepositoryFileAttributes fileAttributes = getRepositoryFileAttributes(storageId,
+                                                                             repositoryId,
+                                                                             path,
+                                                                             response);
+               
+        setHeaders(is, response, fileAttributes, path);
+        
+        logger.debug("Header Download succeeded.");
+    }
+    
+    private ArtifactInputStream getArtifactInputStream(String storageId,
+                                                       String repositoryId,
+                                                       String path,
+                                                       HttpServletResponse response,
+                                                       HttpServletRequest request,
+                                                       HttpHeaders httpHeaders) 
+                                throws IOException,
+                                       ProviderImplementationException
+                                                       
+    {
         logger.debug("Requested /" + storageId + "/" + repositoryId + "/" + path + ".");
 
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
@@ -129,7 +203,7 @@ public class MavenArtifactController
 
             response.sendError(INTERNAL_SERVER_ERROR.value(), "Unable to find storage by ID " + storageId);
 
-            return;
+            return null;
         }
 
         Repository repository = storage.getRepository(repositoryId);
@@ -139,7 +213,7 @@ public class MavenArtifactController
 
             response.sendError(INTERNAL_SERVER_ERROR.value(),
                                "Unable to find repository by ID " + repositoryId + " for storage " + storageId);
-            return;
+            return null;
         }
 
         if (!repository.isInService())
@@ -148,7 +222,7 @@ public class MavenArtifactController
 
             response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 
-            return;
+            return null;
         }
 
         if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
@@ -164,8 +238,8 @@ public class MavenArtifactController
 
                 response.setStatus(INTERNAL_SERVER_ERROR.value());
             }
-
-            return;
+            logger.debug("xxx");
+            return null;
         }
 
         ArtifactInputStream is;
@@ -175,7 +249,7 @@ public class MavenArtifactController
             if (is == null)
             {
                 response.setStatus(NOT_FOUND.value());
-                return;
+                return null;
             }
 
             if (isRangedRequest(httpHeaders))
@@ -187,8 +261,6 @@ public class MavenArtifactController
 
             artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storage.getId(), repository.getId(), path);
 
-            copyToResponse(is, response);
-
             artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storage.getId(), repository.getId(), path);
         }
         catch (ArtifactResolutionException | ArtifactTransportException e)
@@ -197,16 +269,70 @@ public class MavenArtifactController
 
             response.setStatus(NOT_FOUND.value());
 
-            return;
+            return null;
         }
+        
+        return is;
+    }
+    
+    private RepositoryFileAttributes getRepositoryFileAttributes(String storageId,
+                                                                 String repositoryId,
+                                                                 String path,
+                                                                 HttpServletResponse response) 
+                                       throws NoSuchAlgorithmException,
+                                              ProviderImplementationException
+    {
+        RepositoryFileAttributes fileAttributes;
+        try
+        {
+            fileAttributes =  getArtifactManagementService().getAttributes(storageId, repositoryId, path);
 
-        setMediaTypeHeader(path, response);
+            if (fileAttributes == null)
+            {
+                response.setStatus(NOT_FOUND.value());
+                return null;
+            }
+        }
+        catch (ArtifactTransportException e)
+        {
+            logger.debug("Unable to find artifact by path " + path, e);
 
+            response.setStatus(NOT_FOUND.value());
+
+            return null;
+        }
+        
+        return fileAttributes;
+    }
+    
+    
+    private void setHeaders(ArtifactInputStream ais,
+                            HttpServletResponse response,
+                            RepositoryFileAttributes fileAttributes,
+                            String path) 
+                 throws IOException
+    {      
         response.setHeader("Accept-Ranges", "bytes");
-
-        ArtifactControllerHelper.setHeadersForChecksums(is, response);
-
-        logger.debug("Download succeeded.");
+        
+        if(!response.containsHeader("Content-Length"))
+        {
+            long totalBytes = 0L;
+            int readLength;
+            byte[] bytes = new byte[4096];
+            
+            while ((readLength = ais.read(bytes, 0, bytes.length)) != -1)
+            {
+                totalBytes += readLength;
+            }
+        
+            response.setHeader("Content-Length", Long.toString(totalBytes));
+        }
+        
+        response.setHeader("Last-Updated",fileAttributes.lastModifiedTime().toString());
+        
+        ArtifactControllerHelper.setHeadersForChecksums(ais, response);
+        
+        setMediaTypeHeader(path, response);
     }
 
     private void setMediaTypeHeader(String path,

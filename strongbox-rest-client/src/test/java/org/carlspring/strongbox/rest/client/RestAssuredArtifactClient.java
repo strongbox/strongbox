@@ -366,4 +366,58 @@ public class RestAssuredArtifactClient
                            .asString();
     }
 
+    public Headers getHeadersfromHEAD(String url)
+    {
+        MockMvcRequestSpecification o = givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE);
+        int statusCode = OK;
+       
+        logger.debug("[getHeadersForArtifact] URL " + url);
+
+        MockMvcResponse response = o.when().head(url);
+        Headers allHeaders = response.getHeaders();
+
+        logger.debug("HTTP HEAD " + url);
+        logger.debug("Response headers:");
+
+        allHeaders.forEach(header -> logger.debug("\t" + header.getName() + " = " + header.getValue()));
+        
+        if (response.getStatusCode() == OK || response.getStatusCode() == PARTIAL_CONTENT)
+        {
+            logger.debug("Received headers successfully.");
+            return allHeaders;
+        }
+        else
+        {
+            logger.warn("[getArtifactAsByteArray] response " + response.getStatusCode());
+            return null;
+        }
+    }
+    
+    public Headers getHeadersFromGET(String url)
+    {
+        MockMvcRequestSpecification o = givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE);
+        int statusCode = OK;
+       
+        logger.debug("[getArtifact] URL " + url);
+
+        MockMvcResponse response = o.when().get(url);
+        Headers allHeaders = response.getHeaders();
+
+        logger.debug("HTTP GET " + url);
+        logger.debug("Response headers:");
+
+        allHeaders.forEach(header -> logger.debug("\t" + header.getName() + " = " + header.getValue()));
+        
+        if (response.getStatusCode() == OK || response.getStatusCode() == PARTIAL_CONTENT)
+        {
+            logger.debug("Received headers successfully.");
+            return allHeaders;
+        }
+        else
+        {
+            logger.warn("[getArtifactAsByteArray] response " + response.getStatusCode());
+            return null;
+        }
+    }
+
 }

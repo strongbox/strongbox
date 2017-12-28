@@ -14,6 +14,7 @@ import javax.inject.Qualifier;
 
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -61,7 +62,10 @@ public class LocalStorageProxyRepositoryArtifactResolver
     @Override
     protected InputStream preProxyRepositoryAccessAttempt(final Repository repository,
                                                           final String path)
-            throws IOException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
         final Storage storage = repository.getStorage();
 

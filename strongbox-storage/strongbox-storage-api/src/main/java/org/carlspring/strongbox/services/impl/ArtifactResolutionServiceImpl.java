@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
 import javax.inject.Inject;
@@ -14,8 +15,11 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.repository.GroupRepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -24,16 +28,20 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+
 
 /**
  * @author mtodorov
  */
 @Component
 public class ArtifactResolutionServiceImpl
-        implements ArtifactResolutionService
+implements ArtifactResolutionService
 {
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactResolutionServiceImpl.class);
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -51,18 +59,36 @@ public class ArtifactResolutionServiceImpl
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
                                               String artifactPath)
-        throws IOException,
-        NoSuchAlgorithmException,
-        ArtifactTransportException,
-        ProviderImplementationException
+                                throws IOException,
+                                       NoSuchAlgorithmException,
+                                       ArtifactTransportException,
+                                       ProviderImplementationException
     {
         artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
 
         final Repository repository = getStorage(storageId).getRepository(repositoryId);
-
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        ArtifactInputStream is = repositoryProvider.getInputStream(storageId, repositoryId, artifactPath);
+        logger.debug("Requested Repository Type = "+repositoryProvider.getAlias());
+
+        RepositoryPath path = null;
+
+        path = (RepositoryPath)(repositoryProvider.getPath(storageId, repositoryId, artifactPath));
+        if(path == null)
+        {
+            logger.error("Failed to resolve path for requested artifact");
+            return null;
+        }
+
+        Repository resolvedRepository = path.getFileSystem().getRepository();
+        RepositoryProvider resolvedRepositoryProvider = repositoryProviderRegistry.getProvider(resolvedRepository.getType());
+        String resolvedStorageId = resolvedRepository.getStorage().getId();
+        String resolvedRepositoryId = resolvedRepository.getId();
+        String resolvedPath = path.relativize().toString();
+
+        ArtifactInputStream is = resolvedRepositoryProvider.getInputStream(resolvedStorageId,
+                                                                           resolvedRepositoryId,
+                                                                           resolvedPath);
         if (is == null)
         {
             throw new ArtifactResolutionException("Artifact " + artifactPath + " not found.");
@@ -75,9 +101,9 @@ public class ArtifactResolutionServiceImpl
     public ArtifactOutputStream getOutputStream(String storageId,
                                                 String repositoryId,
                                                 String artifactPath)
-        throws IOException,
-        ProviderImplementationException,
-        NoSuchAlgorithmException
+                                throws IOException,
+                                       ProviderImplementationException,
+                                       NoSuchAlgorithmException
     {
         artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
 
@@ -114,8 +140,8 @@ public class ArtifactResolutionServiceImpl
     public URL resolveArtifactResource(String storageId,
                                        String repositoryId,
                                        ArtifactCoordinates artifactCoordinates)
-        throws MalformedURLException,
-        IOException
+                throws MalformedURLException,
+                       IOException
     {
         URI baseUri = configurationManager.getBaseUri();
 
@@ -124,11 +150,46 @@ public class ArtifactResolutionServiceImpl
         URI artifactResource = layoutProvider.resolveResource(repository, artifactCoordinates.toPath());
 
         return UriComponentsBuilder.fromUri(baseUri)
-                                   .pathSegment("storages", storageId, repositoryId, "/")
-                                   .build()
-                                   .toUri()
-                                   .resolve(artifactResource)
-                                   .toURL();
+                .pathSegment("storages", storageId, repositoryId, "/")
+                .build()
+                .toUri()
+                .resolve(artifactResource)
+                .toURL();
     }
-    
+
+    @Override
+    public RepositoryFileAttributes getAttributes(String storageId,
+                                                  String repositoryId,
+                                                  String artifactPath) 
+                                    throws IOException,
+                                           NoSuchAlgorithmException, 
+                                           ArtifactTransportException, 
+                                           ProviderImplementationException
+    {                
+        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
+
+        final Repository repository = getStorage(storageId).getRepository(repositoryId);
+        
+        RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+
+        logger.debug("Requested Repository Type = "+repositoryProvider.getAlias());
+
+        RepositoryPath path = null;
+
+        path = (RepositoryPath)repositoryProvider.getPath(storageId, repositoryId, artifactPath);
+
+        if(path == null)
+        {
+            logger.error("Failed to resolve path for requested artifact");
+            return null;
+        }
+
+        RepositoryFileAttributes fileAttributes = (RepositoryFileAttributes) Files.readAttributes(path, RepositoryFileAttributes.class);
+        if (fileAttributes == null)
+        {
+            throw new ArtifactResolutionException("Artifact " + artifactPath + " not found.");
+        }
+
+        return fileAttributes;
+    }
 }

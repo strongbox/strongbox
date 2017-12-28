@@ -104,7 +104,6 @@ public abstract class ProxyRepositoryArtifactResolver
                     artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(storageId, repositoryId, path);
                 }
 
-
                 return is;
             }
         }
@@ -121,7 +120,10 @@ public abstract class ProxyRepositoryArtifactResolver
 
     protected InputStream preProxyRepositoryAccessAttempt(Repository repository,
                                                           String path)
-            throws IOException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
         return null;
     }
