@@ -14,6 +14,7 @@ import io.swagger.annotations.*;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -45,8 +46,7 @@ public class SearchController
      */
     @ApiOperation(value = "Used to search for artifacts.", response = SearchResults.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
-    // TODO: Make this configurable
-    // @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
+    @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
     @RequestMapping(value = "",
                     method = RequestMethod.GET,
                     consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
