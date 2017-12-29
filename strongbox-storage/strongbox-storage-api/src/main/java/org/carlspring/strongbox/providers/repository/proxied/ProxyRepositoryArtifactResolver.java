@@ -63,7 +63,7 @@ public abstract class ProxyRepositoryArtifactResolver
         {
             return candidate;
         }
-        
+
         final RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (!remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository))
         {
@@ -85,7 +85,7 @@ public abstract class ProxyRepositoryArtifactResolver
             }
             catch(IllegalArgumentException e)
             {
-                getLogger().debug("Cannot resolve invalid path " + path);
+                getLogger().debug("Cannot resolve invalid path " + path + ". Exception : " + e);
                 return null;
             }
 

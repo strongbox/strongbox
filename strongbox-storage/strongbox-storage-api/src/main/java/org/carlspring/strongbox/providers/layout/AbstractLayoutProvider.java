@@ -135,8 +135,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     
     @Override
     public URI resolveResource(Repository repository,
-                               String path)
-                                            throws IOException
+                               String path) throws IOException
     {
         RepositoryPath repositoryPath = resolve(repository).resolve(path);
         if (RepositoryFiles.isArtifact(repositoryPath))
