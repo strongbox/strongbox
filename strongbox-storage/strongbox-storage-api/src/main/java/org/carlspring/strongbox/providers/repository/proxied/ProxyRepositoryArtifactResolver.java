@@ -83,7 +83,7 @@ public abstract class ProxyRepositoryArtifactResolver
             {
                 resource = layoutProvider.resolveResource(repository, path);
             }
-            catch(IllegalArgumentException e)
+            catch (IllegalArgumentException e)
             {
                 getLogger().debug("Cannot resolve invalid path " + path + ". Exception : " + e);
                 return null;
