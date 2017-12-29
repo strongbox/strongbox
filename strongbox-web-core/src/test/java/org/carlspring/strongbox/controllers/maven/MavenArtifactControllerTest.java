@@ -483,6 +483,14 @@ public class MavenArtifactControllerTest
     }
     
     @Test
+    public void testNonExistingArtifactDownload()
+    {
+        String path = "/storages/storage-common-proxies/maven-central/john/doe";
+        ExtractableResponse response = client.getResourceWithResponse(path,"");
+        assertTrue("Wrong response", response.statusCode() == 404);
+    }
+    
+    @Test
     public void testNonExistingArtifactInNonExistingDirectory()
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe/who.jar";

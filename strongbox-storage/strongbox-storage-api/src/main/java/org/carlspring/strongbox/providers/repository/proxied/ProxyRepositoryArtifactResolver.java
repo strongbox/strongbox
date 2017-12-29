@@ -85,7 +85,7 @@ public abstract class ProxyRepositoryArtifactResolver
             }
             catch (IllegalArgumentException e)
             {
-                getLogger().debug("Cannot resolve invalid path " + path + ". Exception : " + e);
+                getLogger().debug("Cannot resolve invalid path " + path, e);
                 return null;
             }
 
