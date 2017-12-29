@@ -169,8 +169,10 @@ public class MavenArtifactController
 
                 response.setStatus(INTERNAL_SERVER_ERROR.value());
             }
+
             return;
         }
+
         InputStream is;
         try
         {
@@ -234,11 +236,11 @@ public class MavenArtifactController
                                              String path)
     {
         String filePath = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
-        
+
         String dir = repository.getBasedir() + File.separator + filePath;
-        
+
         File file = new File(dir);
-        
+
         // Do not allow .index and .trash directories (or any other directory starting with ".") to be browseable.
         // NB: Files will still be downloadable.
         if (!file.isHidden() && !path.startsWith(".") && !path.contains("/."))
