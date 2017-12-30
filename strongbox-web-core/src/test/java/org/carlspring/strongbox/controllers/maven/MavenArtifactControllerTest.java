@@ -35,6 +35,7 @@ import java.util.Set;
 
 import com.google.common.base.Throwables;
 import io.restassured.response.ExtractableResponse;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
@@ -472,7 +473,39 @@ public class MavenArtifactControllerTest
         assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                     deletedArtifact.exists());
     }
-
+    
+    @Test
+    public void testNonExistingDirectoryDownload()
+    {
+        String path = "/storages/storage-common-proxies/maven-central/john/doe/";
+        ExtractableResponse response = client.getResourceWithResponse(path,"");
+        assertTrue("Wrong response", response.statusCode() == 404);
+    }
+    
+    @Test
+    public void testNonExistingArtifactDownload()
+    {
+        String path = "/storages/storage-common-proxies/maven-central/john/doe";
+        ExtractableResponse response = client.getResourceWithResponse(path,"");
+        assertTrue("Wrong response", response.statusCode() == 404);
+    }
+    
+    @Test
+    public void testNonExistingArtifactInNonExistingDirectory()
+    {
+        String path = "/storages/storage-common-proxies/maven-central/john/doe/who.jar";
+        ExtractableResponse response = client.getResourceWithResponse(path,"");
+        assertTrue("Wrong response", response.statusCode() == 404);
+    }
+    
+    @Test
+    public void testNonExistingArtifactInExistingDirectory()
+    {
+        String path = "/storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin/1.8/derby-maven-plugin-6.9.jar";
+        ExtractableResponse response = client.getResourceWithResponse(path,"");
+        assertTrue("Wrong response", response.statusCode() == 404);
+    }
+    
     @Test
     public void testDirectoryListing()
             throws Exception
