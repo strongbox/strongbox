@@ -195,6 +195,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>1.17</version>
+        </dependency>
+        <!--<dependency>
+            <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers</artifactId>
             <version>1.17</version>
             <exclusions>
@@ -239,8 +244,8 @@
                     <artifactId>jackcess</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
+        </dependency>-->
+        <!--<dependency>
             <groupId>org.gagravarr</groupId>
             <artifactId>vorbis-java-tika</artifactId>
             <version>0.8</version>
@@ -250,8 +255,8 @@
                     <artifactId>tika-core</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
+        </dependency>-->
+        <!--<dependency>
             <groupId>org.glassfish.jersey.connectors</groupId>
             <artifactId>jersey-apache-connector</artifactId>
             <version>2.26</version>
@@ -266,8 +271,8 @@
                     <artifactId>httpclient</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
+        </dependency>-->
+        <!--<dependency>
             <groupId>com.healthmarketscience.jackcess</groupId>
             <artifactId>jackcess-encrypt</artifactId>
             <version>2.1.4</version>
@@ -281,8 +286,8 @@
                     <artifactId>jackcess</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
+        </dependency>-->
+        <!--<dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.58</version>
@@ -318,10 +323,10 @@
                     <artifactId>commons-codec</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency>-->
     </dependencies>
 
-
+<!--
 <dependencyManagement>
     <dependencies>
 
@@ -373,5 +378,5 @@
 
     </dependencies>
 
-</dependencyManagement>
+</dependencyManagement>-->
 </project>

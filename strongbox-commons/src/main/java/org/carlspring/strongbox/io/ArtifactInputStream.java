@@ -7,6 +7,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
@@ -16,6 +17,8 @@ import java.util.Set;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.apache.tika.config.TikaConfig;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeType;
@@ -57,12 +60,36 @@ public abstract class ArtifactInputStream
     {
         super(is);
         this.artifactCoordinates = coordinates;
-        this.extension = getFileExtension();
+        try
+        {
+            if(isInputStreamValid()){
+                this.extension = getFileExtension();
+
+            }
+        }
+        catch (IOException e)
+        {
+            logger.error("Input Stream is empty or invalid");
+        }
         for (String algorithm : checkSumDigestAlgorithmSet)
         {
             addAlgorithm(algorithm);
         }
 
+    }
+
+    private boolean isInputStreamValid()
+            throws IOException
+    {
+        boolean isInputStreamValid=true;
+        PushbackInputStream pushbackInputStream = new PushbackInputStream(in);
+        int b;
+        b = pushbackInputStream.read();
+        if ( b == -1 ) {
+            isInputStreamValid=false;
+        }
+        pushbackInputStream.unread(b);
+        return isInputStreamValid;
     }
 
     public ArtifactInputStream(ArtifactCoordinates coordinates,
@@ -191,25 +218,26 @@ public abstract class ArtifactInputStream
 
     /**
      * This method finds out the file extension using inputStream.
-     * @param inputStream
      * @return
      */
     public String getFileExtension(){
         String fileExtension = null;
-        TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
+
         try
         {
-            MediaType mediaType = tikaConfig.getMimeRepository().detect(in, new Metadata());
-            MimeType mimeType = tikaConfig.getMimeRepository().forName(mediaType.toString());
+            TikaConfig tika = new TikaConfig();
+            MediaType mediaType=tika.getDetector().detect(TikaInputStream.get(in ), new Metadata());
+            MimeType mimeType = tika.getMimeRepository().forName(mediaType.toString());
             fileExtension = mimeType.getExtension();
+            //System.out.println("Stream " + in + " is " + mediaType.getBaseType().getType());
+        }
+        catch (TikaException e)
+        {
+            e.printStackTrace();
         }
         catch (IOException e)
         {
-            logger.info("Error reading the input Stream - " + e.getMessage());
-        }
-        catch (MimeTypeException e)
-        {
-            logger.info(e.getMessage());
+            e.printStackTrace();
         }
         return fileExtension;
     }
