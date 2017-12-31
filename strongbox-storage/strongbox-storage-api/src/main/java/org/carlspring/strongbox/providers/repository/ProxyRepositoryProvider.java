@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -120,13 +121,12 @@ public class ProxyRepositoryProvider
                                                   String repositoryId,
                                                   String path)
     {
-        RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOneArtifact(storageId,
-                                                                                                       repositoryId,
-                                                                                                       path)
-                                                                                      .orElse(new RemoteArtifactEntry());
-
+        RemoteArtifactEntry artifactEntry = Optional.of(super.provideArtirfactEntry(storageId, repositoryId, path))
+                                                    .map(e -> e.getObjectId() == null ? new RemoteArtifactEntry()
+                                                            : (RemoteArtifactEntry) e)
+                                                    .get();
         artifactEntry.setIsCached(Boolean.TRUE);
-        
+
         return artifactEntry;
     }
 }

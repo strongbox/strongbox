@@ -3,21 +3,14 @@ package org.carlspring.strongbox.providers.repository;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 
 import org.apache.commons.io.output.CountingOutputStream;
-import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
@@ -29,6 +22,8 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author carlspring
@@ -36,6 +31,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 public abstract class AbstractRepositoryProvider implements RepositoryProvider, RepositoryStreamCallback
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(AbstractRepositoryProvider.class);
     @Inject
     protected RepositoryProviderRegistry repositoryProviderRegistry;
 
@@ -132,6 +128,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     @Override
     public void onBeforeWrite(RepositoryStreamContext ctx)
     {
+        logger.debug(String.format("Writing [%s]", ctx.getPath()));
+        
         Repository repository = ctx.getRepository();
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
@@ -157,6 +155,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     @Override
     public void onAfterClose(RepositoryStreamContext ctx)
     {
+        logger.debug(String.format("Closing [%s]", ctx.getPath()));
+
         Repository repository = ctx.getRepository();
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
@@ -173,6 +173,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     @Override
     public void onBeforeRead(RepositoryStreamContext ctx)
     {
+        logger.debug(String.format("Reading [%s]", ctx.getPath()));
+
         Repository repository = ctx.getRepository();
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
@@ -193,6 +195,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
                                                                            repositoryId,
                                                                            path)
+                                                          .map(e -> artifactEntryService.lockOne(e.getObjectId()))
                                                           .orElse(new ArtifactEntry());
 
         return artifactEntry;
