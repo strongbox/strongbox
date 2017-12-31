@@ -4,10 +4,7 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.util.MessageDigestUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
@@ -17,6 +14,7 @@ import java.util.Set;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.apache.tika.config.TikaConfig;
+import org.apache.tika.detect.*;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
@@ -60,17 +58,7 @@ public abstract class ArtifactInputStream
     {
         super(is);
         this.artifactCoordinates = coordinates;
-        try
-        {
-            if(isInputStreamValid()){
-                this.extension = getFileExtension();
 
-            }
-        }
-        catch (IOException e)
-        {
-            logger.error("Input Stream is empty or invalid");
-        }
         for (String algorithm : checkSumDigestAlgorithmSet)
         {
             addAlgorithm(algorithm);
@@ -81,6 +69,7 @@ public abstract class ArtifactInputStream
     private boolean isInputStreamValid()
             throws IOException
     {
+
         boolean isInputStreamValid=true;
         PushbackInputStream pushbackInputStream = new PushbackInputStream(in);
         int b;
@@ -172,6 +161,10 @@ public abstract class ArtifactInputStream
                 MessageDigest digest = (MessageDigest) entry.getValue();
                 digest.update((byte) ch);
             }
+            if(isInputStreamValid()){
+                this.extension = getFileExtension();
+
+            }
         }
 
         return ch;
@@ -190,6 +183,10 @@ public abstract class ArtifactInputStream
             {
                 MessageDigest digest = (MessageDigest) entry.getValue();
                 digest.update(bytes, off, numberOfBytesRead);
+            }
+            if(isInputStreamValid()){
+                this.extension = getFileExtension();
+
             }
         }
 
@@ -222,14 +219,14 @@ public abstract class ArtifactInputStream
      */
     public String getFileExtension(){
         String fileExtension = null;
-
-        try
+         try
         {
             TikaConfig tika = new TikaConfig();
-            MediaType mediaType=tika.getDetector().detect(TikaInputStream.get(in ), new Metadata());
+
+            MediaType mediaType=tika.getDetector().detect(TikaInputStream.get(new BufferedInputStream(in)), new Metadata());
             MimeType mimeType = tika.getMimeRepository().forName(mediaType.toString());
             fileExtension = mimeType.getExtension();
-            //System.out.println("Stream " + in + " is " + mediaType.getBaseType().getType());
+
         }
         catch (TikaException e)
         {
@@ -239,6 +236,8 @@ public abstract class ArtifactInputStream
         {
             e.printStackTrace();
         }
+
+
         return fileExtension;
     }
 
