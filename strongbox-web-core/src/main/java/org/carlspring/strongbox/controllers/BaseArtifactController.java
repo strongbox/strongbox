@@ -112,11 +112,11 @@ public abstract class BaseArtifactController
         generateDirectoryListing(dirPath, request, response);
     }
     
-    protected void getDirectoryListing(Repository repository,
+    protected void getDirectoryListing(Storage storage,
                                        HttpServletRequest request,
                                        HttpServletResponse response)
     {
-        String dirPath = repository.getBasedir();
+        String dirPath = storage.getBasedir();
         
         generateDirectoryListing(dirPath, request, response);
     }
