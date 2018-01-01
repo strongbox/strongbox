@@ -117,33 +117,37 @@ public class ArtifactManagementService implements ConfigurationService
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
         URI pathUri = repositoryPath.toUri();
-        Lock lock = accureLock(pathUri);
+        accureLock(pathUri);
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(storage.getId(),
                                                                                           repository.getId(),
                                                                                           RepositoryFiles.stringValue(repositoryPath)))
         {
             long result = storeArtifact(repositoryPath, is, aos);
-            pathUriMap.remove(pathUri);
             return result;                
         }
         catch (IOException e)
         {
             throw new ArtifactStorageException(e);
         } finally {
-            lock.unlock();
+            releaseLock(pathUri);
         }
     }
 
-    protected Lock accureLock(URI pathUri)
+    public void releaseLock(URI pathUri)
     {
-        Lock lock =  Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
+        Lock lock = pathUriMap.remove(pathUri);
+        lock.unlock();
+    }
+
+    public void accureLock(URI pathUri)
+    {
+        Lock lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
         lock.lock();
-        while(!pathUriMap.containsKey(pathUri))
+        while (!pathUriMap.containsKey(pathUri))
         {
-            lock =  Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
+            lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
             lock.lock();
         }
-        return lock;
     }
 
     private long storeArtifact(RepositoryPath repositoryPath,

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.repository;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -20,10 +21,13 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.event.CommonEventListener;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryPageRequest;
 import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -67,6 +71,12 @@ public class NugetRepositoryFeatures
     
     @Inject
     private ArtifactTagService artifactTagService;
+    
+    @Inject
+    private ArtifactManagementService artifactManagementService;
+    
+    @Inject
+    private NugetLayoutProvider nugetLayoutProvider;
 
     public void downloadRemoteFeed(String storageId,
                                    String repositoryId)
@@ -150,15 +160,27 @@ public class NugetRepositoryFeatures
                     artifactToSaveSet.add(c);
                 }
             }
+            
             for (NugetArtifactCoordinates c : artifactToSaveSet)
             {
-                RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
-                remoteArtifactEntry.setStorageId(storageId);
-                remoteArtifactEntry.setRepositoryId(repositoryId);
-                remoteArtifactEntry.setArtifactCoordinates(c);
-                
-                artifactEntryService.save(remoteArtifactEntry);
+                RepositoryPath repositoryPath = nugetLayoutProvider.resolve(repository, c);
+                URI artifactUri = repositoryPath.toUri();
+                try
+                {
+                    artifactManagementService.accureLock(artifactUri);
+                    
+                    RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
+                    remoteArtifactEntry.setStorageId(storageId);
+                    remoteArtifactEntry.setRepositoryId(repositoryId);
+                    remoteArtifactEntry.setArtifactCoordinates(c);
+
+                    artifactEntryService.save(remoteArtifactEntry);
+                } finally
+                {
+                    artifactManagementService.releaseLock(artifactUri);
+                }
             }
+            
             return true;
         }
     }
