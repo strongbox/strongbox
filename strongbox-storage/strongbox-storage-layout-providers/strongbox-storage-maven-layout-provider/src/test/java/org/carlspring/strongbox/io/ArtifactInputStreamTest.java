@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.io;
 
+/**
+ * Created by dinesh on 1/2/18.
+ */
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 
@@ -20,10 +23,10 @@ public class ArtifactInputStreamTest
     public void setUp()
 
     {
-         pathTxt = "src/test/resources/testTextFile.txt";
-         pathSh = "src/test/resources/project-1.4.1.tar.gz";
+        pathTxt = "src/test/resources/artifacts/testTextFile.txt";
+        pathSh = "src/test/resources/artifacts/project-1.4.1.tar.gz";
 
-   }
+    }
 
 
     @Test
@@ -57,4 +60,3 @@ public class ArtifactInputStreamTest
     }
 
 }
-
