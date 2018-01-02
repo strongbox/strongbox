@@ -122,7 +122,7 @@ public class HeaderMappingFilter
         String[] pathParts = pathInfo.split("/");
         if (pathParts.length < 4)
         {
-            throw new IllegalArgumentException(String.format("Illegal format of `storages` request [%s].%nRequest path should be in the form of:%n%n\t'storages/{storageId}/{repositoryId}/...'", pathInfo));
+            return null;
         }
         String storageId = pathParts[2];
         String repositoryId = pathParts[3];
