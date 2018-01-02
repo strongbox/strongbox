@@ -1,11 +1,9 @@
 package org.carlspring.strongbox.io;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -30,7 +28,14 @@ public class ArtifactInputStreamTest
     @Test
     public void testFileExtensionEqualsTxt()
     {
-        assertTrue(artifactInputStream.getFileExtension().equalsIgnoreCase(".txt"));
+        try
+        {
+            assertTrue(artifactInputStream.getFileExtension(IOUtils.toByteArray(inputStream)).equalsIgnoreCase(".txt"));
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
 }

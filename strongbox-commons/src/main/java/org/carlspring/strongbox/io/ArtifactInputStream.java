@@ -4,7 +4,9 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.util.MessageDigestUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
-import java.io.*;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
@@ -14,13 +16,11 @@ import java.util.Set;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.apache.tika.config.TikaConfig;
-import org.apache.tika.detect.*;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeType;
-import org.apache.tika.mime.MimeTypeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,16 +69,11 @@ public abstract class ArtifactInputStream
     private boolean isInputStreamValid()
             throws IOException
     {
+        if (in.available()>0)
+             return true;
+        else
+            return false;
 
-        boolean isInputStreamValid=true;
-        PushbackInputStream pushbackInputStream = new PushbackInputStream(in);
-        int b;
-        b = pushbackInputStream.read();
-        if ( b == -1 ) {
-            isInputStreamValid=false;
-        }
-        pushbackInputStream.unread(b);
-        return isInputStreamValid;
     }
 
     public ArtifactInputStream(ArtifactCoordinates coordinates,
@@ -161,10 +156,8 @@ public abstract class ArtifactInputStream
                 MessageDigest digest = (MessageDigest) entry.getValue();
                 digest.update((byte) ch);
             }
-            if(isInputStreamValid()){
-                this.extension = getFileExtension();
+            
 
-            }
         }
 
         return ch;
@@ -185,7 +178,7 @@ public abstract class ArtifactInputStream
                 digest.update(bytes, off, numberOfBytesRead);
             }
             if(isInputStreamValid()){
-                this.extension = getFileExtension();
+                this.extension = getFileExtension(bytes);
 
             }
         }
@@ -216,14 +209,15 @@ public abstract class ArtifactInputStream
     /**
      * This method finds out the file extension using inputStream.
      * @return
+     * @param bytes
      */
-    public String getFileExtension(){
+    public String getFileExtension(byte[] bytes){
         String fileExtension = null;
          try
         {
             TikaConfig tika = new TikaConfig();
 
-            MediaType mediaType=tika.getDetector().detect(TikaInputStream.get(new BufferedInputStream(in)), new Metadata());
+            MediaType mediaType=tika.getDetector().detect(TikaInputStream.get(bytes), new Metadata());
             MimeType mimeType = tika.getMimeRepository().forName(mediaType.toString());
             fileExtension = mimeType.getExtension();
 
