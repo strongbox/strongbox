@@ -20,12 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * @author sanket407
  */
-
 @RestController
 @RequestMapping(path = BrowseStoragesController.ROOT_CONTEXT, headers = "user-agent=unknown/*")
 public class BrowseStoragesController
         extends BaseArtifactController
 {
+    
     private Logger logger = LoggerFactory.getLogger(BrowseStoragesController.class);
 
     public static final String ROOT_CONTEXT = "/storages";
