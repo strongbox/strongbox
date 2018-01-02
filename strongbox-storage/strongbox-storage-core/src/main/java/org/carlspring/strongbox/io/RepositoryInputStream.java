@@ -7,10 +7,14 @@ import java.util.Optional;
 
 import org.apache.commons.io.input.CountingInputStream;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 public class RepositoryInputStream extends FilterInputStream implements RepositoryStreamContext
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryInputStream.class);
 
     protected RepositoryStreamCallback callback;
 
@@ -48,7 +52,15 @@ public class RepositoryInputStream extends FilterInputStream implements Reposito
     {
         if (getBytesCount() == 0l)
         {
-            Optional.ofNullable(callback).ifPresent(c -> c.onBeforeRead(this));
+            try
+            {
+                Optional.ofNullable(callback).ifPresent(c -> c.onBeforeRead(this));
+            }
+            catch (Exception e)
+            {
+                logger.error(String.format("Callback failed for [%s]", path), e);
+                throw new IOException(e);
+            }
         }
         return super.read();
     }
