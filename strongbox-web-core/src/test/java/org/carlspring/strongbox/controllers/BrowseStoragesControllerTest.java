@@ -41,22 +41,26 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 /**
  * @author sanket407
  */
-
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class BrowseStoragesControllerTest
         extends TestCaseWithRepository
-{     
+{
+    
+    
     @Test
     public void testBrowseStorages()
             throws Exception
     {
         String path = "/storages/";
 
-        RestAssuredMockMvc.given().header("User-Agent", "unknown/*")
-        .contentType(MediaType.TEXT_PLAIN_VALUE)
-        .when().get(path)
-        .then().statusCode(302);
+        RestAssuredMockMvc.given()
+                          .header("User-Agent", "unknown/*")
+                          .contentType(MediaType.TEXT_PLAIN_VALUE)
+                          .when()
+                          .get(path)
+                          .then()
+                          .statusCode(302);
     }
 
     @Test
@@ -65,10 +69,13 @@ public class BrowseStoragesControllerTest
     {
         String path = "/storages/storage0/";
 
-
-        RestAssuredMockMvc.given().header("User-Agent", "unknown/*")
-        .contentType(MediaType.TEXT_PLAIN_VALUE)
-        .when().get(path)
-        .then().statusCode(302);
+        RestAssuredMockMvc.given()
+                          .header("User-Agent", "unknown/*")
+                          .contentType(MediaType.TEXT_PLAIN_VALUE)
+                          .when()
+                          .get(path)
+                          .then()
+                          .statusCode(302);
     }
+    
 }
