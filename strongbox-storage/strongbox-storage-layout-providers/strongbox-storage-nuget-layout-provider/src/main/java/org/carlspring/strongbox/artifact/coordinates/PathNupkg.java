@@ -17,6 +17,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import ru.aristar.jnuget.Version;
 import ru.aristar.jnuget.files.Framework;
@@ -42,6 +43,8 @@ public class PathNupkg implements Nupkg
         UnsupportedEncodingException,
         IOException
     {
+        Assert.notNull(path);
+        
         this.path = path;
         this.artifactCoordinates = readArtifactCooridnates();
         this.nuspecFile = createNuspecFile();
@@ -214,6 +217,21 @@ public class PathNupkg implements Nupkg
     public void load()
         throws IOException
     {
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof PathNupkg)) {
+            return false;
+        }
+        return path.equals(((PathNupkg)obj).path);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return path.hashCode();
     }
 
 }

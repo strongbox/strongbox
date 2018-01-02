@@ -12,6 +12,10 @@ public class Http401AuthenticationEntryPoint
         implements AuthenticationEntryPoint
 {
 
+    private static final String IS_AJAX_REQUEST_HEADER_NAME = "X-Requested-With";
+
+    private static final String IS_AJAX_REQUEST_HEADER_VALUE = "XMLHttpRequest";
+
     private final String headerValue;
 
     public Http401AuthenticationEntryPoint(String headerValue)
@@ -26,9 +30,11 @@ public class Http401AuthenticationEntryPoint
             throws IOException,
                    ServletException
     {
-        response.setHeader("WWW-Authenticate", this.headerValue);
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-                           authException.getMessage());
+        if (!IS_AJAX_REQUEST_HEADER_VALUE.equals(request.getHeader(IS_AJAX_REQUEST_HEADER_NAME)))
+        {
+            response.setHeader("WWW-Authenticate", this.headerValue);
+        }
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
     }
 
 }

@@ -1,9 +1,25 @@
 package org.carlspring.strongbox.providers.repository;
 
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.RepositoryInputStream;
+import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -14,15 +30,8 @@ import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 import org.javatuples.Pair;
 import org.slf4j.Logger;
@@ -65,9 +74,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public ArtifactInputStream getInputStream(String storageId,
-                                              String repositoryId,
-                                              String artifactPath)
+    public RepositoryInputStream getInputStream(String storageId,
+                                                String repositoryId,
+                                                String artifactPath)
             throws IOException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException,
@@ -76,7 +85,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         Storage storage = getConfiguration().getStorage(storageId);
         Repository groupRepository = storage.getRepository(repositoryId);
 
-        ArtifactInputStream is = resolveDirectlyFromGroupPathIfPossible(storageId, repositoryId, artifactPath);
+        RepositoryInputStream is = resolveDirectlyFromGroupPathIfPossible(storageId, repositoryId, artifactPath);
         if (is != null)
         {
             return is;
@@ -114,9 +123,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return null;
     }
 
-    private ArtifactInputStream resolveDirectlyFromGroupPathIfPossible(final String storageId,
-                                                                       final String repositoryId,
-                                                                       final String path)
+    private RepositoryInputStream resolveDirectlyFromGroupPathIfPossible(final String storageId,
+                                                                         final String repositoryId,
+                                                                         final String path)
             throws IOException
     {
 
@@ -149,15 +158,15 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
      * @throws IOException
      * @throws ArtifactTransportException
      */
-    private ArtifactInputStream resolveArtifact(String storageId,
-                                                String repositoryId,
-                                                String artifactPath)
+    private RepositoryInputStream resolveArtifact(String storageId,
+                                                  String repositoryId,
+                                                  String artifactPath)
             throws NoSuchAlgorithmException,
                    IOException,
                    ArtifactTransportException,
                    ProviderImplementationException
     {
-        ArtifactInputStream is;
+        RepositoryInputStream is;
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
         if (!getAlias().equals(repository.getType()))
@@ -182,24 +191,24 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return null;
     }
 
-    private ArtifactInputStream getInputStream(Repository repository, String artifactPath)
+    private RepositoryInputStream getInputStream(Repository repository, String artifactPath)
             throws IOException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException,
                    ProviderImplementationException
     {
         RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
-        ArtifactInputStream is = provider.getInputStream(repository.getStorage().getId(),
-                                                         repository.getId(),
-                                                         artifactPath);
+        RepositoryInputStream is = provider.getInputStream(repository.getStorage().getId(),
+                                                           repository.getId(),
+                                                           artifactPath);
 
         return is;
     }
 
     @Override
-    public ArtifactOutputStream getOutputStream(String storageId,
-                                                String repositoryId,
-                                                String artifactPath)
+    public RepositoryOutputStream getOutputStream(String storageId,
+                                                  String repositoryId,
+                                                  String artifactPath)
             throws IOException
     {
         // It should not be possible to write artifacts to a group repository.
@@ -244,6 +253,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             RepositorySearchRequest searchRequestLocal = new RepositorySearchRequest(null, null);
             searchRequestLocal.setCoordinates(searchRequest.getCoordinates());
             searchRequestLocal.setStrict(searchRequest.isStrict());
+            searchRequestLocal.setTagSet(searchRequest.getTagSet());
 
             RepositoryPageRequest pageRequestLocal = new RepositoryPageRequest();
             pageRequestLocal.setLimit(groupLimit);

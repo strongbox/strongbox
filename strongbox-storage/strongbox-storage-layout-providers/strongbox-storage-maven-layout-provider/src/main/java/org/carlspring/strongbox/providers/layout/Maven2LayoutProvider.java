@@ -1,6 +1,21 @@
 package org.carlspring.strongbox.providers.layout;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
@@ -15,7 +30,6 @@ import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
-import org.carlspring.strongbox.services.impl.MavenArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -53,9 +67,7 @@ import org.springframework.stereotype.Component;
  */
 @Component("maven2LayoutProvider")
 public class Maven2LayoutProvider
-        extends AbstractLayoutProvider<MavenArtifactCoordinates,
-                                              MavenRepositoryFeatures,
-                                              MavenRepositoryManagementStrategy>
+        extends AbstractLayoutProvider<MavenArtifactCoordinates>
         implements RepositoryPathHandler
 {
 
@@ -67,7 +79,7 @@ public class Maven2LayoutProvider
     private MavenMetadataManager mavenMetadataManager;
 
     @Inject
-    private MavenArtifactManagementService mavenArtifactManagementService;
+    private ArtifactManagementService mavenArtifactManagementService;
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
@@ -463,7 +475,7 @@ public class Maven2LayoutProvider
             return;
         }
 
-        String repositoryRelativePath = repositoryPath.getResourceLocation();
+        String repositoryRelativePath = RepositoryFiles.relativizeUri(repositoryPath).toString();
         Artifact artifact = ArtifactUtils.convertPathToArtifact(repositoryRelativePath);
 
         File storageBasedir = new File(storage.getBasedir());

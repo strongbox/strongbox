@@ -141,8 +141,8 @@ public class MavenSearchControllerTest
         response = client.search(query, MediaType.APPLICATION_XML_VALUE, searchProvider);
 
         assertTrue("Received unexpected search results! \n" + response + "\n",
-                   response.contains(">1.0.11.3<") &&
-                   response.contains(">1.0.11.3.1<"));
+                   response.contains("\"1.0.11.3\"") &&
+                   response.contains("\"1.0.11.3.1\""));
     }
 
     @Test

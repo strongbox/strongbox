@@ -1,13 +1,19 @@
 package org.carlspring.strongbox.domain;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+
+import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.data.domain.GenericEntityHook;
-
-import javax.persistence.OneToOne;
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author carlspring
@@ -22,9 +28,12 @@ public class ArtifactEntry
     private String repositoryId;
 
     // if you have to rename this field please update ArtifactEntryServiceImpl.findByCoordinates() implementation
-    @OneToOne(orphanRemoval = true)
+    @ManyToOne
     private AbstractArtifactCoordinates artifactCoordinates;
 
+    @ManyToMany(targetEntity = ArtifactTagEntry.class)
+    private Set<ArtifactTag> tagSet;
+    
     /**
      * This field is used as part of [storageId, repositoryId, artifactPath] unique index. The value of this field is
      * populated within {@link GenericEntityHook}.
@@ -36,6 +45,8 @@ public class ArtifactEntry
     private Date lastUpdated;
 
     private Date lastUsed;
+    
+    private Integer downloadCount = Integer.valueOf(0);
 
     public ArtifactEntry()
     {
@@ -70,6 +81,16 @@ public class ArtifactEntry
     {
         this.artifactCoordinates = (AbstractArtifactCoordinates) artifactCoordinates;
         getArtifactPath();
+    }
+
+    public Set<ArtifactTag> getTagSet()
+    {
+        return tagSet = Optional.ofNullable(tagSet).orElse(new HashSet<>());
+    }
+
+    protected void setTagSet(Set<ArtifactTag> tagSet)
+    {
+        this.tagSet = tagSet;
     }
 
     public final String getArtifactPath()
@@ -110,6 +131,16 @@ public class ArtifactEntry
     public void setLastUsed(Date lastUsed)
     {
         this.lastUsed = lastUsed != null ? new Date(lastUsed.getTime()) : null;
+    }
+
+    public Integer getDownloadCount()
+    {
+        return downloadCount;
+    }
+
+    public void setDownloadCount(Integer downloadCount)
+    {
+        this.downloadCount = downloadCount;
     }
 
     @Override

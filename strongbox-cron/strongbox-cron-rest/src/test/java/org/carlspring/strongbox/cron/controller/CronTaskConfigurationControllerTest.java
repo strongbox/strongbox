@@ -31,7 +31,6 @@ import static org.junit.Assert.assertThat;
  */
 @CronTaskRestTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@Ignore
 public class CronTaskConfigurationControllerTest
         extends RestAssuredBaseTest
 {
@@ -94,7 +93,7 @@ public class CronTaskConfigurationControllerTest
     public void testJavaCronTaskConfiguration()
             throws Exception
     {
-        saveJavaConfig("0 0/1 * 1/1 * ? *");
+        saveJavaConfig("0 11 11 11 11 ? 2100");
 
         // Remove comments to test cron job execution
         // saveJavaConfig("0 0/2 * 1/1 * ? *");
@@ -106,7 +105,7 @@ public class CronTaskConfigurationControllerTest
     public void testGroovyCronTaskConfiguration()
             throws Exception
     {
-        saveGroovyConfig("0 0/1 * 1/1 * ? *", cronName2);
+        saveGroovyConfig("0 11 11 11 11 ? 2100", cronName2);
         uploadGroovyScript();
 
         // Remove comments to test cron job execution *

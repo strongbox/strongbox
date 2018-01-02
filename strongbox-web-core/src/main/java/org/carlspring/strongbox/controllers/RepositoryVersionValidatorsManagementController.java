@@ -4,6 +4,10 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.VersionValidatorType;
 
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
 import javax.inject.Inject;
 
 import io.swagger.annotations.Api;
@@ -50,8 +54,9 @@ public class RepositoryVersionValidatorsManagementController
             logger.error(ex.getMessage(), ex);
         }
 
+        Set<String> versionValidators = new TreeSet<>(repository.getVersionValidators().stream().map(v -> v.toString()).collect(Collectors.toSet()));
         return repository == null ? ResponseEntity.notFound().build() :
-               ResponseEntity.ok(repository.getVersionValidators());
+               ResponseEntity.ok(versionValidators);
     }
 
     @ApiOperation(value = "Adds version validator type to the requested repository")

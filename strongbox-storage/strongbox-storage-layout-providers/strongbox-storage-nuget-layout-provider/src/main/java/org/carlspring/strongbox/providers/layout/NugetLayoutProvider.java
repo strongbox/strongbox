@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
@@ -19,10 +20,8 @@ import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.services.impl.NugetArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
@@ -43,9 +42,8 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class NugetLayoutProvider extends AbstractLayoutProvider<NugetArtifactCoordinates,
-                                                                NugetRepositoryFeatures, 
-                                                                NugetRepositoryManagementStrategy>
+public class NugetLayoutProvider
+        extends AbstractLayoutProvider<NugetArtifactCoordinates>
 {
     private static final Logger logger = LoggerFactory.getLogger(NugetLayoutProvider.class);
 
@@ -55,8 +53,7 @@ public class NugetLayoutProvider extends AbstractLayoutProvider<NugetArtifactCoo
     private NugetRepositoryManagementStrategy nugetRepositoryManagementStrategy;
 
     @Inject
-    private NugetArtifactManagementService nugetArtifactManagementService;
-
+    private ArtifactManagementService nugetArtifactManagementService;
 
     @Override
     @PostConstruct
@@ -98,7 +95,7 @@ public class NugetLayoutProvider extends AbstractLayoutProvider<NugetArtifactCoo
     {
         byte[] encoded = Base64.getEncoder()
                                .encode(digest);
-        return new String(encoded,StandardCharsets.UTF_8);
+        return new String(encoded, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -113,8 +110,8 @@ public class NugetLayoutProvider extends AbstractLayoutProvider<NugetArtifactCoo
                                 String repositoryId,
                                 String basePath)
             throws IOException,
-                   NoSuchAlgorithmException,
-                   XmlPullParserException
+            NoSuchAlgorithmException,
+            XmlPullParserException
     {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
@@ -144,7 +141,8 @@ public class NugetLayoutProvider extends AbstractLayoutProvider<NugetArtifactCoo
         return repositoryFileSystemProvider;
     }
 
-    public class NugetRepositoryLayoutFileSystemProvider extends RepositoryLayoutFileSystemProvider {
+    public class NugetRepositoryLayoutFileSystemProvider extends RepositoryLayoutFileSystemProvider
+    {
 
         public NugetRepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
         {
@@ -162,9 +160,9 @@ public class NugetLayoutProvider extends AbstractLayoutProvider<NugetArtifactCoo
             result.setDigestStringifier(NugetLayoutProvider.this::toBase64);
             return result;
         }
-        
+
     }
-    
+
     @Override
     public ArtifactManagementService getArtifactManagementService()
     {

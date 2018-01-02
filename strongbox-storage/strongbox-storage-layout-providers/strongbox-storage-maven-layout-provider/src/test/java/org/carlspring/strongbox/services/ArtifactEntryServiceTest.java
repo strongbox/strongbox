@@ -165,7 +165,7 @@ public class ArtifactEntryServiceTest
                                     logger.info("Found artifact " + artifactEntry);
 
                                     assertEquals(groupId,
-                                                 artifactEntry.getArtifactCoordinates().getCoordinate("groupId"));
+                                                 ((MavenArtifactCoordinates)artifactEntry.getArtifactCoordinates()).getGroupId());
                                 });
     }
 
@@ -198,8 +198,8 @@ public class ArtifactEntryServiceTest
                        {
                            logger.debug("Found artifact " + artifactEntry);
 
-                           assertEquals(groupId, artifactEntry.getArtifactCoordinates().getCoordinate("groupId"));
-                           assertEquals(artifactId, artifactEntry.getArtifactCoordinates().getCoordinate("artifactId"));
+                           assertEquals(groupId, ((MavenArtifactCoordinates)artifactEntry.getArtifactCoordinates()).getGroupId());
+                           assertEquals(artifactId, ((MavenArtifactCoordinates)artifactEntry.getArtifactCoordinates()).getArtifactId());
                        });
 
         Long c = artifactEntryService.countArtifacts(storageId, repositoryId, query.getCoordinates(), true);

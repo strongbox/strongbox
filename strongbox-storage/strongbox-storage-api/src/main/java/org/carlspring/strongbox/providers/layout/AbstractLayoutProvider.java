@@ -22,6 +22,8 @@ import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.providers.datastore.StorageProvider;
+import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
@@ -29,10 +31,6 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
 import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.providers.datastore.StorageProvider;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.repository.RepositoryFeatures;
-import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -41,9 +39,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author mtodorov
  */
-public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
-                                             U extends RepositoryFeatures,
-                                             V extends RepositoryManagementStrategy>
+public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         implements LayoutProvider<T>
 {
 
@@ -454,6 +450,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     
     protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryPath,
                                                                                    RepositoryFileAttributeType... attributeTypes)
+        throws IOException
     {
         if (attributeTypes == null || attributeTypes.length == 0)
         {
@@ -469,21 +466,27 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
             default:
                 Map<RepositoryFileAttributeType, Object> attributesLocal;
                 value = null;
+                
                 break;
             case CHECKSUM:
                 value = isChecksum(repositoryPath);
+                
                 break;
             case INDEX:
-                value = repositoryPath.startsWith(".index");
+                value = repositoryPath.relativize().startsWith(RepositoryFileSystem.INDEX);
+                
                 break;
             case TEMP:
-                value = repositoryPath.startsWith(".temp");
+                value = repositoryPath.relativize().startsWith(RepositoryFileSystem.TEMP);
+                
                 break;
             case TRASH:
-                value = repositoryPath.startsWith(".trash");
+                value = repositoryPath.relativize().startsWith(RepositoryFileSystem.TRASH);
+                
                 break;
             case METADATA:
-                value = isMetadata(repositoryPath.toString());
+                value = isMetadata(RepositoryFiles.stringValue(repositoryPath));
+                
                 break;
             case ARTIFACT:
                 attributesLocal = getRepositoryFileAttributes(repositoryPath,
@@ -492,6 +495,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                                               RepositoryFileAttributeType.METADATA,
                                                               RepositoryFileAttributeType.INDEX,
                                                               RepositoryFileAttributeType.CHECKSUM);
+                
                 boolean isMetadata = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.METADATA));
                 boolean isTrash = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.TRASH));
                 boolean isTemp = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.TEMP));
@@ -499,13 +503,17 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                 boolean isChecksum = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.CHECKSUM));
                 boolean isHidden = isTemp || isTrash || isMetadata;
                 boolean isDirectory = Files.isDirectory(repositoryPath.getTarget());
+                
                 value = !isChecksum && !isIndex && !isHidden && !isDirectory;
+                
                 break;
             case COORDINATES:
                 attributesLocal = getRepositoryFileAttributes(repositoryPath,
                                                               RepositoryFileAttributeType.ARTIFACT);
+                
                 boolean isArtifact = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.ARTIFACT));
-                value = isArtifact ? getArtifactCoordinates(repositoryPath.toString()) : null;
+                
+                value = isArtifact ? getArtifactCoordinates(RepositoryFiles.stringValue(repositoryPath)) : null;
                 break;
 
             }

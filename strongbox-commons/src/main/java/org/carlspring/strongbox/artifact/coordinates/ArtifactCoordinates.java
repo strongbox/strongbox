@@ -10,8 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author carlspring
  */
 @XmlRootElement(name = "artifactCoordinates")
-public interface ArtifactCoordinates
-        extends Serializable
+public interface ArtifactCoordinates<T extends ArtifactCoordinates<T, V>, V extends Comparable<V>> extends Comparable<T>, Serializable
 {
 
     String getId();
@@ -21,23 +20,13 @@ public interface ArtifactCoordinates
     String getVersion();
 
     void setVersion(String version);
+    
+    V getNativeVersion();
 
+    Map<String, String> getCoordinates();
+    
     String toPath();
     
     URI toResource();
-
-    void defineCoordinates(String... coordinates);
-
-    void defineCoordinate(String coordinate);
-
-    String getCoordinate(String coordinate);
-
-    String setCoordinate(String coordinate, String value);
-
-    Map<String, String> getCoordinates();
-
-    void setCoordinates(Map<String, String> coordinates);
-
-    void dump();
 
 }

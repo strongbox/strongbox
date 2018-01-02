@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -10,6 +8,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 
 /**
  * @author carlspring
@@ -17,7 +17,7 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 public class MockedMavenArtifactCoordinates
-        extends AbstractArtifactCoordinates
+        extends AbstractArtifactCoordinates<MockedMavenArtifactCoordinates, ComparableVersion>
 {
 
 
@@ -208,4 +208,15 @@ public class MockedMavenArtifactCoordinates
         setCoordinate(EXTENSION, this.extension);
     }
 
+    @Override
+    public ComparableVersion getNativeVersion()
+    {
+        String versionLocal = getVersion();
+        if (versionLocal == null)
+        {
+            return null;
+        }
+        return new ComparableVersion(versionLocal);
+    }
+    
 }

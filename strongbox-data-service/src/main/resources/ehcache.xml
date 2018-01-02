@@ -55,4 +55,15 @@
            transactionalMode="off">
         <persistence strategy="localTempSwap"/>
     </cache>
+    
+    <cache name="tags"
+           maxEntriesLocalHeap="1000"
+           maxEntriesLocalDisk="10000"
+           eternal="true"
+           diskSpoolBufferSizeMB="20"
+           memoryStoreEvictionPolicy="LFU"
+           transactionalMode="off">
+        <persistence strategy="localTempSwap"/>
+    </cache>
+    
 </ehcache>

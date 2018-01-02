@@ -77,7 +77,17 @@ public abstract class ProxyRepositoryArtifactResolver
                                                                                          remoteRepository.getPassword()))
         {
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-            final URI resource = layoutProvider.resolveResource(repository, path);
+
+            URI resource;
+            try
+            {
+                resource = layoutProvider.resolveResource(repository, path);
+            }
+            catch (IllegalArgumentException e)
+            {
+                //Artifact path was invalid. Couldn't locate the requested path.
+                return null;
+            }
 
             try (final CloseableRestResponse closeableRestResponse = client.get(resource.toString()))
             {

@@ -78,7 +78,7 @@ public class OrientDbSearchProvider
             List<SearchResult> results = new LinkedList<>();
             results.addAll(artifactEntryService.findArtifactList(searchRequest.getStorageId(),
                                                                  searchRequest.getRepositoryId(),
-                                                                 coordinates)
+                                                                 coordinates, false)
                                                .stream()
                                                .map(this::createSearchResult)
                                                .collect(Collectors.toList()));
