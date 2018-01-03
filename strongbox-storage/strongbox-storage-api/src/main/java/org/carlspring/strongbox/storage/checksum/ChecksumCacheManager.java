@@ -122,8 +122,13 @@ public class ChecksumCacheManager
                                                     String algorithm)
     {
         Optional.ofNullable(getArtifactChecksum(artifactBasePath)).map(ac -> {
-            logger.debug(String.format("Removed [%s] artifact checksum value [%s] from cache.", artifactBasePath,
-                                       ac.removeChecksum(algorithm)));
+            logger.debug(ac.removeChecksum(algorithm)
+                           .map(c -> String.format("Removed [%s] artifact checksum value [%s] from cache.",
+                                                   artifactBasePath,
+                                                   c))
+                           .orElseGet(() -> String.format("Checksum algorithm [%s] not found for [%s] in cache.",
+                                                          algorithm,
+                                                          artifactBasePath)));
             return ac;
         }).filter(ac -> ac.getChecksums().isEmpty()).ifPresent(ac -> cachedChecksums.values().remove(ac));
     }

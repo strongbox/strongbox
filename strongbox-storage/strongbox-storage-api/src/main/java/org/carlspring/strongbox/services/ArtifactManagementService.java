@@ -7,11 +7,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -21,7 +26,6 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
@@ -55,6 +59,8 @@ public class ArtifactManagementService implements ConfigurationService
     
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementService.class);
 
+    private Map<URI, Lock> pathUriMap = new ConcurrentHashMap<>();
+    
     @Inject
     protected ArtifactOperationsValidator artifactOperationsValidator;
     
@@ -110,16 +116,37 @@ public class ArtifactManagementService implements ConfigurationService
     {
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
-        
+        URI pathUri = repositoryPath.toUri();
+        accureLock(pathUri);
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(storage.getId(),
                                                                                           repository.getId(),
                                                                                           RepositoryFiles.stringValue(repositoryPath)))
         {
-            return storeArtifact(repositoryPath, is, aos);
+            long result = storeArtifact(repositoryPath, is, aos);
+            return result;                
         }
         catch (IOException e)
         {
             throw new ArtifactStorageException(e);
+        } finally {
+            releaseLock(pathUri);
+        }
+    }
+
+    public void releaseLock(URI pathUri)
+    {
+        Lock lock = pathUriMap.remove(pathUri);
+        lock.unlock();
+    }
+
+    public void accureLock(URI pathUri)
+    {
+        Lock lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
+        lock.lock();
+        while (!pathUriMap.containsKey(pathUri))
+        {
+            lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
+            lock.lock();
         }
     }
 
@@ -286,19 +313,6 @@ public class ArtifactManagementService implements ConfigurationService
         digestMap.entrySet()
                  .stream()
                  .forEach(e -> checksumCacheManager.addArtifactChecksum(artifactPath, e.getKey(), e.getValue()));
-    }
-    
-    private ArtifactEntry createArtifactEntry(ArtifactCoordinates artifactCoordinates,
-                                              String storageId,
-                                              String repositoryId,
-                                              String path)
-    {
-        ArtifactEntry artifactEntry = new ArtifactEntry();
-        artifactEntry.setStorageId(storageId);
-        artifactEntry.setRepositoryId(repositoryId);
-        artifactEntry.setArtifactCoordinates(artifactCoordinates);
-        artifactEntry.setArtifactPath(path);
-        return artifactEntry;
     }
     
     private boolean performRepositoryAcceptanceValidation(RepositoryPath path)

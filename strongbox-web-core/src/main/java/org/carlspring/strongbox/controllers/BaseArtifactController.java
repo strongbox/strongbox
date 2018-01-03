@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import io.swagger.annotations.Api;
 import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -154,8 +155,15 @@ public abstract class BaseArtifactController
         
         if (file.isDirectory() && !requestUri.endsWith("/"))
         {
-            response.setLocale(new Locale(request.getRequestURI() + "/"));
-            response.setStatus(HttpStatus.TEMPORARY_REDIRECT.value());
+            try
+            {
+                response.sendRedirect(requestUri + "/");
+            }
+            catch (IOException e)
+            {
+                logger.debug("Error redirecting to " + requestUri + "/");
+            }
+            return;
         }
 
         try
