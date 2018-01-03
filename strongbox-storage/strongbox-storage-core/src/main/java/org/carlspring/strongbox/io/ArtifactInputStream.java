@@ -29,15 +29,16 @@ import org.slf4j.LoggerFactory;
  * <pre>
  * ...
  * RepositoryPath repositoryPath = layoutProvider.resolve("path/to/your/artifact/file.ext");
- * ArtifactInputStream aos = (ArtifactInputStream) Files.newInputStream(repositoryPath); 
+ * ArtifactInputStream aos = (ArtifactInputStream) Files.newInputStream(repositoryPath);
  * ...
  * </pre>
- * 
+ *
  * @author mtodorov
  */
 public abstract class ArtifactInputStream
         extends FilterInputStream
 {
+
     private static final Logger logger = LoggerFactory.getLogger(ArtifactInputStream.class);
     public static final String[] DEFAULT_ALGORITHMS = { EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm(),
@@ -54,7 +55,7 @@ public abstract class ArtifactInputStream
     public ArtifactInputStream(ArtifactCoordinates coordinates,
                                InputStream is,
                                Set<String> checkSumDigestAlgorithmSet)
-        throws NoSuchAlgorithmException
+            throws NoSuchAlgorithmException
     {
         super(is);
         this.artifactCoordinates = coordinates;
@@ -69,16 +70,20 @@ public abstract class ArtifactInputStream
     private boolean isInputStreamValid()
             throws IOException
     {
-        if (in.available()>0)
-             return true;
+        if (in.available() > 0)
+        {
+            return true;
+        }
         else
+        {
             return false;
+        }
 
     }
 
     public ArtifactInputStream(ArtifactCoordinates coordinates,
                                InputStream is)
-        throws NoSuchAlgorithmException
+            throws NoSuchAlgorithmException
     {
         this(coordinates, is, new HashSet<String>()
         {
@@ -116,7 +121,7 @@ public abstract class ArtifactInputStream
     {
         hexDigests.clear();
     }
-    
+
     public Map<String, String> getHexDigests()
     {
         return hexDigests;
@@ -156,7 +161,7 @@ public abstract class ArtifactInputStream
                 MessageDigest digest = (MessageDigest) entry.getValue();
                 digest.update((byte) ch);
             }
-            
+
 
         }
 
@@ -177,7 +182,8 @@ public abstract class ArtifactInputStream
                 MessageDigest digest = (MessageDigest) entry.getValue();
                 digest.update(bytes, off, numberOfBytesRead);
             }
-            if(isInputStreamValid()){
+            if (isInputStreamValid())
+            {
                 this.extension = getFileExtension(bytes);
 
             }
@@ -207,17 +213,19 @@ public abstract class ArtifactInputStream
     }
 
     /**
-     * This method finds out the file extension using inputStream.
-     * @return
+     * This method reads array of input stream bytes to find out the file extension using Apache Tika.
+     *
      * @param bytes
+     * @return
      */
-    public String getFileExtension(byte[] bytes){
+    public String getFileExtension(byte[] bytes)
+    {
         String fileExtension = null;
-         try
+        try
         {
             TikaConfig tika = new TikaConfig();
 
-            MediaType mediaType=tika.getDetector().detect(TikaInputStream.get(bytes), new Metadata());
+            MediaType mediaType = tika.getDetector().detect(TikaInputStream.get(bytes), new Metadata());
             MimeType mimeType = tika.getMimeRepository().forName(mediaType.toString());
             fileExtension = mimeType.getExtension();
 
@@ -230,7 +238,6 @@ public abstract class ArtifactInputStream
         {
             e.printStackTrace();
         }
-
 
         return fileExtension;
     }

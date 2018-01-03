@@ -3,6 +3,7 @@ package org.carlspring.strongbox.io;
 /**
  * Created by dinesh on 1/2/18.
  */
+
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 
@@ -15,7 +16,7 @@ public class ArtifactInputStreamTest
 {
 
 
-    ArtifactInputStream artifactInputStream ;
+    ArtifactInputStream artifactInputStream;
     InputStream inputStream;
     String pathTxt, pathSh;
 
@@ -30,12 +31,15 @@ public class ArtifactInputStreamTest
 
 
     @Test
-    public void testFileExtensionEqualsTxt()  throws FileNotFoundException, NoSuchAlgorithmException
+    public void testFileExtensionEqualsTxt()
+            throws FileNotFoundException, NoSuchAlgorithmException
     {
         try
         {
             inputStream = new BufferedInputStream(new FileInputStream(pathTxt.trim()));
-            artifactInputStream = new ArtifactInputStream(null, inputStream){};
+            artifactInputStream = new ArtifactInputStream(null, inputStream)
+            {
+            };
             assertTrue(artifactInputStream.getFileExtension(IOUtils.toByteArray(inputStream)).equalsIgnoreCase(".txt"));
         }
         catch (IOException e)
@@ -45,12 +49,15 @@ public class ArtifactInputStreamTest
     }
 
     @Test
-    public void testFileExtensionEqualsGz()  throws FileNotFoundException, NoSuchAlgorithmException
+    public void testFileExtensionEqualsGz()
+            throws FileNotFoundException, NoSuchAlgorithmException
     {
         try
         {
             inputStream = new BufferedInputStream(new FileInputStream(pathSh.trim()));
-            artifactInputStream = new ArtifactInputStream(null, inputStream){};
+            artifactInputStream = new ArtifactInputStream(null, inputStream)
+            {
+            };
             assertTrue(artifactInputStream.getFileExtension(IOUtils.toByteArray(inputStream)).equalsIgnoreCase(".gz"));
         }
         catch (IOException e)
