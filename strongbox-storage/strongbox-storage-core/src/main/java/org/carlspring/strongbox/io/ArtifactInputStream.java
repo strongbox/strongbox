@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * <pre>
  * ...
  * RepositoryPath repositoryPath = layoutProvider.resolve("path/to/your/artifact/file.ext");
- * ArtifactInputStream aos = (ArtifactInputStream) Files.newInputStream(repositoryPath);
+ * ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(repositoryPath);
  * ...
  * </pre>
  *
