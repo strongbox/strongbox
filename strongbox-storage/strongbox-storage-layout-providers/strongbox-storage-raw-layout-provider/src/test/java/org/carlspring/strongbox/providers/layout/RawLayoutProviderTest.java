@@ -15,6 +15,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.*;
+import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -141,6 +142,7 @@ public class RawLayoutProviderTest
         Repository repository = new Repository(repositoryId);
         repository.setStorage(configurationManagementService.getConfiguration().getStorage(storageId));
         repository.setLayout(RawLayoutProvider.ALIAS);
+        repository.setVersionValidators(Collections.emptySet());
 
         configurationManagementService.saveRepository(storageId, repository);
 
