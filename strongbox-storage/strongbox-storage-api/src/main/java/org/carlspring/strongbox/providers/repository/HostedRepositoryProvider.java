@@ -118,7 +118,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
             RepositoryPath repositoryPath;
             try
             {
-                repositoryPath = layoutProvider.resolve(repository, artifactEntry.getArtifactCoordinates());
+                repositoryPath = layoutProvider.resolve(repository).resolve(artifactEntry);
             }
             catch (Exception e)
             {
