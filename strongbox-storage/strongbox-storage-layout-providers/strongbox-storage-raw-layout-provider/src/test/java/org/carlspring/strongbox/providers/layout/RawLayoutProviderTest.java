@@ -5,10 +5,10 @@ import org.carlspring.strongbox.config.RawLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.data.PropertyUtils;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.services.impl.RawArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -47,7 +47,7 @@ public class RawLayoutProviderTest
     RepositoryManagementService repositoryManagementService;
 
     @Inject
-    RawArtifactManagementService rawArtifactManagementService;
+    ArtifactManagementService artifactManagementService;
 
 
     @Before
@@ -75,7 +75,6 @@ public class RawLayoutProviderTest
         System.out.println("coordinates.toPath(): " + coordinates.toPath());
     }
 
-
     @Test
     public void testDeployAndResolveArtifact()
             throws Exception
@@ -92,10 +91,10 @@ public class RawLayoutProviderTest
         }
 
         // Deploy the artifact
-        rawArtifactManagementService.validateAndStore(STORAGE,
-                                                      REPOSITORY,
-                                                      path,
-                                                      createZipFile(artifactTempFile.getPath()));
+        artifactManagementService.validateAndStore(STORAGE,
+                                                   REPOSITORY,
+                                                   path,
+                                                   createZipFile(artifactTempFile.getPath()));
 
         assertTrue("Failed to deploy artifact!", artifactFile.exists());
         assertTrue("Failed to deploy artifact!", artifactFile.length() > 0);
@@ -103,10 +102,10 @@ public class RawLayoutProviderTest
         // Attempt to re-deploy the artifact
         try
         {
-            rawArtifactManagementService.validateAndStore(STORAGE,
-                                                          REPOSITORY,
-                                                          path,
-                                                          createZipFile(artifactTempFile.getPath()));
+            artifactManagementService.validateAndStore(STORAGE,
+                                                       REPOSITORY,
+                                                       path,
+                                                       createZipFile(artifactTempFile.getPath()));
         }
         catch (Exception e)
         {
@@ -122,7 +121,7 @@ public class RawLayoutProviderTest
         }
 
         // Attempt to resolve the artifact
-        InputStream is = rawArtifactManagementService.resolve(STORAGE, REPOSITORY, path);
+        InputStream is = artifactManagementService.resolve(STORAGE, REPOSITORY, path);
         int total = 0;
         int len;
         final int size = 4096;

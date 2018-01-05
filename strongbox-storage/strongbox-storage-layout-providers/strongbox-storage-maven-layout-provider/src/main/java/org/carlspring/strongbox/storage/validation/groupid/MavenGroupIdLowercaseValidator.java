@@ -25,7 +25,7 @@ public class MavenGroupIdLowercaseValidator
     @Override
     public void validateCase(RepositoryPath repositoryPath)
             throws LowercaseValidationException,
-                   ProviderImplementationException, IOException
+                   IOException
     {
         RepositoryFileAttributes repositoryFileAttributes = this.getAttributes(repositoryPath);
 

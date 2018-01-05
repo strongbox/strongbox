@@ -4,10 +4,8 @@ package org.carlspring.strongbox.providers.layout;
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
-import org.carlspring.strongbox.repository.RawRepositoryFeatures;
 import org.carlspring.strongbox.repository.RawRepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.services.impl.RawArtifactManagementService;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -24,9 +22,7 @@ import org.springframework.stereotype.Component;
  */
 @Component("rawLayoutProvider")
 public class RawLayoutProvider
-        extends AbstractLayoutProvider<NullArtifactCoordinates,
-                                       RawRepositoryFeatures,
-                                       RawRepositoryManagementStrategy>
+        extends AbstractLayoutProvider<NullArtifactCoordinates>
         implements RepositoryPathHandler
 {
 
@@ -35,7 +31,7 @@ public class RawLayoutProvider
     private static final Logger logger = LoggerFactory.getLogger(RawLayoutProvider.class);
     
     @Inject
-    private RawArtifactManagementService rawArtifactManagementService;
+    private ArtifactManagementService artifactManagementService;
 
     @Inject
     private RawRepositoryManagementStrategy rawRepositoryManagementStrategy;
@@ -114,7 +110,7 @@ public class RawLayoutProvider
     @Override
     public ArtifactManagementService getArtifactManagementService()
     {
-        return rawArtifactManagementService;
+        return artifactManagementService;
     }
 
     protected RepositoryPathHandler getRepositoryPathHandler()

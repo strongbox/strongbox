@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.spi.FileSystemProvider;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
@@ -23,6 +8,20 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.spi.FileSystemProvider;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
