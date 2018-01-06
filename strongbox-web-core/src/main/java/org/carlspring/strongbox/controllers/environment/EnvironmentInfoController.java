@@ -100,7 +100,7 @@ public class EnvironmentInfoController
                 argument = argument.substring(2);
                 String[] argumentArray = argument.split("=");
                 String argumentName = argumentArray[0];
-                String argumentValue = argumentArray.length == 2 ? argumentArray[1] : null;
+                String argumentValue = argumentArray.length == 2 ? argumentArray[1] : "";
                 if (!jvmArgumentsMap.containsKey(argumentName))
                 {
                     jvmArgumentsMap.put(argumentName, argumentValue);
