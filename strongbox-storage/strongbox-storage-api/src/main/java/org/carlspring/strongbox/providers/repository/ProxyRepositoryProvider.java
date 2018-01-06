@@ -129,4 +129,13 @@ public class ProxyRepositoryProvider
 
         return artifactEntry;
     }
+
+    @Override
+    public Path getPath(String storageId,
+                        String repositoryId,
+                        String artifactPath)
+            throws IOException
+    {
+        return null;
+    }
 }

@@ -15,6 +15,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.support.ArtifactByteStreamsCopyStrategyDeterminator;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
@@ -447,6 +448,15 @@ public class ArtifactManagementService implements ConfigurationService
         {
             FileUtils.copyFile(srcFile, destFile);
         }
+    }
+
+    public RepositoryPath getPath(String storageId,
+                                  String repositoryId,
+                                  String path) 
+             throws IOException
+    {
+        return artifactResolutionService.getPath(storageId, repositoryId, path);
+        
     }
     
 }

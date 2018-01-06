@@ -346,4 +346,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return artifactEntryService.countCoordinates(storageRepositoryPairSet, searchRequest.getCoordinates(),
                                                      searchRequest.isStrict());
     }
+
+    @Override
+    public Path getPath(String storageId,
+                        String repositoryId,
+                        String artifactPath)
+           throws IOException
+    {
+        return null;
+    }
 }
