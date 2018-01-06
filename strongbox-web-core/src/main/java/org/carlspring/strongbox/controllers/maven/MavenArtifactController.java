@@ -276,6 +276,7 @@ public class MavenArtifactController
             return;
         }
         
+<<<<<<< fc6c41620286d6a0a80fb0741832f720e0e700ef
         try 
         {
             try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
@@ -302,6 +303,47 @@ public class MavenArtifactController
             response.setStatus(INTERNAL_SERVER_ERROR.value());
         }
                 
+=======
+<<<<<<< 06420f27e10cafa9d0ebd2ab5b9500b013e11644
+        ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath);
+        Repository repository = configurationManager.getRepository(storageId, repositoryId);
+        RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais);
+      
+        RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
+        
+        ArtifactControllerHelper.setHeadersForChecksums(is, response);
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
+        response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
+        setMediaTypeHeader(path, response);
+=======
+        InputStream is = Files.newInputStream(resolvedPath);
+        
+        if(!response.containsHeader("Content-Length"))
+        {
+            long totalBytes = 0L;
+            int readLength;
+            byte[] bytes = new byte[4096];
+            
+            while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
+            {
+                totalBytes += readLength;
+            }
+        
+            response.setHeader("Content-Length", Long.toString(totalBytes));
+        }
+        
+        RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
+        logger.debug("xxx");
+        //response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
+        logger.debug("yy");
+        ArtifactControllerHelper.setHeadersForChecksums(is, response);
+        logger.debug("zz");
+        response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
+>>>>>>> Added header support for Hosted Repositories
+        
+        logger.debug("Header Download succeeded.");
+>>>>>>> Added header support for Hosted Repositories
     }
     
     private void setMediaTypeHeader(String path,
