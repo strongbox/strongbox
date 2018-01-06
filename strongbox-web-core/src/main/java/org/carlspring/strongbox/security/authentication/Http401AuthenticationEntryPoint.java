@@ -20,7 +20,7 @@ public class Http401AuthenticationEntryPoint
 
     public Http401AuthenticationEntryPoint(String headerValue)
     {
-        this.headerValue = headerValue;
+        this.headerValue = headerValue.replaceAll("\"", "'");
     }
 
     @Override
@@ -32,7 +32,7 @@ public class Http401AuthenticationEntryPoint
     {
         if (!IS_AJAX_REQUEST_HEADER_VALUE.equals(request.getHeader(IS_AJAX_REQUEST_HEADER_NAME)))
         {
-            response.setHeader("WWW-Authenticate", this.headerValue);
+            response.setHeader("WWW-Authenticate", "Basic realm=\"" + this.headerValue + "\"");
         }
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
     }
