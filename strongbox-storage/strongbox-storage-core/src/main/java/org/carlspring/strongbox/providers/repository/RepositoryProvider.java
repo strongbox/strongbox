@@ -35,4 +35,9 @@ public interface RepositoryProvider
     
     Long count(RepositorySearchRequest searchRequest);
 
+    Path getPath(String storageId,
+                 String repositoryId,
+                 String artifactPath) 
+            throws IOException;
+
 }

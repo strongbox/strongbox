@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -26,6 +27,10 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.RepositoryInputStream;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -213,7 +218,60 @@ public class MavenArtifactController
 
         logger.debug("Download succeeded.");
     }
-
+    
+    @ApiOperation(value = "Used to retrieve headers of an artifact", position = 2)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
+                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = RequestMethod.HEAD)
+    public void getHeaders(@ApiParam(value = "The storageId", required = true)
+                           @PathVariable String storageId,
+                           @ApiParam(value = "The repositoryId", required = true)
+                           @PathVariable String repositoryId,
+                           @RequestHeader HttpHeaders httpHeaders,
+                           @PathVariable String path,
+                           HttpServletRequest request,
+                           HttpServletResponse response)
+            throws Exception
+    {
+        logger.debug("Requested headers for /" + storageId + "/" + repositoryId + "/" + path + ".");
+        
+        RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
+        
+        logger.debug("Resolved path : " + resolvedPath);
+        if(resolvedPath == null)
+        {
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            return;
+        }
+        
+        InputStream is = Files.newInputStream(resolvedPath);
+        
+        if(!response.containsHeader("Content-Length"))
+        {
+            long totalBytes = 0L;
+            int readLength;
+            byte[] bytes = new byte[4096];
+            
+            while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
+            {
+                totalBytes += readLength;
+            }
+        
+            response.setHeader("Content-Length", Long.toString(totalBytes));
+        }
+        
+        RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
+        logger.debug("xxx");
+        //response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
+        logger.debug("yy");
+        ArtifactControllerHelper.setHeadersForChecksums(is, response);
+        logger.debug("zz");
+        response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
+        
+        logger.debug("Header Download succeeded.");
+    }
+    
     private void setMediaTypeHeader(String path,
                                     HttpServletResponse response)
     {
