@@ -133,7 +133,7 @@ public class SecurityConfig
     @Bean
     AuthenticationEntryPoint customBasicAuthenticationEntryPoint()
     {
-        return new Http401AuthenticationEntryPoint("Protected area. Please provide user credentials.");
+        return new Http401AuthenticationEntryPoint("Strongbox Repository Manager");
     }
 
     @Bean
