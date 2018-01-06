@@ -5,8 +5,8 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.io.*;
-import java.nio.file.Paths;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -136,9 +136,8 @@ public class MetadataMerger
     }
 
     /**
-     * This method will read the artifact and extract the plugin.xml from the artifact archive and extract it to
-     * temp folder in the same location as the artifact. It then reads plugin.xml using SAX parser and extracts information.
-     * After the information is read, the temp file and it's contents (plugin.xml) are deleted.
+     * This method will read the artifact and find the plugin.xml in the artifact archive
+     * It then reads plugin.xml using SAX parser and extracts information.
      *
      * @param artifact
      * @return
@@ -146,9 +145,7 @@ public class MetadataMerger
     private Plugin getPluginFromArtifact(PluginArtifact artifact)
     {
         Plugin plugin = new Plugin();
-        extractPluginXmlFromArtifact(artifact);
-        //Read the xml file using sax parser and set the plugin value for artifact and prefix
-        HashMap<String, String> pluginMap = readPluginXmlFileAndDelete(artifact);
+        HashMap<String, String> pluginMap = extractAndReadPluginXmlFromArtifact(artifact);
 
         plugin.setName(pluginMap.get("name"));
         plugin.setPrefix(pluginMap.get("goalPrefix"));
@@ -157,28 +154,29 @@ public class MetadataMerger
     }
 
     /**
-     * This method iterates over the archived artifact and calls the method extractPluginXmlFile() if the plugin.xml
+     * This method iterates over the archived artifact until it finds the plugin.xml
+     * and calls the method extractPluginXmlFile() if the plugin.xml
      * is found for extraction
      *
      * @param artifact
      */
-    private void extractPluginXmlFromArtifact(PluginArtifact artifact)
+    private HashMap<String, String> extractAndReadPluginXmlFromArtifact(PluginArtifact artifact)
     {
 
         FileInputStream fileInputStream = null;
         ZipInputStream zipInputStream;
         ZipEntry zipEntry;
-
+        HashMap<String, String> pluginMap = null;
         try
         {
             fileInputStream = new FileInputStream(artifact.getFile().getCanonicalPath());
             zipInputStream = new ZipInputStream(fileInputStream);
 
-            while ((zipEntry = zipInputStream.getNextEntry()) != null)
-            {
-                boolean isFileExtracted = extractPluginXmlFile(zipEntry, artifact, zipInputStream);
-                if (isFileExtracted)
+
+            while ((zipEntry = zipInputStream.getNextEntry()) != null ){
+                if(zipEntry.getName().endsWith("plugin.xml"))
                 {
+                    pluginMap = readPluginXmlFile(zipInputStream);
                     break;
                 }
             }
@@ -190,76 +188,26 @@ public class MetadataMerger
                     " " + e.getMessage());
         }
 
+        return pluginMap;
+
     }
 
-    /**
-     * This method will extract plugin.xml from artifact archive and save it in the temp directory
-     *
-     * @param zipEntry
-     * @param artifact
-     * @param zipInputStream
-     * @return
-     * @throws IOException
-     */
-    private boolean extractPluginXmlFile(ZipEntry zipEntry,
-                                         PluginArtifact artifact,
-                                         ZipInputStream zipInputStream)
-            throws IOException
-    {
-        StringBuilder stringBuilder = new StringBuilder();
-        boolean fileFound = false;
-        if (zipEntry.getName().endsWith("plugin.xml"))
-        {
-            stringBuilder.append(Paths.get(artifact.getFile().getCanonicalPath().toString()).getParent().toString())
-                         .append("/temp")
-                         .append(artifact.getArtifactId());
-            (new File(stringBuilder.toString())).mkdirs();
 
-            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(stringBuilder.append(
-                    "/plugin.xml").toString()));
-
-            byte[] buffer = new byte[4096];
-            int read = 0;
-            while ((read = zipInputStream.read(buffer)) != -1)
-            {
-                bos.write(buffer, 0, read);
-                fileFound = true;
-            }
-
-            bos.close();
-        }
-        return fileFound;
-    }
-
-    /**
-     * This method reads the plugin.xml under temp folder and then deletes the whole temp directory
-     *
-     * @param artifact
-     * @return
-     * @throws IOException
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     */
-    private HashMap<String, String> readPluginXmlFileAndDelete(PluginArtifact artifact)
+    private HashMap<String, String> readPluginXmlFile(ZipInputStream zis)
 
     {
-        StringBuilder stringBuilder = new StringBuilder();
+
         PluginHandler handler = new PluginHandler();
         SAXParserFactory saxParserFactory;
         SAXParser saxParser;
 
         try
         {
-            stringBuilder.append(Paths.get(artifact.getFile().getCanonicalPath()).getParent())
-                         .append("/temp")
-                         .append(artifact.getArtifactId());
-            String tempDirPath = stringBuilder.toString();
+
             saxParserFactory = SAXParserFactory.newInstance();
             saxParser = saxParserFactory.newSAXParser();
-            saxParser.parse(new File(tempDirPath + "//plugin.xml"), handler);
-            //delete the temp directory and plugin.xml
-            new File(tempDirPath + "/plugin.xml").delete();
-            new File(tempDirPath).delete();
+            saxParser.parse(zis, handler);
+
         }
         catch (IOException | SAXException | ParserConfigurationException e)
         {
