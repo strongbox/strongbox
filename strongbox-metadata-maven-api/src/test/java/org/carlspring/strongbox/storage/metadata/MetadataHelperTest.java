@@ -1,21 +1,30 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.Plugin;
-import org.apache.maven.artifact.repository.metadata.Snapshot;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
-import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.artifact.repository.metadata.*;
 import org.apache.maven.project.artifact.PluginArtifact;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mock;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -42,17 +51,144 @@ public class MetadataHelperTest
 
     private MetadataMerger metadataMerger;
 
+    private File pluginXmlFile;
+    private static String pluginXmlFilePath;
     @Mock
     private Artifact artifact;
 
     @Mock
     private PluginArtifact pluginArtifact;
 
+
     @Before
     public void setUp()
     {
         initMocks(this);
         metadataMerger = new MetadataMerger();
+    }
+
+    @BeforeClass
+    public static void setUpBeforeAll()
+            throws IOException
+    {
+        createPluginXmlFile();
+        crateJarFile();
+    }
+
+    @AfterClass
+    public static void down()
+    {
+        deleteTestResources();
+
+    }
+
+    private static void deleteTestResources()
+    {
+        Path dirPath = Paths.get(pluginXmlFilePath).getParent();
+        try
+        {
+            Files.walk(dirPath)
+                 .map(Path::toFile)
+                 .sorted(Comparator.comparing(File::isDirectory))
+                 .forEach(File::delete);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private static void crateJarFile()
+    {
+        String parentPluginPath = String.valueOf(Paths.get(pluginXmlFilePath).getParent());
+        try (FileOutputStream fos = new FileOutputStream(parentPluginPath + "/maven-dependency-plugin-3.0.2.jar");
+             ZipOutputStream zipOS = new ZipOutputStream(fos))
+        {
+            writeToZipFile(pluginXmlFilePath + "/plugin.xml", zipOS);
+            System.out.println("");
+
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private static void writeToZipFile(String path,
+                                       ZipOutputStream zipStream)
+            throws IOException
+    {
+        File aFile = new File(path);
+        FileInputStream fis = new FileInputStream(aFile);
+        ZipEntry zipEntry = new ZipEntry(path);
+        zipStream.putNextEntry(zipEntry);
+
+        byte[] bytes = new byte[1024];
+        int length;
+        while ((length = fis.read(bytes)) >= 0)
+        {
+            zipStream.write(bytes, 0, length);
+        }
+
+        zipStream.closeEntry();
+        fis.close();
+
+    }
+
+    private static void createPluginXmlFile()
+            throws IOException
+    {
+        File file = new File("");
+        pluginXmlFilePath = file.getCanonicalPath().toString() + "/src/test/resources/maven-dependency-plugin-3.0.2";
+        Files.createDirectories(Paths.get(pluginXmlFilePath));
+
+        try
+        {
+            String xmlSource = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                               "<plugin>\n" +
+                               "  <name>Apache Maven Dependency Plugin</name>\n" +
+                               "  <description>Provides utility goals to work with dependencies like copying, unpacking, analyzing, resolving and many more.</description>\n" +
+                               "  <groupId>org.apache.maven.plugins</groupId>\n" +
+                               "  <artifactId>maven-dependency-plugin</artifactId>\n" +
+                               "  <version>3.0.2</version>\n" +
+                               "  <goalPrefix>dependency</goalPrefix>\n" +
+                               "</plugin>";
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new InputSource(new StringReader(xmlSource)));
+
+            // Write the parsed document to an xml file
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+
+            StreamResult result = new StreamResult(new File(pluginXmlFilePath + "/plugin.xml"));
+            transformer.transform(source, result);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        catch (TransformerConfigurationException e)
+        {
+            e.printStackTrace();
+        }
+        catch (TransformerException e)
+        {
+            e.printStackTrace();
+        }
+        catch (SAXException e)
+        {
+            e.printStackTrace();
+        }
+        catch (ParserConfigurationException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -90,9 +226,9 @@ public class MetadataHelperTest
         Assert.assertNotNull(metadata.getVersioning().getSnapshotVersions().get(2).getUpdated());
 
         Assert.assertTrue(metadata.getVersioning().getSnapshotVersions().get(0).getVersion()
-                .equals(metadata.getVersioning().getSnapshotVersions().get(1).getVersion()));
+                                  .equals(metadata.getVersioning().getSnapshotVersions().get(1).getVersion()));
         Assert.assertTrue(metadata.getVersioning().getSnapshotVersions().get(1).getVersion()
-                .equals(metadata.getVersioning().getSnapshotVersions().get(2).getVersion()));
+                                  .equals(metadata.getVersioning().getSnapshotVersions().get(2).getVersion()));
     }
 
     @Test
@@ -128,9 +264,9 @@ public class MetadataHelperTest
         Assert.assertNotNull(metadata.getVersioning().getSnapshotVersions().get(5).getUpdated());
 
         Assert.assertTrue(metadata.getVersioning().getSnapshotVersions().get(3).getVersion()
-                .equals(metadata.getVersioning().getSnapshotVersions().get(4).getVersion()));
+                                  .equals(metadata.getVersioning().getSnapshotVersions().get(4).getVersion()));
         Assert.assertTrue(metadata.getVersioning().getSnapshotVersions().get(4).getVersion()
-                .equals(metadata.getVersioning().getSnapshotVersions().get(5).getVersion()));
+                                  .equals(metadata.getVersioning().getSnapshotVersions().get(5).getVersion()));
     }
 
     @Test
@@ -223,7 +359,10 @@ public class MetadataHelperTest
     {
         // Given
         when(pluginArtifact.getGroupId()).thenReturn(GROUP_ID);
-        when(pluginArtifact.getArtifactId()).thenReturn(ARTIFACT_ID);
+        when(pluginArtifact.getArtifactId()).thenReturn("maven-dependency-plugin");
+
+        String filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/maven-dependency-plugin-3.0.2.jar";
+        when(pluginArtifact.getFile()).thenReturn(new File(filePath));
 
         // When
         Metadata metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) pluginArtifact, null);
@@ -231,26 +370,29 @@ public class MetadataHelperTest
         // Then
         Assert.assertNotNull(metadata.getPlugins());
         Assert.assertEquals(1, metadata.getPlugins().size());
-        Assert.assertEquals(ARTIFACT_ID, metadata.getPlugins().get(0).getArtifactId());
-        Assert.assertNotNull(metadata.getPlugins().get(0).getName());
-        Assert.assertNotNull(metadata.getPlugins().get(0).getPrefix());
+        Assert.assertEquals("maven-dependency-plugin", metadata.getPlugins().get(0).getArtifactId());
+        Assert.assertEquals("Apache Maven Dependency Plugin", metadata.getPlugins().get(0).getName());
+        Assert.assertEquals("dependency", metadata.getPlugins().get(0).getPrefix());
     }
 
     @Test
     public void groupLevelUpdateMetadataAddPluginTest()
+            throws IOException
     {
         // Given
         Metadata metadata = createGroupLevelMetadata();
-        when(pluginArtifact.getArtifactId()).thenReturn(ARTIFACT_ID);
+        when(pluginArtifact.getArtifactId()).thenReturn("maven-dependency-plugin");
+        String filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/maven-dependency-plugin-3.0.2.jar";
+        when(pluginArtifact.getFile()).thenReturn(new File(filePath));
 
         // When
         metadata = metadataMerger.updateMetadataAtGroupLevel(pluginArtifact, metadata);
 
         // Then
         Assert.assertEquals(2, metadata.getPlugins().size());
-        Assert.assertEquals(ARTIFACT_ID, metadata.getPlugins().get(1).getArtifactId());
-        Assert.assertEquals("", metadata.getPlugins().get(1).getName());
-        Assert.assertEquals("", metadata.getPlugins().get(1).getPrefix());
+        Assert.assertEquals("maven-dependency-plugin", metadata.getPlugins().get(1).getArtifactId());
+        Assert.assertEquals("Apache Maven Dependency Plugin", metadata.getPlugins().get(1).getName());
+        Assert.assertEquals("dependency", metadata.getPlugins().get(1).getPrefix());
     }
 
     @Test
@@ -327,7 +469,9 @@ public class MetadataHelperTest
         return metadata;
     }
 
-    private Collection<SnapshotVersion> createNewSnapshotVersions(String version, String timestamp, int buildNumber)
+    private Collection<SnapshotVersion> createNewSnapshotVersions(String version,
+                                                                  String timestamp,
+                                                                  int buildNumber)
     {
         Collection<SnapshotVersion> toReturn = new ArrayList<>();
 
@@ -342,17 +486,17 @@ public class MetadataHelperTest
         sv1.setClassifier("javadoc");
         sv1.setExtension("jar");
         sv1.setVersion(version.replace("SNAPSHOT",
-                timestamp.substring(0, 7) + "." + timestamp.substring(8) + "-" + buildNumber));
+                                       timestamp.substring(0, 7) + "." + timestamp.substring(8) + "-" + buildNumber));
         sv1.setUpdated(timestamp);
 
         sv2.setExtension("jar");
         sv2.setVersion(version.replace("SNAPSHOT",
-                timestamp.substring(0, 7) + "." + timestamp.substring(8) + "-" + buildNumber));
+                                       timestamp.substring(0, 7) + "." + timestamp.substring(8) + "-" + buildNumber));
         sv2.setUpdated(timestamp);
 
         sv3.setExtension("pom");
         sv3.setVersion(version.replace("SNAPSHOT",
-                timestamp.substring(0, 7) + "." + timestamp.substring(8) + "-" + buildNumber));
+                                       timestamp.substring(0, 7) + "." + timestamp.substring(8) + "-" + buildNumber));
         sv3.setUpdated(timestamp);
 
         return toReturn;
