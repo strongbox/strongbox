@@ -173,8 +173,9 @@ public class MetadataMerger
             zipInputStream = new ZipInputStream(fileInputStream);
 
 
-            while ((zipEntry = zipInputStream.getNextEntry()) != null ){
-                if(zipEntry.getName().endsWith("plugin.xml"))
+            while ((zipEntry = zipInputStream.getNextEntry()) != null)
+            {
+                if (zipEntry.getName().endsWith("plugin.xml"))
                 {
                     pluginMap = readPluginXmlFile(zipInputStream);
                     break;
@@ -194,7 +195,6 @@ public class MetadataMerger
 
 
     private HashMap<String, String> readPluginXmlFile(ZipInputStream zis)
-
     {
 
         PluginHandler handler = new PluginHandler();
@@ -203,16 +203,13 @@ public class MetadataMerger
 
         try
         {
-
             saxParserFactory = SAXParserFactory.newInstance();
             saxParser = saxParserFactory.newSAXParser();
             saxParser.parse(zis, handler);
-
         }
         catch (IOException | SAXException | ParserConfigurationException e)
         {
             logger.error("*** Error occurred while trying to parse the plugin.xml File " + e.getMessage());
-
         }
 
         return handler.getPluginMap();
