@@ -8,6 +8,7 @@ Welcome to the Strongbox artifact repository manager's home.
 # What's implemented:
 * [Repositories](https://github.com/strongbox/strongbox/wiki/Repositories):
   * Hosted
+  * Proxy
   * Group
     * Support for repository ordering
     * Support for routing rules
