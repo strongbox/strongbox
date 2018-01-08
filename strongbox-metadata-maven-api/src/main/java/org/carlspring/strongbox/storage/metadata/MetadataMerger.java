@@ -101,7 +101,7 @@ public class MetadataMerger
     }
 
     /**
-     * This method looks at the existing maven-etadata.xml plugins list and compares with incoming PluginArtifact.
+     * This method looks at the existing maven-metadata.xml plugins list and compares with incoming PluginArtifact.
      * If the incoming artifact plugin is not present in the existing Metadata then it tries to add the information
      * of the incoming artifact plugin else it ignores it.
      *
