@@ -53,10 +53,25 @@ public class EnvironmentInfo
         this.value = value;
     }
 
-
     @Override
     public int compareTo(EnvironmentInfo other)
     {
         return getName().compareTo(other.getName());
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EnvironmentInfo that = (EnvironmentInfo) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode()
+    {
+
+        return Objects.hash(name);
     }
 }

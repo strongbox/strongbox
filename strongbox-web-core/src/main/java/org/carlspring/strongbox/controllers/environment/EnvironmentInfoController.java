@@ -2,6 +2,8 @@ package org.carlspring.strongbox.controllers.environment;
 
 import org.carlspring.strongbox.controllers.BaseController;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,20 +39,18 @@ public class EnvironmentInfoController
         this.objectMapper = objectMapper;
     }
 
-    @ApiOperation(value = "List all the environment variables and system properties.")
+    @ApiOperation(value = "List all the environment variables, system properties and JVM arguments.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getEnvironmentAndSystemProperties()
+    public ResponseEntity getEnvironmentInfo()
     {
-        logger.debug("Listing of all environment variables and system properties");
+        logger.debug("Listing of all environment variables, system properties and JVM arguments");
 
-        Map<String, List<EnvironmentInfo>> propertiesMap = new HashMap<>();
-        List<EnvironmentInfo> environmentVariables = getEnvironmentVariables();
-        List<EnvironmentInfo> systemProperties = getSystemProperties();
-
-        propertiesMap.put("environment", environmentVariables);
-        propertiesMap.put("system", systemProperties);
+        Map<String, List<?>> propertiesMap = new LinkedHashMap<>();
+        propertiesMap.put("environment", getEnvironmentVariables());
+        propertiesMap.put("system", getSystemProperties());
+        propertiesMap.put("jvm", getJvmArguments());
 
         try
         {
@@ -69,7 +69,7 @@ public class EnvironmentInfoController
         Map<String, String> environmentMap = System.getenv();
 
         return environmentMap.entrySet().stream()
-                             .sorted(Map.Entry.comparingByKey())
+                             .sorted(Map.Entry.comparingByKey(String::compareToIgnoreCase))
                              .map(e -> new EnvironmentInfo(e.getKey(), e.getValue()))
                              .collect(Collectors.toList());
     }
@@ -79,11 +79,18 @@ public class EnvironmentInfoController
         Properties systemProperties = System.getProperties();
 
         return systemProperties.entrySet().stream()
-                               .sorted(Comparator.comparing(
-                                       Map.Entry::getKey,
-                                       Comparator.comparing(e -> (String) e))
-                               )
+                               .sorted(Comparator.comparing(e -> ((String) e.getKey()).toLowerCase()))
                                .map(e -> new EnvironmentInfo((String) e.getKey(), (String) e.getValue()))
                                .collect(Collectors.toList());
+    }
+
+    private List<String> getJvmArguments()
+    {
+        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+        List<String> arguments = runtimeMxBean.getInputArguments();
+
+        return arguments.stream()
+                        .sorted(String::compareToIgnoreCase)
+                        .collect(Collectors.toList());
     }
 }
