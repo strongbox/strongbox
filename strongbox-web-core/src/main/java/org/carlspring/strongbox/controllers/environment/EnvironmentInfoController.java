@@ -47,10 +47,10 @@ public class EnvironmentInfoController
     {
         logger.debug("Listing of all environment variables, system properties and JVM arguments");
 
-        Map<String, List<EnvironmentInfo>> propertiesMap = new LinkedHashMap<>();
+        Map<String, List<?>> propertiesMap = new LinkedHashMap<>();
         propertiesMap.put("environment", getEnvironmentVariables());
         propertiesMap.put("system", getSystemProperties());
-        propertiesMap.put("jvmArgs", getJvmArguments());
+        propertiesMap.put("jvm", getJvmArguments());
 
         try
         {
@@ -69,7 +69,7 @@ public class EnvironmentInfoController
         Map<String, String> environmentMap = System.getenv();
 
         return environmentMap.entrySet().stream()
-                             .sorted(Map.Entry.comparingByKey())
+                             .sorted(Map.Entry.comparingByKey(String::compareToIgnoreCase))
                              .map(e -> new EnvironmentInfo(e.getKey(), e.getValue()))
                              .collect(Collectors.toList());
     }
@@ -79,37 +79,18 @@ public class EnvironmentInfoController
         Properties systemProperties = System.getProperties();
 
         return systemProperties.entrySet().stream()
-                               .sorted(Comparator.comparing(
-                                       Map.Entry::getKey,
-                                       Comparator.comparing(e -> (String) e))
-                               )
+                               .sorted(Comparator.comparing(e -> ((String) e.getKey()).toLowerCase()))
                                .map(e -> new EnvironmentInfo((String) e.getKey(), (String) e.getValue()))
                                .collect(Collectors.toList());
     }
 
-    private List<EnvironmentInfo> getJvmArguments()
+    private List<String> getJvmArguments()
     {
         RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
         List<String> arguments = runtimeMxBean.getInputArguments();
-        Map<String, String> jvmArgumentsMap = new TreeMap<>();
 
-        for (String argument : arguments)
-        {
-            if (argument != null && argument.length() > 2 && argument.startsWith("-D"))
-            {
-                argument = argument.substring(2);
-                String[] argumentArray = argument.split("=");
-                String argumentName = argumentArray[0];
-                String argumentValue = argumentArray.length == 2 ? argumentArray[1] : "";
-                if (!jvmArgumentsMap.containsKey(argumentName))
-                {
-                    jvmArgumentsMap.put(argumentName, argumentValue);
-                }
-            }
-        }
-
-        return jvmArgumentsMap.entrySet().stream()
-                              .map(e -> new EnvironmentInfo(e.getKey(), e.getValue()))
-                              .collect(Collectors.toList());
+        return arguments.stream()
+                        .sorted(String::compareToIgnoreCase)
+                        .collect(Collectors.toList());
     }
 }
