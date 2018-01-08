@@ -100,7 +100,7 @@ public class MetadataHelperTest
 
     private static void crateJarFile()
     {
-        String parentPluginPath = String.valueOf(Paths.get(pluginXmlFilePath).getParent());
+        String parentPluginPath = String.valueOf(Paths.get(pluginXmlFilePath).getParent().getParent().getParent());
         try (FileOutputStream fos = new FileOutputStream(parentPluginPath + "/maven-dependency-plugin-3.0.2.jar");
              ZipOutputStream zipOS = new ZipOutputStream(fos))
         {
@@ -143,7 +143,7 @@ public class MetadataHelperTest
             throws IOException
     {
         File file = new File("");
-        pluginXmlFilePath = file.getCanonicalPath().toString() + "/src/test/resources/maven-dependency-plugin-3.0.2";
+        pluginXmlFilePath = file.getCanonicalPath().toString() + "/src/test/resources/maven-dependency-plugin-3.0.2/META-INF/maven";
         Files.createDirectories(Paths.get(pluginXmlFilePath));
 
         try
@@ -361,7 +361,7 @@ public class MetadataHelperTest
         when(pluginArtifact.getGroupId()).thenReturn(GROUP_ID);
         when(pluginArtifact.getArtifactId()).thenReturn("maven-dependency-plugin");
 
-        String filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/maven-dependency-plugin-3.0.2.jar";
+        String filePath = Paths.get(pluginXmlFilePath).getParent().getParent().getParent().toString() + "/maven-dependency-plugin-3.0.2.jar";
         when(pluginArtifact.getFile()).thenReturn(new File(filePath));
 
         // When
@@ -382,7 +382,7 @@ public class MetadataHelperTest
         // Given
         Metadata metadata = createGroupLevelMetadata();
         when(pluginArtifact.getArtifactId()).thenReturn("maven-dependency-plugin");
-        String filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/maven-dependency-plugin-3.0.2.jar";
+        String filePath = Paths.get(pluginXmlFilePath).getParent().getParent().getParent().toString() + "/maven-dependency-plugin-3.0.2.jar";
         when(pluginArtifact.getFile()).thenReturn(new File(filePath));
 
         // When

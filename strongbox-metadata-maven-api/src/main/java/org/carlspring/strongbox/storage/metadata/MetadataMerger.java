@@ -175,7 +175,7 @@ public class MetadataMerger
 
             while ((zipEntry = zipInputStream.getNextEntry()) != null)
             {
-                if (zipEntry.getName().endsWith("plugin.xml"))
+                if (zipEntry.getName().endsWith("META-INF/maven/plugin.xml"))
                 {
                     pluginMap = readPluginXmlFile(zipInputStream);
                     break;

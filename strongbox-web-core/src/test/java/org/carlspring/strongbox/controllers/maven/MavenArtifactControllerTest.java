@@ -120,7 +120,7 @@ public class MavenArtifactControllerTest
 
     private static void deleteTestResources()
     {
-        Path dirPath = Paths.get(pluginXmlFilePath).getParent();
+        Path dirPath = Paths.get(pluginXmlFilePath).getParent().getParent().getParent();
         try
         {
             Files.walk(dirPath)
@@ -182,7 +182,7 @@ public class MavenArtifactControllerTest
             throws Exception
     {
         File file = new File("");
-        pluginXmlFilePath = file.getCanonicalPath().toString() + "/src/test/resources/temp/" + artifactId;
+        pluginXmlFilePath = file.getCanonicalPath().toString() + "/src/test/resources/temp/" + artifactId + "/META-INF/maven";
         Files.createDirectories(Paths.get(pluginXmlFilePath));
 
         String xmlSource = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
