@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.storage.validation.version;
 
-import java.io.IOException;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.VersionValidatorType;
+
+import java.io.IOException;
+
 import org.semver.Version;
 import org.springframework.stereotype.Component;
 
@@ -16,15 +16,15 @@ public class SemanticVersioningValidator implements VersionValidator
     @Override
     public boolean supports(Repository repository)
     {
-        return repository.getVersionValidators().contains(VersionValidatorType.SEM_VER);
+        // TODO: SB-1002: Split the version validators from the the deployment validators
+        // return repository.getVersionValidators().contains(VersionValidatorType.SEM_VER);
+        return false;
     }
 
     @Override
     public void validate(Repository repository,
                          ArtifactCoordinates coordinates)
-        throws VersionValidationException,
-        ProviderImplementationException,
-        IOException
+        throws VersionValidationException
     {
         String version = coordinates.getVersion();
         try
@@ -33,9 +33,9 @@ public class SemanticVersioningValidator implements VersionValidator
         }
         catch (IllegalArgumentException e)
         {
-            throw new VersionValidationException(
-                    String.format("Artifact version [%s] should follow the Semantic Versioning specification (https://semver.org/).",
-                                  version));
+            throw new VersionValidationException(String.format("Artifact version [%s] should follow the Semantic " +
+                                                               "Versioning specification (https://semver.org/).",
+                                                               version));
         }
     }
 

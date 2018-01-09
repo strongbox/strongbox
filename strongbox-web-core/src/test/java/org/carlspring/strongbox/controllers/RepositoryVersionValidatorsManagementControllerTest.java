@@ -81,7 +81,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
                           .get("/configuration/repositories/version-validators/storage0/releases")
                           .peek()
                           .then()
-                          .body(equalTo("[ \"REDEPLOYMENT\", \"RELEASE\", \"SEM_VER\", \"SNAPSHOT\" ]"))
+                          .body(equalTo("[ \"REDEPLOYMENT\", \"RELEASE\", \"SNAPSHOT\" ]"))
                           .statusCode(200);
     }
 
@@ -103,7 +103,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
                           .get("/configuration/repositories/version-validators/storage0/all-validators")
                           .peek()
                           .then()
-                          .body(equalTo("[ \"REDEPLOYMENT\", \"RELEASE\", \"SEM_VER\" ]"))
+                          .body(equalTo("[ \"REDEPLOYMENT\", \"RELEASE\" ]"))
                           .statusCode(200);
 
         RestAssuredMockMvc.given()
@@ -120,7 +120,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
                           .get("/configuration/repositories/version-validators/storage0/all-validators")
                           .peek()
                           .then()
-                          .body(equalTo("[ \"REDEPLOYMENT\", \"RELEASE\", \"SEM_VER\" ]"))
+                          .body(equalTo("[ \"REDEPLOYMENT\", \"RELEASE\" ]"))
                           .statusCode(200);
     }
 

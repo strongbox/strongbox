@@ -114,7 +114,6 @@ public abstract class ProxyRepositoryArtifactResolver
                     artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(storageId, repositoryId, path);
                 }
 
-
                 return is;
             }
         }

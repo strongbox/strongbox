@@ -2,12 +2,15 @@ package org.carlspring.strongbox.controllers.raw;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -41,6 +44,12 @@ public class RawArtifactController
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";
 
+    @Inject
+    private ArtifactManagementService artifactManagementService;
+
+    @Inject
+    private ArtifactEventListenerRegistry artifactEventListenerRegistry;
+
 
     @ApiOperation(value = "Used to deploy an artifact", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
@@ -56,10 +65,7 @@ public class RawArtifactController
     {
         try
         {
-            getArtifactManagementService(storageId, repositoryId).validateAndStore(storageId,
-                                                                                   repositoryId,
-                                                                                   path,
-                                                                                   request.getInputStream());
+            artifactManagementService.validateAndStore(storageId, repositoryId, path, request.getInputStream());
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
         }
@@ -121,7 +127,7 @@ public class RawArtifactController
         {
             try
             {
-                generateDirectoryListing(repository, path, request, response);
+                generateDirectoryListing(path, request, response);
             }
             catch (Exception e)
             {
@@ -137,9 +143,7 @@ public class RawArtifactController
         ArtifactInputStream is;
         try
         {
-            is = (ArtifactInputStream) getArtifactManagementService(storageId, repositoryId).resolve(storageId,
-                                                                                                     repositoryId,
-                                                                                                     path);
+            is = (ArtifactInputStream) artifactManagementService.resolve(storageId, repositoryId, path);
             if (is == null)
             {
                 response.setStatus(NOT_FOUND.value());
@@ -148,7 +152,7 @@ public class RawArtifactController
 
             if (isRangedRequest(httpHeaders))
             {
-                logger.debug("Detecting range request....");
+                logger.debug("Detected range request!");
 
                 handlePartialDownload(is, httpHeaders, response);
             }
@@ -168,7 +172,7 @@ public class RawArtifactController
             return;
         }
 
-        setMediaTypeHeader(path, response);
+        setMediaTypeHeader(repository, path, response);
 
         response.setHeader("Accept-Ranges", "bytes");
 

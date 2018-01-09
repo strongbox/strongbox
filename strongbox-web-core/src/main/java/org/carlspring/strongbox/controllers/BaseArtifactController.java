@@ -1,25 +1,31 @@
 package org.carlspring.strongbox.controllers;
 
+import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.comparator.DirectoryFileComparator;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.springframework.http.HttpStatus;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import io.swagger.annotations.Api;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Locale;
 import java.util.regex.Matcher;
+
+import io.swagger.annotations.Api;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.comparator.DirectoryFileComparator;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 @Api(value = "/storages")
 public abstract class BaseArtifactController
@@ -139,9 +145,9 @@ public abstract class BaseArtifactController
         generateDirectoryListing(dirPath, request, response);
     }
 
-    private void generateDirectoryListing(String dirPath, 
-                                          HttpServletRequest request, 
-                                          HttpServletResponse response)
+    protected void generateDirectoryListing(String dirPath,
+                                            HttpServletRequest request,
+                                            HttpServletResponse response)
     {   
         if(dirPath == null)
         {
@@ -237,7 +243,31 @@ public abstract class BaseArtifactController
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
-    
-        
-    
+
+    protected void setMediaTypeHeader(Repository repository,
+                                      String path,
+                                      HttpServletResponse response)
+            throws IOException
+    {
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+
+        RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
+        RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath,
+                                                                               RepositoryFileAttributes.class);
+
+        // TODO: This is far from optimal and will need to have a content type approach at some point:
+        if (artifactFileAttributes.isChecksum())
+        {
+            response.setContentType(MediaType.TEXT_PLAIN_VALUE);
+        }
+        else if (artifactFileAttributes.isMetadata())
+        {
+            response.setContentType(MediaType.APPLICATION_XML_VALUE);
+        }
+        else
+        {
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        }
+    }
+
 }

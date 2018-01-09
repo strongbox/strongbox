@@ -99,11 +99,11 @@ public class ConfigurationManagerTest
                                                                    .get("releases")
                                                                    .getVersionValidators();
 
-        assertTrue(versionValidators.size() == 4);
+        assertTrue(versionValidators.size() == 3);
         assertTrue(versionValidators.remove(VersionValidatorType.REDEPLOYMENT));
         assertTrue(versionValidators.remove(VersionValidatorType.RELEASE));
         assertTrue(versionValidators.remove(VersionValidatorType.SNAPSHOT));
-        assertTrue(versionValidators.remove(VersionValidatorType.SEM_VER));
+        // assertTrue(versionValidators.remove(VersionValidatorType.SEM_VER));
         assertTrue(versionValidators.size() == 0);
     }
 
