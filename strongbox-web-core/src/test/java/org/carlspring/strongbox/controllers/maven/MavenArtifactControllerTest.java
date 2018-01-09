@@ -4,19 +4,13 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
-import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
-import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
-import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -28,27 +22,45 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import com.google.common.base.Throwables;
 import io.restassured.response.ExtractableResponse;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
 import static org.junit.Assert.*;
@@ -75,6 +87,8 @@ public class MavenArtifactControllerTest
 
     private static File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
+    private static String pluginXmlFilePath;
+
     @Inject
     private ConfigurationManager configurationManager;
 
@@ -87,6 +101,111 @@ public class MavenArtifactControllerTest
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+
+    }
+
+    @Before
+    public void setUp()
+    {
+        MockitoAnnotations.initMocks(this);
+    }
+
+
+    @AfterClass
+    public static void down()
+    {
+        deleteTestResources();
+
+    }
+
+    private static void deleteTestResources()
+    {
+        Path dirPath = Paths.get(pluginXmlFilePath).getParent().getParent().getParent();
+        try
+        {
+            Files.walk(dirPath)
+                 .map(Path::toFile)
+                 .sorted(Comparator.comparing(File::isDirectory))
+                 .forEach(File::delete);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private static void writeToZipFile(String path,
+                                       ZipOutputStream zipStream)
+            throws Exception
+    {
+        File aFile = new File(path);
+        FileInputStream fis = new FileInputStream(aFile);
+        ZipEntry zipEntry = new ZipEntry(path);
+        zipStream.putNextEntry(zipEntry);
+
+        byte[] bytes = new byte[1024];
+        int length;
+        while ((length = fis.read(bytes)) >= 0)
+        {
+            zipStream.write(bytes, 0, length);
+        }
+
+        zipStream.closeEntry();
+        fis.close();
+
+    }
+
+    private static void crateJarFile(String artifactId)
+            throws Exception
+    {
+        String parentPluginPath = String.valueOf(Paths.get(pluginXmlFilePath).getParent());
+        try (FileOutputStream fos = new FileOutputStream(parentPluginPath + "/" + artifactId + ".jar");
+             ZipOutputStream zipOS = new ZipOutputStream(fos))
+        {
+            writeToZipFile(pluginXmlFilePath + "/plugin.xml", zipOS);
+            System.out.println("");
+
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private static void createPluginXmlFile(String groupId,
+                                            String artifactId,
+                                            String version)
+            throws Exception
+    {
+        File file = new File("");
+        pluginXmlFilePath = file.getCanonicalPath().toString() + "/src/test/resources/temp/" + artifactId + "/META-INF/maven";
+        Files.createDirectories(Paths.get(pluginXmlFilePath));
+
+        String xmlSource = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                           "<plugin>\n" +
+                           "  <name>Apache Maven Dependency Plugin</name>\n" +
+                           "  <description>Provides utility goals to work with dependencies like copying, unpacking, analyzing, resolving and many more.</description>\n" +
+                           "  <groupId>" + groupId + "</groupId>\n" +
+                           "  <artifactId>" + artifactId + "</artifactId>\n" +
+                           "  <version>" + version + "</version>\n" +
+                           "  <goalPrefix>dependency</goalPrefix>\n" +
+                           "</plugin>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new InputSource(new StringReader(xmlSource)));
+
+        // Write the parsed document to an xml file
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        DOMSource source = new DOMSource(doc);
+
+        StreamResult result = new StreamResult(new File(pluginXmlFilePath + "/plugin.xml"));
+        transformer.transform(source, result);
+
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -473,39 +592,39 @@ public class MavenArtifactControllerTest
         assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                     deletedArtifact.exists());
     }
-    
+
     @Test
     public void testNonExistingDirectoryDownload()
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe/";
-        ExtractableResponse response = client.getResourceWithResponse(path,"");
+        ExtractableResponse response = client.getResourceWithResponse(path, "");
         assertTrue("Wrong response", response.statusCode() == 404);
     }
-    
+
     @Test
     public void testNonExistingArtifactDownload()
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe";
-        ExtractableResponse response = client.getResourceWithResponse(path,"");
+        ExtractableResponse response = client.getResourceWithResponse(path, "");
         assertTrue("Wrong response", response.statusCode() == 404);
     }
-    
+
     @Test
     public void testNonExistingArtifactInNonExistingDirectory()
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe/who.jar";
-        ExtractableResponse response = client.getResourceWithResponse(path,"");
+        ExtractableResponse response = client.getResourceWithResponse(path, "");
         assertTrue("Wrong response", response.statusCode() == 404);
     }
-    
+
     @Test
     public void testNonExistingArtifactInExistingDirectory()
     {
         String path = "/storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin/1.8/derby-maven-plugin-6.9.jar";
-        ExtractableResponse response = client.getResourceWithResponse(path,"");
+        ExtractableResponse response = client.getResourceWithResponse(path, "");
         assertTrue("Wrong response", response.statusCode() == 404);
     }
-    
+
     @Test
     public void testDirectoryListing()
             throws Exception
@@ -617,13 +736,26 @@ public class MavenArtifactControllerTest
                                           .getLastUpdated());
     }
 
+    @Spy
+    Artifact artifact1 = getArtifactFromGAVTC(
+            "org.carlspring.strongbox.metadata" + ":" + "metadata-foo-maven-plugin" + ":" + "3.1");
+    @Spy
+    Artifact artifact2 = getArtifactFromGAVTC(
+            "org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.1");
+    @Spy
+    Artifact artifact3 = getArtifactFromGAVTC(
+            "org.carlspring.strongbox.metadata" + ":" + "metadata-foo-maven-plugin" + ":" + "3.2");
+    @Spy
+    Artifact artifact4 = getArtifactFromGAVTC(
+            "org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.2");
+    @Spy
+    Artifact artifact5 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.1");
+    @Spy
+    Artifact artifact6 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.2");
+
     @Test
     public void testMetadataAtGroupAndArtifactIdLevel()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException,
-                   ArtifactOperationException,
-                   ArtifactTransportException
+            throws Exception
     {
         // Given
         // Plugin Artifacts
@@ -634,14 +766,42 @@ public class MavenArtifactControllerTest
         String version1 = "3.1";
         String version2 = "3.2";
 
-        Artifact artifact1 = getArtifactFromGAVTC(groupId + ":" + artifactId1 + ":" + version1);
-        Artifact artifact2 = getArtifactFromGAVTC(groupId + ":" + artifactId2 + ":" + version1);
-        Artifact artifact3 = getArtifactFromGAVTC(groupId + ":" + artifactId1 + ":" + version2);
-        Artifact artifact4 = getArtifactFromGAVTC(groupId + ":" + artifactId2 + ":" + version2);
+
+        createPluginXmlFile(groupId, artifactId1, version1);
+        crateJarFile(artifactId1 + "-" + version1);
+        String filePath =
+                Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId1 + "-" + version1 + ".jar";
+        Mockito.doReturn(new File(filePath)).when(artifact1).getFile();
+
+        createPluginXmlFile(groupId, artifactId2, version1);
+        crateJarFile(artifactId2 + "-" + version1);
+        filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId2 + "-" + version1 + ".jar";
+        Mockito.doReturn(new File(filePath)).when(artifact2).getFile();
+
+        //artifact3 = getArtifactFromGAVTC(groupId + ":" + artifactId1 + ":" + version2);
+        createPluginXmlFile(groupId, artifactId1, version2);
+        crateJarFile(artifactId1 + "-" + version2);
+        filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId1 + "-" + version2 + ".jar";
+        Mockito.doReturn(new File(filePath)).when(artifact3).getFile();
+
+        //artifact4 = getArtifactFromGAVTC(groupId + ":" + artifactId2 + ":" + version2);
+        createPluginXmlFile(groupId, artifactId2, version2);
+        crateJarFile(artifactId2 + "-" + version2);
+        filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId2 + "-" + version2 + ".jar";
+        Mockito.doReturn(new File(filePath)).when(artifact4).getFile();
 
         // Artifacts
-        Artifact artifact5 = getArtifactFromGAVTC(groupId + ":" + artifactId3 + ":" + version1);
-        Artifact artifact6 = getArtifactFromGAVTC(groupId + ":" + artifactId3 + ":" + version2);
+        // Artifact artifact5 = getArtifactFromGAVTC(groupId + ":" + artifactId3 + ":" + version1);
+        createPluginXmlFile(groupId, artifactId3, version1);
+        crateJarFile(artifactId3 + "-" + version1);
+        filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId3 + "-" + version1 + ".jar";
+        Mockito.doReturn(new File(filePath)).when(artifact5).getFile();
+
+        //artifact6 = getArtifactFromGAVTC(groupId + ":" + artifactId3 + ":" + version2);
+        createPluginXmlFile(groupId, artifactId3, version2);
+        crateJarFile(artifactId3 + "-" + version2);
+        filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId3 + "-" + version2 + ".jar";
+        Mockito.doReturn(new File(filePath)).when(artifact6).getFile();
 
         Plugin p1 = new Plugin();
         p1.setGroupId(artifact1.getGroupId());
