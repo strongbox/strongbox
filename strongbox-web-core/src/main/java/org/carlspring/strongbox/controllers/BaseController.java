@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
+import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.resource.ResourceCloser;
 
 import javax.inject.Inject;
@@ -28,6 +29,18 @@ public abstract class BaseController
     @Inject
     protected ConfigurationManager configurationManager;
 
+    protected ResponseEntityBody getResponseEntityBody(String message)
+    {
+        return new ResponseEntityBody(message);
+    }
+
+    protected ResponseEntity toResponseEntity(String message,
+                                              HttpStatus httpStatus)
+    {
+        return ResponseEntity.status(httpStatus)
+                             .body(getResponseEntityBody(message));
+    }
+
     protected ResponseEntity toResponseEntityError(String message,
                                                    HttpStatus httpStatus)
     {
@@ -40,16 +53,24 @@ public abstract class BaseController
         return toResponseEntityError(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    protected ResponseEntity toError(String message)
+    protected ResponseEntity toError(String message,
+                                     Boolean... wrapBody)
     {
+        if (wrapBody != null)
+        {
+            return toError(new RuntimeException(message), wrapBody);
+        }
+
         return toError(new RuntimeException(message));
     }
 
-    protected ResponseEntity toError(Throwable cause)
+    protected ResponseEntity toError(Throwable cause,
+                                     Boolean... wrapBody)
     {
         logger.error(cause.getMessage(), cause);
+        Object bodyContent = wrapBody != null ? getResponseEntityBody(cause.getMessage()) : cause.getMessage();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body(cause.getMessage());
+                             .body(bodyContent);
     }
 
     protected Configuration getConfiguration()

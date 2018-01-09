@@ -11,10 +11,10 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableSet;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import io.restassured.http.ContentType;
 import org.apache.commons.collections.SetUtils;
 import org.hamcrest.CoreMatchers;
@@ -22,13 +22,14 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 
 @IntegrationTest
@@ -83,6 +84,21 @@ public class UserControllerTest
     }
 
     @Test
+    public void shouldNotBeAbleToRetrieveUserThatNoExists()
+            throws Exception
+    {
+        final String userName = "userNotFound";
+
+        given().contentType(ContentType.JSON)
+               .param("The name of the user", userName)
+               .when()
+               .get("/users/user/" + userName)
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value())
+               .body(containsString("The specified user does not exist!"));
+    }
+
+    @Test
     public void testCreateUser()
             throws Exception
     {
@@ -107,22 +123,21 @@ public class UserControllerTest
     {
         UserInput test = buildUser("test-same-username", "password");
 
-        given().contentType("application/json")
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(test)
                .when()
-               .post("/users/user");
+               .post("/users/user")
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(containsString("The user was created successfully."));
 
-        try
-        {
-            given().contentType("application/json")
-                   .body(test)
-                   .when()
-                   .post("/users/user");
-        }
-        catch (Exception ex)
-        {
-            assertThat(ex.getCause(), instanceOf(ORecordDuplicatedException.class));
-        }
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(test)
+               .when()
+               .post("/users/user")
+               .then()
+               .statusCode(HttpStatus.CONFLICT.value())
+               .body(containsString("A user with this username already exists! Please enter another username."));
 
         displayAllUsers();
     }
@@ -185,13 +200,31 @@ public class UserControllerTest
                                  .extract()
                                  .asString();
 
-        assertThat(response, equalTo("The user was updated successfully."));
+        assertThat(response, containsString("The user was updated successfully."));
 
         logger.info("Users after update: ->>>>>> ");
         displayAllUsers();
 
         createdUser = retrieveUserByName("test-update");
         assertEquals(true, createdUser.isEnabled());
+    }
+
+    @Test
+    public void userWithoutUsernameShouldNotBeAbleToUpdate()
+            throws Exception
+    {
+        final String userName = "";
+        final String newPassword = "newPassword";
+        UserInput admin = buildUser(userName, newPassword);
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(admin)
+               .when()
+               .put("/users/user")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .body(containsString("Username not provided"));
     }
 
     @Test
@@ -463,6 +496,50 @@ public class UserControllerTest
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void userWithoutSecurityTokenKeyShouldNotGenerateSecurityToken()
+            throws Exception
+    {
+        String userName = "test-jwt-key";
+        String password = "password-update";
+        UserInput input = buildUser(userName, password);
+
+        //1. Create user
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(input)
+               .when()
+               .post("/users/user")
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .extract()
+               .asString();
+
+        User user = retrieveUserByName(input.getUsername());
+        assertNotNull("Created user should have objectId", user.getObjectId());
+
+        //2. Provide `securityTokenKey` to null
+        user.setSecurityTokenKey(null);
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(UserInput.fromUser(user))
+               .when()
+               .put("/users/user")
+               .peek();
+
+        user = retrieveUserByName(input.getUsername());
+        assertNull(user.getSecurityTokenKey());
+
+        //3. Generate token
+        given().when()
+               .get("/users/user/" + input.getUsername() + "/generate-security-token")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+               .body(containsString("Failed to generate SecurityToken, probably you should first set " +
+                                    "SecurityTokenKey for the user: user-[" + input.getUsername() + "]"));
+    }
+
+    @Test
     // com.orientechnologies.orient.core.storage.ORecordDuplicatedException
     public void testDeleteUser()
             throws Exception
@@ -490,6 +567,24 @@ public class UserControllerTest
                .extract()
                .asString();
 
+    }
+
+    @Test
+    @WithUserDetails("admin")
+    public void userShouldNotBeAbleToDeleteHimself()
+            throws Exception
+    {
+        // create new user
+        UserInput test = buildUser("admin", "password-update");
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .param("The name of the user", test.getUsername())
+               .when()
+               .delete("/users/user/" + test.getUsername())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .body(containsString("Unable to delete yourself"));
     }
 
     @Test
@@ -531,6 +626,37 @@ public class UserControllerTest
                                                     .get(mockUrl);
         assertNotNull(privileges);
         assertTrue(privileges.contains(mockPrivilege));
+    }
+
+    @Test
+    public void userNotExistingShouldNotUpdateAccessModel()
+            throws Exception
+    {
+
+        // load user with custom access model
+        User test = getUser("developer01");
+        AccessModel accessModel = test.getAccessModel();
+        assertNotNull(accessModel);
+
+        logger.debug(accessModel.toString());
+        assertFalse(accessModel.getWildCardPrivilegesMap()
+                               .isEmpty());
+        assertFalse(accessModel.getRepositoryPrivileges()
+                               .isEmpty());
+
+        // modify access model and save it
+        final String mockUrl = "/storages/storage0/act-releases-1/pro/redsoft";
+        final String mockPrivilege = Privileges.ARTIFACTS_DELETE.toString();
+        accessModel.getUrlToPrivilegesMap()
+                   .put(mockUrl, Collections.singletonList(mockPrivilege));
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(accessModel)
+               .put("/users/user/userNotFound/access-model")
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value()) // check http status code
+               .body(containsString("The specified user does not exist!"));
     }
 
     // get user through REST API
