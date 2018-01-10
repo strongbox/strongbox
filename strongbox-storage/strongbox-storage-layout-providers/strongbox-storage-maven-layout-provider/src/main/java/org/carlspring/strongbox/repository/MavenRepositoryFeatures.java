@@ -1,22 +1,11 @@
 package org.carlspring.strongbox.repository;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.indexing.ReindexArtifactScanningListener;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloadRequest;
-import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+
+import javax.inject.Inject;
 
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.FSDirectory;
@@ -25,11 +14,30 @@ import org.apache.maven.index.ScanningResult;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.packer.IndexPacker;
 import org.apache.maven.index.packer.IndexPackingRequest;
+import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.locator.handlers.RemoveTimestampedSnapshotOperation;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.indexing.ReindexArtifactScanningListener;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
+import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloadRequest;
+import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
+import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
  * @author carlspring
@@ -56,7 +64,12 @@ public class MavenRepositoryFeatures
     @Inject
     private MavenRepositoryManagementStrategy mavenRepositoryManagementStrategy;
 
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
 
+    @Inject
+    private MavenSnapshotManager mavenSnapshotManager;
+    
     public void downloadRemoteIndex(String storageId,
                                     String repositoryId)
             throws ArtifactTransportException, RepositoryInitializationException
@@ -195,6 +208,36 @@ public class MavenRepositoryFeatures
         }
     }
 
+    public void removeTimestampedSnapshots(String storageId,
+                                           String repositoryId,
+                                           String artifactPath,
+                                           int numberToKeep,
+                                           int keepPeriod)
+            throws IOException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        if (repository.getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
+        {
+            LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+            RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
+            
+            RemoveTimestampedSnapshotOperation operation = new RemoveTimestampedSnapshotOperation(mavenSnapshotManager);
+            operation.setBasePath(repositoryPath);
+            operation.setNumberToKeep(numberToKeep);
+            operation.setKeepPeriod(keepPeriod);
+
+            ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
+            locator.setOperation(operation);
+            locator.locateArtifactDirectories();
+        }
+        else
+        {
+            throw new ArtifactStorageException("Type of repository is invalid: repositoryId - " + repositoryId);
+        }
+    }
+    
     public boolean isIndexingEnabled(Repository repository)
     {
         MavenRepositoryConfiguration repositoryConfiguration = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();

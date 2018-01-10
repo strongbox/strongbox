@@ -4,6 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
@@ -64,6 +65,7 @@ public class StorageApiConfig
         // register all domain entities
         oEntityManager.registerEntityClass(ArtifactEntry.class);
         oEntityManager.registerEntityClass(RemoteArtifactEntry.class);
+        oEntityManager.registerEntityClass(ArtifactTagEntry.class);
 
         OClass artifactEntryClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
                                                                                      .getSchema()
@@ -85,7 +87,18 @@ public class StorageApiConfig
         {
             artifactCoordinatesClass.createIndex("idx_artifact_coordinates", OClass.INDEX_TYPE.UNIQUE, "path");
         }
+
+        OClass artifactTagClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
+                                                                                   .getSchema()
+                                                                                   .getClass(ArtifactTagEntry.class);
         
+        if (artifactTagClass.getIndexes()
+                            .stream()
+                            .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact_tag")))
+        {
+            artifactTagClass.createIndex("idx_artifact_tag", OClass.INDEX_TYPE.UNIQUE, "name");
+        }
+
     }
 
     @Bean(name = "checksumCacheManager")

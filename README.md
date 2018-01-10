@@ -1,12 +1,14 @@
 # Strongbox
 [![Master Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox/master)](https://dev.carlspring.org/jenkins/blue/organizations/jenkins/strongbox%2Fstrongbox/activity?branch=master)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/strongbox/strongbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Help Contribute to Open Source](https://www.codetriage.com/strongbox/strongbox/badges/users.svg)](https://www.codetriage.com/strongbox/strongbox)
 
 Welcome to the Strongbox artifact repository manager's home.
 
 # What's implemented:
 * [Repositories](https://github.com/strongbox/strongbox/wiki/Repositories):
   * Hosted
+  * Proxy
   * Group
     * Support for repository ordering
     * Support for routing rules
@@ -42,8 +44,7 @@ Welcome to the Strongbox artifact repository manager's home.
 * Logging:
   * Retrieve logs over HTTP
 
-# What's in the works (Q4/2017):
-* [Proxy repositories](https://github.com/strongbox/strongbox/wiki/Repositories#proxy)
+# What's in the works (Q1/2018):
 * Layout providers
   * NPM layout provider
   * Raw layout provider
@@ -51,8 +52,6 @@ Welcome to the Strongbox artifact repository manager's home.
 * Logging:
   * Log tailing over HTTP
 * Deploy as a transaction
-* Dependency snippet generator over REST API
-* ~~OSGI repository layouts (P2, OBR)~~ [on hold]
 
 # Upcoming:
 * RPM distribution
@@ -80,4 +79,4 @@ Please check [here](https://github.com/strongbox/strongbox/wiki/Installation) fo
 Instructions on how to build the code, can be found [here](https://github.com/strongbox/strongbox/wiki/Building-the-code).
 
 # Contributing
-Contributions and contributors are always welcome! For more details, please check [here](https://github.com/strongbox/strongbox/blob/master/CONTRIBUTING.md).
+Contributions and contributors are always welcome! For more details, please check [here](https://github.com/strongbox/strongbox/blob/master/CONTRIBUTING.md). We have a helpful community of developers on our [Gitter](https://gitter.im/strongbox/strongbox) channel, please feel free to drop by, if you have questions, issues, or would like to contribute!

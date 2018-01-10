@@ -27,6 +27,9 @@ import org.springframework.stereotype.Component;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
+ * TODO: @Przemyslaw can you please add some Javadoc here, explaining the appointment for all implementations of {@link ProxyRepositoryArtifactResolver} we have.
+ * I always find it hard to remember the difference between them :)
+ * 
  * @author Przemyslaw Fusik
  */
 @Component

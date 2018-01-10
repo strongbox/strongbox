@@ -4,6 +4,7 @@ import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.security.CustomAccessDeniedHandler;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
+import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
 import org.carlspring.strongbox.security.authentication.JwtTokenValidationFilter;
 import org.carlspring.strongbox.security.authentication.StrongboxAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSupplier;
@@ -32,7 +33,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
@@ -58,11 +58,10 @@ public class SecurityConfig
     @Inject
     private List<AuthenticationSupplier> suppliers;
 
-    
-    
+
     @Override
     public void init(WebSecurity web)
-        throws Exception
+            throws Exception
     {
         super.init(web);
         DefaultHttpFirewall httpFirewall = new DefaultHttpFirewall();
@@ -76,13 +75,14 @@ public class SecurityConfig
     {
         http.addFilterBefore(strongboxAuthenticationFilter(),
                              BasicAuthenticationFilter.class)
+            .addFilterBefore(jwtTokenValidationFilter(), StrongboxAuthenticationFilter.class)
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .exceptionHandling()
             .accessDeniedHandler(accessDeniedHandler())
             // TODO SB-813
-            .authenticationEntryPoint(basicAuthenticationEntryPoint())
+            .authenticationEntryPoint(customBasicAuthenticationEntryPoint())
             .and()
             .anonymous()
             .authenticationFilter(anonymousAuthenticationFilter())
@@ -131,11 +131,9 @@ public class SecurityConfig
     }
 
     @Bean
-    AuthenticationEntryPoint basicAuthenticationEntryPoint()
+    AuthenticationEntryPoint customBasicAuthenticationEntryPoint()
     {
-        final BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
-        entryPoint.setRealmName("Protected area. Please provide user credentials.");
-        return entryPoint;
+        return new Http401AuthenticationEntryPoint("Strongbox Repository Manager");
     }
 
     @Bean
@@ -160,8 +158,7 @@ public class SecurityConfig
                                                        "anonymousUser",
                                                        anonymousRoles);
     }
-    
-    
+
 
     /**
      * This Configuration enables @PreAuthorize annotations

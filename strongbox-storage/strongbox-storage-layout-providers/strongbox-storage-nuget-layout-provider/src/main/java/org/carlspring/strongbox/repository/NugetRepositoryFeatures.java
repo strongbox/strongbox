@@ -1,7 +1,11 @@
 package org.carlspring.strongbox.repository;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -9,16 +13,22 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.event.CommonEventListener;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryPageRequest;
 import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
@@ -34,6 +44,7 @@ import ru.aristar.jnuget.files.NugetFormatException;
 import ru.aristar.jnuget.query.AndExpression;
 import ru.aristar.jnuget.query.Expression;
 import ru.aristar.jnuget.query.IdEqIgnoreCase;
+import ru.aristar.jnuget.query.LatestVersionExpression;
 import ru.aristar.jnuget.query.VersionEq;
 import ru.aristar.jnuget.rss.PackageEntry;
 import ru.aristar.jnuget.rss.PackageFeed;
@@ -57,6 +68,15 @@ public class NugetRepositoryFeatures
 
     @Inject
     private ArtifactEntryService artifactEntryService;
+    
+    @Inject
+    private ArtifactTagService artifactTagService;
+    
+    @Inject
+    private ArtifactManagementService artifactManagementService;
+    
+    @Inject
+    private NugetLayoutProvider nugetLayoutProvider;
 
     public void downloadRemoteFeed(String storageId,
                                    String repositoryId)
@@ -135,20 +155,32 @@ public class NugetRepositoryFeatures
                 String packageVersion = packageEntry.getProperties().getVersion().toString();
 
                 NugetArtifactCoordinates c = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
-                
                 if (!artifactEntryService.artifactExists(storageId, repositoryId, c.toPath()))
                 {
                     artifactToSaveSet.add(c);
                 }
             }
+            
             for (NugetArtifactCoordinates c : artifactToSaveSet)
             {
-                RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
-                remoteArtifactEntry.setStorageId(storageId);
-                remoteArtifactEntry.setRepositoryId(repositoryId);
-                remoteArtifactEntry.setArtifactCoordinates(c);
-                artifactEntryService.save(remoteArtifactEntry);
+                RepositoryPath repositoryPath = nugetLayoutProvider.resolve(repository, c);
+                URI artifactUri = repositoryPath.toUri();
+                try
+                {
+                    artifactManagementService.accureLock(artifactUri);
+                    
+                    RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
+                    remoteArtifactEntry.setStorageId(storageId);
+                    remoteArtifactEntry.setRepositoryId(repositoryId);
+                    remoteArtifactEntry.setArtifactCoordinates(c);
+
+                    artifactEntryService.save(remoteArtifactEntry);
+                } finally
+                {
+                    artifactManagementService.releaseLock(artifactUri);
+                }
             }
+            
             return true;
         }
     }
@@ -187,7 +219,17 @@ public class NugetRepositoryFeatures
 
             Expression filter = repositorySearchRequest.isStrict() ? createPackageEq(packageId, null) : null;
             filter = createVersionEq(version, filter);
+            filter = createIsLatestVersion(repositorySearchRequest.getTagSet(), filter);
+            
             String searchTerm = !repositorySearchRequest.isStrict() ? packageId : null;
+            try
+            {
+                searchTerm = searchTerm == null ? null : URLEncoder.encode(String.format("'%s'", searchTerm), StandardCharsets.UTF_8.name());
+            }
+            catch (UnsupportedEncodingException e)
+            {
+                throw new RuntimeException(e);
+            }
 
             try
             {
@@ -227,6 +269,26 @@ public class NugetRepositoryFeatures
 
     }
 
+    private Expression createIsLatestVersion(Set<ArtifactTag> tagSet,
+                                             Expression filter)
+    {
+        if (tagSet == null || tagSet.isEmpty())
+        {
+            return filter;
+        }
+        
+        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
+        if (!tagSet.contains(lastVersionTag)){
+            return filter;
+        }
+        
+        LatestVersionExpression latestVersion = new LatestVersionExpression();
+        filter = filter == null ? latestVersion : new AndExpression(filter, latestVersion);
+
+        return filter;
+
+    }
+    
     public static Expression createVersionEq(String version,
                                              Expression filter)
     {

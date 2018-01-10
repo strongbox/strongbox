@@ -17,6 +17,10 @@ public abstract class RepositoryFileSystem
         extends FileSystemWrapper
 {
 
+    public static final String TRASH = ".trash";
+    public static final String TEMP = ".temp";
+    public static final String INDEX = ".index";
+    
     private Repository repository;
     private RepositoryFileSystemProvider fileSystemProvider;
 
@@ -46,12 +50,12 @@ public abstract class RepositoryFileSystem
 
     public RepositoryPath getTrashPath()
     {
-        return getRootDirectory().resolve(".trash");
+        return getRootDirectory().resolve(TRASH);
     }
 
     public RepositoryPath getTempPath()
     {
-        return getRootDirectory().resolve(".temp");
+        return getRootDirectory().resolve(TEMP);
     }
 
     public RepositoryPath getPath(String first,

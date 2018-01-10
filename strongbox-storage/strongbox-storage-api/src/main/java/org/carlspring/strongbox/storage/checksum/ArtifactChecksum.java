@@ -44,18 +44,16 @@ public class ArtifactChecksum
         lastAccessed = System.currentTimeMillis();
     }
 
-    public synchronized String removeChecksum(String algorithm)
+    public synchronized Optional<String> removeChecksum(String algorithm)
     {
-        String result = checksums.keySet()
-                                 .stream()
-                                 .filter(k -> k.replace("-", "")
-                                               .toLowerCase()
-                                               .equals(algorithm.replace("-", "").toLowerCase()))
-                                 .findFirst()
-                                 .map(a -> checksums.remove(a))
-                                 .get();
         updateLastAccessedTime();
-        return result;
+        return checksums.keySet()
+                        .stream()
+                        .filter(k -> k.replace("-", "")
+                                      .toLowerCase()
+                                      .equals(algorithm.replace("-", "").toLowerCase()))
+                        .findFirst()
+                        .map(a -> checksums.remove(a));
     }
 
     public String getChecksum(String algorithm)

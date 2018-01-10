@@ -9,6 +9,8 @@ import java.security.NoSuchAlgorithmException;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.RepositoryInputStream;
+import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 
 /**
@@ -17,21 +19,17 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 public interface ArtifactResolutionService
 {
     
-    ArtifactCoordinates getArtifactCoordinates(String storageId,
-                                               String repositoryId,
-                                               String artifactPath);
-
-    InputStream getInputStream(String storageId,
-                               String repositoryId,
-                               String artifactPath)
+    RepositoryInputStream getInputStream(String storageId,
+                                         String repositoryId,
+                                         String artifactPath)
             throws IOException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException,
                    ProviderImplementationException;
 
-    ArtifactOutputStream getOutputStream(String storageId,
-                                         String repositoryId,
-                                         String artifactPath)
+    RepositoryOutputStream getOutputStream(String storageId,
+                                           String repositoryId,
+                                           String artifactPath)
             throws IOException,
                    ProviderImplementationException,
                    NoSuchAlgorithmException;

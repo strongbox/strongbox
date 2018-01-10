@@ -7,6 +7,8 @@ import javax.persistence.Inheritance;
 import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.orientechnologies.orient.core.annotation.OId;
 import com.orientechnologies.orient.core.annotation.OVersion;
@@ -69,4 +71,35 @@ public abstract class GenericEntity
         this.uuid = uuid;
     }
 
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        else if (!(obj instanceof GenericEntity))
+        {
+            return false;
+        }
+
+        GenericEntity that = (GenericEntity) obj;
+        if (this.objectId == null && that.objectId == null)
+        {
+            return false;
+        }
+
+        return StringUtils.equals(objectId, that.objectId);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        if (objectId == null)
+        {
+            return super.hashCode();
+        }
+        return objectId.hashCode();
+    }
+    
 }

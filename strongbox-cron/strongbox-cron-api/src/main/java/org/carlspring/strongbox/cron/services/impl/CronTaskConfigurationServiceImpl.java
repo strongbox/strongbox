@@ -19,7 +19,6 @@ import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
@@ -93,7 +92,7 @@ class CronTaskConfigurationServiceImpl
                    CronTaskNotFoundException,
                    ClassNotFoundException
     {
-        logger.debug("CronTaskConfigurationService.deleteConfiguration()");
+        logger.debug("Deleting cron task configuration {}", configuration);
 
         cronTaskDataService.delete(configuration);
         cronJobSchedulerService.deleteJob(configuration);
