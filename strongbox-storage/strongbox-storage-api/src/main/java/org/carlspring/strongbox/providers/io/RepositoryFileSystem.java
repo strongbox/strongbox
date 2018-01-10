@@ -45,17 +45,17 @@ public abstract class RepositoryFileSystem
 
     public RepositoryPath getRootDirectory()
     {
-        return this.getPath(repository.getBasedir());
+        return this.getPath(repository.getBasedir()).toAbsolutePath();
     }
 
     public RepositoryPath getTrashPath()
     {
-        return getRootDirectory().resolve(TRASH);
+        return getRootDirectory().resolve(TRASH).toAbsolutePath();
     }
 
     public RepositoryPath getTempPath()
     {
-        return getRootDirectory().resolve(TEMP);
+        return getRootDirectory().resolve(TEMP).toAbsolutePath();
     }
 
     public RepositoryPath getPath(String first,
