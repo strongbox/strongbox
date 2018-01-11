@@ -30,6 +30,8 @@ import static org.carlspring.strongbox.utils.ArtifactControllerHelper.isRangedRe
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+import java.io.InputStream;
+
 /**
  * @author carlspring
  */
@@ -140,10 +142,10 @@ public class RawArtifactController
             return;
         }
 
-        ArtifactInputStream is;
+        InputStream is;
         try
         {
-            is = (ArtifactInputStream) artifactManagementService.resolve(storageId, repositoryId, path);
+            is = artifactManagementService.resolve(storageId, repositoryId, path);
             if (is == null)
             {
                 response.setStatus(NOT_FOUND.value());
