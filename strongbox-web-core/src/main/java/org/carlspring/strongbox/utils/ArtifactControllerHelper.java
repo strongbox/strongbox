@@ -138,7 +138,6 @@ public class ArtifactControllerHelper
                                               HttpServletResponse response)
     {
         ArtifactInputStream ais = StreamUtils.findSource(ArtifactInputStream.class, is);
-        logger.debug("pp" + String.valueOf(ais == null));
         ais.getHexDigests().forEach((k,
                                      v) -> response.setHeader(String.format("Checksum-%s",
                                                                             k.toUpperCase().replaceAll("-", "")),

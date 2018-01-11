@@ -213,7 +213,7 @@ public class MavenArtifactController
         setMediaTypeHeader(path, response);
 
         response.setHeader("Accept-Ranges", "bytes");
-
+                
         ArtifactControllerHelper.setHeadersForChecksums(is, response);
 
         logger.debug("Download succeeded.");
@@ -276,6 +276,7 @@ public class MavenArtifactController
             return;
         }
         
+<<<<<<< a48dfe4e739bb0efe00161addcda2f0c5fc3c24d
 <<<<<<< fc6c41620286d6a0a80fb0741832f720e0e700ef
         try 
         {
@@ -305,6 +306,9 @@ public class MavenArtifactController
                 
 =======
 <<<<<<< 06420f27e10cafa9d0ebd2ab5b9500b013e11644
+=======
+
+>>>>>>> --amend
         ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath);
         Repository repository = configurationManager.getRepository(storageId, repositoryId);
         RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais);
@@ -316,31 +320,7 @@ public class MavenArtifactController
         response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
         response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
         setMediaTypeHeader(path, response);
-=======
-        InputStream is = Files.newInputStream(resolvedPath);
-        
-        if(!response.containsHeader("Content-Length"))
-        {
-            long totalBytes = 0L;
-            int readLength;
-            byte[] bytes = new byte[4096];
-            
-            while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
-            {
-                totalBytes += readLength;
-            }
-        
-            response.setHeader("Content-Length", Long.toString(totalBytes));
-        }
-        
-        RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
-        logger.debug("xxx");
-        //response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
-        logger.debug("yy");
-        ArtifactControllerHelper.setHeadersForChecksums(is, response);
-        logger.debug("zz");
-        response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
->>>>>>> Added header support for Hosted Repositories
+
         
         logger.debug("Header Download succeeded.");
 >>>>>>> Added header support for Hosted Repositories
