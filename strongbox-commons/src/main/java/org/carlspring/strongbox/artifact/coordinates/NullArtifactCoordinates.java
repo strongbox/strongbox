@@ -4,7 +4,7 @@ package org.carlspring.strongbox.artifact.coordinates;
  * @author carlspring
  */
 public class NullArtifactCoordinates
-        extends AbstractArtifactCoordinates<NullArtifactCoordinates, NullVersion>
+        extends AbstractArtifactCoordinates<NullArtifactCoordinates, NullArtifactCoordinates>
 {
 
     private static final String PATH = "path";
@@ -56,10 +56,9 @@ public class NullArtifactCoordinates
     }
 
     @Override
-    public NullVersion getNativeVersion()
+    public NullArtifactCoordinates getNativeVersion()
     {
-        // Unsurprisingly, this is null.
-        return null;
+        return this;
     }
 
     @Override
