@@ -213,7 +213,7 @@ public class MavenArtifactController
         setMediaTypeHeader(path, response);
 
         response.setHeader("Accept-Ranges", "bytes");
-
+                
         ArtifactControllerHelper.setHeadersForChecksums(is, response);
 
         logger.debug("Download succeeded.");
@@ -245,29 +245,17 @@ public class MavenArtifactController
             return;
         }
         
-        InputStream is = Files.newInputStream(resolvedPath);
-        
-        if(!response.containsHeader("Content-Length"))
-        {
-            long totalBytes = 0L;
-            int readLength;
-            byte[] bytes = new byte[4096];
-            
-            while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
-            {
-                totalBytes += readLength;
-            }
-        
-            response.setHeader("Content-Length", Long.toString(totalBytes));
-        }
-        
+        ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath);
+        Repository repository = configurationManager.getRepository(storageId, repositoryId);
+        RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais);
+      
         RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
-        logger.debug("xxx");
-        //response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
-        logger.debug("yy");
+        
         ArtifactControllerHelper.setHeadersForChecksums(is, response);
-        logger.debug("zz");
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
         response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
+        setMediaTypeHeader(path, response);
         
         logger.debug("Header Download succeeded.");
     }
