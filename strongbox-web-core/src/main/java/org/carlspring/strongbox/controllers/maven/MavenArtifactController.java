@@ -213,7 +213,7 @@ public class MavenArtifactController
         setMediaTypeHeader(path, response);
 
         response.setHeader("Accept-Ranges", "bytes");
-                
+    
         ArtifactControllerHelper.setHeadersForChecksums(is, response);
 
         logger.debug("Download succeeded.");
