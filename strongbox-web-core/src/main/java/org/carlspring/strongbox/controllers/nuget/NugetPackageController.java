@@ -214,6 +214,7 @@ public class NugetPackageController extends BaseArtifactController
         }
         Collections.sort(packageEntrys, getPackageComparator(orderBy));
         logger.debug("Got {} packages", new Object[] { packageEntrys.size() });
+        //TODO: SB-1004
         packageEntrys = packageEntrys.stream().skip(skip).limit(top).collect(Collectors.toList());
         logger.debug("Prepared {} packages", new Object[] { packageEntrys.size() });
         feed.setEntries(packageEntrys);
