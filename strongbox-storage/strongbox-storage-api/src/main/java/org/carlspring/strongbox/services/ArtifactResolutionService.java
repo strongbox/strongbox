@@ -13,7 +13,6 @@ import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.ArtifactResolutionException;
 
 
 /**
@@ -47,4 +46,9 @@ public interface ArtifactResolutionService
                            String repositoryId, 
                            String path) 
             throws IOException;
+<<<<<<< 5ab7e748ff44eab97f8d90847a864f019619347b
+=======
+
+
+>>>>>>> --amend
 }

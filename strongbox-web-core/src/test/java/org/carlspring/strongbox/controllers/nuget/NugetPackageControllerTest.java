@@ -2,8 +2,14 @@ package org.carlspring.strongbox.controllers.nuget;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
+<<<<<<< 588199d550d565f27183bf1434193121f962e777
 import static org.junit.Assert.assertEquals;
+=======
+<<<<<<< 5ab7e748ff44eab97f8d90847a864f019619347b
+>>>>>>> --amend
 import static org.hamcrest.Matchers.*;
+=======
+>>>>>>> --amend
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;

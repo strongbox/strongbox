@@ -610,6 +610,7 @@ public class NugetPackageController extends BaseArtifactController
         
         ArtifactControllerHelper.setHeadersForChecksums(is, response);
 
+
         response.setHeader("Accept-Ranges", "bytes");
         response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
         response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());

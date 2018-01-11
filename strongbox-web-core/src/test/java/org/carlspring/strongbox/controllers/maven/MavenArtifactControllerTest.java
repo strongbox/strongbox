@@ -425,9 +425,32 @@ public class MavenArtifactControllerTest
         {
             if(h2.hasHeaderWithName(header.getName()))
             {
+<<<<<<< 5ab7e748ff44eab97f8d90847a864f019619347b
                 assertEquals(header.getValue(),h2.getValue(header.getName()));
             }
         }
+<<<<<<< 588199d550d565f27183bf1434193121f962e777
+=======
+=======
+        assertEquals(h1.size(),h2.size());
+=======
+        //assertEquals(h1.size(),h2.size());
+>>>>>>> --amend
+
+        for(Header header : h1)
+        {
+            if(h2.hasHeaderWithName(header.getName()))
+=======
+>>>>>>> --amend
+                assertEquals(header.getValue(),h2.getValue(header.getName()));
+            }
+        }
+<<<<<<< 5ab7e748ff44eab97f8d90847a864f019619347b
+
+>>>>>>> Added header support for Hosted Repositories
+=======
+>>>>>>> --amend
+>>>>>>> --amend
     }
     
     @Test
