@@ -13,9 +13,16 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
@@ -26,13 +33,18 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
@@ -63,8 +75,13 @@ import ru.aristar.jnuget.QueryExecutor;
 import ru.aristar.jnuget.files.NugetFormatException;
 import ru.aristar.jnuget.files.Nupkg;
 import ru.aristar.jnuget.files.TempNupkgFile;
+import ru.aristar.jnuget.rss.EntryProperties;
 import ru.aristar.jnuget.rss.NuPkgToRssTransformer;
+import ru.aristar.jnuget.rss.PackageDownloadCountComparator;
+import ru.aristar.jnuget.rss.PackageEntry;
 import ru.aristar.jnuget.rss.PackageFeed;
+import ru.aristar.jnuget.rss.PackageIdAndVersionComparator;
+import ru.aristar.jnuget.rss.PackageUpdateDateDescComparator;
 import ru.aristar.jnuget.sources.PackageSource;
 
 /**
@@ -87,6 +104,9 @@ public class NugetPackageController extends BaseArtifactController
 
     @Inject
     private NugetSearchPackageSource packageSource;
+    
+    @Inject
+    private ArtifactTagService artifactTagService;
     
     @RequestMapping(path = { "{storageId}/{repositoryId}/{packageId}/{version}" }, method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
@@ -147,6 +167,10 @@ public class NugetPackageController extends BaseArtifactController
                                             HttpServletResponse response)
         throws JAXBException, IOException
     {
+        String feedId = getFeedUri(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest(),
+                                   storageId,
+                                   repositoryId);
+        
         Collection<? extends Nupkg> files;
         try
         {
@@ -158,17 +182,95 @@ public class NugetPackageController extends BaseArtifactController
             return ResponseEntity.badRequest().build();
         }
 
-        String feedId = getFeedUri(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest(),
-                                   storageId,
-                                   repositoryId);
-
-        NuPkgToRssTransformer toRssTransformer = new NuPkgToRssTransformer(feedId);
-        PackageFeed feed = toRssTransformer.transform(files, orderBy, skip, top);
+        PackageFeed feed = transform(feedId, files, orderBy, skip, top);
 
         response.setHeader("content-type", MediaType.APPLICATION_XML);
         feed.writeXml(response.getOutputStream());
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
+    private PackageFeed transform(String feedId,
+                                  Collection<? extends Nupkg> files,
+                                  String orderBy,
+                                  Integer skip,
+                                  Integer top)
+    {
+        PackageFeed feed = new PackageFeed();
+        // feed.setId(getContext().getRootUri().toString());
+        feed.setId(feedId);
+        feed.setUpdated(new Date());
+        feed.setTitle("Packages");
+        List<PackageEntry> packageEntrys = new ArrayList<>();
+        for (Nupkg nupkg : files)
+        {
+            try
+            {
+                PackageEntry entry = createPackageEntry(feedId, (PathNupkg) nupkg);
+                calculateFeedEntryProperties((PathNupkg) nupkg, entry.getProperties());
+                packageEntrys.add(entry);
+            }
+            catch (NoSuchAlgorithmException | IOException | NugetFormatException e)
+            {
+                logger.error("Failed to parse package " + nupkg, e);
+            }
+        }
+        Collections.sort(packageEntrys, getPackageComparator(orderBy));
+        logger.debug("Got {} packages", new Object[] { packageEntrys.size() });
+        packageEntrys = packageEntrys.stream().skip(skip).limit(top).collect(Collectors.toList());
+        logger.debug("Prepared {} packages", new Object[] { packageEntrys.size() });
+        feed.setEntries(packageEntrys);
+        return feed;
+    }
+
+    private void calculateFeedEntryProperties(PathNupkg nupkg,
+                                              EntryProperties properties)
+    {
+        RepositoryPath path = nupkg.getPath();
+        ArtifactEntry artifactEntry = path.getArtifactEntry();
+
+        properties.setReportAbuseUrl("");
+
+        properties.setDownloadCount(artifactEntry.getDownloadCount());
+        properties.setVersionDownloadCount(artifactEntry.getDownloadCount());
+
+        properties.setRatingsCount(0);
+        properties.setVersionRatingsCount(0);
+
+        properties.setRating(Double.valueOf(0));
+        properties.setVersionRating(Double.valueOf(0));
+
+        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
+        properties.setIsLatestVersion(artifactEntry.getTagSet().contains(lastVersionTag));
+    }
+
+    private PackageEntry createPackageEntry(String feedId,
+                                            PathNupkg nupkg)
+        throws NoSuchAlgorithmException,
+        IOException,
+        NugetFormatException
+    {
+        return new PackageEntry(nupkg){
+
+            @Override
+            protected String getRootUri()
+            {
+                return feedId;
+            }
+        };
+    }
+
+    protected Comparator<PackageEntry> getPackageComparator(final String orderByClause) {
+        final String normalOrderBy = orderByClause == null ? "" : orderByClause.toLowerCase();
+        switch (normalOrderBy) {
+            case "updated":
+                return new PackageUpdateDateDescComparator();
+            case "downloadcount":
+                return new PackageDownloadCountComparator();
+            default:
+                return new PackageIdAndVersionComparator();
+        }
+
     }
     
     @RequestMapping(path = { "{storageId}/{repositoryId}/FindPackagesById()" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
