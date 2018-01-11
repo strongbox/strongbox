@@ -27,7 +27,11 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
+import org.carlspring.strongbox.io.RepositoryInputStream;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -387,7 +391,81 @@ public class NugetPackageController extends BaseArtifactController
             response.setStatus(INTERNAL_SERVER_ERROR.value());
         }
     }
+    
+    @ApiOperation(value = "Used to download the headers for a package")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was downloaded successfully."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(path = "{storageId}/{repositoryId}/{commandName:(?:download|package)}/{packageId}/{packageVersion}", method = RequestMethod.HEAD, produces = MediaType.APPLICATION_OCTET_STREAM)
+    public void downloadPackageHeaders(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                       @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                       @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
+                                       @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
+                                       HttpServletResponse response)
+            throws IOException                   
+    {
+        getHeaders(storageId, repositoryId, packageId, packageVersion, response);
+    }
+    
+    @ApiOperation(value = "Used to download the headers for a package")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was downloaded successfully."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(path = "{storageId}/{repositoryId}/{packageId}/{packageVersion}", method = RequestMethod.HEAD, produces = MediaType.APPLICATION_OCTET_STREAM)
+    public void getPackageHeaders(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                  @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                  @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
+                                  @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
+                                  HttpServletResponse response)
+            throws IOException                   
+    {
+        getHeaders(storageId, repositoryId, packageId, packageVersion, response);
+    } 
+    
+    private void getHeaders(String storageId,
+                            String repositoryId,
+                            String packageId,
+                            String packageVersion,
+                            HttpServletResponse response)
+                   throws IOException                          
+    {
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
+        if (!repository.isInService())
+        {
+            logger.error("Repository is not in service...");
+
+            response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(),
+                               "The " + storageId + ":" + repositoryId + " repository is currently out of service.");
+            return;
+        }
+        
+        String fileName = String.format("%s.%s.nupkg", packageId, packageVersion);
+        String path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
+        
+        RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
+                
+        if(resolvedPath == null)
+        {
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            return;
+        }
+        
+        ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath);
+        RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais);
+        RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
+        
+        ArtifactControllerHelper.setHeadersForChecksums(is, response);
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
+        response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
+        response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
+        
+        logger.debug("Header Download succeeded.");
+    }
+  
+    
     private String extractBoundary(String contentType)
     {
         String boundaryString = "";
