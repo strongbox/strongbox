@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+
 import java.io.IOException;
 
 /**
@@ -7,6 +9,9 @@ import java.io.IOException;
  */
 public interface ArtifactIndexesService
 {
+
+    void addArtifactToIndex(RepositoryPath artifactPath)
+            throws IOException;
 
     /**
      * Rebuild indexes for artifact using artifactPath (string)

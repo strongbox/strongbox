@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,62 +72,25 @@ public class MavenIndexerSearchProvider
         try
         {
             final Collection<Storage> storages = getConfiguration().getStorages().values();
-            if (repositoryId != null && !repositoryId.isEmpty())
+            if (StringUtils.isNotBlank(repositoryId))
             {
                 logger.debug("Repository: {}", repositoryId);
 
                 final String storageId = searchRequest.getStorageId();
-                if (storageId == null)
+                if (StringUtils.isBlank(storageId))
                 {
                     for (Storage storage : storages)
                     {
                         if (storage.containsRepository(repositoryId))
                         {
-                            final String indexType = searchRequest.getOption("indexType") != null ?
-                                                     searchRequest.getOption("indexType") :
-                                                     IndexTypeEnum.LOCAL.getType();
-
-                            final String contextId = storage.getId() + ":" + repositoryId + ":" + indexType;
-
-                            final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(contextId)
-                                                                               .search(searchRequest.getQuery());
-
-                            if (sr != null && !sr.isEmpty())
-                            {
-                                searchResults.getResults().addAll(sr);
-                            }
+                            performSearch(searchResults, storage.getId(), repositoryId, searchRequest);
                         }
                     }
-
-                    logger.debug("Results: {}", searchResults.getResults().size());
-
-                    return searchResults;
                 }
                 else
                 {
-                    final String indexType = searchRequest.getOption("indexType") != null ?
-                                             searchRequest.getOption("indexType") :
-                                             IndexTypeEnum.LOCAL.getType();
 
-                    String contextId = searchRequest.getStorageId() + ":" +
-                                       searchRequest.getRepositoryId() + ":" +
-                                       indexType;
-
-                    RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
-                    if (indexer != null)
-                    {
-                        final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(contextId)
-                                                                           .search(searchRequest.getQuery());
-
-                        if (!sr.isEmpty())
-                        {
-                            searchResults.getResults().addAll(sr);
-                        }
-                    }
-
-                    logger.debug("Results: {}", searchResults.getResults().size());
-
-                    return searchResults;
+                    performSearch(searchResults, storageId, repositoryId, searchRequest);
                 }
             }
             else
@@ -136,35 +101,44 @@ public class MavenIndexerSearchProvider
                     {
                         logger.debug("Repository: {}", r.getId());
 
-                        final String indexType = searchRequest.getOption("indexType") != null ?
-                                                 searchRequest.getOption("indexType") :
-                                                 IndexTypeEnum.LOCAL.getType();
-
-                        final String contextId = storage.getId() + ":" + r.getId() + ":" + indexType;
-
-                        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
-                        if (repositoryIndexer != null)
-                        {
-                            final Set<SearchResult> sr = repositoryIndexer.search(searchRequest.getQuery());
-
-                            if (sr != null && !sr.isEmpty())
-                            {
-                                searchResults.getResults().addAll(sr);
-                            }
-                        }
+                        performSearch(searchResults, storage.getId(), r.getId(), searchRequest);
                     }
                 }
-
-                logger.debug("Results: {}", searchResults.getResults().size());
-
-                return searchResults;
             }
+
+            logger.debug("Results: {}", searchResults.getResults().size());
+
+            return searchResults;
+
         }
         catch (ParseException | IOException e)
         {
             logger.error(e.getMessage(), e);
 
             throw new SearchException(e.getMessage(), e);
+        }
+    }
+
+    private void performSearch(final SearchResults searchResults,
+                               final String storageId,
+                               final String repositoryId,
+                               final SearchRequest searchRequest)
+            throws IOException, ParseException
+    {
+        final String indexType = StringUtils.defaultString(searchRequest.getOption("indexType"),
+                                                           IndexTypeEnum.LOCAL.getType());
+
+        final String contextId = storageId + ":" + repositoryId + ":" + indexType;
+
+        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+        if (repositoryIndexer != null)
+        {
+            final Set<SearchResult> sr = repositoryIndexer.search(searchRequest.getQuery());
+
+            if (CollectionUtils.isNotEmpty(sr))
+            {
+                searchResults.getResults().addAll(sr);
+            }
         }
     }
 

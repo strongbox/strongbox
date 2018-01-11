@@ -116,7 +116,12 @@ public enum ArtifactEventTypeEnum
     /**
      * Occurs when an artifact has been fetched from the remote repository.
      */
-    EVENT_ARTIFACT_FILE_FETCHED_FROM_REMOTE(21);
+    EVENT_ARTIFACT_FILE_FETCHED_FROM_REMOTE(21),
+
+    /**
+     * Occurs when an artifact file has been physically stored.
+     */
+    EVENT_ARTIFACT_FILE_STORED(22);
 
 
     private int type;

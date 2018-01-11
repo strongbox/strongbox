@@ -1074,22 +1074,6 @@ public class MavenArtifactControllerTest
                .statusCode(HttpStatus.OK.value());
     }
 
-    @Test
-    public void whatsup()
-            throws Exception
-    {
-        String url = getContextBaseUrl() +
-                     "/storages/storage0/snapshots/org/carlspring/maven/test-project/1.0.8-SNAPSHOT/test-project-1.0.8-20170823.221551-1.jar";
-
-        given().header("user-agent", "Maven/*")
-               .contentType(MediaType.TEXT_PLAIN_VALUE)
-               .when()
-               .put(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value());
-    }
-
     private ArtifactSnapshotVersion getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote()
             throws Exception
     {

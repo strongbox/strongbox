@@ -14,11 +14,7 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -131,9 +127,11 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    public void testGetGroupRepositoriesContainingRepository() throws Exception
+    public void testGetGroupRepositoriesContainingRepository()
+            throws Exception
     {
-        List<Repository> groups = configurationManagementService.getGroupRepositoriesContaining(REPOSITORY_RELEASES_1);
+        List<Repository> groups = configurationManagementService.getGroupRepositoriesContaining(STORAGE0,
+                                                                                                REPOSITORY_RELEASES_1);
 
         assertFalse(groups.isEmpty());
 
@@ -146,17 +144,20 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    public void testRemoveRepositoryFromAssociatedGroups() throws Exception
+    public void testRemoveRepositoryFromAssociatedGroups()
+            throws Exception
     {
         assertEquals("Failed to add repository to group!",
                      2,
-                     configurationManagementService.getGroupRepositoriesContaining(REPOSITORY_RELEASES_1).size());
+                     configurationManagementService.getGroupRepositoriesContaining(STORAGE0,
+                                                                                   REPOSITORY_RELEASES_1).size());
 
-        configurationManagementService.removeRepositoryFromAssociatedGroups(REPOSITORY_RELEASES_1);
+        configurationManagementService.removeRepositoryFromAssociatedGroups(STORAGE0, REPOSITORY_RELEASES_1);
 
         assertEquals("Failed to remove repository from all associated groups!",
                      0,
-                     configurationManagementService.getGroupRepositoriesContaining(REPOSITORY_RELEASES_1).size());
+                     configurationManagementService.getGroupRepositoriesContaining(STORAGE0,
+                                                                                   REPOSITORY_RELEASES_1).size());
 
         configurationManagementService.removeRepository(STORAGE0, REPOSITORY_GROUP_1);
         configurationManagementService.removeRepository(STORAGE0, REPOSITORY_GROUP_2);
