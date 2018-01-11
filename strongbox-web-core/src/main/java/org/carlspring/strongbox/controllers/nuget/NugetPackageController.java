@@ -229,6 +229,8 @@ public class NugetPackageController extends BaseArtifactController
         RepositoryPath path = nupkg.getPath();
         ArtifactEntry artifactEntry = path.getArtifactEntry();
 
+        properties.setId(nupkg.getId());
+        
         properties.setReportAbuseUrl("");
 
         properties.setDownloadCount(artifactEntry.getDownloadCount());
