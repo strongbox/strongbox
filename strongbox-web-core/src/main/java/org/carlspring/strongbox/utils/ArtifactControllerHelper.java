@@ -142,7 +142,7 @@ public class ArtifactControllerHelper
                                      v) -> response.setHeader(String.format("Checksum-%s",
                                                                             k.toUpperCase().replaceAll("-", "")),
                                                               v));
-        
+
         /*
          * ArtifactCoordinates artifactCoordinates =
          * ais.getArtifactCoordinates();
