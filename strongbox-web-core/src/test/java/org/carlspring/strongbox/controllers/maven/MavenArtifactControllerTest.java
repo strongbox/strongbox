@@ -122,6 +122,10 @@ public class MavenArtifactControllerTest
 
     private static void deleteTestResources()
     {
+        if (pluginXmlFilePath == null)
+        {
+            return;
+        }
         Path dirPath = Paths.get(pluginXmlFilePath).getParent().getParent().getParent();
         try
         {

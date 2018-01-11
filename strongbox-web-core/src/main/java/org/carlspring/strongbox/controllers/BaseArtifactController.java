@@ -2,6 +2,7 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -250,17 +251,14 @@ public abstract class BaseArtifactController
             throws IOException
     {
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-
         RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-        RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath,
-                                                                               RepositoryFileAttributes.class);
 
         // TODO: This is far from optimal and will need to have a content type approach at some point:
-        if (artifactFileAttributes.isChecksum())
+        if (RepositoryFiles.isChecksum(artifactPath))
         {
             response.setContentType(MediaType.TEXT_PLAIN_VALUE);
         }
-        else if (artifactFileAttributes.isMetadata())
+        else if (RepositoryFiles.isMetadata(artifactPath))
         {
             response.setContentType(MediaType.APPLICATION_XML_VALUE);
         }
