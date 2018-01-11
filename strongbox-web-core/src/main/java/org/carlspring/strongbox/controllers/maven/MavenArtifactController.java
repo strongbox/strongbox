@@ -276,8 +276,6 @@ public class MavenArtifactController
             return;
         }
         
-<<<<<<< a48dfe4e739bb0efe00161addcda2f0c5fc3c24d
-<<<<<<< fc6c41620286d6a0a80fb0741832f720e0e700ef
         try 
         {
             try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
@@ -302,28 +300,7 @@ public class MavenArtifactController
                          e);
 
             response.setStatus(INTERNAL_SERVER_ERROR.value());
-        }
-                
-=======
-<<<<<<< 06420f27e10cafa9d0ebd2ab5b9500b013e11644
-=======
-
->>>>>>> --amend
-        ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath);
-        Repository repository = configurationManager.getRepository(storageId, repositoryId);
-        RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais);
-      
-        RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
-        
-        ArtifactControllerHelper.setHeadersForChecksums(is, response);
-        response.setHeader("Accept-Ranges", "bytes");
-        response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
-        response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
-        setMediaTypeHeader(path, response);
-
-        
-        logger.debug("Header Download succeeded.");
->>>>>>> Added header support for Hosted Repositories
+        }       
     }
     
     private void setMediaTypeHeader(String path,

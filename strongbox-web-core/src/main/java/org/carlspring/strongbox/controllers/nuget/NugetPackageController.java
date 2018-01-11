@@ -36,6 +36,12 @@ import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+<<<<<<< 36539e737b678d63a46afb3b1566632654913f1a
+=======
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactTagEntry;
+import org.carlspring.strongbox.io.ReplacingInputStream;
+>>>>>>> Added header support for Nuget Hosted Repositories
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
 import org.carlspring.strongbox.io.RepositoryInputStream;
@@ -572,6 +578,7 @@ public class NugetPackageController extends BaseArtifactController
             return;
         }
         
+<<<<<<< 36539e737b678d63a46afb3b1566632654913f1a
         try
         {
             try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
@@ -596,6 +603,20 @@ public class NugetPackageController extends BaseArtifactController
 
             response.setStatus(INTERNAL_SERVER_ERROR.value());
         }
+=======
+        ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath);
+        RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais);
+        RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
+        
+        ArtifactControllerHelper.setHeadersForChecksums(is, response);
+
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
+        response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
+        response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
+        
+        logger.debug("Header Download succeeded.");
+>>>>>>> Added header support for Nuget Hosted Repositories
     }
   
     
