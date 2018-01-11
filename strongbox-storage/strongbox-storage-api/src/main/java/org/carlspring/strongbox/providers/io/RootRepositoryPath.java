@@ -19,8 +19,9 @@ public class RootRepositoryPath extends RepositoryPath
 
     public RepositoryPath resolve(ArtifactEntry artifactEntry)
     {
-        this.artifactEntry = artifactEntry;
-        return super.resolve(artifactEntry.getArtifactPath());
+        RepositoryPath result = super.resolve(artifactEntry.getArtifactPath());
+        result.artifactEntry = artifactEntry;
+        return result;
     }
 
 }
