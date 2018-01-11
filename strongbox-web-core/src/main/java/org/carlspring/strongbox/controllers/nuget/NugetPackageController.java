@@ -457,7 +457,6 @@ public class NugetPackageController extends BaseArtifactController
         RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
         
         ArtifactControllerHelper.setHeadersForChecksums(is, response);
-        response.setHeader("Accept-Ranges", "bytes");
         response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
         response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
         response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));

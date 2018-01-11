@@ -426,9 +426,10 @@ public class MavenArtifactControllerTest
         for(Header header : h1)
         {
             if(h2.hasHeaderWithName(header.getName()))
+            {
                 assertEquals(header.getValue(),h2.getValue(header.getName()));
+            }
         }
-
     }
     
     @Test

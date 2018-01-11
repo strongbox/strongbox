@@ -2,7 +2,9 @@ package org.carlspring.strongbox.controllers.nuget;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.OutputStream;
@@ -32,7 +34,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import ru.aristar.jnuget.query.AndExpression;
@@ -99,7 +102,72 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
 
         createRepository(repository1);
     }
+    
+    @Test
+    public void testHeaderFetch() 
+            throws Exception 
+    {   
+        //Hosted repository
+        String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Header";
+        String packageVersion = "1.0.0";
+        Path packageFile = generatePackageFile(packageId, packageVersion);
+        byte[] packageContent = readPackageContent(packageFile);
+        
+        createPushRequest(packageContent).when()
+                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
+                                                 REPOSITORY_RELEASES_1 + "/")
+                                         .peek()
+                                         .then()
+                                         .statusCode(HttpStatus.CREATED.value());
+        
+        Headers headersFromGET = given().header("User-Agent", "NuGet/*")
+                                        .header("X-NuGet-ApiKey", API_KEY)
+                                        .when()
+                                        .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
+                                                packageId + "/" + packageVersion)
+                                        .getHeaders();
+        
+        Headers headersFromHEAD = given().header("User-Agent", "NuGet/*")
+                                        .header("X-NuGet-ApiKey", API_KEY)
+                                        .when()
+                                        .head(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
+                                                packageId + "/" + packageVersion)
+                                        .getHeaders();
+        
+        assertHeadersEquals(headersFromGET, headersFromHEAD);
+        
+        //GroupProxy Repository
+       /* headersFromGET = given().header("User-Agent", "NuGet/*")
+                                .when()
+                                .get(getContextBaseUrl() + "/storages/public/nuget-public/package/NHibernate/5.0.3")
+                                .getHeaders();     
+        
+        headersFromHEAD = given().header("User-Agent", "NuGet/*")
+                                 .when()
+                                 .head(getContextBaseUrl() + "/storages/public/nuget-public/package/NHibernate/5.0.3")
+                                 .getHeaders();
+        
+        assertHeadersEquals(headersFromGET, headersFromHEAD);
+        */
+    }
+    
+    protected void assertHeadersEquals(Headers h1, Headers h2)
+    {
+        assertNotNull(h1);
+        assertNotNull(h2);
+        
+       // assertEquals(h1.size(),h2.size());
 
+        for(Header header : h1)
+        {
+            if(h2.hasHeaderWithName(header.getName()))
+            {
+                assertEquals(header.getValue(),h2.getValue(header.getName()));
+        
+            }
+        }
+    }
+    
     @Test
     public void testPackageDelete()
         throws Exception
