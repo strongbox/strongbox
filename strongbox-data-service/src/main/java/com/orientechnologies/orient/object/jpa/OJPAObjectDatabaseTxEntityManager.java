@@ -202,25 +202,25 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
     @Override
     public StoredProcedureQuery createNamedStoredProcedureQuery(String s)
     {
-        return null;
+        throw new UnsupportedOperationException("createNamedStoredProcedureQuery");
     }
 
     @Override
     public StoredProcedureQuery createStoredProcedureQuery(String s)
     {
-        return null;
+        throw new UnsupportedOperationException("createStoredProcedureQuery");
     }
 
     @Override
     public StoredProcedureQuery createStoredProcedureQuery(String s, Class... classes)
     {
-        return null;
+        throw new UnsupportedOperationException("createStoredProcedureQuery");
     }
 
     @Override
     public StoredProcedureQuery createStoredProcedureQuery(String s, String... strings)
     {
-        return null;
+        throw new UnsupportedOperationException("createStoredProcedureQuery");
     }
 
     @Override
@@ -328,13 +328,13 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
     @Override
     public Query createQuery(CriteriaUpdate criteriaUpdate)
     {
-        return null;
+        throw new UnsupportedOperationException("createQuery");
     }
 
     @Override
     public Query createQuery(CriteriaDelete criteriaDelete)
     {
-        return null;
+        throw new UnsupportedOperationException("createQuery");
     }
 
     @Override
@@ -378,25 +378,25 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
     @Override
     public <T> EntityGraph<T> createEntityGraph(Class<T> aClass)
     {
-        return null;
+        throw new UnsupportedOperationException("createEntityGraph");
     }
 
     @Override
     public EntityGraph<?> createEntityGraph(String s)
     {
-        return null;
+        throw new UnsupportedOperationException("createEntityGraph");
     }
 
     @Override
     public EntityGraph<?> getEntityGraph(String s)
     {
-        return null;
+        throw new UnsupportedOperationException("getEntityGraph");
     }
 
     @Override
     public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> aClass)
     {
-        return null;
+        throw new UnsupportedOperationException("getEntityGraphs");
     }
 
     @Override

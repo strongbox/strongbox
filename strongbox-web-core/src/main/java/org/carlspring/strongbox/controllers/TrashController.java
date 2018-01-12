@@ -118,8 +118,7 @@ public class TrashController
                                          message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
-                    method = RequestMethod.POST,
-                    produces = MediaType.ALL_VALUE)
+                    method = RequestMethod.POST)
     public ResponseEntity undelete(@ApiParam(value = "The storageId",
                                              required = true)
                                    @PathVariable String storageId,

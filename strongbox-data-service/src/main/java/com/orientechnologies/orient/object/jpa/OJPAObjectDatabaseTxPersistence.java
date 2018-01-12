@@ -89,13 +89,13 @@ public class OJPAObjectDatabaseTxPersistence
     @Override
     public void generateSchema(PersistenceUnitInfo info, Map map)
     {
-
+        throw new UnsupportedOperationException("generateSchema");
     }
 
     @Override
     public boolean generateSchema(String persistenceUnitName, Map map)
     {
-        return false;
+        throw new UnsupportedOperationException("generateSchema");
     }
 
     @Override
