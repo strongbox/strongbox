@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -53,24 +54,38 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     private ArtifactTagService artifactTagService;
     
     @Override
-    public Class<ArtifactEntry> getEntityClass()
+    public <S extends ArtifactEntry> S save(S entity,
+                                            boolean updateLastVersion)
     {
-        return ArtifactEntry.class;
-    }
-
-    @Override
-    public <S extends ArtifactEntry> S save(S entity)
-    {
-        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
-        Set<ArtifactTag> tagSet = new HashSet<>();
-        tagSet.add(lastVersionTag);
-
         ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
         if (coordinates == null)
         {
             return super.save(entity);
         }
+        
+        if (updateLastVersion)
+        {
+            updateLastVersionTag(entity);
+        }
 
+        return super.save(entity);
+    }
+
+    @Override
+    public <S extends ArtifactEntry> S save(S entity)
+    {
+        return save(entity, false);
+    }
+
+    private <S extends ArtifactEntry> void updateLastVersionTag(S entity)
+    {
+        ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
+        Assert.notNull(coordinates);
+        
+        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
+        Set<ArtifactTag> tagSet = new HashSet<>();
+        tagSet.add(lastVersionTag);
+        
         Map<String, String> coordinatesMap = new HashMap<>(coordinates.getCoordinates());
         coordinatesMap.remove("version");
         List<ArtifactEntry> lastVersionArtifactList = findArtifactList(entity.getStorageId(),
@@ -103,9 +118,8 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         {
             logger.debug(String.format("Keep [%s] last version [%s]", entity.getArtifactPath(),
                                        lastVersionCoordinates.map(c -> c.getVersion()).orElse("undefined")));
+            entity.getTagSet().remove(lastVersionTag);
         }
-
-        return super.save(entity);
     }
 
     @Override
@@ -462,6 +476,12 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         ODocument result = resultList.isEmpty() ? null : resultList.iterator().next();
 
         return result == null ? null : ((ODocument)result.field("rid")).getIdentity();
+    }
+
+    @Override
+    public Class<ArtifactEntry> getEntityClass()
+    {
+        return ArtifactEntry.class;
     }
 
 }

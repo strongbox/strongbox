@@ -12,8 +12,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +42,17 @@ public class PathNupkg implements Nupkg
         IOException
     {
         Assert.notNull(path);
+        Assert.notNull(path.getArtifactEntry());
         
         this.path = path;
-        this.artifactCoordinates = readArtifactCooridnates();
+        this.artifactCoordinates = (NugetArtifactCoordinates) path.getArtifactEntry().getArtifactCoordinates();
         this.nuspecFile = createNuspecFile();
         this.hash = createHash();
+    }
+
+    public RepositoryPath getPath()
+    {
+        return path;
     }
 
     @Override
@@ -78,7 +82,7 @@ public class PathNupkg implements Nupkg
         RepositoryPath checkSumPath = checksumPathMap.values().iterator().next();
         if (!Files.exists(checkSumPath))
         {
-            logger.debug(String.format("Failed to resolve checksum file for [%s]", path));
+            logger.trace(String.format("Failed to resolve checksum file for [%s]", path));
             return new Hash(new byte[] {});
         }
         List<String> checkSumContents = Files.readAllLines(checkSumPath);
@@ -101,12 +105,10 @@ public class PathNupkg implements Nupkg
     private NuspecFile createNuspecFile()
         throws NugetFormatException
     {
-        NugetArtifactCoordinates artifactCoordinates = readArtifactCooridnates();
-        RepositoryPath parentPath = path.getParent();
-        RepositoryPath nuspecPath = parentPath.resolve(artifactCoordinates.getId() + ".nuspec");
+        RepositoryPath nuspecPath = path.resolveSibling(artifactCoordinates.getId() + ".nuspec");
         if (!Files.exists(nuspecPath))
         {
-            logger.debug(String.format("Failed to resolve .nuspec file for [%s]", path));
+            logger.trace(String.format("Failed to resolve .nuspec file for [%s]", path));
             NuspecFile result = new NuspecFile();
             Metadata metadata = result.getMetadata();
             metadata.id = artifactCoordinates.getId();
@@ -126,37 +128,10 @@ public class PathNupkg implements Nupkg
         }
     }
 
-    private NugetArtifactCoordinates readArtifactCooridnates()
-    {
-        NugetArtifactCoordinates artifactCoordinates;
-        try
-        {
-            artifactCoordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(path);
-        }
-        catch (IOException e)
-        {
-            logger.error(String.format("Failed to read ArtifactCoordinates for [%s]", path), e);
-            return null;
-        }
-        return artifactCoordinates;
-    }
-
     @Override
     public Long getSize()
     {
-        if (!exists)
-        {
-            return -1L;
-        }
-        try
-        {
-            return Files.size(path);
-        }
-        catch (IOException e)
-        {
-            logger.error(String.format("Failed to calculate file length for [%s]", path), e);
-            return null;
-        }
+        return path.getArtifactEntry().getSizeInBytes();
     }
 
     @Override
@@ -169,21 +144,7 @@ public class PathNupkg implements Nupkg
     @Override
     public Date getUpdated()
     {
-        if (!exists)
-        {
-            return null;
-        }
-        BasicFileAttributes attributes;
-        try
-        {
-            attributes = Files.readAttributes(path, BasicFileAttributes.class);
-        }
-        catch (IOException e)
-        {
-            logger.error(String.format("Failed to read file attributes for [%s]", path), e);
-            return null;
-        }
-        return new Date(attributes.lastModifiedTime().toMillis());
+        return path.getArtifactEntry().getLastUpdated();
     }
 
     @Override

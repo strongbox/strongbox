@@ -11,6 +11,7 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -42,7 +43,7 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     RepositoryPath resolve(Repository repository,
                            ArtifactCoordinates coordinates);
 
-    RepositoryPath resolve(Repository repository);
+    RootRepositoryPath resolve(Repository repository);
 
     RepositoryFileSystem getRepositoryFileSystem(Repository repository);
     

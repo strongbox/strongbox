@@ -13,9 +13,6 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
 public class ArtifactTagEntry extends GenericEntity implements ArtifactTag, Serializable
 {
 
-    public static final String LAST_VERSION = "last-version";
-    public static final String RELEASE = "release";
-
     private String name;
 
     public String getName()
