@@ -135,35 +135,18 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
                                         .getHeaders();
         
         assertHeadersEquals(headersFromGET, headersFromHEAD);
-        
-        //GroupProxy Repository
-       /* headersFromGET = given().header("User-Agent", "NuGet/*")
-                                .when()
-                                .get(getContextBaseUrl() + "/storages/public/nuget-public/package/NHibernate/5.0.3")
-                                .getHeaders();     
-        
-        headersFromHEAD = given().header("User-Agent", "NuGet/*")
-                                 .when()
-                                 .head(getContextBaseUrl() + "/storages/public/nuget-public/package/NHibernate/5.0.3")
-                                 .getHeaders();
-        
-        assertHeadersEquals(headersFromGET, headersFromHEAD);
-        */
     }
     
     protected void assertHeadersEquals(Headers h1, Headers h2)
     {
         assertNotNull(h1);
         assertNotNull(h2);
-        
-       // assertEquals(h1.size(),h2.size());
-
+       
         for(Header header : h1)
         {
             if(h2.hasHeaderWithName(header.getName()))
             {
                 assertEquals(header.getValue(),h2.getValue(header.getName()));
-        
             }
         }
     }

@@ -221,7 +221,9 @@ public class MavenArtifactController
     
     @ApiOperation(value = "Used to retrieve headers of an artifact", position = 2)
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
+                            @ApiResponse(code = 404, message = "Could not find artifact."),
+                            @ApiResponse(code = 500, message = "Internal Server Error."),
+                            @ApiResponse(code = 503, message = "Repository out of service.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = RequestMethod.HEAD)
     public void getHeaders(@ApiParam(value = "The storageId", required = true)
@@ -236,6 +238,35 @@ public class MavenArtifactController
     {
         logger.debug("Requested headers for /" + storageId + "/" + repositoryId + "/" + path + ".");
         
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        if (storage == null)
+        {
+            logger.error("Unable to find storage by ID " + storageId);
+
+            response.sendError(INTERNAL_SERVER_ERROR.value(), "Unable to find storage by ID " + storageId);
+
+            return;
+        }
+
+        Repository repository = storage.getRepository(repositoryId);
+        if (repository == null)
+        {
+            logger.error("Unable to find repository by ID " + repositoryId + " for storage " + storageId);
+
+            response.sendError(INTERNAL_SERVER_ERROR.value(),
+                               "Unable to find repository by ID " + repositoryId + " for storage " + storageId);
+            return;
+        }
+                
+        if (!repository.isInService())
+        {
+            logger.error("Repository is not in service...");
+
+            response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+
+            return;
+        }
+                
         RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
         
         logger.debug("Resolved path : " + resolvedPath);
@@ -245,19 +276,32 @@ public class MavenArtifactController
             return;
         }
         
-        ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath);
-        Repository repository = configurationManager.getRepository(storageId, repositoryId);
-        RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais);
-      
-        RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
-        
-        ArtifactControllerHelper.setHeadersForChecksums(is, response);
-        response.setHeader("Accept-Ranges", "bytes");
-        response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
-        response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
-        setMediaTypeHeader(path, response);
-        
-        logger.debug("Header Download succeeded.");
+        try 
+        {
+            try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
+            {
+                try (RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais))
+                {
+                    ArtifactControllerHelper.setHeadersForChecksums(is, response);
+                }
+            }
+            RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
+            response.setHeader("Accept-Ranges", "bytes");
+            response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
+            response.setHeader("Last-Modified", fileAttributes.lastModifiedTime().toString());
+            setMediaTypeHeader(path, response);
+        }
+        catch(Exception e)
+        {
+            logger.error(String.format("Failed to process Maven head request: /%s/%s/%s",
+                                       storageId,
+                                       repositoryId,
+                                       path),
+                         e);
+
+            response.setStatus(INTERNAL_SERVER_ERROR.value());
+        }
+                
     }
     
     private void setMediaTypeHeader(String path,

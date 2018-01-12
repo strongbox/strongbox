@@ -370,8 +370,6 @@ public class RestAssuredArtifactClient
     {
         MockMvcRequestSpecification o = givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE);
         
-        logger.debug("[getHeadersForArtifact] URL " + url);
-
         MockMvcResponse response = o.when().head(url);
         Headers allHeaders = response.getHeaders();
 
@@ -396,8 +394,6 @@ public class RestAssuredArtifactClient
     {
         MockMvcRequestSpecification o = givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE);
        
-        logger.debug("[getArtifact] URL " + url);
-
         MockMvcResponse response = o.when().get(url);
         Headers allHeaders = response.getHeaders();
 

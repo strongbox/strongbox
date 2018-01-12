@@ -421,8 +421,6 @@ public class MavenArtifactControllerTest
         assertNotNull(h1);
         assertNotNull(h2);
 
-        //assertEquals(h1.size(),h2.size());
-
         for(Header header : h1)
         {
             if(h2.hasHeaderWithName(header.getName()))

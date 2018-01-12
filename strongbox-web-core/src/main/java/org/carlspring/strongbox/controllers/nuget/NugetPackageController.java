@@ -392,11 +392,13 @@ public class NugetPackageController extends BaseArtifactController
         }
     }
     
-    @ApiOperation(value = "Used to download the headers for a package")
-    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was downloaded successfully."),
-                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @ApiOperation(value = "Used to get the headers for a package")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The headers were obtained successfully."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Package not found."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Requested repository is not in service.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{commandName:(?:download|package)}/{packageId}/{packageVersion}", method = RequestMethod.HEAD, produces = MediaType.APPLICATION_OCTET_STREAM)
+    @RequestMapping(path = "{storageId}/{repositoryId}/{commandName:(?:download|package)}/{packageId}/{packageVersion}", method = RequestMethod.HEAD)
     public void downloadPackageHeaders(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                        @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                                        @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
@@ -407,11 +409,13 @@ public class NugetPackageController extends BaseArtifactController
         getHeaders(storageId, repositoryId, packageId, packageVersion, response);
     }
     
-    @ApiOperation(value = "Used to download the headers for a package")
-    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was downloaded successfully."),
-                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @ApiOperation(value = "Used to get the headers for a package")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The headers were obtained successfully."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Package not found."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Requested repository is not in service.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{packageId}/{packageVersion}", method = RequestMethod.HEAD, produces = MediaType.APPLICATION_OCTET_STREAM)
+    @RequestMapping(path = "{storageId}/{repositoryId}/{packageId}/{packageVersion}", method = RequestMethod.HEAD)
     public void getPackageHeaders(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                   @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                                   @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
@@ -452,16 +456,30 @@ public class NugetPackageController extends BaseArtifactController
             return;
         }
         
-        ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath);
-        RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais);
-        RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
-        
-        ArtifactControllerHelper.setHeadersForChecksums(is, response);
-        response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
-        response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
-        response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
-        
-        logger.debug("Header Download succeeded.");
+        try
+        {
+            try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
+            {
+                try (RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais))
+                {
+                    ArtifactControllerHelper.setHeadersForChecksums(is, response);
+                }
+            }
+            RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
+            response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
+            response.setHeader("Last-Modified", fileAttributes.lastModifiedTime().toString());
+        }
+        catch (Exception e)
+        {
+            logger.error(String.format("Failed to process Nuget head request: %s:%s:%s:%s",
+                                       storageId,
+                                       repositoryId,
+                                       packageId,
+                                       packageVersion),
+                         e);
+
+            response.setStatus(INTERNAL_SERVER_ERROR.value());
+        }
     }
   
     
