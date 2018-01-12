@@ -266,7 +266,7 @@ public class MavenArtifactController
 
             return;
         }
-                
+
         RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
         
         logger.debug("Resolved path : " + resolvedPath);

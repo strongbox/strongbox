@@ -349,8 +349,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
     @Override
     public RepositoryPath getPath(String storageId,
-                        String repositoryId,
-                        String artifactPath)
+                                  String repositoryId,
+                                  String artifactPath)
            throws IOException
     {
         throw new UnsupportedOperationException("Currently getPath() now supported for GroupRepositoryProvider");

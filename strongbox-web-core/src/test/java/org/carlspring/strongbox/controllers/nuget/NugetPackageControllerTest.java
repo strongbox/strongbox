@@ -141,7 +141,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
     {
         assertNotNull(h1);
         assertNotNull(h2);
-       
+
         for(Header header : h1)
         {
             if(h2.hasHeaderWithName(header.getName()))

@@ -392,6 +392,7 @@ public class NugetPackageController extends BaseArtifactController
         }
     }
     
+
     @ApiOperation(value = "Used to get the headers for a package")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The headers were obtained successfully."),
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred."),
@@ -409,6 +410,7 @@ public class NugetPackageController extends BaseArtifactController
         getHeaders(storageId, repositoryId, packageId, packageVersion, response);
     }
     
+
     @ApiOperation(value = "Used to get the headers for a package")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The headers were obtained successfully."),
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred."),
