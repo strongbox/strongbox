@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers.nuget;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -29,6 +30,7 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import org.hamcrest.xml.HasXPath;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -444,6 +446,25 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         {
             System.setOut(originalSysOut);
         }
+    }
+
+    @Test
+    public void testRemoteLastVersion()
+            throws Exception
+    {
+        given().header("User-Agent", "NuGet/*")
+               .when()
+               .get(getContextBaseUrl() + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate&$orderby=Version")
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .and()
+               .assertThat()
+               .body("feed.title", equalTo("Packages"))
+               .and()
+               .assertThat()
+               .body("feed.entry[0].title", equalTo("NHibernate"))
+               .body(hasXPath("/atom:feed/atom:entry[last()]/m:properties/d:IsLatestVersion[text()='true']"));
+        
     }
 
 }

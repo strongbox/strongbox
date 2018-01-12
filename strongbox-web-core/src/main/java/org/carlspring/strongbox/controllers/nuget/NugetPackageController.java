@@ -218,7 +218,7 @@ public class NugetPackageController extends BaseArtifactController
         Collections.sort(packageEntrys, getPackageComparator(orderBy));
         logger.debug("Got {} packages", new Object[] { packageEntrys.size() });
         //TODO: SB-1004
-        packageEntrys = packageEntrys.stream().skip(skip).limit(top).collect(Collectors.toList());
+        packageEntrys = packageEntrys.stream().skip(skip).limit(top < 0 ? Long.MAX_VALUE : top).collect(Collectors.toList());
         logger.debug("Prepared {} packages", new Object[] { packageEntrys.size() });
         feed.setEntries(packageEntrys);
         return feed;
@@ -244,7 +244,15 @@ public class NugetPackageController extends BaseArtifactController
         properties.setVersionRating(Double.valueOf(0));
 
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
-        properties.setIsLatestVersion(artifactEntry.getTagSet().contains(lastVersionTag));
+        if (artifactEntry.getTagSet().contains(lastVersionTag))
+        {
+            properties.setIsLatestVersion(true);
+        }
+        else
+        {
+            properties.setIsLatestVersion(false);
+        }
+        
     }
 
     private PackageEntry createPackageEntry(String feedId,
@@ -293,8 +301,7 @@ public class NugetPackageController extends BaseArtifactController
                                    storageId,
                                    repositoryId);
 
-        NuPkgToRssTransformer toRssTransformer = new NuPkgToRssTransformer(feedId);
-        PackageFeed feed = toRssTransformer.transform(files, "version", 0, -1);
+        PackageFeed feed = transform(feedId, files, "version", 0, -1);
 
         response.setHeader("content-type", MediaType.APPLICATION_XML);
         feed.writeXml(response.getOutputStream());
