@@ -60,20 +60,15 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
                                                 String path)
             throws IOException
     {
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-
-        logger.debug(" -> Checking local cache for {} ...", artifactPath);
-        if (layoutProvider.containsPath(repository, path))
+        
+        RepositoryPath artifactPath = getPath(storageId, repositoryId, path);
+              
+        if (artifactPath != null)
         {
-            logger.debug("The artifact {} was found in the local cache", artifactPath);
             ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(artifactPath);
             return decorate(storageId, repositoryId, path, ais);
         }
 
-        logger.debug("The artifact {} was not found in the local cache", artifactPath);
         return null;
     }
 
@@ -137,6 +132,29 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     {
         return artifactEntryService.countArtifacts(searchRequest.getStorageId(), searchRequest.getRepositoryId(),
                                                    searchRequest.getCoordinates(), searchRequest.isStrict());
+    }
+
+    @Override
+    public RepositoryPath getPath(String storageId,
+                                  String repositoryId,
+                                  String path) 
+           throws IOException
+    {
+        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+
+        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
+
+        logger.debug(" -> Checking local cache for {} ...", artifactPath);
+        if (layoutProvider.containsPath(repository, path))
+        {
+            logger.debug("The artifact {} was found in the local cache", artifactPath);
+            return artifactPath;
+        }
+
+        logger.debug("The artifact {} was not found in the local cache", artifactPath);
+        
+        return null;
     }
 
 }

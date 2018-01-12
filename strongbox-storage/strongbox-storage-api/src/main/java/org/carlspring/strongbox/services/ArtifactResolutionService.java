@@ -12,6 +12,7 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 
 /**
  * @author mtodorov
@@ -39,5 +40,11 @@ public interface ArtifactResolutionService
                                 ArtifactCoordinates artifactCoordinates)
             throws MalformedURLException, 
                    IOException;
+
+    RepositoryPath getPath(String storageId, 
+                           String repositoryId, 
+                           String path) 
+            throws IOException;
+
 
 }
