@@ -145,6 +145,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
                                         .getHeaders();
         
         assertHeadersEquals(headersFromGET, headersFromHEAD);
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
 <<<<<<< 7aa02ae6a6ce7ead9ff2d9deaa2c89c3d5ea0bc2
 =======
         
@@ -162,27 +163,36 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         assertHeadersEquals(headersFromGET, headersFromHEAD);
         */
 >>>>>>> --amend
+=======
+>>>>>>> Fixed PR
     }
     
     protected void assertHeadersEquals(Headers h1, Headers h2)
     {
         assertNotNull(h1);
         assertNotNull(h2);
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
 <<<<<<< 7aa02ae6a6ce7ead9ff2d9deaa2c89c3d5ea0bc2
 =======
         
        // assertEquals(h1.size(),h2.size());
 >>>>>>> --amend
 
+=======
+       
+>>>>>>> Fixed PR
         for(Header header : h1)
         {
             if(h2.hasHeaderWithName(header.getName()))
             {
                 assertEquals(header.getValue(),h2.getValue(header.getName()));
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
 <<<<<<< 7aa02ae6a6ce7ead9ff2d9deaa2c89c3d5ea0bc2
 =======
         
 >>>>>>> --amend
+=======
+>>>>>>> Fixed PR
             }
         }
     }

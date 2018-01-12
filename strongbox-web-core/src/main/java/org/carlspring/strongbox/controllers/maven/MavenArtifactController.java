@@ -266,7 +266,11 @@ public class MavenArtifactController
 
             return;
         }
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
 
+=======
+                
+>>>>>>> Fixed PR
         RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
         
         logger.debug("Resolved path : " + resolvedPath);
@@ -276,6 +280,26 @@ public class MavenArtifactController
             return;
         }
         
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
+=======
+<<<<<<< 59077c9c3e1fec90e934a61a7a69d0415a3a7bf0
+
+        ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath);
+        Repository repository = configurationManager.getRepository(storageId, repositoryId);
+        RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais);
+      
+        RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
+        
+        ArtifactControllerHelper.setHeadersForChecksums(is, response);
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
+        response.setHeader("Last-Updated", fileAttributes.lastModifiedTime().toString());
+        setMediaTypeHeader(path, response);
+
+        
+        logger.debug("Header Download succeeded.");
+=======
+>>>>>>> Fixed PR
         try 
         {
             try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
@@ -300,7 +324,13 @@ public class MavenArtifactController
                          e);
 
             response.setStatus(INTERNAL_SERVER_ERROR.value());
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
         }       
+=======
+        }
+                
+>>>>>>> Fixed PR
+>>>>>>> Fixed PR
     }
     
     private void setMediaTypeHeader(String path,

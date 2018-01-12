@@ -421,6 +421,16 @@ public class MavenArtifactControllerTest
         assertNotNull(h1);
         assertNotNull(h2);
 
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
+=======
+<<<<<<< 59077c9c3e1fec90e934a61a7a69d0415a3a7bf0
+<<<<<<< eafdbd9b2288cd15ca8629b8a408326238524e87
+<<<<<<< 06420f27e10cafa9d0ebd2ab5b9500b013e11644
+        //assertEquals(h1.size(),h2.size());
+
+=======
+>>>>>>> Fixed PR
+>>>>>>> Fixed PR
         for(Header header : h1)
         {
             if(h2.hasHeaderWithName(header.getName()))

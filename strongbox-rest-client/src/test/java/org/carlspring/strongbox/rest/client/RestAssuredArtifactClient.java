@@ -369,7 +369,11 @@ public class RestAssuredArtifactClient
     public Headers getHeadersfromHEAD(String url)
     {
         MockMvcRequestSpecification o = givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE);
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
 
+=======
+        
+>>>>>>> Fixed PR
         MockMvcResponse response = o.when().head(url);
         Headers allHeaders = response.getHeaders();
 
@@ -393,7 +397,11 @@ public class RestAssuredArtifactClient
     public Headers getHeadersFromGET(String url)
     {
         MockMvcRequestSpecification o = givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE);
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
 
+=======
+       
+>>>>>>> Fixed PR
         MockMvcResponse response = o.when().get(url);
         Headers allHeaders = response.getHeaders();
 

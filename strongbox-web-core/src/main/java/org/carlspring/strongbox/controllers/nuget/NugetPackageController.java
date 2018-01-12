@@ -512,7 +512,10 @@ public class NugetPackageController extends BaseArtifactController
         }
     }
     
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
 
+=======
+>>>>>>> Fixed PR
     @ApiOperation(value = "Used to get the headers for a package")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The headers were obtained successfully."),
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred."),
@@ -530,7 +533,10 @@ public class NugetPackageController extends BaseArtifactController
         getHeaders(storageId, repositoryId, packageId, packageVersion, response);
     }
     
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
 
+=======
+>>>>>>> Fixed PR
     @ApiOperation(value = "Used to get the headers for a package")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The headers were obtained successfully."),
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred."),
@@ -577,8 +583,12 @@ public class NugetPackageController extends BaseArtifactController
             response.setStatus(HttpStatus.NOT_FOUND.value());
             return;
         }
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
         
 <<<<<<< 36539e737b678d63a46afb3b1566632654913f1a
+=======
+   
+>>>>>>> Fixed PR
         try
         {
             try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
@@ -600,6 +610,7 @@ public class NugetPackageController extends BaseArtifactController
                                        packageId,
                                        packageVersion),
                          e);
+<<<<<<< 1d9871871bd012858efed0af3d97ca24f450461e
 
             response.setStatus(INTERNAL_SERVER_ERROR.value());
         }
@@ -618,6 +629,11 @@ public class NugetPackageController extends BaseArtifactController
         
         logger.debug("Header Download succeeded.");
 >>>>>>> Added header support for Nuget Hosted Repositories
+=======
+
+            response.setStatus(INTERNAL_SERVER_ERROR.value());
+        }
+>>>>>>> Fixed PR
     }
   
     
