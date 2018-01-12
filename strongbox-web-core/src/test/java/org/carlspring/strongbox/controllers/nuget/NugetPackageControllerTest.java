@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers.nuget;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -41,6 +42,7 @@ import ru.aristar.jnuget.query.AndExpression;
 import ru.aristar.jnuget.query.Expression;
 import ru.aristar.jnuget.query.IdEqIgnoreCase;
 import ru.aristar.jnuget.query.LatestVersionExpression;
+import ru.aristar.jnuget.rss.PackageFeed;
 
 /**
  * @author Sergey Bespalov
@@ -399,21 +401,21 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
 
     @Test
     public void testRemoteLastVersion()
-            throws Exception
+        throws Exception
     {
-        given().header("User-Agent", "NuGet/*")
-               .when()
-               .get(getContextBaseUrl() + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate&$orderby=Version")
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .and()
-               .assertThat()
-               .body("feed.title", equalTo("Packages"))
-               .and()
-               .assertThat()
-               .body("feed.entry[0].title", equalTo("NHibernate"))
-               .body(hasXPath("/atom:feed/atom:entry[last()]/m:properties/d:IsLatestVersion[text()='true']"));
-        
+        PackageFeed feed = given().header("User-Agent", "NuGet/*")
+                                  .when()
+                                  .get(getContextBaseUrl()
+                                          + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate&$orderby=Version")
+                                  .body()
+                                  .as(PackageFeed.class);
+
+        assertTrue(feed.getEntries()
+                       .stream()
+                       .reduce((first,
+                                second) -> second)
+                       .filter(e -> Boolean.TRUE.equals(e.getProperties().getIsLatestVersion()))
+                       .isPresent());
     }
 
 }

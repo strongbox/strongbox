@@ -268,15 +268,17 @@ public class NugetPackageController extends BaseArtifactController
         };
     }
 
-    protected Comparator<PackageEntry> getPackageComparator(final String orderByClause) {
+    protected Comparator<PackageEntry> getPackageComparator(final String orderByClause)
+    {
         final String normalOrderBy = orderByClause == null ? "" : orderByClause.toLowerCase();
-        switch (normalOrderBy) {
-            case "updated":
-                return new PackageUpdateDateDescComparator();
-            case "downloadcount":
-                return new PackageDownloadCountComparator();
-            default:
-                return new PackageIdAndVersionComparator();
+        switch (normalOrderBy)
+        {
+        case "updated":
+            return new PackageUpdateDateDescComparator();
+        case "downloadcount":
+            return new PackageDownloadCountComparator();
+        default:
+            return new PackageIdAndVersionComparator();
         }
 
     }

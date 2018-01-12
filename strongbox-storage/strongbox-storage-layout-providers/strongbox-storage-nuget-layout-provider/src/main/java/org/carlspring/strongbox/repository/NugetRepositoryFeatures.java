@@ -172,6 +172,8 @@ public class NugetRepositoryFeatures
                 remoteArtifactEntry.setLastUsed(new Date());
                 remoteArtifactEntry.setLastUpdated(new Date());
                 remoteArtifactEntry.setDownloadCount(0);
+                
+                remoteArtifactEntry.setSizeInBytes(packageEntry.getProperties().getPackageSize());
 
                 if (Boolean.TRUE.equals(packageEntry.getProperties().getIsLatestVersion()))
                 {

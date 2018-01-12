@@ -47,11 +47,12 @@ public class RepositoryPath
         return target;
     }
     
-    public ArtifactEntry getArtifactEntry() {
-		return artifactEntry;
-	}
+    public ArtifactEntry getArtifactEntry()
+    {
+        return artifactEntry;
+    }
 
-	public RepositoryFileSystem getFileSystem()
+    public RepositoryFileSystem getFileSystem()
     {
         return fileSystem;
     }
