@@ -40,13 +40,13 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
     @Override
     public EntityManager createEntityManager(SynchronizationType synchronizationType)
     {
-        return null;
+        throw new UnsupportedOperationException("createEntityManager");
     }
 
     @Override
     public EntityManager createEntityManager(SynchronizationType synchronizationType, Map map)
     {
-        return null;
+        throw new UnsupportedOperationException("createEntityManager");
     }
 
     @Override
