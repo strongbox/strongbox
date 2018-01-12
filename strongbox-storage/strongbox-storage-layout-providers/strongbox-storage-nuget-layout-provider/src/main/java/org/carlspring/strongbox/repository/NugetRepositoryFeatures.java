@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -168,6 +169,8 @@ public class NugetRepositoryFeatures
                 remoteArtifactEntry.setStorageId(storageId);
                 remoteArtifactEntry.setRepositoryId(repositoryId);
                 remoteArtifactEntry.setArtifactCoordinates(c);
+                remoteArtifactEntry.setLastUsed(new Date());
+                remoteArtifactEntry.setLastUpdated(new Date());
 
                 if (Boolean.TRUE.equals(packageEntry.getProperties().getIsLatestVersion()))
                 {
