@@ -171,6 +171,7 @@ public class NugetRepositoryFeatures
                 remoteArtifactEntry.setArtifactCoordinates(c);
                 remoteArtifactEntry.setLastUsed(new Date());
                 remoteArtifactEntry.setLastUpdated(new Date());
+                remoteArtifactEntry.setDownloadCount(0);
 
                 if (Boolean.TRUE.equals(packageEntry.getProperties().getIsLatestVersion()))
                 {
