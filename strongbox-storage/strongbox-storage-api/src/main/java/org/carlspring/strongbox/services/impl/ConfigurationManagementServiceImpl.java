@@ -17,9 +17,11 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,6 +170,33 @@ public class ConfigurationManagementServiceImpl
             throws IOException
     {
         return configurationManager.getConfiguration().getStorage(storageId).getRepository(repositoryId);
+    }
+
+    @Override
+    public List<Repository> getRepositoriesWithLayout(String storageId,
+                                                      String layout)
+    {
+        Stream<Repository> repositories;
+        if (storageId != null)
+        {
+            Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+            if (storage != null)
+            {
+                repositories = storage.getRepositories().values().stream();
+            }
+            else
+            {
+                return Collections.emptyList();
+            }
+        }
+        else
+        {
+            repositories = configurationManager.getConfiguration().getStorages().values().stream()
+                                               .flatMap(storage -> storage.getRepositories().values().stream());
+        }
+
+        return repositories.filter(repository -> repository.getLayout().equals(layout))
+                           .collect(Collectors.toList());
     }
 
     @Override
