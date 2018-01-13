@@ -2,10 +2,10 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
 import org.carlspring.strongbox.controllers.support.PortEntityBody;
 import org.carlspring.strongbox.controllers.support.ResponseStatusEnum;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.security.exceptions.AuthenticationException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
@@ -106,7 +106,7 @@ public class ConfigurationManagementController
                              .body(getConfiguration());
     }
 
-    @ApiOperation(value = "Retrieves the strongbox.xml configuration file.")
+    @ApiOperation(value = "Updates the base URL of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "The base URL was updated."),
                             @ApiResponse(code = 500,
@@ -114,25 +114,23 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_BASE_URL')")
     @RequestMapping(value = "/baseUrl",
                     method = RequestMethod.PUT,
-                    consumes = MediaType.TEXT_PLAIN_VALUE,
+                    consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity setBaseUrl(@ApiParam(value = "The base URL", required = true)
-                                     @RequestBody String newBaseUrl)
-            throws IOException,
-                   AuthenticationException,
-                   JAXBException
+                                     @RequestBody BaseUrlEntityBody baseUrlEntity)
     {
         try
         {
+            String newBaseUrl = baseUrlEntity.getBaseUrl();
             configurationManagementService.setBaseUrl(newBaseUrl);
 
-            logger.info("Set baseUrl to [" + newBaseUrl + "].");
+            logger.info("Set baseUrl to [{}].", newBaseUrl);
 
             return ResponseEntity.ok(ResponseStatusEnum.OK.value());
         }
         catch (IOException | JAXBException e)
         {
-            logger.error(e.getMessage(), e);
+            logger.error("Error while updating the base URL of the service", e);
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body(ResponseStatusEnum.FAILED.value());
@@ -150,14 +148,11 @@ public class ConfigurationManagementController
                     method = RequestMethod.GET,
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getBaseUrl()
-            throws IOException,
-                   AuthenticationException
+            throws IOException
     {
         if (configurationManagementService.getBaseUrl() != null)
         {
-            return ResponseEntity.status(HttpStatus.OK)
-                                 .body(
-                                         "{\"baseUrl\":\"" + configurationManagementService.getBaseUrl() + "\"}");
+            return ResponseEntity.ok(getBaseUrlEntityBody(configurationManagementService.getBaseUrl()));
         }
         else
         {

@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
 import org.carlspring.strongbox.controllers.support.PortEntityBody;
 import org.carlspring.strongbox.controllers.support.ResponseStatusEnum;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -99,12 +100,13 @@ public class ConfigurationManagementControllerTest
     public void testSetAndGetBaseUrl()
             throws Exception
     {
-        String baseUrl = "http://localhost:" + 40080 + "/newurl";
+        String newBaseUrl = "http://localhost:" + 40080 + "/newurl";
+        BaseUrlEntityBody baseUrlEntity = new BaseUrlEntityBody(newBaseUrl);
 
         String url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .body(baseUrl)
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(baseUrlEntity)
                .when()
                .put(url)
                .then()
@@ -117,8 +119,8 @@ public class ConfigurationManagementControllerTest
                .when()
                .get(url)
                .then()
-               .statusCode(200)
-               .body("baseUrl", equalTo(baseUrl));
+               .statusCode(HttpStatus.OK.value())
+               .body("baseUrl", equalTo(newBaseUrl));
     }
 
     @Test
