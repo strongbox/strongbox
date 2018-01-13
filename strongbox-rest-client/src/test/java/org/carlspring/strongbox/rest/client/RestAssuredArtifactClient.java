@@ -366,7 +366,7 @@ public class RestAssuredArtifactClient
                            .asString();
     }
 
-     public Headers getHeadersfromHEAD(String url)
+    public Headers getHeadersfromHEAD(String url)
     {
         MockMvcRequestSpecification o = givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE);
 
