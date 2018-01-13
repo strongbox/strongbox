@@ -379,6 +379,14 @@ public class ArtifactManagementService implements ConfigurationService
         return null;
     }
     
+    public RepositoryPath getPath(String storageId,
+                                  String repositoryId,
+                                  String path) 
+             throws IOException
+    {
+        return artifactResolutionService.getPath(storageId, repositoryId, path);
+    }
+    
     public void delete(String storageId,
                        String repositoryId,
                        String artifactPath,

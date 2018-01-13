@@ -38,7 +38,10 @@ import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
+import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
+import org.carlspring.strongbox.io.RepositoryInputStream;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactTagService;
@@ -421,45 +424,73 @@ public class NugetPackageController extends BaseArtifactController
     }
 
     @ApiOperation(value = "Used to download a package")
-    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was downloaded successfully."),
-                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The request was successfull."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Server error occurred."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "The requested path was not found."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Repository not in service currently.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{commandName:(?:download|package)}/{packageId}/{packageVersion}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM)
+    @RequestMapping(path = "{storageId}/{repositoryId}/{commandName:(?:download|package)}/{packageId}/{packageVersion}", method = {RequestMethod.GET, RequestMethod.HEAD},
+                    produces = MediaType.APPLICATION_OCTET_STREAM)
     public void downloadPackage(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                 @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                                 @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
                                 @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
-                                HttpServletResponse response)
+                                HttpServletResponse response,
+                                HttpServletRequest request)
             throws IOException
     {
-        getPackageInternal(storageId, repositoryId, packageId, packageVersion, response);
+        getPackageInternal(storageId, repositoryId, packageId, packageVersion, response, request);
     }
 
     @ApiOperation(value = "Used to download a package")
-    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was downloaded successfully."),
-                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The request was successfull."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Server error occurred."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "The requested path was not found."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Repository not in service currently.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{packageId}/{packageVersion}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM)
+    @RequestMapping(path = "{storageId}/{repositoryId}/{packageId}/{packageVersion}", method = {RequestMethod.GET, RequestMethod.HEAD},
+                    produces = MediaType.APPLICATION_OCTET_STREAM)
     public void getPackage(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                            @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                            @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
                            @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
-                           HttpServletResponse response)
+                           HttpServletResponse response,
+                           HttpServletRequest request)
             throws IOException
     {
-        getPackageInternal(storageId, repositoryId, packageId, packageVersion, response);
+        getPackageInternal(storageId, repositoryId, packageId, packageVersion, response, request);
     }    
     
     private void getPackageInternal(String storageId,
                                     String repositoryId,
                                     String packageId,
                                     String packageVersion,
-                                    HttpServletResponse response)
+                                    HttpServletResponse response,
+                                    HttpServletRequest request)
         throws IOException
     {
+        logger.debug("Requested Nuget Package %s, %s, %s, %s.", storageId, repositoryId, packageId, packageVersion);
+        
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        if (storage == null)
+        {
+            logger.error("Unable to find storage by ID " + storageId);
 
+            response.sendError(INTERNAL_SERVER_ERROR.value(), "Unable to find storage by ID " + storageId);
+
+            return;
+        }
+
+        Repository repository = storage.getRepository(repositoryId);
+        if (repository == null)
+        {
+            logger.error("Unable to find repository by ID " + repositoryId + " for storage " + storageId);
+
+            response.sendError(INTERNAL_SERVER_ERROR.value(),
+                               "Unable to find repository by ID " + repositoryId + " for storage " + storageId);
+            return;
+        }
+        
         if (!repository.isInService())
         {
             logger.error("Repository is not in service...");
@@ -472,34 +503,75 @@ public class NugetPackageController extends BaseArtifactController
         String fileName = String.format("%s.%s.nupkg", packageId, packageVersion);
         String path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
 
-        try
+        boolean isHeadRequest = request.getMethod().equals("HEAD");
+        
+        if(!isHeadRequest)
         {
-            InputStream is = getArtifactManagementService().resolve(storageId,
-                                                                    repositoryId,
-                                                                    path);
-            if (is == null)
+            try
             {
-                logger.debug("Unable to find artifact by path " + path);
+                InputStream is = getArtifactManagementService().resolve(storageId,
+                                                                        repositoryId,
+                                                                        path);
+                if (is == null)
+                {
+                    logger.debug("Unable to find artifact by path " + path);
 
-                response.setStatus(NOT_FOUND.value());
+                    response.setStatus(NOT_FOUND.value());
+                    return;
+                }
+
+                response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
+
+                copyToResponse(is, response);
+                ArtifactControllerHelper.setHeadersForChecksums(is, response);
+            }
+            catch (Exception e)
+            {
+                logger.error(String.format("Failed to process Nuget get request: %s:%s:%s:%s",
+                                           storageId,
+                                           repositoryId,
+                                           packageId,
+                                           packageVersion),
+                             e);
+
+                response.setStatus(INTERNAL_SERVER_ERROR.value());
+            }
+        }
+        else
+        {
+            RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
+            
+            if(resolvedPath == null)
+            {
+                response.setStatus(HttpStatus.NOT_FOUND.value());
                 return;
             }
-
-            response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
-            
-            copyToResponse(is, response);
-            ArtifactControllerHelper.setHeadersForChecksums(is, response);
-        }
-        catch (Exception e)
-        {
-            logger.error(String.format("Failed to process Nuget get request: %s:%s:%s:%s",
-                                       storageId,
-                                       repositoryId,
-                                       packageId,
-                                       packageVersion),
-                         e);
-
-            response.setStatus(INTERNAL_SERVER_ERROR.value());
+   
+            try
+            {
+                try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
+                {
+                    try (RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais))
+                    {
+                        ArtifactControllerHelper.setHeadersForChecksums(is, response);
+                    }
+                }
+                RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
+                response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
+                response.setHeader("Last-Modified", fileAttributes.lastModifiedTime().toString());
+                response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
+            }
+            catch (Exception e)
+            {
+                logger.error(String.format("Failed to process Nuget head request: %s:%s:%s:%s",
+                                           storageId,
+                                           repositoryId,
+                                           packageId,
+                                           packageVersion),
+                             e);
+    
+                response.setStatus(INTERNAL_SERVER_ERROR.value());
+            }
         }
     }
 
