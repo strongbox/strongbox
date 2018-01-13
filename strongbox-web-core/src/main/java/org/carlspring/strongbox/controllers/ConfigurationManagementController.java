@@ -2,6 +2,8 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.controllers.support.PortEntityBody;
+import org.carlspring.strongbox.controllers.support.ResponseStatusEnum;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.security.exceptions.AuthenticationException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -11,6 +13,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
+import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 
 import javax.inject.Inject;
@@ -31,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
 @Controller
 @RequestMapping("/configuration/strongbox")
@@ -73,13 +77,14 @@ public class ConfigurationManagementController
 
             logger.info("Received new configuration over REST.");
 
-            return ResponseEntity.ok("The configuration was updated successfully.");
+            return ResponseEntity.ok(ResponseStatusEnum.OK.value());
         }
         catch (IOException | JAXBException e)
         {
             logger.error(e.getMessage(), e);
 
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(ResponseStatusEnum.FAILED.value());
         }
     }
 
@@ -109,7 +114,8 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_BASE_URL')")
     @RequestMapping(value = "/baseUrl",
                     method = RequestMethod.PUT,
-                    consumes = MediaType.TEXT_PLAIN_VALUE)
+                    consumes = MediaType.TEXT_PLAIN_VALUE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity setBaseUrl(@ApiParam(value = "The base URL", required = true)
                                      @RequestBody String newBaseUrl)
             throws IOException,
@@ -122,17 +128,18 @@ public class ConfigurationManagementController
 
             logger.info("Set baseUrl to [" + newBaseUrl + "].");
 
-            return ResponseEntity.ok("The base URL was updated.");
+            return ResponseEntity.ok(ResponseStatusEnum.OK.value());
         }
         catch (IOException | JAXBException e)
         {
             logger.error(e.getMessage(), e);
 
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(ResponseStatusEnum.FAILED.value());
         }
     }
 
-    @ApiOperation(value = "Sets the base URL of the service.")
+    @ApiOperation(value = "Returns the base URL of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "",
                                          response = String.class),
@@ -154,8 +161,8 @@ public class ConfigurationManagementController
         }
         else
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body("No value for baseUrl has been defined yet.");
+            String message = "No value for baseUrl has been defined yet.";
+            return toResponseEntity(message, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -178,14 +185,28 @@ public class ConfigurationManagementController
 
             logger.info("Set port to " + port + ". This operation will require a server restart.");
 
-            return ResponseEntity.ok("The port was updated.");
+            return ResponseEntity.ok(ResponseStatusEnum.OK.value());
         }
         catch (IOException | JAXBException e)
         {
             logger.error(e.getMessage(), e);
 
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(ResponseStatusEnum.FAILED.value());
         }
+    }
+
+    @ApiOperation(value = "Sets the port of the service.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The port was updated."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('CONFIGURATION_SET_PORT')")
+    @PutMapping(value = "/port",
+                produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity setPort(@ApiParam(value = "The port of the service", required = true)
+                                  @RequestBody PortEntityBody portEntity)
+            throws IOException, JAXBException
+    {
+        return setPort(portEntity.getPort());
     }
 
     @ApiOperation(value = "Returns the port of the service.")
@@ -194,11 +215,12 @@ public class ConfigurationManagementController
                                          response = Integer.class) })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_PORT')")
     @RequestMapping(value = "/port",
-                    method = RequestMethod.GET)
+                    method = RequestMethod.GET,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getPort()
             throws IOException
     {
-        return ResponseEntity.ok(configurationManagementService.getPort());
+        return ResponseEntity.ok(getPortEntityBody(configurationManagementService.getPort()));
     }
 
     @ApiOperation(value = "Updates the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
@@ -209,7 +231,8 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_GLOBAL_PROXY_CFG')")
     @RequestMapping(value = "/proxy-configuration",
                     method = RequestMethod.PUT,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+                    consumes = MediaType.APPLICATION_JSON_VALUE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity setProxyConfiguration(@ApiParam(value = "The storageId")
                                                 @RequestParam(value = "storageId", required = false) String storageId,
                                                 @ApiParam(value = "The repositoryId")
@@ -222,13 +245,14 @@ public class ConfigurationManagementController
         try
         {
             configurationManagementService.setProxyConfiguration(storageId, repositoryId, proxyConfiguration);
-            return ResponseEntity.ok("The proxy configuration was updated successfully.");
+            return ResponseEntity.ok(ResponseStatusEnum.OK.value());
         }
         catch (IOException | JAXBException e)
         {
             logger.error(e.getMessage(), e);
 
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(ResponseStatusEnum.FAILED.value());
         }
     }
 
@@ -271,8 +295,7 @@ public class ConfigurationManagementController
                              (storageId != null ? " for " + storageId + ":" + repositoryId : "") +
                              " was not found.";
 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(message);
+            return toResponseEntity(message, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -285,7 +308,8 @@ public class ConfigurationManagementController
     @RequestMapping(value = "/storages",
                     method = RequestMethod.PUT,
                     consumes = { MediaType.APPLICATION_XML_VALUE,
-                                 MediaType.APPLICATION_JSON_VALUE })
+                                 MediaType.APPLICATION_JSON_VALUE },
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity saveStorage(@ApiParam(value = "The storage object", required = true)
                                       @RequestBody Storage storage)
             throws IOException, JAXBException
@@ -299,13 +323,14 @@ public class ConfigurationManagementController
                 storageManagementService.createStorage(storage);
             }
 
-            return ResponseEntity.ok("The storage was updated successfully.");
+            return ResponseEntity.ok(ResponseStatusEnum.OK.value());
         }
         catch (IOException | JAXBException e)
         {
             logger.error(e.getMessage(), e);
 
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(ResponseStatusEnum.FAILED.value());
         }
     }
 
@@ -317,7 +342,8 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
     @RequestMapping(value = "/storages/{storageId}",
                     method = RequestMethod.GET,
-                    consumes = { MediaType.TEXT_PLAIN_VALUE })
+                    consumes = { MediaType.TEXT_PLAIN_VALUE },
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getStorage(@ApiParam(value = "The storageId", required = true)
                                      @PathVariable final String storageId)
             throws IOException
@@ -331,8 +357,8 @@ public class ConfigurationManagementController
         }
         else
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body("Storage " + storageId + " was not found.");
+            String message = "Storage " + storageId + " was not found.";
+            return toResponseEntity(message, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -368,14 +394,14 @@ public class ConfigurationManagementController
 
                 logger.debug("Removed storage " + storageId + ".");
 
-                return ResponseEntity.ok("The storage was removed successfully.");
+                return ResponseEntity.ok(ResponseStatusEnum.OK.value());
             }
             catch (IOException | JAXBException e)
             {
                 logger.error(e.getMessage(), e);
 
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                     .body("Failed to remove storage " + storageId + "!");
+                                     .body(ResponseStatusEnum.FAILED.value());
             }
         }
         else
@@ -416,13 +442,14 @@ public class ConfigurationManagementController
                 repositoryManagementService.createRepository(storageId, repository.getId());
             }
 
-            return ResponseEntity.ok("The repository was updated successfully.");
+            return ResponseEntity.ok(ResponseStatusEnum.OK.value());
         }
         catch (IOException | JAXBException | RepositoryManagementStrategyException e)
         {
             logger.error(e.getMessage(), e);
 
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(ResponseStatusEnum.FAILED.value());
         }
     }
 
@@ -513,14 +540,14 @@ public class ConfigurationManagementController
 
                 logger.debug("Removed repository " + storageId + ":" + repositoryId + ".");
 
-                return ResponseEntity.ok().build();
+                return ResponseEntity.ok(ResponseStatusEnum.OK.value());
             }
             catch (IOException | JAXBException e)
             {
                 logger.error(e.getMessage(), e);
 
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                     .body("Failed to remove repository " + repositoryId + "!");
+                                     .body(ResponseStatusEnum.FAILED.value());
             }
         }
         else
@@ -530,6 +557,8 @@ public class ConfigurationManagementController
         }
     }
 
+    @ApiOperation(value = "Returns the routing rules.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "", response = RoutingRules.class) })
     @RequestMapping(value = "/routing/rules",
                     method = RequestMethod.GET,
                     produces = { MediaType.APPLICATION_JSON_VALUE,
@@ -539,33 +568,38 @@ public class ConfigurationManagementController
         return ResponseEntity.ok(configurationManagementService.getRoutingRules());
     }
 
+    @ApiOperation(value = "Adds the accepted rules set.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+                            @ApiResponse(code = 404, message = "Element was not found.") })
     @RequestMapping(value = "/routing/rules/set/accepted",
                     method = RequestMethod.PUT,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+                    consumes = MediaType.APPLICATION_JSON_VALUE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity addAcceptedRuleSet(@RequestBody RuleSet ruleSet)
     {
-        final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
-        if (added)
-        {
-            return ResponseEntity.ok().build();
-        }
-        else
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        return getResponse(configurationManagementService.saveAcceptedRuleSet(ruleSet));
     }
 
+    @ApiOperation(value = "Removes the accepted rules set.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+                            @ApiResponse(code = 404, message = "Element was not found.") })
     @RequestMapping(value = "/routing/rules/set/accepted/{groupRepository}",
                     method = RequestMethod.DELETE,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+                    consumes = MediaType.APPLICATION_JSON_VALUE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity removeAcceptedRuleSet(@PathVariable String groupRepository)
     {
         return getResponse(configurationManagementService.removeAcceptedRuleSet(groupRepository));
     }
 
+    @ApiOperation(value = "Adds the accepted repository.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+                            @ApiResponse(code = 400, message = "Routing rule is empty"),
+                            @ApiResponse(code = 404, message = "Element was not found.") })
     @RequestMapping(value = "/routing/rules/accepted/{groupRepository}/repositories",
                     method = RequestMethod.PUT,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+                    consumes = MediaType.APPLICATION_JSON_VALUE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity addAcceptedRepository(@PathVariable String groupRepository,
                                                 @RequestBody RoutingRule routingRule)
     {
@@ -581,9 +615,13 @@ public class ConfigurationManagementController
         return getResponse(configurationManagementService.saveAcceptedRepository(groupRepository, routingRule));
     }
 
+    @ApiOperation(value = "Removes the accepted repository.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+                            @ApiResponse(code = 404, message = "Element was not found.") })
     @RequestMapping(value = "/routing/rules/accepted/{groupRepository}/repositories/{repositoryId}",
                     method = RequestMethod.DELETE,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+                    consumes = MediaType.APPLICATION_JSON_VALUE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity removeAcceptedRepository(@PathVariable String groupRepository,
                                                    @PathVariable String repositoryId,
                                                    @RequestParam("pattern") String pattern)
@@ -592,9 +630,14 @@ public class ConfigurationManagementController
                 configurationManagementService.removeAcceptedRepository(groupRepository, pattern, repositoryId));
     }
 
+    @ApiOperation(value = "Overrides the accepted repository.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+                            @ApiResponse(code = 400, message = "Routing rule is empty"),
+                            @ApiResponse(code = 404, message = "Element was not found.") })
     @RequestMapping(value = "/routing/rules/accepted/{groupRepository}/override/repositories",
                     method = RequestMethod.PUT,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+                    consumes = MediaType.APPLICATION_JSON_VALUE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity overrideAcceptedRepository(@PathVariable String groupRepository,
                                                      @RequestBody RoutingRule routingRule)
     {
@@ -612,11 +655,12 @@ public class ConfigurationManagementController
     {
         if (result)
         {
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(ResponseStatusEnum.OK.value());
         }
         else
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("Element was not found.");
         }
     }
 

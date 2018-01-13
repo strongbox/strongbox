@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
+import org.carlspring.strongbox.controllers.support.PortEntityBody;
 import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.resource.ResourceCloser;
 
@@ -39,6 +40,18 @@ public abstract class BaseController
     {
         return ResponseEntity.status(httpStatus)
                              .body(getResponseEntityBody(message));
+    }
+
+    protected PortEntityBody getPortEntityBody(int port)
+    {
+        return new PortEntityBody(port);
+    }
+
+    protected ResponseEntity toPortEntity(int port,
+                                          HttpStatus httpStatus)
+    {
+        return ResponseEntity.status(httpStatus)
+                             .body(getPortEntityBody(port));
     }
 
     protected ResponseEntity toResponseEntityError(String message,

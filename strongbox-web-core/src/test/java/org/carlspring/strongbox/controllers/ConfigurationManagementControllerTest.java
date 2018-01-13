@@ -3,6 +3,8 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.controllers.support.PortEntityBody;
+import org.carlspring.strongbox.controllers.support.ResponseStatusEnum;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -21,20 +23,22 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpServerErrorException;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author Alex Oreshkevich
+ * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 public class ConfigurationManagementControllerTest
         extends RestAssuredBaseTest
 {
@@ -47,25 +51,48 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/port/" + newPort;
 
-        int status = given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                            .when()
-                            .put(url)
-                            .then()
-                            .statusCode(200) // check http status code
-                            .extract()
-                            .statusCode();
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body(equalTo(ResponseStatusEnum.OK.value()));
 
         url = getContextBaseUrl() + "/configuration/strongbox/port";
 
-        String port = given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                             .when()
-                             .get(url)
-                             .then()
-                             .statusCode(200) // check http status code
-                             .extract().asString();
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body("port", equalTo(newPort));
+    }
 
-        assertEquals("Failed to set port!", 200, status);
-        assertEquals("Failed to get port!", newPort, Integer.parseInt(port));
+    @Test
+    public void testSetAndGetPortWithBody()
+            throws Exception
+    {
+        int newPort = 18080;
+        PortEntityBody portEntity = new PortEntityBody(newPort);
+
+        String url = getContextBaseUrl() + "/configuration/strongbox/port/" + newPort;
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(portEntity)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body(equalTo(ResponseStatusEnum.OK.value()));
+
+        url = getContextBaseUrl() + "/configuration/strongbox/port";
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body("port", equalTo(newPort));
     }
 
     @Test
@@ -81,8 +108,8 @@ public class ConfigurationManagementControllerTest
                .when()
                .put(url)
                .then()
-               .statusCode(200)
-               .extract();
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body(equalTo(ResponseStatusEnum.OK.value()));
 
         url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
 
@@ -107,7 +134,8 @@ public class ConfigurationManagementControllerTest
                .when()
                .put(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(ResponseStatusEnum.OK.value()));
 
         url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
@@ -147,7 +175,8 @@ public class ConfigurationManagementControllerTest
                .put(url)
                .prettyPeek()
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(ResponseStatusEnum.OK.value()));
 
         Repository r1 = new Repository("repository0");
         r1.setAllowsRedeployment(true);
@@ -250,9 +279,10 @@ public class ConfigurationManagementControllerTest
                .body(storage2)
                .when()
                .put(url)
-               .peek() // Use peek() to print the ouput
+               .peek() // Use peek() to print the output
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(ResponseStatusEnum.OK.value()));
 
         Repository r1 = new Repository(repositoryId1);
         r1.setAllowsRedeployment(true);
@@ -285,9 +315,9 @@ public class ConfigurationManagementControllerTest
         given().params("storageId", storageId, "repositoryId", repositoryId1)
                .when()
                .get(url)
-               .peek() // Use peek() to print the ouput
+               .peek() // Use peek() to print the output
                .then()
-               .statusCode(200)
+               .statusCode(HttpStatus.OK.value())
                .extract();
 
         Storage storage = getStorage(storageId);
@@ -304,9 +334,10 @@ public class ConfigurationManagementControllerTest
                .param("force", true)
                .when()
                .delete(url)
-               .peek() // Use peek() to print the ouput
+               .peek() // Use peek() to print the output
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(ResponseStatusEnum.OK.value()));
 
         url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
 
@@ -316,9 +347,88 @@ public class ConfigurationManagementControllerTest
         given().contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
                .get(url)
-               .peek() // Use peek() to print the ouput
+               .peek() // Use peek() to print the output
                .then()
-               .statusCode(404);
+               .statusCode(HttpStatus.NOT_FOUND.value())
+               .body(containsString("Repository " + storageId + ":" + repositoryId1 + " was not found."));
+    }
+
+    @Test
+    public void testDeleteStorageWithNoExistingIdShouldReturnNotFoundStatus()
+            throws Exception
+    {
+        String storageId = "storageNotFound";
+        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
+
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .delete(url)
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value())
+               .body(equalTo("Storage " + storageId + " not found."));
+    }
+
+    @Test
+    public void testGetStorageWithNoExistingIdShouldReturnNotFoundStatus()
+            throws Exception
+    {
+        String storageId = "storageNotFound";
+        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
+
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value())
+               .body(containsString("Storage " + storageId + " was not found."));
+    }
+
+    @Test
+    public void testGetRepositoryWithNoExistingRepositoryIdShouldReturnNotFoundStatus()
+            throws Exception
+    {
+        String storageId = "storage1";
+        Storage storage1 = new Storage(storageId);
+
+        String url = getContextBaseUrl() + "/configuration/strongbox/storages";
+
+        logger.debug("Using storage class " + storage1.getClass()
+                                                      .getName());
+
+        given().contentType(MediaType.APPLICATION_XML_VALUE)
+               .body(storage1)
+               .when()
+               .put(url)
+               .prettyPeek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(ResponseStatusEnum.OK.value()));
+
+        String repositoryId = "repositoryNotFound";
+        url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
+
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value())
+               .body(containsString("Repository " + storageId + ":" + repositoryId + " was not found."));
+    }
+
+    @Test
+    public void testGetRepositoryWithNoExistingStorageIdShouldReturnNotFoundStatus()
+            throws Exception
+    {
+        String storageId = "storageNotFound";
+        String repositoryId = "repositoryNotFound";
+        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
+
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value())
+               .body(containsString("Repository " + storageId + ":" + repositoryId + " was not found."));
     }
 
     @Test
@@ -338,7 +448,8 @@ public class ConfigurationManagementControllerTest
                .when()
                .put(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(ResponseStatusEnum.OK.value()));
 
         final Configuration c = getConfigurationFromRemote();
 
@@ -374,7 +485,25 @@ public class ConfigurationManagementControllerTest
                .when()
                .delete(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(ResponseStatusEnum.OK.value()));
+    }
+
+    @Test
+    public void removeAcceptedRuleSetWithNoExistingGroupShouldReturnNotFoundStatus()
+            throws Exception
+    {
+        acceptedRuleSet();
+
+        String groupRepository = "groupRepositoryNotFound";
+        String url = getContextBaseUrl() + "/configuration/strongbox/routing/rules/set/accepted/" + groupRepository;
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .delete(url)
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value())
+               .body(equalTo("Element was not found."));
     }
 
     @Test
@@ -383,6 +512,51 @@ public class ConfigurationManagementControllerTest
     {
         acceptedRuleSet();
         acceptedRepository();
+    }
+
+    @Test
+    public void addAcceptedRepositoryWithoutReposShouldReturnBadRequestStatus()
+            throws Exception
+    {
+        String url =
+                getContextBaseUrl() + "/configuration/strongbox/routing/rules/accepted/group-releases-2/repositories";
+
+        RoutingRule routingRule = new RoutingRule();
+        routingRule.setPattern(null);
+        Set<String> repositories = new HashSet<>();
+        routingRule.setRepositories(repositories);
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(routingRule)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .body(equalTo("Routing rule is empty"));
+    }
+
+    @Test
+    public void addAcceptedRepositoryWithNoExistingGroupShouldReturnNotFoundStatus()
+            throws Exception
+    {
+        String groupRepository = "groupRepositoryNotFound";
+        String url = getContextBaseUrl() + "/configuration/strongbox/routing/rules/accepted/" + groupRepository +
+                     "/repositories";
+
+        RoutingRule routingRule = new RoutingRule();
+        routingRule.setPattern(".*some.test");
+        Set<String> repositories = new HashSet<>();
+        repositories.add("releases2");
+        repositories.add("releases3");
+        routingRule.setRepositories(repositories);
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(routingRule)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value())
+               .body(equalTo("Element was not found."));
     }
 
     @Test
@@ -399,7 +573,28 @@ public class ConfigurationManagementControllerTest
                .when()
                .delete(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(ResponseStatusEnum.OK.value()));
+    }
+
+    @Test
+    public void removeAcceptedRepositoryWithNoExistingGroupShouldReturnNotFoundStatus()
+            throws Exception
+    {
+        acceptedRuleSet();
+        acceptedRepository();
+
+        String groupRepository = "groupRepositoryNotFound";
+        String url = getContextBaseUrl() +
+                     "/configuration/strongbox/routing/rules/accepted/" + groupRepository +
+                     "/repositories/releases3?pattern=.*some.test";
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .delete(url)
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value())
+               .body(equalTo("Element was not found."));
     }
 
     @Test
@@ -424,7 +619,59 @@ public class ConfigurationManagementControllerTest
                .when()
                .put(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(ResponseStatusEnum.OK.value()));
+    }
+
+    @Test
+    public void overrideAcceptedRepositoryWithoutReposShouldReturnBadRequestStatus()
+            throws Exception
+    {
+        acceptedRuleSet();
+        acceptedRepository();
+
+        String url = getContextBaseUrl() +
+                     "/configuration/strongbox/routing/rules/accepted/group-releases-2/override/repositories";
+
+        RoutingRule routingRule = new RoutingRule();
+        routingRule.setPattern(null);
+        Set<String> repositories = new HashSet<>();
+        routingRule.setRepositories(repositories);
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(routingRule)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .body(equalTo("Routing rule is empty"));
+    }
+
+    @Test
+    public void overrideAcceptedRepositoryWithoutGroupShouldReturnNotFoundStatus()
+            throws Exception
+    {
+        acceptedRuleSet();
+        acceptedRepository();
+
+        String groupRepository = "groupRepositoryNotFound";
+        String url = getContextBaseUrl() +
+                     "/configuration/strongbox/routing/rules/accepted/" + groupRepository + "/override/repositories";
+
+        RoutingRule routingRule = new RoutingRule();
+        routingRule.setPattern(".*some.test");
+        Set<String> repositories = new HashSet<>();
+        repositories.add("releases22");
+        repositories.add("releases32");
+        routingRule.setRepositories(repositories);
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(routingRule)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value())
+               .body(equalTo("Element was not found."));
     }
 
     private void acceptedRuleSet()
@@ -450,7 +697,8 @@ public class ConfigurationManagementControllerTest
                .when()
                .put(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(ResponseStatusEnum.OK.value()));
     }
 
     private void acceptedRepository()
@@ -471,7 +719,8 @@ public class ConfigurationManagementControllerTest
                .when()
                .put(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(ResponseStatusEnum.OK.value()));
     }
 
     private ProxyConfiguration createProxyConfiguration()
