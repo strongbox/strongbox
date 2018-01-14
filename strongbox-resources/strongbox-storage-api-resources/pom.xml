@@ -12,11 +12,11 @@
         <relativePath>../../strongbox-parent</relativePath>
     </parent>
 
-    <artifactId>strongbox-storage-resources</artifactId>
+    <artifactId>strongbox-storage-api-resources</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
-    <name>Strongbox: Resources [Storage]</name>
+    <name>Strongbox: Resources [Storage API]</name>
 
     <scm>
         <url>https://github.com/strongbox/strongbox/</url>
@@ -24,8 +24,27 @@
         <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
     </scm>
 
-    <modules>
-        <module>strongbox-storage-api-resources</module>
-    </modules>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
