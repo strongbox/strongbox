@@ -55,6 +55,9 @@ public interface ConfigurationManagementService extends ConfigurationService
     Repository getRepository(String storageId, String repositoryId)
             throws IOException;
 
+    List<Repository> getRepositoriesWithLayout(String storageId,
+                                               String layout);
+
     List<Repository> getGroupRepositories();
 
     List<Repository> getGroupRepositoriesContaining(String storageId,
