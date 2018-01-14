@@ -276,7 +276,20 @@
                             checksum-headers-enabled="true"/>
             </repositories>
         </storage>
-        
+
+        <storage id="storage-raw">
+            <repositories>
+                <repository id="raw-releases"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Raw"
+                            type="hosted"
+                            allows-force-deletion="true"
+                            checksum-headers-enabled="true">
+                </repository>
+            </repositories>
+        </storage>
+
         <storage id="public">
             <repositories>
                 <repository id="public-group"

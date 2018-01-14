@@ -56,7 +56,7 @@ public class MavenRepositoryManagementStrategy
 
     @Inject
     private MavenIndexGroupRepositoryComponent mavenIndexGroupRepositoryComponent;
-    
+
     @Override
     protected void createRepositoryInternal(Storage storage, Repository repository)
             throws IOException, RepositoryManagementStrategyException
@@ -147,7 +147,6 @@ public class MavenRepositoryManagementStrategy
     @Override
     public void createRepositoryStructure(String storageBasedirPath,
                                           String repositoryId)
-            throws IOException
     {
         final File storageBasedir = new File(storageBasedirPath);
         final File repositoryDir = new File(storageBasedir, repositoryId);

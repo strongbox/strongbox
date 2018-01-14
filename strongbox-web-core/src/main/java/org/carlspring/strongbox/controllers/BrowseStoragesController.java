@@ -49,13 +49,13 @@ public class BrowseStoragesController
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(value = { "{storageId}/" , "{storageId}" }, method = RequestMethod.GET)
-    public void browseRepositores(@ApiParam(value = "The storageId", required = true)
-                                  @PathVariable String storageId,
-                                  HttpServletRequest request,
-                                  HttpServletResponse response) 
+    public void browseRepositories(@ApiParam(value = "The storageId", required = true)
+                                   @PathVariable String storageId,
+                                   HttpServletRequest request,
+                                   HttpServletResponse response)
             throws IOException
     {
-        logger.debug("Requested browsing for repositores in storage : " + storageId);
+        logger.debug("Requested browsing for repositories in storage : " + storageId);
 
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         if (storage == null)
