@@ -2,12 +2,14 @@ package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.search.SearchResult;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -24,6 +26,7 @@ import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.expr.SourcedSearchExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 
 public class RepositoryIndexer
@@ -55,13 +58,13 @@ public class RepositoryIndexer
 
     private File indexDir;
 
-    private ArtifactContextProducer artifactContextProducer;
-
     private IndexerConfiguration indexerConfiguration;
 
     private Configuration configuration;
 
     private String contextId;
+
+    private ApplicationContext applicationContext;
 
 
     public RepositoryIndexer(String contextId)
@@ -69,23 +72,29 @@ public class RepositoryIndexer
         this.contextId = contextId;
     }
 
-    public void addArtifactToIndex(String repositoryId,
-                                   File artifactFile,
-                                   Artifact artifact)
+    public void addArtifactToIndex(final RepositoryPath artifactPath)
             throws IOException
     {
         try
         {
-            logger.debug("Adding artifact: {} to {}:{}:local...", artifact.getGroupId() + ":" +
-                                                                  artifact.getArtifactId() + ":" +
-                                                                  artifact.getVersion() + ":" +
-                                                                  artifact.getType() + ":" +
-                                                                  artifact.getClassifier(),
-                         storageId,
-                         repositoryId);
+            final ArtifactContextProducer artifactContextProducer = applicationContext.getBean(
+                    ArtifactContextProducer.class, artifactPath);
+            ArtifactContext artifactContext = artifactContextProducer.getArtifactContext(indexingContext,
+                                                                                         artifactPath.toAbsolutePath().toFile());
 
-            ArtifactContext artifactContext = artifactContextProducer.getArtifactContext(indexingContext, artifactFile);
+            if (artifactContext == null)
+            {
+                return;
+            }
+            final ArtifactInfo artifactInfo = artifactContext.getArtifactInfo();
 
+            // preserve duplicates
+            if (CollectionUtils.isNotEmpty(
+                    search(artifactInfo.getGroupId(), artifactInfo.getArtifactId(), artifactInfo.getVersion(),
+                           artifactInfo.getPackaging(), artifactInfo.getClassifier())))
+            {
+                return;
+            }
             getIndexer().addArtifactToIndex(artifactContext, indexingContext);
         }
         catch (Exception e) // it's not really a critical problem, artifacts could be added to index later
@@ -311,16 +320,6 @@ public class RepositoryIndexer
         indexingContext.close(deleteFiles);
     }
 
-    public ArtifactContextProducer getArtifactContextProducer()
-    {
-        return artifactContextProducer;
-    }
-
-    public void setArtifactContextProducer(ArtifactContextProducer artifactContextProducer)
-    {
-        this.artifactContextProducer = artifactContextProducer;
-    }
-
     public IndexerConfiguration getIndexerConfiguration()
     {
         return indexerConfiguration;
@@ -431,4 +430,8 @@ public class RepositoryIndexer
         this.contextId = contextId;
     }
 
+    public void setApplicationContext(final ApplicationContext applicationContext)
+    {
+        this.applicationContext = applicationContext;
+    }
 }

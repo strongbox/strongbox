@@ -95,10 +95,10 @@ public abstract class BaseMavenGroupRepositoryComponent
             throws IOException
     {
 
-        final UpdateCallback updateCallback = newInstance();
+        final UpdateCallback updateCallback = newInstance(storageId, repositoryId, artifactPath);
         try
         {
-            updateCallback.beforeUpdate(storageId, repositoryId, artifactPath);
+            updateCallback.beforeUpdate();
         }
         catch (StopUpdateSilentlyException ex)
         {
@@ -166,7 +166,9 @@ public abstract class BaseMavenGroupRepositoryComponent
         return false;
     }
 
-    protected abstract UpdateCallback newInstance();
+    protected abstract UpdateCallback newInstance(final String storageId,
+                                                  final String repositoryId,
+                                                  final String artifactPath);
 
     protected Repository getRepository(final String storageId,
                                        final String repositoryId)
@@ -179,9 +181,7 @@ public abstract class BaseMavenGroupRepositoryComponent
     protected interface UpdateCallback
     {
 
-        default void beforeUpdate(String storageId,
-                                  String repositoryId,
-                                  String artifactPath)
+        default void beforeUpdate()
                 throws IOException
         {
             // do nothing, by default

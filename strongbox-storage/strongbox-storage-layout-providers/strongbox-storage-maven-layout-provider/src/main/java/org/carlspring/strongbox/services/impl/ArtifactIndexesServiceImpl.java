@@ -61,21 +61,26 @@ public class ArtifactIndexesServiceImpl
         String contextId = IndexContextHelper.getContextId(storage.getId(),
                                                            repository.getId(),
                                                            IndexTypeEnum.LOCAL.getType());
-
         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+        addArtifactToIndex(artifactPath, indexer);
+    }
 
-        if (!features.isIndexingEnabled(repository) || indexer == null)
+    @Override
+    public void addArtifactToIndex(final RepositoryPath artifactPath,
+                                   final RepositoryIndexer repositoryIndexer)
+            throws IOException
+    {
+        if (repositoryIndexer == null)
+        {
+            return;
+        }
+        if (!features.isIndexingEnabled(getRepository(repositoryIndexer.getStorageId(),
+                                                      repositoryIndexer.getRepositoryId())))
         {
             return;
         }
 
-        String artifactRelativePath = RepositoryFiles.relativizeUri(artifactPath).toString();
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactRelativePath);
-
-        File artifactFile = Paths.get(storage.getBasedir()).resolve(repository.getId()).resolve(artifactRelativePath).toFile();
-        artifact.setFile(artifactFile);
-
-        indexer.addArtifactToIndex(repository.getId(), artifactFile, artifact);
+        repositoryIndexer.addArtifactToIndex(artifactPath);
     }
 
     @Override
@@ -98,7 +103,7 @@ public class ArtifactIndexesServiceImpl
         {
             repostitoryPath = repostitoryPath.resolve(artifactPath);
         }
-        
+
         MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(this);
 
         //noinspection ConstantConditions
@@ -149,6 +154,12 @@ public class ArtifactIndexesServiceImpl
     private Map<String, Repository> getRepositories(String storageId)
     {
         return getStorages().get(storageId).getRepositories();
+    }
+
+    private Repository getRepository(String storageId,
+                                     String repositoryId)
+    {
+        return getConfiguration().getStorage(storageId).getRepository(repositoryId);
     }
 
 }

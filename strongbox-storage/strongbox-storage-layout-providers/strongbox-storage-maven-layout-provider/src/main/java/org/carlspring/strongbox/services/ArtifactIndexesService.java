@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 
 import java.io.IOException;
 
@@ -11,6 +12,13 @@ public interface ArtifactIndexesService
 {
 
     void addArtifactToIndex(RepositoryPath artifactPath)
+            throws IOException;
+
+    /**
+     * Alternative method to {@link ArtifactIndexesService#addArtifactToIndex(RepositoryPath)}
+     * which gives additional ability to specify another repositoryIndexer to store the underlying artifact
+     */
+    void addArtifactToIndex(RepositoryPath artifactPath, RepositoryIndexer repositoryIndexer)
             throws IOException;
 
     /**
