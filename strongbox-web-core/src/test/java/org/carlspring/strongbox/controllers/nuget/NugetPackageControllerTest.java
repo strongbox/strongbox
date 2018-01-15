@@ -2,6 +2,8 @@ package org.carlspring.strongbox.controllers.nuget;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -27,6 +29,7 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import org.hamcrest.xml.HasXPath;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +42,7 @@ import ru.aristar.jnuget.query.AndExpression;
 import ru.aristar.jnuget.query.Expression;
 import ru.aristar.jnuget.query.IdEqIgnoreCase;
 import ru.aristar.jnuget.query.LatestVersionExpression;
+import ru.aristar.jnuget.rss.PackageFeed;
 
 /**
  * @author Sergey Bespalov
@@ -393,6 +397,25 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         {
             System.setOut(originalSysOut);
         }
+    }
+
+    @Test
+    public void testRemoteLastVersion()
+        throws Exception
+    {
+        PackageFeed feed = given().header("User-Agent", "NuGet/*")
+                                  .when()
+                                  .get(getContextBaseUrl()
+                                          + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate&$orderby=Version")
+                                  .body()
+                                  .as(PackageFeed.class);
+
+        assertTrue(feed.getEntries()
+                       .stream()
+                       .reduce((first,
+                                second) -> second)
+                       .filter(e -> Boolean.TRUE.equals(e.getProperties().getIsLatestVersion()))
+                       .isPresent());
     }
 
 }

@@ -1,21 +1,6 @@
 package org.carlspring.strongbox.providers.layout;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.stream.Stream;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
@@ -41,11 +26,9 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
-import org.carlspring.strongbox.util.IndexContextHelper;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -74,7 +57,7 @@ public class Maven2LayoutProvider
     public static final String ALIAS = "Maven 2";
 
     private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
-    
+
     @Inject
     private MavenMetadataManager mavenMetadataManager;
 
@@ -215,9 +198,7 @@ public class Maven2LayoutProvider
             throws IOException
     {
         Repository repository = path.getFileSystem().getRepository();
-        RepositoryFileAttributes a = Files.readAttributes(path, RepositoryFileAttributes.class);
-
-        if (!repositoryFeatures.isIndexingEnabled(repository) || a.isMetadata())
+        if (!repositoryFeatures.isIndexingEnabled(repository) || RepositoryFiles.isMetadata(path))
         {
             return;
         }
@@ -225,17 +206,14 @@ public class Maven2LayoutProvider
         final RepositoryIndexer indexer = getRepositoryIndexer(path);
         if (indexer != null)
         {
-            String extension = path.getFileName().toString().substring(
-                    path.getFileName().toString().lastIndexOf('.') + 1);
-
-            MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) a.getCoordinates();
+            MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) RepositoryFiles.readCoordinates(path);
 
             indexer.delete(Collections.singletonList(new ArtifactInfo(repository.getId(),
                                                                       coordinates.getGroupId(),
                                                                       coordinates.getArtifactId(),
                                                                       coordinates.getVersion(),
                                                                       coordinates.getClassifier(),
-                                                                      extension)));
+                                                                      coordinates.getExtension())));
         }
     }
 
@@ -297,7 +275,8 @@ public class Maven2LayoutProvider
             if (Files.exists(artifactPath))
             {
 
-                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath, RepositoryFileAttributes.class);
+                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath,
+                                                                                       RepositoryFileAttributes.class);
 
                 if (!artifactFileAttributes.isDirectory())
                 {
@@ -455,34 +434,7 @@ public class Maven2LayoutProvider
     public void postProcess(RepositoryPath repositoryPath)
             throws IOException
     {
-        Boolean artifactAttribute = RepositoryFiles.isArtifact(repositoryPath);
-        if (!Boolean.TRUE.equals(artifactAttribute))
-        {
-            return;
-        }
-
-        Repository repository = repositoryPath.getFileSystem().getRepository();
-        Storage storage = repository.getStorage();
-
-        String contextId = IndexContextHelper.getContextId(storage.getId(),
-                                                           repository.getId(),
-                                                           IndexTypeEnum.LOCAL.getType());
-
-        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
-
-        if (!repositoryFeatures.isIndexingEnabled(repository) || indexer == null)
-        {
-            return;
-        }
-
-        String repositoryRelativePath = RepositoryFiles.relativizeUri(repositoryPath).toString();
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(repositoryRelativePath);
-
-        File storageBasedir = new File(storage.getBasedir());
-        File artifactFile = new File(new File(storageBasedir, repository.getId()),
-                                     repositoryRelativePath).getCanonicalFile();
-
-        indexer.addArtifactToIndex(repository.getId(), artifactFile, artifact);
+        artifactIndexesService.addArtifactToIndex(repositoryPath);
     }
 
     @Override

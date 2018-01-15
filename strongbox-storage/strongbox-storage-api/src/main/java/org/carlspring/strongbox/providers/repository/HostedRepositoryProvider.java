@@ -17,6 +17,7 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
@@ -118,7 +119,8 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
             RepositoryPath repositoryPath;
             try
             {
-                repositoryPath = layoutProvider.resolve(repository, artifactEntry.getArtifactCoordinates());
+                RootRepositoryPath rootRepositoryPath = layoutProvider.resolve(repository);
+                repositoryPath = rootRepositoryPath.resolve(artifactEntry);
             }
             catch (Exception e)
             {

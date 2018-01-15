@@ -30,6 +30,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -163,7 +164,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     }
 
     @Override
-    public RepositoryPath resolve(Repository repository)
+    public RootRepositoryPath resolve(Repository repository)
     {
         RepositoryFileSystem repositoryFileSystem = getRepositoryFileSystem(repository);
         

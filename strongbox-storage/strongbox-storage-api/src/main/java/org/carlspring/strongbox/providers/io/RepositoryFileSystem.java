@@ -43,9 +43,9 @@ public abstract class RepositoryFileSystem
         return fileSystemProvider;
     }
 
-    public RepositoryPath getRootDirectory()
+    public RootRepositoryPath getRootDirectory()
     {
-        return this.getPath(repository.getBasedir()).toAbsolutePath();
+        return new RootRepositoryPath(getTarget().getPath(repository.getBasedir()).toAbsolutePath().normalize(), this);
     }
 
     public RepositoryPath getTrashPath()

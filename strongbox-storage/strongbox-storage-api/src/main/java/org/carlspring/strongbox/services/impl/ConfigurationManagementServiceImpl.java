@@ -17,9 +17,11 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,6 +173,33 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
+    public List<Repository> getRepositoriesWithLayout(String storageId,
+                                                      String layout)
+    {
+        Stream<Repository> repositories;
+        if (storageId != null)
+        {
+            Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+            if (storage != null)
+            {
+                repositories = storage.getRepositories().values().stream();
+            }
+            else
+            {
+                return Collections.emptyList();
+            }
+        }
+        else
+        {
+            repositories = configurationManager.getConfiguration().getStorages().values().stream()
+                                               .flatMap(storage -> storage.getRepositories().values().stream());
+        }
+
+        return repositories.filter(repository -> repository.getLayout().equals(layout))
+                           .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Repository> getGroupRepositories()
     {
         List<Repository> groupRepositories = new ArrayList<>();
@@ -187,28 +216,30 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public List<Repository> getGroupRepositoriesContaining(String repositoryId)
+    public List<Repository> getGroupRepositoriesContaining(String storageId,
+                                                           String repositoryId)
     {
         List<Repository> groupRepositories = new ArrayList<>();
 
-        for (Storage storage : configurationManager.getConfiguration().getStorages().values())
-        {
-            groupRepositories.addAll(storage.getRepositories().values().stream()
-                                            .filter(repository -> repository.getType()
-                                                                            .equals(RepositoryTypeEnum.GROUP.getType()))
-                                            .filter(repository -> repository.getGroupRepositories()
-                                                                            .contains(repositoryId))
-                                            .collect(Collectors.toList()));
-        }
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+
+        groupRepositories.addAll(storage.getRepositories().values().stream()
+                                        .filter(repository -> repository.getType()
+                                                                        .equals(RepositoryTypeEnum.GROUP.getType()))
+                                        .filter(repository -> repository.getGroupRepositories()
+                                                                        .contains(repositoryId))
+                                        .collect(Collectors.toList()));
+
 
         return groupRepositories;
     }
 
     @Override
-    public void removeRepositoryFromAssociatedGroups(String repositoryId)
+    public void removeRepositoryFromAssociatedGroups(String storageId,
+                                                     String repositoryId)
             throws IOException, JAXBException
     {
-        List<Repository> includedInGroupRepositories = getGroupRepositoriesContaining(repositoryId);
+        List<Repository> includedInGroupRepositories = getGroupRepositoriesContaining(storageId, repositoryId);
 
         if (!includedInGroupRepositories.isEmpty())
         {
@@ -234,7 +265,7 @@ public class ConfigurationManagementServiceImpl
     {
         Configuration configuration = configurationManager.getConfiguration();
         configuration.getStorage(storageId).removeRepository(repositoryId);
-        removeRepositoryFromAssociatedGroups(repositoryId);
+        removeRepositoryFromAssociatedGroups(storageId, repositoryId);
 
         configurationManager.setConfiguration(configuration);
         configurationManager.store();

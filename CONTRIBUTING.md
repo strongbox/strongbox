@@ -60,3 +60,4 @@ To accept, please:
 | Dinesh Arora                 |                                          | Charlotte, USA                          | 2017-12-07 |
 | Sanket Sawant                |                                          | Mumbai, India                           | 2017-12-09 |
 | Pablo Tirado                 |                                          | Madrid, Spain                           | 2018-01-05 |
+| Gokhan Kuyucak               |                                          | Izmir, Turkey                           | 2018-01-14 |

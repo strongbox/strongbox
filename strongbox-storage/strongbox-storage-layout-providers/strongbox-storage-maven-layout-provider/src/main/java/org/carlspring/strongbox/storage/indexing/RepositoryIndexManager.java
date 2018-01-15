@@ -82,7 +82,7 @@ public class RepositoryIndexManager
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        if (repository.isProxyRepository())
+        if (repository != null && repository.isProxyRepository())
         {
             closeIndexer(storageId + ":" + repositoryId + ":" + IndexTypeEnum.REMOTE.getType());
         }
