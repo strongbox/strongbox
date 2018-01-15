@@ -14,6 +14,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
@@ -118,6 +119,21 @@ public class ArtifactResolutionServiceImpl
                                    .toUri()
                                    .resolve(artifactResource)
                                    .toURL();
+    }
+    
+    @Override
+    public RepositoryPath getPath(String storageId,
+                                  String repositoryId,
+                                  String artifactPath) 
+           throws IOException
+    {        
+        final Repository repository = getStorage(storageId).getRepository(repositoryId);
+
+        RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+
+        RepositoryPath resolvedPath = (RepositoryPath)repositoryProvider.getPath(storageId, repositoryId, artifactPath);
+
+        return resolvedPath;
     }
     
 }
