@@ -6,16 +6,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.apache.maven.index.ArtifactContextProducer;
-import org.apache.maven.index.DefaultIndexerEngine;
-import org.apache.maven.index.DefaultQueryCreator;
-import org.apache.maven.index.DefaultScanner;
-import org.apache.maven.index.DefaultSearchEngine;
-import org.apache.maven.index.Indexer;
-import org.apache.maven.index.IndexerEngine;
-import org.apache.maven.index.QueryCreator;
-import org.apache.maven.index.Scanner;
-import org.apache.maven.index.SearchEngine;
+import org.apache.maven.index.*;
 import org.apache.maven.index.artifact.ArtifactPackagingMapper;
 import org.apache.maven.index.artifact.DefaultArtifactPackagingMapper;
 import org.apache.maven.index.creator.AbstractIndexCreator;
@@ -28,6 +19,7 @@ import org.apache.maven.index.packer.IndexPacker;
 import org.apache.maven.index.updater.DefaultIndexUpdater;
 import org.apache.maven.index.updater.IndexUpdater;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
@@ -37,6 +29,7 @@ import org.carlspring.strongbox.storage.indexing.StrongboxIndexer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
@@ -66,7 +59,7 @@ public class Maven2LayoutProviderConfig
     @Bean(name = "scanner")
     Scanner scanner()
     {
-        return new DefaultScanner(artifactContextProducer());
+        return new DefaultScanner(new DefaultArtifactContextProducer(artifactPackagingMapper()));
     }
 
     @Bean(name = "indexPacker")
@@ -130,9 +123,10 @@ public class Maven2LayoutProviderConfig
     }
 
     @Bean(name = "artifactContextProducer")
-    ArtifactContextProducer artifactContextProducer()
+    @Scope("prototype")
+    ArtifactContextProducer artifactContextProducer(final RepositoryPath artifactPath)
     {
-        return new SafeArtifactContextProducer(artifactPackagingMapper());
+        return new SafeArtifactContextProducer(artifactPackagingMapper(), artifactPath);
     }
 
     @Bean(name = "artifactPackagingMapper")

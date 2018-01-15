@@ -10,13 +10,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.maven.index.ArtifactContextProducer;
 import org.apache.maven.index.Indexer;
 import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,7 +34,7 @@ public class RepositoryIndexerFactory
     private ArtifactIndexesService artifactIndexesService;
 
     @Inject
-    private ArtifactContextProducer artifactContextProducer;
+    private ApplicationContext applicationContext;
 
     private Configuration configuration;
 
@@ -75,7 +75,7 @@ public class RepositoryIndexerFactory
         repositoryIndexer.setIndexer(indexerConfiguration.getIndexer());
         repositoryIndexer.setScanner(indexerConfiguration.getScanner());
         repositoryIndexer.setConfiguration(configuration);
-        repositoryIndexer.setArtifactContextProducer(artifactContextProducer);
+        repositoryIndexer.setApplicationContext(applicationContext);
 
         return repositoryIndexer;
     }

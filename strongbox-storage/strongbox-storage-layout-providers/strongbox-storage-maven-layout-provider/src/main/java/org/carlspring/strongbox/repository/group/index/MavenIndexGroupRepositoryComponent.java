@@ -7,7 +7,11 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponent;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.IndexContextHelper;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -26,18 +30,20 @@ public class MavenIndexGroupRepositoryComponent
     @Inject
     private ArtifactIndexesService artifactIndexesService;
 
+    @Inject
+    private RepositoryIndexManager repositoryIndexManager;
+
     public void initialize(final Repository groupRepository)
             throws IOException
     {
-        final RepositoryPath groupRepositoryPath = getRepositoryPath(groupRepository);
-
         final Set<Repository> traversedSubRepositories = groupRepositorySetCollector.collect(groupRepository, true);
         for (final Repository subRepository : traversedSubRepositories)
         {
             if (!subRepository.isGroupRepository())
             {
                 final MavenGroupRepositoryIndexerManagementOperation operation = new MavenGroupRepositoryIndexerManagementOperation(artifactIndexesService,
-                                                                                                                                    groupRepositoryPath);
+                                                                                                                                    repositoryIndexManager,
+                                                                                                                                    groupRepository);
                 operation.setBasePath(getRepositoryPath(subRepository));
                 final ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
                 locator.setOperation(operation);
@@ -64,20 +70,46 @@ public class MavenIndexGroupRepositoryComponent
     }
 
     @Override
-    protected UpdateCallback newInstance()
+    protected UpdateCallback newInstance(final String storageId,
+                                         final String repositoryId,
+                                         final String artifactPath)
     {
-        return new IndexUpdateCallback();
+        return new IndexUpdateCallback(storageId, repositoryId, artifactPath);
     }
 
     class IndexUpdateCallback
             implements UpdateCallback
     {
 
+        private final String initiatorStorageId;
+
+        private final String initiatorRepositoryId;
+
+        private final String initiatorArtifactPath;
+
+        IndexUpdateCallback(final String storageId,
+                            final String repositoryId,
+                            final String artifactPath)
+        {
+            this.initiatorStorageId = storageId;
+            this.initiatorRepositoryId = repositoryId;
+            this.initiatorArtifactPath = artifactPath;
+        }
+
         @Override
         public void performUpdate(final RepositoryPath parentRepositoryArtifactAbsolutePath)
                 throws IOException
         {
-            artifactIndexesService.addArtifactToIndex(parentRepositoryArtifactAbsolutePath);
+            final Repository initiatorRepository = getRepository(initiatorStorageId, initiatorRepositoryId);
+            final RepositoryPath repositoryAbsolutePath = getRepositoryPath(initiatorRepository);
+            final RepositoryPath artifactAbsolutePath = repositoryAbsolutePath.resolve(initiatorArtifactPath);
+
+            final Repository parent = parentRepositoryArtifactAbsolutePath.getFileSystem().getRepository();
+            final String contextId = IndexContextHelper.getContextId(parent.getStorage().getId(), parent.getId(),
+                                                                     IndexTypeEnum.LOCAL.getType());
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+
+            artifactIndexesService.addArtifactToIndex(artifactAbsolutePath, indexer);
         }
     }
 

@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.locator.handlers;
 
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.IndexContextHelper;
 
 /**
  * @author Przemyslaw Fusik
@@ -13,20 +15,27 @@ public class MavenGroupRepositoryIndexerManagementOperation
         extends MavenIndexerManagementOperation
 {
 
-    private final RepositoryPath groupRepositoryPath;
+    private final RepositoryIndexManager repositoryIndexManager;
+
+    private final Repository groupRepository;
 
     public MavenGroupRepositoryIndexerManagementOperation(final ArtifactIndexesService artifactIndexesService,
-                                                          final RepositoryPath groupRepositoryPath)
+                                                          final RepositoryIndexManager repositoryIndexManager,
+                                                          final Repository groupRepository)
     {
         super(artifactIndexesService);
-        this.groupRepositoryPath = groupRepositoryPath;
+        this.repositoryIndexManager = repositoryIndexManager;
+        this.groupRepository = groupRepository;
     }
 
     @Override
-    protected RepositoryPath getArtifactPathToIndex(final RepositoryPath filePath)
+    protected RepositoryIndexer getRepositoryIndexer()
     {
-        final RepositoryPath relativeRegularFilePath = filePath.relativize();
-        final RepositoryPath groupRepositoryRegularFilePath = groupRepositoryPath.resolve(relativeRegularFilePath);
-        return groupRepositoryRegularFilePath;
+        Storage storage = groupRepository.getStorage();
+        String contextId = IndexContextHelper.getContextId(storage.getId(),
+                                                           groupRepository.getId(),
+                                                           IndexTypeEnum.LOCAL.getType());
+        return repositoryIndexManager.getRepositoryIndexer(contextId);
     }
+
 }
