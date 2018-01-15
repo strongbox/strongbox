@@ -416,7 +416,7 @@ public abstract class RepositoryFileSystemProvider
 
         String sTargetPath = sourceRelative;
 
-        return targetBase.resolve(sTargetPath);
+        return targetBase.resolve(sTargetPath).toAbsolutePath();
     }
 
     @Override

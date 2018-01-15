@@ -2,7 +2,10 @@ package org.carlspring.strongbox.controllers.nuget;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.OutputStream;
@@ -27,18 +30,22 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import org.hamcrest.xml.HasXPath;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
+import io.restassured.http.ContentType;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import ru.aristar.jnuget.query.AndExpression;
 import ru.aristar.jnuget.query.Expression;
 import ru.aristar.jnuget.query.IdEqIgnoreCase;
 import ru.aristar.jnuget.query.LatestVersionExpression;
+import ru.aristar.jnuget.rss.PackageFeed;
 
 /**
  * @author Sergey Bespalov
@@ -127,7 +134,59 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
                .then()
                .statusCode(HttpStatus.OK.value());
     }
-
+    
+    @Test
+    public void testHeaderFetch() 
+            throws Exception 
+    {   
+        //Hosted repository
+        String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Header";
+        String packageVersion = "1.0.0";
+        Path packageFile = generatePackageFile(packageId, packageVersion);
+        byte[] packageContent = readPackageContent(packageFile);
+        
+        createPushRequest(packageContent).when()
+                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
+                                                 REPOSITORY_RELEASES_1 + "/")
+                                         .peek()
+                                         .then()
+                                         .statusCode(HttpStatus.CREATED.value());
+        
+        
+        
+        Headers headersFromGET = given().header("User-Agent", "NuGet/*")
+                                        .header("X-NuGet-ApiKey", API_KEY)
+                                        .accept(ContentType.BINARY)
+                                        .when()
+                                        .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
+                                                packageId + "/" + packageVersion)
+                                        .getHeaders();
+        
+        Headers headersFromHEAD = given().header("User-Agent", "NuGet/*")
+                                         .header("X-NuGet-ApiKey", API_KEY)
+                                         .accept(ContentType.BINARY)
+                                         .when()
+                                         .head(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
+                                                  packageId + "/" + packageVersion)
+                                         .getHeaders();
+        
+        assertHeadersEquals(headersFromGET, headersFromHEAD);
+    }
+    
+    protected void assertHeadersEquals(Headers h1, Headers h2)
+    {
+        assertNotNull(h1);
+        assertNotNull(h2);
+                
+        for(Header header : h1)
+        {
+            if(h2.hasHeaderWithName(header.getName()))
+            {
+                assertEquals(header.getValue(),h2.getValue(header.getName()));
+            }
+        }
+    }
+    
     @Test
     public void testPackageCommonFlow()
         throws Exception
@@ -393,6 +452,25 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         {
             System.setOut(originalSysOut);
         }
+    }
+
+    @Test
+    public void testRemoteLastVersion()
+        throws Exception
+    {
+        PackageFeed feed = given().header("User-Agent", "NuGet/*")
+                                  .when()
+                                  .get(getContextBaseUrl()
+                                          + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate&$orderby=Version")
+                                  .body()
+                                  .as(PackageFeed.class);
+
+        assertTrue(feed.getEntries()
+                       .stream()
+                       .reduce((first,
+                                second) -> second)
+                       .filter(e -> Boolean.TRUE.equals(e.getProperties().getIsLatestVersion()))
+                       .isPresent());
     }
 
 }

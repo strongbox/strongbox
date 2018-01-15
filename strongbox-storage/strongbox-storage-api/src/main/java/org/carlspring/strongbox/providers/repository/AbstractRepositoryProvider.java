@@ -149,7 +149,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         artifactEntry.setLastUpdated(now);
         artifactEntry.setLastUsed(now);
 
-        artifactEntryService.save(artifactEntry);
+        artifactEntryService.save(artifactEntry, true);
     }
 
     @Override

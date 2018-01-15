@@ -1,28 +1,42 @@
 package org.carlspring.strongbox.controllers.maven;
 
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.handlePartialDownload;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.isRangedRequest;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
+import java.util.regex.Matcher;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBException;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.comparator.DirectoryFileComparator;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.RepositoryInputStream;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -30,11 +44,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.handlePartialDownload;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.isRangedRequest;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * REST API for all artifact-related processes.
@@ -97,9 +117,11 @@ public class MavenArtifactController
 
     @ApiOperation(value = "Used to retrieve an artifact", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
+                            @ApiResponse(code = 404, message = "Requested path not found."),
+                            @ApiResponse(code = 500, message = "Server Error."),
+                            @ApiResponse(code = 503, message = "Repository not in service currently.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = RequestMethod.GET)
+    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = {RequestMethod.GET, RequestMethod.HEAD})
     public void download(@ApiParam(value = "The storageId", required = true)
                          @PathVariable String storageId,
                          @ApiParam(value = "The repositoryId", required = true)
@@ -141,60 +163,105 @@ public class MavenArtifactController
             return;
         }
 
-        if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
+        boolean isHeadRequest = request.getMethod().equals("HEAD");
+
+        if(!isHeadRequest)
         {
-            try
+            if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
             {
-                getDirectoryListing(repository, path, request, response);
-            }
-            catch (Exception e)
-            {
-                logger.debug("Unable to generate directory listing for " +
-                             "/" + storageId + "/" + repositoryId + "/" + path, e);
+                try
+                {
+                    getDirectoryListing(repository, path, request, response);
+                }
+                catch (Exception e)
+                {
+                    logger.debug("Unable to generate directory listing for " +
+                            "/" + storageId + "/" + repositoryId + "/" + path, e);
 
-                response.setStatus(INTERNAL_SERVER_ERROR.value());
-            }
+                    response.setStatus(INTERNAL_SERVER_ERROR.value());
+                }
 
-            return;
-        }
-
-        InputStream is;
-        try
-        {
-            is = getArtifactManagementService().resolve(storageId, repositoryId, path);
-            if (is == null)
-            {
-                response.setStatus(NOT_FOUND.value());
                 return;
             }
 
-            if (isRangedRequest(httpHeaders))
-            {
-                logger.debug("Detecting range request....");
 
-                handlePartialDownload(is, httpHeaders, response);
+            InputStream is;
+            try
+            {
+                is = getArtifactManagementService().resolve(storageId, repositoryId, path);
+                if (is == null)
+                {
+                    response.setStatus(NOT_FOUND.value());
+                    return;
+                }
+
+                if(!isHeadRequest)
+                {
+                    if (isRangedRequest(httpHeaders))
+                    {
+                        logger.debug("Detecting range request....");
+
+                        handlePartialDownload(is, httpHeaders, response);
+                    }
+
+                    artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storage.getId(), repository.getId(), path);
+
+                    copyToResponse(is, response);
+
+                    artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storage.getId(), repository.getId(), path);
+                }
+            }
+            catch (ArtifactResolutionException | ArtifactTransportException e)
+            {
+                logger.debug("Unable to find artifact by path " + path, e);
+
+                response.setStatus(NOT_FOUND.value());
+
+                return;
+            }
+            ArtifactControllerHelper.setHeadersForChecksums(is, response);
+        }
+        else
+        {
+            RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
+
+            logger.debug("Resolved path : " + resolvedPath);
+
+            if(resolvedPath == null)
+            {
+                response.setStatus(HttpStatus.NOT_FOUND.value());
+                return;
             }
 
-            artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storage.getId(), repository.getId(), path);
+            try
+            {
+                try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
+                {
+                    try (RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais))
+                    {
+                        ArtifactControllerHelper.setHeadersForChecksums(is, response);
+                    }
+                }
+                RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
 
-            copyToResponse(is, response);
+                response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
+                response.setHeader("Last-Modified", fileAttributes.lastModifiedTime().toString());
 
-            artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storage.getId(), repository.getId(), path);
+            }
+            catch(Exception e)
+            {
+                logger.error(String.format("Failed to process Maven head request: /%s/%s/%s",
+                                           storageId,
+                                           repositoryId,
+                                           path),
+                             e);
+
+                response.setStatus(INTERNAL_SERVER_ERROR.value());
+            }
         }
-        catch (ArtifactResolutionException | ArtifactTransportException e)
-        {
-            logger.debug("Unable to find artifact by path " + path, e);
+            setMediaTypeHeader(path, response);
 
-            response.setStatus(NOT_FOUND.value());
-
-            return;
-        }
-
-        setMediaTypeHeader(path, response);
-
-        response.setHeader("Accept-Ranges", "bytes");
-
-        ArtifactControllerHelper.setHeadersForChecksums(is, response);
+            response.setHeader("Accept-Ranges", "bytes");
 
         logger.debug("Download succeeded.");
     }

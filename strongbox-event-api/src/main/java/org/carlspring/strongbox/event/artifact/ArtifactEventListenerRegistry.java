@@ -286,7 +286,7 @@ public class ArtifactEventListenerRegistry
                                                 path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_ARCHIVED.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_PATH_DELETED event for " +
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_ARCHIVED event for " +
                      storageId + ":" + repositoryId + "/" + path + "...");
 
         dispatchEvent(event);
@@ -362,6 +362,21 @@ public class ArtifactEventListenerRegistry
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_FETCHED_FROM_REMOTE.getType());
 
         logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_FETCHED_FROM_REMOTE event for " +
+                     storageId + ":" + repositoryId + "/" + path + "...");
+
+        dispatchEvent(event);
+    }
+
+    public void dispatchArtifactStoredEvent(String storageId,
+                                            String repositoryId,
+                                            String path)
+    {
+        ArtifactEvent event = new ArtifactEvent(storageId,
+                                                repositoryId,
+                                                path,
+                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED event for " +
                      storageId + ":" + repositoryId + "/" + path + "...");
 
         dispatchEvent(event);

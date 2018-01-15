@@ -40,12 +40,4 @@ public class NpmRepositoryManagementStrategy extends AbstractRepositoryManagemen
         }
     }
 
-    @Override
-    public void initializeRepository(String storageId,
-                                     String repositoryId)
-        throws RepositoryInitializationException
-    {
-
-    }
-
 }

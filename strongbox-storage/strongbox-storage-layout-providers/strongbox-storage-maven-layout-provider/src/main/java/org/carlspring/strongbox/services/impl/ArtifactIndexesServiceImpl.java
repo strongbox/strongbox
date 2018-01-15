@@ -1,22 +1,30 @@
 package org.carlspring.strongbox.services.impl;
 
-import java.io.IOException;
-import java.util.Map;
-
-import javax.inject.Inject;
-
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.locator.handlers.MavenIndexerManagementOperation;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.IndexContextHelper;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Map;
+
+import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -44,6 +52,38 @@ public class ArtifactIndexesServiceImpl
     private MavenRepositoryFeatures features;
 
     @Override
+    public void addArtifactToIndex(RepositoryPath artifactPath)
+            throws IOException
+    {
+        Repository repository = artifactPath.getFileSystem().getRepository();
+        Storage storage = repository.getStorage();
+
+        String contextId = IndexContextHelper.getContextId(storage.getId(),
+                                                           repository.getId(),
+                                                           IndexTypeEnum.LOCAL.getType());
+        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+        addArtifactToIndex(artifactPath, indexer);
+    }
+
+    @Override
+    public void addArtifactToIndex(final RepositoryPath artifactPath,
+                                   final RepositoryIndexer repositoryIndexer)
+            throws IOException
+    {
+        if (repositoryIndexer == null)
+        {
+            return;
+        }
+        if (!features.isIndexingEnabled(getRepository(repositoryIndexer.getStorageId(),
+                                                      repositoryIndexer.getRepositoryId())))
+        {
+            return;
+        }
+
+        repositoryIndexer.addArtifactToIndex(artifactPath);
+    }
+
+    @Override
     public void rebuildIndex(String storageId,
                              String repositoryId,
                              String artifactPath)
@@ -63,8 +103,8 @@ public class ArtifactIndexesServiceImpl
         {
             repostitoryPath = repostitoryPath.resolve(artifactPath);
         }
-        
-        MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(repositoryIndexManager);
+
+        MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(this);
 
         //noinspection ConstantConditions
         operation.setBasePath(repostitoryPath);
@@ -114,6 +154,12 @@ public class ArtifactIndexesServiceImpl
     private Map<String, Repository> getRepositories(String storageId)
     {
         return getStorages().get(storageId).getRepositories();
+    }
+
+    private Repository getRepository(String storageId,
+                                     String repositoryId)
+    {
+        return getConfiguration().getStorage(storageId).getRepository(repositoryId);
     }
 
 }

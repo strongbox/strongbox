@@ -45,22 +45,30 @@ public class UserController
                                 @ApiParam(value = "The param name", required = true)
                                 @RequestParam(value = "name", required = false) String param)
     {
-        logger.debug("UserController -> Say hello to " + param + ". Path variable " + anyString);
-        return ResponseEntity.ok("hello, " + param);
+        logger.debug("UserController -> Say hello to {}. Path variable: {}", param, anyString);
+        return ResponseEntity.ok(getResponseEntityBody("hello, " + param));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
     // Create user
 
     @ApiOperation(value = "Used to create new user")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was created successfully.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was created successfully."),
+                            @ApiResponse(code = 409, message = "Conflict while creating a user.") })
     @PreAuthorize("hasAuthority('CREATE_USER')")
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity create(@RequestBody UserInput userInput)
     {
+        User user = userService.findByUserName(userInput.asUser().getUsername());
+        if (user != null)
+        {
+            return toResponseEntity("A user with this username already exists! Please enter another username.",
+                                    HttpStatus.CONFLICT);
+        }
+
         userService.save(userInput.asUser());
-        return ResponseEntity.ok("The user was created successfully.");
+        return ResponseEntity.ok(getResponseEntityBody("The user was created successfully."));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -77,8 +85,7 @@ public class UserController
         User user = userService.findByUserName(name);
         if (user == null)
         {
-            return ResponseEntity.notFound()
-                                 .build();
+            return toResponseEntity("The specified user does not exist!", HttpStatus.NOT_FOUND);
         }
 
         return ResponseEntity.ok(UserOutput.fromUser(user));
@@ -114,11 +121,11 @@ public class UserController
     {
         if (StringUtils.isBlank(userToUpdate.getUsername()))
         {
-            return toResponseEntityError("Username not provided", HttpStatus.BAD_REQUEST);
+            return toResponseEntity("Username not provided", HttpStatus.BAD_REQUEST);
         }
         if (!(authentication.getPrincipal() instanceof SpringSecurityUser))
         {
-            return toResponseEntityError(
+            return toResponseEntity(
                     "Unsupported logged user principal type " + authentication.getPrincipal().getClass(),
                     HttpStatus.BAD_REQUEST);
         }
@@ -134,7 +141,7 @@ public class UserController
             userService.updateByUsername(user);
         }
 
-        return ResponseEntity.ok("The user was updated successfully.");
+        return ResponseEntity.ok(getResponseEntityBody("The user was updated successfully."));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -152,25 +159,25 @@ public class UserController
     {
         if (!(authentication.getPrincipal() instanceof SpringSecurityUser))
         {
-            return toResponseEntityError(
+            return toResponseEntity(
                     "Unsupported logged user principal type " + authentication.getPrincipal().getClass(),
                     HttpStatus.BAD_REQUEST);
         }
         final SpringSecurityUser loggedUser = (SpringSecurityUser) authentication.getPrincipal();
         if (StringUtils.equals(loggedUser.getUsername(), name))
         {
-            return toResponseEntityError("Unable to delete yourself", HttpStatus.BAD_REQUEST);
+            return toResponseEntity("Unable to delete yourself", HttpStatus.BAD_REQUEST);
         }
 
         User user = userService.findByUserName(name);
         if (user == null || user.getObjectId() == null)
         {
-            return toResponseEntityError("The specified user does not exist!", HttpStatus.BAD_REQUEST);
+            return toResponseEntity("The specified user does not exist!", HttpStatus.NOT_FOUND);
         }
 
         userService.delete(user.getObjectId());
 
-        return ResponseEntity.ok("The user was deleted.");
+        return ResponseEntity.ok(getResponseEntityBody("The user was deleted."));
     }
 
     @ApiOperation(value = "Generate new security token for specified user.", position = 3)
@@ -187,7 +194,7 @@ public class UserController
         {
             return toError(String.format(
                     "Failed to generate SecurityToken, probably you should first set SecurityTokenKey for the user: user-[%s]",
-                    userName));
+                    userName), true);
         }
 
         return ResponseEntity.ok(result);
@@ -216,16 +223,15 @@ public class UserController
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @RequestMapping(value = "user/{userName}/access-model", method = RequestMethod.PUT)
-    public ResponseEntity<User> updateAccessModel(@ApiParam(value = "The name of the user") @PathVariable
-                                                          String userName,
-                                                  @RequestBody AccessModel accessModel)
+    public ResponseEntity updateAccessModel(@ApiParam(value = "The name of the user") @PathVariable
+                                                    String userName,
+                                            @RequestBody AccessModel accessModel)
             throws JoseException
     {
         User user = userService.findByUserName(userName);
         if (user == null || user.getObjectId() == null)
         {
-            return ResponseEntity.notFound()
-                                 .build();   // "The specified user does not exist!"
+            return toResponseEntity("The specified user does not exist!", HttpStatus.NOT_FOUND);
         }
 
         user.setAccessModel(accessModel);

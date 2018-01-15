@@ -12,6 +12,7 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Iterator;
 
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -27,6 +28,7 @@ public class RepositoryPath
 
     private Path target;
     private RepositoryFileSystem fileSystem;
+    protected ArtifactEntry artifactEntry;
 
     public RepositoryPath(Path target,
                           RepositoryFileSystem fileSystem)
@@ -43,6 +45,11 @@ public class RepositoryPath
     public Path getTarget()
     {
         return target;
+    }
+    
+    public ArtifactEntry getArtifactEntry()
+    {
+        return artifactEntry;
     }
 
     public RepositoryFileSystem getFileSystem()

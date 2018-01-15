@@ -4,9 +4,10 @@ import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
 import org.carlspring.strongbox.storage.metadata.comparators.VersionComparator;
@@ -145,6 +146,10 @@ public class MavenMetadataManager
                      {
                          Path metadataPath = MetadataHelper.getMetadataPath(metadataBasePath, version, metadataType);
                          Files.deleteIfExists(metadataPath);
+
+                         // disable decorating RepositoryPath output stream
+                         metadataPath = metadataPath instanceof RepositoryPath ? ((RepositoryPath) metadataPath).getTarget() :
+                                        metadataPath;
 
                          try (OutputStream os = new MultipleDigestOutputStream(metadataPath,
                                                                                Files.newOutputStream(metadataPath));
@@ -340,9 +345,11 @@ public class MavenMetadataManager
                 }
                 catch (Exception e)
                 {
-                    logger.error("Unable to merge the metadata to " + metadataBasePath + " by source metadata " +
+                    // Exception not propagated, intentionally
+                    logger.debug("Unable to merge the metadata to " + metadataBasePath + " by source metadata " +
                                  ReflectionToStringBuilder.toString(mergeMetadata) +
-                                 ". Continuing with storing new metadata ...", e);
+                                 ". Exception message was: {}. Continuing with storing new metadata ...",
+                                 e.getMessage());
                 }
             }
 

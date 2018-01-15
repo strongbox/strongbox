@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.event.CommonEventListener;
@@ -68,13 +70,13 @@ public class NugetRepositoryFeatures
 
     @Inject
     private ArtifactEntryService artifactEntryService;
-    
+
     @Inject
     private ArtifactTagService artifactTagService;
-    
+
     @Inject
     private ArtifactManagementService artifactManagementService;
-    
+
     @Inject
     private NugetLayoutProvider nugetLayoutProvider;
 
@@ -147,7 +149,10 @@ public class NugetRepositoryFeatures
             {
                 return false;
             }
-            Set<NugetArtifactCoordinates> artifactToSaveSet = new HashSet<>();
+            
+            ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
+            
+            Set<ArtifactEntry> artifactToSaveSet = new HashSet<>();
             for (PackageEntry packageEntry : packageFeed.getEntries())
             {
                 String packageId = packageEntry.getProperties().getId();
@@ -155,32 +160,50 @@ public class NugetRepositoryFeatures
                 String packageVersion = packageEntry.getProperties().getVersion().toString();
 
                 NugetArtifactCoordinates c = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
-                if (!artifactEntryService.artifactExists(storageId, repositoryId, c.toPath()))
+                if (artifactEntryService.artifactExists(storageId, repositoryId, c.toPath()))
                 {
-                    artifactToSaveSet.add(c);
+                    continue;
                 }
+                
+                RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
+                remoteArtifactEntry.setStorageId(storageId);
+                remoteArtifactEntry.setRepositoryId(repositoryId);
+                remoteArtifactEntry.setArtifactCoordinates(c);
+                remoteArtifactEntry.setLastUsed(new Date());
+                remoteArtifactEntry.setLastUpdated(new Date());
+                remoteArtifactEntry.setDownloadCount(0);
+                
+                remoteArtifactEntry.setSizeInBytes(packageEntry.getProperties().getPackageSize());
+
+                if (Boolean.TRUE.equals(packageEntry.getProperties().getIsLatestVersion()))
+                {
+                    remoteArtifactEntry.getTagSet().add(lastVersionTag);
+                }
+                
+                artifactToSaveSet.add(remoteArtifactEntry);
             }
-            
-            for (NugetArtifactCoordinates c : artifactToSaveSet)
+
+            for (ArtifactEntry e : artifactToSaveSet)
             {
-                RepositoryPath repositoryPath = nugetLayoutProvider.resolve(repository, c);
+                RepositoryPath repositoryPath = nugetLayoutProvider.resolve(repository, e.getArtifactCoordinates());
                 URI artifactUri = repositoryPath.toUri();
                 try
                 {
                     artifactManagementService.accureLock(artifactUri);
-                    
-                    RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
-                    remoteArtifactEntry.setStorageId(storageId);
-                    remoteArtifactEntry.setRepositoryId(repositoryId);
-                    remoteArtifactEntry.setArtifactCoordinates(c);
-
-                    artifactEntryService.save(remoteArtifactEntry);
+                    if (e.getTagSet().contains(lastVersionTag))
+                    {
+                        artifactEntryService.save(e, true);
+                    }
+                    else
+                    {
+                        artifactEntryService.save(e, false);
+                    }
                 } finally
                 {
                     artifactManagementService.releaseLock(artifactUri);
                 }
             }
-            
+
             return true;
         }
     }
@@ -220,11 +243,12 @@ public class NugetRepositoryFeatures
             Expression filter = repositorySearchRequest.isStrict() ? createPackageEq(packageId, null) : null;
             filter = createVersionEq(version, filter);
             filter = createIsLatestVersion(repositorySearchRequest.getTagSet(), filter);
-            
+
             String searchTerm = !repositorySearchRequest.isStrict() ? packageId : null;
             try
             {
-                searchTerm = searchTerm == null ? null : URLEncoder.encode(String.format("'%s'", searchTerm), StandardCharsets.UTF_8.name());
+                searchTerm = searchTerm == null ? null
+                        : URLEncoder.encode(String.format("'%s'", searchTerm), StandardCharsets.UTF_8.name());
             }
             catch (UnsupportedEncodingException e)
             {
@@ -276,19 +300,20 @@ public class NugetRepositoryFeatures
         {
             return filter;
         }
-        
+
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
-        if (!tagSet.contains(lastVersionTag)){
+        if (!tagSet.contains(lastVersionTag))
+        {
             return filter;
         }
-        
+
         LatestVersionExpression latestVersion = new LatestVersionExpression();
         filter = filter == null ? latestVersion : new AndExpression(filter, latestVersion);
 
         return filter;
 
     }
-    
+
     public static Expression createVersionEq(String version,
                                              Expression filter)
     {

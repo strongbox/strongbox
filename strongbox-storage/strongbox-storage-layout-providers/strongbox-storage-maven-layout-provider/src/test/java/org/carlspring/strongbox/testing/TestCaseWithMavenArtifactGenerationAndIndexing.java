@@ -86,9 +86,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     protected LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
-    protected StorageManagementService storageManagementService;
-
-    @Inject
     protected MavenMetadataManager mavenMetadataManager;
 
     @Inject
@@ -168,30 +165,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         repository.setRepositoryConfiguration(repositoryConfiguration);
 
         createRepository(repository);
-    }
-
-    public void createRepository(Repository repository)
-            throws IOException,
-                   JAXBException,
-                   RepositoryManagementStrategyException
-    {
-        configurationManagementService.saveRepository(repository.getStorage().getId(), repository);
-
-        // Create the repository
-        repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
-    }
-
-    public void createStorage(String storageId)
-            throws IOException, JAXBException
-    {
-        createStorage(new Storage(storageId));
-    }
-
-    public void createStorage(Storage storage)
-            throws IOException, JAXBException
-    {
-        configurationManagementService.saveStorage(storage);
-        storageManagementService.createStorage(storage);
     }
 
     private void generateArtifactsReIndexAndPack(String storageId,

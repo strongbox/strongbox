@@ -25,6 +25,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
@@ -57,6 +58,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
     @Inject
     private HostedRepositoryProvider hostedRepositoryProvider;
+
+    @Inject
+    private GroupRepositorySetCollector groupRepositorySetCollector;
 
     @PostConstruct
     @Override
@@ -232,7 +236,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         Repository groupRepository = storage.getRepository(repositoryId);
 
-        Set<Repository> groupRepositorySet = collectGroupRepositorySet(groupRepository);
+        Set<Repository> groupRepositorySet = groupRepositorySetCollector.collect(groupRepository);
 
         if (groupRepositorySet.isEmpty())
         {
@@ -309,50 +313,6 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return resultList.subList(skip, toIndex);
     }
 
-    private Set<Repository> collectGroupRepositorySet(Repository repository)
-    {
-        return collectGroupRepositorySet(repository, false);
-    }
-
-    private Set<Repository> collectGroupRepositorySet(Repository groupRepository,
-                                                      boolean traverse)
-    {
-        Set<Repository> result = groupRepository.getGroupRepositories()
-                                                .stream()
-                                                .map(groupRepoId -> {
-                                                    return getRepository(groupRepository.getStorage(), groupRepoId);
-                                                })
-                                                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        if (!traverse)
-        {
-            return result;
-        }
-
-        Set<Repository> traverseResult = new LinkedHashSet<>();
-        for (Iterator<Repository> i = result.iterator(); i.hasNext();)
-        {
-            Repository r = i.next();
-            if (r.getGroupRepositories().isEmpty()) {
-                traverseResult.add(r);
-                continue;
-            }
-
-            i.remove();
-            traverseResult.addAll(collectGroupRepositorySet(r, true));
-        }
-
-        return traverseResult;
-    }
-
-    private Repository getRepository(Storage storage, String id)
-    {
-        String sId = getConfigurationManager().getStorageId(storage, id);
-        String rId = getConfigurationManager().getRepositoryId(id);
-
-        return getConfiguration().getStorage(sId).getRepository(rId);
-    }
-
     private ArtifactCoordinates getArtifactCoordinates(Path p)
     {
         try
@@ -376,8 +336,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         Repository groupRepository = storage.getRepository(repositoryId);
 
-        Set<Pair<String, String>> storageRepositoryPairSet = collectGroupRepositorySet(groupRepository,
-                                                                                       true).stream()
+        Set<Pair<String, String>> storageRepositoryPairSet = groupRepositorySetCollector.collect(groupRepository,
+                                                                                                 true).stream()
                                                                                             .map(r -> Pair.with(r.getStorage()
                                                                                                                  .getId(),
                                                                                                                 r.getId()))
@@ -385,5 +345,14 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         return artifactEntryService.countCoordinates(storageRepositoryPairSet, searchRequest.getCoordinates(),
                                                      searchRequest.isStrict());
+    }
+    
+    @Override
+    public RepositoryPath getPath(String storageId,
+                                  String repositoryId,
+                                  String artifactPath)
+           throws IOException
+    {
+        throw new UnsupportedOperationException("Currently getPath() is not supported for GroupRepositoryProvider");
     }
 }

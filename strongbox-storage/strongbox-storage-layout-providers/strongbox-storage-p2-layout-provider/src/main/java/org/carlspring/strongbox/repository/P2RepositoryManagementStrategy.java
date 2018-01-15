@@ -39,12 +39,4 @@ public class P2RepositoryManagementStrategy
         }
     }
 
-    @Override
-    public void initializeRepository(String storageId,
-                                     String repositoryId)
-            throws RepositoryInitializationException
-    {
-
-    }
-
 }

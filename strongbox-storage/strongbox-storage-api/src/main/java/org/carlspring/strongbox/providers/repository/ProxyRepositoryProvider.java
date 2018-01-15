@@ -129,4 +129,13 @@ public class ProxyRepositoryProvider
 
         return artifactEntry;
     }
+    
+    @Override
+    public RepositoryPath getPath(String storageId,
+                                  String repositoryId,
+                                  String artifactPath)
+            throws IOException
+    {
+        throw new UnsupportedOperationException("Currently getPath() is not supported for ProxyRepositoryProvider");
+    }
 }

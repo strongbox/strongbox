@@ -40,6 +40,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.google.common.base.Throwables;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import io.restassured.response.ExtractableResponse;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -398,6 +400,35 @@ public class MavenArtifactControllerTest
 
         assertEquals("MD5 checksums did not match!", md5Local, md5Remote);
         assertEquals("SHA-1 checksums did not match!", sha1Local, sha1Remote);
+    }
+
+
+    @Test
+    public void testHeadersFetch()
+            throws Exception
+    {   
+        String artifactPath;
+        Headers headersFromGET, headersFromHEAD;
+
+        /* Hosted Repository */
+        artifactPath = "storages/storage0/act-releases-1/org/carlspring/strongbox/browse/foo-bar/2.4/foo-bar-2.4.pom";
+        headersFromGET = client.getHeadersFromGET(artifactPath);
+        headersFromHEAD = client.getHeadersfromHEAD(artifactPath);
+        assertHeadersEquals(headersFromGET,headersFromHEAD);
+    }
+    
+    private void assertHeadersEquals(Headers h1, Headers h2)
+    {
+        assertNotNull(h1);
+        assertNotNull(h2);
+
+        for(Header header : h1)
+        {
+            if(h2.hasHeaderWithName(header.getName()))
+            {
+                assertEquals(header.getValue(),h2.getValue(header.getName()));
+            }
+        }
     }
 
     @Test
@@ -1069,22 +1100,6 @@ public class MavenArtifactControllerTest
                .contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
                .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value());
-    }
-
-    @Test
-    public void whatsup()
-            throws Exception
-    {
-        String url = getContextBaseUrl() +
-                     "/storages/storage0/snapshots/org/carlspring/maven/test-project/1.0.8-SNAPSHOT/test-project-1.0.8-20170823.221551-1.jar";
-
-        given().header("user-agent", "Maven/*")
-               .contentType(MediaType.TEXT_PLAIN_VALUE)
-               .when()
-               .put(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());

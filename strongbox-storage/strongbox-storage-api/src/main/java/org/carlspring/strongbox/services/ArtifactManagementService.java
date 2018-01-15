@@ -1,27 +1,5 @@
 package org.carlspring.strongbox.services;
 
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
-import org.apache.commons.io.FileUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -45,10 +23,27 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
+
+import javax.inject.Inject;
+import java.io.*;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author mtodorov
@@ -60,7 +55,7 @@ public class ArtifactManagementService implements ConfigurationService
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementService.class);
 
     private Map<URI, Lock> pathUriMap = new ConcurrentHashMap<>();
-    
+
     @Inject
     protected ArtifactOperationsValidator artifactOperationsValidator;
     
@@ -122,8 +117,7 @@ public class ArtifactManagementService implements ConfigurationService
                                                                                           repository.getId(),
                                                                                           RepositoryFiles.stringValue(repositoryPath)))
         {
-            long result = storeArtifact(repositoryPath, is, aos);
-            return result;                
+            return storeArtifact(repositoryPath, is, aos);
         }
         catch (IOException e)
         {
@@ -205,6 +199,8 @@ public class ArtifactManagementService implements ConfigurationService
 
         long totalAmountOfBytes = artifactByteStreamsCopyStrategyDeterminator.determine(repository).copy(is, os,
                                                                                                          repositoryPath);
+
+        artifactEventListenerRegistry.dispatchArtifactStoredEvent(storageId, repositoryId, artifactPath);
 
         if (updatedMetadataFile)
         {
@@ -314,7 +310,7 @@ public class ArtifactManagementService implements ConfigurationService
                  .stream()
                  .forEach(e -> checksumCacheManager.addArtifactChecksum(artifactPath, e.getKey(), e.getValue()));
     }
-    
+
     private boolean performRepositoryAcceptanceValidation(RepositoryPath path)
             throws IOException, ProviderImplementationException
     {
@@ -381,6 +377,14 @@ public class ArtifactManagementService implements ConfigurationService
         }
 
         return null;
+    }
+    
+    public RepositoryPath getPath(String storageId,
+                                  String repositoryId,
+                                  String path) 
+             throws IOException
+    {
+        return artifactResolutionService.getPath(storageId, repositoryId, path);
     }
     
     public void delete(String storageId,
