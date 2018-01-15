@@ -162,9 +162,9 @@ public class MavenArtifactController
 
             return;
         }
-        
+
         boolean isHeadRequest = request.getMethod().equals("HEAD");
-        
+
         if(!isHeadRequest)
         {
             if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
@@ -224,16 +224,16 @@ public class MavenArtifactController
         else
         {
             RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
-            
+
             logger.debug("Resolved path : " + resolvedPath);
-            
+
             if(resolvedPath == null)
             {
                 response.setStatus(HttpStatus.NOT_FOUND.value());
                 return;
             }
-            
-            try 
+
+            try
             {
                 try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
                 {
@@ -243,10 +243,10 @@ public class MavenArtifactController
                     }
                 }
                 RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
-                
+
                 response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
                 response.setHeader("Last-Modified", fileAttributes.lastModifiedTime().toString());
-                
+
             }
             catch(Exception e)
             {
@@ -262,7 +262,7 @@ public class MavenArtifactController
             setMediaTypeHeader(path, response);
 
             response.setHeader("Accept-Ranges", "bytes");
-                
+
         logger.debug("Download succeeded.");
     }
 
@@ -289,8 +289,7 @@ public class MavenArtifactController
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
-    @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE,
-                    value = "/copy/{path:.+}",
+    @RequestMapping(value = "/copy/{path:.+}",
                     method = RequestMethod.POST)
     public ResponseEntity copy(@ApiParam(value = "The source storageId", required = true)
                                @RequestParam(name = "srcStorageId") String srcStorageId,

@@ -1,14 +1,10 @@
 package com.orientechnologies.orient.object.jpa;
 
-import java.util.Map;
-import java.util.logging.Logger;
-
-import javax.persistence.Cache;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
@@ -39,6 +35,18 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
     public EntityManager createEntityManager(final Map map)
     {
         return createEntityManager(new OJPAProperties(map));
+    }
+
+    @Override
+    public EntityManager createEntityManager(SynchronizationType synchronizationType)
+    {
+        throw new UnsupportedOperationException("createEntityManager");
+    }
+
+    @Override
+    public EntityManager createEntityManager(SynchronizationType synchronizationType, Map map)
+    {
+        throw new UnsupportedOperationException("createEntityManager");
     }
 
     @Override
@@ -97,5 +105,23 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
     public PersistenceUnitUtil getPersistenceUnitUtil()
     {
         throw new UnsupportedOperationException("getPersistenceUnitUtil");
+    }
+
+    @Override
+    public void addNamedQuery(String s, Query query)
+    {
+        throw new UnsupportedOperationException("addNamedQuery");
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> aClass)
+    {
+        throw new UnsupportedOperationException("unwrap");
+    }
+
+    @Override
+    public <T> void addNamedEntityGraph(String s, EntityGraph<T> entityGraph)
+    {
+        throw new UnsupportedOperationException("addNamedEntityGraph");
     }
 }
