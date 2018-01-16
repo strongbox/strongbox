@@ -3,9 +3,7 @@ package org.carlspring.strongbox.providers.repository;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,14 +11,8 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
-import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
-import org.carlspring.strongbox.config.NugetLayoutProviderConfig;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.data.PropertyUtils;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
@@ -38,8 +30,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
-
-import ru.aristar.jnuget.files.NugetFormatException;
 
 /**
  * @author sbespalov
@@ -73,9 +63,6 @@ public class NugetGroupRepositoryProviderTest
     @Inject
     private RepositoryManagementService repositoryManagementService;
     
-    @Inject
-    private ArtifactManagementService artifactManagementService;
-    
     @Rule
     public final ExpectedLogs logs = new ExpectedLogs()
     {{
@@ -99,17 +86,17 @@ public class NugetGroupRepositoryProviderTest
         //REPOSITORY_RELEASES_1
         createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1),
                          RepositoryLayoutEnum.NUGET.getLayout());
-        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, 9);
+        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, "grpt.search.package", 9);
 
         //REPOSITORY_RELEASES_2
         createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2),
                          RepositoryLayoutEnum.NUGET.getLayout());
-        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_2, 12);
+        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_2, "grpt.search.package", 12);
         
         //REPOSITORY_RELEASES_3
         createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3),
                          RepositoryLayoutEnum.NUGET.getLayout());
-        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_3, 8);
+        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_3, "grpt.search.package", 8);
 
         Repository repositoryGroup = new Repository(REPOSITORY_GROUP);
         repositoryGroup.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
@@ -148,26 +135,6 @@ public class NugetGroupRepositoryProviderTest
         repositoryWithNestedGroupLevel2.addRepositoryToGroup(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
 
         createRepository(repositoryWithNestedGroupLevel2);
-    }
-
-    private void generateRepositoryPackages(String storageId,
-                                            String repositoryId,
-                                            int count)
-        throws NoSuchAlgorithmException,
-        NugetFormatException,
-        JAXBException,
-        IOException,
-        ProviderImplementationException
-    {
-        for (int i = 1; i <= count; i++)
-        {
-            String packageId = String.format("grpt.search.p%s", i);
-            String packageVersion = "1.0.0";
-            NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
-            Path packageFilePath = generatePackageFile(packageId, packageVersion);
-            artifactManagementService.validateAndStore(storageId, repositoryId, coordinates.toPath(),
-                                                       Files.newInputStream(packageFilePath));
-        }
     }
 
     private void createRepository(Repository repository)

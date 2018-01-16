@@ -2,6 +2,7 @@ package org.carlspring.strongbox.artifact.coordinates;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -72,7 +73,7 @@ public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoor
 
     public Map<String, String> getCoordinates()
     {
-        return Collections.unmodifiableMap(coordinates);
+        return new HashMap<>(coordinates);
     }
 
     protected final void setCoordinates(Map<String, String> coordinates)

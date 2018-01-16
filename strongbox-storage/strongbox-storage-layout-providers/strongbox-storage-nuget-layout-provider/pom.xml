@@ -185,6 +185,23 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin>
+				<groupId>org.antlr</groupId>
+				<artifactId>antlr4-maven-plugin</artifactId>
+				<version>4.7.1</version>
+				<executions>
+					<execution>
+						<id>antlr</id>
+						<goals>
+							<goal>antlr4</goal>
+						</goals>
+						<configuration>
+                            <visitor>true</visitor>
+							<outputDirectory>${project.build.directory}/generated-sources/antlr4/org/carlspring/strongbox/nuget/filter</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>            
         </plugins>
     </build>
 
@@ -309,6 +326,10 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
         </dependency>
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr4-runtime</artifactId>
+			<version>4.7.1</version>
+		</dependency>        
     </dependencies>
-
 </project>

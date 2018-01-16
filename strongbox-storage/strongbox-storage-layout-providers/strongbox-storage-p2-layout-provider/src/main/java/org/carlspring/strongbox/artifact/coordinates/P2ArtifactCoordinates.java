@@ -151,4 +151,12 @@ public class P2ArtifactCoordinates
         return null;
     }
     
+    @Override
+    public Map<String, String> dropVersion()
+    {
+        Map<String, String> result = getCoordinates();
+        result.remove(VERSION);
+        return result;
+    }
+    
 }

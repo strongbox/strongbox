@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,9 +21,9 @@ import org.semver.Version;
 @XmlAccessorType(XmlAccessType.NONE)
 public class NugetArtifactCoordinates extends AbstractArtifactCoordinates<NugetArtifactCoordinates, Version>
 {
-    public static final String ID = "id";
-    public static final String VERSION = "version";
-    public static final String EXTENSION = "extension";
+    public static final String ID = "Id";
+    public static final String VERSION = "Version";
+    public static final String EXTENSION = "Extension";
     private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+).(nupkg|nuspec|nupkg\\.sha512)";
 
 
@@ -138,6 +139,14 @@ public class NugetArtifactCoordinates extends AbstractArtifactCoordinates<NugetA
         {
             return null;
         }
+    }
+
+    @Override
+    public Map<String, String> dropVersion()
+    {
+        Map<String, String> result = getCoordinates();
+        result.remove(VERSION);
+        return result;
     }
     
 }
