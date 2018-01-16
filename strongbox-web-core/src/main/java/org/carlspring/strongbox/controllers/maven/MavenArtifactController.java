@@ -243,7 +243,8 @@ public class MavenArtifactController
                 response.setStatus(INTERNAL_SERVER_ERROR.value());
             }
         }
-        setMediaTypeHeader(path, response);
+
+        setMediaTypeHeader(repository, path, response);
 
         response.setHeader("Accept-Ranges", "bytes");
 

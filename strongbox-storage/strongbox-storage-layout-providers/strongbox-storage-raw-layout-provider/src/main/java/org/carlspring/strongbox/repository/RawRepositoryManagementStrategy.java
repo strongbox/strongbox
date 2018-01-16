@@ -51,13 +51,6 @@ public class RawRepositoryManagementStrategy
         }
     }
 
-    @Override
-    public void initializeRepository(String storageId,
-                                     String repositoryId)
-            throws RepositoryInitializationException
-    {
-    }
-
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
