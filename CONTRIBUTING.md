@@ -61,3 +61,4 @@ To accept, please:
 | Sanket Sawant                |                                          | Mumbai, India                           | 2017-12-09 |
 | Pablo Tirado                 |                                          | Madrid, Spain                           | 2018-01-05 |
 | Gokhan Kuyucak               |                                          | Izmir, Turkey                           | 2018-01-14 |
+| Guido Grazioli               |                                          | London, United Kingdom                  | 2018-01-15 |
