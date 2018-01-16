@@ -129,7 +129,7 @@ public class RawArtifactController
         {
             try
             {
-                generateDirectoryListing(path, request, response);
+                getDirectoryListing(repository, path, request, response);
             }
             catch (Exception e)
             {
