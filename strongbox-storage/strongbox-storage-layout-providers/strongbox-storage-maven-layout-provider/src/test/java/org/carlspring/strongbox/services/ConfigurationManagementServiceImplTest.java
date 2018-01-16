@@ -6,6 +6,7 @@ import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
@@ -278,6 +279,36 @@ public class ConfigurationManagementServiceImplTest
         );
 
         assertTrue(overridden);
+    }
+
+    @Test
+    public void testCanGetRepositoriesWithStorageAndLayout()
+            throws Exception
+    {
+        String maven2Layout = RepositoryLayoutEnum.MAVEN_2.getLayout();
+        List<Repository> repositories = configurationManagementService.getRepositoriesWithLayout(STORAGE0,
+                                                                                                 maven2Layout);
+
+        assertFalse(repositories.isEmpty());
+
+        repositories.forEach(
+                repository -> assertTrue(repository.getLayout().equals(maven2Layout))
+        );
+
+        repositories.forEach(
+                repository -> assertTrue(repository.getStorage().getId().equals(STORAGE0))
+        );
+    }
+
+    @Test
+    public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage()
+            throws Exception
+    {
+        String maven2Layout = RepositoryLayoutEnum.MAVEN_2.getLayout();
+        List<Repository> repositories = configurationManagementService
+                                                .getRepositoriesWithLayout("notExistedStorage", maven2Layout);
+
+        assertTrue(repositories.isEmpty());
     }
 
     private RoutingRule getRoutingRule()

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.locator.handlers;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
 
 import java.io.IOException;
@@ -44,8 +45,17 @@ public class MavenIndexerManagementOperation
                                    {
                                        try
                                        {
-                                           artifactIndexesService.addArtifactToIndex(
-                                                   getArtifactPathToIndex((RepositoryPath) filePath));
+
+                                           RepositoryIndexer repositoryIndexer = getRepositoryIndexer();
+                                           if (repositoryIndexer != null)
+                                           {
+                                               artifactIndexesService.addArtifactToIndex((RepositoryPath) filePath,
+                                                                                         repositoryIndexer);
+                                           }
+                                           else
+                                           {
+                                               artifactIndexesService.addArtifactToIndex((RepositoryPath) filePath);
+                                           }
                                        }
                                        catch (IOException e)
                                        {
@@ -58,9 +68,9 @@ public class MavenIndexerManagementOperation
         }
     }
 
-    protected RepositoryPath getArtifactPathToIndex(RepositoryPath filePath)
+    protected RepositoryIndexer getRepositoryIndexer()
     {
-        return filePath;
+        return null;
     }
 
 }

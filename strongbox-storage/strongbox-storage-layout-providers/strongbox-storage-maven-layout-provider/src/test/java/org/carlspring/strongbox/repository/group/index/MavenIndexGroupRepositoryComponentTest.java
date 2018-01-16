@@ -1,8 +1,7 @@
 package org.carlspring.strongbox.repository.group.index;
 
-import org.carlspring.maven.commons.DetachedArtifact;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
@@ -15,6 +14,7 @@ import org.carlspring.strongbox.util.IndexContextHelper;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Set;
 
 import org.hamcrest.Matchers;
@@ -58,17 +58,14 @@ public class MavenIndexGroupRepositoryComponentTest
 
         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
 
-        DetachedArtifact artifact = (DetachedArtifact) ArtifactUtils.getArtifactFromGAVTC(
-                "com.artifacts.to.delete.releases:delete-group:1.2.1");
-
         Repository repository = configurationManager.getConfiguration()
                                                     .getStorage(STORAGE0)
-                                                    .getRepository(REPOSITORY_GROUP_F);
+                                                    .getRepository(REPOSITORY_LEAF_L);
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        java.io.File artifactFile = layoutProvider.resolve(repository).resolve(artifactPath).toFile();
+        RepositoryPath artifactFile = layoutProvider.resolve(repository).resolve(artifactPath);
 
-        indexer.addArtifactToIndex(REPOSITORY_GROUP_F, artifactFile, artifact);
+        indexer.addArtifactToIndex(artifactFile);
 
         SearchRequest request = new SearchRequest(STORAGE0,
                                                   REPOSITORY_GROUP_F,
@@ -78,7 +75,7 @@ public class MavenIndexGroupRepositoryComponentTest
         assertTrue(artifactSearchService.contains(request));
 
         layoutProvider.delete(STORAGE0, REPOSITORY_LEAF_L, artifactPath, false);
-        assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
+        assertFalse("Failed to delete artifact file " + artifactFile.toAbsolutePath(), Files.exists(artifactFile));
 
         assertFalse(artifactSearchService.contains(request));
     }
@@ -100,13 +97,13 @@ public class MavenIndexGroupRepositoryComponentTest
                                     NEW_REPOSITORY_GROUP_X,
                                     "+g:com.artifacts.to.delete.releases +a:delete-group +v:1.2.1",
                                     MavenIndexerSearchProvider.ALIAS);
-        assertTrue(artifactSearchService.contains(request));
+        assertThat(artifactSearchService.search(request).getResults().size(), Matchers.equalTo(1));
 
         request = new SearchRequest(STORAGE0,
                                     NEW_REPOSITORY_GROUP_X,
                                     "+g:com.artifacts.to.delete.releases +a:delete-group",
                                     MavenIndexerSearchProvider.ALIAS);
-        assertTrue(artifactSearchService.contains(request));
+        assertThat(artifactSearchService.search(request).getResults().size(), Matchers.equalTo(2));
 
     }
 

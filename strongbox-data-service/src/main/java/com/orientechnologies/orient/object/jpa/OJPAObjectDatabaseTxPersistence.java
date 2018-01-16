@@ -25,7 +25,7 @@ public class OJPAObjectDatabaseTxPersistence
 {
 
     public static final String PROPERTY_AUTOMATIC_SCHEMA_GENERATION = "com.orientechnologies.orient.object.jpa.automaticSchemaGeneration";
-    
+
     /** the log used by this class. */
     private static Logger logger = Logger.getLogger(OJPAObjectDatabaseTxPersistence.class.getName());
     private static OJPAProviderUtil providerUtil = new OJPAProviderUtil();
@@ -84,6 +84,18 @@ public class OJPAObjectDatabaseTxPersistence
         entityManager.registerEntityClasses(info.getManagedClassNames());
 
         return new OJPAPartitionedEntityManagerPool(properties);
+    }
+
+    @Override
+    public void generateSchema(PersistenceUnitInfo info, Map map)
+    {
+        throw new UnsupportedOperationException("generateSchema");
+    }
+
+    @Override
+    public boolean generateSchema(String persistenceUnitName, Map map)
+    {
+        throw new UnsupportedOperationException("generateSchema");
     }
 
     @Override

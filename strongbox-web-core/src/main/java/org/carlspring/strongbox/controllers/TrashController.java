@@ -4,15 +4,10 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -123,16 +118,14 @@ public class TrashController
                                          message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
-                    method = RequestMethod.POST,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
+                    method = RequestMethod.POST)
     public ResponseEntity undelete(@ApiParam(value = "The storageId",
                                              required = true)
                                    @PathVariable String storageId,
                                    @ApiParam(value = "The repositoryId",
                                              required = true)
                                    @PathVariable String repositoryId,
-                                   @PathVariable String path,
-                                   HttpServletRequest request)
+                                   @PathVariable String path)
             throws IOException
     {
         if (getStorage(storageId) == null)
