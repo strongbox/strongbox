@@ -63,14 +63,16 @@ public class BrowseController
         {
             Map<String,SortedSet<String>> storages = new HashMap<>();
             storages.put("storages", new TreeSet<String>(configurationManager.getConfiguration()
-                    .getStorages().keySet()));
+                    .getStorages()
+                    .keySet()));
+            
             return ResponseEntity.ok(objectMapper.writer().writeValueAsString(storages));
         }
         catch (Exception e)
         {
             logger.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(String.format("{ 'error': '%s' }", e.getMessage()));
+                                 .body(String.format("{ 'error': '%s' }", e.getMessage()));
         }
     }
     
@@ -138,7 +140,8 @@ public class BrowseController
             }
             
             Path baseDir = Paths.get(repository.getBasedir());
-            if (path.isPresent()) {
+            if (path.isPresent())
+            {
                 baseDir = Paths.get(baseDir.toString(), path.get());
             }
             if (!Files.exists(baseDir))
@@ -146,6 +149,7 @@ public class BrowseController
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body("{ 'error': 'The requested repository path was not found.' }");
             }
+            
             logger.debug("Listing repository contents for {}/{}: {}", storageId, repositoryId, baseDir.toString());
             
             List<String> directories = new ArrayList<>();
@@ -158,6 +162,7 @@ public class BrowseController
             Map<String,List<String>> contents = new HashMap<>();
             contents.put("directories", directories);
             contents.put("files", files);
+            
             return ResponseEntity.ok(objectMapper.writer().writeValueAsString(contents));
         }
         catch (Exception e)
