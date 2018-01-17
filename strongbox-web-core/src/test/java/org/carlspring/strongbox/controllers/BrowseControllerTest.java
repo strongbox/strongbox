@@ -37,6 +37,7 @@ public class BrowseControllerTest
     {
         Files.createFile(Paths.get("target/strongbox-vault/storages/storage0/releases","testfile")).toFile().deleteOnExit();
         Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","testdir")).toFile().deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","testdir/testsubdir")).toFile().deleteOnExit();
     }
     
     @Test
@@ -139,7 +140,7 @@ public class BrowseControllerTest
                 .readValue(contents, new TypeReference<Map<String, List<String>>>(){});
         
         assertArrayEquals("Returned files", new String[] { }, returnedMap.get("files").toArray());
-        assertArrayEquals("Returned files", new String[] { }, returnedMap.get("directories").toArray());
+        assertArrayEquals("Returned files", new String[] { "testsubdir" }, returnedMap.get("directories").toArray());
     }
 
     @Test

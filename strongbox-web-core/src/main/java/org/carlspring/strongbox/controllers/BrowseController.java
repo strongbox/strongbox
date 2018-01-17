@@ -12,6 +12,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -21,10 +22,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.HandlerMapping;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -113,7 +116,7 @@ public class BrowseController
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(value = { "/{storageId}/{repositoryId}",
-                              "/{storageId}/{repositoryId}/{path}" }, 
+                              "/{storageId}/{repositoryId}/**" }, 
                     method = RequestMethod.GET, 
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> contents(@ApiParam(value = "The storageId", required = true)
@@ -121,7 +124,8 @@ public class BrowseController
                                            @ApiParam(value = "The repositoryId", required = true)
                                            @PathVariable("repositoryId") String repositoryId,
                                            @ApiParam(value = "The repository path", required = false)
-                                           @PathVariable("path") Optional<String> path)
+                                           @PathVariable("path") Optional<String> path,
+                                           HttpServletRequest request)
     {
         try
         {
@@ -139,19 +143,16 @@ public class BrowseController
                                      .body("{ 'error': 'The requested repository was not found.' }");
             }
             
-            Path baseDir = Paths.get(repository.getBasedir());
-            if (path.isPresent())
-            {
-                baseDir = Paths.get(baseDir.toString(), path.get());
-            }
+            String matchedPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+            String subPath = new AntPathMatcher().extractPathWithinPattern(matchedPattern, request.getRequestURI());
+            Path baseDir = Paths.get(repository.getBasedir().toString(), subPath);
             if (!Files.exists(baseDir))
             {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body("{ 'error': 'The requested repository path was not found.' }");
             }
-            
+
             logger.debug("Listing repository contents for {}/{}: {}", storageId, repositoryId, baseDir.toString());
-            
             List<String> directories = new ArrayList<>();
             List<String> files = new ArrayList<>();
             Files.list(baseDir)
