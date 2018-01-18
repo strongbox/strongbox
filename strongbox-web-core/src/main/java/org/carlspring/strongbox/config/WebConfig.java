@@ -144,7 +144,7 @@ public class WebConfig
     public void configurePathMatch(PathMatchConfigurer configurer)
     {
         configurer.setUseSuffixPatternMatch(true)
-                  .setUseTrailingSlashMatch(false)
+                  .setUseTrailingSlashMatch(true)
                   .setUseRegisteredSuffixPatternMatch(true)
                   .setPathMatcher(antPathMatcher);
     }
