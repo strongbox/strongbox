@@ -24,6 +24,8 @@ import org.springframework.http.converter.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -32,6 +34,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @ComponentScan({ "com.carlspring.strongbox.controllers",
                  "org.carlspring.strongbox.controllers",
+                 "org.carlspring.strongbox.validation",
                  "org.carlspring.strongbox.mapper",
                  "org.carlspring.strongbox.utils",
                  "org.carlspring.logging" })
@@ -115,7 +118,8 @@ public class WebConfig
                                      "org.carlspring.strongbox.storage.repository.gcs",
                                      "org.carlspring.strongbox.storage.routing",
                                      "org.carlspring.strongbox.users.security",
-                                     "org.carlspring.strongbox.xml");
+                                     "org.carlspring.strongbox.xml",
+                                     "org.carlspring.strongbox.forms");
         Map<String, Object> props = new HashMap<>();
         props.put(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.setMarshallerProperties(props);
@@ -130,11 +134,17 @@ public class WebConfig
         return converter;
     }
 
+    @Bean
+    public Validator localValidatorFactoryBean()
+    {
+        return new LocalValidatorFactoryBean();
+    }
+
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer)
     {
         configurer.setUseSuffixPatternMatch(true)
-                  .setUseTrailingSlashMatch(false)
+                  .setUseTrailingSlashMatch(true)
                   .setUseRegisteredSuffixPatternMatch(true)
                   .setPathMatcher(antPathMatcher);
     }
