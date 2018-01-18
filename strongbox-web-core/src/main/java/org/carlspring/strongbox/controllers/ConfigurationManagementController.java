@@ -110,12 +110,12 @@ public class ConfigurationManagementController
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "The base URL was updated."),
                             @ApiResponse(code = 500,
-                                         message = "An error occurred.") })
+                                         message = "Could not update the base URL of the service.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_BASE_URL')")
     @RequestMapping(value = "/baseUrl",
                     method = RequestMethod.PUT,
                     consumes = MediaType.APPLICATION_JSON_VALUE,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity setBaseUrl(@ApiParam(value = "The base URL", required = true)
                                      @RequestBody BaseUrlEntityBody baseUrlEntity)
     {
@@ -126,14 +126,15 @@ public class ConfigurationManagementController
 
             logger.info("Set baseUrl to [{}].", newBaseUrl);
 
-            return ResponseEntity.ok(ResponseStatusEnum.OK.value());
+            return ResponseEntity.ok(getResponseEntityBody("The base URL was updated."));
         }
         catch (IOException | JAXBException e)
         {
-            logger.error("Error while updating the base URL of the service", e);
+            String message = "Could not update the base URL of the service.";
+            logger.error(message, e);
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(ResponseStatusEnum.FAILED.value());
+                                 .body(getResponseEntityBody(message));
         }
     }
 
@@ -162,44 +163,42 @@ public class ConfigurationManagementController
     }
 
     @ApiOperation(value = "Sets the port of the service.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The port was updated."),
-                            @ApiResponse(code = 500,
-                                         message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The port was updated."),
+                            @ApiResponse(code = 500, message = "Could not update the strongbox port.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_PORT')")
     @RequestMapping(value = "/port/{port}",
                     method = RequestMethod.PUT,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity setPort(@ApiParam(value = "The port of the service", required = true)
                                   @PathVariable int port)
-            throws IOException, JAXBException
     {
         try
         {
             configurationManagementService.setPort(port);
 
-            logger.info("Set port to " + port + ". This operation will require a server restart.");
+            logger.info("Set port to {}. This operation will require a server restart.", port);
 
-            return ResponseEntity.ok(ResponseStatusEnum.OK.value());
+            return ResponseEntity.ok(getResponseEntityBody("The port was updated."));
         }
         catch (IOException | JAXBException e)
         {
-            logger.error(e.getMessage(), e);
+            String message = "Could not update the strongbox port.";
+            logger.error(message, e);
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(ResponseStatusEnum.FAILED.value());
+                                 .body(getResponseEntityBody(message));
         }
     }
 
     @ApiOperation(value = "Sets the port of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The port was updated."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+                            @ApiResponse(code = 500, message = "Could not update the strongbox port.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_PORT')")
     @PutMapping(value = "/port",
-                produces = MediaType.TEXT_PLAIN_VALUE)
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity setPort(@ApiParam(value = "The port of the service", required = true)
                                   @RequestBody PortEntityBody portEntity)
-            throws IOException, JAXBException
     {
         return setPort(portEntity.getPort());
     }

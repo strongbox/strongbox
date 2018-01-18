@@ -57,7 +57,7 @@ public class ConfigurationManagementControllerTest
                .put(url)
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
-               .body(equalTo(ResponseStatusEnum.OK.value()));
+               .body("message", equalTo("The port was updated."));
 
         url = getContextBaseUrl() + "/configuration/strongbox/port";
 
@@ -84,7 +84,7 @@ public class ConfigurationManagementControllerTest
                .put(url)
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
-               .body(equalTo(ResponseStatusEnum.OK.value()));
+               .body("message", equalTo("The port was updated."));
 
         url = getContextBaseUrl() + "/configuration/strongbox/port";
 
@@ -111,7 +111,7 @@ public class ConfigurationManagementControllerTest
                .put(url)
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
-               .body(equalTo(ResponseStatusEnum.OK.value()));
+               .body("message", equalTo("The base URL was updated."));
 
         url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
 
