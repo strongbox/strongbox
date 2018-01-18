@@ -14,11 +14,11 @@ import java.net.URLEncoder;
 
 import com.google.common.io.ByteStreams;
 import io.restassured.http.ContentType;
+import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import io.restassured.response.ExtractableResponse;
-import io.restassured.http.Headers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -128,7 +128,12 @@ public class RestAssuredArtifactClient
 
     private MockMvcRequestSpecification givenLocal()
     {
-        return RestAssuredMockMvc.given().header("User-Agent", userAgent);
+        MockMvcRequestSpecification spec = RestAssuredMockMvc.given();
+        if (userAgent != null)
+        {
+            spec.header("User-Agent", userAgent);
+        }
+        return spec;
     }
 
     public MockMvcResponse put2(String relativeUrl,
