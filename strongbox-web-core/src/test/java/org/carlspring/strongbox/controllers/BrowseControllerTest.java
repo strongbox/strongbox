@@ -2,9 +2,7 @@ package org.carlspring.strongbox.controllers;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -35,9 +33,15 @@ public class BrowseControllerTest
     public static void setup()
             throws Exception
     {
-        Files.createFile(Paths.get("target/strongbox-vault/storages/storage0/releases","testfile")).toFile().deleteOnExit();
-        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","testdir")).toFile().deleteOnExit();
-        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","testdir/testsubdir")).toFile().deleteOnExit();
+        Files.createFile(Paths.get("target/strongbox-vault/storages/storage0/releases","testfile"))
+             .toFile()
+             .deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","testdir"))
+             .toFile()
+             .deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","testdir/testsubdir"))
+             .toFile()
+             .deleteOnExit();
     }
     
     @Test
@@ -57,7 +61,7 @@ public class BrowseControllerTest
         
         assertNotNull("Failed to get storage list!", returnedMap);
         assertNotNull("Failed to get storage list!", returnedMap.get("storages"));
-        assertTrue("Returned storages size does not match", returnedMap.get("storages").size() >= 9);
+        assertFalse("Returned storage size does not match", returnedMap.get("storages").isEmpty());
     }
 
     @Test
@@ -76,13 +80,12 @@ public class BrowseControllerTest
         
         assertNotNull("Failed to get repository list!", returnedMap);
         assertNotNull("Failed to get repository list!", returnedMap.get("repositories"));
-        assertEquals("Returned repositories do not match", returnedMap.get("repositories").size(), 2);
-        assertArrayEquals("Returned repos do not match", new String[] { "releases", "snapshots" }, returnedMap.get("repositories").toArray());
+        assertTrue("Returned repositories do not match", !returnedMap.get("repositories").isEmpty());
+        assertTrue("Returned repos do not match", returnedMap.get("repositories").contains("releases"));
     }
 
     @Test
     public void testGetRepositoriesWithStorageNotFound()
-            throws Exception
     {
         String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storagefoo";
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -109,12 +112,10 @@ public class BrowseControllerTest
         
         assertArrayEquals("Returned files", new String[] { "testfile" }, returnedMap.get("files").toArray());
         assertArrayEquals("Returned files", new String[] { "testdir" }, returnedMap.get("directories").toArray());
-
     }
 
     @Test
     public void testRepositoryContentsWithRepositoryNotFound()
-            throws Exception
     {
         String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/repofoo";
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -145,7 +146,6 @@ public class BrowseControllerTest
 
     @Test
     public void testRepositoryContentsWithPathNotFound()
-            throws Exception
     {
         String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/releases/foo/bar";
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -155,4 +155,5 @@ public class BrowseControllerTest
                .then()
                .statusCode(404);
     }
+
 }
