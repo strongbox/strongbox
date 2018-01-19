@@ -14,11 +14,11 @@ import java.net.URLEncoder;
 
 import com.google.common.io.ByteStreams;
 import io.restassured.http.ContentType;
+import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import io.restassured.response.ExtractableResponse;
-import io.restassured.http.Headers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -43,6 +43,9 @@ public class RestAssuredArtifactClient
     public final static int PARTIAL_CONTENT = HttpStatus.PARTIAL_CONTENT.value();
 
     private String contextBaseUrl;
+
+    private String userAgent;
+
 
     @Override
     public String getContextBaseUrl()
@@ -125,7 +128,12 @@ public class RestAssuredArtifactClient
 
     private MockMvcRequestSpecification givenLocal()
     {
-        return RestAssuredMockMvc.given().header("User-Agent", "Maven/*");
+        MockMvcRequestSpecification spec = RestAssuredMockMvc.given();
+        if (userAgent != null)
+        {
+            spec.header("User-Agent", userAgent);
+        }
+        return spec;
     }
 
     public MockMvcResponse put2(String relativeUrl,
@@ -354,7 +362,9 @@ public class RestAssuredArtifactClient
 
         query = URLEncoder.encode(query, "UTF-8");
 
-        return givenLocal().params("repositoryId", repositoryId, "q", query, "searchProvider", searchProvider)
+        return givenLocal().params("repositoryId", repositoryId,
+                                   "q", query,
+                                   "searchProvider", searchProvider)
                            .header("accept", mediaType)
                            .when()
                            .get(url)
@@ -412,6 +422,16 @@ public class RestAssuredArtifactClient
             logger.warn("[getArtifactAsByteArray] response " + response.getStatusCode());
             return null;
         }
+    }
+
+    public String getUserAgent()
+    {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent)
+    {
+        this.userAgent = userAgent;
     }
 
 }

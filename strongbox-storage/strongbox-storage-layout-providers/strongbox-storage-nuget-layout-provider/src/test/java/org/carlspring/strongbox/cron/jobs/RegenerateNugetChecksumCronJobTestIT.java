@@ -46,7 +46,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         extends BaseCronJobWithNugetIndexingTestCase
 {
 
-    private static final String STORAGE1 = "nuget-common-storage";
+    private static final String STORAGE1 = "storage-nuget";
 
     private static final String STORAGE2 = "nuget-checksum-test";
 

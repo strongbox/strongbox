@@ -62,7 +62,7 @@ public abstract class MavenRestAssuredBaseTest
     public void init()
             throws Exception
     {
-        
+        client.setUserAgent("Maven/*");
     }
     
     @After

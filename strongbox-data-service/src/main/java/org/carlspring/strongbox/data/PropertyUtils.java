@@ -42,14 +42,14 @@ public class PropertyUtils
     {
         final String basedir = System.getenv("STRONGBOX_TMP") != null ?
                                System.getenv("STRONGBOX_TMP") :
-                               System.getProperty("strongbox.tmp");
+                               System.getProperty("java.io.tmp");
         if (basedir != null)
         {
             return new File(basedir).getAbsolutePath();
         }
         else
         {
-            return new File("tmp").getAbsolutePath();
+            return new File(getVaultDirectory() + "/tmp").getAbsolutePath();
         }
     }
 

@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.services.impl;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
@@ -104,8 +103,7 @@ public class ArtifactResolutionServiceImpl
     public URL resolveArtifactResource(String storageId,
                                        String repositoryId,
                                        ArtifactCoordinates artifactCoordinates)
-        throws MalformedURLException,
-        IOException
+            throws IOException
     {
         URI baseUri = configurationManager.getBaseUri();
 

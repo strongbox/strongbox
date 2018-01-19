@@ -122,6 +122,10 @@ public class MavenArtifactControllerTest
 
     private static void deleteTestResources()
     {
+        if (pluginXmlFilePath == null)
+        {
+            return;
+        }
         Path dirPath = Paths.get(pluginXmlFilePath).getParent().getParent().getParent();
         try
         {
@@ -1127,9 +1131,9 @@ public class MavenArtifactControllerTest
             return null;
         }
 
-        Metadata artifactMetadata = client.retrieveMetadata(
-                "/storages/storage-common-proxies/carlspring/org/carlspring/commons/commons-http/" +
-                commonsHttpSnapshotVersion + "/maven-metadata.xml");
+        Metadata artifactMetadata = client.retrieveMetadata("/storages/storage-common-proxies/carlspring/" +
+                                                            "org/carlspring/commons/commons-http/" +
+                                                            commonsHttpSnapshotVersion + "/maven-metadata.xml");
 
         if (artifactMetadata == null)
         {

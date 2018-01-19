@@ -9,7 +9,7 @@ public enum VersionValidatorType
 
     SNAPSHOT,
 
-    REDEPLOYMENT,
+    REDEPLOYMENT; //,
     
-    SEM_VER;
+    // SEM_VER;
 }

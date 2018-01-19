@@ -100,13 +100,13 @@
         - By default, this cron job is enabled by the system for every nuget proxy repository
         - Override, if needed.
     <cron-task-configuration>
-        <name>Remote feed download for nuget-common-storage:nuget-releases</name>
+        <name>Remote feed download for storage-nuget:nuget-releases</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
             <cronExpression>0 0 0 * * ?</cronExpression> mandatory
             <jobClass>org.carlspring.strongbox.cron.jobs.DownloadRemoteFeedCronJob</jobClass> mandatory
-            <storageId>nuget-common-storage</storageId> mandatory
+            <storageId>storage-nuget</storageId> mandatory
             <repositoryId>nuget-releases</repositoryId> mandatory
         </properties>
     </cron-task-configuration>

@@ -39,6 +39,7 @@ import org.carlspring.strongbox.controllers.nuget.NugetPackageController;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
+import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -59,8 +60,9 @@ public class HeaderMappingFilter
     private static final String USER_AGENT_UNKNOWN = "unknown";
     private static final String USER_AGENT_NUGET = "NuGet";
     private static final String USER_AGENT_MAVEN = "Maven";
-    private static final String USER_AGENT_NPM= "npm";
-
+    private static final String USER_AGENT_NPM = "npm";
+    private static final String USER_AGENT_RAW = "Raw";
+    
     private Map<String, String> userAgentMap = new HashMap<>();
     private Map<String, String> layoutMap = new HashMap<>();
 
@@ -82,10 +84,13 @@ public class HeaderMappingFilter
         String format = "%s/*";
         userAgentMap.put(USER_AGENT_NUGET, String.format(format, USER_AGENT_NUGET));
         userAgentMap.put(USER_AGENT_MAVEN, String.format(format, USER_AGENT_MAVEN));
-
+        userAgentMap.put(USER_AGENT_NPM, String.format(format, USER_AGENT_NPM));
+        userAgentMap.put(USER_AGENT_RAW, String.format(format, USER_AGENT_RAW));
+        
         layoutMap.put(NugetLayoutProvider.ALIAS, String.format(format, USER_AGENT_NUGET));
         layoutMap.put(Maven2LayoutProvider.ALIAS, String.format(format, USER_AGENT_MAVEN));
         layoutMap.put(NpmLayoutProvider.ALIAS, String.format(format, USER_AGENT_NPM));
+        layoutMap.put(RawLayoutProvider.ALIAS, String.format(format, USER_AGENT_RAW));
     }
 
     @Override

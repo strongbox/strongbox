@@ -16,30 +16,6 @@
     </remote-repositories-configuration>
 
     <storages>
-        <storage id="storage-common-npm">
-            <repositories>
-                <repository id="npm-releases"
-                            policy="release"
-                            data-store="file-system"
-                            layout="npm"
-                            type="hosted"
-                            allows-force-deletion="true"
-                            checksum-headers-enabled="true"/>
-            </repositories>
-        </storage>
-
-        <storage id="nuget-common-storage">
-            <repositories>
-                <repository id="nuget-releases"
-                            policy="release"
-                            data-store="file-system"
-                            layout="NuGet"
-                            type="hosted"
-                            allows-force-deletion="true"
-                            checksum-headers-enabled="true"/>
-            </repositories>
-        </storage>
-
         <storage id="storage0">
             <repositories>
                 <repository id="releases"
@@ -275,6 +251,43 @@
                             checksum-headers-enabled="true" />            
             </repositories>
 
+        </storage>
+
+        <storage id="storage-common-npm">
+            <repositories>
+                <repository id="npm-releases"
+                            policy="release"
+                            data-store="file-system"
+                            layout="npm"
+                            type="hosted"
+                            allows-force-deletion="true"
+                            checksum-headers-enabled="true"/>
+            </repositories>
+        </storage>
+
+        <storage id="storage-nuget">
+            <repositories>
+                <repository id="nuget-releases"
+                            policy="release"
+                            data-store="file-system"
+                            layout="NuGet"
+                            type="hosted"
+                            allows-force-deletion="true"
+                            checksum-headers-enabled="true"/>
+            </repositories>
+        </storage>
+
+        <storage id="storage-raw">
+            <repositories>
+                <repository id="raw-releases"
+                            policy="release"
+                            data-store="file-system"
+                            layout="Raw"
+                            type="hosted"
+                            allows-force-deletion="true"
+                            checksum-headers-enabled="true">
+                </repository>
+            </repositories>
         </storage>
 
         <storage id="public">

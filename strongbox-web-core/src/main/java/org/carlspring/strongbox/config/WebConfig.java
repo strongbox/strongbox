@@ -44,6 +44,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
           Maven2LayoutProviderConfig.class,
           NugetLayoutProviderConfig.class,
           NpmLayoutProviderConfig.class,
+          RawLayoutProviderConfig.class,
           StorageCoreConfig.class,
           SecurityConfig.class,
           ClientConfig.class,

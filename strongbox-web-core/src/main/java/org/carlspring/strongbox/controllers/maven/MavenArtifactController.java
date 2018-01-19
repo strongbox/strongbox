@@ -1,29 +1,5 @@
 package org.carlspring.strongbox.controllers.maven;
 
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.handlePartialDownload;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.isRangedRequest;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.nio.file.Files;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Locale;
-import java.util.regex.Matcher;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.comparator.DirectoryFileComparator;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
@@ -37,24 +13,30 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.handlePartialDownload;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.isRangedRequest;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * REST API for all artifact-related processes.
@@ -184,7 +166,6 @@ public class MavenArtifactController
                 return;
             }
 
-
             InputStream is;
             try
             {
@@ -219,6 +200,7 @@ public class MavenArtifactController
 
                 return;
             }
+
             ArtifactControllerHelper.setHeadersForChecksums(is, response);
         }
         else
@@ -233,6 +215,8 @@ public class MavenArtifactController
                 return;
             }
 
+            setMediaTypeHeader(repository, path, response);
+
             try
             {
                 try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
@@ -242,11 +226,11 @@ public class MavenArtifactController
                         ArtifactControllerHelper.setHeadersForChecksums(is, response);
                     }
                 }
+
                 RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
 
                 response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
                 response.setHeader("Last-Modified", fileAttributes.lastModifiedTime().toString());
-
             }
             catch(Exception e)
             {
@@ -259,29 +243,12 @@ public class MavenArtifactController
                 response.setStatus(INTERNAL_SERVER_ERROR.value());
             }
         }
-            setMediaTypeHeader(path, response);
 
-            response.setHeader("Accept-Ranges", "bytes");
+        setMediaTypeHeader(repository, path, response);
+
+        response.setHeader("Accept-Ranges", "bytes");
 
         logger.debug("Download succeeded.");
-    }
-
-    private void setMediaTypeHeader(String path,
-                                    HttpServletResponse response)
-    {
-        // TODO: This is far from optimal and will need to have a content type approach at some point:
-        if (ArtifactUtils.isChecksum(path))
-        {
-            response.setContentType(MediaType.TEXT_PLAIN_VALUE);
-        }
-        else if (ArtifactUtils.isMetadata(path))
-        {
-            response.setContentType(MediaType.APPLICATION_XML_VALUE);
-        }
-        else
-        {
-            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        }
     }
 
     @ApiOperation(value = "Copies a path from one repository to another.", position = 4)
@@ -300,8 +267,6 @@ public class MavenArtifactController
                                @ApiParam(value = "The destination repositoryId", required = true)
                                @RequestParam(name = "destRepositoryId") String destRepositoryId,
                                @PathVariable String path)
-
-            throws IOException, JAXBException
     {
         logger.debug("Copying " + path +
                      " from " + srcStorageId + ":" + srcRepositoryId +
@@ -373,7 +338,7 @@ public class MavenArtifactController
                                                name = "force",
                                                required = false) boolean force,
                                  @PathVariable String path)
-            throws IOException, JAXBException
+            throws IOException
     {
         logger.info("Deleting " + storageId + ":" + repositoryId + "/" + path + "...");
 

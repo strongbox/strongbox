@@ -96,12 +96,10 @@ public class TestCaseWithRepository
 
         if (!f.exists())
         {
-            if (!f.getParentFile()
-                  .exists())
+            if (!f.getParentFile().exists())
             {
                 //noinspection ResultOfMethodCallIgnored
-                f.getParentFile()
-                 .mkdirs();
+                f.getParentFile().mkdirs();
             }
 
             //noinspection ResultOfMethodCallIgnored
