@@ -289,6 +289,11 @@
             <artifactId>javatuples</artifactId>
         </dependency>
 
+		<dependency>
+		    <groupId>javax.transaction</groupId>
+		    <artifactId>javax.transaction-api</artifactId>
+		</dependency>
+
         <dependency>
             <groupId>org.semver</groupId>
             <artifactId>api</artifactId>

@@ -110,10 +110,10 @@
             <artifactId>maven-commons</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>javax.persistence</groupId>
+			<artifactId>javax.persistence-api</artifactId>
+		</dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
