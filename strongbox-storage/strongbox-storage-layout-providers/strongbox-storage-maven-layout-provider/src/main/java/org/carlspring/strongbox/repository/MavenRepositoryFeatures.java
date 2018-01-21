@@ -70,8 +70,7 @@ public class MavenRepositoryFeatures
 
     @Inject
     private MavenSnapshotManager mavenSnapshotManager;
-    
-    
+
     public void downloadRemoteIndex(String storageId,
                                     String repositoryId)
             throws ArtifactTransportException, RepositoryInitializationException
@@ -204,13 +203,16 @@ public class MavenRepositoryFeatures
     public Path resolveIndexPath(String storageId,
                                  String repositoryId,
                                  String path)
-            throws IOException
+            throws IOException, RepositoryIndexerNotFoundException
     {
         final RepositoryIndexer indexer = getIndexer(storageId, repositoryId);
-        final Path result = Paths.get(indexer.getRepositoryBasedir().getAbsolutePath())
-                                 .resolve(".index").resolve("local");
-        
-        return path == null ? result : result.resolve(path);
+        final Path result = Paths.get(indexer.getRepositoryBasedir()
+                                             .getAbsolutePath())
+                                 .resolve(".index")
+                                 .resolve("local");
+        return path == null ?
+               result :
+               result.resolve(path);
     }
 
     public void removeTimestampedSnapshots(String storageId,
@@ -278,7 +280,6 @@ public class MavenRepositoryFeatures
                                                          "The available contextId-s are " +
                                                          repositoryIndexManager.getIndexes().keySet());
         }
-        
         return indexer;
     }
 
