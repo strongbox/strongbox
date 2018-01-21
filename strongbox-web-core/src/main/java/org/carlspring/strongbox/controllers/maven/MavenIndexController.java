@@ -49,18 +49,16 @@ public class MavenIndexController
     @ApiOperation(value = "Used to rebuild the indexes in repository or for artifact.",
             position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200,
-            message = "The indexes were successfully rebuilt!"),
+                                         message = "The indexes were successfully rebuilt!"),
                             @ApiResponse(code = 500,
-                                    message = "An error occurred."),
+                                         message = "An error occurred."),
                             @ApiResponse(code = 404,
-                                    message = "The specified (storageId/repositoryId/path) does not exist!") })
+                                         message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_INDEXES')")
     @RequestMapping(value = "/index", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity rebuild(@ApiParam(value = "The storageId",
-            required = true)
+    public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
                                   @QueryParam("storageId") String storageId,
-                                  @ApiParam(value = "The repositoryId",
-                                          required = true)
+                                  @ApiParam(value = "The repositoryId", required = true)
                                   @QueryParam("repositoryId") String repositoryId,
                                   @ApiParam(value = "The path")
                                   @QueryParam("path") String path)
@@ -113,14 +111,11 @@ public class MavenIndexController
                             @ApiResponse(code = 400, message = "Not a maven repository or indexing not supported."),
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
     @GetMapping(value = "/storages/{storageId}/{repositoryId}/.index/" + IndexingContext.INDEX_FILE_PREFIX + ".gz")
-    public void downloadIndex(@ApiParam(value = "The storageId", required = true) @PathVariable("storageId")
-                                      String storageId,
-                              @ApiParam(value = "The repositoryId", required = true) @PathVariable("repositoryId")
-                                      String repositoryId,
+    public void downloadIndex(@ApiParam(value = "The storageId", required = true) @PathVariable("storageId") String storageId,
+                              @ApiParam(value = "The repositoryId", required = true) @PathVariable("repositoryId") String repositoryId,
                               HttpServletResponse response)
             throws IOException
     {
-
         final HttpStatus httStatus = preConditionsCheck(storageId, repositoryId, response);
         if (HttpStatus.OK != httStatus)
         {
@@ -147,12 +142,10 @@ public class MavenIndexController
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist! or index properties file not found") })
     @GetMapping(value = "/storages/{storageId}/{repositoryId}/.index/" + IndexingContext.INDEX_REMOTE_PROPERTIES_FILE)
     public void downloadProperties(@ApiParam(value = "The storageId", required = true) @PathVariable String storageId,
-                                   @ApiParam(value = "The repositoryId", required = true) @PathVariable
-                                           String repositoryId,
+                                   @ApiParam(value = "The repositoryId", required = true) @PathVariable String repositoryId,
                                    HttpServletResponse response)
             throws IOException
     {
-
         final HttpStatus httStatus = preConditionsCheck(storageId, repositoryId, response);
         if (HttpStatus.OK != httStatus)
         {
@@ -194,6 +187,7 @@ public class MavenIndexController
             response.sendError(HttpStatus.NOT_FOUND.value(), String.format("Storage %s not found.", storageId));
             return HttpStatus.NOT_FOUND;
         }
+        
         Repository repository = getRepository(storageId, repositoryId);
         if (repository == null)
         {
@@ -207,6 +201,7 @@ public class MavenIndexController
                                              RepositoryLayoutEnum.MAVEN_2.getLayout()));
             return HttpStatus.BAD_REQUEST;
         }
+        
         return HttpStatus.OK;
     }
 
@@ -222,9 +217,8 @@ public class MavenIndexController
         catch (RepositoryIndexerNotFoundException ex)
         {
             response.sendError(HttpStatus.BAD_REQUEST.value(),
-                               String.format(
-                                       "Repository %s indexer not found. Is indexing enabled for this repository ?",
-                                       repositoryId));
+                               String.format("Repository %s indexer not found. Is indexing enabled for this repository ?",
+                                             repositoryId));
             return null;
         }
     }
