@@ -60,8 +60,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @RestController
-@RequestMapping(path = NpmPackageController.ROOT_CONTEXT, headers = "user-agent=npm/*")
-public class NpmPackageController extends BaseArtifactController
+@RequestMapping(path = NpmArtifactController.ROOT_CONTEXT, headers = "user-agent=npm/*")
+public class NpmArtifactController extends BaseArtifactController
 {
 
     private static final String FIELD_NAME_LENGTH = "length";
@@ -70,7 +70,7 @@ public class NpmPackageController extends BaseArtifactController
 
     private static final String FIELD_NAME_VERSION = "versions";
 
-    private static final Logger logger = LoggerFactory.getLogger(NpmPackageController.class);
+    private static final Logger logger = LoggerFactory.getLogger(NpmArtifactController.class);
 
     public final static String ROOT_CONTEXT = "/storages";
 

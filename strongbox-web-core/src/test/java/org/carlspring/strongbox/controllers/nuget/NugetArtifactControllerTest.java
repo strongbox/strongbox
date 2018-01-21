@@ -53,7 +53,7 @@ import ru.aristar.jnuget.rss.PackageFeed;
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
+public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 {
 
     private static final String API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjNXVXdTVkZDhRIiwic3ViIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWNyZXQifQ.xRWxXt5yob5qcHjsvV1YsyfY3C-XFt9oKPABY0tYx88";

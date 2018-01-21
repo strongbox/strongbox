@@ -66,11 +66,11 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  *
  */
 @RestController
-@RequestMapping(path = NugetPackageController.ROOT_CONTEXT, headers = "user-agent=NuGet/*")
-public class NugetPackageController extends BaseArtifactController
+@RequestMapping(path = NugetArtifactController.ROOT_CONTEXT, headers = "user-agent=NuGet/*")
+public class NugetArtifactController extends BaseArtifactController
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(NugetPackageController.class);
+    private static final Logger logger = LoggerFactory.getLogger(NugetArtifactController.class);
 
     public final static String ROOT_CONTEXT = "/storages";
 
@@ -347,7 +347,7 @@ public class NugetPackageController extends BaseArtifactController
     public ResponseEntity<Resource> getMetadata()
             throws IOException
     {
-        InputStream inputStream = NugetPackageController.class.getResourceAsStream("/metadata.xml");
+        InputStream inputStream = NugetArtifactController.class.getResourceAsStream("/metadata.xml");
         return new ResponseEntity<>(new InputStreamResource(inputStream), HttpStatus.OK);
     }
 
