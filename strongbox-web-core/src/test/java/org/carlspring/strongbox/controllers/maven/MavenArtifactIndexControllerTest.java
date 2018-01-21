@@ -11,10 +11,13 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.base.Throwables;
+import org.hamcrest.CoreMatchers;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 /**
  * @author Kate Novik
@@ -38,6 +41,15 @@ public class MavenArtifactIndexControllerTest
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_2));
+
+        return repositories;
     }
 
     @Override
@@ -86,15 +98,6 @@ public class MavenArtifactIndexControllerTest
             throw Throwables.propagate(e);
         }
         super.shutdown();
-    }
-
-    public static Set<Repository> getRepositoriesToClean()
-    {
-        Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_1));
-        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_2));
-
-        return repositories;
     }
 
     @Test
@@ -186,4 +189,43 @@ public class MavenArtifactIndexControllerTest
                                     "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:2.3 +p:jar");
     }
 
+    @Test
+    public void shouldReturnBadRequestWhenIndexingIsNotEnabled()
+            throws Exception
+    {
+        String url = getContextBaseUrl() + "/storages/public/public-group/.index/nexus-maven-repository-index.gz";
+
+        given().get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    public void shouldDownloadPackedIndex()
+            throws Exception
+    {
+        String url = getContextBaseUrl() + "/storages/storage0/releases/.index/nexus-maven-repository-index.gz";
+
+        given().get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .contentType("application/x-gzip")
+               .body(CoreMatchers.notNullValue());
+    }
+
+    @Test
+    public void shouldDownloadIndexProperties()
+            throws Exception
+    {
+        String url = getContextBaseUrl() + "/storages/storage0/releases/.index/nexus-maven-repository-index.properties";
+
+        given().get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .contentType("text/plain")
+               .body(CoreMatchers.notNullValue());
+    }
 }

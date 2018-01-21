@@ -1,19 +1,5 @@
 package org.carlspring.strongbox.repository;
 
-import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
-
-import java.io.File;
-import java.io.IOException;
-
-import javax.inject.Inject;
-
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.maven.index.ScanningRequest;
-import org.apache.maven.index.ScanningResult;
-import org.apache.maven.index.context.IndexingContext;
-import org.apache.maven.index.packer.IndexPacker;
-import org.apache.maven.index.packer.IndexPackingRequest;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -34,10 +20,25 @@ import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.maven.index.ScanningRequest;
+import org.apache.maven.index.ScanningResult;
+import org.apache.maven.index.context.IndexingContext;
+import org.apache.maven.index.packer.IndexPacker;
+import org.apache.maven.index.packer.IndexPackingRequest;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
  * @author carlspring
@@ -69,7 +70,7 @@ public class MavenRepositoryFeatures
 
     @Inject
     private MavenSnapshotManager mavenSnapshotManager;
-    
+
     public void downloadRemoteIndex(String storageId,
                                     String repositoryId)
             throws ArtifactTransportException, RepositoryInitializationException
@@ -172,30 +173,21 @@ public class MavenRepositoryFeatures
         }
     }
 
-    public void pack(String storageId,
+    public Path pack(String storageId,
                      String repositoryId)
             throws IOException
     {
-        String contextId = getContextId(storageId, repositoryId, IndexTypeEnum.LOCAL.getType());
 
-        logger.info("Packing index for " + contextId + " ...");
-
-        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
-        if (indexer == null)
-        {
-            throw new NullPointerException("Unable to find a repository indexer '" + contextId + "'.\n" +
-                                           "The available contextId-s are " +
-                                           repositoryIndexManager.getIndexes().keySet());
-        }
-
+        RepositoryIndexer indexer = getIndexer(storageId, repositoryId);
         IndexingContext context = indexer.getIndexingContext();
+        Path indexPath = resolveIndexPath(storageId, repositoryId, null);
         final IndexSearcher indexSearcher = context.acquireIndexSearcher();
         try
         {
+
             IndexPackingRequest request = new IndexPackingRequest(context,
                                                                   indexSearcher.getIndexReader(),
-                                                                  new File(indexer.getRepositoryBasedir() +
-                                                                           "/.index/local"));
+                                                                  indexPath.toFile());
             request.setUseTargetProperties(true);
             indexPacker.packIndex(request);
 
@@ -206,6 +198,18 @@ public class MavenRepositoryFeatures
         {
             context.releaseIndexSearcher(indexSearcher);
         }
+        return indexPath.resolve(IndexingContext.INDEX_FILE_PREFIX + ".gz");
+    }
+
+    public Path resolveIndexPath(String storageId,
+                                 String repositoryId,
+                                 String path)
+            throws IOException
+    {
+        final RepositoryIndexer indexer = getIndexer(storageId, repositoryId);
+        final Path result = Paths.get(indexer.getRepositoryBasedir().getAbsolutePath()).resolve(".index").resolve(
+                "local");
+        return path == null ? result : result.resolve(path);
     }
 
     public void removeTimestampedSnapshots(String storageId,
@@ -222,7 +226,7 @@ public class MavenRepositoryFeatures
         {
             LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
-            
+
             RemoveTimestampedSnapshotOperation operation = new RemoveTimestampedSnapshotOperation(mavenSnapshotManager);
             operation.setBasePath(repositoryPath);
             operation.setNumberToKeep(numberToKeep);
@@ -237,7 +241,7 @@ public class MavenRepositoryFeatures
             throw new ArtifactStorageException("Type of repository is invalid: repositoryId - " + repositoryId);
         }
     }
-    
+
     public boolean isIndexingEnabled(Repository repository)
     {
         MavenRepositoryConfiguration repositoryConfiguration = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
@@ -245,7 +249,8 @@ public class MavenRepositoryFeatures
         return repositoryConfiguration != null && repositoryConfiguration.isIndexingEnabled();
     }
 
-    public boolean isIndexingEnabled(String storageId, String repositoryId)
+    public boolean isIndexingEnabled(String storageId,
+                                     String repositoryId)
     {
         Configuration configuration = configurationManager.getConfiguration();
 
@@ -257,6 +262,22 @@ public class MavenRepositoryFeatures
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
+    }
+
+    private RepositoryIndexer getIndexer(String storageId,
+                                         String repositoryId)
+            throws RepositoryIndexerNotFoundException
+    {
+        String contextId = getContextId(storageId, repositoryId, IndexTypeEnum.LOCAL.getType());
+
+        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+        if (indexer == null)
+        {
+            throw new RepositoryIndexerNotFoundException("Unable to find a repository indexer '" + contextId + "'.\n" +
+                                                         "The available contextId-s are " +
+                                                         repositoryIndexManager.getIndexes().keySet());
+        }
+        return indexer;
     }
 
 }
