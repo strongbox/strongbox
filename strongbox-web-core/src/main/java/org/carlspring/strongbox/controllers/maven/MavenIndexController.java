@@ -116,24 +116,11 @@ public class MavenIndexController
                               HttpServletResponse response)
             throws IOException
     {
-        final HttpStatus httStatus = preConditionsCheck(storageId, repositoryId, response);
-        if (HttpStatus.OK != httStatus)
-        {
-            return;
-        }
-
-        final Path indexPath = packIndex(storageId, repositoryId, response);
-        if (indexPath == null)
-        {
-            return;
-        }
-        try (final InputStream is = Files.newInputStream(indexPath))
-        {
-            final int length = IOUtils.copy(is, response.getOutputStream());
-            response.setContentType(com.google.common.net.MediaType.GZIP.toString());
-            response.setContentLength(length);
-            response.flushBuffer();
-        }
+        serveIndexRelatedFile(storageId,
+                              repositoryId,
+                              IndexingContext.INDEX_FILE_PREFIX + ".gz",
+                              com.google.common.net.MediaType.GZIP.toString(),
+                              response);
     }
 
     @ApiOperation(value = "Exposes the Maven index properties file")
@@ -146,32 +133,47 @@ public class MavenIndexController
                                    HttpServletResponse response)
             throws IOException
     {
+        serveIndexRelatedFile(storageId,
+                              repositoryId,
+                              IndexingContext.INDEX_REMOTE_PROPERTIES_FILE,
+                              MediaType.TEXT_PLAIN_VALUE,
+                              response);
+    }
+
+    private void serveIndexRelatedFile(String storageId,
+                                       String repositoryId,
+                                       String path,
+                                       String responseContentType,
+                                       HttpServletResponse response)
+            throws IOException
+    {
         final HttpStatus httStatus = preConditionsCheck(storageId, repositoryId, response);
         if (HttpStatus.OK != httStatus)
         {
             return;
         }
 
-        Path indexPropertiesPath = features.resolveIndexPath(storageId, repositoryId,
-                                                             IndexingContext.INDEX_REMOTE_PROPERTIES_FILE);
-        if (!Files.exists(indexPropertiesPath))
+        final Path indexPath;
+        try
         {
-            // second chance
-            packIndex(storageId, repositoryId, response);
-            indexPropertiesPath = features.resolveIndexPath(storageId, repositoryId,
-                                                            IndexingContext.INDEX_REMOTE_PROPERTIES_FILE);
+            indexPath = features.resolveIndexPath(storageId, repositoryId, path);
         }
-        if (!Files.exists(indexPropertiesPath))
+        catch (RepositoryIndexerNotFoundException ex)
         {
-            response.sendError(HttpStatus.NOT_FOUND.value(),
-                               String.format("Index properties file of repository %s not found.", repositoryId));
+            response.sendError(HttpStatus.BAD_REQUEST.value(),
+                               String.format("Repository %s is not indexable.", repositoryId));
             return;
         }
-
-        try (final InputStream is = Files.newInputStream(indexPropertiesPath))
+        if (!Files.exists(indexPath))
+        {
+            response.sendError(HttpStatus.NOT_FOUND.value(),
+                               String.format("Index file does not exist for repository %s.", repositoryId));
+            return;
+        }
+        try (final InputStream is = Files.newInputStream(indexPath))
         {
             final int length = IOUtils.copy(is, response.getOutputStream());
-            response.setContentType(MediaType.TEXT_PLAIN_VALUE);
+            response.setContentType(responseContentType);
             response.setContentLength(length);
             response.flushBuffer();
         }
@@ -187,7 +189,6 @@ public class MavenIndexController
             response.sendError(HttpStatus.NOT_FOUND.value(), String.format("Storage %s not found.", storageId));
             return HttpStatus.NOT_FOUND;
         }
-        
         Repository repository = getRepository(storageId, repositoryId);
         if (repository == null)
         {
@@ -201,26 +202,7 @@ public class MavenIndexController
                                              RepositoryLayoutEnum.MAVEN_2.getLayout()));
             return HttpStatus.BAD_REQUEST;
         }
-        
         return HttpStatus.OK;
-    }
-
-    private Path packIndex(String storageId,
-                           String repositoryId,
-                           HttpServletResponse response)
-            throws IOException
-    {
-        try
-        {
-            return features.pack(storageId, repositoryId);
-        }
-        catch (RepositoryIndexerNotFoundException ex)
-        {
-            response.sendError(HttpStatus.BAD_REQUEST.value(),
-                               String.format("Repository %s indexer not found. Is indexing enabled for this repository ?",
-                                             repositoryId));
-            return null;
-        }
     }
 
 }
