@@ -205,6 +205,8 @@ public class MavenArtifactIndexControllerTest
     public void shouldDownloadPackedIndex()
             throws Exception
     {
+        client.rebuildIndexes("storage0", "releases", null);
+
         String url = getContextBaseUrl() + "/storages/storage0/releases/.index/nexus-maven-repository-index.gz";
 
         given().get(url)
@@ -219,6 +221,8 @@ public class MavenArtifactIndexControllerTest
     public void shouldDownloadIndexProperties()
             throws Exception
     {
+        client.rebuildIndexes("storage0", "releases", null);
+
         String url = getContextBaseUrl() + "/storages/storage0/releases/.index/nexus-maven-repository-index.properties";
 
         given().get(url)
