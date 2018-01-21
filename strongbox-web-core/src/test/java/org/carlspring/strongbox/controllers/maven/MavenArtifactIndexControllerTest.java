@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -34,6 +36,9 @@ public class MavenArtifactIndexControllerTest
     private static final String REPOSITORY_RELEASES_1 = "aict-releases-1";
 
     private static final String REPOSITORY_RELEASES_2 = "aict-releases-2";
+
+    @Inject
+    private MavenRepositoryFeatures features;
 
 
     @BeforeClass
@@ -205,7 +210,10 @@ public class MavenArtifactIndexControllerTest
     public void shouldDownloadPackedIndex()
             throws Exception
     {
-        String url = getContextBaseUrl() + "/storages/storage0/releases/.index/nexus-maven-repository-index.gz";
+        features.pack(STORAGE_ID, REPOSITORY_RELEASES_1);
+
+        String url = getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                     "/.index/nexus-maven-repository-index.gz";
 
         given().get(url)
                .peek()
@@ -219,7 +227,10 @@ public class MavenArtifactIndexControllerTest
     public void shouldDownloadIndexProperties()
             throws Exception
     {
-        String url = getContextBaseUrl() + "/storages/storage0/releases/.index/nexus-maven-repository-index.properties";
+        features.pack(STORAGE_ID, REPOSITORY_RELEASES_1);
+
+        String url = getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                     "/.index/nexus-maven-repository-index.properties";
 
         given().get(url)
                .peek()
