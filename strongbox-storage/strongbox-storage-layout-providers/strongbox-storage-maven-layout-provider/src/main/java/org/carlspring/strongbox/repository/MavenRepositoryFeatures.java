@@ -70,7 +70,8 @@ public class MavenRepositoryFeatures
 
     @Inject
     private MavenSnapshotManager mavenSnapshotManager;
-
+    
+    
     public void downloadRemoteIndex(String storageId,
                                     String repositoryId)
             throws ArtifactTransportException, RepositoryInitializationException
@@ -137,8 +138,7 @@ public class MavenRepositoryFeatures
                                                               new ReindexArtifactScanningListener(repositoryIndexer.getIndexer()),
                                                               startingPath.getPath());
 
-        ScanningResult scan = repositoryIndexer.getScanner()
-                                               .scan(scanningRequest);
+        ScanningResult scan = repositoryIndexer.getScanner().scan(scanningRequest);
 
         return scan.getTotalFiles();
     }
@@ -207,8 +207,9 @@ public class MavenRepositoryFeatures
             throws IOException
     {
         final RepositoryIndexer indexer = getIndexer(storageId, repositoryId);
-        final Path result = Paths.get(indexer.getRepositoryBasedir().getAbsolutePath()).resolve(".index").resolve(
-                "local");
+        final Path result = Paths.get(indexer.getRepositoryBasedir().getAbsolutePath())
+                                 .resolve(".index").resolve("local");
+        
         return path == null ? result : result.resolve(path);
     }
 
@@ -277,6 +278,7 @@ public class MavenRepositoryFeatures
                                                          "The available contextId-s are " +
                                                          repositoryIndexManager.getIndexes().keySet());
         }
+        
         return indexer;
     }
 
