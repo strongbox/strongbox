@@ -1,20 +1,25 @@
 package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.base.Throwables;
+import org.hamcrest.CoreMatchers;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 /**
  * @author Kate Novik
@@ -32,12 +37,24 @@ public class MavenArtifactIndexControllerTest
 
     private static final String REPOSITORY_RELEASES_2 = "aict-releases-2";
 
+    @Inject
+    private MavenRepositoryFeatures features;
+
 
     @BeforeClass
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_2));
+
+        return repositories;
     }
 
     @Override
@@ -86,15 +103,6 @@ public class MavenArtifactIndexControllerTest
             throw Throwables.propagate(e);
         }
         super.shutdown();
-    }
-
-    public static Set<Repository> getRepositoriesToClean()
-    {
-        Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_1));
-        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_2));
-
-        return repositories;
     }
 
     @Test
@@ -186,4 +194,49 @@ public class MavenArtifactIndexControllerTest
                                     "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:2.3 +p:jar");
     }
 
+    @Test
+    public void shouldReturnBadRequestWhenIndexingIsNotEnabled()
+            throws Exception
+    {
+        String url = getContextBaseUrl() + "/storages/public/public-group/.index/nexus-maven-repository-index.gz";
+
+        given().get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    public void shouldDownloadPackedIndex()
+            throws Exception
+    {
+        features.pack(STORAGE_ID, REPOSITORY_RELEASES_1);
+
+        String url = getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                     "/.index/nexus-maven-repository-index.gz";
+
+        given().get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .contentType("application/x-gzip")
+               .body(CoreMatchers.notNullValue());
+    }
+
+    @Test
+    public void shouldDownloadIndexProperties()
+            throws Exception
+    {
+        features.pack(STORAGE_ID, REPOSITORY_RELEASES_1);
+
+        String url = getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                     "/.index/nexus-maven-repository-index.properties";
+
+        given().get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .contentType("text/plain")
+               .body(CoreMatchers.notNullValue());
+    }
 }
