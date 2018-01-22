@@ -27,7 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class NpmPackageControllerTest extends TestCaseWithRepositoryManagement
+public class NpmArtifactControllerTest extends TestCaseWithRepositoryManagement
 {
 
     private static final String STORAGE_ID = "storage-common-npm";
