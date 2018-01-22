@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.security.login.LoginInput;
 
 import javax.inject.Inject;

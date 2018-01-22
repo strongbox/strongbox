@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.security.authentication;
 
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 

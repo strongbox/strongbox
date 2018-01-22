@@ -9,7 +9,7 @@ import javax.inject.Inject;
  * @author Kate Novik.
  */
 public class RebuildMavenIndexesCronJob
-        extends JavaCronJob
+        extends OnePerRepositoryJavaCronJob
 {
 
     @Inject
@@ -19,24 +19,13 @@ public class RebuildMavenIndexesCronJob
     public void executeTask(CronTaskConfiguration config)
             throws Throwable
     {
-        logger.debug("Executed RebuildMavenIndexesCronJob.");
+        logger.debug("Executing RebuildMavenIndexesCronJob ...");
 
-        String storageId = config.getProperty("storageId");
-        String repositoryId = config.getProperty("repositoryId");
+        String storageId = config.getRequiredProperty("storageId");
+        String repositoryId = config.getRequiredProperty("repositoryId");
         String basePath = config.getProperty("basePath");
 
-        if (storageId == null)
-        {
-            artifactIndexesService.rebuildIndexes();
-        }
-        else if (repositoryId == null)
-        {
-            artifactIndexesService.rebuildIndexes(storageId);
-        }
-        else
-        {
-            artifactIndexesService.rebuildIndex(storageId, repositoryId, basePath);
-        }
+        artifactIndexesService.rebuildIndex(storageId, repositoryId, basePath);
     }
 
 }

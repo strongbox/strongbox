@@ -15,8 +15,10 @@ import org.carlspring.strongbox.util.IndexContextHelper;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -33,7 +35,14 @@ public class MavenIndexGroupRepositoryComponent
     @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
-    public void initialize(final Repository groupRepository)
+    public void rebuildIndex(final Repository groupRepository)
+            throws IOException
+    {
+        rebuildIndex(groupRepository,null);
+    }
+
+    public void rebuildIndex(final Repository groupRepository,
+                             final String artifactPath)
             throws IOException
     {
         final Set<Repository> traversedSubRepositories = groupRepositorySetCollector.collect(groupRepository, true);
@@ -44,7 +53,13 @@ public class MavenIndexGroupRepositoryComponent
                 final MavenGroupRepositoryIndexerManagementOperation operation = new MavenGroupRepositoryIndexerManagementOperation(artifactIndexesService,
                                                                                                                                     repositoryIndexManager,
                                                                                                                                     groupRepository);
-                operation.setBasePath(getRepositoryPath(subRepository));
+                RepositoryPath basePath = getRepositoryPath(subRepository);
+                basePath = StringUtils.isEmpty(artifactPath) ? basePath : basePath.resolve(basePath);
+                if (!Files.exists(basePath))
+                {
+                    continue;
+                }
+                operation.setBasePath(basePath);
                 final ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
                 locator.setOperation(operation);
                 locator.locateArtifactDirectories();

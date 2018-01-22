@@ -4,10 +4,8 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
-import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
+import org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
-import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -40,22 +38,13 @@ public class MavenRepositoryManagementStrategy
     private RepositoryIndexerFactory repositoryIndexerFactory;
 
     @Inject
-    private ArtifactIndexesService artifactIndexesService;
-
-    @Inject
     private ConfigurationManager configurationManager;
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
     @Inject
-    private CronJobSchedulerService cronJobSchedulerService;
-
-    @Inject
     private MavenRepositoryFeatures repositoryFeatures;
-
-    @Inject
-    private MavenIndexGroupRepositoryComponent mavenIndexGroupRepositoryComponent;
 
     @Override
     protected void createRepositoryInternal(Storage storage, Repository repository)
@@ -89,10 +78,7 @@ public class MavenRepositoryManagementStrategy
             // Create a local index
             createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.LOCAL.getType(), repositoryBasedir);
 
-            if (repository.isGroupRepository())
-            {
-                mavenIndexGroupRepositoryComponent.initialize(repository);
-            }
+            createRebuildMavenIndexCronJob(storageId, repositoryId);
         }
     }
 
@@ -104,6 +90,28 @@ public class MavenRepositoryManagementStrategy
         configuration.setName("Remote index download for " + storageId + ":" + repositoryId);
         configuration.addProperty("jobClass", DownloadRemoteMavenIndexCronJob.class.getName());
         configuration.addProperty("cronExpression", "0 0 0 * * ?"); // Execute once daily at 00:00:00
+        configuration.addProperty("storageId", storageId);
+        configuration.addProperty("repositoryId", repositoryId);
+        configuration.setImmediateExecution(true);
+
+        try
+        {
+            cronTaskConfigurationService.saveConfiguration(configuration);
+        }
+        catch (Exception e)
+        {
+            throw new RepositoryManagementStrategyException(e.getMessage(), e);
+        }
+    }
+
+    private void createRebuildMavenIndexCronJob(String storageId,
+                                                String repositoryId)
+            throws RepositoryManagementStrategyException
+    {
+        CronTaskConfiguration configuration = new CronTaskConfiguration();
+        configuration.setName("Rebuild Maven Index Cron Job for " + storageId + ":" + repositoryId);
+        configuration.addProperty("jobClass", RebuildMavenIndexesCronJob.class.getName());
+        configuration.addProperty("cronExpression", "0 0 2 * * ?");
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(true);
