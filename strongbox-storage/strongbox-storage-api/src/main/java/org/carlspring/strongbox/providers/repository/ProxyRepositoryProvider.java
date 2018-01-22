@@ -131,7 +131,7 @@ public class ProxyRepositoryProvider
     }
     
     @Override
-    public RepositoryPath getPath(String storageId,
+    public RepositoryPath resolvePath(String storageId,
                                   String repositoryId,
                                   String artifactPath)
             throws IOException
