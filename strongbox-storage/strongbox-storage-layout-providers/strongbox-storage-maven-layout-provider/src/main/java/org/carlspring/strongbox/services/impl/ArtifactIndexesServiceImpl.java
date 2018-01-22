@@ -1,15 +1,14 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.locator.handlers.MavenIndexerManagementOperation;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
@@ -19,12 +18,9 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.IndexContextHelper;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Map;
 
-import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -50,6 +46,9 @@ public class ArtifactIndexesServiceImpl
 
     @Inject
     private MavenRepositoryFeatures features;
+
+    @Inject
+    private MavenIndexGroupRepositoryComponent mavenIndexGroupRepositoryComponent;
 
     @Override
     public void addArtifactToIndex(RepositoryPath artifactPath)
@@ -96,22 +95,28 @@ public class ArtifactIndexesServiceImpl
         {
             return;
         }
-
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath repostitoryPath = layoutProvider.resolve(repository);
-        if (artifactPath != null && artifactPath.trim().length() > 0)
+        if (repository.isGroupRepository())
         {
-            repostitoryPath = repostitoryPath.resolve(artifactPath);
+            mavenIndexGroupRepositoryComponent.rebuildIndex(repository, artifactPath);
         }
+        else
+        {
+            MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(this);
 
-        MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(this);
+            LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+            RepositoryPath repostitoryPath = layoutProvider.resolve(repository);
+            if (artifactPath != null && artifactPath.trim().length() > 0)
+            {
+                repostitoryPath = repostitoryPath.resolve(artifactPath);
+            }
 
-        //noinspection ConstantConditions
-        operation.setBasePath(repostitoryPath);
+            //noinspection ConstantConditions
+            operation.setBasePath(repostitoryPath);
 
-        ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
-        locator.setOperation(operation);
-        locator.locateArtifactDirectories();
+            ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
+            locator.setOperation(operation);
+            locator.locateArtifactDirectories();
+        }
 
         features.pack(storageId, repositoryId);
     }

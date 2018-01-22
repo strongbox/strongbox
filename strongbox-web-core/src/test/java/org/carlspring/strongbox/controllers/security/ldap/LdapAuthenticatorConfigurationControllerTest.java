@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers.security.ldap;
 
 import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;

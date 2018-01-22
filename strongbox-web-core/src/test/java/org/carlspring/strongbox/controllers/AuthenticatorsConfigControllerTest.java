@@ -2,7 +2,7 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.annotation.Nonnull;
@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
-import org.apache.commons.lang.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
