@@ -133,18 +133,27 @@ public class ProxyRepositoryProvider
                                       String artifactPath)
         throws IOException
     {
+        return Optional.of(hostedRepositoryProvider.resolvePath(storageId, repositoryId, artifactPath))
+                       .orElse(resolvePathForceFetch(storageId, repositoryId, artifactPath));
+    }
+
+    public RepositoryPath resolvePathForceFetch(String storageId,
+                                                String repositoryId,
+                                                String artifactPath)
+    {
         InputStream is;
         try
         {
             is = proxyRepositoryArtifactResolver.getInputStream(storageId, repositoryId, artifactPath);
+            Optional.ofNullable(is).ifPresent(s -> IOUtils.closeQuietly(s));
+            return hostedRepositoryProvider.resolvePath(storageId, repositoryId, artifactPath);
         }
         catch (Exception e)
         {
-            throw new IOException(String.format("Failed to resolve Path for prixied artifact [%s]/[%s]/[%s]", storageId,
-                                                repositoryId, artifactPath));
+            logger.error(String.format("Failed to resolve Path for prixied artifact [%s]/[%s]/[%s]", storageId,
+                                       repositoryId, artifactPath),
+                         e);
+            return null;
         }
-        Optional.ofNullable(is).ifPresent(s -> IOUtils.closeQuietly(s));
-
-        return hostedRepositoryProvider.resolvePath(storageId, repositoryId, artifactPath);
     }
 }
