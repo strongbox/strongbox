@@ -19,13 +19,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import io.restassured.http.ContentType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpServerErrorException;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
