@@ -275,8 +275,13 @@ public abstract class BaseArtifactController
         logger.debug("Resolved path : " + resolvedPath);
         
         ArtifactControllerHelper.provideArtifactHeaders(response, resolvedPath);
-        if (!Files.exists(resolvedPath) || request.getMethod().equals(RequestMethod.HEAD.name())) {
+        if (!Files.exists(resolvedPath))
+        {
             return false;
+        }
+        else if (request.getMethod().equals(RequestMethod.HEAD.name()))
+        {
+            return true;
         }
 
         InputStream is = artifactManagementService.resolve(storageId, repositoryId, path);

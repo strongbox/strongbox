@@ -87,7 +87,7 @@ public class NpmArtifactController extends BaseArtifactController
     private ObjectMapper npmJackasonMapper;
 
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{resource:.+}", method = RequestMethod.GET)
+    @RequestMapping(path = "{storageId}/{repositoryId}/{resource:.+}", method = {RequestMethod.GET, RequestMethod.HEAD})
     public void download(@PathVariable(name = "storageId") String storageId,
                          @PathVariable(name = "repositoryId") String repositoryId,
                          @PathVariable(name = "resource") String resource,
