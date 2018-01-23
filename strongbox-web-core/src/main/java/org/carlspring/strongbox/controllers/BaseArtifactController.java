@@ -245,27 +245,4 @@ public abstract class BaseArtifactController
         }
     }
 
-    protected void setMediaTypeHeader(Repository repository,
-                                      String path,
-                                      HttpServletResponse response)
-            throws IOException
-    {
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-
-        // TODO: This is far from optimal and will need to have a content type approach at some point:
-        if (RepositoryFiles.isChecksum(artifactPath))
-        {
-            response.setContentType(MediaType.TEXT_PLAIN_VALUE);
-        }
-        else if (RepositoryFiles.isMetadata(artifactPath))
-        {
-            response.setContentType(MediaType.APPLICATION_XML_VALUE);
-        }
-        else
-        {
-            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        }
-    }
-
 }

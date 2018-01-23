@@ -1,14 +1,9 @@
 package org.carlspring.strongbox.controllers.maven;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.RepositoryInputStream;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -145,108 +140,42 @@ public class MavenArtifactController
             return;
         }
 
-        boolean isHeadRequest = request.getMethod().equals("HEAD");
-
-        if(!isHeadRequest)
+        if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
         {
-            if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
-            {
-                try
-                {
-                    getDirectoryListing(repository, path, request, response);
-                }
-                catch (Exception e)
-                {
-                    logger.debug("Unable to generate directory listing for " +
-                            "/" + storageId + "/" + repositoryId + "/" + path, e);
-
-                    response.setStatus(INTERNAL_SERVER_ERROR.value());
-                }
-
-                return;
-            }
-
-            InputStream is;
             try
             {
-                is = getArtifactManagementService().resolve(storageId, repositoryId, path);
-                if (is == null)
-                {
-                    response.setStatus(NOT_FOUND.value());
-                    return;
-                }
-
-                if(!isHeadRequest)
-                {
-                    if (isRangedRequest(httpHeaders))
-                    {
-                        logger.debug("Detecting range request....");
-
-                        handlePartialDownload(is, httpHeaders, response);
-                    }
-
-                    artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storage.getId(), repository.getId(), path);
-
-                    copyToResponse(is, response);
-
-                    artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storage.getId(), repository.getId(), path);
-                }
+                getDirectoryListing(repository, path, request, response);
             }
-            catch (ArtifactResolutionException | ArtifactTransportException e)
+            catch (Exception e)
             {
-                logger.debug("Unable to find artifact by path " + path, e);
-
-                response.setStatus(NOT_FOUND.value());
-
-                return;
-            }
-
-            ArtifactControllerHelper.setHeadersForChecksums(is, response);
-        }
-        else
-        {
-            RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
-
-            logger.debug("Resolved path : " + resolvedPath);
-
-            if(resolvedPath == null)
-            {
-                response.setStatus(HttpStatus.NOT_FOUND.value());
-                return;
-            }
-
-            setMediaTypeHeader(repository, path, response);
-
-            try
-            {
-                try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
-                {
-                    try (RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais))
-                    {
-                        ArtifactControllerHelper.setHeadersForChecksums(is, response);
-                    }
-                }
-
-                RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
-
-                response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
-                response.setHeader("Last-Modified", fileAttributes.lastModifiedTime().toString());
-            }
-            catch(Exception e)
-            {
-                logger.error(String.format("Failed to process Maven head request: /%s/%s/%s",
-                                           storageId,
-                                           repositoryId,
-                                           path),
-                             e);
+                logger.debug("Unable to generate directory listing for " +
+                        "/" + storageId + "/" + repositoryId + "/" + path, e);
 
                 response.setStatus(INTERNAL_SERVER_ERROR.value());
             }
+
+            return;
         }
 
-        setMediaTypeHeader(repository, path, response);
+        
+        RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
+        logger.debug("Resolved path : " + resolvedPath);
+        
+        ArtifactControllerHelper.provideArtifactHeaders(response, resolvedPath);
+        if (!Files.exists(resolvedPath) || request.getMethod().equals(RequestMethod.HEAD.name())) {
+            return;
+        }
 
-        response.setHeader("Accept-Ranges", "bytes");
+        InputStream is = getArtifactManagementService().resolve(storageId, repositoryId, path);
+        if (isRangedRequest(httpHeaders))
+        {
+            logger.debug("Detecting range request....");
+            handlePartialDownload(is, httpHeaders, response);
+        }
+
+        artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storage.getId(), repository.getId(), path);
+        copyToResponse(is, response);
+        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storage.getId(), repository.getId(), path);
 
         logger.debug("Download succeeded.");
     }
