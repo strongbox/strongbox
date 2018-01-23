@@ -181,7 +181,7 @@ public class ArtifactControllerHelper
                                               RepositoryPath path)
         throws IOException
     {
-        if (Files.exists(path)) {
+        if (!Files.exists(path)) {
             response.setStatus(HttpStatus.NOT_FOUND.value());
             return;
         }

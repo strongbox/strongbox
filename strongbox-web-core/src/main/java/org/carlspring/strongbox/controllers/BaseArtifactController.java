@@ -275,7 +275,7 @@ public abstract class BaseArtifactController
         logger.debug("Resolved path : " + resolvedPath);
         
         ArtifactControllerHelper.provideArtifactHeaders(response, resolvedPath);
-        if (!Files.exists(resolvedPath))
+        if (response.getStatus() == HttpStatus.NOT_FOUND.value())
         {
             return false;
         }
