@@ -284,6 +284,7 @@ public abstract class BaseArtifactController
             return true;
         }
 
+        logger.debug("Proceeding downloading : " + resolvedPath);
         InputStream is = artifactManagementService.resolve(storageId, repositoryId, path);
         if (ArtifactControllerHelper.isRangedRequest(httpHeaders))
         {
