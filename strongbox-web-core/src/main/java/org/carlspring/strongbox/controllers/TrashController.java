@@ -122,9 +122,7 @@ public class TrashController
                             @ApiResponse(code = 404,
                                          message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
-    @PostMapping(value = "{storageId}/{repositoryId}/{path:.+}",
-                 produces = { MediaType.TEXT_PLAIN_VALUE,
-                              MediaType.APPLICATION_JSON_VALUE })
+    @PostMapping("{storageId}/{repositoryId}/{path:.+}")
     public ResponseEntity undelete(@ApiParam(value = "The storageId",
                                              required = true)
                                    @PathVariable String storageId,

@@ -189,26 +189,6 @@ public class TrashControllerTest
     }
 
     @Test
-    public void testUndeleteTrashForRepositoryWithTextAcceptHeader()
-            throws Exception
-    {
-        String url = getContextBaseUrl() + "/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
-
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
-               .when()
-               .post(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(equalTo(
-                       "The trash for '" + STORAGE0 + ":" + REPOSITORY_WITH_TRASH + "' was restored successfully."));
-
-        assertFalse("Failed to restore trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
-                    Files.exists(ARTIFACT_FILE_IN_TRASH));
-    }
-
-
-    @Test
     public void testDeleteArtifactAndEmptyTrashForRepositoryWithJsonAcceptHeader()
             throws Exception
     {
@@ -261,22 +241,4 @@ public class TrashControllerTest
 
         assertFalse("Failed to empty trash for all repositories", Files.exists(ARTIFACT_FILE_IN_TRASH));
     }
-
-    @Test
-    public void testUndeleteTrashForAllRepositoriesWithJsonAcceptHeader()
-            throws Exception
-    {
-        String url = getContextBaseUrl() + "/trash";
-
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .post(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body("message", equalTo("The trash for all repositories was successfully restored."));
-
-        assertFalse("Failed to restore trash for all repositories", Files.exists(ARTIFACT_FILE_IN_TRASH));
-    }
-
 }
