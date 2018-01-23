@@ -1,21 +1,14 @@
 package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -28,8 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.handlePartialDownload;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.isRangedRequest;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -52,13 +43,6 @@ public class MavenArtifactController
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";
 
-    @Inject
-    private ArtifactManagementService mavenArtifactManagementService;
-
-    @Inject
-    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
-
-
     @PreAuthorize("authenticated")
     @RequestMapping(value = "greet", method = RequestMethod.GET)
     public ResponseEntity greet()
@@ -80,7 +64,7 @@ public class MavenArtifactController
     {
         try
         {
-            getArtifactManagementService().validateAndStore(storageId, repositoryId, path, request.getInputStream());
+            artifactManagementService.validateAndStore(storageId, repositoryId, path, request.getInputStream());
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
         }
@@ -157,27 +141,7 @@ public class MavenArtifactController
             return;
         }
 
-        
-        RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
-        logger.debug("Resolved path : " + resolvedPath);
-        
-        ArtifactControllerHelper.provideArtifactHeaders(response, resolvedPath);
-        if (!Files.exists(resolvedPath) || request.getMethod().equals(RequestMethod.HEAD.name())) {
-            return;
-        }
-
-        InputStream is = getArtifactManagementService().resolve(storageId, repositoryId, path);
-        if (isRangedRequest(httpHeaders))
-        {
-            logger.debug("Detecting range request....");
-            handlePartialDownload(is, httpHeaders, response);
-        }
-
-        artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storage.getId(), repository.getId(), path);
-        copyToResponse(is, response);
-        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storage.getId(), repository.getId(), path);
-
-        logger.debug("Download succeeded.");
+        provideArtifactDownloadResponse(request, response, httpHeaders, repository, path);
     }
 
     @ApiOperation(value = "Copies a path from one repository to another.", position = 4)
@@ -231,7 +195,7 @@ public class MavenArtifactController
                                      .body("The source path does not exist!");
             }
 
-            getArtifactManagementService().copy(srcStorageId, srcRepositoryId, destStorageId, destRepositoryId, path);
+            artifactManagementService.copy(srcStorageId, srcRepositoryId, destStorageId, destRepositoryId, path);
         }
         catch (ArtifactStorageException e)
         {
@@ -292,7 +256,7 @@ public class MavenArtifactController
                                      .body("The specified path does not exist!");
             }
 
-            getArtifactManagementService().delete(storageId, repositoryId, path, force);
+            artifactManagementService.delete(storageId, repositoryId, path, force);
         }
         catch (ArtifactStorageException e)
         {
@@ -303,11 +267,6 @@ public class MavenArtifactController
         }
 
         return ResponseEntity.ok("The artifact was deleted.");
-    }
-
-    public ArtifactManagementService getArtifactManagementService()
-    {
-        return mavenArtifactManagementService;
     }
 
 }

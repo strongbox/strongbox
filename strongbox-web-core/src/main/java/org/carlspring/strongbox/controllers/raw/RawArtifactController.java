@@ -1,12 +1,9 @@
 package org.carlspring.strongbox.controllers.raw;
 
 import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -23,12 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.handlePartialDownload;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.isRangedRequest;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-
-import java.io.InputStream;
-import java.nio.file.Files;
 
 /**
  * @author carlspring
@@ -46,10 +38,6 @@ public class RawArtifactController
 
     @Inject
     private ArtifactManagementService artifactManagementService;
-
-    @Inject
-    private ArtifactEventListenerRegistry artifactEventListenerRegistry;
-
 
     @ApiOperation(value = "Used to deploy an artifact", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
@@ -140,26 +128,7 @@ public class RawArtifactController
             return;
         }
 
-        RepositoryPath resolvedPath = artifactManagementService.getPath(storageId, repositoryId, path);
-        logger.debug("Resolved path : " + resolvedPath);
-        
-        ArtifactControllerHelper.provideArtifactHeaders(response, resolvedPath);
-        if (!Files.exists(resolvedPath) || request.getMethod().equals(RequestMethod.HEAD.name())) {
-            return;
-        }
-
-        InputStream is = artifactManagementService.resolve(storageId, repositoryId, path);
-        if (isRangedRequest(httpHeaders))
-        {
-            logger.debug("Detecting range request....");
-            handlePartialDownload(is, httpHeaders, response);
-        }
-
-        artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storage.getId(), repository.getId(), path);
-        copyToResponse(is, response);
-        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storage.getId(), repository.getId(), path);
-
-        logger.debug("Download succeeded.");
+        provideArtifactDownloadResponse(request, response, httpHeaders, repository, path);
     }
 
 }
