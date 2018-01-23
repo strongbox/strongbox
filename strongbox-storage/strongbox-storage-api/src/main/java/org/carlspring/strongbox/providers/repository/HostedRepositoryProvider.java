@@ -148,8 +148,8 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     
     @Override
     public RepositoryPath resolvePath(String storageId,
-                                  String repositoryId,
-                                  String path) 
+                                      String repositoryId,
+                                      String path) 
            throws IOException
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
