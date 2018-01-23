@@ -210,7 +210,7 @@ public class ArtifactControllerHelper
             String checksumValue;
             try
             {
-                checksumValue = new String(Files.readAllBytes(e.getValue()), Charset.defaultCharset());
+                checksumValue = new String(Files.readAllBytes(e.getValue()), "UTF-8");
             }
             catch (IOException ioe)
             {
