@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.controllers;
 
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
+import org.carlspring.strongbox.controllers.support.PortEntityBody;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -19,9 +21,10 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpServerErrorException;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertFalse;
@@ -34,7 +37,7 @@ import static org.junit.Assert.assertTrue;
  * @author Alex Oreshkevich
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 public class ConfigurationManagementControllerTest
         extends RestAssuredBaseTest
 {
@@ -47,51 +50,77 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/port/" + newPort;
 
-        int status = given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                            .when()
-                            .put(url)
-                            .then()
-                            .statusCode(200) // check http status code
-                            .extract()
-                            .statusCode();
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body("message", equalTo("The port was updated."));
 
         url = getContextBaseUrl() + "/configuration/strongbox/port";
 
-        String port = given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                             .when()
-                             .get(url)
-                             .then()
-                             .statusCode(200) // check http status code
-                             .extract().asString();
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body("port", equalTo(newPort));
+    }
 
-        assertEquals("Failed to set port!", 200, status);
-        assertEquals("Failed to get port!", newPort, Integer.parseInt(port));
+    @Test
+    public void testSetAndGetPortWithBody()
+            throws Exception
+    {
+        int newPort = 18080;
+        PortEntityBody portEntity = new PortEntityBody(newPort);
+
+        String url = getContextBaseUrl() + "/configuration/strongbox/port";
+
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(portEntity)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body("message", equalTo("The port was updated."));
+
+        url = getContextBaseUrl() + "/configuration/strongbox/port";
+
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body("port", equalTo(newPort));
     }
 
     @Test
     public void testSetAndGetBaseUrl()
             throws Exception
     {
-        String baseUrl = "http://localhost:" + 40080 + "/newurl";
+        String newBaseUrl = "http://localhost:" + 40080 + "/newurl";
+        BaseUrlEntityBody baseUrlEntity = new BaseUrlEntityBody(newBaseUrl);
 
         String url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .body(baseUrl)
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(baseUrlEntity)
                .when()
                .put(url)
                .then()
-               .statusCode(200)
-               .extract();
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body("message", equalTo("The base URL was updated."));
 
         url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
-               .statusCode(200)
-               .body("baseUrl", equalTo(baseUrl));
+               .statusCode(HttpStatus.OK.value())
+               .body("baseUrl", equalTo(newBaseUrl));
     }
 
     @Test

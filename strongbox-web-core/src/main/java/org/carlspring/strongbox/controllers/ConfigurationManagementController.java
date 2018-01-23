@@ -2,8 +2,9 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
+import org.carlspring.strongbox.controllers.support.PortEntityBody;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.security.exceptions.AuthenticationException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
@@ -22,6 +23,7 @@ import io.swagger.annotations.*;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
 @Controller
 @RequestMapping("/configuration/strongbox")
@@ -101,104 +104,122 @@ public class ConfigurationManagementController
                              .body(getConfiguration());
     }
 
-    @ApiOperation(value = "Retrieves the strongbox.xml configuration file.")
+    @ApiOperation(value = "Updates the base URL of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "The base URL was updated."),
-                            @ApiResponse(code = 500,
-                                         message = "An error occurred.") })
+                            @ApiResponse(code = 400,
+                                         message = "Could not update the base URL of the service.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_BASE_URL')")
-    @RequestMapping(value = "/baseUrl",
-                    method = RequestMethod.PUT,
-                    consumes = MediaType.TEXT_PLAIN_VALUE)
+    @PutMapping(value = "/baseUrl",
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setBaseUrl(@ApiParam(value = "The base URL", required = true)
-                                     @RequestBody String newBaseUrl)
-            throws IOException,
-                   AuthenticationException,
-                   JAXBException
+                                     @RequestBody BaseUrlEntityBody baseUrlEntity,
+                                     @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         try
         {
+            String newBaseUrl = baseUrlEntity.getBaseUrl();
             configurationManagementService.setBaseUrl(newBaseUrl);
 
-            logger.info("Set baseUrl to [" + newBaseUrl + "].");
+            logger.info("Set baseUrl to [{}].", newBaseUrl);
 
-            return ResponseEntity.ok("The base URL was updated.");
+            return ResponseEntity.ok(getResponseEntityBody("The base URL was updated.", accept));
         }
         catch (IOException | JAXBException e)
         {
-            logger.error(e.getMessage(), e);
+            String message = "Could not update the base URL of the service.";
+            logger.error(message, e);
 
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(getResponseEntityBody(message, accept));
         }
     }
 
-    @ApiOperation(value = "Sets the base URL of the service.")
+    @ApiOperation(value = "Returns the base URL of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "",
                                          response = String.class),
                             @ApiResponse(code = 404,
                                          message = "No value for baseUrl has been defined yet.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_BASE_URL')")
-    @RequestMapping(value = "/baseUrl",
-                    method = RequestMethod.GET,
-                    produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getBaseUrl()
-            throws IOException,
-                   AuthenticationException
+    @GetMapping(value = "/baseUrl",
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getBaseUrl(@RequestHeader(HttpHeaders.ACCEPT) String accept)
+            throws IOException
     {
         if (configurationManagementService.getBaseUrl() != null)
         {
-            return ResponseEntity.status(HttpStatus.OK)
-                                 .body(
-                                         "{\"baseUrl\":\"" + configurationManagementService.getBaseUrl() + "\"}");
+            return ResponseEntity.ok(getBaseUrlEntityBody(configurationManagementService.getBaseUrl(), accept));
         }
         else
         {
+            String message = "No value for baseUrl has been defined yet.";
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body("No value for baseUrl has been defined yet.");
+                                 .body(getResponseEntityBody(message, accept));
         }
     }
 
     @ApiOperation(value = "Sets the port of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "The port was updated."),
-                            @ApiResponse(code = 500,
-                                         message = "An error occurred.") })
+                            @ApiResponse(code = 400,
+                                         message = "Could not update the strongbox port.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_PORT')")
-    @RequestMapping(value = "/port/{port}",
-                    method = RequestMethod.PUT,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
+    @PutMapping(value = "/port/{port}",
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setPort(@ApiParam(value = "The port of the service", required = true)
-                                  @PathVariable int port)
-            throws IOException, JAXBException
+                                  @PathVariable int port,
+                                  @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         try
         {
             configurationManagementService.setPort(port);
 
-            logger.info("Set port to " + port + ". This operation will require a server restart.");
+            logger.info("Set port to {}. This operation will require a server restart.", port);
 
-            return ResponseEntity.ok("The port was updated.");
+            return ResponseEntity.ok(getResponseEntityBody("The port was updated.", accept));
         }
         catch (IOException | JAXBException e)
         {
-            logger.error(e.getMessage(), e);
+            String message = "Could not update the strongbox port.";
+            logger.error(message, e);
 
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(getResponseEntityBody(message, accept));
         }
+    }
+
+    @ApiOperation(value = "Sets the port of the service.")
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The port was updated."),
+                            @ApiResponse(code = 400,
+                                         message = "Could not update the strongbox port.") })
+    @PreAuthorize("hasAuthority('CONFIGURATION_SET_PORT')")
+    @PutMapping(value = "/port",
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity setPort(@ApiParam(value = "The port of the service", required = true)
+                                  @RequestBody PortEntityBody portEntity,
+                                  @RequestHeader(HttpHeaders.ACCEPT) String accept)
+    {
+        return setPort(portEntity.getPort(), accept);
     }
 
     @ApiOperation(value = "Returns the port of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "",
-                                         response = Integer.class) })
+                                         response = String.class) })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_PORT')")
-    @RequestMapping(value = "/port",
-                    method = RequestMethod.GET)
-    public ResponseEntity getPort()
+    @GetMapping(value = "/port",
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getPort(@RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws IOException
     {
-        return ResponseEntity.ok(configurationManagementService.getPort());
+        return ResponseEntity.ok(getPortEntityBody(configurationManagementService.getPort(), accept));
     }
 
     @ApiOperation(value = "Updates the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")

@@ -2,7 +2,9 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
+import org.carlspring.strongbox.controllers.support.PortEntityBody;
 import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.resource.ResourceCloser;
 
@@ -14,12 +16,14 @@ import java.io.OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 /**
  * Provides common subroutines that will be useful for any backend controllers.
  *
  * @author Alex Oreshkevich
+ * @author Pablo Tirado
  */
 public abstract class BaseController
 {
@@ -28,6 +32,18 @@ public abstract class BaseController
 
     @Inject
     protected ConfigurationManager configurationManager;
+
+    protected Object getResponseEntityBody(String message, String accept)
+    {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return new ResponseEntityBody(message);
+        }
+        else
+        {
+            return message;
+        }
+    }
 
     protected ResponseEntityBody getResponseEntityBody(String message)
     {
@@ -39,6 +55,30 @@ public abstract class BaseController
     {
         return ResponseEntity.status(httpStatus)
                              .body(getResponseEntityBody(message));
+    }
+
+    protected Object getPortEntityBody(int port, String accept)
+    {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return new PortEntityBody(port);
+        }
+        else
+        {
+            return String.valueOf(port);
+        }
+    }
+
+    protected Object getBaseUrlEntityBody(String baseUrl, String accept)
+    {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return new BaseUrlEntityBody(baseUrl);
+        }
+        else
+        {
+            return baseUrl;
+        }
     }
 
     protected ResponseEntity toResponseEntityError(String message,
