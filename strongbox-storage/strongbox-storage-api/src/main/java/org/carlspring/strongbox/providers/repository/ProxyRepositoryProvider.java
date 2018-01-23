@@ -12,6 +12,7 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
@@ -25,7 +26,6 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
-import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +53,6 @@ public class ProxyRepositoryProvider
     @Inject
     private CommonEventListenerRegistry commonEventListenerRegistry;
 
-    @Inject
-    private ArtifactEntryService artifactEntryService;
-    
     @PostConstruct
     @Override
     public void register()
@@ -132,10 +129,22 @@ public class ProxyRepositoryProvider
     
     @Override
     public RepositoryPath resolvePath(String storageId,
-                                  String repositoryId,
-                                  String artifactPath)
-            throws IOException
+                                      String repositoryId,
+                                      String artifactPath)
+        throws IOException
     {
-        throw new UnsupportedOperationException("Currently getPath() is not supported for ProxyRepositoryProvider");
+        InputStream is;
+        try
+        {
+            is = proxyRepositoryArtifactResolver.getInputStream(storageId, repositoryId, artifactPath);
+        }
+        catch (Exception e)
+        {
+            throw new IOException(String.format("Failed to resolve Path for prixied artifact [%s]/[%s]/[%s]", storageId,
+                                                repositoryId, artifactPath));
+        }
+        Optional.ofNullable(is).ifPresent(s -> IOUtils.closeQuietly(s));
+
+        return hostedRepositoryProvider.resolvePath(storageId, repositoryId, artifactPath);
     }
 }
