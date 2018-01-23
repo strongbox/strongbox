@@ -181,7 +181,8 @@ public class ArtifactControllerHelper
                                               RepositoryPath path)
         throws IOException
     {
-        if (path == null || !Files.exists(path)) {
+        if (path == null || !Files.exists(path) || Files.isDirectory(path))
+        {
             response.setStatus(HttpStatus.NOT_FOUND.value());
             return;
         }
@@ -210,7 +211,7 @@ public class ArtifactControllerHelper
             String checksumValue;
             try
             {
-                checksumValue = new String(Files.readAllBytes(e.getValue()), "UTF-8");
+                checksumValue = new String(Files.readAllBytes(e.getValue()), "UTF-8").trim();
             }
             catch (IOException ioe)
             {
