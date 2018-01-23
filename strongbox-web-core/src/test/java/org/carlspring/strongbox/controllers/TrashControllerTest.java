@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.Storage;
@@ -10,44 +10,51 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.http.HttpHeaders;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author Martin Todorov
  * @author Alex Oreshkevich
+ * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 public class TrashControllerTest
         extends MavenRestAssuredBaseTest
 {
 
-    private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
+    private static final String BASEDIR = Paths.get(
+            ConfigurationResourceResolver.getVaultDirectory()).toAbsolutePath().toString();
 
     private static final String REPOSITORY_WITH_TRASH = "tct-releases-with-trash";
 
     private static final String REPOSITORY_WITH_FORCE_DELETE = "tct-releases-with-force-delete";
 
-    private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
+    private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR +
                                                                 "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
-    private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
-                                                                "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
-                                                                "test-artifact-to-trash-1.0.jar").getAbsoluteFile();
+    private static final Path ARTIFACT_FILE_IN_TRASH = Paths.get(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
+                                                                 "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
+                                                                 "test-artifact-to-trash-1.0.jar");
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -125,18 +132,20 @@ public class TrashControllerTest
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE0, REPOSITORY_WITH_TRASH, artifactPath, false);
 
-        final File repositoryDir = new File(BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.trash");
-        final File repositoryIndexDir = new File(BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.index");
-        final File artifactFile = new File(repositoryDir, artifactPath);
+        final Path repositoryDir = Paths.get(
+                BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.trash");
+        final Path repositoryIndexDir = Paths.get(
+                BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.index");
+        final Path artifactFile = repositoryDir.resolve(artifactPath);
 
-        logger.debug("Artifact file: " + artifactFile.getAbsolutePath());
+        logger.debug("Artifact file: " + artifactFile.toAbsolutePath());
 
         assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
                    "when allowsForceDeletion is not enabled!",
-                   artifactFile.exists());
+                   Files.exists(artifactFile));
 
         assertTrue("Should not have deleted .index directory!",
-                   repositoryIndexDir.exists());
+                   Files.exists(repositoryIndexDir));
     }
 
     @Test
@@ -148,50 +157,126 @@ public class TrashControllerTest
         // Delete the artifact (this one shouldn't get placed under the .trash)
         client.delete(STORAGE0, REPOSITORY_WITH_FORCE_DELETE, artifactPath, true);
 
-        final File repositoryTrashDir = new File(BASEDIR + "/storages/" + STORAGE0 + "/" +
-                                                 REPOSITORY_WITH_FORCE_DELETE + "/.trash");
+        final Path repositoryTrashDir = Paths.get(BASEDIR + "/storages/" + STORAGE0 + "/" +
+                                                  REPOSITORY_WITH_FORCE_DELETE + "/.trash");
 
-        final File repositoryDir = new File(BASEDIR + "/storages/" + STORAGE0 + "/" +
-                                            REPOSITORY_WITH_FORCE_DELETE + "/.trash");
+        final Path repositoryDir = Paths.get(BASEDIR + "/storages/" + STORAGE0 + "/" +
+                                             REPOSITORY_WITH_FORCE_DELETE + "/.trash");
 
         assertFalse("Failed to delete artifact during a force delete operation!",
-                    new File(repositoryTrashDir, artifactPath).exists());
+                    Files.exists(repositoryTrashDir.resolve(artifactPath)));
         assertFalse("Failed to delete artifact during a force delete operation!",
-                    new File(repositoryDir, artifactPath).exists());
+                    Files.exists(repositoryDir.resolve(artifactPath)));
     }
 
     @Test
-    public void testDeleteArtifactAndEmptyTrashForRepository()
+    public void testDeleteArtifactAndEmptyTrashForRepositoryWithTextAcceptHeader()
             throws Exception
     {
         String url = getContextBaseUrl() + "/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .when()
                .delete(url)
                .peek()
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(
+                       "The trash for '" + STORAGE0 + ":" + REPOSITORY_WITH_TRASH + "' was removed successfully."));
 
         assertFalse("Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
-                    ARTIFACT_FILE_IN_TRASH.exists());
+                    Files.exists(ARTIFACT_FILE_IN_TRASH));
     }
 
     @Test
-    public void testDeleteArtifactAndEmptyTrashForAllRepositories()
+    public void testUndeleteTrashForRepositoryWithTextAcceptHeader()
+            throws Exception
+    {
+        String url = getContextBaseUrl() + "/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
+
+        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .post(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(
+                       "The trash for '" + STORAGE0 + ":" + REPOSITORY_WITH_TRASH + "' was restored successfully."));
+
+        assertFalse("Failed to restore trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
+                    Files.exists(ARTIFACT_FILE_IN_TRASH));
+    }
+
+
+    @Test
+    public void testDeleteArtifactAndEmptyTrashForRepositoryWithJsonAcceptHeader()
+            throws Exception
+    {
+        String url = getContextBaseUrl() + "/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
+
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .delete(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo(
+                       "The trash for '" + STORAGE0 + ":" + REPOSITORY_WITH_TRASH + "' was removed successfully."));
+
+        assertFalse("Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
+                    Files.exists(ARTIFACT_FILE_IN_TRASH));
+    }
+
+    @Test
+    public void testDeleteArtifactAndEmptyTrashForAllRepositoriesWithTextAcceptHeader()
             throws Exception
     {
         String url = getContextBaseUrl() + "/trash";
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .when()
                .delete(url)
                .peek()
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo("The trash for all repositories was successfully removed."));
 
         assertFalse("Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
-                    ARTIFACT_FILE_IN_TRASH.exists());
+                    Files.exists(ARTIFACT_FILE_IN_TRASH));
+    }
+
+    @Test
+    public void testDeleteArtifactAndEmptyTrashForAllRepositoriesWithJsonAcceptHeader()
+            throws Exception
+    {
+        String url = getContextBaseUrl() + "/trash";
+
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .delete(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("The trash for all repositories was successfully removed."));
+
+        assertFalse("Failed to empty trash for all repositories", Files.exists(ARTIFACT_FILE_IN_TRASH));
+    }
+
+    @Test
+    public void testUndeleteTrashForAllRepositoriesWithJsonAcceptHeader()
+            throws Exception
+    {
+        String url = getContextBaseUrl() + "/trash";
+
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .post(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("The trash for all repositories was successfully restored."));
+
+        assertFalse("Failed to restore trash for all repositories", Files.exists(ARTIFACT_FILE_IN_TRASH));
     }
 
 }
