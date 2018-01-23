@@ -86,6 +86,9 @@ public class MavenIndexGroupRepositoryComponentTest
     {
         createGroup(NEW_REPOSITORY_GROUP_X, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
 
+        // recoded since we scheduled a cron job now
+        artifactIndexesService.rebuildIndex(STORAGE0, NEW_REPOSITORY_GROUP_X, null);
+
 
         SearchRequest request = new SearchRequest(STORAGE0,
                                                   NEW_REPOSITORY_GROUP_X,

@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.controllers;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -7,14 +10,17 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
@@ -25,8 +31,10 @@ import java.util.regex.Matcher;
 import io.swagger.annotations.Api;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.DirectoryFileComparator;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Api(value = "/storages")
 public abstract class BaseArtifactController
@@ -39,7 +47,12 @@ public abstract class BaseArtifactController
     @Inject
     private StorageProviderRegistry storageProviderRegistry;
 
+    @Inject
+    protected ArtifactManagementService artifactManagementService;
 
+    @Inject
+    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
+    
     // ----------------------------------------------------------------------------------------------------------------
     // Common-purpose methods
 
@@ -245,27 +258,47 @@ public abstract class BaseArtifactController
         }
     }
 
-    protected void setMediaTypeHeader(Repository repository,
-                                      String path,
-                                      HttpServletResponse response)
-            throws IOException
+    protected boolean provideArtifactDownloadResponse(HttpServletRequest request,
+                                                   HttpServletResponse response,
+                                                   HttpHeaders httpHeaders,
+                                                   Repository repository,
+                                                   String path)
+        throws IOException,
+        ArtifactTransportException,
+        ProviderImplementationException,
+        Exception
     {
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
+        String storageId = repository.getStorage().getId();
+        String repositoryId = repository.getId();
+        
+        RepositoryPath resolvedPath = artifactManagementService.getPath(storageId, repositoryId, path);
+        logger.debug("Resolved path : " + resolvedPath);
+        
+        ArtifactControllerHelper.provideArtifactHeaders(response, resolvedPath);
+        if (response.getStatus() == HttpStatus.NOT_FOUND.value())
+        {
+            return false;
+        }
+        else if (request.getMethod().equals(RequestMethod.HEAD.name()))
+        {
+            return true;
+        }
 
-        // TODO: This is far from optimal and will need to have a content type approach at some point:
-        if (RepositoryFiles.isChecksum(artifactPath))
+        logger.debug("Proceeding downloading : " + resolvedPath);
+        InputStream is = artifactManagementService.resolve(storageId, repositoryId, path);
+        if (ArtifactControllerHelper.isRangedRequest(httpHeaders))
         {
-            response.setContentType(MediaType.TEXT_PLAIN_VALUE);
+            logger.debug("Detecting range request....");
+            ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
         }
-        else if (RepositoryFiles.isMetadata(artifactPath))
-        {
-            response.setContentType(MediaType.APPLICATION_XML_VALUE);
-        }
-        else
-        {
-            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        }
+
+        artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storageId, repositoryId, path);
+        copyToResponse(is, response);
+        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storageId, repositoryId, path);
+
+        logger.debug("Download succeeded.");
+        
+        return true;
     }
 
 }

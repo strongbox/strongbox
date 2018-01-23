@@ -40,7 +40,7 @@ public class CronTasksConfig
     {
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
         schedulerFactoryBean.setJobFactory(springBeanJobFactory());
-
+        
         return schedulerFactoryBean;
     }
 
@@ -49,7 +49,7 @@ public class CronTasksConfig
     {
         AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
         jobFactory.setApplicationContext(applicationContext);
-
+        
         return jobFactory;
     }
 

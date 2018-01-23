@@ -9,9 +9,10 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
@@ -95,7 +96,8 @@ public class BrowseControllerTest
                .then()
                .statusCode(404);
     }
-    
+
+    @Ignore
     @Test
     public void testRepositoryContents()
             throws Exception

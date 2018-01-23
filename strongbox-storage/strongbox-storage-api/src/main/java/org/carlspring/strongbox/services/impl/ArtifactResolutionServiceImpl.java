@@ -120,16 +120,16 @@ public class ArtifactResolutionServiceImpl
     }
     
     @Override
-    public RepositoryPath getPath(String storageId,
-                                  String repositoryId,
-                                  String artifactPath) 
+    public RepositoryPath resolvePath(String storageId,
+                                      String repositoryId,
+                                      String artifactPath) 
            throws IOException
     {        
         final Repository repository = getStorage(storageId).getRepository(repositoryId);
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        RepositoryPath resolvedPath = (RepositoryPath)repositoryProvider.getPath(storageId, repositoryId, artifactPath);
+        RepositoryPath resolvedPath = (RepositoryPath)repositoryProvider.resolvePath(storageId, repositoryId, artifactPath);
 
         return resolvedPath;
     }

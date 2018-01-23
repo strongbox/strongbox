@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.security;
 
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 

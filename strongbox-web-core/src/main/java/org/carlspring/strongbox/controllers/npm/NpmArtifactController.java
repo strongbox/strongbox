@@ -29,19 +29,21 @@ import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.npm.metadata.Package;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,8 +62,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @RestController
-@RequestMapping(path = NpmPackageController.ROOT_CONTEXT, headers = "user-agent=npm/*")
-public class NpmPackageController extends BaseArtifactController
+@RequestMapping(path = NpmArtifactController.ROOT_CONTEXT, headers = "user-agent=npm/*")
+public class NpmArtifactController extends BaseArtifactController
 {
 
     private static final String FIELD_NAME_LENGTH = "length";
@@ -70,7 +72,7 @@ public class NpmPackageController extends BaseArtifactController
 
     private static final String FIELD_NAME_VERSION = "versions";
 
-    private static final Logger logger = LoggerFactory.getLogger(NpmPackageController.class);
+    private static final Logger logger = LoggerFactory.getLogger(NpmArtifactController.class);
 
     public final static String ROOT_CONTEXT = "/storages";
 
@@ -85,31 +87,19 @@ public class NpmPackageController extends BaseArtifactController
     private ObjectMapper npmJackasonMapper;
 
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{resource:.+}", method = RequestMethod.GET)
+    @RequestMapping(path = "{storageId}/{repositoryId}/{resource:.+}", method = {RequestMethod.GET, RequestMethod.HEAD})
     public void download(@PathVariable(name = "storageId") String storageId,
                          @PathVariable(name = "repositoryId") String repositoryId,
                          @PathVariable(name = "resource") String resource,
+                         @RequestHeader HttpHeaders httpHeaders,
+                         HttpServletRequest request,
                          HttpServletResponse response)
         throws Exception
     {
         Repository repository = getRepository(storageId, repositoryId);
         RepositoryPath path = npmLayoutProvider.resolve(repository, URI.create(resource));
-        InputStream is = npmArtifactManagementService.resolve(storageId,
-                                                              repositoryId,
-                                                              path.relativize()
-                                                                  .toString());
-        if (is == null)
-        {
-            logger.debug("Unable to find artifact by path " + path);
-
-            response.setStatus(NOT_FOUND.value());
-            return;
-        }
-        response.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         
-        copyToResponse(is, response);
-        ArtifactControllerHelper.setHeadersForChecksums(is, response);
-        
+        provideArtifactDownloadResponse(request, response, httpHeaders, repository, RepositoryFiles.stringValue(path));
     }
 
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")

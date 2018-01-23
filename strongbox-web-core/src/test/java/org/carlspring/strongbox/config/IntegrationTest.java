@@ -1,23 +1,19 @@
-package org.carlspring.strongbox.controllers.context;
+package org.carlspring.strongbox.config;
+
+import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
+import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
+import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.rest.common.RestAssuredTestExecutionListener;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
-import org.carlspring.strongbox.config.RestAssuredConfig;
-import org.carlspring.strongbox.config.WebConfig;
-import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.rest.common.RestAssuredTestExecutionListener;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Condition;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,30 +44,17 @@ public @interface IntegrationTest
     {
 
         @Bean
-        @Conditional(CronRelatedBeansAreMissedInContext.class)
+        @Primary
         CronTaskConfigurationService cronTaskConfigurationService()
         {
             return Mockito.mock(CronTaskConfigurationService.class);
         }
 
         @Bean
-        @Conditional(CronRelatedBeansAreMissedInContext.class)
+        @Primary
         CronJobSchedulerService cronJobSchedulerService()
         {
             return Mockito.mock(CronJobSchedulerService.class);
-        }
-
-        private static class CronRelatedBeansAreMissedInContext
-                implements Condition
-        {
-
-            @Override
-            public boolean matches(ConditionContext context,
-                                   AnnotatedTypeMetadata metadata)
-            {
-                return !context.getRegistry().containsBeanDefinition("cronTaskConfigurationServiceImpl") &&
-                       !context.getRegistry().containsBeanDefinition("cronJobSchedulerServiceImpl");
-            }
         }
     }
 

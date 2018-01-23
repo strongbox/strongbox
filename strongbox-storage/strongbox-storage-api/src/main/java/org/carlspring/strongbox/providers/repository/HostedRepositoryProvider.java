@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,10 +11,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -61,15 +60,27 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
                                                 String path)
             throws IOException
     {        
-        RepositoryPath artifactPath = getPath(storageId, repositoryId, path);
-              
-        if (artifactPath != null)
+        return newInputStream(resolvePath(storageId, repositoryId, path));
+    }
+    
+    protected RepositoryInputStream newInputStream(RepositoryPath path)
+    {
+        if (path == null)
         {
-            ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(artifactPath);
-            return decorate(storageId, repositoryId, path, ais);
+            return null;
         }
 
-        return null;
+        Repository repository = path.getFileSystem().getRepository();
+        try
+        {
+            return decorate(repository.getStorage().getId(), repository.getId(), RepositoryFiles.stringValue(path),
+                            Files.newInputStream(path));
+        }
+        catch (IOException e)
+        {
+            logger.error(String.format("Failed to decorate InputStream for [%s]", path), e);
+            return null;
+        }
     }
 
     @Override
@@ -136,9 +147,9 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     }
     
     @Override
-    public RepositoryPath getPath(String storageId,
-                                  String repositoryId,
-                                  String path) 
+    public RepositoryPath resolvePath(String storageId,
+                                      String repositoryId,
+                                      String path) 
            throws IOException
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);

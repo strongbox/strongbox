@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.raw;
 
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.rest.common.RawRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;

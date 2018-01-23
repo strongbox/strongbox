@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NpmPackageGenerator;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithRepositoryManagement;
@@ -27,7 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class NpmPackageControllerTest extends TestCaseWithRepositoryManagement
+public class NpmArtifactControllerTest extends TestCaseWithRepositoryManagement
 {
 
     private static final String STORAGE_ID = "storage-common-npm";

@@ -35,7 +35,7 @@ import javax.servlet.http.Part;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
-import org.carlspring.strongbox.controllers.nuget.NugetPackageController;
+import org.carlspring.strongbox.controllers.nuget.NugetArtifactController;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
@@ -51,7 +51,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
  * Such type of mapping is used in storage controllers to map requests according 'user-agent' header type.
  *
  * @author Sergey Bespalov
- * @see {@link MavenArtifactController} {@link NugetPackageController}
+ * @see {@link MavenArtifactController} {@link NugetArtifactController}
  */
 public class HeaderMappingFilter
         implements Filter

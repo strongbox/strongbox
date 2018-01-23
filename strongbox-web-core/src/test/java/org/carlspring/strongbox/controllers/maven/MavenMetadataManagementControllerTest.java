@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactMetadataService;

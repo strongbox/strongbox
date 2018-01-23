@@ -6,7 +6,11 @@ import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABL
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,9 +20,14 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.io.StreamUtils;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 public class ArtifactControllerHelper
 {
@@ -166,6 +175,54 @@ public class ArtifactControllerHelper
         {
             headers.add("strongbox-layout", artifactCoordinates.getClass().getSimpleName());
         }
+    }
+    
+    public static void provideArtifactHeaders(HttpServletResponse response,
+                                              RepositoryPath path)
+        throws IOException
+    {
+        if (path == null || !Files.exists(path) || Files.isDirectory(path))
+        {
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            return;
+        }
+        RepositoryFileAttributes fileAttributes = Files.readAttributes(path, RepositoryFileAttributes.class);
+
+        response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
+        response.setHeader("Last-Modified", fileAttributes.lastModifiedTime().toString());
+        
+        // TODO: This is far from optimal and will need to have a content type approach at some point:
+        if (RepositoryFiles.isChecksum(path))
+        {
+            response.setContentType(MediaType.TEXT_PLAIN_VALUE);
+        }
+        else if (RepositoryFiles.isMetadata(path))
+        {
+            response.setContentType(MediaType.APPLICATION_XML_VALUE);
+        }
+        else
+        {
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        }
+        
+        response.setHeader("Accept-Ranges", "bytes");
+        
+        path.getFileSystem().provider().resolveChecksumPathMap(path).entrySet().stream().forEach(e -> {
+            String checksumValue;
+            try
+            {
+                checksumValue = new String(Files.readAllBytes(e.getValue()), "UTF-8").trim();
+            }
+            catch (IOException ioe)
+            {
+                return;
+            }
+            String checksumName = String.format("Checksum-%s",
+                                                e.getKey().toUpperCase().replaceAll("-", ""));
+            response.setHeader(checksumName,
+                               checksumValue);
+        });
+        
     }
 
 }

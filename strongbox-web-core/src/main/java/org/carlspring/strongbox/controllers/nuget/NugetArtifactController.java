@@ -2,19 +2,17 @@ package org.carlspring.strongbox.controllers.nuget;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
-import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
-import org.carlspring.strongbox.io.RepositoryInputStream;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
@@ -44,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,7 +56,6 @@ import ru.aristar.jnuget.files.TempNupkgFile;
 import ru.aristar.jnuget.rss.*;
 import ru.aristar.jnuget.sources.PackageSource;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * This Controller used to handle Nuget requests.
@@ -66,11 +64,11 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  *
  */
 @RestController
-@RequestMapping(path = NugetPackageController.ROOT_CONTEXT, headers = "user-agent=NuGet/*")
-public class NugetPackageController extends BaseArtifactController
+@RequestMapping(path = NugetArtifactController.ROOT_CONTEXT, headers = "user-agent=NuGet/*")
+public class NugetArtifactController extends BaseArtifactController
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(NugetPackageController.class);
+    private static final Logger logger = LoggerFactory.getLogger(NugetArtifactController.class);
 
     public final static String ROOT_CONTEXT = "/storages";
 
@@ -347,7 +345,7 @@ public class NugetPackageController extends BaseArtifactController
     public ResponseEntity<Resource> getMetadata()
             throws IOException
     {
-        InputStream inputStream = NugetPackageController.class.getResourceAsStream("/metadata.xml");
+        InputStream inputStream = NugetArtifactController.class.getResourceAsStream("/metadata.xml");
         return new ResponseEntity<>(new InputStreamResource(inputStream), HttpStatus.OK);
     }
 
@@ -428,10 +426,11 @@ public class NugetPackageController extends BaseArtifactController
                                 @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
                                 @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
                                 HttpServletResponse response,
-                                HttpServletRequest request)
-            throws IOException
+                                HttpServletRequest request,
+                                @RequestHeader HttpHeaders httpHeaders)
+            throws ArtifactTransportException, ProviderImplementationException, Exception
     {
-        getPackageInternal(storageId, repositoryId, packageId, packageVersion, response, request);
+        getPackageInternal(storageId, repositoryId, packageId, packageVersion, response, request, httpHeaders);
     }
 
     @ApiOperation(value = "Used to download a package")
@@ -447,10 +446,11 @@ public class NugetPackageController extends BaseArtifactController
                            @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
                            @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
                            HttpServletResponse response,
-                           HttpServletRequest request)
-            throws IOException
+                           HttpServletRequest request, 
+                           @RequestHeader HttpHeaders httpHeaders)
+            throws ArtifactTransportException, ProviderImplementationException, Exception
     {
-        getPackageInternal(storageId, repositoryId, packageId, packageVersion, response, request);
+        getPackageInternal(storageId, repositoryId, packageId, packageVersion, response, request, httpHeaders);
     }    
     
     private void getPackageInternal(String storageId,
@@ -458,8 +458,9 @@ public class NugetPackageController extends BaseArtifactController
                                     String packageId,
                                     String packageVersion,
                                     HttpServletResponse response,
-                                    HttpServletRequest request)
-        throws IOException
+                                    HttpServletRequest request,
+                                    HttpHeaders httpHeaders)
+        throws ArtifactTransportException, ProviderImplementationException, Exception
     {
         logger.debug("Requested Nuget Package %s, %s, %s, %s.", storageId, repositoryId, packageId, packageVersion);
 
@@ -495,75 +496,9 @@ public class NugetPackageController extends BaseArtifactController
         String fileName = String.format("%s.%s.nupkg", packageId, packageVersion);
         String path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
 
-        boolean isHeadRequest = request.getMethod().equals("HEAD");
-
-        if(!isHeadRequest)
+        if (provideArtifactDownloadResponse(request, response, httpHeaders, repository, path))
         {
-            try
-            {
-                InputStream is = getArtifactManagementService().resolve(storageId,
-                                                                        repositoryId,
-                                                                        path);
-                if (is == null)
-                {
-                    logger.debug("Unable to find artifact by path " + path);
-
-                    response.setStatus(NOT_FOUND.value());
-                    return;
-                }
-
-                response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
-
-                copyToResponse(is, response);
-                ArtifactControllerHelper.setHeadersForChecksums(is, response);
-            }
-            catch (Exception e)
-            {
-                logger.error(String.format("Failed to process Nuget get request: %s:%s:%s:%s",
-                                           storageId,
-                                           repositoryId,
-                                           packageId,
-                                           packageVersion),
-                             e);
-
-                response.setStatus(INTERNAL_SERVER_ERROR.value());
-            }
-        }
-        else
-        {
-            RepositoryPath resolvedPath = getArtifactManagementService().getPath(storageId, repositoryId, path);
-
-            if(resolvedPath == null)
-            {
-                response.setStatus(HttpStatus.NOT_FOUND.value());
-                return;
-            }
-
-            try
-            {
-                try (ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(resolvedPath))
-                {
-                    try (RepositoryInputStream is =  RepositoryInputStream.of(repository, path, ais))
-                    {
-                        ArtifactControllerHelper.setHeadersForChecksums(is, response);
-                    }
-                }
-                RepositoryFileAttributes fileAttributes = Files.readAttributes(resolvedPath, RepositoryFileAttributes.class);
-                response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
-                response.setHeader("Last-Modified", fileAttributes.lastModifiedTime().toString());
-                response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
-            }
-            catch (Exception e)
-            {
-                logger.error(String.format("Failed to process Nuget head request: %s:%s:%s:%s",
-                                           storageId,
-                                           repositoryId,
-                                           packageId,
-                                           packageVersion),
-                             e);
-
-                response.setStatus(INTERNAL_SERVER_ERROR.value());
-            }
+            response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
         }
     }
 

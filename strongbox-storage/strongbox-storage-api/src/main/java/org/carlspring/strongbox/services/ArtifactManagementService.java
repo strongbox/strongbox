@@ -384,7 +384,7 @@ public class ArtifactManagementService implements ConfigurationService
                                   String path) 
              throws IOException
     {
-        return artifactResolutionService.getPath(storageId, repositoryId, path);
+        return artifactResolutionService.resolvePath(storageId, repositoryId, path);
     }
     
     public void delete(String storageId,

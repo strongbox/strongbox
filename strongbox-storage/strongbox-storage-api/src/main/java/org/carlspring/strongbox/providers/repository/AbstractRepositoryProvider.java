@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.Date;
 
 import javax.inject.Inject;
