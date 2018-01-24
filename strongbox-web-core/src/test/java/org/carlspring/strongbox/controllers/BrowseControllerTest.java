@@ -43,6 +43,24 @@ public class BrowseControllerTest
         Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","testdir/testsubdir"))
              .toFile()
              .deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1"))
+             .toFile()
+             .deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir"))
+             .toFile()
+             .deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir/com"))
+             .toFile()
+             .deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir/com/artifactdir"))
+             .toFile()
+             .deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir/com/artifactdir/1.0.0"))
+             .toFile()
+             .deleteOnExit();
+        Files.createFile(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir/com/artifactdir/1.0.0/artifactdir-1.0.0.jar"))
+             .toFile()
+             .deleteOnExit();
     }
     
     @Test
@@ -157,5 +175,26 @@ public class BrowseControllerTest
                .then()
                .statusCode(404);
     }
-
+    
+    @Test
+    public void testBrowseRepositoryContents()
+    {
+        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/releases/org1/groupdir/com/artifactdir/1.0.0/";
+        String responseBody = given().accept(MediaType.TEXT_HTML_VALUE)
+                                     .when()
+                                     .get(url)
+                                     .prettyPeek()
+                                     .then()
+                                     .statusCode(302)
+                                     .and()
+                                     .extract()
+                                     .asString();
+               
+        assertTrue("Returned HTML is incorrect", responseBody.contains("/storages/storage0/releases/org1/groupdir/com/artifactdir/1.0.0/artifactdir-1.0.0.jar'"));
+               
+        
+        
+        
+    }
+    
 }

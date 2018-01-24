@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.domain.DirectoryContent;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
@@ -18,10 +19,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 import io.swagger.annotations.Api;
@@ -46,7 +51,7 @@ public abstract class BaseArtifactController
 
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
-    
+  
     // ----------------------------------------------------------------------------------------------------------------
     // Common-purpose methods
 
@@ -119,16 +124,16 @@ public abstract class BaseArtifactController
     protected void getDirectoryListing(HttpServletRequest request,
                                        HttpServletResponse response)
     {
-        String dirPath = null;
+        Path dirPath = null;
         
         if (System.getProperty("strongbox.storage.booter.basedir") != null)
         {
-            dirPath = System.getProperty("strongbox.storage.booter.basedir");
+            dirPath = Paths.get(System.getProperty("strongbox.storage.booter.basedir"));
         }
         else
         {
             // Assuming this invocation is related to tests:
-            dirPath =  ConfigurationResourceResolver.getVaultDirectory() + "/storages/";
+            dirPath =  Paths.get(ConfigurationResourceResolver.getVaultDirectory() + "/storages/");
         }        
         generateDirectoryListing(dirPath, request, response);
     }
@@ -137,7 +142,7 @@ public abstract class BaseArtifactController
                                        HttpServletRequest request,
                                        HttpServletResponse response)
     {
-        String dirPath = storage.getBasedir();
+        Path dirPath = Paths.get(storage.getBasedir());
         
         generateDirectoryListing(dirPath, request, response);
     }
@@ -154,26 +159,25 @@ public abstract class BaseArtifactController
             throw new RuntimeException("Unable to retrieve HTTP request from execution context");
         }
 
-        String dirPath = repository.getBasedir() + File.separator + path;
+        Path dirPath = Paths.get(repository.getBasedir(), File.separator, path);
                 
         generateDirectoryListing(dirPath, request, response);
     }
 
-    protected void generateDirectoryListing(String dirPath,
+    protected void generateDirectoryListing(Path dirPath,
                                             HttpServletRequest request,
                                             HttpServletResponse response)
     {   
         if(dirPath == null)
         {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            logger.debug("Could not retrive /storages base directory");
+            logger.debug("Could not retrive directory");
             return;
         }
-        
-        File file = new File(dirPath);
+                
         String requestUri = request.getRequestURI();
         
-        if (file.isDirectory() && !requestUri.endsWith("/"))
+        if (Files.isDirectory(dirPath) && !requestUri.endsWith("/"))
         {
             try
             {
@@ -186,9 +190,11 @@ public abstract class BaseArtifactController
             return;
         }
 
+        
+        
         try
-        {
-            logger.debug(" browsing: " + file.toString());
+        {   
+            logger.debug(" browsing: " + dirPath.toString());
 
             StringBuilder sb = new StringBuilder();
             sb.append("<html>");
@@ -209,19 +215,36 @@ public abstract class BaseArtifactController
             sb.append("<td colspan=3><a href='..'>..</a></td>");
             sb.append("</tr>");
 
-            File[] childFiles = file.listFiles();
-            if (childFiles != null)
-            {
-                for (File dirFile : ArtifactControllerHelper.getDirectories(file))
+            DirectoryContent directory = new DirectoryContent(dirPath);
+            Map<String, List<File>> contents = directory.getContents();
+           
+                for (File childDirectory : contents.get("directories"))
                 {
-                    appendFile(sb, dirFile);
-                }
+                    String lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(
+                            new Date(childDirectory.lastModified()));
 
-                for (File childFile : ArtifactControllerHelper.getFiles(file))
-                {
-                    appendFile(sb, childFile);
+                    sb.append("<tr>");
+                    sb.append("<td><a href='" + URLEncoder.encode(childDirectory.getName(), "UTF-8") + 
+                              "/'>" + childDirectory.getName() + "/" + "</a></td>");
+                    sb.append("<td>" + lastModified + "</td>");
+                    sb.append("<td>" + FileUtils.byteCountToDisplaySize(childDirectory.length()) + "</td>");
+                    sb.append("</tr>");
                 }
-            }
+                
+                for (File childFile : contents.get("files"))
+                {   
+                    requestUri = requestUri.replaceFirst("/browse/", "/storages/");
+                    
+                    String lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(
+                            new Date(childFile.lastModified()));
+
+                    sb.append("<tr>");
+                    sb.append("<td><a href='" + requestUri + URLEncoder.encode(childFile.getName(), "UTF-8") + 
+                              "'>" + childFile.getName() + "</a></td>");
+                    sb.append("<td>" + lastModified + "</td>");
+                    sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
+                    sb.append("</tr>");
+                }
 
             sb.append("</table>");
             sb.append("</body>");
@@ -239,42 +262,17 @@ public abstract class BaseArtifactController
         }
         catch (Exception e)
         {
-            logger.error(" error accessing requested directory: " + file.getAbsolutePath(), e);
+            logger.error(" error accessing requested directory: " + dirPath.toString(), e);
 
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 
-    private boolean appendFile(StringBuilder sb,
-                               File childFile)
-            throws UnsupportedEncodingException
-    {
-        String name = childFile.getName();
-
-        if (name.startsWith(".") || childFile.isHidden())
-        {
-            return false;
-        }
-
-        String lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(
-                new Date(childFile.lastModified()));
-
-        sb.append("<tr>");
-        sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ?
-                                                                        "/" : "") + "'>" + name +
-                  (childFile.isDirectory() ? "/" : "") + "</a></td>");
-        sb.append("<td>" + lastModified + "</td>");
-        sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
-        sb.append("</tr>");
-        return true;
-    }
-
-
     protected boolean provideArtifactDownloadResponse(HttpServletRequest request,
-                                                   HttpServletResponse response,
-                                                   HttpHeaders httpHeaders,
-                                                   Repository repository,
-                                                   String path)
+                                                      HttpServletResponse response,
+                                                      HttpHeaders httpHeaders,
+                                                      Repository repository,
+                                                      String path)
         throws IOException,
         ArtifactTransportException,
         ProviderImplementationException,
