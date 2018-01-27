@@ -46,7 +46,6 @@ public class MavenIndexGroupRepositoryComponentTest
         artifactIndexesService.rebuildIndexes();
     }
 
-    @Ignore
     @Test
     public void artifactDeletionShouldDeleteArtifactFromParentGroupRepositoryIndex()
             throws Exception
