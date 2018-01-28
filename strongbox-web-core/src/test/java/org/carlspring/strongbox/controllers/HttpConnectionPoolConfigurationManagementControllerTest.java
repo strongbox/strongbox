@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
@@ -197,7 +198,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(equalTo(String.valueOf(expectedPoolStats)));
+               .body(containsString("max: " + expectedPoolStats.getMax()));
     }
 
     @Test
@@ -236,16 +237,12 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
               repository.getId();
 
         PoolStats expectedPoolStats = new PoolStats(0, 0, 0, numberOfConnections);
-
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body("leased", equalTo(expectedPoolStats.getLeased()))
-               .body("pending", equalTo(expectedPoolStats.getPending()))
-               .body("available", equalTo(expectedPoolStats.getAvailable()))
                .body("max", equalTo(expectedPoolStats.getMax()));
     }
 }
