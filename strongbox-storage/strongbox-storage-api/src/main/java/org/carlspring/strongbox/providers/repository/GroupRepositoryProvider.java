@@ -1,22 +1,6 @@
 package org.carlspring.strongbox.providers.repository;
 
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.RepositoryInputStream;
@@ -31,7 +15,14 @@ import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.javatuples.Pair;
 import org.slf4j.Logger;
@@ -80,16 +71,17 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     public RepositoryInputStream getInputStream(String storageId,
                                                 String repositoryId,
                                                 String artifactPath)
-        throws IOException,
-        NoSuchAlgorithmException,
-        ArtifactTransportException,
-        ProviderImplementationException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
-        return Optional.ofNullable(resolvePathDirectlyFromGroupPathIfPossible(storageId, repositoryId,
+        return Optional.ofNullable(resolvePathDirectlyFromGroupPathIfPossible(storageId,
+                                                                              repositoryId,
                                                                               artifactPath))
                        .map(p -> hostedRepositoryProvider.newInputStream(p))
-                       .orElse(hostedRepositoryProvider.newInputStream(resolvePathTraversal(storageId, repositoryId,
-                                                                                            artifactPath)));
+                       .orElseGet(() -> hostedRepositoryProvider.newInputStream(
+                               resolvePathTraversal(storageId, repositoryId, artifactPath)));
     }
 
     protected RepositoryPath resolvePathTraversal(String storageId,
