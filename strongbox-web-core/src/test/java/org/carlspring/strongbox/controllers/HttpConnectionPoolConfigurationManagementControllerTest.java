@@ -1,33 +1,35 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
-import io.restassured.response.ExtractableResponse;
 import org.apache.commons.collections.MapUtils;
 import org.apache.http.pool.PoolStats;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static junit.framework.TestCase.assertEquals;
+import static org.hamcrest.CoreMatchers.equalTo;
 
-@Ignore // This test needs to be re-worked after the changes in SB-728 and SB-729 were introduced.
+/**
+ * @author Pablo Tirado
+ */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 public class HttpConnectionPoolConfigurationManagementControllerTest
         extends RestAssuredBaseTest
 {
@@ -35,98 +37,128 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
     @Inject
     private ConfigurationManager configurationManager;
 
-    @BeforeClass
-    public static void setUp()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException
+    @Before
+    public void setUp()
+            throws IOException
     {
-        File storageBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
+        Path storageBasedir = Paths.get(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
 
-/*
-        generateArtifact(storageBasedir.getAbsolutePath(),
-                         "org.carlspring.strongbox:strongbox-utils:8.2:jar",
-                         "1.0");
-*/
+        generateArtifact(storageBasedir.toAbsolutePath().toString() +
+                         "org.carlspring.strongbox:strongbox-utils:8.2:jar");
+
     }
 
     @Test
-    public void testGetMaxNumberOfConnectionsForProxyRepository()
+    public void testSetAndGetMaxNumberOfConnectionsForProxyRepositoryWithTextAcceptHeader()
     {
+        int newMaxNumberOfConnections = 200;
 
-        String url = getContextBaseUrl() + "/configuration/proxy/connection-pool";
+        String url = getContextBaseUrl() + "/configuration/proxy/connection-pool/max/" + newMaxNumberOfConnections;
 
-        ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                              .when()
-                                              .get(url)
-                                              .peek()
-                                              .then()
-                                              .statusCode(200)
-                                              .extract();
+        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .put(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo("Max number of connections for proxy repository was updated successfully."));
 
-        String str = response.response().getBody().asString();
+        url = getContextBaseUrl() + "/configuration/proxy/connection-pool";
 
-        assertEquals(Integer.valueOf(200), Integer.valueOf(str));
+        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(String.valueOf(newMaxNumberOfConnections)));
     }
 
     @Test
-    public void testSetMaxNumberOfConnectionsForProxyRepository()
+    public void testSetAndGetMaxNumberOfConnectionsForProxyRepositoryWithJsonAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/configuration/proxy/connection-pool/max/200";
+        int newMaxNumberOfConnections = 200;
 
-        ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                              .when()
-                                              .put(url)
-                                              .peek()
-                                              .then()
-                                              .statusCode(200)
-                                              .extract();
+        String url = getContextBaseUrl() + "/configuration/proxy/connection-pool/max/" + newMaxNumberOfConnections;
 
-        assertEquals("Max number of connections for proxy repository was updated successfully.",
-                     response.response().getBody().asString());
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .put(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("Max number of connections for proxy repository was updated successfully."));
+
+        url = getContextBaseUrl() + "/configuration/proxy/connection-pool";
+
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("numberOfConnections", equalTo(newMaxNumberOfConnections));
     }
 
     @Test
-    public void testGetDefaultNumberOfConnectionsForProxyRepository()
+    public void testSetAndGetDefaultNumberOfConnectionsForProxyRepositoryWithTextAcceptHeader()
     {
+        int newDefaultNumberOfConnections = 5;
 
-        String url = getContextBaseUrl() + "/configuration/proxy/connection-pool/default-number";
+        String url =
+                getContextBaseUrl() + "/configuration/proxy/connection-pool/default/" + newDefaultNumberOfConnections;
 
+        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .put(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo("Default number of connections for proxy repository was updated successfully."));
 
-        ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                              .when()
-                                              .get(url)
-                                              .peek()
-                                              .then()
-                                              .statusCode(200)
-                                              .extract();
+        url = getContextBaseUrl() + "/configuration/proxy/connection-pool/default-number";
 
-        String str = response.response().getBody().asString();
-
-        assertEquals(Integer.valueOf(5), Integer.valueOf(str));
+        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(String.valueOf(newDefaultNumberOfConnections)));
     }
 
     @Test
-    public void testSetDefaultNumberOfConnectionsForProxyRepository()
+    public void testSetAndGetDefaultNumberOfConnectionsForProxyRepositoryWithJsonAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/configuration/proxy/connection-pool/default/5";
+        int newDefaultNumberOfConnections = 5;
 
-        ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                              .when()
-                                              .put(url)
-                                              .peek()
-                                              .then()
-                                              .statusCode(200)
-                                              .extract();
+        String url =
+                getContextBaseUrl() + "/configuration/proxy/connection-pool/default/" + newDefaultNumberOfConnections;
 
-        assertEquals("Default number of connections for proxy repository was updated successfully.",
-                     response.response().getBody().asString());
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .put(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message",
+                     equalTo("Default number of connections for proxy repository was updated successfully."));
+
+        url = getContextBaseUrl() + "/configuration/proxy/connection-pool/default-number";
+
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("numberOfConnections", equalTo(newDefaultNumberOfConnections));
     }
 
     @Test
-    public void testSetNumberOfConnectionsForProxyRepository()
+    public void testSetAndGetNumberOfConnectionsForProxyRepositoryWithTextAcceptHeader()
     {
-        org.carlspring.strongbox.configuration.Configuration configuration = configurationManager.getConfiguration();
+        Configuration configuration = configurationManager.getConfiguration();
         Optional<Repository> repositoryOpt = configuration.getStorages()
                                                           .values()
                                                           .stream()
@@ -139,28 +171,39 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
                                                           .findAny();
 
         Repository repository = repositoryOpt.get();
+        int numberOfConnections = 5;
 
         String url = getContextBaseUrl() + "/configuration/proxy/connection-pool/" +
                      repository.getStorage().getId() + "/" +
-                     repository.getId() + "/5";
+                     repository.getId() + "/" +
+                     numberOfConnections;
 
-        ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                              .when()
-                                              .put(url)
-                                              .peek()
-                                              .then()
-                                              .statusCode(200)
-                                              .extract();
+        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .put(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo("Number of pool connections for repository was updated successfully."));
 
-        assertEquals("Number of pool connections for repository was updated successfully.",
-                     response.response().getBody().asString());
+        url = getContextBaseUrl() + "/configuration/proxy/connection-pool/" +
+              repository.getStorage().getId() + "/" +
+              repository.getId();
+
+        PoolStats expectedPoolStats = new PoolStats(0, 0, 0, numberOfConnections);
+        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(equalTo(String.valueOf(expectedPoolStats)));
     }
 
-    @Ignore
     @Test
-    public void testGetNumberOfConnectionsForProxyRepository()
+    public void testSetAndGetNumberOfConnectionsForProxyRepositoryWithJsonAcceptHeader()
     {
-        org.carlspring.strongbox.configuration.Configuration configuration = configurationManager.getConfiguration();
+        Configuration configuration = configurationManager.getConfiguration();
         Optional<Repository> repositoryOpt = configuration.getStorages()
                                                           .values()
                                                           .stream()
@@ -173,20 +216,36 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
                                                           .findAny();
 
         Repository repository = repositoryOpt.get();
+        int numberOfConnections = 5;
 
         String url = getContextBaseUrl() + "/configuration/proxy/connection-pool/" +
                      repository.getStorage().getId() + "/" +
-                     repository.getId();
+                     repository.getId() + "/" +
+                     numberOfConnections;
 
-        ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                              .when()
-                                              .get(url)
-                                              .peek()
-                                              .then()
-                                              .statusCode(200)
-                                              .extract();
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .put(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("Number of pool connections for repository was updated successfully."));
 
-        assertEquals(new PoolStats(0, 0, 0, 5).toString(), response.response().getBody().asString());
+        url = getContextBaseUrl() + "/configuration/proxy/connection-pool/" +
+              repository.getStorage().getId() + "/" +
+              repository.getId();
+
+        PoolStats expectedPoolStats = new PoolStats(0, 0, 0, numberOfConnections);
+
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("leased", equalTo(expectedPoolStats.getLeased()))
+               .body("pending", equalTo(expectedPoolStats.getPending()))
+               .body("available", equalTo(expectedPoolStats.getAvailable()))
+               .body("max", equalTo(expectedPoolStats.getMax()));
     }
-
 }
