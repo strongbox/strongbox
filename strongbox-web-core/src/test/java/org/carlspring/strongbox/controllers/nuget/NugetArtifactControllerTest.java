@@ -433,8 +433,9 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
         assertTrue(artifactEntry instanceof RemoteArtifactEntry);
         assertFalse(((RemoteArtifactEntry)artifactEntry).getIsCached());
+        logger.debug("xxxx");
+        //PrintStream originalSysOut = muteSystemOutput();
         
-        PrintStream originalSysOut = muteSystemOutput();
         try
         {
             given().header("User-Agent", "NuGet/*")
@@ -448,7 +449,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         }
         finally
         {
-            System.setOut(originalSysOut);
+           // System.setOut(originalSysOut);
         }
     }
 

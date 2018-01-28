@@ -673,14 +673,14 @@ public class MavenArtifactControllerTest
 
         String basePath = "storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES1;
 
-        ExtractableResponse repositoryRoot = client.getResourceWithResponse(basePath, "");
-        ExtractableResponse trashDirectoryListing = client.getResourceWithResponse(basePath, ".trash");
-        ExtractableResponse indexDirectoryListing = client.getResourceWithResponse(basePath, ".index");
-        ExtractableResponse directoryListing = client.getResourceWithResponse(basePath,
+        ExtractableResponse repositoryRoot = client.getDirectoryResource(basePath, "");
+        ExtractableResponse trashDirectoryListing = client.getDirectoryResource(basePath, ".trash");
+        ExtractableResponse indexDirectoryListing = client.getDirectoryResource(basePath, ".index");
+        ExtractableResponse directoryListing = client.getDirectoryResource(basePath,
                                                                               "org/carlspring/strongbox/browse/");
-        ExtractableResponse fileListing = client.getResourceWithResponse(basePath,
+        ExtractableResponse fileListing = client.getDirectoryResource(basePath,
                                                                          "org/carlspring/strongbox/browse/foo-bar/1.0/");
-        ExtractableResponse invalidPath = client.getResourceWithResponse(basePath,
+        ExtractableResponse invalidPath = client.getDirectoryResource(basePath,
                                                                          "org/carlspring/strongbox/browse/1.0/");
 
         String repositoryRootContent = repositoryRoot.asString();

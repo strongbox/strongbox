@@ -123,24 +123,7 @@ public class MavenArtifactController
 
             return;
         }
-
-        if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
-        {
-            try
-            {
-                getDirectoryListing(repository, path, request, response);
-            }
-            catch (Exception e)
-            {
-                logger.debug("Unable to generate directory listing for " +
-                        "/" + storageId + "/" + repositoryId + "/" + path, e);
-
-                response.setStatus(INTERNAL_SERVER_ERROR.value());
-            }
-
-            return;
-        }
-
+                
         provideArtifactDownloadResponse(request, response, httpHeaders, repository, path);
     }
 
