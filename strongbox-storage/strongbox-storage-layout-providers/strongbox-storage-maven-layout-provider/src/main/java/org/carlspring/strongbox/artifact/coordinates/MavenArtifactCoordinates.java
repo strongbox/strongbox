@@ -99,18 +99,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates<MavenA
         setArtifactId(artifact.getArtifactId());
         setVersion(artifact.getVersion());
         setClassifier(artifact.getClassifier());
-
-        if (artifact.getFile() != null)
-        {
-            String extension = artifact.getFile().getAbsolutePath();
-            extension = extension.substring(extension.lastIndexOf('.'), extension.length());
-
-            setExtension(extension);
-        }
-        else
-        {
-            setExtension("jar");
-        }
+        setExtension(artifact.getType());
     }
 
     @Override
