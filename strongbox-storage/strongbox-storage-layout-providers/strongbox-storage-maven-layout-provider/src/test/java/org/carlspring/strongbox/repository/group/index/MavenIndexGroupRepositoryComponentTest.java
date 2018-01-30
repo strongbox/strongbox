@@ -46,7 +46,6 @@ public class MavenIndexGroupRepositoryComponentTest
         artifactIndexesService.rebuildIndexes();
     }
 
-    @Ignore
     @Test
     public void artifactDeletionShouldDeleteArtifactFromParentGroupRepositoryIndex()
             throws Exception
@@ -71,7 +70,7 @@ public class MavenIndexGroupRepositoryComponentTest
 
         SearchRequest request = new SearchRequest(STORAGE0,
                                                   REPOSITORY_GROUP_F,
-                                                  "+g:com.artifacts.to.delete.releases +a:delete-group +v:1.2.1 +p:jar",
+                                                  "+g:com.artifacts.to.delete.releases +a:delete-group +v:1.2.1 +e:jar",
                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertTrue(artifactSearchService.contains(request));

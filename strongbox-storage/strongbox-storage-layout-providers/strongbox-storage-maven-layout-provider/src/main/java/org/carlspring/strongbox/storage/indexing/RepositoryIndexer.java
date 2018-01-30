@@ -91,7 +91,7 @@ public class RepositoryIndexer
             // preserve duplicates
             if (CollectionUtils.isNotEmpty(
                     search(artifactInfo.getGroupId(), artifactInfo.getArtifactId(), artifactInfo.getVersion(),
-                           artifactInfo.getPackaging(), artifactInfo.getClassifier())))
+                           artifactInfo.getFileExtension(), artifactInfo.getClassifier())))
             {
                 return;
             }
@@ -118,7 +118,7 @@ public class RepositoryIndexer
     public Set<SearchResult> search(final String groupId,
                                     final String artifactId,
                                     final String version,
-                                    final String packaging,
+                                    final String extension,
                                     final String classifier)
             throws IOException
     {
@@ -139,9 +139,9 @@ public class RepositoryIndexer
         	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.VERSION, new SourcedSearchExpression(version)), MUST);
         }
 
-        if (packaging != null)
+        if (extension != null)
         {
-        	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.PACKAGING, new SourcedSearchExpression(packaging)), MUST);
+        	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.EXTENSION, new SourcedSearchExpression(extension)), MUST);
         }
         else
         {
