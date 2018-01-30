@@ -93,7 +93,7 @@ public class MavenIndexGroupRepositoryComponentTest
 
         SearchRequest request = new SearchRequest(STORAGE0,
                                                   NEW_REPOSITORY_GROUP_X,
-                                                  "+g:com.artifacts.to.delete.releases +a:delete-group +v:1.2.1 +p:jar",
+                                                  "+g:com.artifacts.to.delete.releases +a:delete-group +v:1.2.1 +e:jar",
                                                   MavenIndexerSearchProvider.ALIAS);
         assertThat(artifactSearchService.search(request).getResults().size(), Matchers.equalTo(1));
 
@@ -101,13 +101,13 @@ public class MavenIndexGroupRepositoryComponentTest
                                     NEW_REPOSITORY_GROUP_X,
                                     "+g:com.artifacts.to.delete.releases +a:delete-group +v:1.2.1",
                                     MavenIndexerSearchProvider.ALIAS);
-        assertThat(artifactSearchService.search(request).getResults().size(), Matchers.equalTo(1));
+        assertThat(artifactSearchService.search(request).getResults().size(), Matchers.equalTo(2));
 
         request = new SearchRequest(STORAGE0,
                                     NEW_REPOSITORY_GROUP_X,
                                     "+g:com.artifacts.to.delete.releases +a:delete-group",
                                     MavenIndexerSearchProvider.ALIAS);
-        assertThat(artifactSearchService.search(request).getResults().size(), Matchers.equalTo(2));
+        assertThat(artifactSearchService.search(request).getResults().size(), Matchers.equalTo(4));
 
     }
 

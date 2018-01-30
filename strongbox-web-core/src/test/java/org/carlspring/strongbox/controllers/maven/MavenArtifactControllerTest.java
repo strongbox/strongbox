@@ -963,7 +963,7 @@ public class MavenArtifactControllerTest
         }
 
         assertEquals("Incorrect number of results yielded from search against Maven Index!",
-                     2,
+                     3,
                      results.getResults().size());
 
         // When
