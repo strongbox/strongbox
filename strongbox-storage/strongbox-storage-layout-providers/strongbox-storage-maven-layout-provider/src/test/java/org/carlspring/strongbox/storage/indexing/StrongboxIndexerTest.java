@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -8,6 +7,7 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import org.carlspring.strongbox.util.IndexContextHelper;
 
 import javax.inject.Inject;
+import java.nio.file.Files;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -16,6 +16,7 @@ import org.apache.maven.index.FlatSearchRequest;
 import org.apache.maven.index.FlatSearchResponse;
 import org.apache.maven.index.Indexer;
 import org.apache.maven.index.MAVEN;
+import org.apache.maven.index.expr.SourcedSearchExpression;
 import org.apache.maven.index.expr.UserInputSearchExpression;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -88,7 +89,6 @@ public class StrongboxIndexerTest
                                       "1.8");
 
 
-
     }
 
     @Test
@@ -122,6 +122,57 @@ public class StrongboxIndexerTest
         RepositoryIndexer ri = repositoryIndexManager.getRepositoryIndexer(contextId);
         Query q = indexer.constructQuery(MAVEN.CLASSNAMES,
                                          new UserInputSearchExpression("org.carlspring.ioc.PropertyValueInjector"));
+
+        FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(q, ri.getIndexingContext()));
+
+        assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
+    }
+
+    @Test
+    public void indexerShouldBeCapableToSearchByFullSha1Hash()
+            throws Exception
+    {
+        String sha1 = Files.readAllLines(getVaultDirectoryPath()
+                                                 .resolve("storages")
+                                                 .resolve(STORAGE0)
+                                                 .resolve(REPOSITORY_RELEASES_1)
+                                                 .resolve("org")
+                                                 .resolve("carlspring")
+                                                 .resolve("properties-injector")
+                                                 .resolve("1.8")
+                                                 .resolve("properties-injector-1.8.jar.sha1")
+                                                 .toAbsolutePath()).get(0);
+
+        String contextId = IndexContextHelper.getContextId(STORAGE0, REPOSITORY_RELEASES_1,
+                                                           IndexTypeEnum.LOCAL.getType());
+        RepositoryIndexer ri = repositoryIndexManager.getRepositoryIndexer(contextId);
+        Query q = indexer.constructQuery(MAVEN.SHA1, new SourcedSearchExpression(sha1));
+
+        FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(q, ri.getIndexingContext()));
+
+        assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
+    }
+
+    @Test
+    public void indexerShouldBeCapableToSearchByPartialSha1Hash()
+            throws Exception
+    {
+        String sha1 = Files.readAllLines(getVaultDirectoryPath()
+                                                 .resolve("storages")
+                                                 .resolve(STORAGE0)
+                                                 .resolve(REPOSITORY_RELEASES_1)
+                                                 .resolve("org")
+                                                 .resolve("carlspring")
+                                                 .resolve("properties-injector")
+                                                 .resolve("1.8")
+                                                 .resolve("properties-injector-1.8.jar.sha1")
+                                                 .toAbsolutePath()).get(0);
+
+        String contextId = IndexContextHelper.getContextId(STORAGE0, REPOSITORY_RELEASES_1,
+                                                           IndexTypeEnum.LOCAL.getType());
+        RepositoryIndexer ri = repositoryIndexManager.getRepositoryIndexer(contextId);
+        Query q = indexer.constructQuery(MAVEN.SHA1,
+                                         new UserInputSearchExpression(sha1.substring(0, 8)));
 
         FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(q, ri.getIndexingContext()));
 
