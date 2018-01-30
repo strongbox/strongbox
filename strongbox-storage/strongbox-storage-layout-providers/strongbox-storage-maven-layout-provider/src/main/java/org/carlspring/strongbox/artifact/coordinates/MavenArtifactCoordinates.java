@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
@@ -99,7 +100,21 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates<MavenA
         setArtifactId(artifact.getArtifactId());
         setVersion(artifact.getVersion());
         setClassifier(artifact.getClassifier());
-        setExtension(artifact.getType());
+        if (artifact.getFile() != null)
+        {
+            String extension = artifact.getFile().getAbsolutePath();
+            extension = extension.substring(extension.lastIndexOf('.'), extension.length());
+
+            setExtension(extension);
+        }
+        else if (StringUtils.isNotBlank(artifact.getType()))
+        {
+            setExtension(artifact.getType());
+        }
+        else
+        {
+            setExtension("jar");
+        }
     }
 
     @Override
