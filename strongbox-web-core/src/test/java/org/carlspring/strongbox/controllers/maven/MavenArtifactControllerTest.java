@@ -6,8 +6,8 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
@@ -29,6 +29,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -129,17 +130,24 @@ public class MavenArtifactControllerTest
         Path dirPath = Paths.get(pluginXmlFilePath).getParent().getParent().getParent();
         try
         {
-            Files.walk(dirPath)
+            Files.walk(dirPath, FileVisitOption.FOLLOW_LINKS)
+                 .sorted(Comparator.reverseOrder())
                  .map(Path::toFile)
-                 .sorted(Comparator.comparing(File::isDirectory))
-                 .forEach(File::delete);
+                 .peek(System.out::println)
+                 .forEach(
+                         file ->{
+                             System.out.println("***" +file.getName());
+                             if(file.getPath().contains("temp"))  {
+                                 file.delete();
+                             }
+                         }
+                 );
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
     }
-
     private static void writeToZipFile(String path,
                                        ZipOutputStream zipStream)
             throws Exception
