@@ -90,8 +90,7 @@ public class RepositoryIndexer
 
             // preserve duplicates
             if (CollectionUtils.isNotEmpty(
-                    search(artifactInfo.getGroupId(), artifactInfo.getArtifactId(), artifactInfo.getVersion(),
-                           artifactInfo.getFileExtension(), artifactInfo.getClassifier())))
+                    search(artifactInfo)))
             {
                 return;
             }
@@ -109,10 +108,23 @@ public class RepositoryIndexer
         final List<ArtifactContext> delete = new ArrayList<>();
         for (final ArtifactInfo artifactInfo : artifactInfos)
         {
+            // preserve extra delete index records
+            if (CollectionUtils.isEmpty(search(artifactInfo)))
+            {
+                continue;
+            }
             delete.add(new SafeArtifactContext(new ArtifactContext(null, null, null, artifactInfo, null)));
         }
 
         getIndexer().deleteArtifactsFromIndex(delete, indexingContext);
+    }
+
+    public Set<SearchResult> search(final ArtifactInfo artifactInfo)
+        throws IOException
+    {
+        return search(artifactInfo.getGroupId(), artifactInfo.getArtifactId(),
+                                           artifactInfo.getVersion(),
+                                           artifactInfo.getFileExtension(), artifactInfo.getClassifier());
     }
 
     public Set<SearchResult> search(final String groupId,
