@@ -105,6 +105,10 @@ public class RepositoryFileAttributes implements BasicFileAttributes
         return Boolean.TRUE.equals(attributes.get(INDEX));
     }
 
+    // TODO: we should determine real platform specific metadata files as
+    // artifacts too, so files like `pom`|`nuspec`|`package.json` should be
+    // treated as artifacts and they should have an ArtifactCoodrinates (for now they have no coordinates)
+    // also we need special attribute for files like maven-metadata.xml, it can be called as `other`
     public boolean isArtifact()
     {
         return Boolean.TRUE.equals(attributes.get(ARTIFACT));
