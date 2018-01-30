@@ -19,6 +19,9 @@ public class MavenRepositoryConfiguration
     @XmlAttribute(name = "indexing-enabled")
     private boolean indexingEnabled = false;
 
+    @XmlAttribute(name = "indexing-class-names-enabled")
+    private boolean indexingClassNamesEnabled = true;
+
 
     public MavenRepositoryConfiguration()
     {
@@ -34,4 +37,13 @@ public class MavenRepositoryConfiguration
         this.indexingEnabled = indexingEnabled;
     }
 
+    public boolean isIndexingClassNamesEnabled()
+    {
+        return indexingClassNamesEnabled;
+    }
+
+    public void setIndexingClassNamesEnabled(final boolean indexingClassNamesEnabled)
+    {
+        this.indexingClassNamesEnabled = indexingClassNamesEnabled;
+    }
 }
