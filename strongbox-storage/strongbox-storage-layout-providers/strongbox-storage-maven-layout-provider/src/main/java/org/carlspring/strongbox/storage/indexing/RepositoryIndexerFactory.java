@@ -4,16 +4,21 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.repository.RepositoryInitializationException;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
 import org.apache.maven.index.Indexer;
 import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
+import org.apache.maven.index.creator.JarFileContentsIndexCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -98,7 +103,24 @@ public class RepositoryIndexerFactory
                                                         // valid Maven Indexer lucene index, and no checks needed to be
                                                         // performed, or, if we want to "stomp" over existing index
                                                         // (unsafe to do!).
-                                                  indexerConfiguration.getIndexersAsList());
+                                                  getRepositoryIndexCreators(storageId, repositoryId));
+    }
+
+    private List<IndexCreator> getRepositoryIndexCreators(final String storageId,
+                                                          final String repositoryId)
+    {
+        List<IndexCreator> indexCreators = Lists.newArrayList(indexerConfiguration.getIndexersAsList());
+        final MavenRepositoryConfiguration mavenRepositoryConfiguration = (MavenRepositoryConfiguration)
+                                                                                  configuration.getStorage(storageId)
+                                                                                               .getRepository(repositoryId)
+                                                                                               .getRepositoryConfiguration();
+        if (mavenRepositoryConfiguration != null && !mavenRepositoryConfiguration.isIndexingClassNamesEnabled())
+        {
+            indexCreators = indexCreators.stream()
+                                         .filter(indexCreator -> !(indexCreator instanceof JarFileContentsIndexCreator))
+                                         .collect(Collectors.toList());
+        }
+        return indexCreators;
     }
 
     public IndexerConfiguration getIndexerConfiguration()
