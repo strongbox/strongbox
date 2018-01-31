@@ -238,21 +238,6 @@ public class BrowseStoragesController
         
         logger.debug("Requested path not a directory");
                 
-        if(request.getHeader("user-agent").equals("NuGet/*"))
-        {   
-            String parts[] = path.split("/");
-            if(parts.length < 3)
-            {
-                logger.debug("Invalid Path");
-                response.setStatus(HttpStatus.NOT_FOUND.value());
-                return;
-            }
-            String packageId = parts[parts.length-3];
-            String packageVersion = parts[parts.length-2];
-            String fileName = String.format("%s.%s.nupkg", packageId, packageVersion);
-            path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
-        }
-        
         provideArtifactDownloadResponse(request, response, httpHeaders, repository, path);
         
     }
