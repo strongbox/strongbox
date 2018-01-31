@@ -33,6 +33,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
@@ -224,6 +225,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         {
             // Get1
             given().header("User-Agent", "NuGet/*")
+                   .accept(MediaType.APPLICATION_OCTET_STREAM_VALUE)
                    .when()
                    .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/download/" +
                         packageId + "/" + packageVersion)
@@ -235,6 +237,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
             
             // Get2
             given().header("User-Agent", "NuGet/*")
+                   .accept(MediaType.APPLICATION_OCTET_STREAM_VALUE)
                    .when()
                    .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
                         packageId + "/" + packageVersion)
@@ -433,12 +436,12 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
         assertTrue(artifactEntry instanceof RemoteArtifactEntry);
         assertFalse(((RemoteArtifactEntry)artifactEntry).getIsCached());
-        logger.debug("xxxx");
-        //PrintStream originalSysOut = muteSystemOutput();
         
+        PrintStream originalSysOut = muteSystemOutput();
         try
         {
             given().header("User-Agent", "NuGet/*")
+                   .accept(MediaType.APPLICATION_OCTET_STREAM_VALUE)
                    .when()
                    .get(getContextBaseUrl() + "/storages/public/nuget-public/package/NHibernate/4.1.1.4000")
                    .peek()
@@ -449,7 +452,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         }
         finally
         {
-           // System.setOut(originalSysOut);
+            System.setOut(originalSysOut);
         }
     }
 

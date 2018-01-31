@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
+import java.util.Arrays;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -224,13 +225,18 @@ public class BrowseStoragesController
         }
         
         logger.debug("Requested path not a directory");
-        logger.debug(request.getHeader("user-agent"));
-      
+                
         if(request.getHeader("user-agent").equals("NuGet/*"))
         {   
             String parts[] = path.split("/");
-            String packageId = parts[parts.length-2];
-            String packageVersion = parts[parts.length-1];
+            if(parts.length < 3)
+            {
+                logger.debug("Invalid Path");
+                response.setStatus(HttpStatus.NOT_FOUND.value());
+                return;
+            }
+            String packageId = parts[parts.length-3];
+            String packageVersion = parts[parts.length-2];
             String fileName = String.format("%s.%s.nupkg", packageId, packageVersion);
             path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
         }

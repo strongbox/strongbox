@@ -282,13 +282,12 @@ public class RestAssuredArtifactClient
     public ExtractableResponse getDirectoryResource(String path,
                                                     String pathVar)
     {   
-        logger.debug("xxx");
         String url = getContextBaseUrl() + "/" + path;
         if (pathVar != null && !pathVar.isEmpty())
         {
             url += "/" + pathVar;
         }
-        logger.debug("yyy");
+        
         return givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
                            .accept(MediaType.TEXT_HTML_VALUE)
                            .when()
