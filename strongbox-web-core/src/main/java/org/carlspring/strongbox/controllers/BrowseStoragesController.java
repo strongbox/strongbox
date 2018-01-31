@@ -49,7 +49,9 @@ public class BrowseStoragesController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "" , "/" }, method = RequestMethod.GET, headers = "user-agent=unknown/*")
+    @RequestMapping(value = { "" , "/" },
+                    method = RequestMethod.GET,
+                    headers = "user-agent=unknown/*")
     public void browseStorages(HttpServletRequest request,
                                HttpServletResponse response)
     {
@@ -62,7 +64,9 @@ public class BrowseStoragesController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "{storageId}/" , "{storageId}" }, method = RequestMethod.GET, headers = "user-agent=unknown/*")
+    @RequestMapping(value = { "{storageId}/" , "{storageId}" },
+                    method = RequestMethod.GET,
+                    headers = "user-agent=unknown/*")
     public void browseRepositories(@ApiParam(value = "The storageId", required = true)
                                    @PathVariable String storageId,
                                    HttpServletRequest request,
@@ -90,7 +94,9 @@ public class BrowseStoragesController
                             @ApiResponse(code = 500, message = "Server Error."),
                             @ApiResponse(code = 503, message = "Repository not in service currently.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = {RequestMethod.GET}, headers = {"user-agent=Maven/*"})
+    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
+                    method = {RequestMethod.GET},
+                    headers = {"user-agent=Maven/*"})
     public void browseMavenRepositoriesInternal(@ApiParam(value = "The storageId", required = true)
                                                 @PathVariable String storageId,
                                                 @ApiParam(value = "The repositoryId", required = true)
@@ -111,7 +117,9 @@ public class BrowseStoragesController
                             @ApiResponse(code = 500, message = "Server Error."),
                             @ApiResponse(code = 503, message = "Repository not in service currently.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = {RequestMethod.GET}, headers = {"user-agent=NuGet/*"})
+    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
+                    method = {RequestMethod.GET},
+                    headers = {"user-agent=NuGet/*"})
     public void browseNugetRepositoriesInternal(@ApiParam(value = "The storageId", required = true)
                                                 @PathVariable String storageId,
                                                 @ApiParam(value = "The repositoryId", required = true)
@@ -132,7 +140,9 @@ public class BrowseStoragesController
                             @ApiResponse(code = 500, message = "Server Error."),
                             @ApiResponse(code = 503, message = "Repository not in service currently.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = {RequestMethod.GET}, headers = {"user-agent=npm/*"})
+    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
+                    method = {RequestMethod.GET},
+                    headers = {"user-agent=npm/*"})
     public void browseNpmRepositoriesInternal(@ApiParam(value = "The storageId", required = true)
                                               @PathVariable String storageId,
                                               @ApiParam(value = "The repositoryId", required = true)
@@ -153,7 +163,9 @@ public class BrowseStoragesController
                             @ApiResponse(code = 500, message = "Server Error."),
                             @ApiResponse(code = 503, message = "Repository not in service currently.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = {RequestMethod.GET}, headers = {"user-agent=Raw/*"})
+    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
+                    method = {RequestMethod.GET},
+                    headers = {"user-agent=Raw/*"})
     public void browseRawRepositoriesInternal(@ApiParam(value = "The storageId", required = true)
                                               @PathVariable String storageId,
                                               @ApiParam(value = "The repositoryId", required = true)
