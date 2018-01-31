@@ -112,13 +112,22 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                                  boolean indexing,
                                                  String ga,
                                                  String... versions)
-            throws IOException,
-                   JAXBException,
-                   NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   RepositoryManagementStrategyException
+            throws Exception
     {
-        createRepository(storageId, repositoryId, indexing);
+        MavenRepositoryConfiguration repositoryConfiguration = new MavenRepositoryConfiguration();
+        repositoryConfiguration.setIndexingEnabled(indexing);
+
+        createRepositoryWithArtifacts(storageId, repositoryId, repositoryConfiguration, ga, versions);
+    }
+
+    protected void createRepositoryWithArtifacts(String storageId,
+                                                 String repositoryId,
+                                                 MavenRepositoryConfiguration repositoryConfiguration,
+                                                 String ga,
+                                                 String... versions)
+            throws Exception
+    {
+        createRepository(storageId, repositoryId, repositoryConfiguration);
         generateArtifactsReIndexAndPack(storageId, repositoryId, ga, versions);
     }
 
@@ -127,9 +136,19 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                     boolean indexing)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
-        createRepository(storageId, repositoryId, RepositoryPolicyEnum.RELEASE.getPolicy(), indexing);
+        MavenRepositoryConfiguration repositoryConfiguration = new MavenRepositoryConfiguration();
+        repositoryConfiguration.setIndexingEnabled(indexing);
+
+        createRepository(storageId, repositoryId, RepositoryPolicyEnum.RELEASE.getPolicy(), repositoryConfiguration);
     }
 
+    protected void createRepository(String storageId,
+                                    String repositoryId,
+                                    MavenRepositoryConfiguration repositoryConfiguration)
+            throws IOException, JAXBException, RepositoryManagementStrategyException
+    {
+        createRepository(storageId, repositoryId, RepositoryPolicyEnum.RELEASE.getPolicy(), repositoryConfiguration);
+    }
 
     protected void createRepository(String storageId,
                                     String repositoryId,
@@ -140,6 +159,15 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         MavenRepositoryConfiguration repositoryConfiguration = new MavenRepositoryConfiguration();
         repositoryConfiguration.setIndexingEnabled(indexing);
 
+        createRepository(storageId, repositoryId, policy, repositoryConfiguration);
+    }
+
+    protected void createRepository(String storageId,
+                                    String repositoryId,
+                                    String policy,
+                                    MavenRepositoryConfiguration repositoryConfiguration)
+            throws IOException, JAXBException, RepositoryManagementStrategyException
+    {
         Repository repository = new Repository(repositoryId);
         repository.setPolicy(policy);
         repository.setStorage(configurationManagementService.getStorage(storageId));

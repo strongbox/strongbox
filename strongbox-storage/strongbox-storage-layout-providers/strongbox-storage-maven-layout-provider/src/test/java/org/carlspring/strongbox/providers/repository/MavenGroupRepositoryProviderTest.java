@@ -4,7 +4,6 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
@@ -12,7 +11,6 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -158,9 +156,10 @@ public class MavenGroupRepositoryProviderTest
 
     @After
     public void removeRepositories()
-            throws IOException, JAXBException
+            throws Exception
     {
         removeRepositories(getRepositoriesToClean());
+        cleanUp();
     }
 
     private void createRoutingRules()
@@ -286,19 +285,21 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                           REPOSITORY_GROUP,
-                                                           "com/artifacts/in/releases/one/foo/1.2.3/foo-1.2.3.jar");
+        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                                REPOSITORY_GROUP,
+                                                                "com/artifacts/in/releases/one/foo/1.2.3/foo-1.2.3.jar"))
+        {
 
-        assertNotNull(is);
+            assertNotNull(is);
+        }
 
-        is = repositoryProvider.getInputStream(STORAGE0,
-                                               REPOSITORY_GROUP,
-                                               "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar");
+        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                                REPOSITORY_GROUP,
+                                                                "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"))
+        {
 
-        assertNotNull(is);
-
-        ResourceCloser.close(is, null);
+            assertNotNull(is);
+        }
     }
 
     @Test
@@ -308,17 +309,17 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                           REPOSITORY_GROUP,
-                                                           "com/artifacts/in/releases/under/group/maven-metadata.xml");
+        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                                REPOSITORY_GROUP,
+                                                                "com/artifacts/in/releases/under/group/maven-metadata.xml"))
+        {
 
-        assertNotNull(is);
+            assertNotNull(is);
 
-        Metadata metadata = artifactMetadataService.getMetadata(is);
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
-        assertThat(metadata.getVersioning().getVersions(), CoreMatchers.hasItems("1.2.3", "1.2.4"));
-
-        ResourceCloser.close(is, null);
+            Metadata metadata = artifactMetadataService.getMetadata(is);
+            assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
+            assertThat(metadata.getVersioning().getVersions(), CoreMatchers.hasItems("1.2.3", "1.2.4"));
+        }
     }
 
     @Test
@@ -338,18 +339,18 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                           REPOSITORY_GROUP,
-                                                           "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar");
+        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                                REPOSITORY_GROUP,
+                                                                "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"))
+        {
 
-        configurationManager.getConfiguration()
-                            .getStorage(STORAGE0)
-                            .getRepository(REPOSITORY_RELEASES_2)
-                            .putInService();
+            configurationManager.getConfiguration()
+                                .getStorage(STORAGE0)
+                                .getRepository(REPOSITORY_RELEASES_2)
+                                .putInService();
 
-        assertNull(is);
-
-        ResourceCloser.close(is, null);
+            assertNull(is);
+        }
     }
 
     @Test
@@ -364,13 +365,12 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                           REPOSITORY_GROUP,
-                                                           "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar");
-
-        assertNotNull(is);
-
-        ResourceCloser.close(is, null);
+        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                                REPOSITORY_GROUP,
+                                                                "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"))
+        {
+            assertNotNull(is);
+        }
     }
 
     @Test
@@ -385,13 +385,12 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                           REPOSITORY_GROUP_WITH_NESTED_GROUP_1,
-                                                           "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar");
-
-        assertNotNull(is);
-
-        ResourceCloser.close(is, null);
+        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                                REPOSITORY_GROUP_WITH_NESTED_GROUP_1,
+                                                                "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"))
+        {
+            assertNotNull(is);
+        }
     }
     
     @Test
@@ -406,13 +405,12 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                           REPOSITORY_GROUP_WITH_NESTED_GROUP_2,
-                                                           "org/carlspring/metadata/by/juan/juancho/1.2.64/juancho-1.2.64.jar");
-
-        assertNotNull(is);
-
-        ResourceCloser.close(is, null);
+        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                                REPOSITORY_GROUP_WITH_NESTED_GROUP_2,
+                                                                "org/carlspring/metadata/by/juan/juancho/1.2.64/juancho-1.2.64.jar"))
+        {
+            assertNotNull(is);
+        }
     }
 
     @Test
@@ -427,11 +425,12 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                           REPOSITORY_GROUP,
-                                                           "com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar");
-
-        assertNull(is);
+        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                                REPOSITORY_GROUP,
+                                                                "com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar"))
+        {
+            assertNull(is);
+        }
     }
 
     @Test
@@ -446,18 +445,20 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                           REPOSITORY_GROUP,
-                                                           "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar");
-
-        assertNull(is);
+        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                                REPOSITORY_GROUP,
+                                                                "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar"))
+        {
+            assertNull(is);
+        }
 
         // This one should work, as it's in a different repository
-        is = repositoryProvider.getInputStream(STORAGE0,
-                                               REPOSITORY_GROUP,
-                                               "com/artifacts/denied/by/wildcard/foo/1.2.7/foo-1.2.7.jar");
-
-        assertNotNull(is);
+        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                                REPOSITORY_GROUP,
+                                                                "com/artifacts/denied/by/wildcard/foo/1.2.7/foo-1.2.7.jar"))
+        {
+            assertNotNull(is);
+        }
     }
 
     @Test
@@ -469,13 +470,13 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                           REPOSITORY_GROUP,
-                                                           "org/carlspring/metadata/will/not/be/retrieved/1.2.64/retrieved-1.2.64.jar");
+        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
+                                                                REPOSITORY_GROUP,
+                                                                "org/carlspring/metadata/will/not/be/retrieved/1.2.64/retrieved-1.2.64.jar"))
+        {
 
-        assertNull(is);
-
-        ResourceCloser.close(is, null);
+            assertNull(is);
+        }
     }
 
 }
