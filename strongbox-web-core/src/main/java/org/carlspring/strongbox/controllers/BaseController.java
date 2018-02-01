@@ -2,10 +2,7 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
-import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
-import org.carlspring.strongbox.controllers.support.PortEntityBody;
-import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
+import org.carlspring.strongbox.controllers.support.*;
 import org.carlspring.strongbox.resource.ResourceCloser;
 
 import javax.inject.Inject;
@@ -13,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.http.pool.PoolStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -78,6 +76,30 @@ public abstract class BaseController
         else
         {
             return baseUrl;
+        }
+    }
+
+    protected Object getNumberOfConnectionsEntityBody(int numberOfConnections, String accept)
+    {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return new NumberOfConnectionsEntityBody(numberOfConnections);
+        }
+        else
+        {
+            return String.valueOf(numberOfConnections);
+        }
+    }
+
+    protected Object getPoolStatsEntityBody(PoolStats poolStats, String accept)
+    {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return new PoolStatsEntityBody(poolStats);
+        }
+        else
+        {
+            return String.valueOf(poolStats);
         }
     }
 
