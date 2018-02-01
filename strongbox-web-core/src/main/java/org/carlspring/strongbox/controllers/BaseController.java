@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 import org.apache.http.pool.PoolStats;
 import org.slf4j.Logger;
@@ -100,6 +101,18 @@ public abstract class BaseController
         else
         {
             return String.valueOf(poolStats);
+        }
+    }
+
+    protected Object getListResponseEntityBody(List<?> list, String accept)
+    {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return list;
+        }
+        else
+        {
+            return String.valueOf(list);
         }
     }
 
