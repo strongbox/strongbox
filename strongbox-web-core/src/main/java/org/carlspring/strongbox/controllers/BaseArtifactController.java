@@ -13,6 +13,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
 import javax.inject.Inject;
@@ -99,7 +100,8 @@ public abstract class BaseArtifactController
         
         // Do not allow .index and .trash directories (or any other directory starting with ".") to be browseable.
         // NB: Files will still be downloadable.
-        if (path.startsWith(".index/")  || (!file.isHidden() && !path.startsWith(".") && !path.contains("/.")))
+        if ((repository.getLayout().equals(RepositoryLayoutEnum.MAVEN_2.getLayout()) && path.startsWith(".index"))
+                || (!file.isHidden() && !path.startsWith(".") && !path.contains("/.")))
         {
             if (file.exists() && file.isDirectory())
             {
