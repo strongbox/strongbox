@@ -61,6 +61,7 @@ public class IndexDownloader
                                                                   resourceFetcherFactory.createIndexResourceFetcher(
                                                                           request.getRemoteRepositoryURL(),
                                                                           proxyRepositoryConnectionPoolConfigurationService.getHttpClient()));
+        updateRequest.setIndexTempDir(request.getRepositoryTempDir());
 
         IndexUpdateResult updateResult = indexUpdater.fetchAndUpdateIndex(updateRequest);
 

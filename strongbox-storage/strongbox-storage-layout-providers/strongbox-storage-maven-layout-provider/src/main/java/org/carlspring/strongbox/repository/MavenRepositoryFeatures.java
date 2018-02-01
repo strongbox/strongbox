@@ -101,11 +101,7 @@ public class MavenRepositoryFeatures
             repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
         }
 
-        IndexDownloadRequest request = new IndexDownloadRequest();
-        request.setStorageId(storageId);
-        request.setRepositoryId(repositoryId);
-        request.setRemoteRepositoryURL(repository.getRemoteRepository().getUrl());
-        request.setIndexer(repositoryIndexer.getIndexer());
+        IndexDownloadRequest request = new IndexDownloadRequest(repository, repositoryIndexer.getIndexer());
 
         try
         {
