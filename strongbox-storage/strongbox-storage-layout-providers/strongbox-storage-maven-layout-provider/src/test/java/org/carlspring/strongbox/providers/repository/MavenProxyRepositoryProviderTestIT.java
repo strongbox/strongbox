@@ -39,11 +39,11 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
-public class ProxyRepositoryProviderTestIT
+public class MavenProxyRepositoryProviderTestIT
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProxyRepositoryProviderTestIT.class);
+    private static final Logger logger = LoggerFactory.getLogger(MavenProxyRepositoryProviderTestIT.class);
 
     @Inject
     private ArtifactEntryService artifactEntryService;
