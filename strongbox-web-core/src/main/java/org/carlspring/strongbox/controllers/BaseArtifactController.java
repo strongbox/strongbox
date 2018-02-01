@@ -96,10 +96,10 @@ public abstract class BaseArtifactController
         String dir = repository.getBasedir() + File.separator + filePath;
 
         File file = new File(dir);
-
+        
         // Do not allow .index and .trash directories (or any other directory starting with ".") to be browseable.
         // NB: Files will still be downloadable.
-        if (!file.isHidden() && !path.startsWith(".") && !path.contains("/."))
+        if (path.startsWith(".index/")  || (!file.isHidden() && !path.startsWith(".") && !path.contains("/.")))
         {
             if (file.exists() && file.isDirectory())
             {
