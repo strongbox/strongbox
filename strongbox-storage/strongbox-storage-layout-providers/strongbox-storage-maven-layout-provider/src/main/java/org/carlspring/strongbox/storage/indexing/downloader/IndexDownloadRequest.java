@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.storage.indexing.downloader;
 
+import org.carlspring.strongbox.storage.repository.Repository;
+
+import java.io.File;
+
 import org.apache.maven.index.Indexer;
 
 /**
@@ -9,17 +13,15 @@ public class IndexDownloadRequest
 {
 
 
-    private Indexer indexer;
+    private final Indexer indexer;
 
-    private String storageId;
+    private final Repository repository;
 
-    private String repositoryId;
-
-    private String remoteRepositoryURL;
-
-
-    public IndexDownloadRequest()
+    public IndexDownloadRequest(Repository repository,
+                                Indexer indexer)
     {
+        this.repository = repository;
+        this.indexer = indexer;
     }
 
     public Indexer getIndexer()
@@ -27,39 +29,28 @@ public class IndexDownloadRequest
         return indexer;
     }
 
-    public void setIndexer(Indexer indexer)
+    public Repository getRepository()
     {
-        this.indexer = indexer;
+        return repository;
     }
 
     public String getStorageId()
     {
-        return storageId;
-    }
-
-    public void setStorageId(String storageId)
-    {
-        this.storageId = storageId;
+        return repository.getStorage().getId();
     }
 
     public String getRepositoryId()
     {
-        return repositoryId;
-    }
-
-    public void setRepositoryId(String repositoryId)
-    {
-        this.repositoryId = repositoryId;
+        return repository.getId();
     }
 
     public String getRemoteRepositoryURL()
     {
-        return remoteRepositoryURL;
+        return repository.getRemoteRepository().getUrl();
     }
 
-    public void setRemoteRepositoryURL(String remoteRepositoryURL)
+    public File getRepositoryTempDir()
     {
-        this.remoteRepositoryURL = remoteRepositoryURL;
+        return repository.getTempDir();
     }
-
 }
