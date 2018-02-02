@@ -1,0 +1,23 @@
+version: '2'
+services:
+  strongbox-from-web-core:
+    image: strongboxci/alpine:jdk8-mvn-3.5
+    command:
+      - /bin/bash
+      - -c
+      - |
+         echo ""
+         echo "[NOTICE]   This will take at least 2 to 5 minutes to start depending on your machine and connection!"
+         echo ""
+         echo "           Open http://localhost:48080/storages to browse the repository contents."
+         echo ""
+         sleep 5
+         mkdir -p /workspace/.m2/repositories
+         mvn clean install -DskipTests -Dmaven.repo.local=/workspace/.m2/repositories
+         cd strongbox-web-core
+         mvn clean package -Pjetty-block -Dmaven.repo.local=/workspace/.m2/repositories
+    ports:
+      - 48080:48080
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
