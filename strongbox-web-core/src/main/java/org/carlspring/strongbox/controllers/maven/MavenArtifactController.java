@@ -4,12 +4,12 @@ import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
+import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-
+import java.util.regex.Matcher;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -268,5 +268,36 @@ public class MavenArtifactController
 
         return ResponseEntity.ok("The artifact was deleted.");
     }
+    
+    @Override
+    protected boolean probeForDirectoryListing(Repository repository,
+                                               String path)
+    {
+        String filePath = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
+
+        String dir = repository.getBasedir() + File.separator + filePath;
+
+        File file = new File(dir);
+        
+        // Do not allow any other directory starting with "." except .index to be browseable.
+        // NB: Files will still be downloadable.
+        if (path.startsWith(".index")
+                || (!file.isHidden() && !path.startsWith(".") && !path.contains("/.")))
+        {
+            if (file.exists() && file.isDirectory())
+            {
+                return true;
+            }
+
+            file = new File(dir + File.separator);
+
+            return file.exists() && file.isDirectory();
+        }
+        else
+        {
+            return false;
+        }
+    }
+   
 
 }
