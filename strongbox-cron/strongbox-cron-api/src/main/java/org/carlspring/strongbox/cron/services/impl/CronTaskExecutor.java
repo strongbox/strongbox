@@ -66,13 +66,18 @@ public class CronTaskExecutor extends ThreadPoolExecutor
     protected void beforeExecute(Thread t,
                                  Runnable r)
     {
-        JobDetail jobDetails = exposeJobDetails(r);
-        Optional.ofNullable(jobDetails).ifPresent(this::bootstrapCronJob);
-
-        super.beforeExecute(t, r);
+        try
+        {
+            JobDetail jobDetails = exposeJobDetails(r);
+            Optional.ofNullable(jobDetails).ifPresent(this::bootstrapCronJobContext);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(String.format("Before execute failed for [%s]", r), e);
+        }
     }
 
-    private void bootstrapCronJob(JobDetail jd)
+    private void bootstrapCronJobContext(JobDetail jd)
     {
         String jobClassName = jd.getJobClass().getSimpleName();
         LOGGER.debug(String.format("Bootstrap Cron Job [%s]", jobClassName));
@@ -91,7 +96,8 @@ public class CronTaskExecutor extends ThreadPoolExecutor
         catch (Exception e)
         {
             LOGGER.error(String.format("Failed to expose Cron Job details for [%s] class",
-                                       r.getClass().getSimpleName()));
+                                       r.getClass().getSimpleName()),
+                         e);
         }
         return null;
     }
@@ -100,8 +106,19 @@ public class CronTaskExecutor extends ThreadPoolExecutor
     protected void afterExecute(Runnable r,
                                 Throwable t)
     {
-        super.afterExecute(r, t);
-        
+        try
+        {
+            JobDetail jobDetails = exposeJobDetails(r);
+            Optional.ofNullable(jobDetails).ifPresent(this::clearCronJobContext);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(String.format("After execute failed for [%s]", r), e);
+        }
+    }
+
+    private void clearCronJobContext(JobDetail jd)
+    {
         MDC.remove(STRONGBOX_CRON_CONTEXT_NAME);
     }
 

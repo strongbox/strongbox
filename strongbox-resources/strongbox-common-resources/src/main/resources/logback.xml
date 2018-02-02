@@ -8,28 +8,52 @@
     </contextListener>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression>return mdc.containsKey("strongbox-cron-context-name");</expression>
+            </evaluator>
+            <OnMismatch>NEUTRAL</OnMismatch>
+            <OnMatch>DENY</OnMatch>
+        </filter>
+
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t |
+                %-50.50logger{50} | %m%n</pattern>
         </encoder>
     </appender>
 
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${strongbox.vault}/logs/strongbox.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>strongbox_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+    <appender name="FILE" class="ch.qos.logback.classic.sift.SiftingAppender">
 
-            <fileNamePattern>strongbox-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>128MB</maxFileSize>
-            <maxHistory>31</maxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
+        <discriminator
+            class="ch.qos.logback.classic.sift.MDCBasedDiscriminator">
+            <key>strongbox-cron-context-name</key>
+            <defaultValue>strongbox</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="CRON-JOB-CONTEXT-SIFT-FILE-APPENDER"
+                class="ch.qos.logback.core.rolling.RollingFileAppender">
 
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
+                <file>${strongbox.vault}/logs/${strongbox-cron-context-name}.log</file>
+                <rollingPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                    <fileNamePattern>${strongbox-cron-context-name}_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 
-        <encoder>
-            <charset>UTF-8</charset>
-            <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
-        </encoder>
+                    <fileNamePattern>${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                    <maxFileSize>128MB</maxFileSize>
+                    <maxHistory>31</maxHistory>
+                    <totalSizeCap>1GB</totalSizeCap>
+
+                    <maxHistory>30</maxHistory>
+                </rollingPolicy>
+
+                <encoder>
+                    <charset>UTF-8</charset>
+                    <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p |
+                        %-20.20t | %-50.50logger{50} | %m%n</pattern>
+                </encoder>
+            </appender>
+        </sift>
     </appender>
 
     <!--
