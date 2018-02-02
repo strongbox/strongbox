@@ -98,11 +98,10 @@ public abstract class BaseArtifactController
 
         File file = new File(dir);
         
-        // For Maven 2 Repositories only allow .index to be browsable directly by admins
+        
         // For others do not allow .index and .trash directories (or any other directory starting with ".") to be browseable.
         // NB: Files will still be downloadable.
-        if ((repository.getLayout().equals(RepositoryLayoutEnum.MAVEN_2.getLayout()) && path.startsWith(".index"))
-                || (!file.isHidden() && !path.startsWith(".") && !path.contains("/.")))
+        if (!file.isHidden() && !path.startsWith(".") && !path.contains("/."))
         {
             if (file.exists() && file.isDirectory())
             {
