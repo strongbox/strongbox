@@ -4,6 +4,7 @@ MANIFEST.MF
 target/
 tmp/
 *.versionsBackup
+.m2/
 
 # Java Files #
 *.jar
