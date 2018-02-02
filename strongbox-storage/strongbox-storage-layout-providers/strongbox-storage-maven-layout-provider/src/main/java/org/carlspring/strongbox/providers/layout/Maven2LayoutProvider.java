@@ -198,7 +198,7 @@ public class Maven2LayoutProvider
             throws IOException
     {
         Repository repository = path.getFileSystem().getRepository();
-        if (!repositoryFeatures.isIndexingEnabled(repository) || RepositoryFiles.isMetadata(path))
+        if (!repositoryFeatures.isIndexingEnabled(repository))
         {
             return;
         }
@@ -206,7 +206,8 @@ public class Maven2LayoutProvider
         final RepositoryIndexer indexer = getRepositoryIndexer(path);
         if (indexer != null)
         {
-            MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) RepositoryFiles.readCoordinates(path);
+            Artifact artifact = ArtifactUtils.convertPathToArtifact(RepositoryFiles.stringValue(path));
+            MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
 
             indexer.delete(Collections.singletonList(new ArtifactInfo(repository.getId(),
                                                                       coordinates.getGroupId(),
