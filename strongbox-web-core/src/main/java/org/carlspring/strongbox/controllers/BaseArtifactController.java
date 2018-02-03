@@ -21,11 +21,8 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
 
 import io.swagger.annotations.Api;
 import org.apache.commons.io.FileUtils;
@@ -209,12 +206,12 @@ public abstract class BaseArtifactController
             File[] childFiles = file.listFiles();
             if (childFiles != null)
             {
-                for (File dirFile : getDirs(childFiles))
+                for (File dirFile : ArtifactControllerHelper.getDirectories(file))
                 {
                     appendFile(sb, dirFile);
                 }
 
-                for (File childFile : getFiles(childFiles))
+                for (File childFile : ArtifactControllerHelper.getFiles(file))
                 {
                     appendFile(sb, childFile);
                 }
@@ -264,22 +261,6 @@ public abstract class BaseArtifactController
         sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
         sb.append("</tr>");
         return true;
-    }
-
-    private List<File> getDirs(File[] childFiles)
-    {
-        return Arrays.stream(childFiles)
-              .filter(File::isDirectory)
-              .sorted()
-              .collect(Collectors.toList());
-    }
-
-    private List<File> getFiles(File[] childFiles)
-    {
-        return Arrays.stream(childFiles)
-                     .filter(File::isFile)
-                     .sorted()
-                     .collect(Collectors.toList());
     }
 
 

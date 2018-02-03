@@ -3,14 +3,14 @@ package org.carlspring.strongbox.utils;
 import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
 import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
 
+import java.io.File;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -223,6 +223,20 @@ public class ArtifactControllerHelper
                                checksumValue);
         });
         
+    }
+
+    public static List<File> getDirectories(File file) {
+        return Arrays.stream(Objects.requireNonNull(file.listFiles()))
+                     .filter(File::isDirectory)
+                     .sorted(Comparator.comparing(File::getName))
+                     .collect(Collectors.toList());
+    }
+
+    public static List<File> getFiles(File file) {
+        return Arrays.stream(Objects.requireNonNull(file.listFiles()))
+                     .filter(File::isFile)
+                     .sorted(Comparator.comparing(File::getName))
+                     .collect(Collectors.toList());
     }
 
 }
