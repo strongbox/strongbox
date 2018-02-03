@@ -4,10 +4,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -22,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -33,7 +29,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.DirectoryFileComparator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Api(value = "/storages")
@@ -204,9 +199,10 @@ public abstract class BaseArtifactController
             sb.append("<th>Name</th>");
             sb.append("<th>Last modified</th>");
             sb.append("<th>Size</th>");
+            sb.append("<th>Description</th>");
             sb.append("</tr>");
             sb.append("<tr>");
-            sb.append("<td colspan=3><a href='..'>..</a></td>");
+            sb.append("<td colspan=4><a href='..'>..</a></td>");
             sb.append("</tr>");
 
             File[] childFiles = file.listFiles();
@@ -232,6 +228,7 @@ public abstract class BaseArtifactController
                               (childFile.isDirectory() ? "/" : "") + "</a></td>");
                     sb.append("<td>" + lastModified + "</td>");
                     sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
+                    sb.append("<td></td>");
                     sb.append("</tr>");
                 }
             }
