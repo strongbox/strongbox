@@ -4,12 +4,10 @@ import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -268,5 +266,13 @@ public class MavenArtifactController
 
         return ResponseEntity.ok("The artifact was deleted.");
     }
+    
+    @Override
+    protected boolean isPermittedForDirectoryListing(File file,
+                                                     String path)
+    {
+        return (path.startsWith(".index") || (super.isPermittedForDirectoryListing(file, path)));
+    }
+   
 
 }

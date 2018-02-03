@@ -695,9 +695,9 @@ public class MavenArtifactControllerTest
 
         assertFalse(".index directory should not be visible in directory listing!",
                     repositoryRootContent.contains(".index"));
-        assertTrue(".index directory should not be browsable!",
+        assertTrue(".index directory should be browsable!",
                    indexDirectoryListing.response()
-                                        .getStatusCode() == 404);
+                                        .getStatusCode() == 302);
 
         logger.debug(directoryListingContent);
 
