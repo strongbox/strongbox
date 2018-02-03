@@ -4,10 +4,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -21,19 +18,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Matcher;
 
 import io.swagger.annotations.Api;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.comparator.DirectoryFileComparator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Api(value = "/storages")
@@ -212,27 +206,14 @@ public abstract class BaseArtifactController
             File[] childFiles = file.listFiles();
             if (childFiles != null)
             {
-                Arrays.sort(childFiles, DirectoryFileComparator.DIRECTORY_COMPARATOR);
-
-                for (File childFile : childFiles)
+                for (File dirFile : ArtifactControllerHelper.getDirectories(file))
                 {
-                    String name = childFile.getName();
+                    appendFile(sb, dirFile);
+                }
 
-                    if (name.startsWith(".") || childFile.isHidden())
-                    {
-                        continue;
-                    }
-
-                    String lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(
-                            new Date(childFile.lastModified()));
-
-                    sb.append("<tr>");
-                    sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ?
-                                                                                    "/" : "") + "'>" + name +
-                              (childFile.isDirectory() ? "/" : "") + "</a></td>");
-                    sb.append("<td>" + lastModified + "</td>");
-                    sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
-                    sb.append("</tr>");
+                for (File childFile : ArtifactControllerHelper.getFiles(file))
+                {
+                    appendFile(sb, childFile);
                 }
             }
 
@@ -257,6 +238,31 @@ public abstract class BaseArtifactController
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
+
+    private boolean appendFile(StringBuilder sb,
+                               File childFile)
+            throws UnsupportedEncodingException
+    {
+        String name = childFile.getName();
+
+        if (name.startsWith(".") || childFile.isHidden())
+        {
+            return false;
+        }
+
+        String lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(
+                new Date(childFile.lastModified()));
+
+        sb.append("<tr>");
+        sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ?
+                                                                        "/" : "") + "'>" + name +
+                  (childFile.isDirectory() ? "/" : "") + "</a></td>");
+        sb.append("<td>" + lastModified + "</td>");
+        sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
+        sb.append("</tr>");
+        return true;
+    }
+
 
     protected boolean provideArtifactDownloadResponse(HttpServletRequest request,
                                                    HttpServletResponse response,
