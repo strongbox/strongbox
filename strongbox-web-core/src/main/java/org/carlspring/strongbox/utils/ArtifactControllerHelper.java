@@ -1,19 +1,5 @@
 package org.carlspring.strongbox.utils;
 
-import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
-import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
-
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.http.range.ByteRangeHeaderParser;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
@@ -23,11 +9,23 @@ import org.carlspring.strongbox.io.StreamUtils;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
+import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
 
 public class ArtifactControllerHelper
 {
@@ -176,7 +174,7 @@ public class ArtifactControllerHelper
             headers.add("strongbox-layout", artifactCoordinates.getClass().getSimpleName());
         }
     }
-    
+
     public static void provideArtifactHeaders(HttpServletResponse response,
                                               RepositoryPath path)
         throws IOException
@@ -190,7 +188,7 @@ public class ArtifactControllerHelper
 
         response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
         response.setHeader("Last-Modified", fileAttributes.lastModifiedTime().toString());
-        
+
         // TODO: This is far from optimal and will need to have a content type approach at some point:
         if (RepositoryFiles.isChecksum(path))
         {
@@ -204,9 +202,9 @@ public class ArtifactControllerHelper
         {
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         }
-        
+
         response.setHeader("Accept-Ranges", "bytes");
-        
+
         path.getFileSystem().provider().resolveChecksumPathMap(path).entrySet().stream().forEach(e -> {
             String checksumValue;
             try
@@ -223,6 +221,36 @@ public class ArtifactControllerHelper
                                checksumValue);
         });
         
+    }
+
+    public static List<File> getDirectories(File file)
+    {
+        File[] files = file.listFiles();
+
+        if (files == null)
+        {
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(files)
+                     .filter(File::isDirectory)
+                     .sorted(Comparator.comparing(File::getName))
+                     .collect(Collectors.toList());
+    }
+
+    public static List<File> getFiles(File file)
+    {
+        File[] files = file.listFiles();
+
+        if (files == null)
+        {
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(files)
+                     .filter(File::isFile)
+                     .sorted(Comparator.comparing(File::getName))
+                     .collect(Collectors.toList());
     }
 
 }
