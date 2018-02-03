@@ -14,8 +14,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.scheduling.config.CronTask;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -66,9 +68,10 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
                       "intervalSeconds cannot be negative or zero but was " + intervalSeconds + " for " +
                       remoteRepository.getUrl());
 
-        executor.scheduleWithFixedDelay(
-                new RemoteRepositoryHeartbeatMonitor(remoteRepositoryCacheManager, remoteRepository), 0,
-                intervalSeconds, TimeUnit.SECONDS);
+        RemoteRepositoryHeartbeatMonitor remoteRepositoryHeartBeatMonitor = new RemoteRepositoryHeartbeatMonitor(remoteRepositoryCacheManager, remoteRepository);
+        executor.scheduleWithFixedDelay(new MdcContextProvider(remoteRepositoryHeartBeatMonitor),
+                                        0,
+                                        intervalSeconds, TimeUnit.SECONDS);
 
         logger.info(
                 "Remote repository " + remoteRepository.getUrl() + " scheduled for monitoring with interval seconds " +
@@ -96,5 +99,32 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
     private int getRemoteRepositoriesHeartbeatThreadsNumber()
     {
         return configurationManager.getConfiguration().getRemoteRepositoriesConfiguration().getHeartbeatThreadsNumber();
+    }
+    
+    public static class MdcContextProvider implements Runnable
+    {
+
+        private Runnable target;
+
+        public MdcContextProvider(Runnable target)
+        {
+            super();
+            this.target = target;
+        }
+
+        @Override
+        public void run()
+        {
+            MDC.put("strongbox-cron-context-name", target.getClass().getSimpleName());
+            try
+            {
+                target.run();
+            } 
+            finally
+            {
+                MDC.remove("strongbox-cron-context-name");
+            }
+        }
+
     }
 }

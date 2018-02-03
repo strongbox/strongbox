@@ -661,6 +661,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>janino</artifactId>
+                <version>3.0.8</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
                 <version>1.8.10</version>
