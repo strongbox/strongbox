@@ -14,9 +14,10 @@ import org.quartz.spi.TriggerFiredBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.ReflectionUtils;
 
-public class CronTaskExecutor extends ThreadPoolExecutor
+public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBean
 {
 
     private static final String STRONGBOX_CRON_CONTEXT_NAME = "strongbox-cron-context-name";
@@ -60,6 +61,13 @@ public class CronTaskExecutor extends ThreadPoolExecutor
                             BlockingQueue<Runnable> workQueue)
     {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
+    }
+
+    @Override
+    public void destroy()
+        throws Exception
+    {
+        shutdown();
     }
 
     @Override
