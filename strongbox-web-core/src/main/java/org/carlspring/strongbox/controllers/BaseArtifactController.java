@@ -99,7 +99,7 @@ public abstract class BaseArtifactController
 
         // Do not allow .index and .trash directories (or any other directory starting with ".") to be browseable.
         // NB: Files will still be downloadable.
-        if (!file.isHidden() && !path.startsWith(".") && !path.contains("/."))
+        if (isPermittedForDirectoryListing(file, path))
         {
             if (file.exists() && file.isDirectory())
             {
@@ -116,6 +116,12 @@ public abstract class BaseArtifactController
         }
     }
     
+    protected boolean isPermittedForDirectoryListing(File file,
+                                                     String path)
+    {
+        return (!file.isHidden() && !path.startsWith(".") && !path.contains("/."));        
+    }
+
     protected void getDirectoryListing(HttpServletRequest request,
                                        HttpServletResponse response)
     {

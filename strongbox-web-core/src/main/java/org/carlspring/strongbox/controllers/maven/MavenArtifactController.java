@@ -270,33 +270,10 @@ public class MavenArtifactController
     }
     
     @Override
-    protected boolean probeForDirectoryListing(Repository repository,
-                                               String path)
+    protected boolean isPermittedForDirectoryListing(File file,
+                                                     String path)
     {
-        String filePath = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
-
-        String dir = repository.getBasedir() + File.separator + filePath;
-
-        File file = new File(dir);
-        
-        // Do not allow any other directory starting with "." except .index to be browseable.
-        // NB: Files will still be downloadable.
-        if (path.startsWith(".index")
-                || (!file.isHidden() && !path.startsWith(".") && !path.contains("/.")))
-        {
-            if (file.exists() && file.isDirectory())
-            {
-                return true;
-            }
-
-            file = new File(dir + File.separator);
-
-            return file.exists() && file.isDirectory();
-        }
-        else
-        {
-            return false;
-        }
+        return (path.startsWith(".index") || (super.isPermittedForDirectoryListing(file, path)));
     }
    
 
