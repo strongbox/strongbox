@@ -8,14 +8,7 @@
     </contextListener>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator>
-                <expression>return mdc.containsKey("strongbox-cron-context-name");</expression>
-            </evaluator>
-            <OnMismatch>NEUTRAL</OnMismatch>
-            <OnMatch>DENY</OnMatch>
-        </filter>
+        <filter class="org.carlspring.strongbox.log.CronTaskContextFilter"/>
 
         <encoder>
             <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
@@ -83,6 +76,9 @@
     <logger name="org.carlspring.strongbox.data.tx" level="WARN"/>
 
     <logger name="net.sf.ehcache" level="ERROR"/>
+    
+    <logger name="org.quartz" level="INFO"/>
+    <logger name="org.springframework.web" level="DEBUG"/>
 
     <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>

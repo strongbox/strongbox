@@ -8,6 +8,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.carlspring.strongbox.log.CronTaskContextFilter;
 import org.quartz.JobDetail;
 import org.quartz.core.JobRunShell;
 import org.quartz.spi.TriggerFiredBundle;
@@ -20,7 +21,6 @@ import org.springframework.util.ReflectionUtils;
 public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBean
 {
 
-    private static final String STRONGBOX_CRON_CONTEXT_NAME = "strongbox-cron-context-name";
     private static final Logger LOGGER = LoggerFactory.getLogger(CronTaskExecutor.class);
 
     public CronTaskExecutor(int corePoolSize,
@@ -89,7 +89,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
     {
         String jobClassName = jd.getJobClass().getSimpleName();
         LOGGER.debug(String.format("Bootstrap Cron Job [%s]", jobClassName));
-        MDC.put(STRONGBOX_CRON_CONTEXT_NAME, jobClassName);
+        MDC.put(CronTaskContextFilter.STRONGBOX_CRON_CONTEXT_NAME, jobClassName);
     }
 
     private JobDetail exposeJobDetails(Runnable r)
@@ -127,7 +127,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
 
     private void clearCronJobContext(JobDetail jd)
     {
-        MDC.remove(STRONGBOX_CRON_CONTEXT_NAME);
+        MDC.remove(CronTaskContextFilter.STRONGBOX_CRON_CONTEXT_NAME);
     }
 
 }

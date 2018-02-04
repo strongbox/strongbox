@@ -13,6 +13,7 @@ import org.carlspring.strongbox.web.HeaderMappingFilter;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.XmlWebApplicationContext;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.filter.RequestContextFilter;
 import org.springframework.web.servlet.support.AbstractDispatcherServletInitializer;
@@ -50,6 +51,9 @@ public class StrongboxWebInitializer
         super.onStartup(servletContext);
 
         servletContext.addListener(new RequestContextListener());
+        
+        registerFilter(servletContext, true, CommonsRequestLoggingFilter.class.getSimpleName(),
+                       new DelegatingFilterProxy("commonsRequestLoggingFilter"));
         
         registerFilter(servletContext, false, DirectoryTraversalFilter.class.getSimpleName(),
                        new DirectoryTraversalFilter());
