@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -53,6 +52,7 @@ public class NugetLayoutProvider
 
     @Inject
     private ArtifactManagementService nugetArtifactManagementService;
+
 
     @Override
     @PostConstruct
@@ -85,9 +85,7 @@ public class NugetLayoutProvider
     public void deleteMetadata(String storageId,
                                String repositoryId,
                                String metadataPath)
-        throws IOException
     {
-
     }
 
     private String toBase64(byte[] digest)
@@ -108,9 +106,6 @@ public class NugetLayoutProvider
     public void rebuildMetadata(String storageId,
                                 String repositoryId,
                                 String basePath)
-            throws IOException,
-            NoSuchAlgorithmException,
-            XmlPullParserException
     {
         throw new UnsupportedOperationException("Not yet implemented!");
     }

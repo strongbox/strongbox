@@ -6,6 +6,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
 import org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -29,8 +30,6 @@ public class MavenRepositoryManagementStrategy
         extends AbstractRepositoryManagementStrategy
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MavenRepositoryManagementStrategy.class);
-
     @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
@@ -45,6 +44,10 @@ public class MavenRepositoryManagementStrategy
 
     @Inject
     private MavenRepositoryFeatures repositoryFeatures;
+
+    @Inject
+    private MavenIndexGroupRepositoryComponent mavenIndexGroupRepositoryComponent;
+
 
     @Override
     protected void createRepositoryInternal(Storage storage, Repository repository)

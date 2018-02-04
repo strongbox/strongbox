@@ -1,29 +1,30 @@
-package org.carlspring.strongbox.storage.validation.version;
+package org.carlspring.strongbox.storage.validation.artifact.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.VersionValidatorType;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
-import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * @author stodorov
+ * @author carlspring
+ * @author Przemyslaw Fusik
  */
 @Component
-public class MavenSnapshotVersionValidator
-        implements MavenVersionValidator
+public class GenericReleaseVersionValidator
+        implements VersionValidator
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MavenSnapshotVersionValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(GenericReleaseVersionValidator.class);
 
-    public static final String ALIAS = "Maven snapshot version validator";
+    public static final String ALIAS = "Generic release version validator";
 
     @Inject
     private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
@@ -48,32 +49,30 @@ public class MavenSnapshotVersionValidator
     @Override
     public boolean supports(Repository repository)
     {
-        return MavenVersionValidator.super.supports(repository) &&
-               repository.getArtifactCoordinateValidators().contains(VersionValidatorType.SNAPSHOT);
+        return repository.getArtifactCoordinateValidators().contains(ALIAS);
     }
 
-    /**
-     * Matches versions:
-     * 1.0-20131004
-     * 1.0-20131004.115330
-     * 1.0-20131004.115330-1
-     * 1.0.8-20151025.032208-1
-     * 1.0.8-alpha-1-20151025.032208-1
-     */
     @Override
     public void validate(Repository repository,
                          ArtifactCoordinates coordinates)
             throws VersionValidationException
     {
         String version = coordinates.getVersion();
-        if (isSnapshot(version) && !repository.acceptsSnapshots())
+        if (isRelease(version) && !repository.acceptsReleases())
         {
-            throw new VersionValidationException("Cannot deploy a SNAPSHOT artifact to a repository with a release policy!");
+            throw new VersionValidationException("Cannot deploy a release artifact to a repository which " +
+                                                 "does not accept release policy!");
         }
-        if (!isSnapshot(version) && repository.acceptsSnapshots() && !repository.acceptsReleases())
+        if (!isRelease(version) && repository.acceptsReleases() && !repository.acceptsSnapshots())
         {
-            throw new VersionValidationException("Cannot deploy a release artifact to a repository with a SNAPSHOT policy!");
+            throw new VersionValidationException("Cannot deploy a snapshot artifact to a repository with " +
+                                                 "a release policy!");
         }
+    }
+
+    public boolean isRelease(String version)
+    {
+        return StringUtils.isNotBlank(version) && !StringUtils.endsWithIgnoreCase(version, "-SNAPSHOT");
     }
 
 }

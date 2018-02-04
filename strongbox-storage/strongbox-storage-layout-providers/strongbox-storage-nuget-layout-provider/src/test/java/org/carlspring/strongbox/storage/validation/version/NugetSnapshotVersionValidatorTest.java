@@ -5,6 +5,8 @@ import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
+import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.Before;
@@ -16,7 +18,7 @@ public class NugetSnapshotVersionValidatorTest
 
     Repository repository = new Repository();
 
-    NugetSnapshotVersionValidator validator = new NugetSnapshotVersionValidator();
+    GenericSnapshotVersionValidator validator = new GenericSnapshotVersionValidator();
 
 
     @Before

@@ -5,6 +5,8 @@ import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
+import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.Before;
@@ -16,7 +18,7 @@ public class NugetReleaseVersionValidatorTest
 
     Repository repository = new Repository();
 
-    NugetReleaseVersionValidator validator = new NugetReleaseVersionValidator();
+    GenericReleaseVersionValidator validator = new GenericReleaseVersionValidator();
 
     @Before
     public void setUp()

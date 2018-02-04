@@ -21,9 +21,10 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
-import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
-import org.carlspring.strongbox.storage.validation.version.VersionValidator;
+import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
+import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 
 import javax.inject.Inject;
 import java.io.*;
@@ -88,16 +89,16 @@ public class ArtifactManagementService implements ConfigurationService
                                  String repositoryId,
                                  String path,
                                  InputStream is)
-            throws IOException,
-                   ProviderImplementationException,
-                   NoSuchAlgorithmException
+            throws IOException, ProviderImplementationException, NoSuchAlgorithmException,
+                   ArtifactCoordinatesValidationException
     {
         Storage storage = layoutProviderRegistry.getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
         
-        performRepositoryAcceptanceValidation(repositoryPath);        
+        performRepositoryAcceptanceValidation(repositoryPath);
+
         return store(repositoryPath, is);
     }
     
@@ -146,8 +147,7 @@ public class ArtifactManagementService implements ConfigurationService
     private long storeArtifact(RepositoryPath repositoryPath,
                                InputStream is,
                                OutputStream os)
-            throws IOException,
-                   ProviderImplementationException
+            throws IOException
     {
         ArtifactOutputStream aos = StreamUtils.findSource(ArtifactOutputStream.class, os);
         
@@ -311,7 +311,7 @@ public class ArtifactManagementService implements ConfigurationService
     }
 
     private boolean performRepositoryAcceptanceValidation(RepositoryPath path)
-            throws IOException, ProviderImplementationException
+            throws IOException, ProviderImplementationException, ArtifactCoordinatesValidationException
     {
         logger.info(String.format("Validate artifact with path [%s]", path));
         
@@ -323,14 +323,16 @@ public class ArtifactManagementService implements ConfigurationService
         if (!RepositoryFiles.isMetadata(path) && !RepositoryFiles.isChecksum(path))
         {
             ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(path);
+            
             logger.info(String.format("Validate artifact with coordinates [%s]", coordinates));
             
             try
             {
-                final Set<VersionValidator> validators = versionValidatorService.getVersionValidators();
-                for (VersionValidator validator : validators)
+                final Set<ArtifactCoordinatesValidator> validators = versionValidatorService.getVersionValidators();
+                for (ArtifactCoordinatesValidator validator : validators)
                 {
-                    if (validator.supports(repository)) {
+                    if (validator.supports(repository))
+                    {
                         validator.validate(repository, coordinates);
                     }
                 }

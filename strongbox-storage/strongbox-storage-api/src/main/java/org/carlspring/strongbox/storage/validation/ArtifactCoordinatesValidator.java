@@ -1,20 +1,31 @@
-package org.carlspring.strongbox.storage.validation.version;
+package org.carlspring.strongbox.storage.validation;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
+import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 
 import java.io.IOException;
 
 /**
  * @author mtodorov
  */
-public interface VersionValidator
+public interface ArtifactCoordinatesValidator
 {
+
+    void register();
+
+    String getAlias();
 
     default boolean supports(Repository repository)
     {
         return true;
+    }
+
+    default boolean activeByDefault(Repository repository)
+    {
+        return false;
     }
 
     /**
@@ -27,6 +38,7 @@ public interface VersionValidator
                   ArtifactCoordinates coordinates)
             throws VersionValidationException,
                    ProviderImplementationException,
+                   ArtifactCoordinatesValidationException,
                    IOException;
 
 }

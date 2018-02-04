@@ -93,11 +93,10 @@ public class ConfigurationManagerTest
                                 .getRepositories()
                                 .get("releases").allowsDirectoryBrowsing());
 
-        Set<VersionValidatorType> versionValidators = configuration.getStorages()
-                                                                   .get("storage0")
+        Set<String> versionValidators = configuration.getStorages().get("storage0")
                                                                    .getRepositories()
                                                                    .get("releases")
-                                                                   .getVersionValidators();
+                                                                   .getArtifactCoordinateValidators();
 
         assertTrue(versionValidators.size() == 3);
         assertTrue(versionValidators.remove(VersionValidatorType.REDEPLOYMENT));

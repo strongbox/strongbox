@@ -1,24 +1,5 @@
 package org.carlspring.strongbox.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -32,6 +13,20 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
@@ -40,6 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.*;
 
 /**
  * @author mtodorov
@@ -178,10 +174,7 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     public void testDeploymentToRepositoryWithForbiddenDeployments()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException,
-                   ProviderImplementationException
+            throws Exception
     {
         InputStream is = null;
 
@@ -216,10 +209,7 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     public void testRedeploymentToRepositoryWithForbiddenRedeployments()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException,
-                   ProviderImplementationException
+            throws Exception
     {
         InputStream is = null;
 
@@ -256,9 +246,7 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     public void testDeletionFromRepositoryWithForbiddenDeletes()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException
+            throws IOException
     {
         //noinspection EmptyCatchBlock
         try
@@ -281,9 +269,7 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException, ProviderImplementationException
+            throws Exception
     {
         InputStream is = null;
 
@@ -379,7 +365,6 @@ public class ArtifactManagementServiceImplTest
     @Test
     public void testArtifactResolutionFromGroup()
             throws IOException,
-                   NoSuchAlgorithmException,
                    ArtifactTransportException,
                    ProviderImplementationException
     {

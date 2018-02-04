@@ -60,6 +60,11 @@ public abstract class AbstractConfigurationManager<T>
     {
         try
         {
+            Resource resource = getConfigurationResource();
+
+            //noinspection unchecked
+            parser.store((T) configuration, resource.getFile());
+
             Configuration configurationCasted = (Configuration) configuration;
             configurationRepository.updateConfiguration(configurationCasted);
         }

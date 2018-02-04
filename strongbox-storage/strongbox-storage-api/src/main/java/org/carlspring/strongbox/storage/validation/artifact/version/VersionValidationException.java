@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.validation.version;
+package org.carlspring.strongbox.storage.validation.artifact.version;
 
 /**
  * @author mtodorov

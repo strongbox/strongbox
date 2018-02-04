@@ -1,14 +1,18 @@
-package org.carlspring.strongbox.storage.validation.version;
+package org.carlspring.strongbox.storage.validation.deployment;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
+import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,18 +20,46 @@ import org.springframework.stereotype.Component;
  */
 @Component("redeploymentValidator")
 public class RedeploymentValidator
-        implements VersionValidator
+        implements ArtifactDeploymentValidator
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(RedeploymentValidator.class);
+
+    public static final String ALIAS = "Re-deployment validator";
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
+    @Inject
+    private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
+
+
+    @PostConstruct
+    @Override
+    public void register()
+    {
+        artifactCoordinatesValidatorRegistry.addProvider(ALIAS, this);
+
+        logger.info("Registered artifact coordinates validator '" + getClass().getCanonicalName() +"'" +
+                    " with alias '" + ALIAS + "'.");
+    }
+
+    @Override
+    public String getAlias()
+    {
+        return ALIAS;
+    }
+
+    @Override
+    public boolean activeByDefault(Repository repository)
+    {
+        return true;
+    }
 
     @Override
     public void validate(Repository repository,
                          ArtifactCoordinates coordinates)
             throws VersionValidationException,
-                   ProviderImplementationException,
                    IOException
     {
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());

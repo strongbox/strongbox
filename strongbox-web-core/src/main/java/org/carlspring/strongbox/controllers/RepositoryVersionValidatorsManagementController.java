@@ -54,7 +54,7 @@ public class RepositoryVersionValidatorsManagementController
             logger.error(ex.getMessage(), ex);
         }
 
-        Set<String> versionValidators = new TreeSet<>(repository.getVersionValidators().stream().map(v -> v.toString()).collect(Collectors.toSet()));
+        Set<String> versionValidators = new TreeSet<>(repository.getArtifactCoordinateValidators().stream().map(v -> v.toString()).collect(Collectors.toSet()));
         return repository == null ? ResponseEntity.notFound().build() :
                ResponseEntity.ok(versionValidators);
     }
@@ -83,7 +83,7 @@ public class RepositoryVersionValidatorsManagementController
             return ResponseEntity.notFound().build();
         }
 
-        repository.getVersionValidators().add(versionValidatorType);
+        repository.getArtifactCoordinateValidators().add(versionValidatorType.);
 
         return ResponseEntity.ok().build();
     }
@@ -112,7 +112,7 @@ public class RepositoryVersionValidatorsManagementController
             return ResponseEntity.notFound().build();
         }
 
-        repository.getVersionValidators().remove(versionValidatorType);
+        repository.getArtifactCoordinateValidators().remove(versionValidatorType);
 
         return ResponseEntity.ok().build();
     }

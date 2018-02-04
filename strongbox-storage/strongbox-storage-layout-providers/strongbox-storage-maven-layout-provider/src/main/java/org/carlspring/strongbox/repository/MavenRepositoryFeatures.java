@@ -8,6 +8,7 @@ import org.carlspring.strongbox.locator.handlers.RemoveTimestampedSnapshotOperat
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
@@ -19,7 +20,23 @@ import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
+import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.maven.index.ScanningRequest;
+import org.apache.maven.index.ScanningResult;
+import org.apache.maven.index.context.IndexingContext;
+import org.apache.maven.index.packer.IndexPacker;
+import org.apache.maven.index.packer.IndexPackingRequest;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -38,6 +55,7 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
@@ -70,6 +88,13 @@ public class MavenRepositoryFeatures
 
     @Inject
     private MavenSnapshotManager mavenSnapshotManager;
+
+    @Inject
+    private MavenReleaseVersionValidator mavenReleaseVersionValidator;
+
+    @Inject
+    private MavenSnapshotVersionValidator mavenSnapshotVersionValidator;
+
 
     public void downloadRemoteIndex(String storageId,
                                     String repositoryId)
@@ -276,7 +301,29 @@ public class MavenRepositoryFeatures
                                                          "The available contextId-s are " +
                                                          repositoryIndexManager.getIndexes().keySet());
         }
+
         return indexer;
+    }
+
+    @Override
+    public Repository createRepositoryInstance(String storageId, String repositoryId)
+    {
+        Repository repository = new Repository(repositoryId);
+        repository.setStorage(configurationManager.getConfiguration().getStorage(storageId));
+        repository.setLayout(Maven2LayoutProvider.ALIAS);
+        repository.setArtifactCoordinateValidators(getDefaultArtifactCoordinateValidators());
+
+        return repository;
+    }
+
+    @Override
+    public Set<String> getDefaultArtifactCoordinateValidators()
+    {
+        Set<String> validators = new LinkedHashSet<>();
+        validators.add(mavenReleaseVersionValidator.getAlias());
+        validators.add(mavenSnapshotVersionValidator.getAlias());
+
+        return validators;
     }
 
 }

@@ -142,7 +142,7 @@ public class RawLayoutProviderTest
         Repository repository = new Repository(repositoryId);
         repository.setStorage(configurationManagementService.getConfiguration().getStorage(storageId));
         repository.setLayout(RawLayoutProvider.ALIAS);
-        repository.setVersionValidators(Collections.emptySet());
+        repository.setArtifactCoordinateValidators(Collections.emptySet());
 
         configurationManagementService.saveRepository(storageId, repository);
 

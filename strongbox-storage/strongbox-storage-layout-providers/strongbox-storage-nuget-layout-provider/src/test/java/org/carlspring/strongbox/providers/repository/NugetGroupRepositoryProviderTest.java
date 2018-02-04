@@ -17,20 +17,26 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
 import org.carlspring.strongbox.xml.configuration.repository.NugetRepositoryConfiguration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
-
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 /**
  * @author sbespalov
  *
@@ -135,6 +141,27 @@ public class NugetGroupRepositoryProviderTest
         repositoryWithNestedGroupLevel2.addRepositoryToGroup(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
 
         createRepository(repositoryWithNestedGroupLevel2);
+    }
+
+    private void generateRepositoryPackages(String storageId, String repositoryId, int count)
+            throws NoSuchAlgorithmException,
+                   NugetFormatException,
+                   JAXBException,
+                   IOException,
+                   ProviderImplementationException,
+                   ArtifactCoordinatesValidationException
+    {
+        for (int i = 1; i <= count; i++)
+        {
+            String packageId = String.format("grpt.search.p%s", i);
+            String packageVersion = "1.0.0";
+            NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
+            Path packageFilePath = generatePackageFile(packageId, packageVersion);
+            artifactManagementService.validateAndStore(storageId,
+                                                       repositoryId,
+                                                       coordinates.toPath(),
+                                                       Files.newInputStream(packageFilePath));
+        }
     }
 
     private void createRepository(Repository repository)

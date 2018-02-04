@@ -26,6 +26,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -81,6 +82,10 @@ public class Maven2LayoutProvider
 
     @Inject
     private MavenRepositoryFeatures repositoryFeatures;
+
+    @Inject
+    private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
+
 
     @PostConstruct
     @Override
