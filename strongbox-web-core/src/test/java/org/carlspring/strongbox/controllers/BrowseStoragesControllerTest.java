@@ -11,6 +11,7 @@ import org.carlspring.strongbox.testing.TestCaseWithRepository;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -36,7 +37,7 @@ public class BrowseStoragesControllerTest
                           .when()
                           .get(path)
                           .then()
-                          .statusCode(302);
+                          .statusCode(HttpStatus.OK.value());
     }
 
     @Test
@@ -51,7 +52,7 @@ public class BrowseStoragesControllerTest
                           .when()
                           .get(path)
                           .then()
-                          .statusCode(302);
+                          .statusCode(HttpStatus.OK.value());
     }
     
 }

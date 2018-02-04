@@ -204,22 +204,24 @@ public abstract class BaseArtifactController
             sb.append("<th>Name</th>");
             sb.append("<th>Last modified</th>");
             sb.append("<th>Size</th>");
+            sb.append("<th>Description</th>");
             sb.append("</tr>");
             sb.append("<tr>");
-            sb.append("<td colspan=3><a href='..'>..</a></td>");
+            sb.append("<td colspan=4><a href=\"..\">..</a></td>");
             sb.append("</tr>");
 
+            String requestURL = request.getRequestURL().toString();
             File[] childFiles = file.listFiles();
             if (childFiles != null)
             {
                 for (File dirFile : ArtifactControllerHelper.getDirectories(file))
                 {
-                    appendFile(sb, dirFile);
+                    appendFile(sb, dirFile, requestURL);
                 }
 
                 for (File childFile : ArtifactControllerHelper.getFiles(file))
                 {
-                    appendFile(sb, childFile);
+                    appendFile(sb, childFile, requestURL);
                 }
             }
 
@@ -228,7 +230,7 @@ public abstract class BaseArtifactController
             sb.append("</html>");
 
             response.setContentType("text/html;charset=UTF-8");
-            response.setStatus(HttpStatus.FOUND.value());
+            response.setStatus(HttpStatus.OK.value());
             response.getWriter()
                     .write(sb.toString());
             response.getWriter()
@@ -246,7 +248,8 @@ public abstract class BaseArtifactController
     }
 
     private boolean appendFile(StringBuilder sb,
-                               File childFile)
+                               File childFile,
+                               final String requestURL)
             throws UnsupportedEncodingException
     {
         String name = childFile.getName();
@@ -260,11 +263,12 @@ public abstract class BaseArtifactController
                 new Date(childFile.lastModified()));
 
         sb.append("<tr>");
-        sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ?
-                                                                        "/" : "") + "'>" + name +
-                  (childFile.isDirectory() ? "/" : "") + "</a></td>");
+        sb.append("<td><a href=\"" + requestURL + URLEncoder.encode(name, "UTF-8") +
+                  (childFile.isDirectory() ? "/" : "") + "\">" + name + (childFile.isDirectory() ? "/" : "") +
+                  "</a></td>");
         sb.append("<td>" + lastModified + "</td>");
         sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
+        sb.append("<td></td>");
         sb.append("</tr>");
         return true;
     }
