@@ -16,7 +16,13 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.*;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -187,7 +193,8 @@ public class ArtifactControllerHelper
         RepositoryFileAttributes fileAttributes = Files.readAttributes(path, RepositoryFileAttributes.class);
 
         response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
-        response.setHeader("Last-Modified", fileAttributes.lastModifiedTime().toString());
+        response.setHeader("Last-Modified", DateTimeFormatter.RFC_1123_DATE_TIME.format(
+                ZonedDateTime.ofInstant(fileAttributes.lastModifiedTime().toInstant(), ZoneId.systemDefault())));
 
         // TODO: This is far from optimal and will need to have a content type approach at some point:
         if (RepositoryFiles.isChecksum(path))
