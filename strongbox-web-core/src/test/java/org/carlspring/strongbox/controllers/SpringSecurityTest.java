@@ -8,32 +8,34 @@ import org.carlspring.strongbox.users.domain.User;
 import javax.inject.Inject;
 
 import io.restassured.http.ContentType;
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.hamcrest.CoreMatchers;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.containsString;
 
 /**
  * @author Alex Oreshkevich
+ * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 public class SpringSecurityTest
         extends RestAssuredBaseTest
 {
 
     @Inject
-    AnonymousAuthenticationFilter anonymousAuthenticationFilter;
+    private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
     @Test
     @Ignore
@@ -42,15 +44,16 @@ public class SpringSecurityTest
         anonymousAuthenticationFilter.getAuthorities()
                                      .add(new SimpleGrantedAuthority("VIEW_USER"));
 
-        String url = getContextBaseUrl() + "/users/user/anyName";
+        final String userName = "anyName";
+        String url = getContextBaseUrl() + "/users/user/" + userName;
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .when()
-                          .get(url)
-                          .peek() // Use peek() to print the output
-                          .then()
-                          .statusCode(HttpStatus.OK.value());
+        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(containsString(userName));
     }
 
     @Test
@@ -60,14 +63,15 @@ public class SpringSecurityTest
     {
 
         String url = getContextBaseUrl() + "/users/greet";
+        String name = "Johan";
 
-        given().contentType(ContentType.JSON)
-               .param("name", "Johan")
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .param("name", name)
                .when()
                .get(url)
                .then()
-               .statusCode(200)
-               .toString();
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("hello, " + name));
     }
 
     @Test
@@ -78,14 +82,13 @@ public class SpringSecurityTest
         SecurityContextHolder.getContext()
                              .setAuthentication(null);
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .param("name", "John")
-                          .when()
-                          .get(getContextBaseUrl() + "/users/greet")
-                          .peek() // Use peek() to print the output
-                          .then()
-                          .statusCode(UNAUTHORIZED.value());
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .param("name", "John")
+               .when()
+               .get(getContextBaseUrl() + "/users/greet")
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
@@ -98,32 +101,34 @@ public class SpringSecurityTest
         logger.info(String.format("Get JWT Token with Basic Authentication: user-[%s]; auth-[%s]", "admin",
                                   basicAuth));
         String token = given().contentType(ContentType.JSON)
-                              .header("Authorization", basicAuth)
+                              .header(HttpHeaders.AUTHORIZATION, basicAuth)
+                              .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                               .when()
                               .get(url)
                               .then()
-                              .statusCode(200)
+                              .statusCode(HttpStatus.OK.value())
                               .extract()
                               .asString();
 
         logger.info(String.format("Gereet with Basic Authentication: user-[%s]; auth-[%s]", "admin",
                                   basicAuth));
         url = getContextBaseUrl() + "/users/greet";
-        given().contentType(ContentType.JSON)
-               .header("Authorization", basicAuth)
+        given().header(HttpHeaders.AUTHORIZATION, basicAuth)
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
-               .statusCode(401);
+               .statusCode(HttpStatus.UNAUTHORIZED.value());
 
         logger.info(String.format("Gereet with JWT Authentication: user-[%s]; token-[%s]", "admin",
                                   token));
-        given().contentType(ContentType.JSON)
-               .header("Authorization", String.format("Bearer %s", token))
+        given().header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value())
+               .body("token", equalTo(token));
     }
 
     @Test
@@ -136,34 +141,34 @@ public class SpringSecurityTest
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
         logger.info(String.format("Get JWT Token with Basic Authentication: user-[%s]; auth-[%s]", "admin",
                                   basicAuth));
-        String token = given().contentType(ContentType.JSON)
-                              .header("Authorization", basicAuth)
+        String token = given().header(HttpHeaders.AUTHORIZATION, basicAuth)
+                              .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                               .when()
                               .get(url + String.format("?expireSeconds=%s", 3))
                               .then()
-                              .statusCode(200)
+                              .statusCode(HttpStatus.OK.value())
                               .extract()
                               .asString();
 
         logger.info(String.format("Gereet with JWT Authentication: user-[%s]; token-[%s]", "admin",
                                   token));
         url = getContextBaseUrl() + "/users/greet";
-        given().contentType(ContentType.JSON)
-               .header("Authorization", String.format("Bearer %s", token))
+        given().header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value());
 
         Thread.sleep(3500);
         logger.info(String.format("Check JWT Authentication expired: user-[%s]; token-[%s]", "admin",
                                   token));
-        given().contentType(ContentType.JSON)
-               .header("Authorization", String.format("Bearer %s", token))
+        given().header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
-               .statusCode(401);
+               .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
@@ -171,7 +176,7 @@ public class SpringSecurityTest
     public void testThatUserHasViewUsersPrivilege()
     {
         String userName = "user";
-        given().contentType("application/json")
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get("/users/user/" + userName)
                .peek()
@@ -185,7 +190,8 @@ public class SpringSecurityTest
     {
         User user = new User();
         user.setUsername("someNewUserName");
-        given().contentType("application/json")
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .body(user)
                .when()
                .put("/users/user")
