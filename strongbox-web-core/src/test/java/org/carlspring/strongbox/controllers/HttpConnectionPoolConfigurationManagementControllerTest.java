@@ -42,11 +42,11 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
     public void setUp()
             throws IOException
     {
-        Path storageBasedir = Paths.get(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
+        Path storageBasedir = Paths.get(ConfigurationResourceResolver.getVaultDirectory(), "storages", "storage0",
+                                        "org", "carlspring", "strongbox", "strongbox-utils", "8.2",
+                                        "strongbox-utils-8.2.jar");
 
-        generateArtifact(storageBasedir.toAbsolutePath().toString() +
-                         "org.carlspring.strongbox:strongbox-utils:8.2:jar");
-
+        generateArtifact(storageBasedir.toAbsolutePath().toString());
     }
 
     @Test

@@ -119,6 +119,7 @@ public class RebuildMavenIndexesCronJobTestIT
         getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
         getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
         removeRepositories(getRepositoriesToClean());
+        cleanUp();
     }
 
     @Test
@@ -195,92 +196,6 @@ public class RebuildMavenIndexesCronJobTestIT
         });
 
         addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, REPOSITORY_RELEASES_1);
-
-        assertTrue("Failed to execute task!", expectEvent());
-    }
-
-    @Test
-    public void testRebuildIndexesInStorage()
-            throws Exception
-    {
-        String jobName = expectedJobName;
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
-        {
-            if (jobName1.equals(jobName) && statusExecuted)
-            {
-                try
-                {
-                    SearchRequest request1 = new SearchRequest(STORAGE0,
-                                                               REPOSITORY_RELEASES_1,
-                                                               "+g:org.carlspring.strongbox.indexes " +
-                                                               "+a:strongbox-test-two " +
-                                                               "+v:1.0 " +
-                                                               "+p:jar",
-                                                               MavenIndexerSearchProvider.ALIAS);
-
-                    assertTrue(artifactSearchService.contains(request1));
-
-                    SearchRequest request2 = new SearchRequest(STORAGE0,
-                                                               REPOSITORY_RELEASES_2,
-                                                               "+g:org.carlspring.strongbox.indexes " +
-                                                               "+a:strongbox-test-one " +
-                                                               "+v:1.0 " +
-                                                               "+p:jar",
-                                                               MavenIndexerSearchProvider.ALIAS);
-
-                    assertTrue(artifactSearchService.contains(request2));
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, null);
-
-        assertTrue("Failed to execute task!", expectEvent());
-    }
-
-    @Test
-    public void testRebuildIndexesInStorages()
-            throws Exception
-    {
-        String jobName = expectedJobName;
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
-        {
-            if (jobName1.equals(jobName) && statusExecuted)
-            {
-                try
-                {
-                    SearchRequest request1 = new SearchRequest(STORAGE0,
-                                                               REPOSITORY_RELEASES_2,
-                                                               "+g:org.carlspring.strongbox.indexes " +
-                                                               "+a:strongbox-test-one " +
-                                                               "+v:1.0 " +
-                                                               "+p:jar",
-                                                               MavenIndexerSearchProvider.ALIAS);
-
-                    assertTrue(artifactSearchService.contains(request1));
-
-                    SearchRequest request2 = new SearchRequest(STORAGE1,
-                                                               REPOSITORY_RELEASES_1,
-                                                               "+g:org.carlspring.strongbox.indexes " +
-                                                               "+a:strongbox-test-one " +
-                                                               "+v:1.0 " +
-                                                               "+p:jar",
-                                                               MavenIndexerSearchProvider.ALIAS);
-
-                    assertTrue(artifactSearchService.contains(request2));
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, null, null);
 
         assertTrue("Failed to execute task!", expectEvent());
     }
