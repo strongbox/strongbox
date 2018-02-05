@@ -63,7 +63,7 @@ public class CronTaskConfiguration
     public String getRequiredProperty(String key)
     {
         String value = getProperty(key);
-        Assert.notNull("No property of key '" + key + "' found");
+        Assert.notNull(value, "No property of key '" + key + "' found");
         return value;
     }
 
