@@ -1,5 +1,10 @@
 package org.carlspring.strongbox.providers.io;
 
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.PathUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -11,10 +16,6 @@ import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Iterator;
-
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
@@ -126,8 +127,10 @@ public class RepositoryPath
         {
             return this;
         }
-        
+
         other = unwrap(other);
+
+        validatePathRelativized(other);
         
         return wrap(getTarget().resolve(other));
     }
@@ -139,14 +142,22 @@ public class RepositoryPath
             return this;
         }
 
+        validateStringPathRelativized(other);
+
         return wrap(getTarget().resolve(other));
     }
 
     public RepositoryPath resolveSibling(Path other)
     {
+        validatePathRelativized(other);
+
         other = unwrap(other);
-        
-        return wrap(getTarget().resolveSibling(other));
+
+        RepositoryPath result = wrap(getTarget().resolveSibling(other));
+
+        validateSibling(result);
+
+        return result;
     }
 
     protected Path unwrap(Path other)
@@ -158,7 +169,13 @@ public class RepositoryPath
 
     public RepositoryPath resolveSibling(String other)
     {
-        return wrap(getTarget().resolveSibling(other));
+        validateStringPathRelativized(other);
+
+        RepositoryPath result = wrap(getTarget().resolveSibling(other));
+
+        validateSibling(result);
+
+        return result;
     }
 
     public RepositoryPath relativize(Path other)
@@ -268,6 +285,32 @@ public class RepositoryPath
     public int hashCode()
     {
         return getTarget().hashCode();
+    }
+
+    private void validatePathRelativized(final Path other)
+    {
+        if (!PathUtils.isRelativized(target, other))
+        {
+            throw new RepositoryRelativePathConstructionException();
+        }
+    }
+
+    private void validateStringPathRelativized(final String other)
+    {
+        if (!PathUtils.isRelativized(target, other))
+        {
+            throw new RepositoryRelativePathConstructionException();
+        }
+    }
+
+    private void validateSibling(final Path result)
+    {
+        final Path sibling = result;
+        final String repositoryRootPath = getRoot().toString(); // String, intentionally
+        if (!sibling.startsWith(repositoryRootPath))
+        {
+            throw new PathExceededRootRepositoryPathException();
+        }
     }
 
 }
