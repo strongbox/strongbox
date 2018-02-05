@@ -8,11 +8,13 @@ import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jose4j.lang.JoseException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * @author Pablo Tirado
+ */
 @Controller
 @RequestMapping("/users")
 @Api(value = "/users")
@@ -30,7 +35,7 @@ public class UserController
 {
 
     @Inject
-    UserService userService;
+    private UserService userService;
 
     // ----------------------------------------------------------------------------------------------------------------
     // This method exists for testing purpose
@@ -39,14 +44,17 @@ public class UserController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "/{anyString}", method = RequestMethod.GET) // maps to /greet or any other string
+    @GetMapping(value = "/{anyString}", produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                     MediaType.APPLICATION_JSON_VALUE })
+    // maps to /greet or any other string
     @ResponseBody
     public ResponseEntity greet(@PathVariable String anyString,
                                 @ApiParam(value = "The param name", required = true)
-                                @RequestParam(value = "name", required = false) String param)
+                                @RequestParam(value = "name", required = false) String param,
+                                @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         logger.debug("UserController -> Say hello to {}. Path variable: {}", param, anyString);
-        return ResponseEntity.ok(getResponseEntityBody("hello, " + param));
+        return ResponseEntity.ok(getResponseEntityBody("hello, " + param, accept));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -54,21 +62,24 @@ public class UserController
 
     @ApiOperation(value = "Used to create new user")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was created successfully."),
-                            @ApiResponse(code = 409, message = "Conflict while creating a user.") })
+                            @ApiResponse(code = 409, message = "A user with this username already exists! Please enter another username..") })
     @PreAuthorize("hasAuthority('CREATE_USER')")
-    @RequestMapping(value = "/user", method = RequestMethod.POST)
+    @PostMapping(value = "/user", produces = { MediaType.TEXT_PLAIN_VALUE,
+                                               MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public ResponseEntity create(@RequestBody UserInput userInput)
+    public ResponseEntity create(@RequestBody UserInput userInput,
+                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         User user = userService.findByUserName(userInput.asUser().getUsername());
         if (user != null)
         {
-            return toResponseEntity("A user with this username already exists! Please enter another username.",
-                                    HttpStatus.CONFLICT);
+            String message = "A user with this username already exists! Please enter another username.";
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                                 .body(getResponseEntityBody(message, accept));
         }
 
         userService.save(userInput.asUser());
-        return ResponseEntity.ok(getResponseEntityBody("The user was created successfully."));
+        return ResponseEntity.ok(getResponseEntityBody("The user was created successfully.", accept));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -76,19 +87,23 @@ public class UserController
 
     @ApiOperation(value = "Used to retrieve an user")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
+                            @ApiResponse(code = 400, message = "An error occurred."),
+                            @ApiResponse(code = 404, message = "The specified user does not exist!.") })
     @PreAuthorize("hasAuthority('VIEW_USER') || #name == principal.username")
-    @RequestMapping(value = "user/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "user/{name}", produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                    MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public ResponseEntity getUser(@ApiParam(value = "The name of the user", required = true) @PathVariable String name)
+    public ResponseEntity getUser(@ApiParam(value = "The name of the user", required = true) @PathVariable String name,
+                                  @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         User user = userService.findByUserName(name);
         if (user == null)
         {
-            return toResponseEntity("The specified user does not exist!", HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body(getResponseEntityBody("The specified user does not exist!", accept));
         }
 
-        return ResponseEntity.ok(UserOutput.fromUser(user));
+        return ResponseEntity.ok(getUserOutputEntityBody(UserOutput.fromUser(user), accept));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -98,13 +113,15 @@ public class UserController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('VIEW_USER')")
-    @RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/all", produces = { MediaType.TEXT_PLAIN_VALUE,
+                                             MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public ResponseEntity getUsers()
+    public ResponseEntity getUsers(@RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        return ResponseEntity.ok(
-                userService.findAll().orElse(Collections.emptyList()).stream().map(UserOutput::fromUser).collect(
-                        Collectors.toList()));
+        List<UserOutput> users = userService.findAll().orElse(Collections.emptyList()).stream().map(
+                UserOutput::fromUser).collect(
+                Collectors.toList());
+        return ResponseEntity.ok(getListResponseEntityBody(users, accept));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -112,22 +129,26 @@ public class UserController
 
     @ApiOperation(value = "Used to update user")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was updated successfully."),
-                            @ApiResponse(code = 400, message = "Bad request was provided to update user") })
+                            @ApiResponse(code = 400, message = "Could not update user.") })
     @PreAuthorize("hasAuthority('UPDATE_USER') || #userToUpdate.username == principal.username")
-    @RequestMapping(value = "user", method = RequestMethod.PUT)
+    @PutMapping(value = "user", produces = { MediaType.TEXT_PLAIN_VALUE,
+                                             MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity update(@RequestBody UserInput userToUpdate,
-                                 Authentication authentication)
+                                 Authentication authentication,
+                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         if (StringUtils.isBlank(userToUpdate.getUsername()))
         {
-            return toResponseEntity("Username not provided", HttpStatus.BAD_REQUEST);
+            String message = "Username not provided.";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(getResponseEntityBody(message, accept));
         }
         if (!(authentication.getPrincipal() instanceof SpringSecurityUser))
         {
-            return toResponseEntity(
-                    "Unsupported logged user principal type " + authentication.getPrincipal().getClass(),
-                    HttpStatus.BAD_REQUEST);
+            String message = "Unsupported logged user principal type " + authentication.getPrincipal().getClass();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(getResponseEntityBody(message, accept));
         }
 
         User user = userToUpdate.asUser();
@@ -141,7 +162,7 @@ public class UserController
             userService.updateByUsername(user);
         }
 
-        return ResponseEntity.ok(getResponseEntityBody("The user was updated successfully."));
+        return ResponseEntity.ok(getResponseEntityBody("The user was updated successfully.", accept));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -149,63 +170,76 @@ public class UserController
 
     @ApiOperation(value = "Deletes a user from a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was deleted."),
-                            @ApiResponse(code = 400, message = "Bad request.") })
+                            @ApiResponse(code = 400, message = "Could not delete a user."),
+                            @ApiResponse(code = 404, message = "The specified user does not exist!") })
     @PreAuthorize("hasAuthority('DELETE_USER')")
-    @RequestMapping(value = "user/{name}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "user/{name}", produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                       MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity delete(@ApiParam(value = "The name of the user") @PathVariable String name,
-                                 Authentication authentication)
-            throws Exception
+                                 Authentication authentication,
+                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         if (!(authentication.getPrincipal() instanceof SpringSecurityUser))
         {
-            return toResponseEntity(
-                    "Unsupported logged user principal type " + authentication.getPrincipal().getClass(),
-                    HttpStatus.BAD_REQUEST);
+            String message = "Unsupported logged user principal type " + authentication.getPrincipal().getClass();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(getResponseEntityBody(message, accept));
         }
         final SpringSecurityUser loggedUser = (SpringSecurityUser) authentication.getPrincipal();
         if (StringUtils.equals(loggedUser.getUsername(), name))
         {
-            return toResponseEntity("Unable to delete yourself", HttpStatus.BAD_REQUEST);
+            String message = "Unable to delete yourself";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(getResponseEntityBody(message, accept));
         }
 
         User user = userService.findByUserName(name);
         if (user == null || user.getObjectId() == null)
         {
-            return toResponseEntity("The specified user does not exist!", HttpStatus.NOT_FOUND);
+            String message = "The specified user does not exist!";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body(getResponseEntityBody(message, accept));
+
         }
 
         userService.delete(user.getObjectId());
 
-        return ResponseEntity.ok(getResponseEntityBody("The user was deleted."));
+        return ResponseEntity.ok(getResponseEntityBody("The user was deleted.", accept));
     }
 
     @ApiOperation(value = "Generate new security token for specified user.", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The security token was generated."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+                            @ApiResponse(code = 400, message = "Could not generate new security token.") })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
-    @RequestMapping(value = "user/{userName}/generate-security-token", method = RequestMethod.GET)
-    public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String userName)
+    @GetMapping(value = "user/{userName}/generate-security-token", produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                                                MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String userName,
+                                                @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws JoseException
     {
-        String result = userService.generateSecurityToken(userName);
+        String securityToken = userService.generateSecurityToken(userName);
 
-        if (result == null)
+        if (securityToken == null)
         {
-            return toError(String.format(
+            String message = String.format(
                     "Failed to generate SecurityToken, probably you should first set SecurityTokenKey for the user: user-[%s]",
-                    userName), true);
+                    userName);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(getResponseEntityBody(message, accept));
         }
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(getTokenEntityBody(securityToken, accept));
     }
 
     @ApiOperation(value = "Generate authentication token.", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The authentication token was generated."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+                            @ApiResponse(code = 400, message = "Could not generate authentication token..") })
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "user/authenticate", method = RequestMethod.GET)
-    public ResponseEntity authenticate(@RequestParam(name = "expireSeconds", required = false) Integer expireSeconds)
+    @GetMapping(value = "user/authenticate", produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                          MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity authenticate(@RequestParam(name = "expireSeconds", required = false) Integer expireSeconds,
+                                       @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws JoseException
     {
         // We use Security Context from BasicAuth here
@@ -213,31 +247,35 @@ public class UserController
                                                .getAuthentication()
                                                .getName();
 
-        return ResponseEntity.ok(userService.generateAuthenticationToken(userName, expireSeconds));
+        String authToken = userService.generateAuthenticationToken(userName, expireSeconds);
+        return ResponseEntity.ok(getTokenEntityBody(authToken, accept));
     }
 
 
     @ApiOperation(value = "Update custom access model for the user.", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The custom access model was updated."),
                             @ApiResponse(code = 403, message = "Not enough access rights for this operation."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+                            @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
-    @RequestMapping(value = "user/{userName}/access-model", method = RequestMethod.PUT)
+    @PutMapping(value = "user/{userName}/access-model", produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                                     MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity updateAccessModel(@ApiParam(value = "The name of the user") @PathVariable
                                                     String userName,
-                                            @RequestBody AccessModel accessModel)
-            throws JoseException
+                                            @RequestBody AccessModel accessModel,
+                                            @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         User user = userService.findByUserName(userName);
         if (user == null || user.getObjectId() == null)
         {
-            return toResponseEntity("The specified user does not exist!", HttpStatus.NOT_FOUND);
+            String message = "The specified user does not exist!";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body(getResponseEntityBody(message, accept));
         }
 
         user.setAccessModel(accessModel);
         userService.save(user);
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(getUserEntityBody(user, accept));
     }
 
 }
