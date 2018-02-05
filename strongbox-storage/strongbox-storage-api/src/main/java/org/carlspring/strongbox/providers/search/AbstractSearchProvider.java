@@ -56,9 +56,9 @@ public abstract class AbstractSearchProvider
             URL artifactResource;
             try
             {
-                artifactResource = artifactResolutionService.resolveArtifactResource(artifactEntry.getStorageId(),
-                                                                                     artifactEntry.getRepositoryId(),
-                                                                                     artifactEntry.getArtifactCoordinates());
+                artifactResource = artifactResolutionService.resolveResource(artifactEntry.getStorageId(),
+                                                                             artifactEntry.getRepositoryId(),
+                                                                             artifactEntry.getArtifactPath());
             }
             catch (Exception e)
             {
@@ -105,9 +105,9 @@ public abstract class AbstractSearchProvider
         URL artifactResource;
         try
         {
-            artifactResource = artifactResolutionService.resolveArtifactResource(storageId,
-                                                                                 a.getRepositoryId(),
-                                                                                 a.getArtifactCoordinates());
+            artifactResource = artifactResolutionService.resolveResource(storageId,
+                                                                         a.getRepositoryId(),
+                                                                         a.getArtifactPath());
         }
         catch (Exception e)
         {
