@@ -2,7 +2,7 @@ package org.carlspring.strongbox.storage.indexing.downloader;
 
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.apache.maven.index.Indexer;
 
@@ -49,7 +49,7 @@ public class IndexDownloadRequest
         return repository.getRemoteRepository().getUrl();
     }
 
-    public File getRepositoryTempDir()
+    public Path getRepositoryTempDir()
     {
         return repository.getTempDir();
     }
