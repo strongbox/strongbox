@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.domain.DirectoryContent;
+import org.carlspring.strongbox.domain.FileContent;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -43,6 +45,24 @@ public class BrowseControllerTest
         Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","testdir/testsubdir"))
              .toFile()
              .deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1"))
+             .toFile()
+             .deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir"))
+             .toFile()
+             .deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir/com"))
+             .toFile()
+             .deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir/com/artifactdir"))
+             .toFile()
+             .deleteOnExit();
+        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir/com/artifactdir/1.0.0"))
+             .toFile()
+             .deleteOnExit();
+        Files.createFile(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir/com/artifactdir/1.0.0/artifactdir-1.0.0.jar"))
+             .toFile()
+             .deleteOnExit();
     }
     
     @Test
@@ -56,13 +76,16 @@ public class BrowseControllerTest
                                  .get(url)
                                  .prettyPeek()
                                  .asString();
-
-        Map<String, List<String>> returnedMap = new ObjectMapper()
-                .readValue(storages, new TypeReference<Map<String, List<String>>>(){});
         
-        assertNotNull("Failed to get storage list!", returnedMap);
-        assertNotNull("Failed to get storage list!", returnedMap.get("storages"));
-        assertFalse("Returned storage size does not match", returnedMap.get("storages").isEmpty());
+        DirectoryContent returned = new ObjectMapper()
+                .readValue(storages, DirectoryContent.class);
+              
+        assertNotNull("Failed to get storage list!", returned);
+        assertNotNull("Failed to get storage list!", returned.getDirectories());
+        assertFalse("Returned storage size does not match", returned.getDirectories().isEmpty());
+        
+        for(int i=0; i<returned.getDirectories().size(); i++)
+            logger.debug(returned.getDirectories().get(i).getName());
     }
 
     @Test
@@ -76,14 +99,20 @@ public class BrowseControllerTest
                               .prettyPeek()
                               .asString();
 
-        Map<String, List<String>> returnedMap = new ObjectMapper()
-                .readValue(repos, new TypeReference<Map<String, List<String>>>(){});
+        DirectoryContent returned = new ObjectMapper()
+                .readValue(repos, DirectoryContent.class);
         
-        assertNotNull("Failed to get repository list!", returnedMap);
-        assertNotNull("Failed to get repository list!", returnedMap.get("repositories"));
-        assertTrue("Returned repositories do not match", !returnedMap.get("repositories").isEmpty());
-        assertTrue("Returned repos do not match", returnedMap.get("repositories").contains("releases"));
-    }
+        assertNotNull("Failed to get repository list!", returned);
+        assertNotNull("Failed to get repository list!", returned.getDirectories());
+        assertTrue("Returned repositories do not match", !returned.getDirectories().isEmpty());
+        assertTrue("Repository not found", returned.getDirectories()
+                                                   .stream()
+                                                   .filter(p -> p.getName().equals("releases"))
+                                                   .findFirst()
+                                                   .isPresent());
+        }
+                                 
+
 
     @Test
     public void testGetRepositoriesWithStorageNotFound()
@@ -109,11 +138,13 @@ public class BrowseControllerTest
                                  .prettyPeek()
                                  .asString();
         
-        Map<String, List<String>> returnedMap = new ObjectMapper()
-                .readValue(contents, new TypeReference<Map<String, List<String>>>(){});
+        DirectoryContent returned = new ObjectMapper()
+                .readValue(contents, DirectoryContent.class);
         
-        assertArrayEquals("Returned files", new String[] { "testfile" }, returnedMap.get("files").toArray());
-        assertArrayEquals("Returned files", new String[] { "testdir" }, returnedMap.get("directories").toArray());
+        assertTrue("Invalid files returned", returned.getFiles().size() == 1
+                        && returned.getDirectories().get(0).getName().equals("testfile"));                                                           
+        assertTrue("Invalid files returned", returned.getDirectories().size() == 1
+                    && returned.getDirectories().get(0).getName().equals("testdir"));
     }
 
     @Test
@@ -139,11 +170,12 @@ public class BrowseControllerTest
                                  .prettyPeek()
                                  .asString();
 
-        Map<String, List<String>> returnedMap = new ObjectMapper()
-                .readValue(contents, new TypeReference<Map<String, List<String>>>(){});
+        DirectoryContent returned = new ObjectMapper()
+                .readValue(contents, DirectoryContent.class);
         
-        assertArrayEquals("Returned files", new String[] { }, returnedMap.get("files").toArray());
-        assertArrayEquals("Returned files", new String[] { "testsubdir" }, returnedMap.get("directories").toArray());
+        assertTrue("Invalid files returned", returned.getFiles().isEmpty());
+        assertTrue("Invalid files returned", returned.getDirectories().size() == 1
+                && returned.getDirectories().get(0).getName().equals("testsubdir"));
     }
 
     @Test
@@ -157,5 +189,22 @@ public class BrowseControllerTest
                .then()
                .statusCode(404);
     }
-
+    
+    @Test
+    public void testBrowseRepositoryContents()
+    {
+        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/releases/org1/groupdir/com/artifactdir/1.0.0/";
+        String responseBody = given().accept(MediaType.TEXT_HTML_VALUE)
+                                     .when()
+                                     .get(url)
+                                     .prettyPeek()
+                                     .then()
+                                     .statusCode(200)
+                                     .and()
+                                     .extract()
+                                     .asString();
+               
+        assertTrue("Returned HTML is incorrect", responseBody.contains("/storages/storage0/releases/org1/groupdir/com/artifactdir/1.0.0/artifactdir-1.0.0.jar'"));
+    }
+    
 }
