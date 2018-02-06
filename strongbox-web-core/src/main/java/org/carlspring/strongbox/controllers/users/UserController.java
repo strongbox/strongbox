@@ -41,8 +41,7 @@ public class UserController
     // This method exists for testing purpose
 
     @ApiOperation(value = "Used to retrieve an request param", position = 1)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
     @PreAuthorize("authenticated")
     @GetMapping(value = "/{anyString}", produces = { MediaType.TEXT_PLAIN_VALUE,
                                                      MediaType.APPLICATION_JSON_VALUE })
@@ -276,6 +275,48 @@ public class UserController
         userService.save(user);
 
         return ResponseEntity.ok(getUserEntityBody(user, accept));
+    }
+
+    private Object getUserOutputEntityBody(UserOutput userOutput,
+                                           String accept)
+    {
+
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return userOutput;
+        }
+        else
+        {
+            return String.valueOf(userOutput);
+        }
+    }
+
+    private Object getUserEntityBody(User user,
+                                     String accept)
+    {
+
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return user;
+        }
+        else
+        {
+            return String.valueOf(user);
+        }
+    }
+
+    private Object getTokenEntityBody(String token,
+                                      String accept)
+    {
+
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return new TokenEntityBody(token);
+        }
+        else
+        {
+            return token;
+        }
     }
 
 }
