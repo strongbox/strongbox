@@ -6,10 +6,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  * @JsonInclude used because org.carlspring.strongbox.users.domain.User is annotated with it
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class UserOutput
+public class UserOutput
         extends BaseUserDto
 {
 
@@ -24,4 +25,16 @@ class UserOutput
         return output;
     }
 
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("UserOutput{");
+        sb.append("username='").append(username).append('\'');
+        sb.append(", enabled=").append(enabled);
+        sb.append(", roles=").append(roles);
+        sb.append(", securityTokenKey='").append(securityTokenKey).append('\'');
+        sb.append(", accessModel=").append(accessModel);
+        sb.append('}');
+        return sb.toString();
+    }
 }

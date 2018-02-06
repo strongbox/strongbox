@@ -3,10 +3,14 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.support.*;
+import org.carlspring.strongbox.controllers.users.TokenEntityBody;
+import org.carlspring.strongbox.controllers.users.UserOutput;
 import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.users.domain.User;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -14,6 +18,7 @@ import java.util.List;
 import org.apache.http.pool.PoolStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,18 +47,6 @@ public abstract class BaseController
         {
             return message;
         }
-    }
-
-    protected ResponseEntityBody getResponseEntityBody(String message)
-    {
-        return new ResponseEntityBody(message);
-    }
-
-    protected ResponseEntity toResponseEntity(String message,
-                                              HttpStatus httpStatus)
-    {
-        return ResponseEntity.status(httpStatus)
-                             .body(getResponseEntityBody(message));
     }
 
     protected Object getPortEntityBody(int port, String accept)
@@ -129,21 +122,21 @@ public abstract class BaseController
     }
 
     protected ResponseEntity toError(String message,
-                                     Boolean... wrapBody)
+                                     String... accept)
     {
-        if (wrapBody != null)
+        if (accept != null && MediaType.APPLICATION_JSON_VALUE.equals(accept[0]))
         {
-            return toError(new RuntimeException(message), wrapBody);
+            return toError(new RuntimeException(message), accept);
         }
 
         return toError(new RuntimeException(message));
     }
 
     protected ResponseEntity toError(Throwable cause,
-                                     Boolean... wrapBody)
+                                     String... accept)
     {
         logger.error(cause.getMessage(), cause);
-        Object bodyContent = wrapBody != null ? getResponseEntityBody(cause.getMessage()) : cause.getMessage();
+        Object bodyContent = accept != null ? getResponseEntityBody(cause.getMessage(), accept[0]) : cause.getMessage();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                              .body(bodyContent);
     }
@@ -155,7 +148,7 @@ public abstract class BaseController
 
     protected void copyToResponse(InputStream is,
                                   HttpServletResponse response)
-            throws Exception
+            throws IOException
     {
         OutputStream os = response.getOutputStream();
 
@@ -174,7 +167,7 @@ public abstract class BaseController
                 totalBytes += readLength;
             }
 
-            response.setHeader("Content-Length", Long.toString(totalBytes));
+            response.setHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(totalBytes));
             response.flushBuffer();
         }
         finally
