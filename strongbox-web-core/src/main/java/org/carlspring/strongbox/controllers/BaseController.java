@@ -97,42 +97,6 @@ public abstract class BaseController
         }
     }
 
-    protected Object getUserOutputEntityBody(UserOutput userOutput, String accept) {
-
-        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
-        {
-            return userOutput;
-        }
-        else
-        {
-            return String.valueOf(userOutput);
-        }
-    }
-
-    protected Object getUserEntityBody(User user, String accept) {
-
-        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
-        {
-            return user;
-        }
-        else
-        {
-            return String.valueOf(user);
-        }
-    }
-
-    protected Object getTokenEntityBody(String token, String accept) {
-
-        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
-        {
-            return new TokenEntityBody(token);
-        }
-        else
-        {
-            return token;
-        }
-    }
-
     protected Object getListResponseEntityBody(List<?> list, String accept)
     {
         if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
