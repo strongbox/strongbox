@@ -27,7 +27,9 @@ public class FileContent
     }
     
     public FileContent(Path p)
-    {
+    {   
+        if(p == null)
+            return;
         this.name = p.getFileName().toString();
         this.size = FileUtils.byteCountToDisplaySize(p.toFile().length());
         this.lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss")
