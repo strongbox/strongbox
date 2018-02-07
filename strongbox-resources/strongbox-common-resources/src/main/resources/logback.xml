@@ -27,11 +27,9 @@
                 class="ch.qos.logback.core.rolling.RollingFileAppender">
 
                 <file>${strongbox.vault}/logs/${strongbox-cron-context-name}.log</file>
-                <rollingPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                    <fileNamePattern>${strongbox-cron-context-name}_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-
-                    <fileNamePattern>${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                
+                    <fileNamePattern>${strongbox.vault}/logs/${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
                     <maxFileSize>128MB</maxFileSize>
                     <maxHistory>31</maxHistory>
                     <totalSizeCap>1GB</totalSizeCap>
@@ -41,8 +39,7 @@
 
                 <encoder>
                     <charset>UTF-8</charset>
-                    <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p |
-                        %-20.20t | %-50.50logger{50} | %m%n</pattern>
+                    <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
                 </encoder>
             </appender>
         </sift>
