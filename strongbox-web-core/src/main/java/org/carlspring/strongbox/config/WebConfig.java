@@ -41,6 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @ComponentScan({ "com.carlspring.strongbox.controllers",
                  "org.carlspring.strongbox.controllers",
                  "org.carlspring.strongbox.validation",
+                 "org.carlspring.strongbox.web",
                  "org.carlspring.strongbox.mapper",
                  "org.carlspring.strongbox.utils",
                  "org.carlspring.logging" })
