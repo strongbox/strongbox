@@ -28,7 +28,7 @@ public class FileContent
     
     public FileContent(Path p)
     {   
-        if(p == null)
+        if(p == null || p.getFileName() == null)
             return;
         this.name = p.getFileName().toString();
         this.size = FileUtils.byteCountToDisplaySize(p.toFile().length());
