@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.storage.repository.remote.heartbeat;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.log.CronTaskContextFilter;
+import org.carlspring.strongbox.log.LoggingUtils;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 
@@ -115,14 +117,14 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
         @Override
         public void run()
         {
-            MDC.put("strongbox-cron-context-name", target.getClass().getSimpleName());
+            MDC.put(CronTaskContextFilter.STRONGBOX_CRON_CONTEXT_NAME, LoggingUtils.caclucateCronContextName(target.getClass()));
             try
             {
                 target.run();
             } 
             finally
             {
-                MDC.remove("strongbox-cron-context-name");
+                MDC.remove(CronTaskContextFilter.STRONGBOX_CRON_CONTEXT_NAME);
             }
         }
 

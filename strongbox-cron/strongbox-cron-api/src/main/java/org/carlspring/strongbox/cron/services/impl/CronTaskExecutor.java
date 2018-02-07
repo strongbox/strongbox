@@ -9,6 +9,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.carlspring.strongbox.log.CronTaskContextFilter;
+import org.carlspring.strongbox.log.LoggingUtils;
+import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.core.JobRunShell;
 import org.quartz.spi.TriggerFiredBundle;
@@ -87,9 +89,10 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
 
     private void bootstrapCronJobContext(JobDetail jd)
     {
-        String jobClassName = jd.getJobClass().getSimpleName();
+        Class<? extends Job> jobClass = jd.getJobClass();
+        String jobClassName = jobClass.getSimpleName();
         LOGGER.debug(String.format("Bootstrap Cron Job [%s]", jobClassName));
-        MDC.put(CronTaskContextFilter.STRONGBOX_CRON_CONTEXT_NAME, jobClassName);
+        MDC.put(CronTaskContextFilter.STRONGBOX_CRON_CONTEXT_NAME, LoggingUtils.caclucateCronContextName(jobClass));
     }
 
     private JobDetail exposeJobDetails(Runnable r)
