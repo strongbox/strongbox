@@ -641,4 +641,28 @@ public class ConfigurationManagementController
         }
     }
 
+    private Object getBaseUrlEntityBody(String baseUrl, String accept)
+    {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return new BaseUrlEntityBody(baseUrl);
+        }
+        else
+        {
+            return baseUrl;
+        }
+    }
+
+    private Object getPortEntityBody(int port, String accept)
+    {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return new PortEntityBody(port);
+        }
+        else
+        {
+            return String.valueOf(port);
+        }
+    }
+
 }

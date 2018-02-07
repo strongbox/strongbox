@@ -2,11 +2,9 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controllers.support.*;
-import org.carlspring.strongbox.controllers.users.TokenEntityBody;
-import org.carlspring.strongbox.controllers.users.UserOutput;
+import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
+import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.resource.ResourceCloser;
-import org.carlspring.strongbox.users.domain.User;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -15,13 +13,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.apache.http.pool.PoolStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+
 
 /**
  * Provides common subroutines that will be useful for any backend controllers.
@@ -37,6 +35,11 @@ public abstract class BaseController
     @Inject
     protected ConfigurationManager configurationManager;
 
+    protected Configuration getConfiguration()
+    {
+        return configurationManager.getConfiguration();
+    }
+
     protected Object getResponseEntityBody(String message, String accept)
     {
         if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
@@ -46,54 +49,6 @@ public abstract class BaseController
         else
         {
             return message;
-        }
-    }
-
-    protected Object getPortEntityBody(int port, String accept)
-    {
-        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
-        {
-            return new PortEntityBody(port);
-        }
-        else
-        {
-            return String.valueOf(port);
-        }
-    }
-
-    protected Object getBaseUrlEntityBody(String baseUrl, String accept)
-    {
-        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
-        {
-            return new BaseUrlEntityBody(baseUrl);
-        }
-        else
-        {
-            return baseUrl;
-        }
-    }
-
-    protected Object getNumberOfConnectionsEntityBody(int numberOfConnections, String accept)
-    {
-        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
-        {
-            return new NumberOfConnectionsEntityBody(numberOfConnections);
-        }
-        else
-        {
-            return String.valueOf(numberOfConnections);
-        }
-    }
-
-    protected Object getPoolStatsEntityBody(PoolStats poolStats, String accept)
-    {
-        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
-        {
-            return new PoolStatsEntityBody(poolStats);
-        }
-        else
-        {
-            return String.valueOf(poolStats);
         }
     }
 
@@ -139,11 +94,6 @@ public abstract class BaseController
         Object bodyContent = accept != null ? getResponseEntityBody(cause.getMessage(), accept[0]) : cause.getMessage();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                              .body(bodyContent);
-    }
-
-    protected Configuration getConfiguration()
-    {
-        return configurationManager.getConfiguration();
     }
 
     protected void copyToResponse(InputStream is,
