@@ -3,6 +3,8 @@ package org.carlspring.strongbox.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.carlspring.strongbox.domain.DirectoryContent;
 import org.carlspring.strongbox.domain.FileContent;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
+import org.carlspring.strongbox.services.impl.ArtifactResolutionServiceImpl;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -56,6 +60,9 @@ public class BrowseController
     @Inject
     private ObjectMapper objectMapper;
 
+    @Inject
+    private ArtifactResolutionServiceImpl artifactResolutionService;
+    
     @ApiOperation(value = "List configured storages.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
@@ -181,7 +188,7 @@ public class BrowseController
             Path dirPath = getStoragesDir();
             DirectoryContent content = new DirectoryContent(dirPath);
             
-            generateHTML(request, response, content);
+            generateHTML(request, response, content, null);
         }
         catch (Exception e)
         {
@@ -217,7 +224,7 @@ public class BrowseController
             Path dirPath = Paths.get(storage.getBasedir());
             DirectoryContent content = new DirectoryContent(dirPath);            
             
-            generateHTML(request, response, content);
+            generateHTML(request, response, content, null);
         }
         catch (Exception e)
         {
@@ -286,7 +293,8 @@ public class BrowseController
             try
             {
                 DirectoryContent content = new DirectoryContent(baseDir);
-                generateHTML(request, response, content);
+                URL url = artifactResolutionService.resolveResource(storageId, repositoryId, subPath);
+                generateHTML(request, response, content, url);
             }
             catch (Exception e)
             {
@@ -303,7 +311,8 @@ public class BrowseController
     
     protected void generateHTML(HttpServletRequest request,
                                 HttpServletResponse response,
-                                DirectoryContent content)
+                                DirectoryContent content,
+                                URL url)
     {
         if(content == null)
         {
@@ -351,12 +360,19 @@ public class BrowseController
            
             for (FileContent fileContent : content.getDirectories())
             {
-                appendFile(sb, fileContent, requestUri, true);
+                appendFile(sb, fileContent, requestUri, true, url);
             }
-
+                        
+            if(url == null && !content.getFiles().isEmpty())
+            {
+                logger.debug("Files are present outside a repository");
+                response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                return;
+            }
+            
             for (FileContent fileContent : content.getFiles())
             {
-                appendFile(sb, fileContent, requestUri, false);
+                appendFile(sb, fileContent, requestUri, false, url);
             }
 
 
@@ -385,26 +401,25 @@ public class BrowseController
     private boolean appendFile(StringBuilder sb,
                                FileContent fileContent,
                                String requestUri,
-                               boolean isDirectory)
-            throws UnsupportedEncodingException
+                               boolean isDirectory,
+                               URL url)
+            throws IOException
     {
         String name = fileContent.getName();
         String size = fileContent.getSize();
-        String lastModified = fileContent.getSize();
+        String lastModified = fileContent.getLastModified();
 
         sb.append("<tr>");
-        
+
         if(isDirectory)
         {
             sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + 
                       "/'>" + name + "/" + "</a></td>");
         }
         else
-        {
-            requestUri = requestUri.replaceFirst("/browse/", "/storages/");
-            sb.append("<td><a href='" + requestUri + URLEncoder.encode(name, "UTF-8") + 
-                      "'>" + name + "</a></td>");
-            
+        {  
+            String storagesUrl = url.toString() + "/" + URLEncoder.encode(name, "UTF-8");
+            sb.append("<td><a href='" + storagesUrl + "'>" + name + "</a></td>");
         }
         sb.append("<td>" + lastModified + "</td>");
         sb.append("<td>" + size + "</td>");
