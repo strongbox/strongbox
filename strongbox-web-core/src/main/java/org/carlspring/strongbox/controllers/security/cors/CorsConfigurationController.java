@@ -34,6 +34,9 @@ public class CorsConfigurationController
         extends BaseController
 {
 
+    public static final String SUCCESSFUL_UPDATE = "CORS allowed origins was updated.";
+    public static final String FAILED_UPDATE     = "Could not update CORS allowed origins.";
+
     @Inject
     private CorsConfigurationSource corsConfigurationSource;
 
@@ -41,7 +44,7 @@ public class CorsConfigurationController
     @ApiResponses(value = @ApiResponse(code = 200, message = "Allowed origins."))
     @GetMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity getAllowedOrigins(@RequestHeader(HttpHeaders.ACCEPT) String accept)
+    public ResponseEntity getAllowedOrigins()
     {
         List<String> allowedOrigins = ((UrlBasedCorsConfigurationSource) corsConfigurationSource).getCorsConfigurations()
                                                                                                  .values()
@@ -53,15 +56,15 @@ public class CorsConfigurationController
                                                                                                               Stream.empty())
                                                                                                  .collect(
                                                                                                          Collectors.toList());
-        return ResponseEntity.ok(getListResponseEntityBody(allowedOrigins, accept));
+        return getJSONListResponseEntityBody("origins", allowedOrigins);
     }
 
     @ApiOperation(value = "Sets CORS allowed origins",
             notes = "In the request body, put an array of all allowed origins like this example: " +
-                    "[\"http://dev.carlspring.org/confluence\",\"http://dev.carlspring.org/jenkins\"]. " +
+                    "[\"http://example-a.com/\",\"http://example-b.com/foo/bar\"]. " +
                     "You can always provide [*] to allow all origins.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "CORS allowed origins was updated."),
-                            @ApiResponse(code = 400, message = "Could not update CORS allowed origins.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = CorsConfigurationController.SUCCESSFUL_UPDATE),
+                            @ApiResponse(code = 400, message = CorsConfigurationController.FAILED_UPDATE) })
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -76,12 +79,11 @@ public class CorsConfigurationController
         if (corsConfiguration.isPresent())
         {
             corsConfiguration.get().setAllowedOrigins(allowedOrigins);
-            return ResponseEntity.ok(getResponseEntityBody("CORS allowed origins was updated.", accept));
+            return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE, accept);
         }
         else
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body(getResponseEntityBody("Could not update CORS allowed origins.", accept));
+            return getBadRequestResponseEntity(FAILED_UPDATE, accept);
         }
 
 
