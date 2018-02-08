@@ -296,21 +296,19 @@ public class RestAssuredArtifactClient
                     .statusCode(OK);
     }
 
-    public void rebuildIndexes(String storageId,
-                               String repositoryId,
-                               String path)
+    public MockMvcResponse rebuildIndexes(String storageId,
+                                          String repositoryId,
+                                          String path)
             throws IOException
     {
         String url = getContextBaseUrl() + "/index?" + (storageId != null ? "storageId=" + storageId : "") +
                      (repositoryId != null ? (storageId != null ? "&" : "") + "repositoryId=" + repositoryId : "") +
                      (path != null ? (storageId != null || repositoryId != null ? "&" : "") + "path=" + path : "");
 
-        givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
+        return givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
                     .when()
                     .post(url)
-                    .peek()
-                    .then()
-                    .statusCode(OK);
+                    .peek();
     }
 
     public void removeVersionFromMetadata(String storageId,

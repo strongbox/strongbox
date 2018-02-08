@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.controllers;
 
+import org.carlspring.strongbox.controllers.support.NumberOfConnectionsEntityBody;
+import org.carlspring.strongbox.controllers.support.PoolStatsEntityBody;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
@@ -192,6 +194,30 @@ public class HttpConnectionPoolConfigurationManagementController
         int maxNumberOfConnections = proxyRepositoryConnectionPoolConfigurationService.getTotalStats()
                                                                                       .getMax();
         return ResponseEntity.ok(getNumberOfConnectionsEntityBody(maxNumberOfConnections, accept));
+    }
+
+    private Object getNumberOfConnectionsEntityBody(int numberOfConnections, String accept)
+    {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return new NumberOfConnectionsEntityBody(numberOfConnections);
+        }
+        else
+        {
+            return String.valueOf(numberOfConnections);
+        }
+    }
+
+    private Object getPoolStatsEntityBody(PoolStats poolStats, String accept)
+    {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return new PoolStatsEntityBody(poolStats);
+        }
+        else
+        {
+            return String.valueOf(poolStats);
+        }
     }
 
 }

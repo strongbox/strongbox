@@ -1,11 +1,12 @@
 package org.carlspring.strongbox.artifact.locator;
 
+import org.carlspring.strongbox.artifact.locator.handlers.ArtifactDirectoryOperation;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.carlspring.strongbox.artifact.locator.handlers.ArtifactDirectoryOperation;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +50,12 @@ public class ArtifactDirectoryLocator
     public RepositoryPath getStartingPath()
     {
         // The root path
-        RepositoryPath rootPath = basedir != null ? basedir : getOperation().getBasePath().getFileSystem().getRootDirectory();
-        rootPath = rootPath.resolve(getOperation().getBasePath());
+        RepositoryPath rootPath =
+                basedir != null ? basedir : getOperation().getBasePath().getFileSystem().getRootDirectory();
+        if (getOperation().getBasePath() != null)
+        {
+            rootPath = rootPath.resolve(getOperation().getBasePath().relativize());
+        }
         rootPath = rootPath.normalize();
 
         logger.debug(String.format("ArtifactDirectoryLocator started in: path-[%s]", rootPath));

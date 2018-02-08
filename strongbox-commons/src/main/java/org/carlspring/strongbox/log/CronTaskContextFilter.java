@@ -12,7 +12,7 @@ public class CronTaskContextFilter extends Filter<ILoggingEvent>
     @Override
     public FilterReply decide(ILoggingEvent event)
     {
-        if (event.getMdc().containsKey(STRONGBOX_CRON_CONTEXT_NAME))
+        if (event.getMDCPropertyMap().containsKey(STRONGBOX_CRON_CONTEXT_NAME))
         {
             return FilterReply.DENY;
         }

@@ -2,28 +2,24 @@ package org.carlspring.strongbox.storage.metadata;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -121,11 +117,11 @@ public class MavenSnapshotManager
     {
         String storageId = repository.getStorage()
                                      .getId();
-        File file = new File(basePath);
+        Path base = Paths.get(basePath);
 
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
 
-        Metadata metadata = mavenMetadataManager.readMetadata(Paths.get(basePath));
+        Metadata metadata = mavenMetadataManager.readMetadata(base);
 
         if (metadata != null && metadata.getVersioning() != null)
         {
@@ -144,36 +140,46 @@ public class MavenSnapshotManager
                                                                                                  .concat(e)
                                                                                                  .concat(".jar")));
 
-                List<File> list = Arrays.asList(file.listFiles());
+                final RootRepositoryPath rootRepositoryPath = layoutProvider.resolve(repository);
 
-                list.stream()
-                    .filter(File::isFile)
-                    .filter(e -> ArtifactUtils.isArtifact(e.getPath()) && removingSnapshots.contains(e.getName()))
-                    .forEach(e ->
-                             {
-                                 try
-                                 {
+                try (final DirectoryStream<Path> directoryStream = Files.newDirectoryStream(base))
+                {
+                    for (Path path : directoryStream)
+                    {
+                        if (Files.isRegularFile(path))
+                        {
+                            final String filename = path.getFileName().toString();
+                            if (ArtifactUtils.isArtifact(path.toString()) && removingSnapshots.contains(filename))
+                            {
+                                try
+                                {
 
-                                     layoutProvider.delete(storageId, repository.getId(), e.getPath(), true);
+                                    layoutProvider.delete(storageId,
+                                                          repository.getId(),
+                                                          rootRepositoryPath.getTarget().relativize(path).toString(),
+                                                          true);
 
-                                     String artifactName = e.getName();
-                                     artifactName = artifactName.substring(0, artifactName.lastIndexOf('.'));
-                                     String pomPath = Paths.get(e.getParent(), artifactName)
-                                                           .toString()
-                                                           .concat(".pom");
+                                    String artifactName = filename;
+                                    artifactName = artifactName.substring(0, artifactName.lastIndexOf('.'));
+                                    Path pomPath = Paths.get(path.getParent().toString(), artifactName, ".pom");
 
-                                     layoutProvider.delete(storageId, repository.getId(), pomPath, true);
-                                 }
-                                 catch (IOException ex)
-                                 {
-                                     logger.error(ex.getMessage(), ex);
-                                 }
-                                 catch (SearchException ex)
-                                 {
-                                     logger.error(ex.getMessage(), ex);
-                                 }
-
-                             });
+                                    layoutProvider.delete(storageId,
+                                                          repository.getId(),
+                                                          rootRepositoryPath.getTarget().relativize(pomPath).toString(),
+                                                          true);
+                                }
+                                catch (IOException ex)
+                                {
+                                    logger.error(ex.getMessage(), ex);
+                                }
+                                catch (SearchException ex)
+                                {
+                                    logger.error(ex.getMessage(), ex);
+                                }
+                            }
+                        }
+                    }
+                }
                 return true;
             }
         }

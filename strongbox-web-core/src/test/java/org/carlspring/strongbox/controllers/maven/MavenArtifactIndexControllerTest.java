@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.base.Throwables;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.CoreMatchers;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -125,7 +126,8 @@ public class MavenArtifactIndexControllerTest
         final String artifactPath = "org/carlspring/strongbox/indexes/strongbox-test";
 
         client.rebuildMetadata(STORAGE_ID, REPOSITORY_RELEASES_1, artifactPath);
-        client.rebuildIndexes(STORAGE_ID, REPOSITORY_RELEASES_1, artifactPath);
+        MockMvcResponse mockMvcResponse = client.rebuildIndexes(STORAGE_ID, REPOSITORY_RELEASES_1, artifactPath);
+        mockMvcResponse.then().statusCode(HttpStatus.OK.value());
 
         assertIndexContainsArtifact(STORAGE_ID,
                                     REPOSITORY_RELEASES_1,
@@ -153,6 +155,15 @@ public class MavenArtifactIndexControllerTest
     }
 
     @Test
+    public void shouldNotBeAllowedToProvideAbsolutePaths()
+            throws Exception
+    {
+        MockMvcResponse mockMvcResponse = client.rebuildIndexes(STORAGE_ID, REPOSITORY_RELEASES_2, "/");
+        mockMvcResponse.then().body("error", CoreMatchers.equalTo("Only valid relative paths are allowed")).statusCode(
+                HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
     public void testRebuildIndexForRepository()
             throws Exception
     {
@@ -162,7 +173,8 @@ public class MavenArtifactIndexControllerTest
                          "org.carlspring.strongbox.indexes:strongbox-test:2.1");
 
         client.rebuildMetadata(STORAGE_ID, REPOSITORY_RELEASES_2, null);
-        client.rebuildIndexes(STORAGE_ID, REPOSITORY_RELEASES_2, null);
+        MockMvcResponse mockMvcResponse = client.rebuildIndexes(STORAGE_ID, REPOSITORY_RELEASES_2, null);
+        mockMvcResponse.then().statusCode(HttpStatus.OK.value());
 
         assertIndexContainsArtifact(STORAGE_ID,
                                     REPOSITORY_RELEASES_2,
@@ -183,7 +195,8 @@ public class MavenArtifactIndexControllerTest
                          "org.carlspring.strongbox.indexes:strongbox-test:2.3");
 
         client.rebuildMetadata(STORAGE_ID, null, null);
-        client.rebuildIndexes(STORAGE_ID, null, null);
+        MockMvcResponse mockMvcResponse = client.rebuildIndexes(STORAGE_ID, null, null);
+        mockMvcResponse.then().statusCode(HttpStatus.OK.value());
 
         assertIndexContainsArtifact(STORAGE_ID,
                                     REPOSITORY_RELEASES_1,
