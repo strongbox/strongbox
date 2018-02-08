@@ -220,55 +220,55 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             throws Exception
     {
         final Path basedirTrash1 = repository2.getTrashDir();
-        Stream<Path> dirs1 = Files.list(basedirTrash1);
+        try (Stream<Path> dirs1 = Files.list(basedirTrash1))
+        {
+            assertTrue("There is no path to the repository trash!", Files.exists(basedirTrash1));
+            assertTrue("The repository trash isn't empty!", dirs1.noneMatch(x -> Files.isDirectory(x)));
+        }
 
-        assertTrue("There is no path to the repository trash!", dirs1 != null);
-        assertEquals("The repository trash isn't empty!", 0, dirs1.count());
 
         LayoutProvider layoutProvider1 = layoutProviderRegistry.getProvider(repository2.getLayout());
         String path1 = "org/carlspring/strongbox/clear/strongbox-test-two/1.0";
         layoutProvider1.delete(STORAGE0, REPOSITORY_RELEASES_2, path1, false);
 
         final Path basedirTrash2 = repository3.getTrashDir();
-        Stream<Path> dirs2 = Files.list(basedirTrash2);
-
-        assertTrue("There is no path to the repository trash!", dirs2 != null);
-        assertEquals("The repository trash isn't empty!", 0, dirs2.count());
+        try (Stream<Path> dirs2 = Files.list(basedirTrash2))
+        {
+            assertTrue("There is no path to the repository trash!", Files.exists(basedirTrash2));
+            assertTrue("The repository trash isn't empty!", dirs2.noneMatch(x -> Files.isDirectory(x)));
+        }
 
         LayoutProvider layoutProvider2 = layoutProviderRegistry.getProvider(repository3.getLayout());
         String path2 = "org/carlspring/strongbox/clear/strongbox-test-one/1.0";
         layoutProvider2.delete(STORAGE1, REPOSITORY_RELEASES_1, path2, false);
 
-        dirs1 = Files.list(basedirTrash1);
-        dirs2 = Files.list(basedirTrash2);
-
-        assertTrue("There is no path to the repository trash!", dirs1 != null);
-        assertEquals("The repository trash is empty!", 1, dirs1.count());
-        assertTrue("There is no path to the repository trash!", dirs2 != null);
-        assertEquals("The repository trash is empty!", 1, dirs2.count());
+        try (Stream<Path> dirs1 = Files.list(basedirTrash1);
+             Stream<Path> dirs2 = Files.list(basedirTrash2))
+        {
+            assertTrue("There is no path to the repository trash!", Files.exists(basedirTrash1));
+            assertTrue("The repository trash is empty!", dirs1.anyMatch(x -> Files.isDirectory(x)));
+            assertTrue("There is no path to the repository trash!", Files.exists(basedirTrash2));
+            assertTrue("The repository trash is empty!", dirs2.anyMatch(x -> Files.isDirectory(x)));
+        }
 
         // Checking if job was executed
         String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
-            Stream<Path> dirs11;
-            Stream<Path> dirs22;
-            try
+            try (Stream<Path> dirs11 = Files.list(basedirTrash1);
+                 Stream<Path> dirs22 = Files.list(basedirTrash2))
             {
-                dirs11 = Files.list(basedirTrash1);
-                dirs22 = Files.list(basedirTrash2);
+                assertTrue("There is no path to the repository trash!", Files.exists(basedirTrash1));
+                assertTrue("The repository trash isn't empty!", dirs11.noneMatch(x -> Files.isDirectory(x)));
+                assertTrue("There is no path to the repository trash!", Files.exists(basedirTrash2));
+                assertTrue("The repository trash isn't empty!", dirs22.noneMatch(x -> Files.isDirectory(x)));
+
+                removeRepositories();
             }
             catch (IOException e)
             {
                 throw new RuntimeException(e);
             }
-
-            assertTrue("There is no path to the repository trash!", dirs11 != null);
-            assertEquals("The repository trash isn't empty!", 0, dirs11.count());
-            assertTrue("There is no path to the repository trash!", dirs22 != null);
-            assertEquals("The repository trash isn't empty!", 0, dirs22.count());
-
-            removeRepositories();
         });
 
         addCronJobConfig(jobName, ClearRepositoryTrashCronJob.class, null, null);
