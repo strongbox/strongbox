@@ -1,7 +1,8 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -31,6 +32,10 @@ public class RepositoryVersionValidatorsManagementControllerTest
 
     @Inject
     private ConfigurationManager configurationManager;
+
+    @Inject
+    private Maven2LayoutProvider maven2LayoutProvider;
+
 
     @Override
     public void init()

@@ -21,14 +21,13 @@ import static org.junit.Assert.fail;
 public class MavenReleaseVersionValidatorTest
 {
 
-    Repository repository = new Repository();
+    Repository repository = new Repository("test-repository-for-maven-release-validation");
 
     MavenReleaseVersionValidator validator = new MavenReleaseVersionValidator();
 
 
     @Before
     public void setUp()
-            throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.toString());
         repository.setLayout(RepositoryLayoutEnum.MAVEN_2.getLayout());
@@ -36,7 +35,6 @@ public class MavenReleaseVersionValidatorTest
 
     @Test
     public void shouldSupportRepository()
-            throws VersionValidationException
     {
         assertTrue(validator.supports(repository));
     }

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author carlspring
  */
-@Component("layoutProviderRegistry")
+@Component
 public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<LayoutProvider>
 {
 

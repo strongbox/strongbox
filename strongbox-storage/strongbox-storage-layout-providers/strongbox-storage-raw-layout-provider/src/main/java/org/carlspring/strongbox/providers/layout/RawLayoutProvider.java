@@ -4,17 +4,14 @@ package org.carlspring.strongbox.providers.layout;
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
+import org.carlspring.strongbox.repository.RawRepositoryFeatures;
 import org.carlspring.strongbox.repository.RawRepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
-import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
-import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -42,7 +39,7 @@ public class RawLayoutProvider
     private RawRepositoryManagementStrategy rawRepositoryManagementStrategy;
 
     @Inject
-    private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
+    private RawRepositoryFeatures rawRepositoryFeatures;
 
 
     @PostConstruct
@@ -120,6 +117,12 @@ public class RawLayoutProvider
     public ArtifactManagementService getArtifactManagementService()
     {
         return artifactManagementService;
+    }
+
+    @Override
+    public Set<String> getDefaultArtifactCoordinateValidators()
+    {
+        return rawRepositoryFeatures.getDefaultArtifactCoordinateValidators();
     }
 
     protected RepositoryPathHandler getRepositoryPathHandler()

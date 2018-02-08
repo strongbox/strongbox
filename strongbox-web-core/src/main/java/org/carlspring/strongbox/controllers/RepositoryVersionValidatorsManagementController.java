@@ -54,7 +54,10 @@ public class RepositoryVersionValidatorsManagementController
             logger.error(ex.getMessage(), ex);
         }
 
-        Set<String> versionValidators = new TreeSet<>(repository.getArtifactCoordinateValidators().stream().map(v -> v.toString()).collect(Collectors.toSet()));
+        Set<String> versionValidators = new TreeSet<>(repository.getArtifactCoordinateValidators()
+                                                                .stream().map(v -> v.toString())
+                                                                .collect(Collectors.toSet()));
+
         return repository == null ? ResponseEntity.notFound().build() :
                ResponseEntity.ok(versionValidators);
     }
@@ -62,8 +65,9 @@ public class RepositoryVersionValidatorsManagementController
     @ApiOperation(value = "Adds version validator type to the requested repository")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Operation success"),
                             @ApiResponse(code = 404, message = "Repository not found") })
-    @RequestMapping(value = "/{storageId}/{repositoryId}/{versionValidatorType}", method = RequestMethod.PUT, produces = { MediaType.APPLICATION_XML_VALUE,
-                                                                                                                           MediaType.APPLICATION_JSON_VALUE })
+    @RequestMapping(value = "/{storageId}/{repositoryId}/{versionValidatorType}",
+                    method = RequestMethod.PUT,
+                    produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity add(@PathVariable String storageId,
                               @PathVariable String repositoryId,
                               @PathVariable VersionValidatorType versionValidatorType)
@@ -83,7 +87,7 @@ public class RepositoryVersionValidatorsManagementController
             return ResponseEntity.notFound().build();
         }
 
-        repository.getArtifactCoordinateValidators().add(versionValidatorType.);
+        repository.getArtifactCoordinateValidators().add(versionValidatorType.name());
 
         return ResponseEntity.ok().build();
     }
@@ -91,8 +95,9 @@ public class RepositoryVersionValidatorsManagementController
     @ApiOperation(value = "Deletes version validator type from the requested repository")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Operation success"),
                             @ApiResponse(code = 404, message = "Repository not found") })
-    @RequestMapping(value = "/{storageId}/{repositoryId}/{versionValidatorType}", method = RequestMethod.DELETE, produces = { MediaType.APPLICATION_XML_VALUE,
-                                                                                                                              MediaType.APPLICATION_JSON_VALUE })
+    @RequestMapping(value = "/{storageId}/{repositoryId}/{versionValidatorType}",
+                    method = RequestMethod.DELETE,
+                    produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity delete(@PathVariable String storageId,
                                  @PathVariable String repositoryId,
                                  @PathVariable VersionValidatorType versionValidatorType)

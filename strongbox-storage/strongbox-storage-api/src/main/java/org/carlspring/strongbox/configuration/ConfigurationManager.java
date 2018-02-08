@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.configuration;
 
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
@@ -11,10 +13,9 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
@@ -35,6 +36,9 @@ public class ConfigurationManager
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
+
 
     @PostConstruct
     public synchronized void init()
@@ -45,10 +49,42 @@ public class ConfigurationManager
         logger.debug("Initializing configuration...");
 
         setRepositoryStorageRelationships();
+        setRepositoryArtifactCoordinateValidators();
         setAllows();
         setProxyRepositoryConnectionPoolConfigurations();
 
         dump();
+    }
+
+    private void setRepositoryArtifactCoordinateValidators()
+    {
+        // TODO: Implement this
+
+        final Configuration configuration = getConfiguration();
+        final Map<String, Storage> storages = configuration.getStorages();
+
+        if (storages != null && !storages.isEmpty())
+        {
+            for (Storage storage : storages.values())
+            {
+                if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
+                {
+                    for (Repository repository : storage.getRepositories().values())
+                    {
+                        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+
+                        Set<String> defaultArtifactCoordinateValidators = layoutProvider.getDefaultArtifactCoordinateValidators();
+                        if (repository.getArtifactCoordinateValidators() == null &&
+                            defaultArtifactCoordinateValidators != null)
+                        {
+                            repository.setArtifactCoordinateValidators(defaultArtifactCoordinateValidators);
+                        }
+                    }
+                }
+            }
+        }
+
+        configurationRepository.updateConfiguration(configuration);
     }
 
     private void setAllows()

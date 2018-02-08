@@ -120,4 +120,6 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     ArtifactManagementService getArtifactManagementService();
 
+    Set<String> getDefaultArtifactCoordinateValidators();
+
 }

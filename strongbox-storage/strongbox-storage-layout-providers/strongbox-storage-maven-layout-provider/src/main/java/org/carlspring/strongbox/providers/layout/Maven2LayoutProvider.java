@@ -26,7 +26,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
-import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -35,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
@@ -81,10 +81,7 @@ public class Maven2LayoutProvider
     private ArtifactIndexesService artifactIndexesService;
 
     @Inject
-    private MavenRepositoryFeatures repositoryFeatures;
-
-    @Inject
-    private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
+    private MavenRepositoryFeatures mavenRepositoryFeatures;
 
 
     @PostConstruct
@@ -128,6 +125,12 @@ public class Maven2LayoutProvider
     public boolean isMetadata(String path)
     {
         return path.endsWith(".pom") || path.endsWith(".xml");
+    }
+
+    @Override
+    public Set<String> getDefaultArtifactCoordinateValidators()
+    {
+        return mavenRepositoryFeatures.getDefaultArtifactCoordinateValidators();
     }
 
     @Override
@@ -203,7 +206,7 @@ public class Maven2LayoutProvider
             throws IOException
     {
         Repository repository = path.getFileSystem().getRepository();
-        if (!repositoryFeatures.isIndexingEnabled(repository))
+        if (!mavenRepositoryFeatures.isIndexingEnabled(repository))
         {
             return;
         }
@@ -253,7 +256,7 @@ public class Maven2LayoutProvider
     {
         Repository repository = path.getFileSystem().getRepository();
 
-        if (!repositoryFeatures.isIndexingEnabled(repository))
+        if (!mavenRepositoryFeatures.isIndexingEnabled(repository))
         {
             return null;
         }
@@ -267,7 +270,6 @@ public class Maven2LayoutProvider
     public void deleteMetadata(String storageId,
                                String repositoryId,
                                String path)
-            throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -333,7 +335,7 @@ public class Maven2LayoutProvider
                 }
             }
         }
-        catch (IOException | NoSuchAlgorithmException | XmlPullParserException e)
+        catch (IOException | XmlPullParserException e)
         {
             // We won't do anything in this case because it doesn't have an impact to the deletion
             logger.error(e.getMessage(), e);
@@ -343,7 +345,6 @@ public class Maven2LayoutProvider
     public void deleteMetadataAtVersionLevel(RepositoryPath metadataBasePath,
                                              String version)
             throws IOException,
-                   NoSuchAlgorithmException,
                    XmlPullParserException
     {
         if (ArtifactUtils.isSnapshot(version) && Files.exists(metadataBasePath))
@@ -367,7 +368,6 @@ public class Maven2LayoutProvider
     public void deleteMetadataAtArtifactLevel(RepositoryPath artifactPath,
                                               String version)
             throws IOException,
-                   NoSuchAlgorithmException,
                    XmlPullParserException
     {
         Metadata metadataVersionLevel = mavenMetadataManager.readMetadata(artifactPath);
@@ -410,7 +410,6 @@ public class Maven2LayoutProvider
                                String repositoryId,
                                String basePath,
                                boolean forceRegeneration)
-            throws IOException
     {
         throw new UnsupportedOperationException("Not yet implemented!");
     }

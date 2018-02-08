@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.storage.repository;
 
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
@@ -29,7 +30,7 @@ public class Repository
     private String policy = RepositoryPolicyEnum.MIXED.getPolicy();
 
     @XmlAttribute
-    private String implementation = "file-system";
+    private String implementation = FileSystemStorageProvider.ALIAS;
 
     @XmlAttribute
     private String layout;

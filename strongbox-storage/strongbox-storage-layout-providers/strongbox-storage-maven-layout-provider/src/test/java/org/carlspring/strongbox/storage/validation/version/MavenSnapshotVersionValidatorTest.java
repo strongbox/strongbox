@@ -22,14 +22,13 @@ import static org.junit.Assert.fail;
 public class MavenSnapshotVersionValidatorTest
 {
 
-    Repository repository = new Repository();
+    Repository repository = new Repository("test-repository-for-maven-snapshot-validation");
 
     MavenSnapshotVersionValidator validator = new MavenSnapshotVersionValidator();
 
 
     @Before
     public void setUp()
-            throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.toString());
         repository.setLayout(RepositoryLayoutEnum.MAVEN_2.getLayout());
@@ -37,7 +36,6 @@ public class MavenSnapshotVersionValidatorTest
 
     @Test
     public void shouldSupportRepository()
-            throws VersionValidationException
     {
         assertTrue(validator.supports(repository));
     }

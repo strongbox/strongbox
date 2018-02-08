@@ -5,6 +5,7 @@ import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -53,6 +54,9 @@ public class NugetLayoutProvider
     @Inject
     private ArtifactManagementService nugetArtifactManagementService;
 
+    @Inject
+    private NugetRepositoryFeatures nugetRepositoryFeatures;
+
 
     @Override
     @PostConstruct
@@ -96,6 +100,12 @@ public class NugetLayoutProvider
     }
 
     @Override
+    public Set<String> getDefaultArtifactCoordinateValidators()
+    {
+        return nugetRepositoryFeatures.getDefaultArtifactCoordinateValidators();
+    }
+
+    @Override
     public Set<String> getDigestAlgorithmSet()
     {
         return Stream.of(MessageDigestAlgorithms.SHA_512)
@@ -115,7 +125,6 @@ public class NugetLayoutProvider
                                String repositoryId,
                                String basePath,
                                boolean forceRegeneration)
-            throws IOException
     {
         throw new UnsupportedOperationException("Not yet implemented!");
     }

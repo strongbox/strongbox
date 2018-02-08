@@ -16,14 +16,13 @@ import static org.junit.Assert.fail;
 public class NugetSnapshotVersionValidatorTest
 {
 
-    Repository repository = new Repository();
+    Repository repository = new Repository("test-repository-for-nuget-release-validation");
 
     GenericSnapshotVersionValidator validator = new GenericSnapshotVersionValidator();
 
 
     @Before
     public void setUp()
-            throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.toString());
         repository.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
@@ -31,7 +30,6 @@ public class NugetSnapshotVersionValidatorTest
 
     @Test
     public void testSnapshotValidation()
-            throws VersionValidationException
     {
         ArtifactCoordinates coordinates1 = new NugetArtifactCoordinates();
         coordinates1.setVersion("1.0-SNAPSHOT");

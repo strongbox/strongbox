@@ -16,13 +16,12 @@ import static org.junit.Assert.fail;
 public class NugetReleaseVersionValidatorTest
 {
 
-    Repository repository = new Repository();
+    Repository repository = new Repository("test-repository-for-nuget-release-validation");
 
     GenericReleaseVersionValidator validator = new GenericReleaseVersionValidator();
 
     @Before
     public void setUp()
-            throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.toString());
         repository.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
@@ -30,8 +29,7 @@ public class NugetReleaseVersionValidatorTest
 
     @Test
     public void testReleaseValidation()
-            throws VersionValidationException
-    {
+            throws VersionValidationException {
         ArtifactCoordinates coordinates1 = new NugetArtifactCoordinates();
         coordinates1.setVersion("1");
 
