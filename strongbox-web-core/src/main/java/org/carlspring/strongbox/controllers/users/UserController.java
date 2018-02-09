@@ -112,15 +112,14 @@ public class UserController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('VIEW_USER')")
-    @GetMapping(value = "/all", produces = { MediaType.TEXT_PLAIN_VALUE,
-                                             MediaType.APPLICATION_JSON_VALUE })
+    @GetMapping(value = "/all", produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity getUsers(@RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         List<UserOutput> users = userService.findAll().orElse(Collections.emptyList()).stream().map(
                 UserOutput::fromUser).collect(
                 Collectors.toList());
-        return ResponseEntity.ok(getListResponseEntityBody(users, accept));
+        return getJSONListResponseEntityBody("users", users);
     }
 
     // ----------------------------------------------------------------------------------------------------------------

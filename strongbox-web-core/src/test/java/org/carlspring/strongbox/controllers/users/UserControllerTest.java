@@ -30,6 +30,8 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.*;
 
 /**
@@ -185,16 +187,13 @@ public class UserControllerTest
             throws Exception
     {
 
-        User[] users = given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                              .when()
-                              .get("/users/all")
-                              .peek() // Use peek() to print the output
-                              .as(User[].class);
-
-        assertNotNull(users);
-        assertFalse(users.length == 0);
-
-        Stream.of(users).forEach(user -> logger.debug("Retrieved " + user));
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get("/users/all")
+               .peek() // Use peek() to print the output
+               .then()
+               .body("users", hasSize(greaterThan(0)))
+               .statusCode(200);
     }
 
     @Test

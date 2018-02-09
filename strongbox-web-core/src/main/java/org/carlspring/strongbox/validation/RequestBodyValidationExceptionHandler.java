@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.validation;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,19 @@ public class RequestBodyValidationExceptionHandler
     protected ResponseEntity<?> handleRequestBodyValidationException(final RequestBodyValidationException ex,
                                                                      final WebRequest request)
     {
+        if (Objects.equals(request.getHeader("Accept"), MediaType.TEXT_PLAIN_VALUE))
+        {
+            return plainTextResponse(ex, request);
+        }
+        else
+        {
+            return jsonResponse(ex, request);
+        }
+    }
+
+    private ResponseEntity<?> jsonResponse(final RequestBodyValidationException ex,
+                                           final WebRequest request)
+    {
         final RequestBodyValidationError validationError = new RequestBodyValidationError(ex.getMessage());
 
         final List<FieldError> fieldErrors = ex.getErrors().getFieldErrors();
@@ -36,5 +50,14 @@ public class RequestBodyValidationExceptionHandler
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         return handleExceptionInternal(ex, validationError, headers, HttpStatus.BAD_REQUEST, request);
+    }
+
+    private ResponseEntity<?> plainTextResponse(final RequestBodyValidationException ex,
+                                                final WebRequest request)
+    {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+
+        return handleExceptionInternal(ex, ex.getMessage() + "\n", headers, HttpStatus.BAD_REQUEST, request);
     }
 }

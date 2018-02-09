@@ -22,6 +22,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.*;
 
 /**
  * @author Przemyslaw Fusik
@@ -38,6 +39,8 @@ public class CorsConfigurationControllerTest
 
     private Map<String, CorsConfiguration> initialConfiguration;
 
+    private static final String url = "/configuration/cors";
+
     @Before
     public void before()
     {
@@ -52,61 +55,58 @@ public class CorsConfigurationControllerTest
     }
 
     @Test
-    public void shouldReturnExpectedAllowedOriginsWithTextAcceptHeader()
+    public void testUpdateWithEmptyCollectionAndJsonResponse()
             throws Exception
     {
-        String url = "/configuration/cors";
-
-        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(Collections.emptyList())
                .when()
                .put(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(equalTo("CORS allowed origins was updated."));
+               .body("message", containsString(CorsConfigurationController.SUCCESSFUL_UPDATE));
 
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        // follow-up check to ensure records has been properly saved.
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(equalTo("[]"));
+               .body("origins", hasSize(0));
+
     }
 
     @Test
-    public void shouldReturnExpectedAllowedOriginsWithJsonAcceptHeader()
+    public void testUpdateWithEmptyCollectionAndTextResponse()
             throws Exception
     {
-        String url = "/configuration/cors";
-
-        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        given().accept(MediaType.TEXT_PLAIN_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(Collections.emptyList())
                .when()
                .put(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body("message", equalTo("CORS allowed origins was updated."));
+               .body(containsString(CorsConfigurationController.SUCCESSFUL_UPDATE));
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        // follow-up check to ensure records has been properly saved.
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(equalTo("[ ]"));
+               .body("origins", hasSize(0));
     }
 
     @Test
-    public void shouldAllowOneOrigin()
+    public void testAllowOneOrigin()
             throws Exception
     {
-        String url = "/configuration/cors";
-
         given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .body(Collections.singletonList("http://example.com"))
@@ -115,48 +115,47 @@ public class CorsConfigurationControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body("message", equalTo("CORS allowed origins was updated."));
+               .body("message", containsString(CorsConfigurationController.SUCCESSFUL_UPDATE));
 
+        // follow-up check to ensure records has been properly saved.
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(equalTo("[ \"http://example.com\" ]"));
+               .body("origins", hasSize(1));
     }
 
     @Test
-    public void shouldAllowAllOrigins()
+    public void testAllowAllOrigins()
             throws Exception
     {
-        String url = "/configuration/cors";
-
-        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(Collections.singletonList("*"))
                .when()
                .put(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(equalTo("CORS allowed origins was updated."));
+               .body("message", containsString(CorsConfigurationController.SUCCESSFUL_UPDATE));
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        // follow-up check to ensure records has been properly saved.
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(equalTo("[ \"*\" ]"));
+               .body("origins", hasSize(1))
+               .body("origins", hasItem("*"));
     }
 
     @Test
-    public void shouldAllowMultipleOrigins()
+    public void testAllowMultipleOrigins()
             throws Exception
     {
-        String url = "/configuration/cors";
-
         given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .body(Arrays.asList("http://example.com", "https://google.com",
@@ -167,15 +166,16 @@ public class CorsConfigurationControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body("message", equalTo("CORS allowed origins was updated."));
+               .body("message", containsString(CorsConfigurationController.SUCCESSFUL_UPDATE));
 
+        // follow-up check to ensure records has been properly saved.
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(equalTo(
-                       "[ \"http://example.com\", \"https://google.com\", \"http://dev.carlspring.org/confluence\", \"http://dev.carlspring.org/jenkins\" ]"));
+               .body("origins", hasSize(equalTo(4)))
+               .body("origins", hasItem("https://google.com"));
     }
 }
