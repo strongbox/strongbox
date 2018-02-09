@@ -11,6 +11,7 @@ import java.util.List;
 
 import io.swagger.annotations.*;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -41,8 +42,8 @@ public class ExampleController
     @ApiOperation(value = "List available examples")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok") })
     @GetMapping(value = "/all",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.APPLICATION_JSON_VALUE })
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getExamples()
     {
         List<String> list = Arrays.asList("a", "foo", "bar", "list", "of", "strings");
@@ -52,9 +53,9 @@ public class ExampleController
     @ApiOperation(value = "Show specific example")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok") })
     @GetMapping(value = "/get/{example}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getExample(@ApiParam(value = "Get a specific example", required = true)
                                      @PathVariable String example,
                                      @RequestHeader(HttpHeaders.ACCEPT) String accept)
@@ -72,9 +73,9 @@ public class ExampleController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok"),
                             @ApiResponse(code = 400, message = "Validation errors occurred") })
     @PostMapping(value = "/update/{example}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                 consumes = MediaType.APPLICATION_JSON_VALUE,
+                 produces = { MediaType.TEXT_PLAIN_VALUE,
+                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity updateExample(
             @ApiParam(value = "Update a specific example using form validation", required = true)
             @PathVariable String example,
@@ -105,9 +106,9 @@ public class ExampleController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok"),
                             @ApiResponse(code = 404, message = "Example could not be found.") })
     @DeleteMapping(value = "/delete/{example}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                   consumes = MediaType.APPLICATION_JSON_VALUE,
+                   produces = { MediaType.TEXT_PLAIN_VALUE,
+                                MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity deleteExample(@ApiParam(value = "Delete a specific example", required = true)
                                         @PathVariable String example,
                                         @RequestHeader(HttpHeaders.ACCEPT) String accept)
@@ -120,4 +121,23 @@ public class ExampleController
         return getSuccessfulResponseEntity("example has been successfully deleted.", accept);
     }
 
+    @ApiOperation(value = "Handling exceptions")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok"),
+                            @ApiResponse(code = 500, message = "Something really bad and unpredictable happened.") })
+    @GetMapping(value = "/handle-exception",
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity handleExceptions(@RequestHeader(HttpHeaders.ACCEPT) String accept)
+    {
+        try
+        {
+            throw new Exception("Something bad happened.");
+        }
+        catch (Exception e)
+        {
+            String message = "This example message will be logged in the logs and sent to the client.";
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, message, e, accept);
+        }
+    }
 }

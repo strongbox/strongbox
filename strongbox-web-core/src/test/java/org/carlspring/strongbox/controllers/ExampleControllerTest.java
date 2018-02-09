@@ -210,4 +210,32 @@ public class ExampleControllerTest
                .body(containsString("Credentials have been successfully updated"));
     }
 
+    @Test
+    public void testExceptionHandlingWithJsonResponse()
+            throws Exception
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get("/example-controller/handle-exception")
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+               .body(containsString("This example message will be logged in the logs and sent to the client."));
+    }
+
+    @Test
+    public void testExceptionHandlingWithPlainTextResponse()
+            throws Exception
+    {
+        given().accept(MediaType.TEXT_PLAIN_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get("/example-controller/handle-exception")
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+               .body(containsString("This example message will be logged in the logs and sent to the client."));
+    }
+
 }

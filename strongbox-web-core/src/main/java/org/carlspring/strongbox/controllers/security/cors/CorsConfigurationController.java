@@ -13,7 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +34,7 @@ public class CorsConfigurationController
 {
 
     public static final String SUCCESSFUL_UPDATE = "CORS allowed origins was updated.";
-    public static final String FAILED_UPDATE     = "Could not update CORS allowed origins.";
+    public static final String FAILED_UPDATE = "Could not update CORS allowed origins.";
 
     @Inject
     private CorsConfigurationSource corsConfigurationSource;
@@ -85,7 +84,5 @@ public class CorsConfigurationController
         {
             return getBadRequestResponseEntity(FAILED_UPDATE, accept);
         }
-
-
     }
 }

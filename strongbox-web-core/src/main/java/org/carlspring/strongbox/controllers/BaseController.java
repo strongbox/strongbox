@@ -115,19 +115,6 @@ public abstract class BaseController
     /**
      * Used in cases where resource could not be found.
      *
-     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
-     *
-     * @return ResponseEntity
-     */
-    protected ResponseEntity getNotFoundResponseEntity(String acceptHeader)
-    {
-        return getNotFoundResponseEntity("Resource Not Found", acceptHeader);
-
-    }
-
-    /**
-     * Used in cases where resource could not be found.
-     *
      * @param message       Error to be returned to the client.
      * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
      *
@@ -141,23 +128,7 @@ public abstract class BaseController
     }
 
     /**
-     * Returns an Internal Server Error response.
-     *
-     * Should only be used for cases when it's really unclear what might have gone wrong
-     * and that's truly the only reasonable response.
-     *
-     * @return ResponseEntity
-     */
-    protected ResponseEntity getInternalServerErrorResponseEntity(String acceptHeader) {
-        return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
-                                          new RuntimeException("500 Internal Server Error"),
-                                          acceptHeader);
-    }
-
-    /**
-     * Returns an
-     *
-     * @param message       Error to be returned to the client.
+     * @param message       Error message to be returned to the client.
      * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
      *
      * @return ResponseEntity
@@ -178,9 +149,22 @@ public abstract class BaseController
      */
     protected ResponseEntity getExceptionResponseEntity(HttpStatus httpStatus, Throwable cause, String acceptHeader)
     {
-        logger.error(cause.getMessage(), cause);
+        return getExceptionResponseEntity(httpStatus, cause.getMessage(), cause, acceptHeader);
+    }
 
-        Object responseEntityBody = getResponseEntityBody(cause.getMessage(), acceptHeader);
+    /**
+     * @param httpStatus    HttpStatus to be returned.
+     * @param message       Error message to display in the logs and returned to the client.
+     * @param cause         Exception.
+     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
+     *
+     * @return ResponseEntity
+     */
+    protected ResponseEntity getExceptionResponseEntity(HttpStatus httpStatus, String message, Throwable cause, String acceptHeader)
+    {
+        logger.error(message, cause);
+
+        Object responseEntityBody = getResponseEntityBody(message, acceptHeader);
         return ResponseEntity.status(httpStatus)
                              .body(responseEntityBody);
     }
