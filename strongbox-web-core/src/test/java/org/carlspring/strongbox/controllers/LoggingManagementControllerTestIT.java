@@ -1,21 +1,24 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.data.PropertyUtils;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.logging.Level;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.logging.Level;
+
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.get;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Pablo Tirado
@@ -25,16 +28,18 @@ import static org.hamcrest.CoreMatchers.equalTo;
 public class LoggingManagementControllerTestIT
         extends RestAssuredBaseTest
 {
-
-    private static final String LOGGER_PACKAGE = "org.carlspring.strongbox";
+	
+	private static final String LOGGER_PACKAGE = "org.carlspring.strongbox";
 
     private static final String LOGGER_PACKAGE_NON_EXISTING = "org.carlspring.strongbox.test";
 
     private static final String LOGGER_LEVEL = Level.INFO.getName();
 
     private static final String LOGGER_APPENDER = "CONSOLE";
-
-    @Test
+    
+	private static final String LOGS_HOME_DIRECTORY = PropertyUtils.getVaultDirectory();
+	
+	@Test
     public void testAddLoggerWithTextAcceptHeader()
             throws Exception
     {
@@ -293,4 +298,161 @@ public class LoggingManagementControllerTestIT
                .statusCode(HttpStatus.OK.value()) // check http status code
                .body("message", equalTo("Logback configuration uploaded successfully."));
     }
+	
+	@Test
+	public void testLogDirectoryForListOfLogFiles()
+	{
+		//Given
+		//Create dummy test files here
+		Path[] paths = createTestLogFilesAndDirectories(false);
+
+		String[] tempLogFilesArray = new String[4];
+		for (int i = 0; i < paths.length; i++) {
+			tempLogFilesArray[i] = paths[i].getFileName().toString();
+		}
+
+		
+		String logDirectoryHomeUrl = getContextBaseUrl() + "/logging/logs/";
+		
+		//When
+		//Getting the table elements
+		String tableElementsAsString = given()
+				.contentType(MediaType.TEXT_PLAIN_VALUE)
+				.when()
+				.get(logDirectoryHomeUrl)
+				.body()
+				.htmlPath()
+				.getString("html.body.table");
+		
+		
+		
+		//Assertion Test to see if given file names are contained in the HTML body
+		boolean shouldContainLogFilesInHtmlTableElement = false;
+		if (tableElementsAsString.contains(tempLogFilesArray[0])
+			&&tableElementsAsString.contains(tempLogFilesArray[1])
+			&&tableElementsAsString.contains(tempLogFilesArray[2])
+			&&tableElementsAsString.contains(tempLogFilesArray[3])) {
+			shouldContainLogFilesInHtmlTableElement = true;
+		}
+
+		try {
+			assertTrue("The log files should be in the HTML response body!",shouldContainLogFilesInHtmlTableElement);
+
+		} finally {
+			//Delete the temporary log files even if the test fails
+			deleteTestLogFilesAndDirectories(false);
+
+		}
+	}
+	
+	@Test
+	public void testAbilityToNavigateToSubLogDirectories()
+	{
+		//Given
+		//Creating the test sub directory and dummy files here
+		Path[] paths = createTestLogFilesAndDirectories(true);
+		
+		String[] tempLogFilesArray = new String[4];
+		for (int i = 0; i < paths.length; i++) {
+			tempLogFilesArray[i] = paths[i].getFileName().toString();
+		}
+		
+		String logSubDirectoryUrl = getContextBaseUrl() + "/logging/logs/test/";
+		
+		//When
+		//Getting the table elements
+		String tableElementsAsString = given()
+				.contentType(MediaType.TEXT_PLAIN_VALUE)
+				.when()
+				.get(logSubDirectoryUrl)
+				.body()
+				.htmlPath()
+				.getString("html.body");
+		
+		//Assertion Test to see if given file names and test folder are contained in the HTML body
+		boolean shouldContainLogFilesInHtmlTableElement = false;
+		if (tableElementsAsString.contains(tempLogFilesArray[0])
+			&&tableElementsAsString.contains(tempLogFilesArray[1])
+			&&tableElementsAsString.contains(tempLogFilesArray[2])
+			&&tableElementsAsString.contains(tempLogFilesArray[3])
+			&&tableElementsAsString.contains("test")) {
+			shouldContainLogFilesInHtmlTableElement = true;
+		}
+		
+		try {
+			
+			//Assertion Test
+			assertTrue("The log files should be in the HTML response body!",shouldContainLogFilesInHtmlTableElement);
+			
+		} finally {
+			
+			//Delete the test sub directory even if the test fails
+			deleteTestLogFilesAndDirectories(true);
+			
+		}
+		
+	}
+	
+	
+	//This method creates temporary log files, and if necessary for subdirectory browsing, a log subdirectory.
+	private static Path[] createTestLogFilesAndDirectories(boolean shouldICreateATestSubDirectory)  {
+		
+		//If a test directory is needed, a new directory called `test` under `/logs/` will be created.
+		//Otherwise the path of `/logs` will be returned.
+		Path logDirectoryPath;
+		Path[] paths = new Path[4];
+		try {
+			
+			if (shouldICreateATestSubDirectory) {
+				logDirectoryPath = Paths.get(LOGS_HOME_DIRECTORY, "/logs/test");
+				Files.createDirectory(logDirectoryPath);
+			} else {
+				logDirectoryPath = Paths.get(LOGS_HOME_DIRECTORY, "/logs");
+			}
+			//Create 4 temporary log files from 0 to 3.
+			for (int i = 0; i < 4; i++) {
+			paths[i] = Files.createTempFile(logDirectoryPath,"TestLogFile" + i,".log");
+			}
+			
+		} catch (IOException e) {
+			System.out.println("\n\nUNABLE TO CREATE TEST LOG FILES AND/OR DIRECTORIES\n\n");
+			e.printStackTrace();
+		}
+		return paths;
+	}
+	
+	//This method deletes temporary log files, and if used for subdirectory browsing, the test log subdirectory.
+	private static void deleteTestLogFilesAndDirectories(boolean wasATestSubDirectoryCreated) {
+		//This local class extends the SimpleFileVisitor and overrides the `visitFile` method to delete any
+		//Test Log Files upon encountering it.
+		class SFVExtend extends SimpleFileVisitor<Path> {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				
+				//Possessive Regex for speed
+				if (file.getFileName().toString().matches("TestLog.*+")) {
+					Files.delete(file);
+				}
+				return FileVisitResult.CONTINUE;
+			}
+		}
+		
+		try {
+			if (wasATestSubDirectoryCreated) {
+				Path pathToLogHomeDirectory = Paths.get(LOGS_HOME_DIRECTORY, "/logs/test");
+				
+				Files.walkFileTree(pathToLogHomeDirectory,new SFVExtend());
+				
+				Files.delete(Paths.get(LOGS_HOME_DIRECTORY, "/logs/test"));
+			}
+			else {
+				Path pathToLogHomeDirectory = Paths.get(LOGS_HOME_DIRECTORY, "/logs/");
+				
+				Files.walkFileTree(pathToLogHomeDirectory,new SFVExtend());
+			}
+		} catch (IOException e) {
+			System.out.println("\n\nUNABLE TO DELETE TEST LOG FILES AND/OR DIRECTORIES\n\n");
+			e.printStackTrace();
+		}
+	}
 }

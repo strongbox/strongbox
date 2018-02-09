@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.controllers;
 
+import io.swagger.annotations.Api;
+import org.apache.commons.io.FileUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -11,6 +13,9 @@ import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -23,12 +28,6 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
-
-import io.swagger.annotations.Api;
-import org.apache.commons.io.FileUtils;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 @Api(value = "/storages")
 public abstract class BaseArtifactController
@@ -247,7 +246,7 @@ public abstract class BaseArtifactController
         }
     }
 
-    private boolean appendFile(StringBuilder sb,
+     static boolean appendFile(StringBuilder sb,
                                File childFile,
                                final String requestURL)
             throws UnsupportedEncodingException
