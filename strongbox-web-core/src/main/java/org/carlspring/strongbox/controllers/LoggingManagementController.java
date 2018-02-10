@@ -89,8 +89,7 @@ public class LoggingManagementController
             String message = "Could not add a new logger.";
             logger.error(message, e);
 
-            return ResponseEntity.status(BAD_REQUEST)
-                                 .body(getResponseEntityBody(message, accept));
+            return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
         }
     }
 
@@ -124,16 +123,15 @@ public class LoggingManagementController
             String message = "Could not update logger.";
             logger.error(message, e);
 
-            return ResponseEntity.status(BAD_REQUEST)
-                                 .body(getResponseEntityBody(message, accept));
+            return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
         }
         catch (LoggerNotFoundException e)
         {
             String message = "Logger '" + loggerPackage + "' not found!";
+            
             logger.error(message, e);
 
-            return ResponseEntity.status(NOT_FOUND)
-                                 .body(getResponseEntityBody(message, accept));
+            return ResponseEntity.status(NOT_FOUND).body(getResponseEntityBody(message, accept));
         }
     }
 
@@ -164,8 +162,7 @@ public class LoggingManagementController
             String message = "Could not delete the logger.";
             logger.error(message, e);
 
-            return ResponseEntity.status(BAD_REQUEST)
-                                 .body(getResponseEntityBody(message, accept));
+            return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
         }
         catch (LoggerNotFoundException e)
         {
@@ -257,8 +254,7 @@ public class LoggingManagementController
             String message = "Could not upload logback configuration.";
             logger.error(message, e);
 
-            return ResponseEntity.status(BAD_REQUEST)
-                                 .body(getResponseEntityBody(message, accept));
+            return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
         }
     }
 
@@ -276,7 +272,6 @@ public class LoggingManagementController
             HttpServletResponse response)
             throws IOException
     {
-        
         String requestUriString = request.getRequestURI();
         String uriLogDirPath = requestUriString.replace("/logging", "");
         Path localLogDirPath = Paths.get(PropertyUtils.getVaultDirectory(), uriLogDirPath);
@@ -301,7 +296,6 @@ public class LoggingManagementController
             }
         }
         
-        
         try
         {
             logger.debug(" browsing: " + localLogDirPath.toString());
@@ -310,8 +304,7 @@ public class LoggingManagementController
             StringBuilder sb = new StringBuilder();
             sb.append("<html>");
             sb.append("<head>");
-            sb.append(
-                    "<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
+            sb.append("<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
             sb.append("<title>Index of " + uriLogDirPath + "</title>");
             sb.append("</head>");
             sb.append("<body>");
@@ -357,13 +350,9 @@ public class LoggingManagementController
             
             response.setContentType("text/html;charset=UTF-8");
             response.setStatus(HttpStatus.OK.value());
-            response.getWriter()
-                    .write(sb.toString());
-            response.getWriter()
-                    .flush();
-            response.getWriter()
-                    .close();
-
+            response.getWriter().write(sb.toString());
+            response.getWriter().flush();
+            response.getWriter().close();
         }
         catch (Exception e)
         {
