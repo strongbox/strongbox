@@ -42,7 +42,7 @@ public class LoggingManagementControllerTestIT
     private static final String LOGGER_APPENDER = "CONSOLE";
 
     private static final String LOGS_HOME_DIRECTORY = PropertyUtils.getVaultDirectory();
-
+    
     @Test
     public void testAddLoggerWithTextAcceptHeader()
             throws Exception
@@ -302,7 +302,7 @@ public class LoggingManagementControllerTestIT
                .statusCode(HttpStatus.OK.value()) // check http status code
                .body("message", equalTo("Logback configuration uploaded successfully."));
     }
-
+    
     @Test
     public void testLogDirectoryForListOfLogFiles()
     {
@@ -316,10 +316,10 @@ public class LoggingManagementControllerTestIT
             tempLogFilesArray[i] = paths[i].getFileName()
                                            .toString();
         }
-
-
+        
+        
         String logDirectoryHomeUrl = getContextBaseUrl() + "/logging/logs/";
-
+        
         //When
         //Getting the table elements
         String tableElementsAsString = given()
@@ -329,8 +329,7 @@ public class LoggingManagementControllerTestIT
                                                .body()
                                                .htmlPath()
                                                .getString("html.body.table");
-
-
+        
         //Assertion Test to see if given file names are contained in the HTML body
         boolean shouldContainLogFilesInHtmlTableElement = false;
         if (tableElementsAsString.contains(tempLogFilesArray[0])
@@ -340,36 +339,34 @@ public class LoggingManagementControllerTestIT
         {
             shouldContainLogFilesInHtmlTableElement = true;
         }
-
+        
         try
         {
             assertTrue("The log files should be in the HTML response body!", shouldContainLogFilesInHtmlTableElement);
-
         }
         finally
         {
             //Delete the temporary log files even if the test fails
             deleteTestLogFilesAndDirectories(false);
-
         }
     }
-
+    
     @Test
     public void testAbilityToNavigateToSubLogDirectories()
     {
         //Given
         //Creating the test sub directory and dummy files here
         Path[] paths = createTestLogFilesAndDirectories(true);
-
+        
         String[] tempLogFilesArray = new String[4];
         for (int i = 0; i < paths.length; i++)
         {
             tempLogFilesArray[i] = paths[i].getFileName()
                                            .toString();
         }
-
+        
         String logSubDirectoryUrl = getContextBaseUrl() + "/logging/logs/test/";
-
+        
         //When
         //Getting the table elements
         String tableElementsAsString = given()
@@ -379,7 +376,7 @@ public class LoggingManagementControllerTestIT
                                                .body()
                                                .htmlPath()
                                                .getString("html.body");
-
+        
         //Assertion Test to see if given file names and test folder are contained in the HTML body
         boolean shouldContainLogFilesInHtmlTableElement = false;
         if (tableElementsAsString.contains(tempLogFilesArray[0])
@@ -390,36 +387,31 @@ public class LoggingManagementControllerTestIT
         {
             shouldContainLogFilesInHtmlTableElement = true;
         }
-
+        
         try
         {
-
             //Assertion Test
             assertTrue("The log files should be in the HTML response body!", shouldContainLogFilesInHtmlTableElement);
-
         }
         finally
         {
-
             //Delete the test sub directory even if the test fails
             deleteTestLogFilesAndDirectories(true);
-
         }
-
+        
     }
-
-
+    
     //This method creates temporary log files, and if necessary for subdirectory browsing, a log subdirectory.
     private static Path[] createTestLogFilesAndDirectories(boolean shouldICreateATestSubDirectory)
     {
-
+        
         //If a test directory is needed, a new directory called `test` under `/logs/` will be created.
         //Otherwise the path of `/logs` will be returned.
         Path logDirectoryPath;
         Path[] paths = new Path[4];
         try
         {
-
+            
             if (shouldICreateATestSubDirectory)
             {
                 logDirectoryPath = Paths.get(LOGS_HOME_DIRECTORY, "/logs/test");
@@ -429,12 +421,13 @@ public class LoggingManagementControllerTestIT
             {
                 logDirectoryPath = Paths.get(LOGS_HOME_DIRECTORY, "/logs");
             }
+            
             //Create 4 temporary log files from 0 to 3.
             for (int i = 0; i < 4; i++)
             {
                 paths[i] = Files.createTempFile(logDirectoryPath, "TestLogFile" + i, ".log");
             }
-
+            
         }
         catch (IOException e)
         {
@@ -443,7 +436,7 @@ public class LoggingManagementControllerTestIT
         }
         return paths;
     }
-
+    
     //This method deletes temporary log files, and if used for subdirectory browsing, the test log subdirectory.
     private static void deleteTestLogFilesAndDirectories(boolean wasATestSubDirectoryCreated)
     {

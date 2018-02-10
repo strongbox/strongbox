@@ -276,42 +276,46 @@ public class LoggingManagementController
             HttpServletResponse response)
             throws IOException
     {
-        String requestURI = request.getRequestURI();
-        String requestContextPath = requestURI.replace("/logging", "");
-        Path logDirPath = Paths.get(PropertyUtils.getVaultDirectory(), requestContextPath);
-        if (Files.notExists(logDirPath))
+        
+        String requestUriString = request.getRequestURI();
+        String uriLogDirPath = requestUriString.replace("/logging", "");
+        Path localLogDirPath = Paths.get(PropertyUtils.getVaultDirectory(), uriLogDirPath);
+        
+        if (Files.notExists(localLogDirPath))
         {
-            response.sendError(404, "File not found. Variables: " + requestContextPath + " " + logDirPath.toString());
+            response.sendError(404, "File not found. Variables: " + uriLogDirPath + " " + localLogDirPath.toString());
         }
-        File file = logDirPath.toFile();
-
+        
+        File file = localLogDirPath.toFile();
+        
         //Sends a redirect if the URI does not end with a "/"
-        if (!requestURI.endsWith("/"))
+        if (!requestUriString.endsWith("/"))
         {
             try
             {
-                response.sendRedirect(requestURI + "/");
+                response.sendRedirect(requestUriString + "/");
             }
             catch (IOException e)
             {
-                logger.debug("Error redirecting to " + requestURI + "/");
+                logger.debug("Error redirecting to " + requestUriString + "/");
             }
         }
-
-
+        
+        
         try
         {
-            logger.debug(" browsing: " + logDirPath.toString());
-
+            logger.debug(" browsing: " + localLogDirPath.toString());
+            
+            //Generating the HTML View
             StringBuilder sb = new StringBuilder();
             sb.append("<html>");
             sb.append("<head>");
             sb.append(
                     "<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
-            sb.append("<title>Index of " + requestContextPath + "</title>");
+            sb.append("<title>Index of " + uriLogDirPath + "</title>");
             sb.append("</head>");
             sb.append("<body>");
-            sb.append("<h1>Index of " + requestContextPath + "</h1>");
+            sb.append("<h1>Index of " + uriLogDirPath + "</h1>");
             sb.append("<table cellspacing=\"10\">");
             sb.append("<tr>");
             sb.append("<th>Name</th>");
@@ -322,10 +326,11 @@ public class LoggingManagementController
             sb.append("<tr>");
             sb.append("<td colspan=4><a href=\"..\">..</a></td>");
             sb.append("</tr>");
-
-            final String localLogFilePath = requestURI.replace("logs", "log");
-            final String localLogDirectoryPath = requestURI;
-            Files.list(logDirPath)
+            
+            //Adds the Files and folders to the HTML body
+            final String localLogFilePath = requestUriString.replace("logs", "log");
+            final String localLogDirectoryPath = requestUriString;
+            Files.list(localLogDirPath)
                  .sorted(Comparator.comparing(Path::getFileName))
                  .collect(Collectors.toList())
                  .forEach(path -> {
@@ -345,12 +350,11 @@ public class LoggingManagementController
                          e.printStackTrace();
                      }
                  });
-
-
+            
             sb.append("</table>");
             sb.append("</body>");
             sb.append("</html>");
-
+            
             response.setContentType("text/html;charset=UTF-8");
             response.setStatus(HttpStatus.OK.value());
             response.getWriter()
@@ -364,9 +368,9 @@ public class LoggingManagementController
         catch (Exception e)
         {
             logger.error(" error accessing requested directory: " + file.getAbsolutePath(), e);
-
+            
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
-
+    
 }
