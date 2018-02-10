@@ -4,6 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
@@ -30,9 +31,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -400,10 +399,15 @@ public class ArtifactManagementService implements ConfigurationService
 
         artifactOperationsValidator.checkAllowsDeletion(repository);
 
+        Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneArtifact(storageId,
+                repositoryId,
+                artifactPath);
+
         try
         {
             LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
             layoutProvider.delete(storageId, repositoryId, artifactPath, force);
+            artifactEntry.ifPresent(entry -> artifactEntryService.delete(new ArrayList<ArtifactEntry>(Collections.singletonList(entry))));
         }
         catch (IOException | ProviderImplementationException | SearchException e)
         {
