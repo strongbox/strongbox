@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.controllers;
 
-import io.swagger.annotations.Api;
-import org.apache.commons.io.FileUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -13,9 +11,6 @@ import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +23,12 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
+
+import io.swagger.annotations.Api;
+import org.apache.commons.io.FileUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Api(value = "/storages")
 public abstract class BaseArtifactController
@@ -45,7 +46,7 @@ public abstract class BaseArtifactController
 
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
-    
+
     // ----------------------------------------------------------------------------------------------------------------
     // Common-purpose methods
 
@@ -80,7 +81,7 @@ public abstract class BaseArtifactController
     {
         this.storageProviderRegistry = storageProviderRegistry;
     }
-    
+
     protected boolean probeForDirectoryListing(Repository repository,
                                                String path)
     {
@@ -108,18 +109,18 @@ public abstract class BaseArtifactController
             return false;
         }
     }
-    
+
     protected boolean isPermittedForDirectoryListing(File file,
                                                      String path)
     {
-        return (!file.isHidden() && !path.startsWith(".") && !path.contains("/."));        
+        return (!file.isHidden() && !path.startsWith(".") && !path.contains("/."));
     }
 
     protected void getDirectoryListing(HttpServletRequest request,
                                        HttpServletResponse response)
     {
         String dirPath = null;
-        
+
         if (System.getProperty("strongbox.storage.booter.basedir") != null)
         {
             dirPath = System.getProperty("strongbox.storage.booter.basedir");
@@ -128,19 +129,19 @@ public abstract class BaseArtifactController
         {
             // Assuming this invocation is related to tests:
             dirPath =  ConfigurationResourceResolver.getVaultDirectory() + "/storages/";
-        }        
+        }
         generateDirectoryListing(dirPath, request, response);
     }
-    
+
     protected void getDirectoryListing(Storage storage,
                                        HttpServletRequest request,
                                        HttpServletResponse response)
     {
         String dirPath = storage.getBasedir();
-        
+
         generateDirectoryListing(dirPath, request, response);
     }
-    
+
     protected void getDirectoryListing(Repository repository,
                                        String path,
                                        HttpServletRequest request,
@@ -154,24 +155,24 @@ public abstract class BaseArtifactController
         }
 
         String dirPath = repository.getBasedir() + File.separator + path;
-                
+
         generateDirectoryListing(dirPath, request, response);
     }
 
     protected void generateDirectoryListing(String dirPath,
                                             HttpServletRequest request,
                                             HttpServletResponse response)
-    {   
+    {
         if(dirPath == null)
         {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             logger.debug("Could not retrive /storages base directory");
             return;
         }
-        
+
         File file = new File(dirPath);
         String requestUri = request.getRequestURI();
-        
+
         if (file.isDirectory() && !requestUri.endsWith("/"))
         {
             try
@@ -246,9 +247,9 @@ public abstract class BaseArtifactController
         }
     }
 
-     static boolean appendFile(StringBuilder sb,
-                               File childFile,
-                               final String requestURL)
+    protected static boolean appendFile(StringBuilder sb,
+                                        File childFile,
+                                        final String requestURL)
             throws UnsupportedEncodingException
     {
         String name = childFile.getName();
@@ -285,10 +286,10 @@ public abstract class BaseArtifactController
     {
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
-        
+
         RepositoryPath resolvedPath = artifactManagementService.getPath(storageId, repositoryId, path);
         logger.debug("Resolved path : " + resolvedPath);
-        
+
         ArtifactControllerHelper.provideArtifactHeaders(response, resolvedPath);
         if (response.getStatus() == HttpStatus.NOT_FOUND.value())
         {
@@ -312,7 +313,7 @@ public abstract class BaseArtifactController
         artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storageId, repositoryId, path);
 
         logger.debug("Download succeeded.");
-        
+
         return true;
     }
 
