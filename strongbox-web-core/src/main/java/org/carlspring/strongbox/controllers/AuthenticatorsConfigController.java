@@ -3,22 +3,19 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
 
-import javax.inject.Inject;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
 @RestController
 @PreAuthorize("hasAuthority('ADMIN')")
@@ -28,63 +25,72 @@ public class AuthenticatorsConfigController
         extends BaseController
 {
 
-    @Inject
-    private AuthenticatorsRegistry authenticatorsRegistry;
+    static final String SUCCESSFUL_REORDER = "Reorder succeeded.";
+    static final String FAILED_REORDER = "Could not reorder authenticators registry.";
 
-    @Inject
-    private AuthenticatorsScanner authenticatorsScanner;
+    static final String SUCCESSFUL_RELOAD = "Reload succeeded.";
+    static final String FAILED_RELOAD = "Could not reload authenticators registry.";
+
+    private final AuthenticatorsRegistry authenticatorsRegistry;
+
+    private final AuthenticatorsScanner authenticatorsScanner;
+
+    public AuthenticatorsConfigController(AuthenticatorsRegistry authenticatorsRegistry,
+                                          AuthenticatorsScanner authenticatorsScanner)
+    {
+        this.authenticatorsRegistry = authenticatorsRegistry;
+        this.authenticatorsScanner = authenticatorsScanner;
+    }
 
     @ApiOperation(value = "Enumerates ordered collection of authenticators with order number and name")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-            message = "The list was returned successfully.") })
-    @RequestMapping(value = "/", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE,
-                                                                          MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<AuthenticatorsRegistry> list()
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned successfully.") })
+    @GetMapping(value = "/",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity list()
     {
         return ResponseEntity.ok(authenticatorsRegistry);
     }
 
     @ApiOperation(value = "Reorders authenticators by their indexes")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-            message = "Reorder succeeded"),
-                            @ApiResponse(code = 500,
-                                    message = "Reorder failed") })
-    @RequestMapping(value = "/reorder/{first}/{second}",
-            method = RequestMethod.PUT)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REORDER),
+                            @ApiResponse(code = 400, message = FAILED_REORDER) })
+    @PutMapping(value = "/reorder/{first}/{second}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity reorder(@PathVariable int first,
-                                  @PathVariable int second)
+                                  @PathVariable int second,
+                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         try
         {
             authenticatorsRegistry.reorder(first, second);
-            return ResponseEntity.ok("Reorder succeeded");
+            return getSuccessfulResponseEntity(SUCCESSFUL_REORDER, acceptHeader);
         }
         catch (Exception e)
         {
-            logger.error("Error during reorder processing.", e);
-            return toError("Error during reorder processing: " + e.getLocalizedMessage());
+            return getBadRequestResponseEntity(FAILED_REORDER, acceptHeader);
         }
     }
 
     @ApiOperation(value = "Reloads authenticators registry")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-            message = "Reload succeeded"),
-                            @ApiResponse(code = 500,
-                                    message = "Reload failed") })
-    @RequestMapping(value = "/reload",
-            method = RequestMethod.PUT)
-    public ResponseEntity reload()
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_RELOAD),
+                            @ApiResponse(code = 400, message = FAILED_RELOAD) })
+    @PutMapping(value = "/reload",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity reload(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         try
         {
             authenticatorsScanner.scanAndReloadRegistry();
-
-            return ResponseEntity.ok("Reload succeeded");
+            return getSuccessfulResponseEntity(SUCCESSFUL_RELOAD, acceptHeader);
         }
         catch (Exception e)
         {
-            logger.error("Error during reload processing.", e);
-            return toError("Error during reload processing: " + e.getLocalizedMessage());
+            return getBadRequestResponseEntity(FAILED_RELOAD, acceptHeader);
         }
     }
 }
