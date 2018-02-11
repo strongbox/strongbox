@@ -40,10 +40,42 @@
 
     <properties>
         <dir.strongbox>${project.build.directory}/strongbox</dir.strongbox>
+        <jacoco.outputDir>${project.build.directory}/jacoco</jacoco.outputDir>
+        <jacoco.out.ut.file>jacoco-ut.exec</jacoco.out.ut.file>
+        <jacoco.out.it.file>jacoco-it.exec</jacoco.out.it.file>
+        <sonar.jacoco.reportPath>${jacoco.outputDir}/${jacoco.out.ut.file}</sonar.jacoco.reportPath>
+        <sonar.jacoco.itReportPath>${jacoco.outputDir}/${jacoco.out.it.file}</sonar.jacoco.itReportPath>
     </properties>
 
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.20.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>2.20.1</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <groups>org.carlspring.strongbox.test.IntegrationTest</groups>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <!--<goal>verify</goal>-->
+
+                        </goals>
+                        <configuration>
+                            <argLine>-Xmx1G -XX:MaxPermSize=512m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled ${jacoco.agent.ut.arg}</argLine>
+
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -112,8 +144,52 @@
                         <strongbox.vault>${basedir}/target/strongbox-vault</strongbox.vault>
                         <strongbox.storage.booter.basedir>${basedir}/target/strongbox-vault/storages</strongbox.storage.booter.basedir>
                     </systemPropertyVariables>
+                    <argLine>-Xmx1G -XX:MaxPermSize=512m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled ${jacoco.agent.ut.arg}</argLine>
+                    <includes>
+                        <include>**/*.class</include>
+                    </includes>
                 </configuration>
+
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.0</version>
+                <executions>
+
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>jacoco.agent.ut.arg</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>post-unit-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the path to the file which contains the execution data. -->
+
+                            <dataFile>target/jacoco.exec</dataFile>
+                            <!-- Sets the output directory for the code coverage report. -->
+                            <outputDirectory>target/jacoco-ut</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
