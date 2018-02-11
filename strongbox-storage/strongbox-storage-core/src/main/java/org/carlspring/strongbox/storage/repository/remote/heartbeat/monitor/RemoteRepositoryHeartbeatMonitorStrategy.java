@@ -7,11 +7,5 @@ package org.carlspring.strongbox.storage.repository.remote.heartbeat.monitor;
 public interface RemoteRepositoryHeartbeatMonitorStrategy
 {
 
-    static RemoteRepositoryHeartbeatMonitorStrategy of(boolean allowsDirectoryBrowsing)
-    {
-        return allowsDirectoryBrowsing ? HttpGetRemoteRepositoryCheckStrategy.INSTANCE :
-               PingRemoteRepositoryUrlStrategy.INSTANCE;
-    }
-
     boolean isAlive(String remoteRepositoryUrl);
 }

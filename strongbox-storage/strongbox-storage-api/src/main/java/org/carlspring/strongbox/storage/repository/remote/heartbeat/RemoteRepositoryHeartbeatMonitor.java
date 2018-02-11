@@ -4,6 +4,7 @@ import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.monitor.RemoteRepositoryHeartbeatMonitorStrategy;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +22,18 @@ class RemoteRepositoryHeartbeatMonitor
 
     private final RemoteRepositoryAlivenessCacheManager remoteRepositoryCacheManager;
 
+    private final RemoteRepositoryHeartbeatMonitorStrategy monitorStrategy;
+
     RemoteRepositoryHeartbeatMonitor(@Nonnull RemoteRepositoryAlivenessCacheManager remoteRepositoryCacheManager,
+                                     @Nonnull RemoteRepositoryHeartbeatMonitorStrategy monitorStrategy,
                                      @Nonnull RemoteRepository remoteRepository)
     {
+        Objects.requireNonNull(remoteRepositoryCacheManager);
+        Objects.requireNonNull(monitorStrategy);
+        Objects.requireNonNull(remoteRepository);
+
         this.remoteRepositoryCacheManager = remoteRepositoryCacheManager;
+        this.monitorStrategy = monitorStrategy;
         this.remoteRepository = remoteRepository;
     }
 
@@ -34,9 +43,6 @@ class RemoteRepositoryHeartbeatMonitor
         boolean isAlive = false;
         try
         {
-            RemoteRepositoryHeartbeatMonitorStrategy monitorStrategy = RemoteRepositoryHeartbeatMonitorStrategy.of(
-                    remoteRepository.isAllowsDirectoryBrowsing());
-
             isAlive = monitorStrategy.isAlive(remoteRepository.getUrl());
         }
         catch (Exception ex)
