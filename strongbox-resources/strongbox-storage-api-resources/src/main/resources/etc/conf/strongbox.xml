@@ -49,8 +49,7 @@
                     <remote-repository url="https://repo.maven.apache.org/maven2/"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
-                                       checksum-validation="true"
-                                       check-interval-seconds="20" />
+                                       checksum-validation="true" />
                     <maven-repository-configuration indexing-enabled="true" />
                 </repository>
 
@@ -96,8 +95,7 @@
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true"
-                                       allows-directory-browsing="false"
-                                       check-interval-seconds="10" />
+                                       allows-directory-browsing="false" />
                 </repository>
 
                 <repository id="group-common-proxies"
