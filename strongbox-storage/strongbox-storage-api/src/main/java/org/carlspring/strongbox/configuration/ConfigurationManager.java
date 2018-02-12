@@ -73,11 +73,20 @@ public class ConfigurationManager
                     {
                         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
-                        Set<String> defaultArtifactCoordinateValidators = layoutProvider.getDefaultArtifactCoordinateValidators();
-                        if (repository.getArtifactCoordinateValidators() == null &&
-                            defaultArtifactCoordinateValidators != null)
+                        // Generally, this should not happen. However, there are at least two cases where it may occur:
+                        // 1) During testing -- various module are not added as dependencies and a layout provider
+                        //    is thus not registered.
+                        // 2) Syntax error, or some other mistake leading to an incorrectly defined layout
+                        //    for a repository.
+                        if (layoutProvider != null)
                         {
-                            repository.setArtifactCoordinateValidators(defaultArtifactCoordinateValidators);
+                            @SuppressWarnings("unchecked")
+                            Set<String> defaultArtifactCoordinateValidators = layoutProvider.getDefaultArtifactCoordinateValidators();
+                            if (repository.getArtifactCoordinateValidators() == null &&
+                                defaultArtifactCoordinateValidators != null)
+                            {
+                                repository.setArtifactCoordinateValidators(defaultArtifactCoordinateValidators);
+                            }
                         }
                     }
                 }

@@ -16,9 +16,9 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  * @author Przemyslaw Fusik
  */
 @Configuration
-@Import({ Maven2LayoutProviderConfig.class,
-          StorageCoreConfig.class,
+@Import({ StorageCoreConfig.class,
           StorageApiConfig.class,
+          Maven2LayoutProviderConfig.class,
           MockedRemoteRepositoriesHeartbeatConfig.class,
           CommonConfig.class,
           ClientConfig.class,

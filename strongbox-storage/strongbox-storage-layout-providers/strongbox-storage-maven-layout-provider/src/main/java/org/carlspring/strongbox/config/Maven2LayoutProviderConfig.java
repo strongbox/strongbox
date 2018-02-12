@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.config;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.maven.index.*;
+import org.apache.maven.index.Scanner;
 import org.apache.maven.index.artifact.ArtifactPackagingMapper;
 import org.apache.maven.index.artifact.DefaultArtifactPackagingMapper;
 import org.apache.maven.index.creator.AbstractIndexCreator;
@@ -26,6 +26,9 @@ import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.indexing.SafeArtifactContextProducer;
 import org.carlspring.strongbox.storage.indexing.StrongboxIndexer;
+import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
+import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +38,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.orientechnologies.orient.core.entity.OEntityManager;
 
 @Configuration
-@ComponentScan({ "org.carlspring.strongbox.repository",
+@ComponentScan({ "org.carlspring.strongbox.configuration",
+                 "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.event",
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
@@ -162,6 +166,19 @@ public class Maven2LayoutProviderConfig
         indexers.put("maven-plugin", mavenPluginArtifactInfoIndexCreator());
 
         return indexers;
+    }
+
+    @Inject
+    MavenReleaseVersionValidator mavenReleaseVersionValidator;
+
+    @Inject
+    MavenSnapshotVersionValidator mavenSnapshotVersionValidator;
+
+    @Bean
+    Set<String> defaultArtifactCoordinateValidators()
+    {
+        return new LinkedHashSet<String>(Arrays.asList(mavenReleaseVersionValidator.getAlias(),
+                                                       mavenSnapshotVersionValidator.getAlias()));
     }
 
 }

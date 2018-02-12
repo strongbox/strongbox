@@ -20,29 +20,14 @@ import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
-import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
-
-import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.maven.index.ScanningRequest;
-import org.apache.maven.index.ScanningResult;
-import org.apache.maven.index.context.IndexingContext;
-import org.apache.maven.index.packer.IndexPacker;
-import org.apache.maven.index.packer.IndexPackingRequest;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.FSDirectory;
@@ -55,7 +40,6 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
@@ -90,10 +74,7 @@ public class MavenRepositoryFeatures
     private MavenSnapshotManager mavenSnapshotManager;
 
     @Inject
-    private MavenReleaseVersionValidator mavenReleaseVersionValidator;
-
-    @Inject
-    private MavenSnapshotVersionValidator mavenSnapshotVersionValidator;
+    public Set<String> defaultArtifactCoordinateValidators;
 
 
     public void downloadRemoteIndex(String storageId,
@@ -142,7 +123,6 @@ public class MavenRepositoryFeatures
     public int reIndex(String storageId,
                        String repositoryId,
                        String path)
-            throws IOException
     {
         String contextId = getContextId(storageId, repositoryId, IndexTypeEnum.LOCAL.getType());
 
@@ -224,7 +204,7 @@ public class MavenRepositoryFeatures
     public Path resolveIndexPath(String storageId,
                                  String repositoryId,
                                  String path)
-            throws IOException, RepositoryIndexerNotFoundException
+            throws RepositoryIndexerNotFoundException
     {
         final RepositoryIndexer indexer = getIndexer(storageId, repositoryId);
         final Path result = Paths.get(indexer.getRepositoryBasedir()
@@ -319,11 +299,7 @@ public class MavenRepositoryFeatures
     @Override
     public Set<String> getDefaultArtifactCoordinateValidators()
     {
-        Set<String> validators = new LinkedHashSet<>();
-        validators.add(mavenReleaseVersionValidator.getAlias());
-        validators.add(mavenSnapshotVersionValidator.getAlias());
-
-        return validators;
+        return defaultArtifactCoordinateValidators;
     }
 
 }
