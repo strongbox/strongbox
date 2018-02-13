@@ -8,6 +8,7 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategyException
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
+import org.carlspring.strongbox.services.support.ConfigurationException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -15,12 +16,10 @@ import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 
 import io.swagger.annotations.*;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -78,7 +77,7 @@ public class ConfigurationManagementController
 
             return ResponseEntity.ok("The configuration was updated successfully.");
         }
-        catch (IOException | JAXBException e)
+        catch (ConfigurationException e)
         {
             logger.error(e.getMessage(), e);
 
@@ -126,7 +125,7 @@ public class ConfigurationManagementController
 
             return ResponseEntity.ok(getResponseEntityBody("The base URL was updated.", accept));
         }
-        catch (IOException | JAXBException e)
+        catch (ConfigurationException e)
         {
             String message = "Could not update the base URL of the service.";
             logger.error(message, e);
@@ -182,7 +181,7 @@ public class ConfigurationManagementController
 
             return ResponseEntity.ok(getResponseEntityBody("The port was updated.", accept));
         }
-        catch (IOException | JAXBException e)
+        catch (ConfigurationException e)
         {
             String message = "Could not update the strongbox port.";
             logger.error(message, e);
@@ -217,7 +216,6 @@ public class ConfigurationManagementController
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getPort(@RequestHeader(HttpHeaders.ACCEPT) String accept)
-            throws IOException
     {
         return ResponseEntity.ok(getPortEntityBody(configurationManagementService.getPort(), accept));
     }
@@ -245,7 +243,7 @@ public class ConfigurationManagementController
             configurationManagementService.setProxyConfiguration(storageId, repositoryId, proxyConfiguration);
             return ResponseEntity.ok("The proxy configuration was updated successfully.");
         }
-        catch (IOException | JAXBException e)
+        catch (ConfigurationException e)
         {
             logger.error(e.getMessage(), e);
 
@@ -266,8 +264,6 @@ public class ConfigurationManagementController
                                                 @RequestParam(value = "storageId", required = false) String storageId,
                                                 @ApiParam(value = "The repositoryId")
                                                 @RequestParam(value = "repositoryId", required = false) String repositoryId)
-            throws IOException,
-                   JAXBException
     {
         ProxyConfiguration proxyConfiguration;
         if (storageId == null)
@@ -309,7 +305,6 @@ public class ConfigurationManagementController
                                  MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity saveStorage(@ApiParam(value = "The storage object", required = true)
                                       @RequestBody Storage storage)
-            throws IOException, JAXBException
     {
         try
         {
@@ -322,7 +317,7 @@ public class ConfigurationManagementController
 
             return ResponseEntity.ok("The storage was updated successfully.");
         }
-        catch (IOException | JAXBException e)
+        catch (ConfigurationException | IOException e)
         {
             logger.error(e.getMessage(), e);
 
@@ -341,7 +336,6 @@ public class ConfigurationManagementController
                     consumes = { MediaType.TEXT_PLAIN_VALUE })
     public ResponseEntity getStorage(@ApiParam(value = "The storageId", required = true)
                                      @PathVariable final String storageId)
-            throws IOException
     {
         final Storage storage = configurationManagementService.getStorage(storageId);
 
@@ -372,7 +366,6 @@ public class ConfigurationManagementController
                                         @PathVariable final String storageId,
                                         @ApiParam(value = "Whether to force delete and remove the storage from the file system")
                                         @RequestParam(name = "force", defaultValue = "false") final boolean force)
-            throws IOException, JAXBException
     {
         if (configurationManagementService.getStorage(storageId) != null)
         {
@@ -391,7 +384,7 @@ public class ConfigurationManagementController
 
                 return ResponseEntity.ok("The storage was removed successfully.");
             }
-            catch (IOException | JAXBException e)
+            catch (ConfigurationException | IOException e)
             {
                 logger.error(e.getMessage(), e);
 
@@ -422,7 +415,6 @@ public class ConfigurationManagementController
                                                 @PathVariable String repositoryId,
                                                 @ApiParam(value = "The repository object", required = true)
                                                 @RequestBody Repository repository)
-            throws IOException, JAXBException
     {
         try
         {
@@ -439,7 +431,7 @@ public class ConfigurationManagementController
 
             return ResponseEntity.ok("The repository was updated successfully.");
         }
-        catch (IOException | JAXBException | RepositoryManagementStrategyException e)
+        catch (IOException | ConfigurationException | RepositoryManagementStrategyException e)
         {
             logger.error(e.getMessage(), e);
 
@@ -462,7 +454,6 @@ public class ConfigurationManagementController
                                         @PathVariable final String storageId,
                                         @ApiParam(value = "The repositoryId", required = true)
                                         @PathVariable final String repositoryId)
-            throws IOException, ParseException, JAXBException
     {
 
         try
@@ -507,7 +498,6 @@ public class ConfigurationManagementController
                                            @PathVariable final String repositoryId,
                                            @ApiParam(value = "Whether to force delete the repository from the file system")
                                            @RequestParam(name = "force", defaultValue = "false") final boolean force)
-            throws IOException
     {
         final Repository repository = configurationManagementService.getStorage(storageId)
                                                                     .getRepository(repositoryId);
@@ -536,7 +526,7 @@ public class ConfigurationManagementController
 
                 return ResponseEntity.ok().build();
             }
-            catch (IOException | JAXBException e)
+            catch (IOException | ConfigurationException e)
             {
                 logger.error(e.getMessage(), e);
 

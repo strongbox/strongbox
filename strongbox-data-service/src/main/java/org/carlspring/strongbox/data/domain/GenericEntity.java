@@ -1,23 +1,21 @@
 package org.carlspring.strongbox.data.domain;
 
-import java.io.Serializable;
-
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlTransient;
-
-import org.apache.commons.lang.StringUtils;
+import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.orientechnologies.orient.core.annotation.OId;
 import com.orientechnologies.orient.core.annotation.OVersion;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Base class for all entities that have to be stored in OrientDB.
  * <p>
  * <b>Implementation notice</b>: don't declare variables with the same names as it's in this class ({@link #objectId},
- * {@link #detachAll} etc.) It will hide that variables and change behaviour of persistence subsystem to unpredictable.
+ * {@link #uuid} etc.) It will hide that variables and change behaviour of persistence subsystem to unpredictable.
  *
  * @see {@link GenericEntityHook}
  *
@@ -39,9 +37,9 @@ public abstract class GenericEntity
     @JsonIgnore
     @XmlTransient
     protected String objectId;
-    
+
     protected String uuid;
-    
+
     @OVersion
     @JsonIgnore
     protected Long entityVersion;
@@ -101,5 +99,11 @@ public abstract class GenericEntity
         }
         return objectId.hashCode();
     }
-    
+
+    public void copyTrackingFields(final GenericEntity target)
+    {
+        target.entityVersion = this.entityVersion;
+        target.uuid = this.uuid;
+    }
+
 }

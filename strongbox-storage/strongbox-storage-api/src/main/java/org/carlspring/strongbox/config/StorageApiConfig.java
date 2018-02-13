@@ -38,7 +38,7 @@ import org.springframework.transaction.support.TransactionTemplate;
                  "org.carlspring.strongbox.storage",
                  "org.carlspring.strongbox.xml",
                  "org.carlspring.strongbox.dependency"
-               })
+})
 public class StorageApiConfig
 {
 
@@ -50,19 +50,19 @@ public class StorageApiConfig
 
     @Inject
     private OEntityManager oEntityManager;
-    
+
     @Inject
     private TransactionTemplate transactionTemplate;
 
-    
+
     @PostConstruct
     public void init()
     {
         transactionTemplate.execute((s) ->
-        {
-            doInit();
-            return null;
-        });
+                                    {
+                                        doInit();
+                                        return null;
+                                    });
     }
 
     private void doInit()
@@ -85,7 +85,8 @@ public class StorageApiConfig
 
         OClass artifactCoordinatesClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
                                                                                            .getSchema()
-                                                                                           .getClass(AbstractArtifactCoordinates.class);
+                                                                                           .getClass(
+                                                                                                   AbstractArtifactCoordinates.class);
         if (artifactCoordinatesClass.getIndexes()
                                     .stream()
                                     .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact_coordinates")))
@@ -96,7 +97,7 @@ public class StorageApiConfig
         OClass artifactTagClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
                                                                                    .getSchema()
                                                                                    .getClass(ArtifactTagEntry.class);
-        
+
         if (artifactTagClass.getIndexes()
                             .stream()
                             .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact_tag")))

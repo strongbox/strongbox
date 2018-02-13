@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.configuration;
 
 import javax.xml.bind.annotation.*;
+import java.io.Serializable;
 
 /**
  * @author Przemyslaw Fusik
@@ -8,6 +9,7 @@ import javax.xml.bind.annotation.*;
 @XmlRootElement(name = "remote-repositories-configuration")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RemoteRepositoriesConfiguration
+        implements Serializable
 {
 
     public static final int DEFAULT_HEARTBEAT_INTERVAL_SECONDS = 60;

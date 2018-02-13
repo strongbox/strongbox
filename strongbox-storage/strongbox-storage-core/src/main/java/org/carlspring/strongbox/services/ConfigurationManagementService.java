@@ -9,51 +9,43 @@ import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
 import java.util.List;
 
 /**
  * @author mtodorov
  */
-public interface ConfigurationManagementService extends ConfigurationService
+public interface ConfigurationManagementService
 {
 
-    void setConfiguration(Configuration configuration)
-            throws IOException, JAXBException;
+    Configuration getConfiguration();
 
-    String getBaseUrl()
-            throws IOException;
+    void setConfiguration(Configuration configuration);
 
-    void setBaseUrl(String baseUrl)
-            throws IOException, JAXBException;
+    void save(Configuration Configuration);
 
-    int getPort()
-            throws IOException;
+    String getBaseUrl();
 
-    void setPort(int port)
-            throws IOException, JAXBException;
+    void setBaseUrl(String baseUrl);
+
+    int getPort();
+
+    void setPort(int port);
 
     void setProxyConfiguration(String storageId,
                                String repositoryId,
-                               ProxyConfiguration proxyConfiguration)
-            throws IOException, JAXBException;
+                               ProxyConfiguration proxyConfiguration);
 
-    void saveStorage(Storage storage)
-            throws IOException, JAXBException;
+    void saveStorage(Storage storage);
 
-    Storage getStorage(String storageId)
-            throws IOException;
+    Storage getStorage(String storageId);
 
-    void removeStorage(String storageId)
-            throws IOException, JAXBException;
+    void removeStorage(String storageId);
 
     void saveRepository(String storageId,
-                        Repository repository)
-            throws IOException, JAXBException;
+                        Repository repository);
 
-    Repository getRepository(String storageId, String repositoryId)
-            throws IOException;
+    Repository getRepository(String storageId,
+                             String repositoryId);
 
     List<Repository> getRepositoriesWithLayout(String storageId,
                                                String layout);
@@ -64,21 +56,19 @@ public interface ConfigurationManagementService extends ConfigurationService
                                                     String repositoryId);
 
     void removeRepositoryFromAssociatedGroups(String storageId,
-                                              String repositoryId)
-            throws IOException, JAXBException;
+                                              String repositoryId);
 
     void removeRepository(String storageId,
-                          String repositoryId)
-            throws IOException, JAXBException;
+                          String repositoryId);
 
-    ProxyConfiguration getProxyConfiguration()
-            throws IOException, JAXBException;
+    ProxyConfiguration getProxyConfiguration();
 
-    void setProxyRepositoryMaxConnections(String storageId, String repositoryId, int numberOfConnections)
-            throws IOException, JAXBException;
+    void setProxyRepositoryMaxConnections(String storageId,
+                                          String repositoryId,
+                                          int numberOfConnections);
 
-    HttpConnectionPool getHttpConnectionPoolConfiguration(String storageId, String repositoryId)
-            throws IOException, JAXBException;
+    HttpConnectionPool getHttpConnectionPoolConfiguration(String storageId,
+                                                          String repositoryId);
 
     boolean saveAcceptedRuleSet(RuleSet ruleSet);
 
