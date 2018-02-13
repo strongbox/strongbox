@@ -260,6 +260,7 @@ public class LoggingManagementController
         if (Files.notExists(localLogDirPath))
         {
             response.sendError(404, "File " + localLogDirPath.toString() + " does not exist.");
+            
             return;
         }
         
@@ -273,8 +274,8 @@ public class LoggingManagementController
             catch (IOException e)
             {
                 logger.debug("Error redirecting to " + requestUriString + "/");
-                return;
             }
+            return;
         }
         
         try
