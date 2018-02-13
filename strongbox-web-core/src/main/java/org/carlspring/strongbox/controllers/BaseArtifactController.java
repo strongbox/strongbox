@@ -207,7 +207,7 @@ public abstract class BaseArtifactController
             sb.append("<th>Description</th>");
             sb.append("</tr>");
             sb.append("<tr>");
-            sb.append("<td colspan=4><a href=\"..\">..</a></td>");
+            sb.append("<td colspan=4><a href=\"../\">..</a></td>");
             sb.append("</tr>");
 
             String requestURL = request.getRequestURL().toString();

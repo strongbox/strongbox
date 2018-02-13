@@ -5,6 +5,8 @@ import org.carlspring.strongbox.log.CronTaskContextFilter;
 import org.carlspring.strongbox.log.LoggingUtils;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.heartbeat.monitor.RemoteRepositoryHeartbeatMonitorStrategy;
+import org.carlspring.strongbox.storage.repository.remote.heartbeat.monitor.RemoteRepositoryHeartbeatMonitorStrategyRegistry;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -19,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.scheduling.config.CronTask;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -40,6 +41,9 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
 
     @Inject
     private RemoteRepositoryAlivenessCacheManager remoteRepositoryCacheManager;
+
+    @Inject
+    private RemoteRepositoryHeartbeatMonitorStrategyRegistry remoteRepositoryHeartbeatMonitorStrategyRegistry;
 
     @Override
     public void destroy()
@@ -70,7 +74,9 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
                       "intervalSeconds cannot be negative or zero but was " + intervalSeconds + " for " +
                       remoteRepository.getUrl());
 
-        RemoteRepositoryHeartbeatMonitor remoteRepositoryHeartBeatMonitor = new RemoteRepositoryHeartbeatMonitor(remoteRepositoryCacheManager, remoteRepository);
+        RemoteRepositoryHeartbeatMonitor remoteRepositoryHeartBeatMonitor = new RemoteRepositoryHeartbeatMonitor(remoteRepositoryCacheManager,
+                                                                                                                 determineMonitorStrategy(remoteRepository),
+                                                                                                                 remoteRepository);
         executor.scheduleWithFixedDelay(new MdcContextProvider(remoteRepositoryHeartBeatMonitor),
                                         0,
                                         intervalSeconds, TimeUnit.SECONDS);
@@ -78,6 +84,12 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
         logger.info(
                 "Remote repository " + remoteRepository.getUrl() + " scheduled for monitoring with interval seconds " +
                 intervalSeconds);
+    }
+
+    private RemoteRepositoryHeartbeatMonitorStrategy determineMonitorStrategy(final RemoteRepository remoteRepository)
+    {
+        return remoteRepositoryHeartbeatMonitorStrategyRegistry.of(
+                remoteRepository.isAllowsDirectoryBrowsing());
     }
 
 

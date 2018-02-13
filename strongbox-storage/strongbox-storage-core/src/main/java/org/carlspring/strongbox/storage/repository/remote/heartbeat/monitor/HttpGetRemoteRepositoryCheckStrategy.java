@@ -1,22 +1,30 @@
 package org.carlspring.strongbox.storage.repository.remote.heartbeat.monitor;
 
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+
+import javax.inject.Inject;
 import java.io.IOException;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.client.fluent.Request;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Przemyslaw Fusik
  */
-enum HttpGetRemoteRepositoryCheckStrategy
+@Component
+class HttpGetRemoteRepositoryCheckStrategy
         implements RemoteRepositoryHeartbeatMonitorStrategy
 {
 
-    INSTANCE;
-
     private static final Logger logger = LoggerFactory.getLogger(HttpGetRemoteRepositoryCheckStrategy.class);
+
+    @Inject
+    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     @Override
     public boolean isAlive(String remoteRepositoryUrl)
@@ -24,11 +32,17 @@ enum HttpGetRemoteRepositoryCheckStrategy
         boolean response = false;
         try
         {
-            int statusCode = Request.Get(
-                    remoteRepositoryUrl).execute().returnResponse().getStatusLine().getStatusCode();
+            try (final CloseableHttpClient httpClient = proxyRepositoryConnectionPoolConfigurationService.getHttpClient())
+            {
+                try (final CloseableHttpResponse httpResponse = httpClient.execute(new HttpGet(remoteRepositoryUrl)))
+                {
 
-            response = HttpStatus.SC_OK == statusCode || HttpStatus.SC_MOVED_PERMANENTLY == statusCode ||
-                       HttpStatus.SC_MOVED_TEMPORARILY == statusCode;
+                    int statusCode = httpResponse.getStatusLine().getStatusCode();
+
+                    response = HttpStatus.SC_OK == statusCode || HttpStatus.SC_MOVED_PERMANENTLY == statusCode ||
+                               HttpStatus.SC_MOVED_TEMPORARILY == statusCode;
+                }
+            }
         }
         catch (IOException e)
         {
