@@ -96,6 +96,10 @@ public class NugetArtifactController extends BaseArtifactController
         try
         {
             getArtifactManagementService().delete(storageId, repositoryId, path, true);
+            path = String.format("%s/%s/%s.%s.nupkg", packageId, version, packageId,version);
+            getArtifactManagementService().delete(storageId, repositoryId, path, true);
+            path = String.format("%s/%s/%s.%s.nupkg.sha512", packageId, version, packageId,version);
+            getArtifactManagementService().delete(storageId, repositoryId, path, true);
         }
         catch (IOException e)
         {
