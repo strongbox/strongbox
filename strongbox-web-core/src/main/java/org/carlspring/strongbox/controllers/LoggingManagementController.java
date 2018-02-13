@@ -283,10 +283,9 @@ public class LoggingManagementController
         
         if (Files.notExists(localLogDirPath))
         {
-            response.sendError(404, "File not found. Variables: " + uriLogDirPath + " " + localLogDirPath.toString());
+            response.sendError(404, "File " + localLogDirPath.toString() + " does not exist.");
+            return;
         }
-        
-        File file = localLogDirPath.toFile();
         
         //Sends a redirect if the URI does not end with a "/"
         if (!requestUriString.endsWith("/"))
@@ -298,6 +297,7 @@ public class LoggingManagementController
             catch (IOException e)
             {
                 logger.debug("Error redirecting to " + requestUriString + "/");
+                return;
             }
         }
         
@@ -323,10 +323,13 @@ public class LoggingManagementController
             sb.append("<th>Size</th>");
             sb.append("<th>Description</th>");
             sb.append("</tr>");
-            sb.append("<tr>");
-            sb.append("<td colspan=4><a href=\"..\">..</a></td>");
-            sb.append("</tr>");
-            
+            if (!request.getRequestURI().equalsIgnoreCase( "logging/"))
+            {
+                sb.append("<tr>");
+                sb.append("<td colspan=4><a href=\"..\">..</a></td>");
+                sb.append("</tr>");
+            }
+
             //Adds the Files and folders to the HTML body
             final String localLogFilePath = requestUriString.replace("logs", "log");
             final String localLogDirectoryPath = requestUriString;
@@ -367,7 +370,7 @@ public class LoggingManagementController
         }
         catch (Exception e)
         {
-            logger.error(" error accessing requested directory: " + file.getAbsolutePath(), e);
+            logger.error(" error accessing requested directory: " + localLogDirPath.getFileName(), e);
             
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
