@@ -6,6 +6,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -97,6 +98,7 @@ public class ArtifactManagementServiceImplTest
         Repository repositoryWithoutDelete = new Repository(REPOSITORY_RELEASES_WITHOUT_DELETE);
         repositoryWithoutDelete.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryWithoutDelete.setAllowsDelete(false);
+        repositoryWithoutDelete.setLayout(Maven2LayoutProvider.ALIAS);
 
         createRepositoryWithArtifacts(repositoryWithoutDelete,
                                       "org.carlspring.strongbox:strongbox-utils",
@@ -106,6 +108,7 @@ public class ArtifactManagementServiceImplTest
         Repository repositoryWithoutRedeployments = new Repository(REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT);
         repositoryWithoutRedeployments.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryWithoutRedeployments.setAllowsRedeployment(false);
+        repositoryWithoutRedeployments.setLayout(Maven2LayoutProvider.ALIAS);
 
         createRepositoryWithArtifacts(repositoryWithoutRedeployments,
                                       "org.carlspring.strongbox:strongbox-utils",
@@ -131,6 +134,7 @@ public class ArtifactManagementServiceImplTest
         Repository repositoryGroup = new Repository(REPOSITORY_GROUP);
         repositoryGroup.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
+        repositoryGroup.setLayout(Maven2LayoutProvider.ALIAS);
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
         repositoryGroup.setAllowsForceDeletion(false);
@@ -145,6 +149,7 @@ public class ArtifactManagementServiceImplTest
         Repository repositoryWithTrash = new Repository(REPOSITORY_RELEASES_WITH_TRASH);
         repositoryWithTrash.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryWithTrash.setTrashEnabled(true);
+        repositoryWithTrash.setLayout(Maven2LayoutProvider.ALIAS);
 
         createRepositoryWithArtifacts(repositoryWithTrash,
                                       "org.carlspring.strongbox:strongbox-utils",
@@ -154,6 +159,7 @@ public class ArtifactManagementServiceImplTest
         Repository repositorySnapshots = new Repository(REPOSITORY_SNAPSHOTS);
         repositorySnapshots.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositorySnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
+        repositorySnapshots.setLayout(Maven2LayoutProvider.ALIAS);
 
         createRepository(repositorySnapshots);
     }

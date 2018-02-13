@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -30,7 +31,7 @@ public class MavenReleaseVersionValidatorTest
     public void setUp()
     {
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.toString());
-        repository.setLayout(RepositoryLayoutEnum.MAVEN_2.getLayout());
+        repository.setLayout(Maven2LayoutProvider.ALIAS);
     }
 
     @Test

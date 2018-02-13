@@ -97,9 +97,7 @@ public class ArtifactMetadataServiceImpl
     @Override
     public void rebuildMetadata(String storageId,
                                 String basePath)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
+            throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
 
@@ -113,9 +111,7 @@ public class ArtifactMetadataServiceImpl
     public void rebuildMetadata(String storageId,
                                 String repositoryId,
                                 String basePath)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
+            throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -164,8 +160,7 @@ public class ArtifactMetadataServiceImpl
                            String version,
                            MetadataType metadataType)
             throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
+                   XmlPullParserException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -210,7 +205,6 @@ public class ArtifactMetadataServiceImpl
                                               String classifier,
                                               String extension)
             throws IOException,
-                   XmlPullParserException,
                    NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -302,7 +296,7 @@ public class ArtifactMetadataServiceImpl
                                                  String artifactPath,
                                                  String version,
                                                  String classifier)
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+            throws IOException, NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -351,7 +345,6 @@ public class ArtifactMetadataServiceImpl
     public void deleteMetadata(String storageId,
                                String repositoryId,
                                String metadataPath)
-            throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);

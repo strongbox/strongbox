@@ -67,6 +67,7 @@ public class Maven2LayoutProviderTest
 
         Repository repository = new Repository(REPOSITORY_RELEASES);
         repository.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setAllowsForceDeletion(true);
         repository.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
@@ -97,7 +98,8 @@ public class Maven2LayoutProviderTest
 
     @Test
     public void testDeleteArtifact()
-            throws IOException, NoSuchAlgorithmException, SearchException
+            throws IOException,
+                   SearchException
     {
         Repository repository = configurationManager.getConfiguration()
                                                     .getStorage(STORAGE0)

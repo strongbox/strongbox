@@ -8,6 +8,7 @@ import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
@@ -169,6 +170,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
         Repository repository = new Repository(repositoryId);
+        repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setPolicy(policy);
         repository.setStorage(configurationManagementService.getStorage(storageId));
         repository.setRepositoryConfiguration(repositoryConfiguration);
@@ -188,6 +190,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         remoteRepository.setUrl(remoteRepositoryUrl);
 
         Repository repository = new Repository(repositoryId);
+        repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setRemoteRepository(remoteRepository);
         repository.setStorage(configurationManagementService.getStorage(storageId));
         repository.setRepositoryConfiguration(repositoryConfiguration);
@@ -223,7 +226,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     public void reIndex(String storageId,
                         String repositoryId,
                         String path)
-            throws IOException
     {
         Repository repository = configurationManagementService.getConfiguration()
                                                               .getStorage(storageId)
