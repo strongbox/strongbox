@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,8 +46,8 @@ public class AuthenticatorsConfigController
     @ApiOperation(value = "Enumerates ordered collection of authenticators with order number and name")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned successfully.") })
     @GetMapping(value = "/",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity list()
     {
         return ResponseEntity.ok(authenticatorsRegistry);
@@ -56,9 +57,9 @@ public class AuthenticatorsConfigController
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REORDER),
                             @ApiResponse(code = 400, message = FAILED_REORDER) })
     @PutMapping(value = "/reorder/{first}/{second}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity reorder(@PathVariable int first,
                                   @PathVariable int second,
                                   @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -70,17 +71,17 @@ public class AuthenticatorsConfigController
         }
         catch (Exception e)
         {
-            return getBadRequestResponseEntity(FAILED_REORDER, acceptHeader);
+            return getExceptionResponseEntity(HttpStatus.BAD_REQUEST, FAILED_REORDER, e, acceptHeader);
         }
     }
 
     @ApiOperation(value = "Reloads authenticators registry")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_RELOAD),
-                            @ApiResponse(code = 400, message = FAILED_RELOAD) })
+                            @ApiResponse(code = 500, message = FAILED_RELOAD) })
     @PutMapping(value = "/reload",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity reload(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         try
@@ -90,7 +91,7 @@ public class AuthenticatorsConfigController
         }
         catch (Exception e)
         {
-            return getBadRequestResponseEntity(FAILED_RELOAD, acceptHeader);
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_RELOAD, e, acceptHeader);
         }
     }
 }
