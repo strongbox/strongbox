@@ -129,7 +129,7 @@ public abstract class BaseArtifactController
         {
             // Assuming this invocation is related to tests:
             dirPath =  ConfigurationResourceResolver.getVaultDirectory() + "/storages/";
-        }        
+        }       
         generateDirectoryListing(dirPath, request, response);
     }
     
@@ -247,9 +247,9 @@ public abstract class BaseArtifactController
         }
     }
 
-    private boolean appendFile(StringBuilder sb,
-                               File childFile,
-                               final String requestURL)
+    protected static boolean appendFile(StringBuilder sb,
+                                        File childFile,
+                                        final String requestURL)
             throws UnsupportedEncodingException
     {
         String name = childFile.getName();
