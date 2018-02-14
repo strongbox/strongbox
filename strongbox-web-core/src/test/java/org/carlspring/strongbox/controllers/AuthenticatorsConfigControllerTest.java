@@ -8,9 +8,12 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +39,8 @@ public class AuthenticatorsConfigControllerTest
         extends RestAssuredBaseTest
 {
 
+    private static List<Authenticator> originalRegistryList;
+
     private static final List<Authenticator> registryList = Arrays.asList(new OrientDbAuthenticator(),
                                                                           new LdapAuthenticator());
 
@@ -46,7 +51,14 @@ public class AuthenticatorsConfigControllerTest
     public void setUp()
             throws Exception
     {
+        Iterator<Authenticator> iterator = authenticatorsRegistry.iterator();
+        originalRegistryList = Lists.newArrayList(iterator);
         authenticatorsRegistry.reload(registryList);
+    }
+
+    @After
+    public void afterEveryTest() {
+        authenticatorsRegistry.reload(originalRegistryList);
     }
 
     @Test
