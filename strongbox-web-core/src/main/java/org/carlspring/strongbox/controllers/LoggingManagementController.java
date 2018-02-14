@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.swagger.annotations.Api;
@@ -247,14 +248,19 @@ public class LoggingManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The log directory was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download log directory.") })
     @GetMapping(value = { "/logs",
-                          "/logs/**" },
+                          "/logs/{urlPath:.+}" },
                 produces = TEXT_PLAIN_VALUE)
-    public void generateLogDirectoryListing(HttpServletRequest request,
+    public void generateLogDirectoryListing(@PathVariable("urlPath") Optional<String> urlPath,
+                                            HttpServletRequest request,
                                             HttpServletResponse response)
             throws IOException
     {
         String requestUriString = request.getRequestURI();
-        String uriLogDirPath = requestUriString.replace("/logging", "");
+        
+        String uriLogDirPath = urlPath.map(s -> "/logs/" + s)
+                               .orElse("/logs/");
+            
+//        String uriLogDirPath = requestUriString.replace("/logging", "");
         Path localLogDirPath = Paths.get(PropertyUtils.getVaultDirectory(), uriLogDirPath);
         
         if (Files.notExists(localLogDirPath))
@@ -298,7 +304,7 @@ public class LoggingManagementController
             sb.append("<th>Size</th>");
             sb.append("<th>Description</th>");
             sb.append("</tr>");
-            if (!request.getRequestURI().equalsIgnoreCase( "logging/"))
+            if (!requestUriString.equalsIgnoreCase( "/logging/logs/"))
             {
                 sb.append("<tr>");
                 sb.append("<td colspan=4><a href=\"..\">..</a></td>");
