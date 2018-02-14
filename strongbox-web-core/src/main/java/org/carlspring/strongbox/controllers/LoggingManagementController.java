@@ -247,8 +247,7 @@ public class LoggingManagementController
     @ApiOperation(value = "Used to get log directory.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The log directory was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download log directory.") })
-    @GetMapping(value = { "/logs",
-                          "/logs/{urlPath:.+}" },
+    @GetMapping(value = {"/logs/{urlPath:.+}" },
                 produces = TEXT_PLAIN_VALUE)
     public void generateLogDirectoryListing(@PathVariable("urlPath") Optional<String> urlPath,
                                             HttpServletRequest request,
@@ -260,7 +259,6 @@ public class LoggingManagementController
         String uriLogDirPath = urlPath.map(s -> "/logs/" + s)
                                .orElse("/logs/");
             
-//        String uriLogDirPath = requestUriString.replace("/logging", "");
         Path localLogDirPath = Paths.get(PropertyUtils.getVaultDirectory(), uriLogDirPath);
         
         if (Files.notExists(localLogDirPath))
