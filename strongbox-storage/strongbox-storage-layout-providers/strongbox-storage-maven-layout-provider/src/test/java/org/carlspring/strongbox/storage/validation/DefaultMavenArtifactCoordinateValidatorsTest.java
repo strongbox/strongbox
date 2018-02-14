@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.storage.validation;
 
-import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -23,8 +22,7 @@ import static org.junit.Assert.*;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { DataServiceConfig.class,
-                                  StorageApiConfig.class,
+@ContextConfiguration(classes = { StorageApiConfig.class,
                                   Maven2LayoutProviderTestConfig.class})
 public class DefaultMavenArtifactCoordinateValidatorsTest
 {
