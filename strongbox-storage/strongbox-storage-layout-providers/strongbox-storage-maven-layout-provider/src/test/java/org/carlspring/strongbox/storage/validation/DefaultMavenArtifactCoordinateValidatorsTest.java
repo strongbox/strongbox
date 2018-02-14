@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.storage.validation;
 
-import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -23,7 +23,9 @@ import static org.junit.Assert.*;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = StorageApiTestConfig.class)
+@ContextConfiguration(classes = { DataServiceConfig.class,
+                                  StorageApiConfig.class,
+                                  Maven2LayoutProviderTestConfig.class})
 public class DefaultMavenArtifactCoordinateValidatorsTest
 {
 
@@ -31,20 +33,12 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
 
     public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/xml";
 
-    public static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.xml";
-
-    private GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
-
     @Inject
     private ConfigurationManager configurationManager;
-
-    @Inject
-    private ArtifactResolutionService artifactResolutionService;
 
 
     @Before
     public void setUp()
-            throws Exception
     {
         File xmlDir = new File(CONFIGURATION_BASEDIR);
         if (!xmlDir.exists())
