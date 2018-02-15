@@ -36,9 +36,6 @@ public class ConfigurationManager
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
-
 
     @PostConstruct
     public synchronized void init()
@@ -49,51 +46,10 @@ public class ConfigurationManager
         logger.debug("Initializing configuration...");
 
         setRepositoryStorageRelationships();
-        setRepositoryArtifactCoordinateValidators();
         setAllows();
         setProxyRepositoryConnectionPoolConfigurations();
 
         dump();
-    }
-
-    private void setRepositoryArtifactCoordinateValidators()
-    {
-        // TODO: Implement this
-
-        final Configuration configuration = getConfiguration();
-        final Map<String, Storage> storages = configuration.getStorages();
-
-        if (storages != null && !storages.isEmpty())
-        {
-            for (Storage storage : storages.values())
-            {
-                if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
-                {
-                    for (Repository repository : storage.getRepositories().values())
-                    {
-                        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-
-                        // Generally, this should not happen. However, there are at least two cases where it may occur:
-                        // 1) During testing -- various module are not added as dependencies and a layout provider
-                        //    is thus not registered.
-                        // 2) Syntax error, or some other mistake leading to an incorrectly defined layout
-                        //    for a repository.
-                        if (layoutProvider != null)
-                        {
-                            @SuppressWarnings("unchecked")
-                            Set<String> defaultArtifactCoordinateValidators = layoutProvider.getDefaultArtifactCoordinateValidators();
-                            if (repository.getArtifactCoordinateValidators() == null &&
-                                defaultArtifactCoordinateValidators != null)
-                            {
-                                repository.setArtifactCoordinateValidators(defaultArtifactCoordinateValidators);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        configurationRepository.updateConfiguration(configuration);
     }
 
     private void setAllows()

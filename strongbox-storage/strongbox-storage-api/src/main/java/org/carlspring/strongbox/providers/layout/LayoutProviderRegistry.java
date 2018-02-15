@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -12,6 +13,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -29,6 +31,9 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
 
     @Inject
     private ConfigurationManagementService configurationManagementService;
+
+    @Inject
+    protected ConfigurationRepository configurationRepository;
 
 
     public LayoutProviderRegistry()
@@ -65,8 +70,7 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
     }
 
     public void undeleteTrash()
-            throws IOException,
-                   ProviderImplementationException
+            throws ProviderImplementationException
     {
         for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
@@ -124,7 +128,56 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
     @Override
     public LayoutProvider addProvider(String alias, LayoutProvider provider)
     {
-        return super.addProvider(alias, provider);
+        LayoutProvider layoutProvider = super.addProvider(alias, provider);
+
+        setRepositoryArtifactCoordinateValidators();
+
+        return layoutProvider;
+    }
+
+    public void setRepositoryArtifactCoordinateValidators()
+    {
+        final Configuration configuration = getConfiguration();
+        final Map<String, Storage> storages = configuration.getStorages();
+
+        if (storages != null && !storages.isEmpty())
+        {
+            for (Storage storage : storages.values())
+            {
+                if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
+                {
+                    for (Repository repository : storage.getRepositories().values())
+                    {
+                        LayoutProvider layoutProvider = getProvider(repository.getLayout());
+
+                        // Generally, this should not happen. However, there are at least two cases where it may occur:
+                        // 1) During testing -- various module are not added as dependencies and a layout provider
+                        //    is thus not registered.
+                        // 2) Syntax error, or some other mistake leading to an incorrectly defined layout
+                        //    for a repository.
+                        if (layoutProvider != null)
+                        {
+                            @SuppressWarnings("unchecked")
+                            Set<String> defaultArtifactCoordinateValidators = layoutProvider.getDefaultArtifactCoordinateValidators();
+                            if ((repository.getArtifactCoordinateValidators() == null ||
+                                 (repository.getArtifactCoordinateValidators() != null &&
+                                  repository.getArtifactCoordinateValidators().isEmpty())) &&
+                                defaultArtifactCoordinateValidators != null)
+                            {
+                                logger.debug("");
+                                logger.debug("Setting default artifact coordinate validators for " +
+                                             repository.getStorage().getId() + ":" + repository.getId() + "...");
+                                logger.debug("");
+
+                                repository.setArtifactCoordinateValidators(defaultArtifactCoordinateValidators);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        configurationRepository.updateConfiguration(configuration);
     }
 
     @Override
