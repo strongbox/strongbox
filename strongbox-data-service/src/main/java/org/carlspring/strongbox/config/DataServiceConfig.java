@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import org.carlspring.strongbox.data.CacheManagerConfiguration;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
@@ -145,18 +146,20 @@ public class DataServiceConfig
     }
 
     @Bean
-    public String ehCacheCacheManagerId()
+    public CacheManagerConfiguration cacheManagerConfiguration()
     {
-        return "strongboxCacheManager";
+        CacheManagerConfiguration cacheManagerConfiguration = new CacheManagerConfiguration();
+        cacheManagerConfiguration.setCacheCacheManagerId("strongboxCacheManager");
+        return cacheManagerConfiguration;
     }
     
     @Bean
-    public EhCacheManagerFactoryBean ehCacheCacheManager(String ehCacheCacheManagerId)
+    public EhCacheManagerFactoryBean ehCacheCacheManager(CacheManagerConfiguration cacheManagerConfiguration)
     {
         EhCacheManagerFactoryBean cmfb = new EhCacheManagerFactoryBean();
         cmfb.setConfigLocation(new ClassPathResource("ehcache.xml"));
         cmfb.setShared(false);
-        cmfb.setCacheManagerName(ehCacheCacheManagerId);
+        cmfb.setCacheManagerName(cacheManagerConfiguration.getCacheCacheManagerId());
         return cmfb;
     }
     
