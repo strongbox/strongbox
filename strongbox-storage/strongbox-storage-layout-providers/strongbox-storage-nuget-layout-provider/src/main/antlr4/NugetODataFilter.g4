@@ -30,10 +30,15 @@ tokenExpRight
 tokenExpLeft
 :
     ATTRIBUTE
-    | tokenExpFunction '(' ATTRIBUTE ')'
+    | tokenExpFunction
 ;
 
 tokenExpFunction
+:
+    fuctionExp '(' ATTRIBUTE ')'
+;
+
+fuctionExp
 :
     TO_LOWER
 ;

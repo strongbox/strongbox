@@ -15,7 +15,6 @@ import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -45,14 +44,17 @@ import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.io.ReplacingInputStream;
+import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterLexer;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser;
+import org.carlspring.strongbox.nuget.filter.NugetODataFilterParserTemplate;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterVisitor;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterVisitorImpl;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.repository.NugetRepositoryFeatures.RepositorySearchEventListener;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
@@ -112,6 +114,9 @@ public class NugetArtifactController extends BaseArtifactController
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
     
+    @Inject
+    private RepositorySearchEventListener repositorySearchEventListener;
+    
     @RequestMapping(path = { "{storageId}/{repositoryId}/{packageId}/{version}" }, method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     public ResponseEntity deletePackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
@@ -149,6 +154,12 @@ public class NugetArtifactController extends BaseArtifactController
                                                 @RequestParam(name = "searchTerm", required = false) String searchTerm,
                                                 @RequestParam(name = "targetFramework", required = false) String targetFramework)
     {
+        NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
+        nugetSearchRequest.setFilter(filter);
+        nugetSearchRequest.setSearchTerm(searchTerm);
+        nugetSearchRequest.setTargetFramework(targetFramework);
+        repositorySearchEventListener.setNugetSearchRequest(nugetSearchRequest);
+        
         Repository repository = getRepository(storageId, repositoryId);
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
         
@@ -171,6 +182,12 @@ public class NugetArtifactController extends BaseArtifactController
                                             HttpServletResponse response)
             throws JAXBException, IOException
     {
+        NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
+        nugetSearchRequest.setFilter(filter);
+        nugetSearchRequest.setSearchTerm(searchTerm);
+        nugetSearchRequest.setTargetFramework(targetFramework);
+        repositorySearchEventListener.setNugetSearchRequest(nugetSearchRequest);
+        
         String feedId = getFeedUri(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest(),
                                    storageId,
                                    repositoryId);
@@ -296,6 +313,10 @@ public class NugetArtifactController extends BaseArtifactController
                                                HttpServletResponse response)
             throws JAXBException, IOException
     {
+        NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
+        nugetSearchRequest.setFilter(String.format("Id eq '%s'", packageId));
+        repositorySearchEventListener.setNugetSearchRequest(nugetSearchRequest);
+        
         Repository repository = getRepository(storageId, repositoryId);
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
 
@@ -370,14 +391,8 @@ public class NugetArtifactController extends BaseArtifactController
 
         if (filter != null && !filter.trim().isEmpty())
         {
-            CodePointCharStream is = CharStreams.fromString(filter);
-            NugetODataFilterLexer lexer = new NugetODataFilterLexer(is);
-            CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
-            NugetODataFilterParser parser = new NugetODataFilterParser(commonTokenStream);
-
-            NugetODataFilterParser.FilterContext fileContext = parser.filter();
-            NugetODataFilterVisitor<Predicate> visitor = new NugetODataFilterVisitorImpl(Predicate.empty());
-            rootPredicate.and(visitor.visitFilter(fileContext));
+           NugetODataFilterParserTemplate t = new NugetODataFilterParserTemplate(rootPredicate);
+           rootPredicate = t.parseFilterExpression(filter);
         }
         
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {

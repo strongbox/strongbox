@@ -24,6 +24,7 @@ import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -94,10 +95,9 @@ public class ProxyRepositoryProvider
                              Predicate predicate,
                              Paginator paginator)
     {
-        // TODO
-        // RemoteRepositorySearchEvent event = new
-        // RemoteRepositorySearchEvent(searchRequest, pageRequest);
-        // commonEventListenerRegistry.dispatchEvent(event);
+        RemoteRepositorySearchEvent event = new RemoteRepositorySearchEvent(storageId, repositoryId, predicate,
+                paginator);
+        commonEventListenerRegistry.dispatchEvent(event);
 
         return hostedRepositoryProvider.search(storageId, repositoryId, predicate, paginator);
     }
@@ -107,10 +107,8 @@ public class ProxyRepositoryProvider
                       String repositoryId,
                       Predicate predicate)
     {
-        // TODO
-        // RemoteRepositorySearchEvent event = new
-        // RemoteRepositorySearchEvent(searchRequest, pageRequest);
-        // commonEventListenerRegistry.dispatchEvent(event);
+        RemoteRepositorySearchEvent event = new RemoteRepositorySearchEvent(storageId, repositoryId, predicate, null);
+        commonEventListenerRegistry.dispatchEvent(event);
 
         return hostedRepositoryProvider.count(storageId, repositoryId, predicate);
     }

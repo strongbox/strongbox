@@ -300,6 +300,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.carmatechnologies.commons</groupId>
             <artifactId>commons-testing</artifactId>
         </dependency>

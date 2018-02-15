@@ -17,6 +17,7 @@ import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -32,8 +33,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import ru.aristar.jnuget.query.IdEqIgnoreCase;
 
 /**
  * @author Sergey Bespalov
@@ -60,7 +59,6 @@ public class NugetRemoteRepositoryTest
 
     @Inject
     private NugetRepositoryFeatures features;
-
 
     @BeforeClass
     public static void cleanUp()
@@ -107,16 +105,18 @@ public class NugetRemoteRepositoryTest
 
     @Test
     public void testRepositoryIndexFetching()
-            throws ArtifactTransportException, IOException
+        throws ArtifactTransportException,
+        IOException
     {
         Storage storage = configurationManager.getConfiguration().getStorage(NUGET_COMMON_STORAGE);
         Repository repository = storage.getRepository(REPOSITORY_PROXY);
 
+        NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
+        nugetSearchRequest.setFilter(String.format("Id eq '%s'", "NHibernate"));
+        
         features.downloadRemoteFeed(storage.getId(),
                                     repository.getId(),
-                                    new IdEqIgnoreCase("NHibernate"),
-                                    null,
-                                    null);
+                                    nugetSearchRequest);
 
         NugetArtifactCoordinates c = new NugetArtifactCoordinates("NHibernate", "4.0.4.4000", "nupkg");
         Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneArtifact(NUGET_COMMON_STORAGE,
@@ -124,7 +124,7 @@ public class NugetRemoteRepositoryTest
                                                                                      c.toPath());
 
         assertTrue(artifactEntry.isPresent());
-        assertFalse(((RemoteArtifactEntry)artifactEntry.get()).getIsCached());
+        assertFalse(((RemoteArtifactEntry) artifactEntry.get()).getIsCached());
     }
 
 }

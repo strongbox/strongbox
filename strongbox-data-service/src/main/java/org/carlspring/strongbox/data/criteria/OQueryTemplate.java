@@ -189,6 +189,7 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     private String calculateParameterName(String property,
                                           int n)
     {
+        property = property.replace(".toLowerCase()", "");
         return String.format("%s_%s", property.substring(property.lastIndexOf(".") + 1), n);
     }
 

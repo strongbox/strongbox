@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import javax.xml.bind.JAXBException;
 
@@ -16,7 +17,6 @@ import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.data.criteria.Projection;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -43,7 +43,7 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGene
     @Inject
     private RepositoryManagementService repositoryManagementService;
 
-    @Inject
+    @PersistenceContext
     private EntityManager entityManager;
 
     @BeforeClass
@@ -59,7 +59,7 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGene
     {
         createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1),
                          RepositoryLayoutEnum.NUGET.getLayout());
-        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, "org.carlspring.strongbox.nuget.test.nfpt", 9);
+        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, "Org.Carlspring.Strongbox.Nuget.Test.Nfpt", 9);
 
     }
 
@@ -93,25 +93,19 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGene
     public void testSearchConjunction()
         throws Exception
     {
-        
-        Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
-        
-        CodePointCharStream is = CharStreams.fromString("tolower(Id) eq 'org.carlspring.strongbox.nuget.test.nfpt' and IsLatestVersion and Version eq '1.0.8'");
-        NugetODataFilterLexer lexer = new NugetODataFilterLexer(is);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
-        NugetODataFilterParser parser = new NugetODataFilterParser(commonTokenStream);
 
-        NugetODataFilterParser.FilterContext fileContext = parser.filter();
-        NugetODataFilterVisitor<Predicate> visitor = new NugetODataFilterVisitorImpl(Predicate.empty());
-        Predicate predicate = visitor.visitFilter(fileContext);
+        Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
+
+        NugetODataFilterParserTemplate t = new NugetODataFilterParserTemplate(Predicate.empty());
+        Predicate predicate = t.parseFilterExpression("tolower(Id) eq 'org.carlspring.strongbox.nuget.test.nfpt' and IsLatestVersion and Version eq '1.0.8'F");
 
         selector.where(predicate)
                 .and(Predicate.of(ExpOperator.EQ.of("storageId", STORAGE0)))
                 .and(Predicate.of(ExpOperator.EQ.of("repositoryId", REPOSITORY_RELEASES_1)));
-        
+
         selector.select("count(*)");
-        
-        QueryTemplate queryTemplate = new OQueryTemplate(entityManager);
+
+        QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
         Assert.assertEquals(Long.valueOf(1), queryTemplate.select(selector));
     }
 
