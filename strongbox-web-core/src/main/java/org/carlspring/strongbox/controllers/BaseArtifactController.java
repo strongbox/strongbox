@@ -206,9 +206,12 @@ public abstract class BaseArtifactController
             sb.append("<th>Size</th>");
             sb.append("<th>Description</th>");
             sb.append("</tr>");
-            sb.append("<tr>");
-            sb.append("<td colspan=4><a href=\"../\">..</a></td>");
-            sb.append("</tr>");
+            if (!request.getRequestURI().equalsIgnoreCase(BrowseStoragesController.ROOT_CONTEXT + "/"))
+            {
+                sb.append("<tr>");
+                sb.append("<td colspan=4><a href=\"../\">..</a></td>");
+                sb.append("</tr>");
+            }
 
             String requestURL = request.getRequestURL().toString();
             File[] childFiles = file.listFiles();
