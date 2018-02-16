@@ -6,6 +6,7 @@ import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.EventsConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.config.StorageCoreConfig;
+import org.carlspring.strongbox.data.CacheManagerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -28,9 +29,11 @@ public class StorageApiTestConfig
     
     @Bean
     @Primary
-    public String ehCacheCacheManagerId()
+    public CacheManagerConfiguration cacheManagerConfiguration()
     {
-        return "storageApiTestTestCacheManager";
+        CacheManagerConfiguration cacheManagerConfiguration = new CacheManagerConfiguration();
+        cacheManagerConfiguration.setCacheCacheManagerId("storageApiTestTestCacheManager");
+        return cacheManagerConfiguration;
     }
 
 }
