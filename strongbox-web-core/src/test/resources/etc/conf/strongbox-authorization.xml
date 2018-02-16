@@ -24,21 +24,8 @@
                 <privilege>Deploy</privilege>
             </privileges>
         </role>
-        <!-- Will lead to ConfigurationException: Embedded roles overriding is forbidden: [ADMIN] -->
-        <!--<role>
-            <name>adMIN</name>
-            <description>Deployment role</description>
-            <privileges>
-                <privilege>Deploy</privilege>
-            </privileges>
-        </role> -->
     </roles>
     <privileges>
-        <!-- Will lead to ConfigurationException: Embedded privileges overriding is forbidden: [ADMIN_CREATE_REPO] -->
-        <!-- <privilege>
-            <name>ADMIN_CREATE_REPO</name>
-            <description></description>
-        </privilege> -->
         <privilege>
             <name>EXAMPLE_PRIVILEGE</name>
             <description>This is an example of how you could add some custom privilege. Feel free to use it by name at

@@ -12,22 +12,26 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import io.swagger.annotations.*;
 import org.springframework.cache.CacheManager;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
+/**
+ * @author Pablo Tirado
+ */
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
 @RequestMapping(value = "/configuration/authorization")
@@ -36,90 +40,62 @@ public class AuthorizationConfigController
         extends BaseArtifactController
 {
 
-    @Inject
-    AuthorizationConfigProvider configProvider;
+    static final String SUCCESSFUL_ADD_ROLE = "The role was created successfully.";
+    static final String FAILED_ADD_ROLE = "Could not add a new role.";
+
+    static final String SUCCESSFUL_DELETE_ROLE = "The role was deleted.";
+    static final String FAILED_DELETE_ROLE = "Could not delete the role.";
+
+    static final String SUCCESSFUL_ASSIGN_PRIVILEGES = "The privileges were assigned.";
+
+    static final String SUCCESSFUL_ASSIGN_ROLES = "The roles were assigned.";
 
     @Inject
-    UserService userService;
+    private AuthorizationConfigProvider configProvider;
 
     @Inject
-    CacheManager cacheManager;
+    private UserService userService;
 
     @Inject
-    AnonymousAuthenticationFilter anonymousAuthenticationFilter;
+    private CacheManager cacheManager;
 
-    private AuthorizationConfig config;
-
-    private ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer)
-    {
-        return processConfig(consumer, config -> ResponseEntity.ok()
-                                                               .build());
-    }
-
-    private ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer,
-                                         CustomSuccessResponseBuilder customSuccessResponseBuilder)
-    {
-        Optional<AuthorizationConfig> configOptional = configProvider.getConfig();
-
-        if (configOptional.isPresent())
-        {
-            try
-            {
-                config = configOptional.get();
-
-                if (consumer != null)
-                {
-                    consumer.accept(config);
-                }
-
-                return customSuccessResponseBuilder.build(config);
-            }
-            catch (Exception e)
-            {
-                logger.error("Error during config processing.", e);
-                return toError("Error during config processing: " + e.getLocalizedMessage());
-            }
-        }
-        else
-        {
-            return toError("Unable to locate AuthorizationConfig to update...");
-        }
-    }
+    @Inject
+    private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
     // ----------------------------------------------------------------------------------------------------------------
     // Add role
 
     @ApiOperation(value = "Used to add new roles")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The role was created successfully."),
+                                         message = SUCCESSFUL_ADD_ROLE),
                             @ApiResponse(code = 400,
-                                         message = "An error occurred.") })
-    @RequestMapping(value = "role",
-                    method = RequestMethod.POST,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity addRole(@RequestBody Role role)
-            throws JAXBException
+                                         message = FAILED_ADD_ROLE) })
+    @PostMapping(value = "/role",
+                 consumes = MediaType.APPLICATION_JSON_VALUE,
+                 produces = { MediaType.TEXT_PLAIN_VALUE,
+                              MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity addRole(@RequestBody Role role,
+                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    {
+        return processConfig(config -> addRole(config, role), () -> SUCCESSFUL_ADD_ROLE, acceptHeader);
+    }
+
+    private void addRole(AuthorizationConfig config,
+                         Role role)
     {
 
-        logger.info("Trying to add new role \n" + role);
-        logger.debug(role.toString());
-        return processConfig(config ->
-                             {
-                                 //  Role role = read(json, Role.class);
-                                 boolean result = config.getRoles()
-                                                        .getRoles()
-                                                        .add(role);
+        boolean result = config.getRoles()
+                               .getRoles()
+                               .add(role);
 
-                                 if (result)
-                                 {
-                                     configProvider.updateConfig(config);
-                                     logger.info("Successfully added new role " + role.getName());
-                                 }
-                                 else
-                                 {
-                                     logger.warn("Unable to add new role " + role.getName());
-                                 }
-                             });
+        if (result)
+        {
+            configProvider.updateConfig(config);
+        }
+        else
+        {
+            throw new RuntimeException(FAILED_ADD_ROLE);
+        }
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -127,18 +103,15 @@ public class AuthorizationConfigController
 
     @ApiOperation(value = "Retrieves the strongbox-authorization.xml configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = ""),
+                                         message = "Everything went ok."),
                             @ApiResponse(code = 500,
-                                         message = "An error occurred.") })
-    @RequestMapping(value = "/xml",
-                    method = RequestMethod.GET,
-                    produces = { MediaType.APPLICATION_XML_VALUE,
-                                 MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity getAuthorizationConfig()
+                                         message = "Could not retrieve the strongbox-authorization.xml configuration file.") })
+    @GetMapping(value = "/xml",
+            produces = { MediaType.APPLICATION_XML_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getAuthorizationConfig(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        logger.debug("Trying to receive authorization config as XML / JSON file...");
-
-        return processConfig(null, ResponseEntity::ok);
+        return processConfig(null, null, acceptHeader);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -147,88 +120,169 @@ public class AuthorizationConfigController
     @ApiOperation(value = "Deletes a role by name.",
                   position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The role was deleted."),
+                                         message = SUCCESSFUL_DELETE_ROLE),
                             @ApiResponse(code = 400,
-                                         message = "Bad request.")
+                                         message = FAILED_DELETE_ROLE)
     })
-    @RequestMapping(value = "role/{name}",
-                    method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/role/{name}",
+                   consumes = MediaType.APPLICATION_JSON_VALUE,
+                   produces = { MediaType.TEXT_PLAIN_VALUE,
+                                MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity deleteRole(@ApiParam(value = "The name of the role",
                                                required = true)
-                                     @PathVariable("name") String name)
+                                     @PathVariable("name") String name,
+                                     @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        return processConfig(config ->
-                             {
+        return processConfig(config -> deleteRole(config, name), () -> SUCCESSFUL_DELETE_ROLE, acceptHeader);
+    }
 
-                                 // find Privilege by name
-                                 Role target = null;
-                                 for (Role role : config.getRoles()
-                                                        .getRoles())
-                                 {
-                                     if (role.getName()
-                                             .equalsIgnoreCase(name))
-                                     {
-                                         target = role;
-                                         break;
-                                     }
-                                 }
-                                 if (target != null)
-                                 {
-                                     // revoke role from current config
-                                     config.getRoles()
-                                           .getRoles()
-                                           .remove(target);
-                                     configProvider.updateConfig(config);
+    private void deleteRole(AuthorizationConfig config,
+                            String name)
+    {
+        // find Privilege by name
+        Role target = null;
+        for (Role role : config.getRoles()
+                               .getRoles())
+        {
+            if (role.getName()
+                    .equalsIgnoreCase(name))
+            {
+                target = role;
+                break;
+            }
+        }
+        if (target != null)
+        {
+            // revoke role from current config
+            config.getRoles()
+                  .getRoles()
+                  .remove(target);
+            configProvider.updateConfig(config);
 
-                                     // revoke role from every user that exists in the system
-                                     getAllUsers().forEach(user ->
-                                                           {
-                                                               if (user.getRoles().remove(name.toUpperCase()))
-                                                               {
-                                                                   // evict such kind of users from cache
-                                                                   cacheManager.getCache(CacheName.User.USERS).evict(
-                                                                           user.getUsername());
-                                                                   cacheManager.getCache(
-                                                                           CacheName.User.USER_DETAILS).evict(
-                                                                           user.getUsername());
-                                                               }
-                                                           });
-                                 }
-                             });
+            // revoke role from every user that exists in the system
+            getAllUsers().forEach(user ->
+                                  {
+                                      if (user.getRoles().remove(name.toUpperCase()))
+                                      {
+                                          // evict such kind of users from cache
+                                          Objects.requireNonNull(
+                                                  cacheManager.getCache(CacheName.User.USERS)).evict(
+                                                  user.getUsername());
+                                          Objects.requireNonNull(cacheManager.getCache(
+                                                  CacheName.User.USER_DETAILS)).evict(
+                                                  user.getUsername());
+                                      }
+                                  });
+        }
+        else
+        {
+            throw new RuntimeException(FAILED_DELETE_ROLE);
+        }
     }
 
 
     // ----------------------------------------------------------------------------------------------------------------
     // Assign privileges to the anonymous user
 
-    @RequestMapping(value = "anonymous/privileges",
-                    method = RequestMethod.POST,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity addPrivilegesToAnonymous(@RequestBody List<Privilege> privileges)
+    @ApiOperation(value = "Used to assign privileges to the anonymous user")
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = SUCCESSFUL_ASSIGN_PRIVILEGES) })
+    @PostMapping(value = "/anonymous/privileges",
+                 consumes = MediaType.APPLICATION_JSON_VALUE,
+                 produces = { MediaType.TEXT_PLAIN_VALUE,
+                              MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity addPrivilegesToAnonymous(@RequestBody List<Privilege> privileges,
+                                                   @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        return processConfig(config -> privileges.forEach(this::addAnonymousAuthority));
+        return processConfig(config -> privileges.forEach(this::addAnonymousAuthority),
+                             () -> SUCCESSFUL_ASSIGN_PRIVILEGES, acceptHeader);
     }
 
 
     // ----------------------------------------------------------------------------------------------------------------
     // Assign roles to the anonymous user
 
-    @RequestMapping(value = "anonymous/roles",
-                    method = RequestMethod.POST,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity addRolesToAnonymous(List<Role> roles)
+    @ApiOperation(value = "Used to assign roles to the anonymous user")
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = SUCCESSFUL_ASSIGN_ROLES) })
+    @PostMapping(value = "/anonymous/roles",
+                 consumes = MediaType.APPLICATION_JSON_VALUE,
+                 produces = { MediaType.TEXT_PLAIN_VALUE,
+                              MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity addRolesToAnonymous(@RequestBody List<Role> roles,
+                                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        return processConfig(config -> roles.forEach(role -> config.getRoles()
-                                                                   .getRoles()
-                                                                   .stream()
-                                                                   .filter(
-                                                                           role1 -> role1.getName()
-                                                                                         .equalsIgnoreCase(
-                                                                                                 role.getName()))
-                                                                   .forEach(
-                                                                           foundedRole -> foundedRole.getPrivileges()
-                                                                                                     .forEach(
-                                                                                                             this::addAnonymousAuthority))));
+        return processConfig(config -> addRolesToAnonymous(config, roles), () -> SUCCESSFUL_ASSIGN_ROLES, acceptHeader);
+    }
+
+    private void addRolesToAnonymous(AuthorizationConfig config,
+                                     List<Role> roles)
+    {
+        roles.forEach(role -> config.getRoles()
+                                    .getRoles()
+                                    .stream()
+                                    .filter(
+                                            role1 -> role1.getName()
+                                                          .equalsIgnoreCase(
+                                                                  role.getName()))
+                                    .forEach(
+                                            foundedRole -> foundedRole.getPrivileges()
+                                                                      .forEach(
+                                                                              this::addAnonymousAuthority)));
+
+    }
+
+    private ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer,
+                                         Supplier<String> supplier,
+                                         String acceptHeader)
+    {
+        return processConfig(consumer, supplier, ResponseEntity::ok, acceptHeader);
+    }
+
+    private ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer,
+                                         Supplier<String> supplier,
+                                         CustomSuccessResponseBuilder customSuccessResponseBuilder,
+                                         String acceptHeader)
+    {
+        Optional<AuthorizationConfig> configOptional = configProvider.getConfig();
+
+        if (configOptional.isPresent())
+        {
+            try
+            {
+                AuthorizationConfig config = configOptional.get();
+
+                if (consumer != null)
+                {
+                    consumer.accept(config);
+                }
+
+                if (supplier != null)
+                {
+                    return getSuccessfulResponseEntity(supplier.get(), acceptHeader);
+
+                }
+                else
+                {
+                    return customSuccessResponseBuilder.build(config);
+                }
+            }
+            catch (RuntimeException e)
+            {
+                String message = e.getMessage();
+                return getExceptionResponseEntity(HttpStatus.BAD_REQUEST, message, e, acceptHeader);
+            }
+            catch (Exception e)
+            {
+                String message = "Error during config processing.";
+                return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, message, e, acceptHeader);
+            }
+        }
+        else
+        {
+            String message = "Unable to locate AuthorizationConfig to update...";
+            return getRuntimeExceptionResponseEntity(message, acceptHeader);
+        }
     }
 
     private void addAnonymousAuthority(Privilege authority)
