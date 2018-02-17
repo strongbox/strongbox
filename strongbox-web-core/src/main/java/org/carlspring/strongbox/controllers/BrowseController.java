@@ -87,8 +87,8 @@ public class BrowseController
             for(Entry<String, Storage> entry : storages)
             {
                 Storage storage = entry.getValue();
-                String baseDir = storage.getBasedir();
-                storagePaths.add(Paths.get(baseDir));
+                String storageBaseDir = storage.getBasedir();
+                storagePaths.add(Paths.get(storageBaseDir));
             }
             
             DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(storagePaths);           
@@ -121,8 +121,18 @@ public class BrowseController
                                      .body("{ 'error': 'The requested storage was not found.' }");
             }
             
-            Path dirPath = Paths.get(storage.getBasedir());
-            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(dirPath);            
+            Set<Entry<String, Repository>> repositories = storage.getRepositories().entrySet();
+            
+            List<Path> repositoryPaths = new ArrayList<Path>();
+            
+            for(Entry<String, Repository> entry : repositories)
+            {
+                Repository repository = entry.getValue();
+                String repositoryBaseDir = repository.getBasedir();
+                repositoryPaths.add(Paths.get(repositoryBaseDir));
+            }
+                        
+            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(repositoryPaths);            
             
             return ResponseEntity.ok(objectMapper.writer().writeValueAsString(content));
         }
@@ -208,8 +218,8 @@ public class BrowseController
             for(Entry<String, Storage> entry : storages)
             {
                 Storage storage = entry.getValue();
-                String baseDir = storage.getBasedir();
-                storagePaths.add(Paths.get(baseDir));
+                String storageBaseDir = storage.getBasedir();
+                storagePaths.add(Paths.get(storageBaseDir));
             }
             DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(storagePaths);
 
@@ -246,8 +256,18 @@ public class BrowseController
                 return;
             }
             
-            Path dirPath = Paths.get(storage.getBasedir());
-            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(dirPath);            
+            Set<Entry<String, Repository>> repositories = storage.getRepositories().entrySet();
+            
+            List<Path> repositoryPaths = new ArrayList<Path>();
+            
+            for(Entry<String, Repository> entry : repositories)
+            {
+                Repository repository = entry.getValue();
+                String repositoryBaseDir = repository.getBasedir();
+                repositoryPaths.add(Paths.get(repositoryBaseDir));
+            }
+                        
+            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(repositoryPaths);                        
             
             generateHTML(request, response, content, storageId, "", "");
         }
@@ -399,7 +419,6 @@ public class BrowseController
                 appendFile(sb, fileContent, requestUri, false, storageId, repositoryId, path);
             }
 
-
             sb.append("</table>");
             sb.append("</body>");
             sb.append("</html>");
@@ -454,21 +473,4 @@ public class BrowseController
         sb.append("</tr>");
         return true;
     }
-    
-//    protected Path getStoragesDir()
-//    {
-//        Path dirPath = null;
-//        
-//        if (System.getProperty("strongbox.storage.booter.basedir") != null)
-//        {
-//            dirPath = Paths.get(System.getProperty("strongbox.storage.booter.basedir"));
-//        }
-//        else
-//        {
-//            // Assuming this invocation is related to tests:
-//            dirPath =  Paths.get(ConfigurationResourceResolver.getVaultDirectory() + "/storages/");
-//        }        
-//        
-//        return dirPath; 
-//    }
 }

@@ -121,6 +121,13 @@ public class BrowseControllerTest
                .prettyPeek()
                .then()
                .statusCode(404);
+        
+        given().accept(MediaType.TEXT_HTML_VALUE)
+               .when()
+               .get(url)
+               .prettyPeek()
+               .then()
+               .statusCode(404);
     }
 
     @Ignore
@@ -149,6 +156,13 @@ public class BrowseControllerTest
     {
         String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/repofoo";
         given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .prettyPeek()
+               .then()
+               .statusCode(404);   
+                
+        given().accept(MediaType.TEXT_HTML_VALUE)
                .when()
                .get(url)
                .prettyPeek()

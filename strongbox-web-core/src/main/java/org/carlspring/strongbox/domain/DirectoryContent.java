@@ -7,9 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DirectoryContent
-{   
-    Logger logger = LoggerFactory.getLogger(DirectoryContent.class);
-    
+{       
     @Inject
     FileContentFetcher fileContentFetcher;
     
