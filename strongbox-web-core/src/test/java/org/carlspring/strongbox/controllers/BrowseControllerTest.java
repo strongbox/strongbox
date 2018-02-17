@@ -71,7 +71,7 @@ public class BrowseControllerTest
     {
 
         String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT;
-        String storages = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        String storages = given().accept(MediaType.APPLICATION_JSON_VALUE)
                                  .when()
                                  .get(url)
                                  .prettyPeek()
@@ -82,10 +82,7 @@ public class BrowseControllerTest
               
         assertNotNull("Failed to get storage list!", returned);
         assertNotNull("Failed to get storage list!", returned.getDirectories());
-        assertFalse("Returned storage size does not match", returned.getDirectories().isEmpty());
-        
-        for(int i=0; i<returned.getDirectories().size(); i++)
-            logger.debug(returned.getDirectories().get(i).getName());
+        assertFalse("Returned storage size does not match", returned.getDirectories().isEmpty());      
     }
 
     @Test
@@ -93,7 +90,7 @@ public class BrowseControllerTest
             throws Exception
     {
         String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0";
-        String repos = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        String repos = given().accept(MediaType.APPLICATION_JSON_VALUE)
                               .when()
                               .get(url)
                               .prettyPeek()
@@ -118,7 +115,7 @@ public class BrowseControllerTest
     public void testGetRepositoriesWithStorageNotFound()
     {
         String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storagefoo";
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .prettyPeek()
@@ -132,7 +129,7 @@ public class BrowseControllerTest
             throws Exception
     {
         String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/releases";
-        String contents = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        String contents = given().accept(MediaType.APPLICATION_JSON_VALUE)
                                  .when()
                                  .get(url)
                                  .prettyPeek()
@@ -151,7 +148,7 @@ public class BrowseControllerTest
     public void testRepositoryContentsWithRepositoryNotFound()
     {
         String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/repofoo";
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .prettyPeek()
@@ -164,7 +161,7 @@ public class BrowseControllerTest
             throws Exception
     {
         String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/releases/testdir";
-        String contents = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        String contents = given().accept(MediaType.APPLICATION_JSON_VALUE)
                                  .when()
                                  .get(url)
                                  .prettyPeek()
@@ -182,12 +179,19 @@ public class BrowseControllerTest
     public void testRepositoryContentsWithPathNotFound()
     {
         String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/releases/foo/bar";
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .prettyPeek()
                .then()
                .statusCode(404);
+       
+        given().accept(MediaType.TEXT_HTML_VALUE)
+               .when()
+               .get(url)
+               .prettyPeek()
+               .then()
+               .statusCode(404);        
     }
     
     @Test

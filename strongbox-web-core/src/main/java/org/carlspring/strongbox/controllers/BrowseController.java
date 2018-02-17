@@ -9,15 +9,21 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.carlspring.strongbox.domain.DirectoryContent;
 import org.carlspring.strongbox.domain.FileContent;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
+import org.carlspring.strongbox.providers.repository.RepositoryProvider;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.services.DirectoryContentFetcher;
 import org.carlspring.strongbox.services.impl.ArtifactResolutionServiceImpl;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -27,15 +33,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.HandlerMapping;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -58,10 +60,16 @@ public class BrowseController
     public final static String ROOT_CONTEXT = "/browse";
     
     @Inject
+    private DirectoryContentFetcher directoryContentFetcher;
+    
+    @Inject
     private ObjectMapper objectMapper;
 
     @Inject
     private ArtifactResolutionServiceImpl artifactResolutionService;
+    
+    @Inject
+    private RepositoryProviderRegistry repositoryProviderRegistry;
     
     @ApiOperation(value = "List configured storages.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
@@ -71,9 +79,19 @@ public class BrowseController
     public ResponseEntity<String> browse()
     {
         try
-        {   
-            Path dirPath = getStoragesDir();
-            DirectoryContent content = new DirectoryContent(dirPath);
+        {               
+            Set<Entry<String, Storage>> storages = configurationManager.getConfiguration().getStorages().entrySet();
+                                                    
+            List<Path> storagePaths = new ArrayList<Path>();
+            
+            for(Entry<String, Storage> entry : storages)
+            {
+                Storage storage = entry.getValue();
+                String baseDir = storage.getBasedir();
+                storagePaths.add(Paths.get(baseDir));
+            }
+            
+            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(storagePaths);           
             
             return ResponseEntity.ok(objectMapper.writer().writeValueAsString(content));
         }
@@ -104,7 +122,7 @@ public class BrowseController
             }
             
             Path dirPath = Paths.get(storage.getBasedir());
-            DirectoryContent content = new DirectoryContent(dirPath);            
+            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(dirPath);            
             
             return ResponseEntity.ok(objectMapper.writer().writeValueAsString(content));
         }
@@ -121,8 +139,7 @@ public class BrowseController
                             @ApiResponse(code = 404, message = "The requested storage, repository, or path was not found."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "/{storageId}/{repositoryId}",
-                              "/{storageId}/{repositoryId}/**" }, 
+    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
                     method = RequestMethod.GET, 
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> contents(@ApiParam(value = "The storageId", required = true)
@@ -130,7 +147,7 @@ public class BrowseController
                                            @ApiParam(value = "The repositoryId", required = true)
                                            @PathVariable("repositoryId") String repositoryId,
                                            @ApiParam(value = "The repository path", required = false)
-                                           @PathVariable("path") Optional<String> path,
+                                           @PathVariable("path") String path,
                                            HttpServletRequest request)
     {
         try
@@ -148,18 +165,17 @@ public class BrowseController
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body("{ 'error': 'The requested repository was not found.' }");
             }
-            
-            String matchedPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-            String subPath = new AntPathMatcher().extractPathWithinPattern(matchedPattern, request.getRequestURI());
-            Path baseDir = Paths.get(repository.getBasedir().toString(), subPath.replaceAll("/", Matcher.quoteReplacement(File.separator)));
-            
-            if (!Files.exists(baseDir))
+                      
+            RepositoryProvider respositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+            Path dirPath = respositoryProvider.resolvePath(storageId, repositoryId, path);
+                                    
+            if (dirPath == null || !Files.exists(dirPath))
             {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body("{ 'error': 'The requested repository path was not found.' }");
             }
             
-            DirectoryContent content = new DirectoryContent(baseDir);
+            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(dirPath);
             
             return ResponseEntity.ok(objectMapper.writer().writeValueAsString(content));
         }
@@ -182,13 +198,22 @@ public class BrowseController
             throws IOException
     {
         logger.debug("Requested browsing for storages");
-        
+
         try
         {   
-            Path dirPath = getStoragesDir();
-            DirectoryContent content = new DirectoryContent(dirPath);
-            
-            generateHTML(request, response, content, null);
+            Set<Entry<String, Storage>> storages = configurationManager.getConfiguration().getStorages().entrySet();
+
+            List<Path> storagePaths = new ArrayList<Path>();
+
+            for(Entry<String, Storage> entry : storages)
+            {
+                Storage storage = entry.getValue();
+                String baseDir = storage.getBasedir();
+                storagePaths.add(Paths.get(baseDir));
+            }
+            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(storagePaths);
+
+            generateHTML(request, response, content, "", "", "");
         }
         catch (Exception e)
         {
@@ -222,9 +247,9 @@ public class BrowseController
             }
             
             Path dirPath = Paths.get(storage.getBasedir());
-            DirectoryContent content = new DirectoryContent(dirPath);            
+            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(dirPath);            
             
-            generateHTML(request, response, content, null);
+            generateHTML(request, response, content, storageId, "", "");
         }
         catch (Exception e)
         {
@@ -239,8 +264,7 @@ public class BrowseController
                             @ApiResponse(code = 500, message = "An error occurred."),
                             @ApiResponse(code = 503, message = "Repository not in service")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "/{storageId}/{repositoryId}",
-                              "/{storageId}/{repositoryId}/**" }, 
+    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
                     method = RequestMethod.GET, 
                     produces = MediaType.TEXT_HTML_VALUE)
     public void browseRepositoryContents(@ApiParam(value = "The storageId", required = true)
@@ -248,7 +272,7 @@ public class BrowseController
                                          @ApiParam(value = "The repositoryId", required = true)
                                          @PathVariable("repositoryId") String repositoryId,
                                          @ApiParam(value = "The repository path", required = false)
-                                         @PathVariable("path") Optional<String> path,
+                                         @PathVariable("path") String path,
                                          HttpServletRequest request,
                                          HttpServletResponse response)
                 throws Exception
@@ -282,19 +306,24 @@ public class BrowseController
             return;
         }
         
-        String matchedPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-        String subPath = new AntPathMatcher().extractPathWithinPattern(matchedPattern, request.getRequestURI());
-        Path baseDir = Paths.get(repository.getBasedir().toString(), subPath.replaceAll("/", Matcher.quoteReplacement(File.separator)));
-                
-        logger.debug("Requested browsing for {}/{}/{} ", storageId, repositoryId, subPath);
+        RepositoryProvider respositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+        Path dirPath = respositoryProvider.resolvePath(storageId, repositoryId, path);
         
-        if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, subPath))
+        if (dirPath == null || !Files.exists(dirPath))
+        {
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            return;                                 
+        }
+        
+        logger.debug("Requested browsing for {}/{}/{} ", storageId, repositoryId, path);
+        
+        if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
         {
             try
             {
-                DirectoryContent content = new DirectoryContent(baseDir);
-                URL url = artifactResolutionService.resolveResource(storageId, repositoryId, subPath);
-                generateHTML(request, response, content, url);
+                DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(dirPath);
+                //URL url = artifactResolutionService.resolveResource(storageId, repositoryId, path);
+                generateHTML(request, response, content, storageId, repositoryId, path);
             }
             catch (Exception e)
             {
@@ -312,7 +341,9 @@ public class BrowseController
     protected void generateHTML(HttpServletRequest request,
                                 HttpServletResponse response,
                                 DirectoryContent content,
-                                URL url)
+                                String storageId,
+                                String repositoryId,
+                                String path)
     {
         if(content == null)
         {
@@ -360,19 +391,12 @@ public class BrowseController
            
             for (FileContent fileContent : content.getDirectories())
             {
-                appendFile(sb, fileContent, requestUri, true, url);
+                appendFile(sb, fileContent, requestUri, true, storageId, repositoryId, path);
             }
-                        
-            if(url == null && !content.getFiles().isEmpty())
-            {
-                logger.debug("Files are present outside a repository");
-                response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-                return;
-            }
-            
+                       
             for (FileContent fileContent : content.getFiles())
             {
-                appendFile(sb, fileContent, requestUri, false, url);
+                appendFile(sb, fileContent, requestUri, false, storageId, repositoryId, path);
             }
 
 
@@ -402,7 +426,9 @@ public class BrowseController
                                FileContent fileContent,
                                String requestUri,
                                boolean isDirectory,
-                               URL url)
+                               String storageId,
+                               String repositoryId,
+                               String path)
             throws IOException
     {
         String name = fileContent.getName();
@@ -417,9 +443,10 @@ public class BrowseController
                       "/'>" + name + "/" + "</a></td>");
         }
         else
-        {  
-            String storagesUrl = url.toString() + "/" + URLEncoder.encode(name, "UTF-8");
-            sb.append("<td><a href='" + storagesUrl + "'>" + name + "</a></td>");
+        {   
+            String artifactPath =  path + "/" + name;
+            URL artifactUrl = artifactResolutionService.resolveResource(storageId, repositoryId, artifactPath);           
+            sb.append("<td><a href='" + artifactUrl + "'>" + name + "</a></td>");
         }
         sb.append("<td>" + lastModified + "</td>");
         sb.append("<td>" + size + "</td>");
@@ -428,20 +455,20 @@ public class BrowseController
         return true;
     }
     
-    protected Path getStoragesDir()
-    {
-        Path dirPath = null;
-        
-        if (System.getProperty("strongbox.storage.booter.basedir") != null)
-        {
-            dirPath = Paths.get(System.getProperty("strongbox.storage.booter.basedir"));
-        }
-        else
-        {
-            // Assuming this invocation is related to tests:
-            dirPath =  Paths.get(ConfigurationResourceResolver.getVaultDirectory() + "/storages/");
-        }        
-        
-        return dirPath; 
-    }
+//    protected Path getStoragesDir()
+//    {
+//        Path dirPath = null;
+//        
+//        if (System.getProperty("strongbox.storage.booter.basedir") != null)
+//        {
+//            dirPath = Paths.get(System.getProperty("strongbox.storage.booter.basedir"));
+//        }
+//        else
+//        {
+//            // Assuming this invocation is related to tests:
+//            dirPath =  Paths.get(ConfigurationResourceResolver.getVaultDirectory() + "/storages/");
+//        }        
+//        
+//        return dirPath; 
+//    }
 }

@@ -1,46 +1,18 @@
 package org.carlspring.strongbox.domain;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import org.apache.commons.io.FileUtils;
-
 public class FileContent 
 {
-
     private String name;
 
     private String size;
 
     private String lastModified;
     
-    @JsonCreator
-    public FileContent( @JsonProperty("name") String name,
-                        @JsonProperty("size") String size,
-                        @JsonProperty("lastModified") String lastModified)
-    {
-        this.name = name;
-        this.size = size;
-        this.lastModified = lastModified;
-    }
+    private String storageId;
     
-    public FileContent(Path p)
-    {   
-        if(p == null)
-            return;
-        
-        Path name = p.getFileName();
-        if(name == null)
-            return;
-        
-        this.name = name.toString();
-        this.size = FileUtils.byteCountToDisplaySize(p.toFile().length());
-        this.lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss")
-                                .format(new Date(p.toFile().lastModified()));
-                
-    }
+    private String repositoryId;
+    
+    private String artifactPath;
 
     public String getName()
     {
@@ -56,6 +28,50 @@ public class FileContent
     {
         return lastModified;
     }
-   
+
+    public String getStorageId()
+    {
+        return storageId;
+    }
+
+    public String getRepositoryId()
+    {
+        return repositoryId;
+    }
+
+    public String getArtifactPath()
+    {
+        return artifactPath;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public void setSize(String size)
+    {
+        this.size = size;
+    }
+
+    public void setLastModified(String lastModified)
+    {
+        this.lastModified = lastModified;
+    }
+
+    public void setStorageId(String storageId)
+    {
+        this.storageId = storageId;
+    }
+
+    public void setRepositoryId(String repositoryId)
+    {
+        this.repositoryId = repositoryId;
+    }
+
+    public void setArtifactPath(String artifactPath)
+    {
+        this.artifactPath = artifactPath;
+    }   
 }
 
