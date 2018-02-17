@@ -94,6 +94,7 @@ public class DirectoryContentFetcher
         DirectoryContent directoryContent = new DirectoryContent();
         
         List<FileContent> directories = new ArrayList<FileContent>();
+        List<FileContent> files = new ArrayList<FileContent>();
         
         for(Path path : storagePaths)
         {
@@ -101,6 +102,7 @@ public class DirectoryContentFetcher
         }
         
         directoryContent.setDirectories(directories);
+        directoryContent.setFiles(files);
         
         return directoryContent;
     }   

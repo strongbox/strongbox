@@ -82,7 +82,19 @@ public class BrowseControllerTest
               
         assertNotNull("Failed to get storage list!", returned);
         assertNotNull("Failed to get storage list!", returned.getDirectories());
-        assertFalse("Returned storage size does not match", returned.getDirectories().isEmpty());      
+        assertFalse("Returned storage size does not match", returned.getDirectories().isEmpty());
+        
+        String responseBody = given().accept(MediaType.TEXT_HTML_VALUE)
+                                     .when()
+                                     .get(url + "/")
+                                     .prettyPeek()
+                                     .then()
+                                     .statusCode(200)
+                                     .and()
+                                     .extract()
+                                     .asString();
+        
+        assertTrue("Returned HTML is incorrect", responseBody.contains("storage0"));
     }
 
     @Test
@@ -107,7 +119,19 @@ public class BrowseControllerTest
                                                    .filter(p -> p.getName().equals("releases"))
                                                    .findFirst()
                                                    .isPresent());
-        }
+        
+        String responseBody = given().accept(MediaType.TEXT_HTML_VALUE)
+                                     .when()
+                                     .get(url + "/")
+                                     .prettyPeek()
+                                     .then()
+                                     .statusCode(200)
+                                     .and()
+                                     .extract()
+                                     .asString();
+
+        assertTrue("Returned HTML is incorrect", responseBody.contains("releases"));
+}
                                  
 
 
