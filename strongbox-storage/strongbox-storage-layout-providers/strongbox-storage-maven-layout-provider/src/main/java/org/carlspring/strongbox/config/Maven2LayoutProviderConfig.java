@@ -174,11 +174,11 @@ public class Maven2LayoutProviderConfig
     @Inject
     MavenSnapshotVersionValidator mavenSnapshotVersionValidator;
 
-    @Bean
-    Set<String> defaultArtifactCoordinateValidators()
+    @Bean(name = "defaultMavenArtifactCoordinateValidators")
+    Set<String> defaultMavenArtifactCoordinateValidators()
     {
-        return new LinkedHashSet<String>(Arrays.asList(mavenReleaseVersionValidator.getAlias(),
-                                                       mavenSnapshotVersionValidator.getAlias()));
+        return new LinkedHashSet<>(Arrays.asList(mavenReleaseVersionValidator.getAlias(),
+                                                 mavenSnapshotVersionValidator.getAlias()));
     }
 
 }

@@ -74,7 +74,7 @@ public class MavenRepositoryFeatures
     private MavenSnapshotManager mavenSnapshotManager;
 
     @Inject
-    public Set<String> defaultArtifactCoordinateValidators;
+    public Set<String> defaultMavenArtifactCoordinateValidators;
 
 
     public void downloadRemoteIndex(String storageId,
@@ -299,7 +299,7 @@ public class MavenRepositoryFeatures
     @Override
     public Set<String> getDefaultArtifactCoordinateValidators()
     {
-        return defaultArtifactCoordinateValidators;
+        return defaultMavenArtifactCoordinateValidators;
     }
 
 }
