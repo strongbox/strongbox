@@ -324,7 +324,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                          .then()
                                          .statusCode(HttpStatus.CREATED.value());
 
-        String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", packageId);
+        String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", packageId.toLowerCase());
         
         // VERSION 1.0.0
         // Count
