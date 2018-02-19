@@ -174,6 +174,7 @@ public class Maven2LayoutProviderConfig
     @Inject
     MavenSnapshotVersionValidator mavenSnapshotVersionValidator;
 
+    //TODO: @carlspring, I suggest you to put this directly in `MavenRepositoryFeatures` without injection of Set<String> there
     @Bean(name = "defaultMavenArtifactCoordinateValidators")
     Set<String> defaultMavenArtifactCoordinateValidators()
     {
