@@ -128,8 +128,9 @@ public class BrowseController
             for(Entry<String, Repository> entry : repositories)
             {
                 Repository repository = entry.getValue();
-                String repositoryBaseDir = repository.getBasedir();
-                repositoryPaths.add(Paths.get(repositoryBaseDir));
+                RepositoryProvider respositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+                Path repositoryBaseDir = respositoryProvider.resolvePath(storageId, repository.getId(), "");
+                repositoryPaths.add(repositoryBaseDir);
             }
                         
             DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(repositoryPaths);            
@@ -263,8 +264,9 @@ public class BrowseController
             for(Entry<String, Repository> entry : repositories)
             {
                 Repository repository = entry.getValue();
-                String repositoryBaseDir = repository.getBasedir();
-                repositoryPaths.add(Paths.get(repositoryBaseDir));
+                RepositoryProvider respositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+                Path repositoryBaseDir = respositoryProvider.resolvePath(storageId, repository.getId(), "");
+                repositoryPaths.add(repositoryBaseDir);
             }
                         
             DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(repositoryPaths);                        
