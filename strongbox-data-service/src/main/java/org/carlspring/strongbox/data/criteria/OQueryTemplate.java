@@ -88,7 +88,6 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ").append(selector.getProjection());
-
         sb.append(" FROM ").append(selector.getTargetClass().getSimpleName());
 
         Predicate p = selector.getPredicate();
@@ -160,11 +159,11 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     {
         switch (e.getOperator())
         {
-        case CONTAINS:
-            String property = e.getProperty();
-            return property.substring(0, property.indexOf("."));
-        default:
-            break;
+            case CONTAINS:
+                String property = e.getProperty();
+                return property.substring(0, property.indexOf("."));
+            default:
+                break;
         }
         return e.getProperty();
     }
@@ -174,13 +173,13 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     {
         switch (e.getOperator())
         {
-        case CONTAINS:
-            String property = e.getProperty();
-            property = property.substring(property.indexOf(".") + 1);
-
-            return String.format("(%s = :%s)", property, calculateParameterName(property, n));
-        default:
-            break;
+            case CONTAINS:
+                String property = e.getProperty();
+                property = property.substring(property.indexOf(".") + 1);
+    
+                return String.format("(%s = :%s)", property, calculateParameterName(property, n));
+            default:
+                break;
         }
         String property = e.getProperty();
         return String.format(":%s", calculateParameterName(property, n));
@@ -197,12 +196,12 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     {
         switch (e.getOperator())
         {
-        case EQ:
-            return " = ";
-        case LIKE:
-            return " LIKE ";
-        case CONTAINS:
-            return " CONTAINS ";
+            case EQ:
+                return " = ";
+            case LIKE:
+                return " LIKE ";
+            case CONTAINS:
+                return " CONTAINS ";
         }
         return null;
     }
