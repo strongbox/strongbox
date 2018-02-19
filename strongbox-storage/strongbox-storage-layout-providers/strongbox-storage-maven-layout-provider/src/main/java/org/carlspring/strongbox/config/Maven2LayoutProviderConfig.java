@@ -22,12 +22,9 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.indexing.SafeArtifactContextProducer;
 import org.carlspring.strongbox.storage.indexing.StrongboxIndexer;
-import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
-import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -39,8 +36,8 @@ import com.orientechnologies.orient.core.entity.OEntityManager;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.configuration",
-                 "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.event",
+                 "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
                  "org.carlspring.strongbox.storage",
@@ -105,11 +102,6 @@ public class Maven2LayoutProviderConfig
         return new Maven2LayoutProvider();
     }
 
-    @Bean(name = "mavenRepositoryFeatures")
-    MavenRepositoryFeatures mavenRepositoryFeatures()
-    {
-        return new MavenRepositoryFeatures();
-    }
 
     @PostConstruct
     public void init()
@@ -166,20 +158,6 @@ public class Maven2LayoutProviderConfig
         indexers.put("maven-plugin", mavenPluginArtifactInfoIndexCreator());
 
         return indexers;
-    }
-
-    @Inject
-    MavenReleaseVersionValidator mavenReleaseVersionValidator;
-
-    @Inject
-    MavenSnapshotVersionValidator mavenSnapshotVersionValidator;
-
-    //TODO: @carlspring, I suggest you to put this directly in `MavenRepositoryFeatures` without injection of Set<String> there
-    @Bean(name = "defaultMavenArtifactCoordinateValidators")
-    Set<String> defaultMavenArtifactCoordinateValidators()
-    {
-        return new LinkedHashSet<>(Arrays.asList(mavenReleaseVersionValidator.getAlias(),
-                                                 mavenSnapshotVersionValidator.getAlias()));
     }
 
 }

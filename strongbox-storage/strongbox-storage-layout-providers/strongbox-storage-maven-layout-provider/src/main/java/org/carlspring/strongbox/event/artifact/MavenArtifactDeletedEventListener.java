@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.event.artifact;
 
-
 import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
-import org.carlspring.strongbox.repository.group.metadata.MavenMetadataGroupRepositoryComponent;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 

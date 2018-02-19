@@ -4,8 +4,6 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 
-import java.nio.file.Path;
-
 import org.springframework.stereotype.Component;
 
 /**
@@ -33,4 +31,5 @@ public class MavenArtifactUpdatedEventListener
 
         updateMetadataInGroupsContainingRepository(event, RepositoryPath::getParent);
     }
+
 }

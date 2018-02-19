@@ -20,13 +20,18 @@ import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
+import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.lucene.search.IndexSearcher;
@@ -74,12 +79,25 @@ public class MavenRepositoryFeatures
     private MavenSnapshotManager mavenSnapshotManager;
 
     @Inject
-    public Set<String> defaultMavenArtifactCoordinateValidators;
+    private MavenReleaseVersionValidator mavenReleaseVersionValidator;
 
+    @Inject
+    private MavenSnapshotVersionValidator mavenSnapshotVersionValidator;
+
+    private Set<String> defaultMavenArtifactCoordinateValidators;
+
+
+    @PostConstruct
+    public void init()
+    {
+        defaultMavenArtifactCoordinateValidators = new LinkedHashSet<>(Arrays.asList(mavenReleaseVersionValidator.getAlias(),
+                                                                                     mavenSnapshotVersionValidator.getAlias()));
+    }
 
     public void downloadRemoteIndex(String storageId,
                                     String repositoryId)
-            throws ArtifactTransportException, RepositoryInitializationException
+            throws ArtifactTransportException,
+                   RepositoryInitializationException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
