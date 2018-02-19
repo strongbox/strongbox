@@ -80,10 +80,10 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
                                                      .get("releases")
                                                      .getArtifactCoordinateValidators();
 
-        assertTrue(versionValidators.size() == 2);
+        assertEquals(Integer.valueOf(2), Integer.valueOf(versionValidators.size()));
         assertTrue(versionValidators.remove(MavenSnapshotVersionValidator.ALIAS));
         assertTrue(versionValidators.remove(MavenReleaseVersionValidator.ALIAS));
-        assertTrue(versionValidators.size() == 0);
+        assertEquals(Integer.valueOf(versionValidators.size()), Integer.valueOf(0));
     }
 
 }
