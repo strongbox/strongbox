@@ -1,12 +1,15 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.forms.PrivilegeListForm;
+import org.carlspring.strongbox.forms.RoleForm;
 import org.carlspring.strongbox.security.Privilege;
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -19,6 +22,8 @@ import java.util.function.Supplier;
 
 import io.swagger.annotations.*;
 import org.springframework.cache.CacheManager;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,6 +32,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -41,7 +48,7 @@ public class AuthorizationConfigController
 {
 
     static final String SUCCESSFUL_ADD_ROLE = "The role was created successfully.";
-    static final String FAILED_ADD_ROLE = "Could not add a new role.";
+    static final String FAILED_ADD_ROLE = "Role cannot be saved because the submitted form contains errors!";
 
     static final String SUCCESSFUL_DELETE_ROLE = "The role was deleted.";
     static final String FAILED_DELETE_ROLE = "Could not delete the role.";
@@ -62,6 +69,9 @@ public class AuthorizationConfigController
     @Inject
     private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
+    @Inject
+    private ConversionService conversionService;
+
     // ----------------------------------------------------------------------------------------------------------------
     // Add role
 
@@ -74,9 +84,22 @@ public class AuthorizationConfigController
                  consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = { MediaType.TEXT_PLAIN_VALUE,
                               MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addRole(@RequestBody Role role,
+    public ResponseEntity addRole(@RequestBody @Validated RoleForm roleForm,
+                                  BindingResult bindingResult,
                                   @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
+        if (roleForm == null)
+        {
+            throw new RequestBodyValidationException("Empty request body", bindingResult);
+        }
+        if (bindingResult.hasErrors())
+        {
+            throw new RequestBodyValidationException(FAILED_ADD_ROLE, bindingResult);
+        }
+
+        // Convert RoleForm to Role
+        Role role = conversionService.convert(roleForm, Role.class);
+
         return processConfig(config -> addRole(config, role), () -> SUCCESSFUL_ADD_ROLE, acceptHeader);
     }
 
@@ -91,10 +114,6 @@ public class AuthorizationConfigController
         if (result)
         {
             configProvider.updateConfig(config);
-        }
-        else
-        {
-            throw new RuntimeException(FAILED_ADD_ROLE);
         }
     }
 
@@ -191,10 +210,28 @@ public class AuthorizationConfigController
                  consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = { MediaType.TEXT_PLAIN_VALUE,
                               MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addPrivilegesToAnonymous(@RequestBody List<Privilege> privileges,
+    public ResponseEntity addPrivilegesToAnonymous(@RequestBody @Validated PrivilegeListForm privilegeListForm,
+                                                   BindingResult bindingResult,
                                                    @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        return processConfig(config -> privileges.forEach(this::addAnonymousAuthority),
+        if (privilegeListForm == null)
+        {
+            throw new RequestBodyValidationException("Empty request body", bindingResult);
+        }
+        if (bindingResult.hasErrors())
+        {
+            String message = "Privileges cannot be saved because the submitted form contains errors!";
+            throw new RequestBodyValidationException(message, bindingResult);
+        }
+
+        // Convert PrivilegeListForm to List<Privilege>
+        TypeDescriptor sourceType = TypeDescriptor.valueOf(PrivilegeListForm.class);
+        TypeDescriptor targetType = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(Privilege.class));
+        List<Privilege> privilegeList = (List<Privilege>) conversionService.convert(privilegeListForm,
+                                                                                    sourceType,
+                                                                                    targetType);
+
+        return processConfig(config -> Objects.requireNonNull(privilegeList).forEach(this::addAnonymousAuthority),
                              () -> SUCCESSFUL_ASSIGN_PRIVILEGES, acceptHeader);
     }
 

@@ -1,17 +1,20 @@
 package org.carlspring.strongbox.config;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
+import org.carlspring.strongbox.converters.PrivilegeListFormToPrivilegeListConverter;
+import org.carlspring.strongbox.converters.RoleFormToRoleConverter;
+import org.carlspring.strongbox.cron.config.CronTasksConfig;
+import org.carlspring.strongbox.utils.CustomAntPathMatcher;
+import org.carlspring.strongbox.web.HeaderMappingFilter;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.bind.Marshaller;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
-import org.carlspring.strongbox.cron.config.CronTasksConfig;
-import org.carlspring.strongbox.utils.CustomAntPathMatcher;
-import org.carlspring.strongbox.web.HeaderMappingFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -19,11 +22,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.converter.ByteArrayHttpMessageConverter;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.ResourceHttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.http.converter.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
@@ -34,8 +34,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 @ComponentScan({ "com.carlspring.strongbox.controllers",
@@ -70,7 +68,6 @@ public class WebConfig
 
     @Inject
     private ObjectMapper objectMapper;
-
 
     public WebConfig()
     {
@@ -174,5 +171,11 @@ public class WebConfig
         result.setIncludeClientInfo(true);
         return result;
     }
-    
+
+    @Override
+    public void addFormatters(FormatterRegistry registry)
+    {
+        registry.addConverter(new RoleFormToRoleConverter());
+        registry.addConverter(new PrivilegeListFormToPrivilegeListConverter());
+    }
 }

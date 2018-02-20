@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.PrivilegeForm;
+import org.carlspring.strongbox.forms.PrivilegeListForm;
+import org.carlspring.strongbox.forms.RoleForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.security.Privilege;
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
@@ -63,18 +65,12 @@ public class AuthorizationConfigControllerTest
     }
 
     private void roleShouldBeAdded(String acceptHeader,
-                                   String roleName)
+                                   RoleForm role)
             throws Exception
     {
-        // prepare new role
-        final Role customRole = new Role();
-        customRole.setName(roleName);
-        customRole.setPrivileges(new HashSet<>(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
-                                                             Privileges.ARTIFACTS_DEPLOY.name())));
-
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
-               .body(customRole)
+               .body(role)
                .when()
                .post("/configuration/authorization/role")
                .peek() // Use peek() to print the output
@@ -87,20 +83,31 @@ public class AuthorizationConfigControllerTest
     public void testRoleShouldBeAddedWithResponseInJson()
             throws Exception
     {
-        String roleName = "TEST_ROLE";
-        roleShouldBeAdded(MediaType.APPLICATION_JSON_VALUE, roleName);
+        final RoleForm customRole = new RoleForm();
+        customRole.setName("TEST_ROLE");
+        customRole.setDescription("Test role");
+        customRole.setRepository("Test repository");
+        customRole.setPrivileges(new HashSet<>(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
+                                                             Privileges.ARTIFACTS_DEPLOY.name())));
+        roleShouldBeAdded(MediaType.APPLICATION_JSON_VALUE, customRole);
     }
 
     @Test
     public void testRoleShouldBeAddedWithResponseInText()
             throws Exception
     {
-        String roleName = "TEST_ROLE";
-        roleShouldBeAdded(MediaType.TEXT_PLAIN_VALUE, roleName);
+        final RoleForm customRole = new RoleForm();
+        customRole.setName("TEST_ROLE");
+        customRole.setDescription("Test role");
+        customRole.setRepository("Test repository");
+        customRole.setPrivileges(new HashSet<>(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
+                                                             Privileges.ARTIFACTS_DEPLOY.name())));
+        roleShouldBeAdded(MediaType.TEXT_PLAIN_VALUE, customRole);
     }
 
     private void roleShouldNotBeAdded(String acceptHeader,
-                                      String roleName)
+                                      String roleName,
+                                      String errorMessage)
             throws Exception
     {
         // prepare new role
@@ -115,23 +122,41 @@ public class AuthorizationConfigControllerTest
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
-               .body(containsString(FAILED_ADD_ROLE));
+               .body(containsString(errorMessage));
     }
 
     @Test
-    public void testRoleShouldNotBeAddedWithResponseInJson()
+    public void testExistingRoleShouldNotBeAddedWithResponseInJson()
             throws Exception
     {
         String existingRoleName = originalRoles.iterator().next().getName();
-        roleShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, existingRoleName);
+        roleShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, existingRoleName, FAILED_ADD_ROLE);
     }
 
     @Test
-    public void testRoleShouldNotBeAddedWithResponseInText()
+    public void testExistingRoleShouldNotBeAddedWithResponseInText()
             throws Exception
     {
         String existingRoleName = originalRoles.iterator().next().getName();
-        roleShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, existingRoleName);
+        roleShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, existingRoleName, FAILED_ADD_ROLE);
+    }
+
+    @Test
+    public void testEmptyRoleNameShouldNotBeAddedWithResponseInJson()
+            throws Exception
+    {
+        String roleName = "";
+        roleShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, roleName,
+                             "Role cannot be saved because the submitted form contains errors!");
+    }
+
+    @Test
+    public void testEmptyRoleNameShouldNotBeAddedWithResponseInText()
+            throws Exception
+    {
+        String roleName = "";
+        roleShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, roleName,
+                             "Role cannot be saved because the submitted form contains errors!");
     }
 
     private void configXMLCouldBeDownloaded(String acceptHeader)
@@ -227,13 +252,15 @@ public class AuthorizationConfigControllerTest
             throws Exception
     {
         // assign privileges to anonymous user
-        List<Privilege> privileges = new ArrayList<>();
-        Privilege privilege = new Privilege(privilegeName, "");
-        privileges.add(privilege);
+        PrivilegeListForm privilegeListForm = new PrivilegeListForm();
+        List<PrivilegeForm> privilegeForms = new ArrayList<>();
+        PrivilegeForm privilegeForm = new PrivilegeForm(privilegeName, "");
+        privilegeForms.add(privilegeForm);
+        privilegeListForm.setPrivileges(privilegeForms);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
-               .body(privileges)
+               .body(privilegeListForm)
                .when()
                .post("/configuration/authorization/anonymous/privileges")
                .peek() // Use peek() to print the output
@@ -256,6 +283,44 @@ public class AuthorizationConfigControllerTest
     {
         String privilegeName = Privileges.ARTIFACTS_DEPLOY.name();
         privilegesToAnonymousShouldBeAdded(MediaType.TEXT_PLAIN_VALUE, privilegeName);
+    }
+
+    private void privilegesToAnonymousShouldNotBeAdded(String acceptHeader,
+                                                       String privilegeName)
+            throws Exception
+    {
+        // assign privileges to anonymous user
+        PrivilegeListForm privilegeListForm = new PrivilegeListForm();
+        List<PrivilegeForm> privilegeForms = new ArrayList<>();
+        PrivilegeForm privilegeForm = new PrivilegeForm(privilegeName, "");
+        privilegeForms.add(privilegeForm);
+        privilegeListForm.setPrivileges(privilegeForms);
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .header(HttpHeaders.ACCEPT, acceptHeader)
+               .body(privilegeListForm)
+               .when()
+               .post("/configuration/authorization/anonymous/privileges")
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
+               .body(containsString("Privileges cannot be saved because the submitted form contains errors!"));
+    }
+
+    @Test
+    public void testEmptyPrivilegeNameToAnonymousShouldNotBeAddedWithResponseInJson()
+            throws Exception
+    {
+        String privilegeName = "";
+        privilegesToAnonymousShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, privilegeName);
+    }
+
+    @Test
+    public void testEmptyPrivilegeNameToAnonymousShouldNotBeAddedWithResponseInText()
+            throws Exception
+    {
+        String privilegeName = "";
+        privilegesToAnonymousShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, privilegeName);
     }
 
     private void rolesToAnonymousShouldBeAdded(String acceptHeader,
