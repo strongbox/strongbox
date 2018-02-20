@@ -73,7 +73,7 @@ public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoor
 
     public Map<String, String> getCoordinates()
     {
-        return new HashMap<>(coordinates);
+        return new LinkedHashMap<>(coordinates);
     }
 
     protected final void setCoordinates(Map<String, String> coordinates)
