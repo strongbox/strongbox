@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
+import org.carlspring.strongbox.forms.RoleListForm;
 import org.carlspring.strongbox.security.Privilege;
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.User;
@@ -126,8 +127,8 @@ public class AuthorizationConfigController
                             @ApiResponse(code = 500,
                                          message = "Could not retrieve the strongbox-authorization.xml configuration file.") })
     @GetMapping(value = "/xml",
-            produces = { MediaType.APPLICATION_XML_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                produces = { MediaType.APPLICATION_XML_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getAuthorizationConfig(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         return processConfig(null, null, acceptHeader);
@@ -144,7 +145,6 @@ public class AuthorizationConfigController
                                          message = FAILED_DELETE_ROLE)
     })
     @DeleteMapping(value = "/role/{name}",
-                   consumes = MediaType.APPLICATION_JSON_VALUE,
                    produces = { MediaType.TEXT_PLAIN_VALUE,
                                 MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity deleteRole(@ApiParam(value = "The name of the role",
@@ -246,10 +246,30 @@ public class AuthorizationConfigController
                  consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = { MediaType.TEXT_PLAIN_VALUE,
                               MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addRolesToAnonymous(@RequestBody List<Role> roles,
+    public ResponseEntity addRolesToAnonymous(@RequestBody @Validated RoleListForm roleListForm,
+                                              BindingResult bindingResult,
                                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        return processConfig(config -> addRolesToAnonymous(config, roles), () -> SUCCESSFUL_ASSIGN_ROLES, acceptHeader);
+        if (roleListForm == null)
+        {
+            throw new RequestBodyValidationException("Empty request body", bindingResult);
+        }
+        if (bindingResult.hasErrors())
+        {
+            String message = "Roles cannot be saved because the submitted form contains errors!";
+            throw new RequestBodyValidationException(message, bindingResult);
+        }
+
+        // Convert RoleListForm to List<Role>
+        TypeDescriptor sourceType = TypeDescriptor.valueOf(RoleListForm.class);
+        TypeDescriptor targetType = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(Role.class));
+        List<Role> roleList = (List<Role>) conversionService.convert(roleListForm,
+                                                                     sourceType,
+                                                                     targetType);
+
+        return processConfig(config -> addRolesToAnonymous(config, Objects.requireNonNull(roleList)),
+                             () -> SUCCESSFUL_ASSIGN_ROLES,
+                             acceptHeader);
     }
 
     private void addRolesToAnonymous(AuthorizationConfig config,

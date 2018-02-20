@@ -38,7 +38,7 @@ public class UniqueRoleNameValidator
                            ConstraintValidatorContext context)
     {
         Role role = new Role(roleName, "");
-        return !StringUtils.isEmpty(roleName) && !config.getRoles().getRoles().contains(role);
+        return StringUtils.isEmpty(roleName) || !config.getRoles().getRoles().contains(role);
     }
 
 }
