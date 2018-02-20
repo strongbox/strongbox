@@ -71,6 +71,7 @@
     <logger name="org.carlspring.strongbox.security.vote" level="DEBUG"/>
     <logger name="org.carlspring.strongbox.data" level="WARN"/>
     <logger name="org.carlspring.strongbox.data.tx" level="WARN"/>
+    <logger name="org.carlspring.strongbox.data.server" level="DEBUG"/>
 
     <logger name="net.sf.ehcache" level="ERROR"/>
     
