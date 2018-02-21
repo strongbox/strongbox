@@ -10,9 +10,6 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import javax.xml.bind.JAXBException;
 
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;

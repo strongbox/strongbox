@@ -7,21 +7,28 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.criteria.ArtifactEntryCriteria;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser.FilterContext;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser.FilterExpContext;
-import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser.FuctionExpContext;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser.TokenExpContext;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser.TokenExpFunctionContext;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser.TokenExpLeftContext;
-import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser.TokenExpRightContext;
 
 /**
+ * This class purpose is to construct {@link Predicate} instance which can be
+ * used with {@link Selector} to perform Database queries.
+ * 
+ * Every method here should produce {@link Predicate} instance according to filter expression it visit.
+ * 
  * @author sbespalov
  *
  */
 public class NugetODataFilterVisitorImpl extends NugetODataFilterBaseVisitor<Predicate>
 {
 
+    /**
+     * The Root predicate in the parse tree.
+     */
     private Predicate root;
 
     public NugetODataFilterVisitorImpl(Predicate p)
@@ -34,11 +41,7 @@ public class NugetODataFilterVisitorImpl extends NugetODataFilterBaseVisitor<Pre
     public Predicate visitFilter(FilterContext ctx)
     {
         Predicate p = super.visitFilter(ctx);
-        if (p != root)
-        {
-            root.and(p);
-        }
-        return root;
+        return root.and(p);
     }
 
     @Override
@@ -55,19 +58,21 @@ public class NugetODataFilterVisitorImpl extends NugetODataFilterBaseVisitor<Pre
 
         BooleanOperator booleanOperator = BooleanOperator.valueOf(ctx.vLogicalOp.getText().toUpperCase());
 
+        Predicate filterExpRoot = Predicate.empty();
+        
         Predicate p1 = visitFilterExp(ctx.vFilterExpLeft);
         Predicate p2 = visitFilterExp(ctx.vFilterExpRight);
 
         if (BooleanOperator.AND.equals(booleanOperator))
         {
-            root.and(p1).and(p2);
+            filterExpRoot.and(p1).and(p2);
         }
         else if (BooleanOperator.OR.equals(booleanOperator))
         {
-            root.and(p1.or(p2));
+            filterExpRoot.and(p1.or(p2));
         }
 
-        return root;
+        return filterExpRoot;
     }
 
     @Override
@@ -91,12 +96,6 @@ public class NugetODataFilterVisitorImpl extends NugetODataFilterBaseVisitor<Pre
     }
 
     @Override
-    public Predicate visitTokenExpRight(TokenExpRightContext ctx)
-    {
-        return super.visitTokenExpRight(ctx);
-    }
-
-    @Override
     public Predicate visitTokenExpLeft(TokenExpLeftContext ctx)
     {
         if (ctx.ATTRIBUTE() != null)
@@ -114,7 +113,8 @@ public class NugetODataFilterVisitorImpl extends NugetODataFilterBaseVisitor<Pre
     {
         String attribute = ctx.ATTRIBUTE().getText();
 
-        if (ctx.fuctionExp().TO_LOWER() != null) {
+        if (ctx.fuctionExp().TO_LOWER() != null)
+        {
             attribute = String.format("%s.toLowerCase()", attribute);
         }
 
