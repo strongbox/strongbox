@@ -10,6 +10,9 @@ import javax.persistence.EntityManager;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
 /**
+ * This class decorates underlaing {@link QueryTemplate} to detach it's result
+ * from OrientDB session.
+ * 
  * @author sbespalov
  *
  */

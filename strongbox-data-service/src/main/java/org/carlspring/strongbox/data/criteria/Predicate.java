@@ -6,6 +6,11 @@ import java.util.List;
 import org.springframework.util.Assert;
 
 /**
+ * This class is part of Criteria API which is needed to have platform
+ * independent query representation.
+ * Each {@link Predicate} is search conditions tree node, also have an logical
+ * {@link Expression} and nested nodes joined with {@link BooleanOperator}.
+ * 
  * @author sbespalov
  *
  */
@@ -51,7 +56,7 @@ public class Predicate
     public Predicate and(Predicate p)
     {
         Assert.state(!BooleanOperator.OR.equals(this.operator), "Only conjunction allowed.");
-        
+
         this.operator = BooleanOperator.AND;
         add(p);
 
@@ -72,7 +77,6 @@ public class Predicate
         return expression == null && childPredicateList.isEmpty();
     }
 
-    
     public static Predicate empty()
     {
         return new Predicate();
@@ -84,7 +88,7 @@ public class Predicate
         p.expression = e;
         return p;
     }
-    
+
     public static enum BooleanOperator
     {
         AND, OR

@@ -3,6 +3,9 @@ package org.carlspring.strongbox.data.criteria;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
 /**
+ * This class represent a final and ready to perform Query with target
+ * projection and search expressions.
+ * 
  * @author sbespalov
  *
  */
@@ -11,7 +14,8 @@ public class Selector<T extends GenericEntity>
 
     private Class<T> targetClass;
 
-    //TODO: we need something like ProjectionExpression here instead of just String
+    // TODO: we need something like ProjectionExpression here instead of just
+    // String
     private String projection = "*";
 
     private Predicate predicate;

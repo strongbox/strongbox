@@ -2,7 +2,6 @@ package org.carlspring.strongbox.data.criteria;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -16,6 +15,8 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
+ * {@link QueryTemplate} implementation for OrientDB engine.
+ * 
  * @author sbespalov
  *
  */
