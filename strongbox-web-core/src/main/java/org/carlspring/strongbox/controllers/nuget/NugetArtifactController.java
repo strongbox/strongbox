@@ -395,7 +395,8 @@ public class NugetArtifactController extends BaseArtifactController
            rootPredicate = t.parseFilterExpression(filter);
         }
         
-        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) 
+        {
             rootPredicate.and(Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.id",
                                                                "%" + searchTerm + "%")));
         }
