@@ -6,8 +6,9 @@ import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 
 import javax.xml.bind.annotation.*;
-import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -328,14 +329,14 @@ public class Repository
         return id;
     }
 
-    public File getTrashDir()
+    public Path getTrashDir()
     {
-        return new File(getBasedir(), ".trash");
+        return Paths.get(getBasedir(), ".trash");
     }
 
-    public File getTempDir()
+    public Path getTempDir()
     {
-        return new File(getBasedir(), ".temp");
+        return Paths.get(getBasedir(), ".temp");
     }
 
     public HttpConnectionPool getHttpConnectionPool()

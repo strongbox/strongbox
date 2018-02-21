@@ -11,9 +11,11 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -49,12 +51,14 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
                 {
                     logger.debug("Emptying trash for repository " + repository.getId() + "...");
 
-                    final File basedirTrash = repository.getTrashDir();
+                    final Path basedirTrash = repository.getTrashDir();
 
-                    FileUtils.deleteDirectory(basedirTrash);
+                    Files.walk(basedirTrash)
+                         .map(Path::toFile)
+                         .sorted(Comparator.comparing(File::isDirectory))
+                         .forEach(File::delete);
 
-                    //noinspection ResultOfMethodCallIgnored
-                    basedirTrash.mkdirs();
+                    Files.createDirectories(basedirTrash);
                 }
                 else
                 {
