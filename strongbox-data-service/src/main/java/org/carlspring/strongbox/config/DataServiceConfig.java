@@ -80,7 +80,8 @@ public class DataServiceConfig
     }
     
     @PreDestroy
-    public void destroy() {
+    public void destroy()
+    {
         orientDbServer.stop();
     }
 
