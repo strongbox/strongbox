@@ -435,7 +435,9 @@ public class NugetArtifactController extends BaseArtifactController
     @ApiOperation(value = "Used to check storage availability")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Storage available."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Storage requires authorization.") })
-    @RequestMapping(path = { "{storageId}/{repositoryId}", "greet" }, method = RequestMethod.GET)
+    @RequestMapping(path = { "{storageId}/{repositoryId}", "greet" },
+                    method = RequestMethod.GET,
+                    produces = MediaType.TEXT_PLAIN)
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     public ResponseEntity<String> greet()
     {

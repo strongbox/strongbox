@@ -278,7 +278,25 @@ public class RestAssuredArtifactClient
                            .then()
                            .extract();
     }
-
+    
+    public ExtractableResponse getDirectoryResource(String path,
+                                                    String pathVar)
+    {   
+        String url = getContextBaseUrl() + "/" + path;
+        if (pathVar != null && !pathVar.isEmpty())
+        {
+            url += "/" + pathVar;
+        }
+        
+        return givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
+                           .accept(MediaType.TEXT_HTML_VALUE)
+                           .when()
+                           .get(url)
+                           .peek()
+                           .then()
+                           .extract();
+    }
+    
     public void rebuildMetadata(String storageId,
                                 String repositoryId,
                                 String path)
