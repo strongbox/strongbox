@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.config;
 
+import java.io.IOException;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -14,4 +16,12 @@ public class DataServicePropertiesConfig
         return new PropertySourcesPlaceholderConfigurer();
     }
 
+    @Bean
+    public ConnectionConfig connectionConfig()
+        throws IOException
+    {
+        ConnectionConfigOrientDB.bootstrap(ConnectionConfigOrientDB.PROFILE_MEMORY);
+
+        return new ConnectionConfigOrientDB();
+    }
 }
