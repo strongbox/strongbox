@@ -122,24 +122,34 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
     public static void bootstrap(String profile)
         throws IOException
     {
+        if (System.getProperties().contains(profile))
+        {
+            LOGGER.info(String.format("Can't override already provided OrientDB connection profile, skip profile [%s] bootstrap.",
+                                      profile));
+            return;
+        }
+
+        System.setProperty(profile, "");
+
         try (InputStream is = ConnectionConfigOrientDB.class.getResourceAsStream(String.format("/%s.properties",
                                                                                                profile)))
         {
             Properties properties = new Properties();
             properties.load(is);
 
-            if (properties.keySet().stream().anyMatch(p -> System.getProperty((String) p) != null))
-            {
-                LOGGER.info(String.format("Can't override already provided OrientDB connection properties, skip profile [%s] bootstrap.",
-                                          profile));
-                return;
-            }
-
             properties.keySet()
                       .stream()
-                      .forEach(p -> System.setProperty((String) p, properties.getProperty((String) p)));
-
+                      .forEach(p -> {
+                          if (!System.getProperties().contains(p))
+                          {
+                              System.setProperty((String) p, properties.getProperty((String) p));
+                              return;
+                          }
+                          LOGGER.info(String.format("Can't override already provided OrientDB connection property [%s].",
+                                                    p));
+                      });
         }
+
     }
 
 }
