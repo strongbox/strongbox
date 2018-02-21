@@ -111,7 +111,7 @@ public class NugetODataFilterVisitorImpl extends NugetODataFilterBaseVisitor<Pre
     @Override
     public Predicate visitTokenExpFunction(TokenExpFunctionContext ctx)
     {
-        String attribute = ctx.ATTRIBUTE().getText();
+        String attribute = ctx.ATTRIBUTE().getText().toLowerCase();
 
         if (ctx.fuctionExp().TO_LOWER() != null)
         {

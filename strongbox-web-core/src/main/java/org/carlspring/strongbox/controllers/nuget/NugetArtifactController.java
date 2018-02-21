@@ -321,9 +321,9 @@ public class NugetArtifactController extends BaseArtifactController
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
 
         Paginator paginator = new Paginator();
-        paginator.setOrderBy("artifactCoordinates.coordinates.Version");
+        paginator.setOrderBy("artifactCoordinates.coordinates.version");
 
-        Predicate predicate = Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.Id", normaliseSearchTerm(packageId)));
+        Predicate predicate = Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.id", normaliseSearchTerm(packageId)));
 
         Collection<? extends Nupkg> files = searchNupkg(storageId, repositoryId, provider, paginator, predicate);
 
@@ -396,7 +396,7 @@ public class NugetArtifactController extends BaseArtifactController
         }
         
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            rootPredicate.and(Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.Id",
+            rootPredicate.and(Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.id",
                                                                "%" + searchTerm + "%")));
         }
         return rootPredicate;

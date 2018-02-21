@@ -21,9 +21,9 @@ import org.semver.Version;
 @XmlAccessorType(XmlAccessType.NONE)
 public class NugetArtifactCoordinates extends AbstractArtifactCoordinates<NugetArtifactCoordinates, Version>
 {
-    public static final String ID = "Id";
-    public static final String VERSION = "Version";
-    public static final String EXTENSION = "Extension";
+    public static final String ID = "id";
+    public static final String VERSION = "version";
+    public static final String EXTENSION = "extension";
     private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+).(nupkg|nuspec|nupkg\\.sha512)";
 
 
