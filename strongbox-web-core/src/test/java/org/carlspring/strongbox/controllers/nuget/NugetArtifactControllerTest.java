@@ -419,8 +419,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.entry[0].title", equalTo("NHibernate"));
         
         Map<String, String> coordinates = new HashMap<>();
-        coordinates.put("Id", "NHibernate");
-        coordinates.put("Version", "4.1.1.4000");
+        coordinates.put("id", "NHibernate");
+        coordinates.put("version", "4.1.1.4000");
 
         List<ArtifactEntry> artifactEntryList = artifactEntryService.findArtifactList("storage-common-proxies", "nuget.org", coordinates, true);
         assertTrue(artifactEntryList.size() > 0);
