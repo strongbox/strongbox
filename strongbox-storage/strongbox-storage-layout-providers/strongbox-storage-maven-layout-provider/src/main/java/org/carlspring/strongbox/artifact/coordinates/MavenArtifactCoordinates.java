@@ -2,6 +2,8 @@ package org.carlspring.strongbox.artifact.coordinates;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -225,6 +227,14 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates<MavenA
             return null;
         }
         return new ComparableVersion(versionLocal);
+    }
+
+    @Override
+    public Map<String, String> dropVersion()
+    {
+        Map<String, String> result = getCoordinates();
+        result.remove(VERSION);
+        return result;
     }
 
     @Override

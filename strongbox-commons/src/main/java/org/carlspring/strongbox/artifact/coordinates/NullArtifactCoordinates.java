@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import java.util.Map;
+
 /**
  * @author carlspring
  */
@@ -61,6 +63,12 @@ public class NullArtifactCoordinates
         return this;
     }
 
+    @Override
+    public Map<String, String> dropVersion()
+    {
+        return getCoordinates();
+    }
+    
     @Override
     public String toPath()
     {

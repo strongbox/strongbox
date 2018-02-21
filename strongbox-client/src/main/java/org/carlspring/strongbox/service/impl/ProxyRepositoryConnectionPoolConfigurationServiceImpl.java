@@ -19,6 +19,8 @@ import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurati
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.logging.LoggingFeature;
+import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +36,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
 
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ProxyRepositoryConnectionPoolConfigurationServiceImpl.class);
-
+    
     private PoolingHttpClientConnectionManager poolingHttpClientConnectionManager;
     private IdleConnectionMonitorThread idleConnectionMonitorThread;
 
@@ -74,12 +76,17 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         // property to prevent closing connection manager when client is closed
         config.property(ApacheClientProperties.CONNECTION_MANAGER_SHARED, true);
 
+        java.util.logging.Logger logger = java.util.logging.Logger.getLogger("org.carlspring.strongbox.RestClient");
+        
         // TODO set basic authentication here instead of setting it always in client?
         /* CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(userName, password));
         config.property(ApacheClientProperties.CREDENTIALS_PROVIDER, credentialsProvider); */
-
-        return ClientBuilder.newBuilder().newClient(config);
+        
+        return ClientBuilder.newBuilder()
+                            .register(new LoggingFeature(logger, Verbosity.PAYLOAD_TEXT))
+                            .withConfig(config)
+                            .build();
     }
 
     @Override

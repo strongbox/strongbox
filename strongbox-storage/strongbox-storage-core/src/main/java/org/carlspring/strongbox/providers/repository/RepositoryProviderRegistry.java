@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-import java.util.Map;
+import javax.inject.Inject;
 
+import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -51,10 +53,16 @@ public class RepositoryProviderRegistry extends AbstractMappedProviderRegistry<R
         return super.getProviders();
     }
 
+    @Inject
     @Override
     public void setProviders(Map<String, RepositoryProvider> providers)
     {
-        super.setProviders(providers);
+        super.setProviders(providers.entrySet()
+                                    .stream()
+                                    .collect(Collectors.toMap(e -> e.getKey()
+                                                                    .replace(RepositoryProvider.class.getSimpleName(),
+                                                                             ""),
+                                                              e -> e.getValue())));
     }
 
     @Override

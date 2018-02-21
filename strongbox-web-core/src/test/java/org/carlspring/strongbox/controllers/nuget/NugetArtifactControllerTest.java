@@ -19,8 +19,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
@@ -28,21 +28,17 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import ru.aristar.jnuget.query.AndExpression;
-import ru.aristar.jnuget.query.Expression;
-import ru.aristar.jnuget.query.IdEqIgnoreCase;
-import ru.aristar.jnuget.query.LatestVersionExpression;
 import ru.aristar.jnuget.rss.PackageFeed;
 
 /**
@@ -207,7 +203,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         given().header("User-Agent", "NuGet/*")
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                       "/FindPackagesById()?id='Org.Carlspring.Strongbox.Examples.Nuget.Mono'")
+                       "/FindPackagesById()?Id='Org.Carlspring.Strongbox.Examples.Nuget.Mono'")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -289,7 +285,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         given().header("User-Agent", "NuGet/*")
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                    String.format("/Search()/$count?searchTerm=%s&targetFramework=", "Test"))
+                    String.format("/Search()/$count?searchTerm=%s&targetFramework=", "Test.Search"))
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -301,7 +297,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
                     String.format("/Search()?$skip=%s&$top=%s&searchTerm=%s&targetFramework=",
-                                  0, 30, "Test"))
+                                  0, 30, "Test.Search"))
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -328,16 +324,15 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                          .then()
                                          .statusCode(HttpStatus.CREATED.value());
 
-        Expression filter = new IdEqIgnoreCase(packageId);
-        filter = new AndExpression(filter, new LatestVersionExpression());
-
+        String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", packageId.toLowerCase());
+        
         // VERSION 1.0.0
         // Count
         given().header("User-Agent", "NuGet/*")
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
                        String.format("/Search()/$count?$filter=%s&targetFramework=",
-                                     filter.toString()))
+                                     filter))
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -349,7 +344,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
                        String.format("/Search()?$filter=%s&$skip=%s&$top=%s&targetFramework=",
-                                     filter.toString(), 0, 30))
+                                     filter, 0, 30))
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -375,7 +370,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
                        String.format("/Search()/$count?$filter=%s&targetFramework=",
-                                     filter.toString()))
+                                     filter))
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -413,7 +408,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     {
         given().header("User-Agent", "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate")
+               .get(getContextBaseUrl() + "/storages/public/nuget-public/FindPackagesById()?Id=NHibernate")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -459,7 +454,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         PackageFeed feed = given().header("User-Agent", "NuGet/*")
                                   .when()
                                   .get(getContextBaseUrl()
-                                          + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate&$orderby=Version")
+                                          + "/storages/public/nuget-public/FindPackagesById()?Id=NHibernate&$orderby=Version")
                                   .body()
                                   .as(PackageFeed.class);
 
