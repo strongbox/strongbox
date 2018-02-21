@@ -4,11 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import org.carlspring.strongbox.data.CacheManagerConfiguration;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
+import org.carlspring.strongbox.data.server.OrientDbServer;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +36,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
@@ -55,35 +60,29 @@ public class DataServiceConfig
      */
     public static final int TRANSACTIONAL_INTERCEPTOR_ORDER = 100;
 
-    private static final Logger logger = LoggerFactory.getLogger("DataServiceConfig");
-
-    @Value("${strongbox.orientdb.host:127.0.0.1}")
-    private String host;
-
-    @Value("${strongbox.orientdb.port:2424}")
-    private Integer port;
-
-    @Value("${strongbox.orientdb.database:strongbox}")
-    private String database;
-
-    @Value("${strongbox.orientdb.username:admin}")
-    private String username;
-
-    @Value("${strongbox.orientdb.password:password}")
-    private String password;
-
-    private static EmbeddedOrientDbServer embeddableServer;
+    @Inject
+    private ConnectionConfig connectionConfig;
+    
+    @Inject
+    private OrientDbServer orientDbServer;
     
     @PostConstruct
     public void init()
         throws Exception
     {
-        startDbServer();
+        orientDbServer.start();
+        
         transactionTemplate().execute((s) ->
                                     {
                                         doInit(s);
                                         return null;
                                     });
+    }
+    
+    @PreDestroy
+    public void destroy()
+    {
+        orientDbServer.stop();
     }
 
     private void doInit(TransactionStatus s)
@@ -112,9 +111,9 @@ public class DataServiceConfig
     public EntityManagerFactory entityManagerFactory()
     {
         Map<String, String> jpaProperties = new HashMap<>();
-        jpaProperties.put("javax.persistence.jdbc.url", getConnectionUrl());
-        jpaProperties.put("javax.persistence.jdbc.user", username);
-        jpaProperties.put("javax.persistence.jdbc.password", password);
+        jpaProperties.put("javax.persistence.jdbc.url", connectionConfig.getUrl());
+        jpaProperties.put("javax.persistence.jdbc.user", connectionConfig.getUsername());
+        jpaProperties.put("javax.persistence.jdbc.password", connectionConfig.getPassword());
 
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
         result.setJpaPropertyMap(jpaProperties);
@@ -133,7 +132,7 @@ public class DataServiceConfig
     @Bean
     public OEntityManager oEntityManager()
     {
-        return OEntityManager.getEntityManagerByDatabaseURL(getConnectionUrl());
+        return OEntityManager.getEntityManagerByDatabaseURL(connectionConfig.getUrl());
     }
 
     @Bean
@@ -145,106 +144,21 @@ public class DataServiceConfig
     }
 
     @Bean
-    public String ehCacheCacheManagerId()
+    public CacheManagerConfiguration cacheManagerConfiguration()
     {
-        return "strongboxCacheManager";
+        CacheManagerConfiguration cacheManagerConfiguration = new CacheManagerConfiguration();
+        cacheManagerConfiguration.setCacheCacheManagerId("strongboxCacheManager");
+        return cacheManagerConfiguration;
     }
     
     @Bean
-    public EhCacheManagerFactoryBean ehCacheCacheManager(String ehCacheCacheManagerId)
+    public EhCacheManagerFactoryBean ehCacheCacheManager(CacheManagerConfiguration cacheManagerConfiguration)
     {
         EhCacheManagerFactoryBean cmfb = new EhCacheManagerFactoryBean();
         cmfb.setConfigLocation(new ClassPathResource("ehcache.xml"));
         cmfb.setShared(false);
-        cmfb.setCacheManagerName(ehCacheCacheManagerId);
+        cmfb.setCacheManagerName(cacheManagerConfiguration.getCacheCacheManagerId());
         return cmfb;
     }
     
-    private void startDbServer()
-        throws Exception
-    {
-        logger.info(String.format("Start Embedded OrientDB server [%s].", getConnectionUrl()));
-        if (embeddableServer == null)
-        {
-            embeddableServer = new EmbeddedOrientDbServer(this);
-            embeddableServer.init();
-        }
-
-        try
-        {
-            embeddableServer.start();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        // create database if not initialized
-        OServerAdmin serverAdmin = new OServerAdmin(getConnectionUrl()).connect(username, password);
-        if (!serverAdmin.existsDatabase())
-        {
-            logger.debug("Create database " + database);
-            serverAdmin.createDatabase(database, "document", "plocal")/* .close() */;
-        }
-        else
-        {
-            logger.debug("Reuse existing database " + database);
-        }
-    }
-
-    private String getConnectionUrl()
-    {
-        return "remote:" + host + ":" + port + "/" + database;
-    }
-
-    public String getHost()
-    {
-        return host;
-    }
-
-    public void setHost(String host)
-    {
-        this.host = host;
-    }
-
-    public Integer getPort()
-    {
-        return port;
-    }
-
-    public void setPort(Integer port)
-    {
-        this.port = port;
-    }
-
-    public String getDatabase()
-    {
-        return database;
-    }
-
-    public void setDatabase(String database)
-    {
-        this.database = database;
-    }
-
-    public String getUsername()
-    {
-        return username;
-    }
-
-    public void setUsername(String username)
-    {
-        this.username = username;
-    }
-
-    public String getPassword()
-    {
-        return password;
-    }
-
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
-
 }

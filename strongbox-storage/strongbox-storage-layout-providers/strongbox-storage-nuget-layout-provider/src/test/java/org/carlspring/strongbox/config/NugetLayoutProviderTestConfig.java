@@ -2,6 +2,7 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
+import org.carlspring.strongbox.data.CacheManagerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -26,9 +27,11 @@ public class NugetLayoutProviderTestConfig
 
     @Bean
     @Primary
-    public String ehCacheCacheManagerId()
+    public CacheManagerConfiguration cacheManagerConfiguration()
     {
-        return "nugetLayoutProviderTestCacheManager";
+        CacheManagerConfiguration cacheManagerConfiguration = new CacheManagerConfiguration();
+        cacheManagerConfiguration.setCacheCacheManagerId("nugetLayoutProviderTestCacheManager");
+        return cacheManagerConfiguration;
     }
     
 }

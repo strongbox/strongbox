@@ -35,7 +35,7 @@ licensed under the Apache 2.0 license. Signing the ICLA below covers contributio
 
 To accept, please:
 - Print, sign and scan the [Individual Contributor's License Agreement (ICLA)](https://github.com/strongbox/strongbox/blob/master/ICLA.md), or, alternatively, fill in the [ICLA PDF](https://github.com/strongbox/strongbox/wiki/resources/pdfs/ICLA.pdf) file
-  and mail it back to [martin.todorov@carlspring.com](mailto:martin.todorov@carlspring.com).
+  and mail it back to [carlspring@gmail.com](mailto:carlspring@gmail.com).
 - Place your name and e-mail below and open a pull request.
 
 | Name                         | Company                                  | Location                                | Date       |

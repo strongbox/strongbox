@@ -8,6 +8,8 @@ import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
+import javax.transaction.TransactionManager;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,8 +26,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
+
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
@@ -50,13 +55,22 @@ public class UserControllerTest
     @Inject
     private PasswordEncoder passwordEncoder;
 
+    @Inject
+    private PlatformTransactionManager transactionManager;
+    
     @After
     public void rollBackAdminUserPassword()
             throws IOException
     {
-        User adminUser = retrieveUserByName("admin");
-        adminUser.setPassword("password");
-        userService.save(adminUser);
+        TransactionTemplate t = new TransactionTemplate();
+        t.setTransactionManager(transactionManager);
+        t.setPropagationBehavior(Propagation.REQUIRES_NEW.value());
+        t.execute((s) -> {
+            User adminUser = retrieveUserByName("admin");
+            adminUser.setPassword("password");
+            userService.save(adminUser);
+            return null;
+        });
     }
 
     @Test
@@ -731,7 +745,6 @@ public class UserControllerTest
 
     // get user from DB/cache directly
     private User retrieveUserByName(String name)
-            throws IOException
     {
         return userService.findByUserName(name);
     }

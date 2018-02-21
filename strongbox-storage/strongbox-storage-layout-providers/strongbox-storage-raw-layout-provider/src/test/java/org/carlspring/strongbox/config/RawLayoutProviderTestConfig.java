@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.data.CacheManagerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -22,9 +23,11 @@ public class RawLayoutProviderTestConfig
 
     @Bean
     @Primary
-    public String ehCacheCacheManagerId()
+    public CacheManagerConfiguration cacheManagerConfiguration()
     {
-        return "rawLayoutProviderTestCacheManager";
+        CacheManagerConfiguration cacheManagerConfiguration = new CacheManagerConfiguration();
+        cacheManagerConfiguration.setCacheCacheManagerId("rawLayoutProviderTestCacheManager");
+        return cacheManagerConfiguration;
     }
-
+    
 }

@@ -129,7 +129,7 @@ public abstract class BaseArtifactController
         {
             // Assuming this invocation is related to tests:
             dirPath =  ConfigurationResourceResolver.getVaultDirectory() + "/storages/";
-        }        
+        }       
         generateDirectoryListing(dirPath, request, response);
     }
     
@@ -206,9 +206,12 @@ public abstract class BaseArtifactController
             sb.append("<th>Size</th>");
             sb.append("<th>Description</th>");
             sb.append("</tr>");
-            sb.append("<tr>");
-            sb.append("<td colspan=4><a href=\"../\">..</a></td>");
-            sb.append("</tr>");
+            if (!request.getRequestURI().equalsIgnoreCase(BrowseStoragesController.ROOT_CONTEXT + "/"))
+            {
+                sb.append("<tr>");
+                sb.append("<td colspan=4><a href=\"../\">..</a></td>");
+                sb.append("</tr>");
+            }
 
             String requestURL = request.getRequestURL().toString();
             File[] childFiles = file.listFiles();
@@ -247,9 +250,9 @@ public abstract class BaseArtifactController
         }
     }
 
-    private boolean appendFile(StringBuilder sb,
-                               File childFile,
-                               final String requestURL)
+    protected static boolean appendFile(StringBuilder sb,
+                                        File childFile,
+                                        final String requestURL)
             throws UnsupportedEncodingException
     {
         String name = childFile.getName();

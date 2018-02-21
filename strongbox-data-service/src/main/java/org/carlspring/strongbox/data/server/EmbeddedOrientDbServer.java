@@ -1,12 +1,27 @@
 package org.carlspring.strongbox.data.server;
 
-import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.data.domain.GenericEntityHook;
+import static org.carlspring.strongbox.data.PropertyUtils.getVaultDirectory;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.config.ConnectionConfig;
+import org.carlspring.strongbox.config.ConnectionConfigOrientDB;
+import org.carlspring.strongbox.data.domain.GenericEntityHook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.stereotype.Component;
+
+import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
@@ -16,49 +31,44 @@ import com.orientechnologies.orient.server.config.OServerNetworkConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfiguration;
 import com.orientechnologies.orient.server.config.OServerUserConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import static org.carlspring.strongbox.data.PropertyUtils.getVaultDirectory;
 
 /**
  * An embedded configuration of OrientDb server.
  *
  * @author Alex Oreshkevich
  */
-public class EmbeddedOrientDbServer
+@Component
+@Conditional(EmbeddedOrientDbServer.class)
+public class EmbeddedOrientDbServer implements OrientDbServer, Condition
 {
 
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedOrientDbServer.class);
-
-    private final DataServiceConfig dataServiceConfig;
 
     private OServer server;
 
     private OServerConfiguration serverConfiguration;
 
-    public EmbeddedOrientDbServer(DataServiceConfig dataServiceConfig)
-    {
-        this.dataServiceConfig = dataServiceConfig;
-    }
+    @Inject
+    private ConnectionConfig connectionConfig;
 
+    @PostConstruct
     public void init()
-            throws Exception
+        throws Exception
     {
-        if (server != null)
-        {
-            return;
-        }
 
-        server = OServerMain.create(false);
+        String database = connectionConfig.getDatabase();
+        logger.info(String.format("Initialize Embedded OrientDB server for [%s]", database));
+
+        server = OServerMain.create();
         serverConfiguration = new OServerConfiguration();
-        
+
         OServerHookConfiguration hookConfiguration = new OServerHookConfiguration();
         serverConfiguration.hooks = Arrays.asList(new OServerHookConfiguration[] { hookConfiguration });
         hookConfiguration.clazz = GenericEntityHook.class.getName();
 
         OServerNetworkListenerConfiguration binaryListener = new OServerNetworkListenerConfiguration();
-        binaryListener.ipAddress = dataServiceConfig.getHost();
-        binaryListener.portRange = dataServiceConfig.getPort().toString();
+        binaryListener.ipAddress = connectionConfig.getHost();
+        binaryListener.portRange = connectionConfig.getPort().toString();
         binaryListener.protocol = "binary";
         binaryListener.socket = "default";
 
@@ -75,8 +85,8 @@ public class EmbeddedOrientDbServer
 
         // add users (incl system-level root user)
         List<OServerUserConfiguration> users = new LinkedList<>();
-        users.add(buildUser(dataServiceConfig.getUsername(), dataServiceConfig.getPassword(), "*"));
-        System.setProperty("ORIENTDB_ROOT_PASSWORD", dataServiceConfig.getUsername());
+        users.add(buildUser(connectionConfig.getUsername(), connectionConfig.getPassword(), "*"));
+        System.setProperty("ORIENTDB_ROOT_PASSWORD", connectionConfig.getUsername());
 
         // add other properties
         List<OServerEntryConfiguration> properties = new LinkedList<>();
@@ -117,19 +127,54 @@ public class EmbeddedOrientDbServer
         return getVaultDirectory() + "/db";
     }
 
+    @Override
+    @PreDestroy
+    public void stop()
+    {
+        server.shutdown();
+    }
+
     public void start()
     {
         try
         {
-            if (!server.isActive())
-            {
-                server.startup(serverConfiguration);
-                server.activate();
-            }
+            activate();
         }
         catch (Exception e)
         {
             throw new RuntimeException("Unable to start the embedded OrientDb server!", e);
         }
+
     }
+
+    private void activate()
+        throws Exception
+    {
+        if (!server.isActive())
+        {
+            server.startup(serverConfiguration);
+            server.activate();
+        }
+
+        OServerAdmin serverAdmin = new OServerAdmin(connectionConfig.getUrl()).connect(connectionConfig.getUsername(),
+                                                                                       connectionConfig.getPassword());
+        if (!serverAdmin.existsDatabase())
+        {
+            logger.info(String.format("Create database [%s]", connectionConfig.getDatabase()));
+            serverAdmin.createDatabase(connectionConfig.getDatabase(), "document", "plocal");
+        }
+        else
+        {
+            logger.info("Reuse existing database " + connectionConfig.getDatabase());
+        }
+    }
+
+    @Override
+    public boolean matches(ConditionContext conditionContext,
+                           AnnotatedTypeMetadata metadata)
+
+    {
+        return ConnectionConfigOrientDB.resolveProtocol(conditionContext.getEnvironment()).equals("remote");
+    }
+
 }

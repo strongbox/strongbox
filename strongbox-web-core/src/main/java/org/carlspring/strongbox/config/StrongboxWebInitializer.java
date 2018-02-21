@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import java.io.IOException;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
@@ -50,6 +51,17 @@ public class StrongboxWebInitializer
     {
         super.onStartup(servletContext);
 
+        try
+        {
+            ConnectionConfigOrientDB.bootstrap(ConnectionConfigOrientDB.PROFILE_REMOTE);
+        }
+        catch (IOException e)
+        {
+            logger.error(String.format("Failetd to bootstrap OrientDB profile [%s]",
+                                       ConnectionConfigOrientDB.PROFILE_REMOTE),
+                         e);
+        }
+        
         servletContext.addListener(new RequestContextListener());
         
         registerFilter(servletContext, true, CommonsRequestLoggingFilter.class.getSimpleName(),
