@@ -65,7 +65,7 @@ public class LoggingManagementController
                                          message = "The logger was added successfully."),
                             @ApiResponse(code = 400,
                                          message = "Could not add a new logger.") })
-    @PreAuthorize("hasAnyAuthority(T(org.carlspring.strongbox.users.domain.Privileges).CONFIGURATION_ADD_LOGGER,T(org.carlspring.strongbox.users.domain.Privileges).CONFIGURE_LOGS)")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_ADD_LOGGER','CONFIGURE_LOGS')")
     @PutMapping(value = "/logger",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -103,7 +103,7 @@ public class LoggingManagementController
                                          message = "Could not update logger."),
                             @ApiResponse(code = 404,
                                          message = "Logger was not found.") })
-    @PreAuthorize("hasAnyAuthority(T(org.carlspring.strongbox.users.domain.Privileges).CONFIGURATION_UPDATE_LOGGER,T(org.carlspring.strongbox.users.domain.Privileges).CONFIGURE_LOGS)")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_UPDATE_LOGGER','CONFIGURE_LOGS')")
     @PostMapping(value = "/logger",
                  produces = { MediaType.TEXT_PLAIN_VALUE,
                               MediaType.APPLICATION_JSON_VALUE })
@@ -140,7 +140,7 @@ public class LoggingManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was deleted successfully."),
                             @ApiResponse(code = 400, message = "Could not delete the logger."),
                             @ApiResponse(code = 404, message = "Logger was not found.") })
-    @PreAuthorize("hasAnyAuthority(T(org.carlspring.strongbox.users.domain.Privileges).CONFIGURATION_DELETE_LOGGER,T(org.carlspring.strongbox.users.domain.Privileges).CONFIGURE_LOGS)")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_DELETE_LOGGER','CONFIGURE_LOGS')")
     @DeleteMapping(value = "/logger",
                    produces = { MediaType.TEXT_PLAIN_VALUE,
                                 MediaType.APPLICATION_JSON_VALUE })
@@ -174,7 +174,7 @@ public class LoggingManagementController
     @ApiOperation(value = "Used to download log data.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download log data.") })
-    @PreAuthorize("hasAnyAuthority(T(org.carlspring.strongbox.users.domain.Privileges).CONFIGURATION_RETRIEVE_LOG,T(org.carlspring.strongbox.users.domain.Privileges).CONFIGURE_LOGS)")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOG','CONFIGURE_LOGS')")
     @GetMapping(value = "/log/{path:.+}",
                 produces = TEXT_PLAIN_VALUE)
     public void downloadLog(@PathVariable String path,
@@ -202,7 +202,7 @@ public class LoggingManagementController
     @ApiOperation(value = "Used to download logback configuration.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger configuration was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download logback configuration.") })
-    @PreAuthorize("hasAnyAuthority(T(org.carlspring.strongbox.users.domain.Privileges).CONFIGURATION_RETRIEVE_LOGBACK_CFG,T(org.carlspring.strongbox.users.domain.Privileges).CONFIGURE_LOGS)")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOGBACK_CFG','CONFIGURE_LOGS')")
     @GetMapping(value = "/logback",
                 produces = MediaType.APPLICATION_XML_VALUE)
     public void downloadLogbackConfiguration(HttpServletResponse response)
@@ -227,7 +227,7 @@ public class LoggingManagementController
     @ApiOperation(value = "Used to upload logback configuration.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger configuration was uploaded successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAnyAuthority(T(org.carlspring.strongbox.users.domain.Privileges).CONFIGURATION_UPLOAD_LOGBACK_CFG,T(org.carlspring.strongbox.users.domain.Privileges).CONFIGURE_LOGS)")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_UPLOAD_LOGBACK_CFG','CONFIGURE_LOGS')")
     @PostMapping(value = "/logback",
                  consumes = APPLICATION_XML_VALUE,
                  produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -254,7 +254,7 @@ public class LoggingManagementController
     @ApiOperation(value = "Used to get log directory.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The log directory was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download log directory.") })
-    @PreAuthorize("hasAuthority(T(org.carlspring.strongbox.users.domain.Privileges).VIEW_LOGS)")
+    @PreAuthorize("hasAuthority('VIEW_LOGS')")
     @GetMapping(value = {"/logs/{urlPath:.+}" },
                 produces = TEXT_PLAIN_VALUE)
     public void generateLogDirectoryListing(@PathVariable("urlPath") Optional<String> urlPath,
