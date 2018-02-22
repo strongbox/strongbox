@@ -2,7 +2,7 @@ package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.VersionValidatorType;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 
@@ -23,7 +23,9 @@ public class MavenReleaseVersionValidator
 
     private static final Logger logger = LoggerFactory.getLogger(MavenReleaseVersionValidator.class);
 
-    public static final String ALIAS = "Maven release version validator";
+    public static final String ALIAS = "maven-release-version-validator";
+
+    public static final String DESCRIPTION = "Maven release version validator";
 
     @Inject
     private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
@@ -46,10 +48,16 @@ public class MavenReleaseVersionValidator
     }
 
     @Override
+    public String getDescription()
+    {
+        return DESCRIPTION;
+    }
+
+    @Override
     public boolean supports(Repository repository)
     {
         return MavenVersionValidator.super.supports(repository) &&
-               repository.getArtifactCoordinateValidators().contains(VersionValidatorType.RELEASE);
+               RepositoryPolicyEnum.RELEASE.getPolicy().equals(repository.getPolicy());
     }
 
     /**

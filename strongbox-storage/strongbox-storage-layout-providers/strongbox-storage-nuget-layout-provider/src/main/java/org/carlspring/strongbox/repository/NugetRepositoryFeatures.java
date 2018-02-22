@@ -39,7 +39,18 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
+import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.xml.configuration.repository.NugetRepositoryConfiguration;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -98,6 +109,24 @@ public class NugetRepositoryFeatures
     @Inject
     private GenericSnapshotVersionValidator nugetSnapshotVersionValidator;
 
+    @Inject
+    private RedeploymentValidator redeploymentValidator;
+
+    @Inject
+    private GenericReleaseVersionValidator genericReleaseVersionValidator;
+
+    @Inject
+    private GenericSnapshotVersionValidator genericSnapshotVersionValidator;
+
+    private Set<String> defaultMavenArtifactCoordinateValidators;
+
+    @PostConstruct
+    public void init()
+    {
+        defaultMavenArtifactCoordinateValidators = new LinkedHashSet<>(Arrays.asList(redeploymentValidator.getAlias(),
+                                                                                     genericReleaseVersionValidator.getAlias(),
+                                                                                     genericSnapshotVersionValidator.getAlias()));
+    }
 
     public void downloadRemoteFeed(String storageId,
                                    String repositoryId)
@@ -228,7 +257,7 @@ public class NugetRepositoryFeatures
             URI artifactUri = repositoryPath.toUri();
             try
             {
-                artifactManagementService.accureLock(artifactUri);
+                artifactManagementService.acquireLock(artifactUri);
                 if (e.getTagSet().contains(lastVersionTag))
                 {
                     artifactEntryService.save(e, true);
@@ -369,26 +398,10 @@ public class NugetRepositoryFeatures
         return path;
     }
 
-
-    @Override
-    public Repository createRepositoryInstance(String storageId, String repositoryId)
-    {
-        Repository repository = new Repository(repositoryId);
-        repository.setStorage(configurationManager.getConfiguration().getStorage(storageId));
-        repository.setLayout(NugetLayoutProvider.ALIAS);
-        repository.setArtifactCoordinateValidators(getDefaultArtifactCoordinateValidators());
-
-        return repository;
-    }
-
     @Override
     public Set<String> getDefaultArtifactCoordinateValidators()
     {
-        Set<String> validators = new LinkedHashSet<>();
-        validators.add(nugetReleaseVersionValidator.getAlias());
-        validators.add(nugetSnapshotVersionValidator.getAlias());
-
-        return validators;
+        return defaultMavenArtifactCoordinateValidators;
     }
 
 }

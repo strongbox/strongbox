@@ -7,9 +7,9 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 import javax.inject.Inject;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -42,14 +42,16 @@ import static org.junit.Assert.*;
 public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 {
 
-    private static final String API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjNXVXdTVkZDhRIiwic3ViIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWNyZXQifQ.xRWxXt5yob5qcHjsvV1YsyfY3C-XFt9oKPABY0tYx88";
+    private static final String API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjN" +
+                                          "XVXdTVkZDhRIiwic3ViIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWN" +
+                                          "yZXQifQ.xRWxXt5yob5qcHjsvV1YsyfY3C-XFt9oKPABY0tYx88";
 
     private final static String STORAGE_ID = "storage-nuget-test";
 
-    private static final String REPOSITORY_RELEASES_1 = "nuget-releases-1";
+    private static final String REPOSITORY_RELEASES_1 = "nuget-test-releases";
 
     @Inject
-    private ConfigurationManager configurationManager;
+    private NugetRepositoryFactory nugetRepositoryFactory;
 
     @Inject
     private ArtifactEntryService artifactEntryService;
@@ -81,14 +83,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         createStorage(STORAGE_ID);
 
-        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
-        mavenRepositoryConfiguration.setIndexingEnabled(false);
-
-        Repository repository1 = new Repository(REPOSITORY_RELEASES_1);
+        Repository repository1 = nugetRepositoryFactory.createRepository(STORAGE_ID, REPOSITORY_RELEASES_1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE_ID));
-        repository1.setLayout("NuGet");
-        repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repository1);
     }
@@ -396,7 +392,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     
     @Test
     public void testRemoteProxyGroup()
-            throws Exception
     {
         given().header("User-Agent", "NuGet/*")
                .when()
@@ -441,7 +436,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
     @Test
     public void testRemoteLastVersion()
-        throws Exception
     {
         PackageFeed feed = given().header("User-Agent", "NuGet/*")
                                   .when()

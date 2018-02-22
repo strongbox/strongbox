@@ -22,6 +22,7 @@ import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
@@ -60,7 +61,7 @@ public class ArtifactManagementService implements ConfigurationService
     protected ArtifactOperationsValidator artifactOperationsValidator;
     
     @Inject
-    protected VersionValidatorService versionValidatorService;
+    protected ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
     
     @Inject
     protected ConfigurationManager configurationManager;
@@ -89,7 +90,9 @@ public class ArtifactManagementService implements ConfigurationService
                                  String repositoryId,
                                  String path,
                                  InputStream is)
-            throws IOException, ProviderImplementationException, NoSuchAlgorithmException,
+            throws IOException,
+                   ProviderImplementationException,
+                   NoSuchAlgorithmException,
                    ArtifactCoordinatesValidationException
     {
         Storage storage = layoutProviderRegistry.getStorage(storageId);
@@ -112,7 +115,7 @@ public class ArtifactManagementService implements ConfigurationService
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
         URI pathUri = repositoryPath.toUri();
-        accureLock(pathUri);
+        acquireLock(pathUri);
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(storage.getId(),
                                                                                           repository.getId(),
                                                                                           RepositoryFiles.stringValue(repositoryPath)))
@@ -122,7 +125,9 @@ public class ArtifactManagementService implements ConfigurationService
         catch (IOException e)
         {
             throw new ArtifactStorageException(e);
-        } finally {
+        }
+        finally
+        {
             releaseLock(pathUri);
         }
     }
@@ -133,10 +138,11 @@ public class ArtifactManagementService implements ConfigurationService
         lock.unlock();
     }
 
-    public void accureLock(URI pathUri)
+    public void acquireLock(URI pathUri)
     {
         Lock lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
         lock.lock();
+
         while (!pathUriMap.containsKey(pathUri))
         {
             lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
@@ -165,6 +171,7 @@ public class ArtifactManagementService implements ConfigurationService
         boolean updatedMetadataFile = false;
         boolean updatedArtifactFile = false;
         boolean updatedArtifactChecksumFile = false;
+
         if (Files.exists(repositoryPath))
         {
             if (RepositoryFiles.isMetadata(repositoryPath))
@@ -196,8 +203,8 @@ public class ArtifactManagementService implements ConfigurationService
             artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storageId, repositoryId, artifactPath);
         }
 
-        long totalAmountOfBytes = artifactByteStreamsCopyStrategyDeterminator.determine(repository).copy(is, os,
-                                                                                                         repositoryPath);
+        long totalAmountOfBytes = artifactByteStreamsCopyStrategyDeterminator.determine(repository)
+                                                                             .copy(is, os, repositoryPath);
 
         artifactEventListenerRegistry.dispatchArtifactStoredEvent(storageId, repositoryId, artifactPath);
 
@@ -252,7 +259,6 @@ public class ArtifactManagementService implements ConfigurationService
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,
                                                       String artifactPath)
-            throws ArtifactStorageException
     {
         logger.debug("Received checksum: " + new String(checksum, StandardCharsets.UTF_8));
 
@@ -261,7 +267,9 @@ public class ArtifactManagementService implements ConfigurationService
 
         if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {
-            logger.error(String.format("The checksum for %s [%s] is invalid!", artifactPath, new String(checksum, StandardCharsets.UTF_8)));
+            logger.error(String.format("The checksum for %s [%s] is invalid!",
+                                       artifactPath,
+                                       new String(checksum, StandardCharsets.UTF_8)));
         }
 
         checksumCacheManager.removeArtifactChecksum(artifactBasePath, checksumExtension);
@@ -328,9 +336,9 @@ public class ArtifactManagementService implements ConfigurationService
             
             try
             {
-                final Set<ArtifactCoordinatesValidator> validators = versionValidatorService.getVersionValidators();
-                for (ArtifactCoordinatesValidator validator : validators)
+                for (String validatorKey : repository.getArtifactCoordinateValidators())
                 {
+                    ArtifactCoordinatesValidator validator = artifactCoordinatesValidatorRegistry.getProvider(validatorKey);
                     if (validator.supports(repository))
                     {
                         validator.validate(repository, coordinates);
@@ -362,8 +370,7 @@ public class ArtifactManagementService implements ConfigurationService
     public InputStream resolve(String storageId,
                                String repositoryId,
                                String path)
-            throws IOException,
-                   ArtifactTransportException,
+            throws ArtifactTransportException,
                    ProviderImplementationException
     {
         try

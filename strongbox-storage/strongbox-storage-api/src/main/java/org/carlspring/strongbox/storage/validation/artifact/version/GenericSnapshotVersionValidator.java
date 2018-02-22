@@ -23,7 +23,9 @@ public class GenericSnapshotVersionValidator
 
     private static final Logger logger = LoggerFactory.getLogger(GenericSnapshotVersionValidator.class);
 
-    public static final String ALIAS = "Generic snapshot version validator";
+    public static final String ALIAS = "generic-snapshot-version-validator";
+
+    public static final String DESCRIPTION = "Generic release version validator";
 
     @Inject
     private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
@@ -43,6 +45,12 @@ public class GenericSnapshotVersionValidator
     public String getAlias()
     {
         return ALIAS;
+    }
+
+    @Override
+    public String getDescription()
+    {
+        return DESCRIPTION;
     }
 
     @Override

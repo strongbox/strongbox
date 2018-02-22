@@ -2,13 +2,11 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.VersionValidatorType;
 
+import javax.inject.Inject;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-
-import javax.inject.Inject;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,8 +37,10 @@ public class RepositoryVersionValidatorsManagementController
     @ApiOperation(value = "Enumerates all version validators of the requested repository")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "All version validators of the requested repository"),
                             @ApiResponse(code = 404, message = "Repository not found") })
-    @RequestMapping(value = "/{storageId}/{repositoryId}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE,
-                                                                                                    MediaType.APPLICATION_JSON_VALUE })
+    @RequestMapping(value = "/{storageId}/{repositoryId}",
+                    method = RequestMethod.GET,
+                    produces = { MediaType.APPLICATION_XML_VALUE,
+                                 MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity list(@PathVariable String storageId,
                                @PathVariable String repositoryId)
     {
@@ -65,12 +65,12 @@ public class RepositoryVersionValidatorsManagementController
     @ApiOperation(value = "Adds version validator type to the requested repository")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Operation success"),
                             @ApiResponse(code = 404, message = "Repository not found") })
-    @RequestMapping(value = "/{storageId}/{repositoryId}/{versionValidatorType}",
+    @RequestMapping(value = "/{storageId}/{repositoryId}/{alias}",
                     method = RequestMethod.PUT,
                     produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity add(@PathVariable String storageId,
                               @PathVariable String repositoryId,
-                              @PathVariable VersionValidatorType versionValidatorType)
+                              @PathVariable String alias)
     {
         Repository repository = null;
         try
@@ -87,7 +87,7 @@ public class RepositoryVersionValidatorsManagementController
             return ResponseEntity.notFound().build();
         }
 
-        repository.getArtifactCoordinateValidators().add(versionValidatorType.name());
+        repository.getArtifactCoordinateValidators().add(alias);
 
         return ResponseEntity.ok().build();
     }
@@ -95,12 +95,12 @@ public class RepositoryVersionValidatorsManagementController
     @ApiOperation(value = "Deletes version validator type from the requested repository")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Operation success"),
                             @ApiResponse(code = 404, message = "Repository not found") })
-    @RequestMapping(value = "/{storageId}/{repositoryId}/{versionValidatorType}",
+    @RequestMapping(value = "/{storageId}/{repositoryId}/{alias}",
                     method = RequestMethod.DELETE,
                     produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity delete(@PathVariable String storageId,
                                  @PathVariable String repositoryId,
-                                 @PathVariable VersionValidatorType versionValidatorType)
+                                 @PathVariable String alias)
     {
         Repository repository = null;
         try
@@ -117,7 +117,7 @@ public class RepositoryVersionValidatorsManagementController
             return ResponseEntity.notFound().build();
         }
 
-        repository.getArtifactCoordinateValidators().remove(versionValidatorType);
+        repository.getArtifactCoordinateValidators().remove(alias);
 
         return ResponseEntity.ok().build();
     }

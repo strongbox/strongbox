@@ -2,7 +2,7 @@ package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.VersionValidatorType;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 
@@ -23,7 +23,9 @@ public class MavenSnapshotVersionValidator
 
     private static final Logger logger = LoggerFactory.getLogger(MavenSnapshotVersionValidator.class);
 
-    public static final String ALIAS = "Maven snapshot version validator";
+    public static final String ALIAS = "maven-snapshot-version-validator";
+
+    public static final String DESCRIPTION = "Maven snapshot version validator";
 
     @Inject
     private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
@@ -46,10 +48,16 @@ public class MavenSnapshotVersionValidator
     }
 
     @Override
+    public String getDescription()
+    {
+        return DESCRIPTION;
+    }
+
+    @Override
     public boolean supports(Repository repository)
     {
         return MavenVersionValidator.super.supports(repository) &&
-               repository.getArtifactCoordinateValidators().contains(VersionValidatorType.SNAPSHOT);
+               RepositoryPolicyEnum.SNAPSHOT.getPolicy().equals(repository.getPolicy());
     }
 
     /**

@@ -2,7 +2,6 @@ package org.carlspring.strongbox.storage.validation.artifact.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.VersionValidatorType;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 
 import javax.annotation.PostConstruct;
@@ -24,7 +23,9 @@ public class GenericReleaseVersionValidator
 
     private static final Logger logger = LoggerFactory.getLogger(GenericReleaseVersionValidator.class);
 
-    public static final String ALIAS = "Generic release version validator";
+    public static final String ALIAS = "generic-release-version-validator";
+
+    public static final String DESCRIPTION = "Generic release version validator";
 
     @Inject
     private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
@@ -44,6 +45,12 @@ public class GenericReleaseVersionValidator
     public String getAlias()
     {
         return ALIAS;
+    }
+
+    @Override
+    public String getDescription()
+    {
+        return DESCRIPTION;
     }
 
     @Override

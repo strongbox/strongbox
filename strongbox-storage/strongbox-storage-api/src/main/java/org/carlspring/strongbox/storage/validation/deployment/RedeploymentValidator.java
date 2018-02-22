@@ -25,8 +25,9 @@ public class RedeploymentValidator
 
     private static final Logger logger = LoggerFactory.getLogger(RedeploymentValidator.class);
 
-    public static final String ALIAS = "Re-deployment validator";
+    public static final String ALIAS = "redeployment-validator";
 
+    public static final String DESCRIPTION = "Re-deployment validator";
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
@@ -48,6 +49,12 @@ public class RedeploymentValidator
     public String getAlias()
     {
         return ALIAS;
+    }
+
+    @Override
+    public String getDescription()
+    {
+        return DESCRIPTION;
     }
 
     @Override

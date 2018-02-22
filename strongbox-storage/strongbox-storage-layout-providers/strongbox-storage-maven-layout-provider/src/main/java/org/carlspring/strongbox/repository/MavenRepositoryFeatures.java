@@ -8,7 +8,6 @@ import org.carlspring.strongbox.locator.handlers.RemoveTimestampedSnapshotOperat
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
@@ -20,6 +19,7 @@ import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
@@ -79,19 +79,23 @@ public class MavenRepositoryFeatures
     private MavenSnapshotManager mavenSnapshotManager;
 
     @Inject
+    private RedeploymentValidator redeploymentValidator;
+
+    @Inject
     private MavenReleaseVersionValidator mavenReleaseVersionValidator;
 
     @Inject
     private MavenSnapshotVersionValidator mavenSnapshotVersionValidator;
 
-    private Set<String> defaultMavenArtifactCoordinateValidators;
+    private Set<String> defaultArtifactCoordinateValidators;
 
 
     @PostConstruct
     public void init()
     {
-        defaultMavenArtifactCoordinateValidators = new LinkedHashSet<>(Arrays.asList(mavenReleaseVersionValidator.getAlias(),
-                                                                                     mavenSnapshotVersionValidator.getAlias()));
+        defaultArtifactCoordinateValidators = new LinkedHashSet<>(Arrays.asList(redeploymentValidator.getAlias(),
+                                                                                mavenReleaseVersionValidator.getAlias(),
+                                                                                mavenSnapshotVersionValidator.getAlias()));
     }
 
     public void downloadRemoteIndex(String storageId,
@@ -304,20 +308,9 @@ public class MavenRepositoryFeatures
     }
 
     @Override
-    public Repository createRepositoryInstance(String storageId, String repositoryId)
-    {
-        Repository repository = new Repository(repositoryId);
-        repository.setStorage(configurationManager.getConfiguration().getStorage(storageId));
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
-        repository.setArtifactCoordinateValidators(getDefaultArtifactCoordinateValidators());
-
-        return repository;
-    }
-
-    @Override
     public Set<String> getDefaultArtifactCoordinateValidators()
     {
-        return defaultMavenArtifactCoordinateValidators;
+        return defaultArtifactCoordinateValidators;
     }
 
 }

@@ -6,8 +6,8 @@ import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
@@ -56,6 +56,9 @@ public class ConfigurationManagementServiceImplTest
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
+    @Inject
+    private MavenRepositoryFactory mavenRepositoryFactory;
+
 
     @BeforeClass
     public static void cleanUp()
@@ -68,29 +71,19 @@ public class ConfigurationManagementServiceImplTest
     public void setUp()
             throws Exception
     {
-        Storage storage = configurationManagementService.getStorage(STORAGE0);
-
-        Repository repository1 = new Repository(REPOSITORY_RELEASES_1);
+        Repository repository1 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES_1);
         repository1.setType(RepositoryTypeEnum.HOSTED.getType());
-        repository1.setStorage(storage);
-        repository1.setLayout(Maven2LayoutProvider.ALIAS);
 
-        Repository repository2 = new Repository(REPOSITORY_RELEASES_2);
+        Repository repository2 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES_2);
         repository2.setType(RepositoryTypeEnum.HOSTED.getType());
-        repository2.setStorage(storage);
-        repository2.setLayout(Maven2LayoutProvider.ALIAS);
 
-        Repository groupRepository1 = new Repository(REPOSITORY_GROUP_1);
+        Repository groupRepository1 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP_1);
         groupRepository1.setType(RepositoryTypeEnum.GROUP.getType());
         groupRepository1.getGroupRepositories().add(repository1.getId());
-        groupRepository1.setStorage(storage);
-        groupRepository1.setLayout(Maven2LayoutProvider.ALIAS);
 
-        Repository groupRepository2 = new Repository(REPOSITORY_GROUP_2);
+        Repository groupRepository2 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP_2);
         groupRepository2.setType(RepositoryTypeEnum.GROUP.getType());
         groupRepository2.getGroupRepositories().add(repository1.getId());
-        groupRepository2.setStorage(storage);
-        groupRepository2.setLayout(Maven2LayoutProvider.ALIAS);
 
         createRepository(repository1);
         createRepository(repository2);
@@ -117,7 +110,7 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    public void testGetGroupRepositories() throws Exception
+    public void testGetGroupRepositories()
     {
         List<Repository> groupRepositories = configurationManagementService.getGroupRepositories();
 
@@ -260,7 +253,6 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void testOverrideAcceptedRepositories()
-            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
@@ -283,7 +275,7 @@ public class ConfigurationManagementServiceImplTest
     @Test
     public void testCanGetRepositoriesWithStorageAndLayout()
     {
-        String maven2Layout = RepositoryLayoutEnum.MAVEN_2.getLayout();
+        String maven2Layout = Maven2LayoutProvider.ALIAS;
         List<Repository> repositories = configurationManagementService.getRepositoriesWithLayout(STORAGE0,
                                                                                                  maven2Layout);
 
@@ -301,7 +293,7 @@ public class ConfigurationManagementServiceImplTest
     @Test
     public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage()
     {
-        String maven2Layout = RepositoryLayoutEnum.MAVEN_2.getLayout();
+        String maven2Layout = Maven2LayoutProvider.ALIAS;
         List<Repository> repositories = configurationManagementService.getRepositoriesWithLayout("notExistedStorage",
                                                                                                  maven2Layout);
 

@@ -4,8 +4,8 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
@@ -47,7 +47,6 @@ public class MavenGroupRepositoryProviderTest
 
     private static final String REPOSITORY_GROUP = "grpt-releases-group";
 
-
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
@@ -56,6 +55,9 @@ public class MavenGroupRepositoryProviderTest
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
+
+    @Inject
+    private MavenRepositoryFactory mavenRepositoryFactory;
 
     @Rule
     public final ExpectedLogs logs = new ExpectedLogs()
@@ -102,9 +104,7 @@ public class MavenGroupRepositoryProviderTest
         MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        Repository repositoryGroup = new Repository(REPOSITORY_GROUP);
-        repositoryGroup.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
-        repositoryGroup.setLayout(Maven2LayoutProvider.ALIAS);
+        Repository repositoryGroup = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
@@ -115,9 +115,7 @@ public class MavenGroupRepositoryProviderTest
 
         createRepository(repositoryGroup);
 
-        Repository repositoryWithNestedGroupLevel1 = new Repository(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
-        repositoryWithNestedGroupLevel1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
-        repositoryWithNestedGroupLevel1.setLayout(Maven2LayoutProvider.ALIAS);
+        Repository repositoryWithNestedGroupLevel1 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
         repositoryWithNestedGroupLevel1.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryWithNestedGroupLevel1.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel1.setAllowsDelete(false);
@@ -127,9 +125,7 @@ public class MavenGroupRepositoryProviderTest
 
         createRepository(repositoryWithNestedGroupLevel1);
 
-        Repository repositoryWithNestedGroupLevel2 = new Repository(REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
-        repositoryWithNestedGroupLevel2.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
-        repositoryWithNestedGroupLevel2.setLayout(Maven2LayoutProvider.ALIAS);
+        Repository repositoryWithNestedGroupLevel2 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
         repositoryWithNestedGroupLevel2.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryWithNestedGroupLevel2.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel2.setAllowsDelete(false);

@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage.validation;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
 
@@ -80,10 +81,10 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
                                                      .get("releases")
                                                      .getArtifactCoordinateValidators();
 
-        assertEquals(Integer.valueOf(2), Integer.valueOf(versionValidators.size()));
-        assertTrue(versionValidators.remove(MavenSnapshotVersionValidator.ALIAS));
-        assertTrue(versionValidators.remove(MavenReleaseVersionValidator.ALIAS));
-        assertEquals(Integer.valueOf(versionValidators.size()), Integer.valueOf(0));
+        assertFalse(versionValidators.isEmpty());
+        assertTrue(versionValidators.contains(RedeploymentValidator.ALIAS));
+        assertTrue(versionValidators.contains(MavenSnapshotVersionValidator.ALIAS));
+        assertTrue(versionValidators.contains(MavenReleaseVersionValidator.ALIAS));
     }
 
 }

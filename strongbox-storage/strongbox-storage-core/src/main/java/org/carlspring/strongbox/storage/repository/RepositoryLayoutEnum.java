@@ -6,16 +6,6 @@ package org.carlspring.strongbox.storage.repository;
 public enum RepositoryLayoutEnum
 {
 
-    MAVEN_1("Maven 1"), // Unsupported
-
-    MAVEN_2("Maven 2"),
-
-    IVY("Ivy"),         // Unsupported
-
-    RPM("RPM"),         // Unsupported
-
-    YUM("YUM"),         // Unsupported
-    
     NUGET("NuGet");
 
     private String layout;

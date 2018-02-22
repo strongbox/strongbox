@@ -9,6 +9,7 @@ import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryCompone
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.util.IndexContextHelper;
@@ -39,6 +40,9 @@ public class MavenIndexGroupRepositoryComponentTest
     @Inject
     private ArtifactIndexesService artifactIndexesService;
 
+    @Inject
+    private MavenRepositoryFactory mavenRepositoryFactory;
+
 
     @Override
     protected void postInitializeInternally()
@@ -60,10 +64,7 @@ public class MavenIndexGroupRepositoryComponentTest
 
         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
 
-        Repository repository = configurationManager.getConfiguration()
-                                                    .getStorage(STORAGE0)
-                                                    .getRepository(REPOSITORY_LEAF_L);
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
+        Repository repository = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_LEAF_L);
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath artifactFile = layoutProvider.resolve(repository).resolve(artifactPath);

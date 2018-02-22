@@ -18,6 +18,8 @@ public interface ArtifactCoordinatesValidator
 
     String getAlias();
 
+    String getDescription();
+
     default boolean supports(Repository repository)
     {
         return true;

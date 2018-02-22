@@ -164,11 +164,6 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
                                   repository.getArtifactCoordinateValidators().isEmpty())) &&
                                 defaultArtifactCoordinateValidators != null)
                             {
-                                logger.debug("");
-                                logger.debug("Setting default artifact coordinate validators for " +
-                                             repository.getStorage().getId() + ":" + repository.getId() + "...");
-                                logger.debug("");
-
                                 repository.setArtifactCoordinateValidators(defaultArtifactCoordinateValidators);
                             }
                         }

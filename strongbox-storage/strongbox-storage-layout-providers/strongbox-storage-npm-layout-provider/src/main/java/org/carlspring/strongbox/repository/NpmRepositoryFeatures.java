@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.repository;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
+import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -17,7 +17,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 {
 
     @Inject
-    private ConfigurationManager configurationManager;
+    private RedeploymentValidator redeploymentValidator;
 
     @Inject
     private GenericReleaseVersionValidator genericReleaseVersionValidator;
@@ -25,26 +25,21 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
     @Inject
     private GenericSnapshotVersionValidator genericSnapshotVersionValidator;
 
+    private Set<String> defaultArtifactCoordinateValidators;
 
-    @Override
-    public Repository createRepositoryInstance(String storageId, String repositoryId)
+
+    @PostConstruct
+    public void init()
     {
-        Repository repository = new Repository(repositoryId);
-        repository.setStorage(configurationManager.getConfiguration().getStorage(storageId));
-        repository.setLayout(NpmLayoutProvider.ALIAS);
-        repository.setArtifactCoordinateValidators(getDefaultArtifactCoordinateValidators());
-
-        return repository;
+        defaultArtifactCoordinateValidators = new LinkedHashSet<>(Arrays.asList(redeploymentValidator.getAlias(),
+                                                                                genericReleaseVersionValidator.getAlias(),
+                                                                                genericSnapshotVersionValidator.getAlias()));
     }
 
     @Override
     public Set<String> getDefaultArtifactCoordinateValidators()
     {
-        Set<String> validators = new LinkedHashSet<>();
-        validators.add(genericReleaseVersionValidator.getAlias());
-        validators.add(genericSnapshotVersionValidator.getAlias());
-
-        return validators;
+        return defaultArtifactCoordinateValidators;
     }
 
 }

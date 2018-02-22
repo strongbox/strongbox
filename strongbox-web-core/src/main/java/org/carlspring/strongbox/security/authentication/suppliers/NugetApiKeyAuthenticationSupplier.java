@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthentication;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
@@ -73,7 +74,7 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
             return false;
         }
 
-        return RepositoryLayoutEnum.NUGET.getLayout().equals(repository.getLayout());
+        return NugetLayoutProvider.ALIAS.equals(repository.getLayout());
     }
 
 }

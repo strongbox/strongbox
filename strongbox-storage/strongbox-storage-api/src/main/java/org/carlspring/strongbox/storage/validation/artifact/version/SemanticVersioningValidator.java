@@ -19,7 +19,9 @@ public class SemanticVersioningValidator implements VersionValidator
     private static final Logger logger = LoggerFactory.getLogger(SemanticVersioningValidator.class);
 
 
-    public static final String ALIAS = "Semantic version validator";
+    public static final String ALIAS = "semantic-version-validator";
+
+    public static final String DESCRIPTION = "Semantic version validator";
 
     @Inject
     private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
@@ -42,11 +44,15 @@ public class SemanticVersioningValidator implements VersionValidator
     }
 
     @Override
+    public String getDescription()
+    {
+        return DESCRIPTION;
+    }
+
+    @Override
     public boolean supports(Repository repository)
     {
-        // TODO: SB-1002: Split the version validators from the the deployment validators
-        // return repository.getArtifactCoordinateValidators().contains(VersionValidatorType.SEM_VER);
-        return false;
+        return repository.getArtifactCoordinateValidators().contains(ALIAS);
     }
 
     @Override

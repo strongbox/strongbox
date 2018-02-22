@@ -4,7 +4,7 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -42,13 +41,13 @@ public class Maven2LayoutProviderTest
                                                                      "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES);
 
     @Inject
-    private ArtifactMetadataService artifactMetadataService;
-
-    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private ConfigurationManager configurationManager;
+
+    @Inject
+    private MavenRepositoryFactory mavenRepositoryFactory;
 
 
     @BeforeClass
@@ -65,9 +64,7 @@ public class Maven2LayoutProviderTest
         MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(true);
 
-        Repository repository = new Repository(REPOSITORY_RELEASES);
-        repository.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
+        Repository repository = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES);
         repository.setAllowsForceDeletion(true);
         repository.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
@@ -120,7 +117,7 @@ public class Maven2LayoutProviderTest
 
     @Test
     public void testDeleteArtifactDirectory()
-            throws IOException, NoSuchAlgorithmException, SearchException
+            throws IOException, SearchException
     {
         Repository repository = configurationManager.getConfiguration()
                                                     .getStorage(STORAGE0)

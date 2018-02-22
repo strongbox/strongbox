@@ -30,7 +30,9 @@ public class MavenGroupIdLowercaseValidator
 
     private static final Logger logger = LoggerFactory.getLogger(MavenGroupIdLowercaseValidator.class);
 
-    public static final String ALIAS = "Maven groupId lowercase validator";
+    public static final String ALIAS = "maven-groupid-lowercase-validator";
+
+    public static final String DESCRIPTION = "Maven groupId lowercase validator";
 
     @Inject
     private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
@@ -50,6 +52,12 @@ public class MavenGroupIdLowercaseValidator
     public String getAlias()
     {
         return ALIAS;
+    }
+
+    @Override
+    public String getDescription()
+    {
+        return DESCRIPTION;
     }
 
     @Override

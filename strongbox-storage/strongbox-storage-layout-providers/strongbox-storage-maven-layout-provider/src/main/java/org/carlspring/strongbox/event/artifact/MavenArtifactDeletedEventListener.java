@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.event.artifact;
 
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class MavenArtifactDeletedEventListener
     {
         final Repository repository = getRepository(event);
 
-        if (!RepositoryLayoutEnum.MAVEN_2.getLayout().equals(repository.getLayout()))
+        if (!Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
         {
             return;
         }

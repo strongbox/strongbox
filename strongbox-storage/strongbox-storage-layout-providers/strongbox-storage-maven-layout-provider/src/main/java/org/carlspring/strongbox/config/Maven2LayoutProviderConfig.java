@@ -1,12 +1,20 @@
 package org.carlspring.strongbox.config;
 
-import java.util.*;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
+import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
+import org.carlspring.strongbox.storage.indexing.SafeArtifactContextProducer;
+import org.carlspring.strongbox.storage.indexing.StrongboxIndexer;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import com.orientechnologies.orient.core.entity.OEntityManager;
 import org.apache.maven.index.*;
-import org.apache.maven.index.Scanner;
 import org.apache.maven.index.artifact.ArtifactPackagingMapper;
 import org.apache.maven.index.artifact.DefaultArtifactPackagingMapper;
 import org.apache.maven.index.creator.AbstractIndexCreator;
@@ -18,21 +26,11 @@ import org.apache.maven.index.packer.DefaultIndexPacker;
 import org.apache.maven.index.packer.IndexPacker;
 import org.apache.maven.index.updater.DefaultIndexUpdater;
 import org.apache.maven.index.updater.IndexUpdater;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
-import org.carlspring.strongbox.storage.indexing.SafeArtifactContextProducer;
-import org.carlspring.strongbox.storage.indexing.StrongboxIndexer;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import com.orientechnologies.orient.core.entity.OEntityManager;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.configuration",
@@ -40,8 +38,7 @@ import com.orientechnologies.orient.core.entity.OEntityManager;
                  "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
-                 "org.carlspring.strongbox.storage",
-})
+                 "org.carlspring.strongbox.storage" })
 public class Maven2LayoutProviderConfig
 {
 
