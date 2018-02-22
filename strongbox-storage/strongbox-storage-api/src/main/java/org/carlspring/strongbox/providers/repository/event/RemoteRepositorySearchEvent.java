@@ -1,42 +1,67 @@
 package org.carlspring.strongbox.providers.repository.event;
 
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.event.Event;
-import org.carlspring.strongbox.providers.repository.RepositoryPageRequest;
-import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 
 public class RemoteRepositorySearchEvent extends Event
 {
 
-    private RepositorySearchRequest searchRequest;
+    private String sorageId;
+    private String repositoryId;
+    private Predicate predicate;
+    private Paginator paginator = new Paginator();
 
-    private RepositoryPageRequest pageRequest;
-
-    public RemoteRepositorySearchEvent(RepositorySearchRequest searchRequest,
-                                       RepositoryPageRequest pageRequest)
+    public RemoteRepositorySearchEvent(String sorageId,
+                                       String repositoryId,
+                                       Predicate predicate,
+                                       Paginator paginator)
     {
         super(-1);
-        this.searchRequest = searchRequest;
-        this.pageRequest = pageRequest;
+        this.sorageId = sorageId;
+        this.repositoryId = repositoryId;
+        this.predicate = predicate;
+        this.paginator = paginator;
     }
 
-    public RepositorySearchRequest getSearchRequest()
+    public String getSorageId()
     {
-        return searchRequest;
+        return sorageId;
     }
 
-    public void setSearchRequest(RepositorySearchRequest searchRequest)
+    public void setSorageId(String sorageId)
     {
-        this.searchRequest = searchRequest;
+        this.sorageId = sorageId;
     }
 
-    public RepositoryPageRequest getPageRequest()
+    public String getRepositoryId()
     {
-        return pageRequest;
+        return repositoryId;
     }
 
-    public void setPageRequest(RepositoryPageRequest pageRequest)
+    public void setRepositoryId(String repositoryId)
     {
-        this.pageRequest = pageRequest;
+        this.repositoryId = repositoryId;
+    }
+
+    public Predicate getPredicate()
+    {
+        return predicate;
+    }
+
+    public void setPredicate(Predicate predicate)
+    {
+        this.predicate = predicate;
+    }
+
+    public Paginator getPaginator()
+    {
+        return paginator;
+    }
+
+    public void setPaginator(Paginator paginator)
+    {
+        this.paginator = paginator;
     }
 
 }

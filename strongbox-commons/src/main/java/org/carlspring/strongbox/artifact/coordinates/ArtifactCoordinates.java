@@ -25,6 +25,8 @@ public interface ArtifactCoordinates<T extends ArtifactCoordinates<T, V>, V exte
 
     Map<String, String> getCoordinates();
     
+    Map<String, String> dropVersion();
+    
     String toPath();
     
     URI toResource();

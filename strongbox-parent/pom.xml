@@ -86,6 +86,7 @@
         <version.jnuget>0.8.5-SNAPSHOT</version.jnuget>
         <version.hibernate.validator>6.0.7.Final</version.hibernate.validator>
         <version.glassfish.javax.el>3.0.1-b08</version.glassfish.javax.el>
+        <version.antlr>4.7.1</version.antlr>
         <!-- Version properties. -->
     </properties>
 
@@ -285,6 +286,11 @@
                     <artifactId>jsonschema2pojo-maven-plugin</artifactId>
                     <version>0.5.1</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-maven-plugin</artifactId>
+                    <version>${version.antlr}</version>
+                </plugin>                
             </plugins>
         </pluginManagement>
         <plugins>
@@ -967,6 +973,12 @@
                 <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <version>${version.hibernate.validator}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${version.antlr}</version>
             </dependency>
 
         </dependencies>

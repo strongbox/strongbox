@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -150,6 +151,14 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         }
     }
 
+    @Override
+    public Map<String, String> dropVersion()
+    {
+        Map<String, String> result = getCoordinates();
+        result.remove(VERSION);
+        return result;
+    }
+    
     public static NpmArtifactCoordinates parse(String path)
     {
         Matcher matcher = NPM_PATH_PATTERN.matcher(path);

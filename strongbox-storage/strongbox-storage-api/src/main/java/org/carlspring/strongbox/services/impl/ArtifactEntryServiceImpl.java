@@ -86,8 +86,8 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         Set<ArtifactTag> tagSet = new HashSet<>();
         tagSet.add(lastVersionTag);
         
-        Map<String, String> coordinatesMap = new HashMap<>(coordinates.getCoordinates());
-        coordinatesMap.remove("version");
+        Map<String, String> coordinatesMap = coordinates.dropVersion();
+        
         List<ArtifactEntry> lastVersionArtifactList = findArtifactList(entity.getStorageId(),
                                                                        entity.getRepositoryId(),
                                                                        coordinatesMap, tagSet,

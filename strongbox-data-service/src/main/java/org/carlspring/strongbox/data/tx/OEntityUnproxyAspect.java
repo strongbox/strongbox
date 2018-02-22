@@ -11,6 +11,7 @@ import javax.persistence.PersistenceContext;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class OEntityUnproxyAspect
 
     @PersistenceContext
     private EntityManager entityManager;
-
+    
     /**
      * This method will wrap "Top level" transactional invocations according to rules defined with pointcut expressions.
      * "Top level" means the methods, declared with {@link Transactional}, where the new Transaction has started and
@@ -55,30 +56,8 @@ public class OEntityUnproxyAspect
         logger.debug("Transactional metod execution start.");
         Object result = jp.proceed();
         logger.debug("Transactional metod execution end.");
-        return unproxy(result);
+        return new DetachQueryTemplate(entityManager).unproxy(result);
     }
 
-    private Object unproxy(Object result)
-    {
-        if (result == null)
-        {
-            return null;
-        }
-        if (result instanceof GenericEntity)
-        {
-            result = ((OObjectDatabaseTx) entityManager.getDelegate()).detachAll(result, true);
-        }
-        else if (result instanceof Collection)
-        {
-            result = ((Collection) result).stream()
-                                          .map(e -> unproxy(e))
-                                          .collect(result instanceof Set ? Collectors.toSet() : Collectors.toList());
-        }
-        else if (result instanceof Optional)
-        {
-            result = Optional.ofNullable(unproxy(((Optional) result).orElse(null)));
-        }
-        return result;
-    }
 
 }

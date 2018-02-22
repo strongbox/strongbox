@@ -3,11 +3,17 @@ package org.carlspring.strongbox.providers;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.aop.framework.Advised;
+
 /**
  * @author carlspring
  */
 public abstract class AbstractMappedProviderRegistry<T>
 {
+    
+    private static final Logger logger = LoggerFactory.getLogger(AbstractMappedProviderRegistry.class);
 
     /**
      * K: The alias
@@ -29,6 +35,11 @@ public abstract class AbstractMappedProviderRegistry<T>
 
     public void setProviders(Map<String, T> providers)
     {
+        providers.entrySet()
+                 .stream()
+                 .forEach(e -> logger.info(String.format("Registered repository provider '%s' with alias '%s'.",
+                                                         ((Advised) e.getValue()).getTargetClass().getCanonicalName(),
+                                                         e.getValue())));
         this.providers = providers;
     }
 

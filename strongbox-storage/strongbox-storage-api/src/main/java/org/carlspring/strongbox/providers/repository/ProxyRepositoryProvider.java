@@ -9,11 +9,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.event.CommonEventListenerRegistry;
@@ -53,16 +54,6 @@ public class ProxyRepositoryProvider
     @Inject
     private CommonEventListenerRegistry commonEventListenerRegistry;
 
-    @PostConstruct
-    @Override
-    public void register()
-    {
-        repositoryProviderRegistry.addProvider(ALIAS, this);
-
-        logger.info("Registered repository provider '" + getClass().getCanonicalName() +
-                    "' with alias '" + ALIAS + "'.");
-    }
-
     @Override
     public String getAlias()
     {
@@ -99,21 +90,29 @@ public class ProxyRepositoryProvider
     }
     
     @Override
-    public List<Path> search(RepositorySearchRequest searchRequest,
-                             RepositoryPageRequest pageRequest)
+    public List<Path> search(String storageId,
+                             String repositoryId,
+                             Predicate predicate,
+                             Paginator paginator)
     {
-    	commonEventListenerRegistry.dispatchEvent(new RemoteRepositorySearchEvent(searchRequest, pageRequest));
-    	
-        return hostedRepositoryProvider.search(searchRequest, pageRequest);
+        RemoteRepositorySearchEvent event = new RemoteRepositorySearchEvent(storageId, repositoryId, predicate,
+                paginator);
+        commonEventListenerRegistry.dispatchEvent(event);
+
+        return hostedRepositoryProvider.search(storageId, repositoryId, predicate, paginator);
     }
-    
+
     @Override
-    public Long count(RepositorySearchRequest searchRequest)
+    public Long count(String storageId,
+                      String repositoryId,
+                      Predicate predicate)
     {
-        return hostedRepositoryProvider.count(searchRequest);
+        RemoteRepositorySearchEvent event = new RemoteRepositorySearchEvent(storageId, repositoryId, predicate, null);
+        commonEventListenerRegistry.dispatchEvent(event);
+
+        return hostedRepositoryProvider.count(storageId, repositoryId, predicate);
     }
-    
-    
+
     protected ArtifactEntry provideArtirfactEntry(String storageId,
                                                   String repositoryId,
                                                   String path)

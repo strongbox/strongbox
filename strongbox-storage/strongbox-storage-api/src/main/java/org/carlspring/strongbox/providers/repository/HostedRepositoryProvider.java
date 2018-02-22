@@ -7,9 +7,17 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
+import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
+import org.carlspring.strongbox.data.criteria.OQueryTemplate;
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.data.criteria.Projection;
+import org.carlspring.strongbox.data.criteria.QueryTemplate;
+import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryInputStream;
@@ -18,7 +26,6 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -36,18 +43,9 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
 
     private static final String ALIAS = "hosted";
 
-    @Inject
-    private ArtifactEntryService artifactEntryService;
-
-    @PostConstruct
-    @Override
-    public void register()
-    {
-        getRepositoryProviderRegistry().addProvider(ALIAS, this);
-
-        logger.info("Registered repository provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
-    }
-
+    @PersistenceContext
+    private EntityManager entityManager;
+    
     @Override
     public String getAlias()
     {
@@ -102,30 +100,30 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public List<Path> search(RepositorySearchRequest searchRequest,
-                             RepositoryPageRequest pageRequest)
+    public List<Path> search(String storageId,
+                             String repositoryId,
+                             Predicate predicate,
+                             Paginator paginator)
     {
         List<Path> result = new LinkedList<Path>();
-        
-        Storage storage = configurationManager.getConfiguration().getStorage(searchRequest.getStorageId());
-        Repository repository = storage.getRepository(searchRequest.getRepositoryId());
+
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         
-        List<ArtifactEntry> artifactEntryList = artifactEntryService.findArtifactList(searchRequest.getStorageId(),
-                                                                                      searchRequest.getRepositoryId(),
-                                                                                      searchRequest.getCoordinates(),
-                                                                                      searchRequest.getTagSet(),
-                                                                                      pageRequest.getSkip(),
-                                                                                      pageRequest.getLimit(),
-                                                                                      pageRequest.getOrderBy(), false);
+        Selector<ArtifactEntry> selector = createSelector(storageId, repositoryId, predicate);
+        selector.setFetch(true);
         
-        for (ArtifactEntry artifactEntry : artifactEntryList)
+        QueryTemplate<List<ArtifactEntry>, ArtifactEntry> queryTemplate = new DetachQueryTemplate<>(entityManager);
+        
+        List<ArtifactEntry> searchResult = queryTemplate.select(selector, paginator);
+        for (ArtifactEntry artifactEntry : searchResult)
         {
-            RepositoryPath repositoryPath;
+            
             try
             {
                 RootRepositoryPath rootRepositoryPath = layoutProvider.resolve(repository);
-                repositoryPath = rootRepositoryPath.resolve(artifactEntry);
+                result.add(rootRepositoryPath.resolve(artifactEntry));
             }
             catch (Exception e)
             {
@@ -133,19 +131,23 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
                              e);
                 continue;
             }
-            result.add(repositoryPath);
         }
         
         return result;
     }
 
     @Override
-    public Long count(RepositorySearchRequest searchRequest)
+    public Long count(String storageId,
+                      String repositoryId,
+                      Predicate predicate)
     {
-        return artifactEntryService.countArtifacts(searchRequest.getStorageId(), searchRequest.getRepositoryId(),
-                                                   searchRequest.getCoordinates(), searchRequest.isStrict());
+        Selector<ArtifactEntry> selector = createSelector(storageId, repositoryId, predicate).select("count(*)");
+
+        QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
+
+        return queryTemplate.select(selector);
     }
-    
+
     @Override
     public RepositoryPath resolvePath(String storageId,
                                       String repositoryId,
