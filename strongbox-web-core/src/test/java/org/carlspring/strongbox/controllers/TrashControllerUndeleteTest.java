@@ -35,7 +35,6 @@ import static org.junit.Assert.assertTrue;
  * @author Alex Oreshkevich
  * @author Pablo Tirado
  */
-@Ignore // SB-1002: Need help investigating this
 @IntegrationTest
 @RunWith(SpringRunner.class)
 public class TrashControllerUndeleteTest
