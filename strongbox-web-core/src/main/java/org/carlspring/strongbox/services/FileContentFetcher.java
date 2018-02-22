@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,7 +30,14 @@ public class FileContentFetcher
                                 .format(new Date(path.toFile().lastModified()));
         
         fileContent.setName(name);
-        fileContent.setSize(size);
+        if(Files.isDirectory(path))
+        {
+            fileContent.setSize("-");
+        }
+        else
+        {
+            fileContent.setSize(size);
+        }
         fileContent.setLastModified(lastModified);
         
         return fileContent;
