@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * @author Pablo Tirado
+ * @author Aditya Srinivasan
  */
 @IntegrationTest
 @RunWith(SpringRunner.class)
@@ -43,9 +44,9 @@ public class LoggingManagementControllerTestIT
     private static final String LOGGER_APPENDER = "CONSOLE";
 
     private static final String LOGS_HOME_DIRECTORY = PropertyUtils.getVaultDirectory() + "/logs";
-
+    
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_ADD_LOGGER"})
+    @WithMockUser(authorities = { "CONFIGURATION_ADD_LOGGER" })
     public void testAddLoggerWithTextAcceptHeader()
             throws Exception
     {
@@ -65,7 +66,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_ADD_LOGGER"})
+    @WithMockUser(authorities = { "CONFIGURATION_ADD_LOGGER" })
     public void testAddLoggerWithJsonAcceptHeader()
             throws Exception
     {
@@ -85,7 +86,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER"})
+    @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerWithTextAcceptHeader()
             throws Exception
     {
@@ -104,7 +105,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER"})
+    @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerWithJsonAcceptHeader()
             throws Exception
     {
@@ -123,7 +124,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER"})
+    @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerNotFoundWithTextAcceptHeader()
             throws Exception
     {
@@ -143,7 +144,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER"})
+    @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerNotFoundWithJsonAcceptHeader()
             throws Exception
     {
@@ -163,7 +164,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER"})
+    @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerWithTextAcceptHeader()
             throws Exception
     {
@@ -181,7 +182,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER"})
+    @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerWithJsonAcceptHeader()
             throws Exception
     {
@@ -199,7 +200,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER"})
+    @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerNotFoundWithTextAcceptHeader()
             throws Exception
     {
@@ -218,7 +219,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER"})
+    @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerNotFoundWithJsonAcceptHeader()
             throws Exception
     {
@@ -237,12 +238,14 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURE_LOGS"})
+    @WithMockUser(authorities = { "CONFIGURE_LOGS" })
     public void testDownloadLog()
             throws Exception
     {
         String testLogName = "strongbox-test.log";
-        Files.createFile(Paths.get(LOGS_HOME_DIRECTORY, testLogName)).toFile().deleteOnExit();
+        Files.createFile(Paths.get(LOGS_HOME_DIRECTORY, testLogName))
+             .toFile()
+             .deleteOnExit();
 
         String url = getContextBaseUrl() + "/logging/log/" + testLogName;
 
@@ -255,7 +258,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_RETRIEVE_LOGBACK_CFG"})
+    @WithMockUser(authorities = { "CONFIGURATION_RETRIEVE_LOGBACK_CFG" })
     public void testDownloadLogbackConfiguration()
             throws Exception
     {
@@ -270,7 +273,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_UPLOAD_LOGBACK_CFG"})
+    @WithMockUser(authorities = { "CONFIGURATION_UPLOAD_LOGBACK_CFG" })
     public void testUploadLogbackConfigurationWithTextAcceptHeader()
             throws Exception
     {
@@ -291,7 +294,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURE_LOGS"})
+    @WithMockUser(authorities = { "CONFIGURE_LOGS" })
     public void testUploadLogbackConfigurationWithJsonAcceptHeader()
             throws Exception
     {
@@ -312,7 +315,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "VIEW_LOGS"})
+    @WithMockUser(authorities = { "VIEW_LOGS" })
     public void testLogDirectoryForListOfLogFiles()
     {
         //Given
@@ -325,10 +328,10 @@ public class LoggingManagementControllerTestIT
             tempLogFilesArray[i] = paths[i].getFileName()
                                            .toString();
         }
-
+        
 
         String logDirectoryHomeUrl = getContextBaseUrl() + "/logging/logs/";
-
+        
         //When
         //Getting the table elements
         String tableElementsAsString = given()
@@ -348,7 +351,7 @@ public class LoggingManagementControllerTestIT
         {
             shouldContainLogFilesInHtmlTableElement = true;
         }
-
+        
         try
         {
             assertTrue("The log files should be in the HTML response body!", shouldContainLogFilesInHtmlTableElement);
@@ -359,9 +362,9 @@ public class LoggingManagementControllerTestIT
             deleteTestLogFilesAndDirectories(false);
         }
     }
-
+    
     @Test
-    @WithMockUser(authorities = { "VIEW_LOGS"})
+    @WithMockUser(authorities = { "VIEW_LOGS" })
     public void testAbilityToNavigateToSubLogDirectories()
     {
         //Given
@@ -386,7 +389,7 @@ public class LoggingManagementControllerTestIT
                                                .body()
                                                .htmlPath()
                                                .getString("html.body");
-
+        
         //Assertion Test to see if given file names and test folder are contained in the HTML body
         boolean shouldContainLogFilesInHtmlTableElement = false;
         if (tableElementsAsString.contains(tempLogFilesArray[0])
@@ -397,7 +400,7 @@ public class LoggingManagementControllerTestIT
         {
             shouldContainLogFilesInHtmlTableElement = true;
         }
-
+        
         try
         {
             //Assertion Test
@@ -408,9 +411,9 @@ public class LoggingManagementControllerTestIT
             //Delete the test sub directory even if the test fails
             deleteTestLogFilesAndDirectories(true);
         }
-
+        
     }
-
+    
     //This method creates temporary log files, and if necessary for subdirectory browsing, a log subdirectory.
     private static Path[] createTestLogFilesAndDirectories(boolean shouldICreateATestSubDirectory)
     {
@@ -421,7 +424,7 @@ public class LoggingManagementControllerTestIT
         Path[] paths = new Path[4];
         try
         {
-
+            
             if (shouldICreateATestSubDirectory)
             {
                 logDirectoryPath = Paths.get(LOGS_HOME_DIRECTORY, "/test");
@@ -431,13 +434,13 @@ public class LoggingManagementControllerTestIT
             {
                 logDirectoryPath = Paths.get(LOGS_HOME_DIRECTORY);
             }
-
+            
             //Create 4 temporary log files from 0 to 3.
             for (int i = 0; i < 4; i++)
             {
                 paths[i] = Files.createTempFile(logDirectoryPath, "TestLogFile" + i, ".log");
             }
-
+            
         }
         catch (IOException e)
         {
@@ -446,7 +449,7 @@ public class LoggingManagementControllerTestIT
         }
         return paths;
     }
-
+    
     //This method deletes temporary log files, and if used for subdirectory browsing, the test log subdirectory.
     private static void deleteTestLogFilesAndDirectories(boolean wasATestSubDirectoryCreated)
     {
