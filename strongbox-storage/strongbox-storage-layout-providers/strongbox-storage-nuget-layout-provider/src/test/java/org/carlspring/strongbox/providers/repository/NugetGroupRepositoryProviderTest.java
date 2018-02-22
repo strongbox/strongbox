@@ -15,9 +15,11 @@ import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
@@ -37,6 +39,7 @@ import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
 
 import ru.aristar.jnuget.files.NugetFormatException;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -64,7 +67,6 @@ public class NugetGroupRepositoryProviderTest
 
     private static final String REPOSITORY_GROUP = "grpt-releases-group";
 
-
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
@@ -73,6 +75,13 @@ public class NugetGroupRepositoryProviderTest
 
     @Inject
     private RepositoryManagementService repositoryManagementService;
+    
+
+    @Inject
+    private ArtifactManagementService artifactManagementService;
+
+    @Inject
+    private NugetRepositoryFactory nugetRepositoryFactory;
     
     @Rule
     public final ExpectedLogs logs = new ExpectedLogs()
@@ -95,24 +104,21 @@ public class NugetGroupRepositoryProviderTest
         NugetRepositoryConfiguration nugetRepositoryConfiguration = new NugetRepositoryConfiguration();
 
         //REPOSITORY_RELEASES_1
-        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1),
-                         RepositoryLayoutEnum.NUGET.getLayout());
+        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1), NugetLayoutProvider.ALIAS);
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, "grpt.search.package", 9);
 
         //REPOSITORY_RELEASES_2
         createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2),
-                         RepositoryLayoutEnum.NUGET.getLayout());
+                         NugetLayoutProvider.ALIAS);
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_2, "grpt.search.package", 12);
         
         //REPOSITORY_RELEASES_3
         createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3),
-                         RepositoryLayoutEnum.NUGET.getLayout());
+                         NugetLayoutProvider.ALIAS);
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_3, "grpt.search.package", 8);
 
-        Repository repositoryGroup = new Repository(REPOSITORY_GROUP);
-        repositoryGroup.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        Repository repositoryGroup = nugetRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryGroup.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
         repositoryGroup.setAllowsForceDeletion(false);
@@ -123,10 +129,9 @@ public class NugetGroupRepositoryProviderTest
 
         createRepository(repositoryGroup);
 
-        Repository repositoryWithNestedGroupLevel1 = new Repository(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
-        repositoryWithNestedGroupLevel1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        Repository repositoryWithNestedGroupLevel1 = nugetRepositoryFactory.createRepository(STORAGE0,
+                                                                                             REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
         repositoryWithNestedGroupLevel1.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryWithNestedGroupLevel1.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
         repositoryWithNestedGroupLevel1.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel1.setAllowsDelete(false);
         repositoryWithNestedGroupLevel1.setAllowsForceDeletion(false);
@@ -135,10 +140,9 @@ public class NugetGroupRepositoryProviderTest
 
         createRepository(repositoryWithNestedGroupLevel1);
 
-        Repository repositoryWithNestedGroupLevel2 = new Repository(REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
-        repositoryWithNestedGroupLevel2.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        Repository repositoryWithNestedGroupLevel2 = nugetRepositoryFactory.createRepository(STORAGE0,
+                                                                                             REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
         repositoryWithNestedGroupLevel2.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryWithNestedGroupLevel2.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
         repositoryWithNestedGroupLevel2.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel2.setAllowsDelete(false);
         repositoryWithNestedGroupLevel2.setAllowsForceDeletion(false);

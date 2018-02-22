@@ -9,7 +9,7 @@ public interface RepositoryFeatures
 {
 
     /**
-     * Returns the default list of artifact coordinata validators.
+     * Returns the default list of artifact coordinate validators.
      *
      * @return
      */

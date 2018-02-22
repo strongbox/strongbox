@@ -25,11 +25,6 @@ public interface ArtifactCoordinatesValidator
         return true;
     }
 
-    default boolean activeByDefault(Repository repository)
-    {
-        return false;
-    }
-
     /**
      * Checks if an artifact version is acceptable by the repository.
      *

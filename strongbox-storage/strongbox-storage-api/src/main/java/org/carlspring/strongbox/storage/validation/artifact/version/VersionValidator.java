@@ -15,7 +15,7 @@ public interface VersionValidator extends ArtifactCoordinatesValidator
         return !isSnapshot(version);
     }
 
-    default  boolean isSnapshot(String version)
+    default boolean isSnapshot(String version)
     {
         // Note: This is a slight deviation from the SemVer spec
         return version != null && version.endsWith("-SNAPSHOT");

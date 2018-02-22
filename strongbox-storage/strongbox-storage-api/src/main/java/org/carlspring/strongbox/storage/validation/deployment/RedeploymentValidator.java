@@ -58,12 +58,6 @@ public class RedeploymentValidator
     }
 
     @Override
-    public boolean activeByDefault(Repository repository)
-    {
-        return true;
-    }
-
-    @Override
     public void validate(Repository repository,
                          ArtifactCoordinates coordinates)
             throws VersionValidationException,

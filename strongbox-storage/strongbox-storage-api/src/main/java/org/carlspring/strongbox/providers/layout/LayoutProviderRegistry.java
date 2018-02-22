@@ -151,7 +151,7 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
                         LayoutProvider layoutProvider = getProvider(repository.getLayout());
 
                         // Generally, this should not happen. However, there are at least two cases where it may occur:
-                        // 1) During testing -- various module are not added as dependencies and a layout provider
+                        // 1) During testing -- various modules are not added as dependencies and a layout provider
                         //    is thus not registered.
                         // 2) Syntax error, or some other mistake leading to an incorrectly defined layout
                         //    for a repository.
