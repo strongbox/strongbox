@@ -92,8 +92,7 @@ public class LoggingManagementController
             String message = "Could not add a new logger.";
             logger.error(message, e);
 
-            return ResponseEntity.status(BAD_REQUEST)
-                                 .body(getResponseEntityBody(message, accept));
+            return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
         }
     }
 
