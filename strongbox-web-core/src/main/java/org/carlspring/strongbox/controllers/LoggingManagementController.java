@@ -109,11 +109,9 @@ public class LoggingManagementController
     @PostMapping(value = "/logger",
                  produces = { MediaType.TEXT_PLAIN_VALUE,
                               MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity updateLogger(@ApiParam(value = "The logger name",
-                                                 required = true)
+    public ResponseEntity updateLogger(@ApiParam(value = "The logger name", required = true)
                                        @RequestParam("logger") String loggerPackage,
-                                       @ApiParam(value = "The logger level",
-                                                 required = true)
+                                       @ApiParam(value = "The logger level", required = true)
                                        @RequestParam("level") String level,
                                        @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
@@ -128,33 +126,27 @@ public class LoggingManagementController
             String message = "Could not update logger.";
             logger.error(message, e);
 
-            return ResponseEntity.status(BAD_REQUEST)
-                                 .body(getResponseEntityBody(message, accept));
+            return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
         }
         catch (LoggerNotFoundException e)
         {
             String message = "Logger '" + loggerPackage + "' not found!";
-
+            
             logger.error(message, e);
 
-            return ResponseEntity.status(NOT_FOUND)
-                                 .body(getResponseEntityBody(message, accept));
+            return ResponseEntity.status(NOT_FOUND).body(getResponseEntityBody(message, accept));
         }
     }
 
     @ApiOperation(value = "Used to delete existing logger.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The logger was deleted successfully."),
-                            @ApiResponse(code = 400,
-                                         message = "Could not delete the logger."),
-                            @ApiResponse(code = 404,
-                                         message = "Logger was not found.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was deleted successfully."),
+                            @ApiResponse(code = 400, message = "Could not delete the logger."),
+                            @ApiResponse(code = 404, message = "Logger was not found.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_DELETE_LOGGER','CONFIGURE_LOGS')")
     @DeleteMapping(value = "/logger",
                    produces = { MediaType.TEXT_PLAIN_VALUE,
                                 MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity deleteLogger(@ApiParam(value = "The logger name",
-                                                 required = true)
+    public ResponseEntity deleteLogger(@ApiParam(value = "The logger name", required = true)
                                        @RequestParam("logger") String loggerPackage,
                                        @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
@@ -167,27 +159,23 @@ public class LoggingManagementController
         catch (LoggingConfigurationException e)
         {
             String message = "Could not delete the logger.";
-
+            
             logger.error(message, e);
 
-            return ResponseEntity.status(BAD_REQUEST)
-                                 .body(getResponseEntityBody(message, accept));
+            return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
         }
         catch (LoggerNotFoundException e)
         {
             String message = "Logger '" + loggerPackage + "' not found!";
             logger.error(message, e);
 
-            return ResponseEntity.status(NOT_FOUND)
-                                 .body(getResponseEntityBody(message, accept));
+            return ResponseEntity.status(NOT_FOUND).body(getResponseEntityBody(message, accept));
         }
     }
 
     @ApiOperation(value = "Used to download log data.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The logger was retrieved successfully."),
-                            @ApiResponse(code = 400,
-                                         message = "Could not download log data.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was retrieved successfully."),
+                            @ApiResponse(code = 400, message = "Could not download log data.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOG','CONFIGURE_LOGS')")
     @GetMapping(value = "/log/{path:.+}",
                 produces = TEXT_PLAIN_VALUE)
@@ -233,7 +221,7 @@ public class LoggingManagementController
         catch (LoggingConfigurationException e)
         {
             String message = "Could not download logback configuration.";
-
+            
             logger.error(message, e);
 
             response.setStatus(BAD_REQUEST.value());
@@ -241,10 +229,8 @@ public class LoggingManagementController
     }
 
     @ApiOperation(value = "Used to upload logback configuration.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The logger configuration was uploaded successfully."),
-                            @ApiResponse(code = 400,
-                                         message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger configuration was uploaded successfully."),
+                            @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_UPLOAD_LOGBACK_CFG','CONFIGURE_LOGS')")
     @PostMapping(value = "/logback",
                  consumes = APPLICATION_XML_VALUE,
@@ -262,19 +248,16 @@ public class LoggingManagementController
         catch (IOException | LoggingConfigurationException e)
         {
             String message = "Could not upload logback configuration.";
-
+            
             logger.error(message, e);
 
-            return ResponseEntity.status(BAD_REQUEST)
-                                 .body(getResponseEntityBody(message, accept));
+            return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
         }
     }
 
     @ApiOperation(value = "Used to get log directory.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The log directory was retrieved successfully."),
-                            @ApiResponse(code = 400,
-                                         message = "Could not download log directory.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The log directory was retrieved successfully."),
+                            @ApiResponse(code = 400, message = "Could not download log directory.") })
     @PreAuthorize("hasAuthority('VIEW_LOGS')")
     @GetMapping(value = { "/logs/{urlPath:.+}" },
                 produces = TEXT_PLAIN_VALUE)
@@ -287,16 +270,16 @@ public class LoggingManagementController
 
         String uriLogDirPath = urlPath.map(s -> "/logs/" + s)
                                       .orElse("/logs/");
-
+        
         Path localLogDirPath = Paths.get(PropertyUtils.getVaultDirectory(), uriLogDirPath);
-
+        
         if (Files.notExists(localLogDirPath))
         {
             response.sendError(404, "File " + localLogDirPath.toString() + " does not exist.");
-
+            
             return;
         }
-
+        
         //Sends a redirect if the URI does not end with a "/"
         if (!requestUriString.endsWith("/"))
         {
@@ -310,11 +293,11 @@ public class LoggingManagementController
             }
             return;
         }
-
+        
         try
         {
             logger.debug(" browsing: " + localLogDirPath.toString());
-
+            
             //Generating the HTML View
             StringBuilder sb = new StringBuilder();
             sb.append("<html>");
@@ -338,7 +321,7 @@ public class LoggingManagementController
                 sb.append("<td colspan=4><a href=\"..\">..</a></td>");
                 sb.append("</tr>");
             }
-
+            
             //Adds the Files and folders to the HTML body
             final String localLogFilePath = requestUriString.replace("logs", "log");
             final String localLogDirectoryPath = requestUriString;
@@ -362,26 +345,23 @@ public class LoggingManagementController
                          e.printStackTrace();
                      }
                  });
-
+            
             sb.append("</table>");
             sb.append("</body>");
             sb.append("</html>");
-
+            
             response.setContentType("text/html;charset=UTF-8");
             response.setStatus(HttpStatus.OK.value());
-            response.getWriter()
-                    .write(sb.toString());
-            response.getWriter()
-                    .flush();
-            response.getWriter()
-                    .close();
+            response.getWriter().write(sb.toString());
+            response.getWriter().flush();
+            response.getWriter().close();
         }
         catch (Exception e)
         {
             logger.error(" error accessing requested directory: " + localLogDirPath.getFileName(), e);
-
+            
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
-
+    
 }

@@ -313,7 +313,7 @@ public class LoggingManagementControllerTestIT
                .statusCode(HttpStatus.OK.value()) // check http status code
                .body("message", equalTo("Logback configuration uploaded successfully."));
     }
-
+    
     @Test
     @WithMockUser(authorities = { "VIEW_LOGS" })
     public void testLogDirectoryForListOfLogFiles()
@@ -329,7 +329,7 @@ public class LoggingManagementControllerTestIT
                                            .toString();
         }
         
-
+        
         String logDirectoryHomeUrl = getContextBaseUrl() + "/logging/logs/";
         
         //When
@@ -341,7 +341,7 @@ public class LoggingManagementControllerTestIT
                                                .body()
                                                .htmlPath()
                                                .getString("html.body.table");
-
+        
         //Assertion Test to see if given file names are contained in the HTML body
         boolean shouldContainLogFilesInHtmlTableElement = false;
         if (tableElementsAsString.contains(tempLogFilesArray[0])
@@ -370,16 +370,16 @@ public class LoggingManagementControllerTestIT
         //Given
         //Creating the test sub directory and dummy files here
         Path[] paths = createTestLogFilesAndDirectories(true);
-
+        
         String[] tempLogFilesArray = new String[4];
         for (int i = 0; i < paths.length; i++)
         {
             tempLogFilesArray[i] = paths[i].getFileName()
                                            .toString();
         }
-
+        
         String logSubDirectoryUrl = getContextBaseUrl() + "/logging/logs/test/";
-
+        
         //When
         //Getting the table elements
         String tableElementsAsString = given()
@@ -417,7 +417,7 @@ public class LoggingManagementControllerTestIT
     //This method creates temporary log files, and if necessary for subdirectory browsing, a log subdirectory.
     private static Path[] createTestLogFilesAndDirectories(boolean shouldICreateATestSubDirectory)
     {
-
+        
         //If a test directory is needed, a new directory called `test` under `/logs/` will be created.
         //Otherwise the path of `/logs` will be returned.
         Path logDirectoryPath;
