@@ -302,7 +302,7 @@ public class AuthorizationConfigControllerTest
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
-               .body(containsString("Privileges cannot be saved because the submitted form contains errors!"));
+               .body(containsString(FAILED_ASSIGN_PRIVILEGES));
     }
 
     @Test
@@ -384,7 +384,7 @@ public class AuthorizationConfigControllerTest
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
-               .body(containsString("Roles cannot be saved because the submitted form contains errors!"));
+               .body(containsString(FAILED_ASSIGN_ROLES));
     }
 
     @Test

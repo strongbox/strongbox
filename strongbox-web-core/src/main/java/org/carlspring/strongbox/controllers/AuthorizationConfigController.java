@@ -51,12 +51,20 @@ public class AuthorizationConfigController
     static final String SUCCESSFUL_ADD_ROLE = "The role was created successfully.";
     static final String FAILED_ADD_ROLE = "Role cannot be saved because the submitted form contains errors!";
 
+    static final String SUCCESSFUL_GET_CONFIG = "Everything went ok.";
+    static final String FAILED_GET_CONFIG = "Could not retrieve the strongbox-authorization.xml configuration file.";
+
     static final String SUCCESSFUL_DELETE_ROLE = "The role was deleted.";
     static final String FAILED_DELETE_ROLE = "Could not delete the role.";
 
     static final String SUCCESSFUL_ASSIGN_PRIVILEGES = "The privileges were assigned.";
+    static final String FAILED_ASSIGN_PRIVILEGES = "Privileges cannot be saved because the submitted form contains errors!";
 
     static final String SUCCESSFUL_ASSIGN_ROLES = "The roles were assigned.";
+    static final String FAILED_ASSIGN_ROLES = "Roles cannot be saved because the submitted form contains errors!";
+
+    static final String AUTHORIZATION_CONFIG_OPERATION_FAILED = "Error during config processing.";
+    static final String AUTHORIZATION_CONFIG_NOT_FOUND = "Unable to locate AuthorizationConfig to update...";
 
     @Inject
     private AuthorizationConfigProvider configProvider;
@@ -73,9 +81,6 @@ public class AuthorizationConfigController
     @Inject
     private ConversionService conversionService;
 
-    // ----------------------------------------------------------------------------------------------------------------
-    // Add role
-
     @ApiOperation(value = "Used to add new roles")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = SUCCESSFUL_ADD_ROLE),
@@ -89,16 +94,11 @@ public class AuthorizationConfigController
                                   BindingResult bindingResult,
                                   @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        if (roleForm == null)
-        {
-            throw new RequestBodyValidationException("Empty request body", bindingResult);
-        }
         if (bindingResult.hasErrors())
         {
             throw new RequestBodyValidationException(FAILED_ADD_ROLE, bindingResult);
         }
 
-        // Convert RoleForm to Role
         Role role = conversionService.convert(roleForm, Role.class);
 
         return processConfig(config -> addRole(config, role), () -> SUCCESSFUL_ADD_ROLE, acceptHeader);
@@ -118,14 +118,11 @@ public class AuthorizationConfigController
         }
     }
 
-    // ----------------------------------------------------------------------------------------------------------------
-    // View authorization config as XML file
-
     @ApiOperation(value = "Retrieves the strongbox-authorization.xml configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "Everything went ok."),
+                                         message = SUCCESSFUL_GET_CONFIG),
                             @ApiResponse(code = 500,
-                                         message = "Could not retrieve the strongbox-authorization.xml configuration file.") })
+                                         message = FAILED_GET_CONFIG) })
     @GetMapping(value = "/xml",
                 produces = { MediaType.APPLICATION_XML_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -133,9 +130,6 @@ public class AuthorizationConfigController
     {
         return processConfig(null, null, acceptHeader);
     }
-
-    // ----------------------------------------------------------------------------------------------------------------
-    // Revoke role by name
 
     @ApiOperation(value = "Deletes a role by name.",
                   position = 3)
@@ -200,12 +194,11 @@ public class AuthorizationConfigController
     }
 
 
-    // ----------------------------------------------------------------------------------------------------------------
-    // Assign privileges to the anonymous user
-
     @ApiOperation(value = "Used to assign privileges to the anonymous user")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = SUCCESSFUL_ASSIGN_PRIVILEGES) })
+                                         message = SUCCESSFUL_ASSIGN_PRIVILEGES),
+                            @ApiResponse(code = 400,
+                                         message = FAILED_ASSIGN_PRIVILEGES) })
     @PostMapping(value = "/anonymous/privileges",
                  consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -214,17 +207,11 @@ public class AuthorizationConfigController
                                                    BindingResult bindingResult,
                                                    @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        if (privilegeListForm == null)
-        {
-            throw new RequestBodyValidationException("Empty request body", bindingResult);
-        }
         if (bindingResult.hasErrors())
         {
-            String message = "Privileges cannot be saved because the submitted form contains errors!";
-            throw new RequestBodyValidationException(message, bindingResult);
+            throw new RequestBodyValidationException(FAILED_ASSIGN_PRIVILEGES, bindingResult);
         }
 
-        // Convert PrivilegeListForm to List<Privilege>
         TypeDescriptor sourceType = TypeDescriptor.valueOf(PrivilegeListForm.class);
         TypeDescriptor targetType = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(Privilege.class));
         List<Privilege> privilegeList = (List<Privilege>) conversionService.convert(privilegeListForm,
@@ -236,12 +223,11 @@ public class AuthorizationConfigController
     }
 
 
-    // ----------------------------------------------------------------------------------------------------------------
-    // Assign roles to the anonymous user
-
     @ApiOperation(value = "Used to assign roles to the anonymous user")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = SUCCESSFUL_ASSIGN_ROLES) })
+                                         message = SUCCESSFUL_ASSIGN_ROLES),
+                            @ApiResponse(code = 400,
+                                         message = FAILED_ASSIGN_ROLES) })
     @PostMapping(value = "/anonymous/roles",
                  consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -250,17 +236,11 @@ public class AuthorizationConfigController
                                               BindingResult bindingResult,
                                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        if (roleListForm == null)
-        {
-            throw new RequestBodyValidationException("Empty request body", bindingResult);
-        }
         if (bindingResult.hasErrors())
         {
-            String message = "Roles cannot be saved because the submitted form contains errors!";
-            throw new RequestBodyValidationException(message, bindingResult);
+            throw new RequestBodyValidationException(FAILED_ASSIGN_ROLES, bindingResult);
         }
 
-        // Convert RoleListForm to List<Role>
         TypeDescriptor sourceType = TypeDescriptor.valueOf(RoleListForm.class);
         TypeDescriptor targetType = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(Role.class));
         List<Role> roleList = (List<Role>) conversionService.convert(roleListForm,
@@ -289,15 +269,15 @@ public class AuthorizationConfigController
 
     }
 
-    private ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer,
-                                         Supplier<String> supplier,
+    private ResponseEntity processConfig(Consumer<AuthorizationConfig> authorizationConfigOperation,
+                                         Supplier<String> successMessage,
                                          String acceptHeader)
     {
-        return processConfig(consumer, supplier, ResponseEntity::ok, acceptHeader);
+        return processConfig(authorizationConfigOperation, successMessage, ResponseEntity::ok, acceptHeader);
     }
 
-    private ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer,
-                                         Supplier<String> supplier,
+    private ResponseEntity processConfig(Consumer<AuthorizationConfig> authorizationConfigOperation,
+                                         Supplier<String> successMessage,
                                          CustomSuccessResponseBuilder customSuccessResponseBuilder,
                                          String acceptHeader)
     {
@@ -309,14 +289,14 @@ public class AuthorizationConfigController
             {
                 AuthorizationConfig config = configOptional.get();
 
-                if (consumer != null)
+                if (authorizationConfigOperation != null)
                 {
-                    consumer.accept(config);
+                    authorizationConfigOperation.accept(config);
                 }
 
-                if (supplier != null)
+                if (successMessage != null)
                 {
-                    return getSuccessfulResponseEntity(supplier.get(), acceptHeader);
+                    return getSuccessfulResponseEntity(successMessage.get(), acceptHeader);
 
                 }
                 else
@@ -331,14 +311,15 @@ public class AuthorizationConfigController
             }
             catch (Exception e)
             {
-                String message = "Error during config processing.";
-                return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, message, e, acceptHeader);
+                return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
+                                                  AUTHORIZATION_CONFIG_OPERATION_FAILED,
+                                                  e,
+                                                  acceptHeader);
             }
         }
         else
         {
-            String message = "Unable to locate AuthorizationConfig to update...";
-            return getRuntimeExceptionResponseEntity(message, acceptHeader);
+            return getRuntimeExceptionResponseEntity(AUTHORIZATION_CONFIG_NOT_FOUND, acceptHeader);
         }
     }
 
