@@ -258,14 +258,9 @@ public class AuthorizationConfigController
         roles.forEach(role -> config.getRoles()
                                     .getRoles()
                                     .stream()
-                                    .filter(
-                                            role1 -> role1.getName()
-                                                          .equalsIgnoreCase(
-                                                                  role.getName()))
-                                    .forEach(
-                                            foundedRole -> foundedRole.getPrivileges()
-                                                                      .forEach(
-                                                                              this::addAnonymousAuthority)));
+                                    .filter(role1 -> role1.getName().equalsIgnoreCase(role.getName()))
+                                    .forEach(foundedRole -> foundedRole.getPrivileges()
+                                                                       .forEach(this::addAnonymousAuthority)));
 
     }
 
