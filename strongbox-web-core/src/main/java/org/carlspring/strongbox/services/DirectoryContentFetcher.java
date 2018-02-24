@@ -108,8 +108,13 @@ public class DirectoryContentFetcher
         List<FileContent> directories = new ArrayList<FileContent>();
         List<FileContent> files = new ArrayList<FileContent>();
         
-        for(Path path : storagePaths)
+        for (Path path : storagePaths)
         {
+            if (!Files.exists(path))
+            {
+                logger.warn(String.format("Trying to fetch path which don't exists [%s]", path));
+                continue;
+            }
             directories.add(fileContentFetcher.fetchFileContent(path));
         }
         
