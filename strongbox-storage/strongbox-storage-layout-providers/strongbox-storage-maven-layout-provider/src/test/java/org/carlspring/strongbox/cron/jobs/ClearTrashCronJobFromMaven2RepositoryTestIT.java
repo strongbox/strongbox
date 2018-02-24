@@ -2,11 +2,11 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
@@ -28,7 +28,6 @@ import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -59,6 +58,9 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
                                                                        "/storages/" + STORAGE1 + "/" +
                                                                        REPOSITORY_RELEASES_1);
 
+    @Inject
+    private MavenRepositoryFactory mavenRepositoryFactory;
+
     private static Repository repository1;
 
     private static Repository repository2;
@@ -74,9 +76,6 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             expectedJobName = description.getMethodName();
         }
     };
-
-    @Inject
-    private CronTaskConfigurationService cronTaskConfigurationService;
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
@@ -109,9 +108,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        repository1 = new Repository(REPOSITORY_RELEASES_1);
-        repository1.setStorage(configurationManager.getConfiguration()
-                                                   .getStorage(STORAGE0));
+        repository1 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES_1);
         repository1.setAllowsForceDeletion(false);
         repository1.setTrashEnabled(true);
         repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
@@ -121,9 +118,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
                          "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
 
-        repository2 = new Repository(REPOSITORY_RELEASES_2);
-        repository2.setStorage(configurationManager.getConfiguration()
-                                                   .getStorage(STORAGE0));
+        repository2 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES_2);
         repository2.setAllowsForceDeletion(false);
         repository2.setTrashEnabled(true);
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
@@ -135,12 +130,11 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
         createStorage(new Storage(STORAGE1));
 
-        repository3 = new Repository(REPOSITORY_RELEASES_1);
-        repository3.setStorage(configurationManager.getConfiguration()
-                                                   .getStorage(STORAGE1));
+        repository3 = mavenRepositoryFactory.createRepository(STORAGE1, REPOSITORY_RELEASES_1);
         repository3.setAllowsForceDeletion(false);
         repository3.setTrashEnabled(true);
         repository3.setRepositoryConfiguration(mavenRepositoryConfiguration);
+
         createRepository(repository3);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_3.getAbsolutePath(),

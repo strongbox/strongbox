@@ -5,7 +5,6 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.VersionValidatorType;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
@@ -63,7 +62,6 @@ public class ConfigurationManagerTest
 
     @Test
     public void testParseConfiguration()
-            throws IOException
     {
         final Configuration configuration = configurationManager.getConfiguration();
 
@@ -86,25 +84,14 @@ public class ConfigurationManagerTest
                    configuration.getStorages()
                                 .get("storage0")
                                 .getRepositories()
-                                .get("snapshots").isSecured());
+                                .get("snapshots")
+                                .isSecured());
 
         assertTrue(configuration.getStorages()
                                 .get("storage0")
                                 .getRepositories()
-                                .get("releases").allowsDirectoryBrowsing());
-
-        Set<VersionValidatorType> versionValidators = configuration.getStorages()
-                                                                   .get("storage0")
-                                                                   .getRepositories()
-                                                                   .get("releases")
-                                                                   .getVersionValidators();
-
-        assertTrue(versionValidators.size() == 3);
-        assertTrue(versionValidators.remove(VersionValidatorType.REDEPLOYMENT));
-        assertTrue(versionValidators.remove(VersionValidatorType.RELEASE));
-        assertTrue(versionValidators.remove(VersionValidatorType.SNAPSHOT));
-        // assertTrue(versionValidators.remove(VersionValidatorType.SEM_VER));
-        assertTrue(versionValidators.size() == 0);
+                                .get("releases")
+                                .allowsDirectoryBrowsing());
     }
 
     @Test

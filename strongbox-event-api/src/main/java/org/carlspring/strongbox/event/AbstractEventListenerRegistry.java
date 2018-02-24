@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.event;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;

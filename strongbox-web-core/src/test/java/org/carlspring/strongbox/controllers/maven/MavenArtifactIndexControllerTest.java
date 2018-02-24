@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers.maven;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
@@ -41,6 +42,9 @@ public class MavenArtifactIndexControllerTest
     @Inject
     private MavenRepositoryFeatures features;
 
+    @Inject
+    private MavenRepositoryFactory mavenRepositoryFactory;
+
 
     @BeforeClass
     public static void cleanUp()
@@ -75,17 +79,15 @@ public class MavenArtifactIndexControllerTest
         MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(true);
 
-        Repository repository1 = new Repository(REPOSITORY_RELEASES_1);
+        Repository repository1 = mavenRepositoryFactory.createRepository(STORAGE_ID, REPOSITORY_RELEASES_1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE_ID));
         repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repository1);
 
         // Used by testRebuildIndexesInStorage()
-        Repository repository2 = new Repository(REPOSITORY_RELEASES_2);
+        Repository repository2 = mavenRepositoryFactory.createRepository(STORAGE_ID, REPOSITORY_RELEASES_2);
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository2.setStorage(configurationManager.getConfiguration().getStorage(STORAGE_ID));
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repository2);

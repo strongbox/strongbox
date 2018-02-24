@@ -3,6 +3,7 @@ package org.carlspring.strongbox.event.artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.SimpleProxyRepositoryArtifactResolver;
@@ -10,7 +11,6 @@ import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 
 import javax.inject.Inject;
 import java.io.FileNotFoundException;
@@ -46,7 +46,7 @@ public class MavenArtifactFetchedFromRemoteEventListener
     {
         final Repository repository = getRepository(event);
 
-        if (!RepositoryLayoutEnum.MAVEN_2.getLayout().equals(repository.getLayout()))
+        if (!Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
         {
             return;
         }

@@ -14,6 +14,7 @@ import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.data.PropertyUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 
 import ru.aristar.jnuget.files.NugetFormatException;
 
@@ -35,7 +36,8 @@ public class TestCaseWithNugetPackageGeneration
                NugetFormatException,
                JAXBException,
                IOException,
-               ProviderImplementationException
+               ProviderImplementationException, 
+               ArtifactCoordinatesValidationException
     {
         for (int i = 0; i < count; i++)
         {

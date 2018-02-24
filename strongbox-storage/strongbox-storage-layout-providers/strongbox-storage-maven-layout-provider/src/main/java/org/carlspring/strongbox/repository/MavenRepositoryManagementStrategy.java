@@ -17,8 +17,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,8 +26,6 @@ import org.springframework.stereotype.Component;
 public class MavenRepositoryManagementStrategy
         extends AbstractRepositoryManagementStrategy
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(MavenRepositoryManagementStrategy.class);
 
     @Inject
     private RepositoryIndexManager repositoryIndexManager;
@@ -45,6 +41,7 @@ public class MavenRepositoryManagementStrategy
 
     @Inject
     private MavenRepositoryFeatures repositoryFeatures;
+
 
     @Override
     protected void createRepositoryInternal(Storage storage, Repository repository)

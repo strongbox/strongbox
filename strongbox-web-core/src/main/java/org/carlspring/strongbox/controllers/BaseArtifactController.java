@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -166,7 +164,9 @@ public abstract class BaseArtifactController
         if(dirPath == null)
         {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+
             logger.debug("Could not retrive /storages base directory");
+
             return;
         }
         
@@ -206,6 +206,7 @@ public abstract class BaseArtifactController
             sb.append("<th>Size</th>");
             sb.append("<th>Description</th>");
             sb.append("</tr>");
+
             if (!request.getRequestURI().equalsIgnoreCase(BrowseStoragesController.ROOT_CONTEXT + "/"))
             {
                 sb.append("<tr>");
@@ -234,12 +235,9 @@ public abstract class BaseArtifactController
 
             response.setContentType("text/html;charset=UTF-8");
             response.setStatus(HttpStatus.OK.value());
-            response.getWriter()
-                    .write(sb.toString());
-            response.getWriter()
-                    .flush();
-            response.getWriter()
-                    .close();
+            response.getWriter().write(sb.toString());
+            response.getWriter().flush();
+            response.getWriter().close();
 
         }
         catch (Exception e)
@@ -282,16 +280,14 @@ public abstract class BaseArtifactController
                                                    HttpHeaders httpHeaders,
                                                    Repository repository,
                                                    String path)
-        throws IOException,
-        ArtifactTransportException,
-        ProviderImplementationException,
-        Exception
+            throws Exception
     {
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
         
         RepositoryPath resolvedPath = artifactManagementService.getPath(storageId, repositoryId, path);
-        logger.debug("Resolved path : " + resolvedPath);
+
+        logger.debug("Resolved path: " + resolvedPath);
         
         ArtifactControllerHelper.provideArtifactHeaders(response, resolvedPath);
         if (response.getStatus() == HttpStatus.NOT_FOUND.value())
@@ -303,11 +299,11 @@ public abstract class BaseArtifactController
             return true;
         }
 
-        logger.debug("Proceeding downloading : " + resolvedPath);
         InputStream is = artifactManagementService.resolve(storageId, repositoryId, path);
         if (ArtifactControllerHelper.isRangedRequest(httpHeaders))
         {
-            logger.debug("Detecting range request....");
+            logger.debug("Detected ranged request.");
+
             ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
         }
 
@@ -315,8 +311,6 @@ public abstract class BaseArtifactController
         copyToResponse(is, response);
         artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storageId, repositoryId, path);
 
-        logger.debug("Download succeeded.");
-        
         return true;
     }
 

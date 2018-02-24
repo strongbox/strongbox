@@ -10,13 +10,13 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -97,9 +97,7 @@ public class ArtifactMetadataServiceImpl
     @Override
     public void rebuildMetadata(String storageId,
                                 String basePath)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
+            throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
 
@@ -113,14 +111,12 @@ public class ArtifactMetadataServiceImpl
     public void rebuildMetadata(String storageId,
                                 String repositoryId,
                                 String basePath)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
+            throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        if (!RepositoryLayoutEnum.MAVEN_2.getLayout().equals(repository.getLayout()))
+        if (!Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
         {
             logger.warn("Trying to rebuild metadata of repository {} with unsupported layout {} ", repository.getId(),
                         repository.getLayout());
@@ -164,8 +160,7 @@ public class ArtifactMetadataServiceImpl
                            String version,
                            MetadataType metadataType)
             throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
+                   XmlPullParserException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -210,7 +205,6 @@ public class ArtifactMetadataServiceImpl
                                               String classifier,
                                               String extension)
             throws IOException,
-                   XmlPullParserException,
                    NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -302,7 +296,7 @@ public class ArtifactMetadataServiceImpl
                                                  String artifactPath,
                                                  String version,
                                                  String classifier)
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+            throws IOException, NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -351,7 +345,6 @@ public class ArtifactMetadataServiceImpl
     public void deleteMetadata(String storageId,
                                String repositoryId,
                                String metadataPath)
-            throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);

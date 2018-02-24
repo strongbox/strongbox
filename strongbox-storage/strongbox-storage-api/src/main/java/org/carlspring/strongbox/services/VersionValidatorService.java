@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.storage.validation.version.VersionValidator;
+import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 
 import java.util.Set;
 
@@ -10,6 +10,6 @@ import java.util.Set;
 public interface VersionValidatorService
 {
 
-    Set<VersionValidator> getVersionValidators();
+    Set<ArtifactCoordinatesValidator> getVersionValidators();
 
 }

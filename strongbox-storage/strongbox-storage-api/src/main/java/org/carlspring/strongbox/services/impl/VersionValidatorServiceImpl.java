@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.services.VersionValidatorService;
-import org.carlspring.strongbox.storage.validation.version.VersionValidator;
+import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 
 import javax.inject.Inject;
 import java.util.LinkedHashSet;
@@ -18,7 +18,7 @@ public class VersionValidatorServiceImpl
 {
 
     @Inject
-    private Set<VersionValidator> versionValidators = new LinkedHashSet<>();
+    private Set<ArtifactCoordinatesValidator> versionValidators = new LinkedHashSet<>();
 
 
     public VersionValidatorServiceImpl()
@@ -26,12 +26,12 @@ public class VersionValidatorServiceImpl
     }
 
     @Override
-    public Set<VersionValidator> getVersionValidators()
+    public Set<ArtifactCoordinatesValidator> getVersionValidators()
     {
         return versionValidators;
     }
 
-    public void setVersionValidators(Set<VersionValidator> versionValidators)
+    public void setVersionValidators(Set<ArtifactCoordinatesValidator> versionValidators)
     {
         this.versionValidators = versionValidators;
     }

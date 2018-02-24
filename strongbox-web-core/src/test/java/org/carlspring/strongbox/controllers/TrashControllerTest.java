@@ -4,7 +4,7 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
@@ -59,6 +59,9 @@ public class TrashControllerTest
     @Inject
     private ConfigurationManager configurationManager;
 
+    @Inject
+    private MavenRepositoryFactory mavenRepositoryFactory;
+
 
     @BeforeClass
     public static void cleanUp()
@@ -73,8 +76,6 @@ public class TrashControllerTest
     {
         super.init();
 
-        Storage storage = configurationManager.getConfiguration().getStorage(STORAGE0);
-
         // Notes:
         // - Used by testForceDeleteArtifactNotAllowed()
         // - Forced deletions are not allowed
@@ -82,8 +83,7 @@ public class TrashControllerTest
         MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        Repository repositoryWithTrash = new Repository(REPOSITORY_WITH_TRASH);
-        repositoryWithTrash.setStorage(storage);
+        Repository repositoryWithTrash = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_WITH_TRASH);
         repositoryWithTrash.setAllowsForceDeletion(false);
         repositoryWithTrash.setTrashEnabled(true);
         repositoryWithTrash.setRepositoryConfiguration(mavenRepositoryConfiguration);
@@ -96,8 +96,8 @@ public class TrashControllerTest
         // Notes:
         // - Used by testForceDeleteArtifactAllowed()
         // - Forced deletions are allowed
-        Repository repositoryWithForceDeletions = new Repository(REPOSITORY_WITH_FORCE_DELETE);
-        repositoryWithForceDeletions.setStorage(storage);
+        Repository repositoryWithForceDeletions = mavenRepositoryFactory.createRepository(STORAGE0,
+                                                                                          REPOSITORY_WITH_FORCE_DELETE);
         repositoryWithForceDeletions.setAllowsForceDeletion(false);
         repositoryWithForceDeletions.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
@@ -132,10 +132,8 @@ public class TrashControllerTest
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE0, REPOSITORY_WITH_TRASH, artifactPath, false);
 
-        final Path repositoryDir = Paths.get(
-                BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.trash");
-        final Path repositoryIndexDir = Paths.get(
-                BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.index");
+        final Path repositoryDir = Paths.get(BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.trash");
+        final Path repositoryIndexDir = Paths.get(BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.index");
         final Path artifactFile = repositoryDir.resolve(artifactPath);
 
         logger.debug("Artifact file: " + artifactFile.toAbsolutePath());
@@ -171,7 +169,6 @@ public class TrashControllerTest
 
     @Test
     public void testDeleteArtifactAndEmptyTrashForRepositoryWithTextAcceptHeader()
-            throws Exception
     {
         String url = getContextBaseUrl() + "/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
@@ -190,7 +187,6 @@ public class TrashControllerTest
 
     @Test
     public void testDeleteArtifactAndEmptyTrashForRepositoryWithJsonAcceptHeader()
-            throws Exception
     {
         String url = getContextBaseUrl() + "/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
@@ -209,7 +205,6 @@ public class TrashControllerTest
 
     @Test
     public void testDeleteArtifactAndEmptyTrashForAllRepositoriesWithTextAcceptHeader()
-            throws Exception
     {
         String url = getContextBaseUrl() + "/trash";
 
@@ -227,7 +222,6 @@ public class TrashControllerTest
 
     @Test
     public void testDeleteArtifactAndEmptyTrashForAllRepositoriesWithJsonAcceptHeader()
-            throws Exception
     {
         String url = getContextBaseUrl() + "/trash";
 
@@ -241,4 +235,5 @@ public class TrashControllerTest
 
         assertFalse("Failed to empty trash for all repositories", Files.exists(ARTIFACT_FILE_IN_TRASH));
     }
+
 }

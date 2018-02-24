@@ -1,10 +1,9 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
@@ -19,6 +18,7 @@ import java.util.Set;
 
 import com.google.common.base.Throwables;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpHeaders;
@@ -52,7 +52,8 @@ public class TrashControllerUndeleteTest
                                                                 "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
     @Inject
-    private ConfigurationManager configurationManager;
+    private MavenRepositoryFactory mavenRepositoryFactory;
+
 
     @BeforeClass
     public static void cleanUp()
@@ -67,8 +68,6 @@ public class TrashControllerUndeleteTest
     {
         super.init();
 
-        Storage storage = configurationManager.getConfiguration().getStorage(STORAGE0);
-
         // Notes:
         // - Used by testForceDeleteArtifactNotAllowed()
         // - Forced deletions are not allowed
@@ -76,8 +75,7 @@ public class TrashControllerUndeleteTest
         MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(true);
 
-        Repository repositoryWithTrash = new Repository(REPOSITORY_WITH_TRASH);
-        repositoryWithTrash.setStorage(storage);
+        Repository repositoryWithTrash = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_WITH_TRASH);
         repositoryWithTrash.setAllowsForceDeletion(false);
         repositoryWithTrash.setTrashEnabled(true);
         repositoryWithTrash.setRepositoryConfiguration(mavenRepositoryConfiguration);
@@ -87,8 +85,7 @@ public class TrashControllerUndeleteTest
         // Notes:
         // - Used by testForceDeleteArtifactAllowed()
         // - Forced deletions are allowed
-        Repository repositoryReleases = new Repository(REPOSITORY_RELEASES);
-        repositoryReleases.setStorage(storage);
+        Repository repositoryReleases = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES);
         repositoryReleases.setAllowsForceDeletion(false);
         repositoryReleases.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
@@ -136,6 +133,7 @@ public class TrashControllerUndeleteTest
         {
             throw Throwables.propagate(e);
         }
+
         super.shutdown();
     }
 

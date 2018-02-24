@@ -1,31 +1,28 @@
 package org.carlspring.strongbox.configuration;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Optional;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.services.ServerConfigurationService;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
 
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.apache.commons.io.IOUtils;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ServerConfigurationService;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 @Component("configurationRepository")
 @Transactional
@@ -46,9 +43,6 @@ public class ConfigurationRepository
     @Inject
     private OEntityManager oEntityManager;
     
-    @Inject
-    private ConfigurationManager configurationManager;
-
     @Inject
     private TransactionTemplate transactionTemplate;
     
