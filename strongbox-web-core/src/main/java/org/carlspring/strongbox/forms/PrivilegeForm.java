@@ -8,7 +8,7 @@ import javax.validation.constraints.NotEmpty;
 public class PrivilegeForm
 {
 
-    @NotEmpty(message = "This field must not be empty.")
+    @NotEmpty(message = "A name must be specified.")
     private String name;
 
     private String description;

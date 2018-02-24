@@ -15,7 +15,7 @@ import com.google.common.collect.Sets;
 public class RoleForm
 {
 
-    @NotEmpty(message = "This field must not be empty.")
+    @NotEmpty(message = "A name must be specified.")
     @UniqueRoleName(message = "Role is already registered.")
     private String name;
 
