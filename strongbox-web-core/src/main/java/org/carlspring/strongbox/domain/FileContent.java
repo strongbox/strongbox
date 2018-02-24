@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.domain;
 
+import java.util.Date;
+
 public class FileContent 
 {
     private String name;
 
-    private String size;
+    private Long size;
 
-    private String lastModified;
+    private Date lastModified;
     
     private String storageId;
     
@@ -19,12 +21,12 @@ public class FileContent
         return name;
     }
 
-    public String getSize()
+    public Long getSize()
     {
         return size;
     }
 
-    public String getLastModified()
+    public Date getLastModified()
     {
         return lastModified;
     }
@@ -49,12 +51,12 @@ public class FileContent
         this.name = name;
     }
 
-    public void setSize(String size)
+    public void setSize(Long size)
     {
         this.size = size;
     }
 
-    public void setLastModified(String lastModified)
+    public void setLastModified(Date lastModified)
     {
         this.lastModified = lastModified;
     }

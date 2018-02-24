@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +20,8 @@ import java.util.regex.Matcher;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.FileUtils;
 import org.carlspring.strongbox.domain.DirectoryContent;
 import org.carlspring.strongbox.domain.FileContent;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
@@ -454,10 +457,9 @@ public class BrowseController
                                String path)
             throws IOException
     {
+        
         String name = fileContent.getName();
-        String size = fileContent.getSize();
-        String lastModified = fileContent.getLastModified();
-
+        
         sb.append("<tr>");
 
         if(isDirectory)
@@ -471,10 +473,16 @@ public class BrowseController
             URL artifactUrl = artifactResolutionService.resolveResource(storageId, repositoryId, artifactPath);           
             sb.append("<td><a href='" + artifactUrl + "'>" + name + "</a></td>");
         }
-        sb.append("<td>" + lastModified + "</td>");
-        sb.append("<td>" + size + "</td>");
+        sb.append("<td>" + Optional.ofNullable(fileContent.getLastModified())
+                                   .map(d -> new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(d))
+                                   .orElse("-")
+                + "</td>");
+        sb.append("<td>"
+                + Optional.ofNullable(fileContent.getSize()).map(s -> FileUtils.byteCountToDisplaySize(s)).orElse("-")
+                + "</td>");
         sb.append("<td></td>");
         sb.append("</tr>");
+
         return true;
     }
 }

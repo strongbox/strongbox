@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.services;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.apache.commons.io.FileUtils;
@@ -13,32 +15,30 @@ public class FileContentFetcher
 {
     public FileContent fetchFileContent(Path path)
     {
-        if(path == null)
+        if (path == null)
+        {
             return null;
+        }
         
-        Path fileName = path.getFileName();
-        if(fileName == null)
+        BasicFileAttributes attributes;
+        try
+        {
+            attributes = Files.readAttributes(path, BasicFileAttributes.class);
+        }
+        catch (IOException e)
         {
             return null;
         }
         
         FileContent fileContent = new FileContent();
+        fileContent.setName(path.getFileName().toString());
         
-        String name = fileName.toString();
-        String size = FileUtils.byteCountToDisplaySize(path.toFile().length());
-        String lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss")
-                                .format(new Date(path.toFile().lastModified()));
+        if (attributes.isDirectory()) {
+            return fileContent;
+        }
         
-        fileContent.setName(name);
-        if(Files.isDirectory(path))
-        {
-            fileContent.setSize("-");
-        }
-        else
-        {
-            fileContent.setSize(size);
-        }
-        fileContent.setLastModified(lastModified);
+        fileContent.setLastModified(new Date(attributes.lastModifiedTime().toMillis()));
+        fileContent.setSize(attributes.size());
         
         return fileContent;
     }
