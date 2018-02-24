@@ -5,6 +5,7 @@ import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -22,7 +23,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -53,6 +53,10 @@ public class NugetLayoutProvider
 
     @Inject
     private ArtifactManagementService nugetArtifactManagementService;
+
+    @Inject
+    private NugetRepositoryFeatures nugetRepositoryFeatures;
+
 
     @Override
     @PostConstruct
@@ -85,9 +89,7 @@ public class NugetLayoutProvider
     public void deleteMetadata(String storageId,
                                String repositoryId,
                                String metadataPath)
-        throws IOException
     {
-
     }
 
     private String toBase64(byte[] digest)
@@ -95,6 +97,12 @@ public class NugetLayoutProvider
         byte[] encoded = Base64.getEncoder()
                                .encode(digest);
         return new String(encoded, StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public Set<String> getDefaultArtifactCoordinateValidators()
+    {
+        return nugetRepositoryFeatures.getDefaultArtifactCoordinateValidators();
     }
 
     @Override
@@ -108,9 +116,6 @@ public class NugetLayoutProvider
     public void rebuildMetadata(String storageId,
                                 String repositoryId,
                                 String basePath)
-            throws IOException,
-            NoSuchAlgorithmException,
-            XmlPullParserException
     {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
@@ -120,7 +125,6 @@ public class NugetLayoutProvider
                                String repositoryId,
                                String basePath,
                                boolean forceRegeneration)
-            throws IOException
     {
         throw new UnsupportedOperationException("Not yet implemented!");
     }

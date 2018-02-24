@@ -2,7 +2,7 @@ package org.carlspring.strongbox.storage.validation.groupid;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.validation.artifact.LowercaseValidationException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,8 +25,6 @@ public class MavenGroupIdLowercaseValidatorTest
     MavenGroupIdLowercaseValidator groupIdCaseValidator = new MavenGroupIdLowercaseValidator();
 
     MavenArtifactCoordinates mavenArtifactCoordinates;
-    @Mock
-    RepositoryPath repositoryPath = new RepositoryPath(null, null);
 
     @Mock
     RepositoryFileAttributes repositoryFileAttributes;
@@ -49,7 +47,7 @@ public class MavenGroupIdLowercaseValidatorTest
     {
         doReturn(repositoryFileAttributes).when(groupIdCaseValidator).getAttributes(any());
         when(repositoryFileAttributes.getCoordinates()).thenReturn(mavenArtifactCoordinates);
-        groupIdCaseValidator.validateCase(repositoryPath);
+        groupIdCaseValidator.validate(null, mavenArtifactCoordinates);
     }
 
 }

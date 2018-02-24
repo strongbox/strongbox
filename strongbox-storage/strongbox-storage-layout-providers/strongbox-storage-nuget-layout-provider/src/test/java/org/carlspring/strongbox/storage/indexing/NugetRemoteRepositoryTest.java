@@ -1,16 +1,5 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
@@ -22,18 +11,26 @@ import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithRepository;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 /**
  * @author Sergey Bespalov
  *
@@ -60,6 +57,9 @@ public class NugetRemoteRepositoryTest
     @Inject
     private NugetRepositoryFeatures features;
 
+    @Inject
+    private NugetRepositoryFactory nugetRepositoryFactory;
+
     @BeforeClass
     public static void cleanUp()
         throws Exception
@@ -79,11 +79,7 @@ public class NugetRemoteRepositoryTest
     public void initialize()
         throws Exception
     {
-        Storage storage = configurationManager.getConfiguration().getStorage(NUGET_COMMON_STORAGE);
-
-        Repository repository = new Repository(REPOSITORY_PROXY);
-        repository.setStorage(storage);
-        repository.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
+        Repository repository = nugetRepositoryFactory.createRepository(NUGET_COMMON_STORAGE, REPOSITORY_PROXY);
         repository.setType("proxy");
         repository.setRemoteRepository(new RemoteRepository());
         repository.getRemoteRepository().setUrl("https://www.nuget.org/api/v2");
@@ -123,8 +119,8 @@ public class NugetRemoteRepositoryTest
                                                                                      REPOSITORY_PROXY,
                                                                                      c.toPath());
 
-        assertTrue(artifactEntry.isPresent());
-        assertFalse(((RemoteArtifactEntry) artifactEntry.get()).getIsCached());
+        Assert.assertTrue(artifactEntry.isPresent());
+        Assert.assertFalse(((RemoteArtifactEntry) artifactEntry.get()).getIsCached());
     }
 
 }

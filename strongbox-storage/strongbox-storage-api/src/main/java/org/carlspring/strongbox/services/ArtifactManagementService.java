@@ -21,9 +21,11 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
-import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
-import org.carlspring.strongbox.storage.validation.version.VersionValidator;
+import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
+import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 
 import javax.inject.Inject;
 import java.io.*;
@@ -59,7 +61,7 @@ public class ArtifactManagementService implements ConfigurationService
     protected ArtifactOperationsValidator artifactOperationsValidator;
     
     @Inject
-    protected VersionValidatorService versionValidatorService;
+    protected ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
     
     @Inject
     protected ConfigurationManager configurationManager;
@@ -90,14 +92,16 @@ public class ArtifactManagementService implements ConfigurationService
                                  InputStream is)
             throws IOException,
                    ProviderImplementationException,
-                   NoSuchAlgorithmException
+                   NoSuchAlgorithmException,
+                   ArtifactCoordinatesValidationException
     {
         Storage storage = layoutProviderRegistry.getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
         
-        performRepositoryAcceptanceValidation(repositoryPath);        
+        performRepositoryAcceptanceValidation(repositoryPath);
+
         return store(repositoryPath, is);
     }
     
@@ -111,7 +115,7 @@ public class ArtifactManagementService implements ConfigurationService
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
         URI pathUri = repositoryPath.toUri();
-        accureLock(pathUri);
+        acquireLock(pathUri);
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(storage.getId(),
                                                                                           repository.getId(),
                                                                                           RepositoryFiles.stringValue(repositoryPath)))
@@ -121,7 +125,9 @@ public class ArtifactManagementService implements ConfigurationService
         catch (IOException e)
         {
             throw new ArtifactStorageException(e);
-        } finally {
+        }
+        finally
+        {
             releaseLock(pathUri);
         }
     }
@@ -132,10 +138,11 @@ public class ArtifactManagementService implements ConfigurationService
         lock.unlock();
     }
 
-    public void accureLock(URI pathUri)
+    public void acquireLock(URI pathUri)
     {
         Lock lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
         lock.lock();
+
         while (!pathUriMap.containsKey(pathUri))
         {
             lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
@@ -146,8 +153,7 @@ public class ArtifactManagementService implements ConfigurationService
     private long storeArtifact(RepositoryPath repositoryPath,
                                InputStream is,
                                OutputStream os)
-            throws IOException,
-                   ProviderImplementationException
+            throws IOException
     {
         ArtifactOutputStream aos = StreamUtils.findSource(ArtifactOutputStream.class, os);
         
@@ -165,6 +171,7 @@ public class ArtifactManagementService implements ConfigurationService
         boolean updatedMetadataFile = false;
         boolean updatedArtifactFile = false;
         boolean updatedArtifactChecksumFile = false;
+
         if (Files.exists(repositoryPath))
         {
             if (RepositoryFiles.isMetadata(repositoryPath))
@@ -196,8 +203,8 @@ public class ArtifactManagementService implements ConfigurationService
             artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storageId, repositoryId, artifactPath);
         }
 
-        long totalAmountOfBytes = artifactByteStreamsCopyStrategyDeterminator.determine(repository).copy(is, os,
-                                                                                                         repositoryPath);
+        long totalAmountOfBytes = artifactByteStreamsCopyStrategyDeterminator.determine(repository)
+                                                                             .copy(is, os, repositoryPath);
 
         artifactEventListenerRegistry.dispatchArtifactStoredEvent(storageId, repositoryId, artifactPath);
 
@@ -252,7 +259,6 @@ public class ArtifactManagementService implements ConfigurationService
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,
                                                       String artifactPath)
-            throws ArtifactStorageException
     {
         logger.debug("Received checksum: " + new String(checksum, StandardCharsets.UTF_8));
 
@@ -261,7 +267,9 @@ public class ArtifactManagementService implements ConfigurationService
 
         if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {
-            logger.error(String.format("The checksum for %s [%s] is invalid!", artifactPath, new String(checksum, StandardCharsets.UTF_8)));
+            logger.error(String.format("The checksum for %s [%s] is invalid!",
+                                       artifactPath,
+                                       new String(checksum, StandardCharsets.UTF_8)));
         }
 
         checksumCacheManager.removeArtifactChecksum(artifactBasePath, checksumExtension);
@@ -311,7 +319,7 @@ public class ArtifactManagementService implements ConfigurationService
     }
 
     private boolean performRepositoryAcceptanceValidation(RepositoryPath path)
-            throws IOException, ProviderImplementationException
+            throws IOException, ProviderImplementationException, ArtifactCoordinatesValidationException
     {
         logger.info(String.format("Validate artifact with path [%s]", path));
         
@@ -323,14 +331,16 @@ public class ArtifactManagementService implements ConfigurationService
         if (!RepositoryFiles.isMetadata(path) && !RepositoryFiles.isChecksum(path))
         {
             ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(path);
+            
             logger.info(String.format("Validate artifact with coordinates [%s]", coordinates));
             
             try
             {
-                final Set<VersionValidator> validators = versionValidatorService.getVersionValidators();
-                for (VersionValidator validator : validators)
+                for (String validatorKey : repository.getArtifactCoordinateValidators())
                 {
-                    if (validator.supports(repository)) {
+                    ArtifactCoordinatesValidator validator = artifactCoordinatesValidatorRegistry.getProvider(validatorKey);
+                    if (validator.supports(repository))
+                    {
                         validator.validate(repository, coordinates);
                     }
                 }
@@ -360,8 +370,7 @@ public class ArtifactManagementService implements ConfigurationService
     public InputStream resolve(String storageId,
                                String repositoryId,
                                String path)
-            throws IOException,
-                   ArtifactTransportException,
+            throws ArtifactTransportException,
                    ProviderImplementationException
     {
         try

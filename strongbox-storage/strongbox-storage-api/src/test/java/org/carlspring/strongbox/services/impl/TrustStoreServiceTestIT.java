@@ -22,7 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = StorageApiTestConfig.class)
-public class TrustStoreServiceImplTest
+public class TrustStoreServiceTestIT
 {
 
     @Inject

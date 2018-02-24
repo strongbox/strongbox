@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.configuration;
 
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
@@ -11,10 +13,9 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;

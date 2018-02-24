@@ -1,10 +1,8 @@
 package org.carlspring.strongbox.event.artifact;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
-
-import java.nio.file.Path;
 
 import org.springframework.stereotype.Component;
 
@@ -21,7 +19,7 @@ public class MavenArtifactUpdatedEventListener
     {
         final Repository repository = getRepository(event);
 
-        if (!RepositoryLayoutEnum.MAVEN_2.getLayout().equals(repository.getLayout()))
+        if (!Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
         {
             return;
         }
@@ -33,4 +31,5 @@ public class MavenArtifactUpdatedEventListener
 
         updateMetadataInGroupsContainingRepository(event, RepositoryPath::getParent);
     }
+
 }
