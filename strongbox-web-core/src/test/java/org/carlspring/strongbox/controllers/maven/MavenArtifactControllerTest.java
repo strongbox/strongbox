@@ -653,7 +653,7 @@ public class MavenArtifactControllerTest
 
         assertTrue("Failed to locate artifact file '" + artifact.getAbsolutePath() + "'!", artifact.exists());
 
-        String basePath = "storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES1;
+        String basePath = "browse/" + STORAGE0 + "/" + REPOSITORY_RELEASES1;
 
         ExtractableResponse repositoryRoot = client.getResourceWithResponse(basePath, "");
         ExtractableResponse trashDirectoryListing = client.getResourceWithResponse(basePath, ".trash");
