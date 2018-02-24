@@ -2,14 +2,12 @@ package org.carlspring.strongbox.repository;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteFeedCronJob;
-import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +26,10 @@ public class NugetRepositoryManagementStrategy
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
-    @Inject
-    private CronJobSchedulerService cronJobSchedulerService;
-
     @Override
     protected void createRepositoryInternal(Storage storage,
                                             Repository repository)
-        throws IOException,
-        RepositoryManagementStrategyException
+        throws RepositoryManagementStrategyException
     {
         String storageId = storage.getId();
         String repositoryId = repository.getId();
@@ -49,7 +43,6 @@ public class NugetRepositoryManagementStrategy
     @Override
     public void createRepositoryStructure(String storageBasedirPath,
                                           String repositoryId)
-        throws IOException
     {
         final File storageBasedir = new File(storageBasedirPath);
         final File repositoryDir = new File(storageBasedir, repositoryId);
@@ -68,8 +61,12 @@ public class NugetRepositoryManagementStrategy
         throws RepositoryManagementStrategyException
     {
         boolean shouldDownloadRemoteRepositoryFeed = shouldDownloadRemoteRepositoryFeed();
-        logger.info(String.format("%s/%s: shouldDownloadRemoteRepositoryFeed-[%s]", storageId, repositoryId,
+
+        logger.info(String.format("%s/%s: shouldDownloadRemoteRepositoryFeed-[%s]",
+                                  storageId,
+                                  repositoryId,
                                   shouldDownloadRemoteRepositoryFeed));
+
         if (!shouldDownloadRemoteRepositoryFeed)
         {
             return;

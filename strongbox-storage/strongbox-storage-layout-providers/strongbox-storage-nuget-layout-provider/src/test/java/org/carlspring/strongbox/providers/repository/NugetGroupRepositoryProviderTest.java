@@ -1,16 +1,5 @@
 package org.carlspring.strongbox.providers.repository;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -37,14 +26,12 @@ import java.util.Set;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
-
-import ru.aristar.jnuget.files.NugetFormatException;
-import static org.junit.Assert.assertEquals;
-
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import ru.aristar.jnuget.files.NugetFormatException;
+import static org.junit.Assert.assertEquals;
 /**
  * @author sbespalov
  *
@@ -208,7 +195,6 @@ public class NugetGroupRepositoryProviderTest
 
     @Test
     public void testGroupSearch()
-            throws Exception
     {
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());

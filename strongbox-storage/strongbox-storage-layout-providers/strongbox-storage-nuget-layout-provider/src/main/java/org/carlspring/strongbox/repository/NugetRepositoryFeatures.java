@@ -1,17 +1,5 @@
 package org.carlspring.strongbox.repository;
 
-import java.net.URI;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
-
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -41,23 +29,14 @@ import org.carlspring.strongbox.storage.validation.artifact.version.GenericRelea
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.xml.configuration.repository.NugetRepositoryConfiguration;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import org.slf4j.Logger;
@@ -102,12 +81,6 @@ public class NugetRepositoryFeatures
 
     @PersistenceContext
     private EntityManager entityManager;
-
-    @Inject
-    private GenericReleaseVersionValidator nugetReleaseVersionValidator;
-
-    @Inject
-    private GenericSnapshotVersionValidator nugetSnapshotVersionValidator;
 
     @Inject
     private RedeploymentValidator redeploymentValidator;
