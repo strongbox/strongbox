@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.storage.repository;
 
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
@@ -29,10 +30,10 @@ public class Repository
     private String policy = RepositoryPolicyEnum.MIXED.getPolicy();
 
     @XmlAttribute
-    private String implementation = "file-system";
+    private String implementation = FileSystemStorageProvider.ALIAS;
 
     @XmlAttribute
-    private String layout = RepositoryLayoutEnum.MAVEN_2.getLayout();
+    private String layout;
 
     @XmlAttribute
     private String type = RepositoryTypeEnum.HOSTED.getType();
@@ -89,11 +90,9 @@ public class Repository
     @XmlElementWrapper(name = "group")
     private Set<String> groupRepositories = new LinkedHashSet<>();
 
-   
-    @XmlElement(name = "validator")
-    @XmlElementWrapper(name = "version-validators")
-    private Set<VersionValidatorType> versionValidators = new LinkedHashSet<>(Arrays.asList(
-            VersionValidatorType.values()));
+    @XmlElement(name = "artifact-coordinate-validator")
+    @XmlElementWrapper(name = "artifact-coordinate-validators")
+    private Set<String> artifactCoordinateValidators = new LinkedHashSet<>();
 
     @XmlTransient
     private Storage storage;
@@ -106,13 +105,6 @@ public class Repository
     public Repository(String id)
     {
         this.id = id;
-    }
-
-    public Repository(String id,
-                      boolean secured)
-    {
-        this.id = id;
-        this.secured = secured;
     }
 
     public String getId()
@@ -448,14 +440,14 @@ public class Repository
         this.artifactMaxSize = artifactMaxSize;
     }
 
-    public Set<VersionValidatorType> getVersionValidators()
+    public Set<String> getArtifactCoordinateValidators()
     {
-        return versionValidators;
+        return artifactCoordinateValidators;
     }
 
-    public void setVersionValidators(Set<VersionValidatorType> versionValidators)
+    public void setArtifactCoordinateValidators(Set<String> artifactCoordinateValidators)
     {
-        this.versionValidators = versionValidators;
+        this.artifactCoordinateValidators = artifactCoordinateValidators;
     }
 
 }

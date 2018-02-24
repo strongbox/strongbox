@@ -14,6 +14,7 @@ import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NpmPackageGenerator;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithRepositoryManagement;
@@ -34,7 +35,7 @@ public class NpmArtifactControllerTest extends TestCaseWithRepositoryManagement
     private static final String REPOSITORY_RELEASES_1 = "npm-releases-test";
 
     @Inject
-    private ConfigurationManager configurationManager;
+    private NpmRepositoryFactory npmRepositoryFactory;
 
     @Inject
     @Qualifier("contextBaseUrl")
@@ -59,13 +60,10 @@ public class NpmArtifactControllerTest extends TestCaseWithRepositoryManagement
     public void init()
         throws Exception
     {
-
         createStorage(STORAGE_ID);
 
-        Repository repository1 = new Repository(REPOSITORY_RELEASES_1);
+        Repository repository1 = npmRepositoryFactory.createRepository(STORAGE_ID, REPOSITORY_RELEASES_1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE_ID));
-        repository1.setLayout("npm");
 
         createRepository(repository1);
     }
@@ -74,11 +72,9 @@ public class NpmArtifactControllerTest extends TestCaseWithRepositoryManagement
     public void testPackageCommonFlow()
         throws Exception
     {
-        NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("@carlspring/npm-test-release",
-                                                                       "1.0.0");
+        NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("@carlspring/npm-test-release", "1.0.0");
         NpmPackageGenerator packageGenerator = NpmPackageGenerator.newInstance();
-        Path publishJsonPath = packageGenerator.of(coordinates)
-                                               .buildPublishJson();
+        Path publishJsonPath = packageGenerator.of(coordinates).buildPublishJson();
         Path packagePath = packageGenerator.getPackagePath();
 
         byte[] publishJsonContent = Files.readAllBytes(publishJsonPath);
@@ -103,7 +99,6 @@ public class NpmArtifactControllerTest extends TestCaseWithRepositoryManagement
                .statusCode(HttpStatus.OK.value())
                .assertThat()
                .header("Content-Length", equalTo(String.valueOf(Files.size(packagePath))));
-
     }
 
 }

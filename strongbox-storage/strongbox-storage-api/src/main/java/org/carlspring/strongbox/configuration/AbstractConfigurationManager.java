@@ -56,7 +56,6 @@ public abstract class AbstractConfigurationManager<T>
     }
 
     public synchronized void store(ServerConfiguration configuration)
-            throws IOException, JAXBException
     {
         try
         {

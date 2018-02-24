@@ -16,9 +16,9 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  * @author Przemyslaw Fusik
  */
 @Configuration
-@Import({ Maven2LayoutProviderConfig.class,
-          StorageCoreConfig.class,
+@Import({ StorageCoreConfig.class,
           StorageApiConfig.class,
+          Maven2LayoutProviderConfig.class,
           MockedRemoteRepositoriesHeartbeatConfig.class,
           CommonConfig.class,
           ClientConfig.class,
@@ -35,8 +35,9 @@ public class Maven2LayoutProviderTestConfig
     {
         final ResourceFetcherFactory resourceFetcherFactory = Mockito.mock(ResourceFetcherFactory.class);
 
-        Mockito.when(resourceFetcherFactory.createIndexResourceFetcher(Matchers.anyString(), Matchers.any(
-                CloseableHttpClient.class))).thenReturn(resourceFetcher);
+        Mockito.when(resourceFetcherFactory.createIndexResourceFetcher(Matchers.anyString(),
+                                                                       Matchers.any(CloseableHttpClient.class)))
+               .thenReturn(resourceFetcher);
 
         return resourceFetcherFactory;
     }

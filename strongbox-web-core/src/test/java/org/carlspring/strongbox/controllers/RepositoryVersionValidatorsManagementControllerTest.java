@@ -1,15 +1,18 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.VersionValidatorType;
+import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Test;
@@ -28,7 +31,15 @@ public class RepositoryVersionValidatorsManagementControllerTest
 {
 
     @Inject
-    private ConfigurationManager configurationManager;
+    private MavenRepositoryFactory mavenRepositoryFactory;
+
+    @Inject
+    private RedeploymentValidator redeploymentValidator;
+
+
+    @Inject
+    private Maven2LayoutProvider maven2LayoutProvider;
+
 
     @Override
     public void init()
@@ -36,63 +47,60 @@ public class RepositoryVersionValidatorsManagementControllerTest
     {
         super.init();
 
-        Repository repository1 = new Repository("redeployment-validated-only");
+        Repository repository1 = mavenRepositoryFactory.createRepository(STORAGE0, "releases-with-single-validator");
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
-        repository1.setVersionValidators(new HashSet<>(Arrays.asList(VersionValidatorType.REDEPLOYMENT)));
+        repository1.setArtifactCoordinateValidators(new LinkedHashSet<>(Collections.singletonList(redeploymentValidator.getAlias())));
 
         createRepository(repository1);
 
-        Repository repository2 = new Repository("all-validators");
+        Repository repository2 = mavenRepositoryFactory.createRepository(STORAGE0, "releases-with-default-validators");
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository2.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
 
         createRepository(repository2);
 
         Repository repository3 = new Repository("single-validator-only");
         repository3.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository3.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
-        repository3.setVersionValidators(new HashSet<>(Arrays.asList(VersionValidatorType.REDEPLOYMENT)));
+        repository3.setArtifactCoordinateValidators(new LinkedHashSet<>(Collections.singletonList(redeploymentValidator.getAlias())));
 
         createRepository(repository3);
     }
 
     @Test
-    public void expectedOneValidatorForRedeploymentValidatedOnlyRepository()
-            throws Exception
+    public void expectOneValidator()
     {
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/repositories/version-validators/storage0/redeployment-validated-only")
+                          .get("/configuration/repositories/version-validators/storage0/releases-with-single-validator")
                           .peek()
                           .then()
-                          .body(equalTo("[ \"REDEPLOYMENT\" ]"))
+                          .body(equalTo("[ \"redeployment-validator\" ]"))
                           .statusCode(200);
     }
 
     @Test
-    public void expectedThreeValidatorsForReleaseRepository()
-            throws Exception
+    public void expectedTwoValidatorsForRepositoryWithDefaultValidators()
     {
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/repositories/version-validators/storage0/releases")
+                          .get("/configuration/repositories/version-validators/storage0/releases-with-default-validators")
                           .peek()
                           .then()
-                          .body(equalTo("[ \"REDEPLOYMENT\", \"RELEASE\", \"SNAPSHOT\" ]"))
+                          .body(anyOf(equalTo("[ \"redeployment-validator\", \"maven-release-version-validator\" ]"),
+                                      equalTo("[ \"maven-release-version-validator\", \"redeployment-validator\" ]")))
                           .statusCode(200);
     }
 
     @Test
     public void validatorsForReleaseRepositoryShouldBeRemovableAndFailSafe()
-            throws Exception
     {
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .delete("/configuration/repositories/version-validators/storage0/all-validators/SNAPSHOT")
+                          .delete("/configuration/repositories/version-validators/storage0/releases-with-default-validators/maven-snapshot-version-validator")
                           .peek()
                           .then()
                           .statusCode(200);
@@ -100,67 +108,30 @@ public class RepositoryVersionValidatorsManagementControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/repositories/version-validators/storage0/all-validators")
+                          .get("/configuration/repositories/version-validators/storage0/releases-with-default-validators")
                           .peek()
                           .then()
-                          .body(equalTo("[ \"REDEPLOYMENT\", \"RELEASE\" ]"))
-                          .statusCode(200);
-
-        RestAssuredMockMvc.given()
-                          .header("Accept", "application/json")
-                          .when()
-                          .delete("/configuration/repositories/version-validators/storage0/all-validators/SNAPSHOT")
-                          .peek()
-                          .then()
-                          .statusCode(200);
-
-        RestAssuredMockMvc.given()
-                          .header("Accept", "application/json")
-                          .when()
-                          .get("/configuration/repositories/version-validators/storage0/all-validators")
-                          .peek()
-                          .then()
-                          .body(equalTo("[ \"REDEPLOYMENT\", \"RELEASE\" ]"))
+                          .body(anyOf(equalTo("[ \"redeployment-validator\", \"maven-release-version-validator\" ]"),
+                                      equalTo("[ \"maven-release-version-validator\", \"redeployment-validator\" ]")))
                           .statusCode(200);
     }
 
     @Test
     public void validatorsForReleaseRepositoryShouldBeAdditableAndFailSafe()
-            throws Exception
     {
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/repositories/version-validators/storage0/single-validator-only")
+                          .get("/configuration/repositories/version-validators/storage0/releases-with-single-validator")
                           .peek()
                           .then()
-                          .body(equalTo("[ \"REDEPLOYMENT\" ]"))
+                          .body(equalTo("[ \"redeployment-validator\" ]"))
                           .statusCode(200);
 
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .put("/configuration/repositories/version-validators/storage0/single-validator-only/SNAPSHOT")
-                          .peek()
-                          .then()
-                          .statusCode(200);
-
-        RestAssuredMockMvc.given()
-                          .header("Accept", "application/json")
-                          .when()
-                          .get("/configuration/repositories/version-validators/storage0/single-validator-only")
-                          .peek()
-                          .then()
-                          .body(anyOf(
-                                  equalTo("[ \"REDEPLOYMENT\", \"SNAPSHOT\" ]"),
-                                  equalTo("[ \"SNAPSHOT\", \"REDEPLOYMENT\" ]")
-                          ))
-                          .statusCode(200);
-
-        RestAssuredMockMvc.given()
-                          .header("Accept", "application/json")
-                          .when()
-                          .put("/configuration/repositories/version-validators/storage0/single-validator-only/SNAPSHOT")
+                          .put("/configuration/repositories/version-validators/storage0/releases-with-single-validator/maven-snapshot-version-validator")
                           .peek()
                           .then()
                           .statusCode(200);
@@ -168,13 +139,29 @@ public class RepositoryVersionValidatorsManagementControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/repositories/version-validators/storage0/single-validator-only")
+                          .get("/configuration/repositories/version-validators/storage0/releases-with-single-validator")
                           .peek()
                           .then()
-                          .body(anyOf(
-                                  equalTo("[ \"REDEPLOYMENT\", \"SNAPSHOT\" ]"),
-                                  equalTo("[ \"SNAPSHOT\", \"REDEPLOYMENT\" ]")
-                          ))
+                          .body(anyOf(equalTo("[ \"redeployment-validator\", \"maven-snapshot-version-validator\" ]"),
+                                      equalTo("[ \"maven-snapshot-version-validator\", \"redeployment-validator\" ]")))
+                          .statusCode(200);
+
+        RestAssuredMockMvc.given()
+                          .header("Accept", "application/json")
+                          .when()
+                          .put("/configuration/repositories/version-validators/storage0/releases-with-single-validator/maven-snapshot-version-validator")
+                          .peek()
+                          .then()
+                          .statusCode(200);
+
+        RestAssuredMockMvc.given()
+                          .header("Accept", "application/json")
+                          .when()
+                          .get("/configuration/repositories/version-validators/storage0/releases-with-single-validator")
+                          .peek()
+                          .then()
+                          .body(anyOf(equalTo("[ \"redeployment-validator\", \"maven-snapshot-version-validator\" ]"),
+                                      equalTo("[ \"maven-snapshot-version-validator\", \"redeployment-validator\" ]")))
                           .statusCode(200);
     }
 

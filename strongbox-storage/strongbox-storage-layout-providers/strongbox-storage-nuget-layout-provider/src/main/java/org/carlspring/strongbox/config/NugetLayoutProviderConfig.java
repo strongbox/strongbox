@@ -12,12 +12,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.orientechnologies.orient.core.entity.OEntityManager;
 
 @Configuration
-@ComponentScan({ "org.carlspring.strongbox.event",
+@ComponentScan({ "org.carlspring.strongbox.configuration",
+                 "org.carlspring.strongbox.event",
                  "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
-                 "org.carlspring.strongbox.storage",
-               })
+                 "org.carlspring.strongbox.storage" })
 @Import({ EventsConfig.class })
 public class NugetLayoutProviderConfig
 {

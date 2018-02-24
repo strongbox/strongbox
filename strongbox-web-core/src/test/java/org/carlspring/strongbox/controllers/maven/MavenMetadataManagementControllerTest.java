@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.controllers.maven;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
@@ -43,9 +43,6 @@ public class MavenMetadataManagementControllerTest
     private static final String REPOSITORY_RELEASES = "mmct-releases";
 
     private static final String REPOSITORY_SNAPSHOTS = "mmct-snapshots";
-    
-    private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                     "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES);
 
     private static final File REPOSITORY_BASEDIR_SNAPSHOTS = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                       "/storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS);
@@ -55,6 +52,10 @@ public class MavenMetadataManagementControllerTest
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
+
+    @Inject
+    private MavenRepositoryFactory mavenRepositoryFactory;
+
 
     @BeforeClass
     public static void cleanUp()
@@ -68,17 +69,13 @@ public class MavenMetadataManagementControllerTest
             throws Exception
     {
         // Create repositories
-        Storage storage = configurationManager.getConfiguration() .getStorage(STORAGE0);
-
-        Repository repositoryReleases = new Repository(REPOSITORY_RELEASES);
+        Repository repositoryReleases = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES);
         repositoryReleases.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repositoryReleases.setStorage(storage);
 
         createRepository(repositoryReleases);
 
-        Repository repositorySnapshots = new Repository(REPOSITORY_SNAPSHOTS);
+        Repository repositorySnapshots = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
         repositorySnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
-        repositorySnapshots.setStorage(storage);
 
         createRepository(repositorySnapshots);
 

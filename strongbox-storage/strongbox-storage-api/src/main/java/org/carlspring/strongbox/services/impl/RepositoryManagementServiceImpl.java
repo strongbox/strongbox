@@ -174,8 +174,7 @@ public class RepositoryManagementServiceImpl
 
     @Override
     public void undeleteTrash(String storageId, String repositoryId)
-            throws IOException,
-                   ProviderImplementationException
+            throws IOException
     {
         artifactOperationsValidator.checkStorageExists(storageId);
         artifactOperationsValidator.checkRepositoryExists(storageId, repositoryId);
@@ -207,23 +206,15 @@ public class RepositoryManagementServiceImpl
 
     @Override
     public void undeleteTrash()
-            throws IOException,
-                   ProviderImplementationException
+            throws ProviderImplementationException
     {
-        try
-        {
-            layoutProviderRegistry.undeleteTrash();
-            RepositoryEvent event = new RepositoryEvent(null,
-                                                        null,
-                                                        null,
-                                                        RepositoryEventTypeEnum.EVENT_REPOSITORY_UNDELETE_TRASH_FOR_ALL_REPOSITORIES
-                                                                               .getType());
-            repositoryEventListenerRegistry.dispatchEvent(event);
-        }
-        catch (IOException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
+        layoutProviderRegistry.undeleteTrash();
+        RepositoryEvent event = new RepositoryEvent(null,
+                                                    null,
+                                                    null,
+                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_UNDELETE_TRASH_FOR_ALL_REPOSITORIES
+                                                                           .getType());
+        repositoryEventListenerRegistry.dispatchEvent(event);
     }
 
     @Override

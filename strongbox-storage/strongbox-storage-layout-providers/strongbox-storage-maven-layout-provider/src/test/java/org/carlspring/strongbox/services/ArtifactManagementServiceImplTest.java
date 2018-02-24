@@ -1,10 +1,22 @@
 package org.carlspring.strongbox.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,23 +27,7 @@ import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
 import org.apache.maven.artifact.Artifact;
-import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.resource.ResourceCloser;
-import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
@@ -40,6 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.*;
 
 /**
  * @author mtodorov
@@ -76,7 +73,7 @@ public class ArtifactManagementServiceImplTest
     private ArtifactMetadataService artifactMetadataService;
 
     @Inject
-    private ConfigurationManager configurationManager;
+    private MavenRepositoryFactory mavenRepositoryFactory;
 
 
     @BeforeClass
@@ -98,17 +95,18 @@ public class ArtifactManagementServiceImplTest
             throws Exception
     {
         // Used by testDeploymentToRepositoryWithForbiddenDeployments()
-        Repository repositoryWithoutDelete = new Repository(REPOSITORY_RELEASES_WITHOUT_DELETE);
-        repositoryWithoutDelete.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        Repository repositoryWithoutDelete = mavenRepositoryFactory.createRepository(STORAGE0,
+                                                                                     REPOSITORY_RELEASES_WITHOUT_DELETE);
         repositoryWithoutDelete.setAllowsDelete(false);
+        repositoryWithoutDelete.setLayout(Maven2LayoutProvider.ALIAS);
 
         createRepositoryWithArtifacts(repositoryWithoutDelete,
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "8.0");
 
         // Used by testRedeploymentToRepositoryWithForbiddenRedeployments()
-        Repository repositoryWithoutRedeployments = new Repository(REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT);
-        repositoryWithoutRedeployments.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        Repository repositoryWithoutRedeployments = mavenRepositoryFactory.createRepository(STORAGE0,
+                                                                                            REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT);
         repositoryWithoutRedeployments.setAllowsRedeployment(false);
 
         createRepositoryWithArtifacts(repositoryWithoutRedeployments,
@@ -132,8 +130,7 @@ public class ArtifactManagementServiceImplTest
                                       "7.3"  // Used by testArtifactResolutionFromGroup()
         );
 
-        Repository repositoryGroup = new Repository(REPOSITORY_GROUP);
-        repositoryGroup.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        Repository repositoryGroup = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
@@ -146,8 +143,8 @@ public class ArtifactManagementServiceImplTest
         );
 
         // Used by testForceDelete()
-        Repository repositoryWithTrash = new Repository(REPOSITORY_RELEASES_WITH_TRASH);
-        repositoryWithTrash.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        Repository repositoryWithTrash = mavenRepositoryFactory.createRepository(STORAGE0,
+                                                                                 REPOSITORY_RELEASES_WITH_TRASH);
         repositoryWithTrash.setTrashEnabled(true);
 
         createRepositoryWithArtifacts(repositoryWithTrash,
@@ -155,8 +152,7 @@ public class ArtifactManagementServiceImplTest
                                       "7.2");
 
         // Used by testRemoveTimestampedSnapshots()
-        Repository repositorySnapshots = new Repository(REPOSITORY_SNAPSHOTS);
-        repositorySnapshots.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        Repository repositorySnapshots = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
         repositorySnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
 
         createRepository(repositorySnapshots);
@@ -178,10 +174,7 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     public void testDeploymentToRepositoryWithForbiddenDeployments()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException,
-                   ProviderImplementationException
+            throws Exception
     {
         InputStream is = null;
 
@@ -216,10 +209,7 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     public void testRedeploymentToRepositoryWithForbiddenRedeployments()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException,
-                   ProviderImplementationException
+            throws Exception
     {
         InputStream is = null;
 
@@ -256,9 +246,7 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     public void testDeletionFromRepositoryWithForbiddenDeletes()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException
+            throws IOException
     {
         //noinspection EmptyCatchBlock
         try
@@ -281,9 +269,7 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException, ProviderImplementationException
+            throws Exception
     {
         InputStream is = null;
 
@@ -379,7 +365,6 @@ public class ArtifactManagementServiceImplTest
     @Test
     public void testArtifactResolutionFromGroup()
             throws IOException,
-                   NoSuchAlgorithmException,
                    ArtifactTransportException,
                    ProviderImplementationException
     {

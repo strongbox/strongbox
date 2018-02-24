@@ -1,10 +1,10 @@
-package org.carlspring.strongbox.storage.validation.groupid;
+package org.carlspring.strongbox.storage.validation.artifact;
 
 /**
  * Created by dinesh on 12/6/17.
  */
 public class LowercaseValidationException
-        extends Exception
+        extends ArtifactCoordinatesValidationException
 {
 
     public LowercaseValidationException()

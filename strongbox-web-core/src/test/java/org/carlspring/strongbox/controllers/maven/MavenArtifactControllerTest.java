@@ -6,15 +6,15 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
@@ -95,7 +95,7 @@ public class MavenArtifactControllerTest
     private ConfigurationManager configurationManager;
 
     @Inject
-    private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
+    private MavenRepositoryFactory mavenRepositoryFactory;
 
 
     @BeforeClass
@@ -117,7 +117,6 @@ public class MavenArtifactControllerTest
     public static void down()
     {
         deleteTestResources();
-
     }
 
     private static void deleteTestResources()
@@ -211,7 +210,6 @@ public class MavenArtifactControllerTest
 
         StreamResult result = new StreamResult(new File(pluginXmlFilePath + "/plugin.xml"));
         transformer.transform(source, result);
-
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -235,9 +233,8 @@ public class MavenArtifactControllerTest
         MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(true);
 
-        Repository repository1 = new Repository(REPOSITORY_RELEASES1);
+        Repository repository1 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(repository1);
@@ -246,72 +243,57 @@ public class MavenArtifactControllerTest
         // Used by testPartialFetch():
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.partial:partial-foo",
-                         new String[]{ "3.1",
-                                       // Used by testPartialFetch()
-                                       "3.2"
-                                       // Used by testPartialFetch()
+                         new String[]{ "3.1", // Used by testPartialFetch()
+                                       "3.2"  // Used by testPartialFetch()
                          }
         );
 
         // Used by testCopy*():
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.copy:copy-foo",
-                         new String[]{ "1.1",
-                                       // Used by testCopyArtifactFile()
-                                       "1.2"
-                                       // Used by testCopyArtifactDirectory()
+                         new String[]{ "1.1", // Used by testCopyArtifactFile()
+                                       "1.2"  // Used by testCopyArtifactDirectory()
                          }
         );
 
         // Used by testDelete():
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-foo",
-                         new String[]{ "1.2.1",
-                                       // Used by testDeleteArtifactFile
-                                       "1.2.2"
-                                       // Used by testDeleteArtifactDirectory
+                         new String[]{ "1.2.1", // Used by testDeleteArtifactFile
+                                       "1.2.2"  // Used by testDeleteArtifactDirectory
                          }
         );
         generateMavenMetadata(STORAGE0, REPOSITORY_RELEASES1);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.partial:partial-foo",
-                         new String[]{ "3.1",
-                                       // Used by testPartialFetch()
-                                       "3.2"
-                                       // Used by testPartialFetch()
+                         new String[]{ "3.1", // Used by testPartialFetch()
+                                       "3.2"  // Used by testPartialFetch()
                          }
         );
 
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.browse:foo-bar",
-                         new String[]{ "1.0",
-                                       // Used by testDirectoryListing()
-                                       "2.4"
-                                       // Used by testDirectoryListing()
+                         new String[]{ "1.0", // Used by testDirectoryListing()
+                                       "2.4"  // Used by testDirectoryListing()
                          }
         );
 
         generateArtifact(getRepositoryBasedir(STORAGE0, "releases").getAbsolutePath(),
                          "org.carlspring.strongbox.test:dynamic-privileges",
-                         new String[]{ "1.0"
-                                       // Used by testDynamicPrivilegeAssignmentForRepository()
+                         new String[]{ "1.0" // Used by testDynamicPrivilegeAssignmentForRepository()
                          }
         );
 
-        Repository repository2 = new Repository(REPOSITORY_RELEASES2);
+        Repository repository2 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES2);
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository2.setStorage(configurationManager.getConfiguration()
-                                                   .getStorage(STORAGE0));
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repository2.setAllowsRedeployment(true);
 
         createRepository(repository2);
 
-        Repository repository3 = new Repository(REPOSITORY_SNAPSHOTS);
+        Repository repository3 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
         repository3.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
-        repository3.setStorage(configurationManager.getConfiguration()
-                                                   .getStorage(STORAGE0));
 
         createRepository(repository3);
 

@@ -1,19 +1,5 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
 import org.carlspring.strongbox.config.NugetLayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
@@ -24,10 +10,19 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.util.FileUtils;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.*;
 import org.junit.rules.TestRule;
@@ -36,6 +31,7 @@ import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.*;
 
 /**
  * @author Kate Novik.
@@ -91,6 +87,9 @@ public class RegenerateNugetChecksumCronJobTestIT
     @Inject
     private JobManager jobManager;
 
+    @Inject
+    private NugetRepositoryFactory nugetRepositoryFactory;
+
 
     @BeforeClass
     public static void cleanUp()
@@ -105,13 +104,13 @@ public class RegenerateNugetChecksumCronJobTestIT
     {
         createStorage(STORAGE1);
 
-        createRepository(STORAGE1, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
+        createRepository(STORAGE1, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy());
 
         //Create released nuget package in the repository rnccj-releases (storage1)
         generateNugetPackage(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
                              "org.carlspring.strongbox.checksum-second", "1.0");
 
-        createRepository(STORAGE1, REPOSITORY_ALPHA, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
+        createRepository(STORAGE1, REPOSITORY_ALPHA, RepositoryPolicyEnum.SNAPSHOT.getPolicy());
 
         //Create pre-released nuget package in the repository rnccj-alpha
         generateAlphaNugetPackage(REPOSITORY_ALPHA_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox.checksum-one",
@@ -119,12 +118,11 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         createStorage(STORAGE2);
 
-        createRepository(STORAGE2, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
+        createRepository(STORAGE2, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy());
 
         //Create released nuget package in the repository rnccj-releases (storage2)
         generateNugetPackage(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(), "org.carlspring.strongbox.checksum-one",
                              "1.0");
-
     }
 
     @After
@@ -342,16 +340,13 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     private void createRepository(String storageId,
                                   String repositoryId,
-                                  String policy,
-                                  boolean indexing)
+                                  String policy)
             throws IOException,
                    JAXBException,
                    RepositoryManagementStrategyException
     {
-        Repository repository = new Repository(repositoryId);
+        Repository repository = nugetRepositoryFactory.createRepository(storageId, repositoryId);
         repository.setPolicy(policy);
-        repository.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
-        repository.setStorage(configurationManagementService.getStorage(storageId));
 
         createRepository(repository);
     }

@@ -2,9 +2,10 @@ package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
@@ -14,29 +15,27 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-
 /**
  * @author stodorov
  */
 public class MavenSnapshotVersionValidatorTest
 {
 
-    Repository repository = new Repository();
+    Repository repository;
 
     MavenSnapshotVersionValidator validator = new MavenSnapshotVersionValidator();
 
 
     @Before
     public void setUp()
-            throws Exception
     {
+        repository = new Repository("test-repository-for-maven-snapshot-validation");
         repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.toString());
-        repository.setLayout(RepositoryLayoutEnum.MAVEN_2.getLayout());
+        repository.setLayout(Maven2LayoutProvider.ALIAS);
     }
 
     @Test
     public void shouldSupportRepository()
-            throws VersionValidationException
     {
         assertTrue(validator.supports(repository));
     }

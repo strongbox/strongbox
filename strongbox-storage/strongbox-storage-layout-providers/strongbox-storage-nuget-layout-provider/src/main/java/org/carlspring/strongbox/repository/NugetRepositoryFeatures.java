@@ -1,17 +1,5 @@
 package org.carlspring.strongbox.repository;
 
-import java.net.URI;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
-
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -37,13 +25,25 @@ import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
+import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
+import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.xml.configuration.repository.NugetRepositoryConfiguration;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
+import java.net.URI;
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-
 import ru.aristar.jnuget.rss.PackageEntry;
 import ru.aristar.jnuget.rss.PackageFeed;
 
@@ -82,10 +82,28 @@ public class NugetRepositoryFeatures
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Inject
+    private RedeploymentValidator redeploymentValidator;
+
+    @Inject
+    private GenericReleaseVersionValidator genericReleaseVersionValidator;
+
+    @Inject
+    private GenericSnapshotVersionValidator genericSnapshotVersionValidator;
+
+    private Set<String> defaultMavenArtifactCoordinateValidators;
+
+    @PostConstruct
+    public void init()
+    {
+        defaultMavenArtifactCoordinateValidators = new LinkedHashSet<>(Arrays.asList(redeploymentValidator.getAlias(),
+                                                                                     genericReleaseVersionValidator.getAlias(),
+                                                                                     genericSnapshotVersionValidator.getAlias()));
+    }
+
     public void downloadRemoteFeed(String storageId,
                                    String repositoryId)
-        throws RepositoryInitializationException,
-        ArtifactTransportException
+            throws ArtifactTransportException
     {
         downloadRemoteFeed(storageId, repositoryId, new NugetSearchRequest());
     }
@@ -93,8 +111,7 @@ public class NugetRepositoryFeatures
     public void downloadRemoteFeed(String storageId,
                                    String repositoryId,
                                    NugetSearchRequest nugetSearchRequest)
-        throws RepositoryInitializationException,
-        ArtifactTransportException
+            throws ArtifactTransportException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -213,7 +230,7 @@ public class NugetRepositoryFeatures
             URI artifactUri = repositoryPath.toUri();
             try
             {
-                artifactManagementService.accureLock(artifactUri);
+                artifactManagementService.acquireLock(artifactUri);
                 if (e.getTagSet().contains(lastVersionTag))
                 {
                     artifactEntryService.save(e, true);
@@ -236,7 +253,8 @@ public class NugetRepositoryFeatures
 
     @Component
     @Scope(scopeName = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public class RepositorySearchEventListener implements CommonEventListener<RemoteRepositorySearchEvent>
+    public class RepositorySearchEventListener
+            implements CommonEventListener<RemoteRepositorySearchEvent>
     {
 
         private NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
@@ -351,6 +369,12 @@ public class NugetRepositoryFeatures
         }
 
         return path;
+    }
+
+    @Override
+    public Set<String> getDefaultArtifactCoordinateValidators()
+    {
+        return defaultMavenArtifactCoordinateValidators;
     }
 
 }

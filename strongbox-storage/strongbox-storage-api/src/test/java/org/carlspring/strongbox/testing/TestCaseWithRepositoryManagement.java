@@ -45,4 +45,5 @@ public class TestCaseWithRepositoryManagement extends TestCaseWithRepository
         // Create the repository
         repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
     }
+
 }
