@@ -133,7 +133,7 @@ public class ProxyRepositoryProvider
         throws IOException
     {
         RepositoryPath targetPath = hostedRepositoryProvider.resolvePath(storageId, repositoryId, artifactPath);
-        if (Files.isDirectory(targetPath))
+        if (targetPath != null && Files.isDirectory(targetPath))
         {
             return targetPath;
         }
