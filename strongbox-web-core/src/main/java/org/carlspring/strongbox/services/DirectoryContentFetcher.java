@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.inject.Inject;
 import org.carlspring.strongbox.domain.DirectoryContent;
 import org.carlspring.strongbox.domain.FileContent;
@@ -41,26 +43,31 @@ public class DirectoryContentFetcher
         return directoryContent;
     }
     
-    List<FileContent> getDirectories(Path dirPath) throws IOException
+    private List<FileContent> getDirectories(Path dirPath) throws IOException
     {   
         List<FileContent> directories = new ArrayList<FileContent>();
         
-        Files.list(dirPath)
-             .filter(p -> !p.getFileName().toString().startsWith("."))
-             .filter(p -> {
-                try
-                {
-                    return !Files.isHidden(p);
-                }
-                catch (IOException e)
-                {   
-                    logger.debug("Error accessing file");
-                    return false;
-                }
-            })
-             .filter(p -> Files.isDirectory(p))
-             .sorted()
-             .forEach(p -> directories.add(fileContentFetcher.fetchFileContent(p))); 
+        List<Path> contentPaths = Files.list(dirPath)
+                                       .filter(p -> !p.getFileName().toString().startsWith("."))
+                                       .filter(p -> {
+                                           try
+                                           {
+                                               return !Files.isHidden(p);
+                                           }
+                                           catch (IOException e)
+                                           {
+                                               logger.debug("Error accessing file");
+                                               return false;
+                                           }
+                                       })
+                                       .filter(p -> Files.isDirectory(p))
+                                       .sorted()
+                                       .collect(Collectors.toList());
+
+        for (Path path : contentPaths)
+        {
+            directories.add(fileContentFetcher.fetchFileContent(path));
+        }
         
         return directories;
     }
@@ -69,27 +76,32 @@ public class DirectoryContentFetcher
     {   
         List<FileContent> files = new ArrayList<FileContent>();
         
-        Files.list(dirPath)
-             .filter(p -> !p.getFileName().toString().startsWith("."))
-             .filter(p -> {
-                try
-                {
-                    return !Files.isHidden(p);
-                }
-                catch (IOException e)
-                {
-                    logger.debug("Error accessing file");
-                    return false;
-                }
-            })
-             .filter(p -> !Files.isDirectory(p))
-             .sorted()
-             .forEach(p -> files.add(fileContentFetcher.fetchFileContent(p)));  
+        List<Path> contentPaths = Files.list(dirPath)
+                                       .filter(p -> !p.getFileName().toString().startsWith("."))
+                                       .filter(p -> {
+                                           try
+                                           {
+                                               return !Files.isHidden(p);
+                                           }
+                                           catch (IOException e)
+                                           {
+                                               logger.debug("Error accessing file");
+                                               return false;
+                                           }
+                                       })
+                                       .filter(p -> !Files.isDirectory(p))
+                                       .sorted()
+                                       .collect(Collectors.toList());
+
+        for (Path path : contentPaths)
+        {
+            files.add(fileContentFetcher.fetchFileContent(path));
+        }
         
         return files;
     }
 
-    public DirectoryContent fetchDirectoryContent(List<Path> storagePaths)
+    public DirectoryContent fetchDirectoryContent(List<Path> storagePaths) throws IOException
     {
         DirectoryContent directoryContent = new DirectoryContent();
         

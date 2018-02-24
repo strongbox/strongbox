@@ -13,23 +13,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class FileContentFetcher
 {
-    public FileContent fetchFileContent(Path path)
+    public FileContent fetchFileContent(Path path) throws IOException
     {
-        if (path == null)
-        {
-            return null;
-        }
-        
-        BasicFileAttributes attributes;
-        try
-        {
-            attributes = Files.readAttributes(path, BasicFileAttributes.class);
-        }
-        catch (IOException e)
-        {
-            return null;
-        }
-        
+        BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
+
         FileContent fileContent = new FileContent();
         fileContent.setName(path.getFileName().toString());
         
