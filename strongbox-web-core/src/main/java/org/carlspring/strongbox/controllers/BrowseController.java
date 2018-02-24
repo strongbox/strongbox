@@ -23,6 +23,7 @@ import org.carlspring.strongbox.domain.DirectoryContent;
 import org.carlspring.strongbox.domain.FileContent;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.DirectoryContentFetcher;
 import org.carlspring.strongbox.services.impl.ArtifactResolutionServiceImpl;
 import org.carlspring.strongbox.storage.Storage;
@@ -66,7 +67,7 @@ public class BrowseController
     private ObjectMapper objectMapper;
 
     @Inject
-    private ArtifactResolutionServiceImpl artifactResolutionService;
+    private ArtifactResolutionService artifactResolutionService;
     
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
