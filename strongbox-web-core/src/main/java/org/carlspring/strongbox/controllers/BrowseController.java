@@ -89,6 +89,7 @@ public class BrowseController
             {
                 Storage storage = entry.getValue();
                 String storageBaseDir = storage.getBasedir();
+                //TODO: we need to resolve Storage paths using `StorageProvider` (https://github.com/strongbox/strongbox/issues/614)
                 storagePaths.add(Paths.get(storageBaseDir));
             }
             
