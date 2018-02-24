@@ -54,8 +54,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @RestController
 @RequestMapping(path = BrowseController.ROOT_CONTEXT)
-public class BrowseController
-        extends BaseArtifactController
+public class BrowseController extends BaseArtifactController
 {
 
     private static final Logger logger = LoggerFactory.getLogger(BrowseController.class);
@@ -485,4 +484,39 @@ public class BrowseController
 
         return true;
     }
+    
+    protected boolean probeForDirectoryListing(Repository repository,
+                                               String path)
+    {
+        String filePath = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
+
+        String dir = repository.getBasedir() + File.separator + filePath;
+
+        File file = new File(dir);
+
+        // Do not allow .index and .trash directories (or any other directory starting with ".") to be browseable.
+        // NB: Files will still be downloadable.
+        if (isPermittedForDirectoryListing(file, path))
+        {
+            if (file.exists() && file.isDirectory())
+            {
+                return true;
+            }
+
+            file = new File(dir + File.separator);
+
+            return file.exists() && file.isDirectory();
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    protected boolean isPermittedForDirectoryListing(File file,
+                                                     String path)
+    {
+        return (!file.isHidden() && !path.startsWith(".") && !path.contains("/."));        
+    }
+    
 }
