@@ -132,7 +132,12 @@ public class ProxyRepositoryProvider
                                       String artifactPath)
         throws IOException
     {
-        return Optional.ofNullable(hostedRepositoryProvider.resolvePath(storageId, repositoryId, artifactPath))
+        RepositoryPath targetPath = hostedRepositoryProvider.resolvePath(storageId, repositoryId, artifactPath);
+        if (Files.isDirectory(targetPath))
+        {
+            return targetPath;
+        }
+        return Optional.ofNullable(targetPath)
                        .orElse(resolvePathForceFetch(storageId, repositoryId, artifactPath));
     }
 
