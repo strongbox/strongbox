@@ -110,7 +110,7 @@ public class DirectoryContentFetcher
         
         for (Path path : storagePaths)
         {
-            if (!Files.exists(path))
+            if (path == null || !Files.exists(path))
             {
                 logger.warn(String.format("Trying to fetch path which don't exists [%s]", path));
                 continue;
