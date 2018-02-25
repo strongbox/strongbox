@@ -2,28 +2,26 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
 @RestController
 @PreAuthorize("hasAuthority('ADMIN')")
@@ -33,101 +31,107 @@ public class ArtifactCoordinateValidatorsManagementController
         extends BaseController
 {
 
+    static final String SUCCESSFUL_LIST = "All version validators of the requested repository";
+    static final String NOT_FOUND_STORAGE_MESSAGE = "Could not find requested storage ${storageId}.";
+    static final String NOT_FOUND_REPOSITORY_MESSAGE = "Could not find requested repository ${storageId}:${repositoryId}.";
+
+    static final String SUCCESSFUL_ADD = "Version validator type was added to the requested repository.";
+
+    static final String SUCCESSFUL_DELETE = "Version validator type was deleted from the requested repository.";
+    static final String NOT_FOUND_ALIAS_MESSAGE = "Could not delete requested alias from the requested repository.";
+
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
     @ApiOperation(value = "Enumerates all version validators of the requested repository")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "All version validators of the requested repository"),
-                            @ApiResponse(code = 404, message = "Repository not found") })
-    @RequestMapping(value = "/{storageId}/{repositoryId}",
-                    method = RequestMethod.GET,
-                    produces = { MediaType.APPLICATION_XML_VALUE,
-                                 MediaType.APPLICATION_JSON_VALUE })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_LIST),
+                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
+    @GetMapping(value = "/{storageId}/{repositoryId}",
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity listArtifactCoordinatesForRepository(@PathVariable String storageId,
-                                                               @PathVariable String repositoryId)
+                               @PathVariable String repositoryId,
+                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        Repository repository = null;
-        try
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        if (storage == null)
         {
-            repository = configurationManager.getRepository(storageId, repositoryId);
-        }
-        catch (Exception ex)
-        {
-            logger.error(ex.getMessage(), ex);
+            return getNotFoundResponseEntity(NOT_FOUND_STORAGE_MESSAGE, acceptHeader);
         }
 
-        Set<String> versionValidators = new TreeSet<>(repository.getArtifactCoordinateValidators()
-                                                                .stream().map(v -> v.toString())
-                                                                .collect(Collectors.toSet()));
+        Repository repository = storage.getRepository(repositoryId);
+        if (repository == null)
+        {
+            return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY_MESSAGE, acceptHeader);
+        }
 
-        return repository == null ? ResponseEntity.notFound().build() :
-               ResponseEntity.ok(versionValidators);
+        Set<String> versionValidators = repository.getArtifactCoordinateValidators()
+                                                  .stream()
+                                                  .map(String::toString)
+                                                  .collect(Collectors.toSet());
+
+        return getJSONListResponseEntityBody("versionValidators", versionValidators);
     }
 
     @ApiOperation(value = "Adds version validator type to the requested repository")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Operation success"),
-                            @ApiResponse(code = 404, message = "Repository not found") })
-    @RequestMapping(value = "/{storageId}/{repositoryId}/{alias}",
-                    method = RequestMethod.PUT,
-                    produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_ADD),
+                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
+    @PutMapping(value = "/{storageId}/{repositoryId}/{alias}",
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity add(@PathVariable String storageId,
                               @PathVariable String repositoryId,
-                              @PathVariable String alias)
-            throws JAXBException
+                              @PathVariable String alias,
+                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         Configuration configuration = configurationManager.getConfiguration();
-        Repository repository = null;
-        try
+        Storage storage = configuration.getStorage(storageId);
+        if (storage == null)
         {
-            repository = configuration.getStorage(storageId).getRepository(repositoryId);
-        }
-        catch (Exception ex)
-        {
-            logger.error(ex.getMessage(), ex);
+            return getNotFoundResponseEntity(NOT_FOUND_STORAGE_MESSAGE, acceptHeader);
         }
 
+        Repository repository = storage.getRepository(repositoryId);
         if (repository == null)
         {
-            return ResponseEntity.notFound().build();
+            return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY_MESSAGE, acceptHeader);
         }
 
         repository.getArtifactCoordinateValidators().add(alias);
         configurationManagementService.save(configuration);
 
-        return ResponseEntity.ok().build();
+        return getSuccessfulResponseEntity(SUCCESSFUL_ADD, acceptHeader);
     }
 
-    @ApiOperation(value = "Deletes version validator type from the requested repository")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Operation success"),
-                            @ApiResponse(code = 404, message = "Repository not found") })
-    @RequestMapping(value = "/{storageId}/{repositoryId}/{alias}",
-                    method = RequestMethod.DELETE,
-                    produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_DELETE),
+                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
+    @DeleteMapping(value = "/{storageId}/{repositoryId}/{alias}",
+                   produces = { MediaType.TEXT_PLAIN_VALUE,
+                                MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity delete(@PathVariable String storageId,
                                  @PathVariable String repositoryId,
-                                 @PathVariable String alias)
-            throws JAXBException
+                                 @PathVariable String alias,
+                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         Configuration configuration = configurationManager.getConfiguration();
-        Repository repository = null;
-        try
+        Storage storage = configuration.getStorage(storageId);
+        if (storage == null)
         {
-            repository = configuration.getStorage(storageId).getRepository(repositoryId);
-        }
-        catch (Exception ex)
-        {
-            logger.error(ex.getMessage(), ex);
+            return getNotFoundResponseEntity(NOT_FOUND_STORAGE_MESSAGE, acceptHeader);
         }
 
+        Repository repository = storage.getRepository(repositoryId);
         if (repository == null)
         {
-            return ResponseEntity.notFound().build();
+            return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY_MESSAGE, acceptHeader);
         }
 
-        repository.getArtifactCoordinateValidators().remove(alias);
+        boolean resultOk = repository.getArtifactCoordinateValidators().remove(alias);
+        if (!resultOk)
+        {
+            return getNotFoundResponseEntity(NOT_FOUND_ALIAS_MESSAGE, acceptHeader);
+        }
+
         configurationManagementService.save(configuration);
-
-        return ResponseEntity.ok().build();
+        return getSuccessfulResponseEntity(SUCCESSFUL_DELETE, acceptHeader);
     }
-
 }
