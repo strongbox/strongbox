@@ -5,11 +5,10 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.validation.MavenArtifactCoordinatesValidator;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 import org.carlspring.strongbox.storage.validation.artifact.LowercaseValidationException;
-import org.carlspring.strongbox.storage.validation.artifact.LowercaseValidator;
-import org.carlspring.strongbox.storage.validation.artifact.version.SemanticVersioningValidator;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -25,7 +24,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MavenGroupIdLowercaseValidator
-        implements LowercaseValidator
+        implements MavenArtifactCoordinatesValidator
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenGroupIdLowercaseValidator.class);
