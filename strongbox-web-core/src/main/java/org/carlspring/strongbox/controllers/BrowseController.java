@@ -2,8 +2,6 @@ package org.carlspring.strongbox.controllers;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
@@ -11,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -28,11 +25,11 @@ import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.DirectoryContentFetcher;
-import org.carlspring.strongbox.services.impl.ArtifactResolutionServiceImpl;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -78,30 +75,40 @@ public class BrowseController extends BaseArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> browse()
+    @RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> browse(HttpServletRequest request,
+                                         HttpServletResponse response,
+                                         HttpHeaders headers)
     {
+        logger.debug("Requested browsing for storages");
+        
         try
         {               
             Set<Entry<String, Storage>> storages = configurationManager.getConfiguration().getStorages().entrySet();
-                                                    
-            List<Path> storagePaths = new ArrayList<Path>();
+            
+            DirectoryContent content = new DirectoryContent();
+            content.setDirectories(new ArrayList<>());
             
             for(Entry<String, Storage> entry : storages)
             {
                 Storage storage = entry.getValue();
-                String storageBaseDir = storage.getBasedir();
-                //TODO: we need to resolve Storage paths using `StorageProvider` (https://github.com/strongbox/strongbox/issues/614)
-                storagePaths.add(Paths.get(storageBaseDir));
+                FileContent fileContent = new FileContent();
+                content.getDirectories().add(fileContent);
+                fileContent.setName(storage.getId());
             }
             
-            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(storagePaths);           
+            if (headers.getAccept().contains(MediaType.APPLICATION_JSON))
+            {
+                return ResponseEntity.ok(objectMapper.writer().writeValueAsString(content));
+            }
             
-            return ResponseEntity.ok(objectMapper.writer().writeValueAsString(content));
+            generateHTML(request, response, content, "", "", "");
+            
+            return ResponseEntity.ok("");
         }
         catch (Exception e)
         {
-            logger.error(e.getMessage(), e);
+            logger.error("Failed to browse storages.", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body(String.format("{ 'error': '%s' }", e.getMessage()));
         }
@@ -112,10 +119,14 @@ public class BrowseController extends BaseArtifactController
                             @ApiResponse(code = 404, message = "The requested storage was not found."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value="/{storageId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> repositories(@ApiParam(value = "The storageId", required = true)
-                                               @PathVariable("storageId") String storageId)
+    @RequestMapping(value="/{storageId}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> repositories(@ApiParam(value = "The storageId", required = true) @PathVariable("storageId") String storageId,
+                                               HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               HttpHeaders headers)
     {
+        logger.debug("Requested browsing for repositories in storage : " + storageId);
+        
         try
         {
             Storage storage = configurationManager.getConfiguration().getStorage(storageId);
@@ -138,8 +149,14 @@ public class BrowseController extends BaseArtifactController
             }
                         
             DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(repositoryPaths);            
+            if (headers.getAccept().contains(MediaType.APPLICATION_JSON))
+            {
+                return ResponseEntity.ok(objectMapper.writer().writeValueAsString(content));
+            }
+
+            generateHTML(request, response, content, storageId, "", "");
             
-            return ResponseEntity.ok(objectMapper.writer().writeValueAsString(content));
+            return ResponseEntity.ok("");
         }
         catch (Exception e)
         {
@@ -156,15 +173,19 @@ public class BrowseController extends BaseArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
                     method = RequestMethod.GET, 
-                    produces = MediaType.APPLICATION_JSON_VALUE)
+                    produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> contents(@ApiParam(value = "The storageId", required = true)
                                            @PathVariable("storageId") String storageId,
                                            @ApiParam(value = "The repositoryId", required = true)
                                            @PathVariable("repositoryId") String repositoryId,
                                            @ApiParam(value = "The repository path", required = false)
                                            @PathVariable("path") String path,
-                                           HttpServletRequest request)
+                                           HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           HttpHeaders headers)
     {
+        logger.debug("Requested browsing for {}/{}/{} ", storageId, repositoryId, path);
+        
         try
         {
             Storage storage = configurationManager.getConfiguration().getStorage(storageId);
@@ -190,179 +211,38 @@ public class BrowseController extends BaseArtifactController
                                      .body("{ 'error': 'The requested repository path was not found.' }");
             }
             
+            if (!repository.isInService())
+            {
+                logger.error("Repository is not in service...");
+                
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                        .body("{ 'error': 'Repository is not in service.' }");
+            }
+            
+            if (!repository.allowsDirectoryBrowsing() || !probeForDirectoryListing(repository, path))
+            {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                     .body("{ 'error': 'Requested repository doesn't allow browsing.' }");
+            }
+            
             DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(dirPath);
             
-            return ResponseEntity.ok(objectMapper.writer().writeValueAsString(content));
+            if (headers.getAccept().contains(MediaType.APPLICATION_JSON))
+            {
+                return ResponseEntity.ok(objectMapper.writer().writeValueAsString(content));
+            }
+            
+            generateHTML(request, response, content, storageId, repositoryId, path);
+            
+            return ResponseEntity.ok("");
         }
         catch (Exception e)
         {
-            logger.error(e.getMessage(), e);
+            logger.error(String.format("Failed to broese repository contents for [%s]", path), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body(String.format("{ 'error': '%s' }", e.getMessage()));
         }
     }
-    
-    @ApiOperation(value = "Used to browse the configured storages")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(method = RequestMethod.GET, 
-                    produces = MediaType.TEXT_HTML_VALUE)
-    public void browseStorages(HttpServletRequest request,
-                               HttpServletResponse response)
-            throws IOException
-    {
-        logger.debug("Requested browsing for storages");
-
-        try
-        {   
-            Set<Entry<String, Storage>> storages = configurationManager.getConfiguration().getStorages().entrySet();
-
-            List<Path> storagePaths = new ArrayList<Path>();
-
-            for(Entry<String, Storage> entry : storages)
-            {
-                Storage storage = entry.getValue();
-                String storageBaseDir = storage.getBasedir();
-                storagePaths.add(Paths.get(storageBaseDir));
-            }
-            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(storagePaths);
-
-            generateHTML(request, response, content, "", "", "");
-        }
-        catch (Exception e)
-        {
-            logger.error(e.getMessage(), e);
-            response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error");
-        }
-    }
-    
-    @ApiOperation(value = "Used to browse the repositories in a storage")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "/{storageId}" }, 
-                    method = RequestMethod.GET,
-                    produces = MediaType.TEXT_HTML_VALUE)
-    public void browseRepositories(@ApiParam(value = "The storageId", required = true)
-                                   @PathVariable String storageId,
-                                   HttpServletRequest request,
-                                   HttpServletResponse response)
-            throws IOException
-    {
-        logger.debug("Requested browsing for repositories in storage : " + storageId);
-
-        try
-        {
-            Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-            if (storage == null) 
-            {
-                response.sendError(HttpStatus.NOT_FOUND.value(), "Unable to find storage by ID " + storageId);
-                return;
-            }
-            
-            Set<Entry<String, Repository>> repositories = storage.getRepositories().entrySet();
-            
-            List<Path> repositoryPaths = new ArrayList<Path>();
-            
-            for(Entry<String, Repository> entry : repositories)
-            {
-                Repository repository = entry.getValue();
-                RepositoryProvider respositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-                Path repositoryBaseDir = respositoryProvider.resolvePath(storageId, repository.getId(), "");
-                repositoryPaths.add(repositoryBaseDir);
-            }
-                        
-            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(repositoryPaths);                        
-            
-            generateHTML(request, response, content, storageId, "", "");
-        }
-        catch (Exception e)
-        {
-            logger.error(e.getMessage(), e);
-            response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error");
-        }
-    }
-    
-    @ApiOperation(value = "List the contents for a repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
-                            @ApiResponse(code = 404, message = "The requested storage, repository, or path was not found."),
-                            @ApiResponse(code = 500, message = "An error occurred."),
-                            @ApiResponse(code = 503, message = "Repository not in service")})
-    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
-                    method = RequestMethod.GET, 
-                    produces = MediaType.TEXT_HTML_VALUE)
-    public void browseRepositoryContents(@ApiParam(value = "The storageId", required = true)
-                                         @PathVariable("storageId") String storageId,
-                                         @ApiParam(value = "The repositoryId", required = true)
-                                         @PathVariable("repositoryId") String repositoryId,
-                                         @ApiParam(value = "The repository path", required = false)
-                                         @PathVariable("path") String path,
-                                         HttpServletRequest request,
-                                         HttpServletResponse response)
-                throws Exception
-    {           
-        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-        if (storage == null)
-        {
-            logger.error("Unable to find storage by ID " + storageId);
-
-            response.sendError(HttpStatus.NOT_FOUND.value(), "Unable to find storage by ID " + storageId);
-
-            return;
-        }
-
-        Repository repository = storage.getRepository(repositoryId);
-        if (repository == null)
-        {
-            logger.error("Unable to find repository by ID " + repositoryId + " for storage " + storageId);
-
-            response.sendError(HttpStatus.NOT_FOUND.value(),
-                               "Unable to find repository by ID " + repositoryId + " for storage " + storageId);
-            return;
-        }
-
-        if (!repository.isInService())
-        {
-            logger.error("Repository is not in service...");
-
-            response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
-
-            return;
-        }
-        
-        RepositoryProvider respositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-        Path dirPath = respositoryProvider.resolvePath(storageId, repositoryId, path);
-        
-        if (dirPath == null || !Files.exists(dirPath))
-        {
-            response.setStatus(HttpStatus.NOT_FOUND.value());
-            return;                                 
-        }
-        
-        logger.debug("Requested browsing for {}/{}/{} ", storageId, repositoryId, path);
-        
-        if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
-        {
-            try
-            {
-                DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(dirPath);
-                //URL url = artifactResolutionService.resolveResource(storageId, repositoryId, path);
-                generateHTML(request, response, content, storageId, repositoryId, path);
-            }
-            catch (Exception e)
-            {
-                logger.debug("Unable to generate directory listing for " +
-                        "/" + storageId + "/" + repositoryId + "/" + path, e);
-
-                response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            }
-
-            return;
-        }
-        return;
-    }    
     
     protected void generateHTML(HttpServletRequest request,
                                 HttpServletResponse response,
