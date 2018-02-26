@@ -89,6 +89,7 @@ public class BrowseController extends BaseArtifactController
             
             DirectoryContent content = new DirectoryContent();
             content.setDirectories(new ArrayList<>());
+            content.setFiles(new ArrayList<>());
             
             for(Entry<String, Storage> entry : storages)
             {
