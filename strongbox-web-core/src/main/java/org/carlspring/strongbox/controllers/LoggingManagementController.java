@@ -28,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,6 +48,7 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
  *
  * @author Martin Todorov
  * @author Pablo Tirado
+ * @author Aditya Srinivasan
  */
 @Controller
 @Api(value = "/logging")
@@ -64,6 +66,7 @@ public class LoggingManagementController
                                          message = "The logger was added successfully."),
                             @ApiResponse(code = 400,
                                          message = "Could not add a new logger.") })
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_ADD_LOGGER','CONFIGURE_LOGS')")
     @PutMapping(value = "/logger",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -101,6 +104,7 @@ public class LoggingManagementController
                                          message = "Could not update logger."),
                             @ApiResponse(code = 404,
                                          message = "Logger was not found.") })
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_UPDATE_LOGGER','CONFIGURE_LOGS')")
     @PostMapping(value = "/logger",
                  produces = { MediaType.TEXT_PLAIN_VALUE,
                               MediaType.APPLICATION_JSON_VALUE })
@@ -137,6 +141,7 @@ public class LoggingManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was deleted successfully."),
                             @ApiResponse(code = 400, message = "Could not delete the logger."),
                             @ApiResponse(code = 404, message = "Logger was not found.") })
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_DELETE_LOGGER','CONFIGURE_LOGS')")
     @DeleteMapping(value = "/logger",
                    produces = { MediaType.TEXT_PLAIN_VALUE,
                                 MediaType.APPLICATION_JSON_VALUE })
@@ -170,6 +175,7 @@ public class LoggingManagementController
     @ApiOperation(value = "Used to download log data.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download log data.") })
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOG','CONFIGURE_LOGS')")
     @GetMapping(value = "/log/{path:.+}",
                 produces = TEXT_PLAIN_VALUE)
     public void downloadLog(@PathVariable String path,
@@ -195,8 +201,11 @@ public class LoggingManagementController
     }
 
     @ApiOperation(value = "Used to download logback configuration.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger configuration was retrieved successfully."),
-                            @ApiResponse(code = 400, message = "Could not download logback configuration.") })
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The logger configuration was retrieved successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "Could not download logback configuration.") })
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOGBACK_CFG','CONFIGURE_LOGS')")
     @GetMapping(value = "/logback",
                 produces = MediaType.APPLICATION_XML_VALUE)
     public void downloadLogbackConfiguration(HttpServletResponse response)
@@ -221,6 +230,7 @@ public class LoggingManagementController
     @ApiOperation(value = "Used to upload logback configuration.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger configuration was uploaded successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_UPLOAD_LOGBACK_CFG','CONFIGURE_LOGS')")
     @PostMapping(value = "/logback",
                  consumes = APPLICATION_XML_VALUE,
                  produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -247,7 +257,8 @@ public class LoggingManagementController
     @ApiOperation(value = "Used to get log directory.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The log directory was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download log directory.") })
-    @GetMapping(value = {"/logs/{urlPath:.+}" },
+    @PreAuthorize("hasAuthority('VIEW_LOGS')")
+    @GetMapping(value = { "/logs/{urlPath:.+}" },
                 produces = TEXT_PLAIN_VALUE)
     public void generateLogDirectoryListing(@PathVariable("urlPath") Optional<String> urlPath,
                                             HttpServletRequest request,
@@ -255,10 +266,10 @@ public class LoggingManagementController
             throws IOException
     {
         String requestUriString = request.getRequestURI();
-        
+
         String uriLogDirPath = urlPath.map(s -> "/logs/" + s)
-                               .orElse("/logs/");
-            
+                                      .orElse("/logs/");
+        
         Path localLogDirPath = Paths.get(PropertyUtils.getVaultDirectory(), uriLogDirPath);
         
         if (Files.notExists(localLogDirPath))
@@ -290,7 +301,8 @@ public class LoggingManagementController
             StringBuilder sb = new StringBuilder();
             sb.append("<html>");
             sb.append("<head>");
-            sb.append("<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
+            sb.append(
+                    "<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
             sb.append("<title>Index of " + uriLogDirPath + "</title>");
             sb.append("</head>");
             sb.append("<body>");
@@ -302,13 +314,13 @@ public class LoggingManagementController
             sb.append("<th>Size</th>");
             sb.append("<th>Description</th>");
             sb.append("</tr>");
-            if (!requestUriString.equalsIgnoreCase( "/logging/logs/"))
+            if (!requestUriString.equalsIgnoreCase("/logging/logs/"))
             {
                 sb.append("<tr>");
                 sb.append("<td colspan=4><a href=\"..\">..</a></td>");
                 sb.append("</tr>");
             }
-
+            
             //Adds the Files and folders to the HTML body
             final String localLogFilePath = requestUriString.replace("logs", "log");
             final String localLogDirectoryPath = requestUriString;

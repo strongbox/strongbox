@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.get;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
@@ -26,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * @author Pablo Tirado
+ * @author Aditya Srinivasan
  */
 @IntegrationTest
 @RunWith(SpringRunner.class)
@@ -41,9 +43,10 @@ public class LoggingManagementControllerTestIT
 
     private static final String LOGGER_APPENDER = "CONSOLE";
 
-    private static final String LOGS_HOME_DIRECTORY = PropertyUtils.getVaultDirectory();
+    private static final String LOGS_HOME_DIRECTORY = PropertyUtils.getVaultDirectory() + "/logs";
     
     @Test
+    @WithMockUser(authorities = { "CONFIGURATION_ADD_LOGGER" })
     public void testAddLoggerWithTextAcceptHeader()
             throws Exception
     {
@@ -63,6 +66,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURATION_ADD_LOGGER" })
     public void testAddLoggerWithJsonAcceptHeader()
             throws Exception
     {
@@ -82,6 +86,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerWithTextAcceptHeader()
             throws Exception
     {
@@ -100,6 +105,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerWithJsonAcceptHeader()
             throws Exception
     {
@@ -118,6 +124,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerNotFoundWithTextAcceptHeader()
             throws Exception
     {
@@ -137,6 +144,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerNotFoundWithJsonAcceptHeader()
             throws Exception
     {
@@ -156,6 +164,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerWithTextAcceptHeader()
             throws Exception
     {
@@ -173,6 +182,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerWithJsonAcceptHeader()
             throws Exception
     {
@@ -190,6 +200,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerNotFoundWithTextAcceptHeader()
             throws Exception
     {
@@ -208,6 +219,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerNotFoundWithJsonAcceptHeader()
             throws Exception
     {
@@ -226,20 +238,16 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURE_LOGS" })
     public void testDownloadLog()
             throws Exception
     {
-        String logDir = System.getProperty("logging.dir");
-        Files.createDirectories(Paths.get(logDir))
+        String testLogName = "strongbox-test.log";
+        Files.createFile(Paths.get(LOGS_HOME_DIRECTORY, testLogName))
              .toFile()
              .deleteOnExit();
 
-        String logName = "strongbox-test.log";
-        Files.createFile(Paths.get(logDir, logName))
-             .toFile()
-             .deleteOnExit();
-
-        String url = getContextBaseUrl() + "/logging/log/" + logName;
+        String url = getContextBaseUrl() + "/logging/log/" + testLogName;
 
         given().contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
@@ -250,6 +258,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURATION_RETRIEVE_LOGBACK_CFG" })
     public void testDownloadLogbackConfiguration()
             throws Exception
     {
@@ -264,6 +273,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURATION_UPLOAD_LOGBACK_CFG" })
     public void testUploadLogbackConfigurationWithTextAcceptHeader()
             throws Exception
     {
@@ -284,6 +294,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
+    @WithMockUser(authorities = { "CONFIGURE_LOGS" })
     public void testUploadLogbackConfigurationWithJsonAcceptHeader()
             throws Exception
     {
@@ -304,6 +315,7 @@ public class LoggingManagementControllerTestIT
     }
     
     @Test
+    @WithMockUser(authorities = { "VIEW_LOGS" })
     public void testLogDirectoryForListOfLogFiles()
     {
         //Given
@@ -352,6 +364,7 @@ public class LoggingManagementControllerTestIT
     }
     
     @Test
+    @WithMockUser(authorities = { "VIEW_LOGS" })
     public void testAbilityToNavigateToSubLogDirectories()
     {
         //Given
@@ -414,12 +427,12 @@ public class LoggingManagementControllerTestIT
             
             if (shouldICreateATestSubDirectory)
             {
-                logDirectoryPath = Paths.get(LOGS_HOME_DIRECTORY, "/logs/test");
+                logDirectoryPath = Paths.get(LOGS_HOME_DIRECTORY, "/test");
                 Files.createDirectory(logDirectoryPath);
             }
             else
             {
-                logDirectoryPath = Paths.get(LOGS_HOME_DIRECTORY, "/logs");
+                logDirectoryPath = Paths.get(LOGS_HOME_DIRECTORY);
             }
             
             //Create 4 temporary log files from 0 to 3.
@@ -467,15 +480,15 @@ public class LoggingManagementControllerTestIT
         {
             if (wasATestSubDirectoryCreated)
             {
-                Path pathToLogHomeDirectory = Paths.get(LOGS_HOME_DIRECTORY, "/logs/test");
+                Path pathToLogHomeDirectory = Paths.get(LOGS_HOME_DIRECTORY, "/test");
 
                 Files.walkFileTree(pathToLogHomeDirectory, new SFVExtend());
 
-                Files.delete(Paths.get(LOGS_HOME_DIRECTORY, "/logs/test"));
+                Files.delete(Paths.get(LOGS_HOME_DIRECTORY, "/test"));
             }
             else
             {
-                Path pathToLogHomeDirectory = Paths.get(LOGS_HOME_DIRECTORY, "/logs/");
+                Path pathToLogHomeDirectory = Paths.get(LOGS_HOME_DIRECTORY);
 
                 Files.walkFileTree(pathToLogHomeDirectory, new SFVExtend());
             }

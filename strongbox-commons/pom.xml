@@ -68,7 +68,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
-                        <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
+                        <logging.dir>${strongbox.vault}/logs</logging.dir>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
