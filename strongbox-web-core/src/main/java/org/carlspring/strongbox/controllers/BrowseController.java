@@ -35,6 +35,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -78,7 +79,7 @@ public class BrowseController extends BaseArtifactController
     @RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> browse(HttpServletRequest request,
                                          HttpServletResponse response,
-                                         HttpHeaders headers)
+                                         @RequestHeader HttpHeaders headers)
     {
         logger.debug("Requested browsing for storages");
         
@@ -123,7 +124,7 @@ public class BrowseController extends BaseArtifactController
     public ResponseEntity<String> repositories(@ApiParam(value = "The storageId", required = true) @PathVariable("storageId") String storageId,
                                                HttpServletRequest request,
                                                HttpServletResponse response,
-                                               HttpHeaders headers)
+                                               @RequestHeader HttpHeaders headers)
     {
         logger.debug("Requested browsing for repositories in storage : " + storageId);
         
@@ -182,7 +183,7 @@ public class BrowseController extends BaseArtifactController
                                            @PathVariable("path") String path,
                                            HttpServletRequest request,
                                            HttpServletResponse response,
-                                           HttpHeaders headers)
+                                           @RequestHeader HttpHeaders headers)
     {
         logger.debug("Requested browsing for {}/{}/{} ", storageId, repositoryId, path);
         
