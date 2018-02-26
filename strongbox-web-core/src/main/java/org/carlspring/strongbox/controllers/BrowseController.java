@@ -221,7 +221,7 @@ public class BrowseController extends BaseArtifactController
             
             if (!repository.allowsDirectoryBrowsing() || !probeForDirectoryListing(repository, path))
             {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body("{ 'error': 'Requested repository doesn't allow browsing.' }");
             }
             
@@ -396,7 +396,7 @@ public class BrowseController extends BaseArtifactController
     protected boolean isPermittedForDirectoryListing(File file,
                                                      String path)
     {
-        return (!file.isHidden() && !path.startsWith(".") && !path.contains("/."));        
+        return path.startsWith(".index") || (!file.isHidden() && !path.startsWith(".") && !path.contains("/."));        
     }
     
 }
