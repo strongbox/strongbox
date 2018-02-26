@@ -1,51 +1,51 @@
 package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
+import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.fail;
 
-public class NugetReleaseVersionValidatorTest
+public class GenericReleaseVersionValidatorTest
 {
 
-    Repository repository = new Repository();
+    Repository repository;
 
-    NugetReleaseVersionValidator validator = new NugetReleaseVersionValidator();
+    GenericReleaseVersionValidator validator = new GenericReleaseVersionValidator();
+
 
     @Before
     public void setUp()
-            throws Exception
     {
+        repository = new Repository("test-repository-for-nuget-release-validation");
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.toString());
-        repository.setLayout(RepositoryLayoutEnum.NUGET.getLayout());
     }
 
     @Test
     public void testReleaseValidation()
-            throws VersionValidationException
     {
-        ArtifactCoordinates coordinates1 = new NugetArtifactCoordinates();
+        ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates();
         coordinates1.setVersion("1");
 
-        ArtifactCoordinates coordinates2 = new NugetArtifactCoordinates();
+        ArtifactCoordinates coordinates2 = new MockedMavenArtifactCoordinates();
         coordinates2.setVersion("1.0");
 
-        ArtifactCoordinates coordinates3 = new NugetArtifactCoordinates();
+        ArtifactCoordinates coordinates3 = new MockedMavenArtifactCoordinates();
         coordinates3.setVersion("1.0-rc-1");
 
-        ArtifactCoordinates coordinates4 = new NugetArtifactCoordinates();
+        ArtifactCoordinates coordinates4 = new MockedMavenArtifactCoordinates();
         coordinates4.setVersion("1.0-milestone-1");
 
-        ArtifactCoordinates coordinates5 = new NugetArtifactCoordinates();
+        ArtifactCoordinates coordinates5 = new MockedMavenArtifactCoordinates();
         coordinates5.setVersion("1.0-alpha-1");
 
-        ArtifactCoordinates coordinates6 = new NugetArtifactCoordinates();
+        ArtifactCoordinates coordinates6 = new MockedMavenArtifactCoordinates();
         coordinates6.setVersion("1.0-beta-1");
 
         try
@@ -67,7 +67,7 @@ public class NugetReleaseVersionValidatorTest
     public void testInvalidArtifacts()
             throws VersionValidationException
     {
-        ArtifactCoordinates coordinates1 = new NugetArtifactCoordinates();
+        ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates();
         coordinates1.setVersion("1.0-SNAPSHOT");
 
         validator.validate(repository, coordinates1);

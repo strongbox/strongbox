@@ -1,19 +1,19 @@
 package org.carlspring.strongbox.providers.layout;
 
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
+import org.carlspring.strongbox.repository.P2RepositoryFeatures;
 import org.carlspring.strongbox.repository.P2RepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +33,9 @@ public class P2LayoutProvider
 
     @Inject
     private ArtifactManagementService p2ArtifactManagementService;
+
+    @Inject
+    private P2RepositoryFeatures p2RepositoryFeatures;
 
 
     @Override
@@ -65,7 +68,6 @@ public class P2LayoutProvider
     public void deleteMetadata(String storageId,
                                String repositoryId,
                                String metadataPath)
-            throws IOException
     {
 
     }
@@ -74,9 +76,6 @@ public class P2LayoutProvider
     public void rebuildMetadata(String storageId,
                                 String repositoryId,
                                 String basePath)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   XmlPullParserException
     {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
@@ -86,7 +85,6 @@ public class P2LayoutProvider
                                String repositoryId,
                                String basePath,
                                boolean forceRegeneration)
-            throws IOException
     {
         throw new UnsupportedOperationException("Not yet implemented!");
     }
@@ -103,6 +101,12 @@ public class P2LayoutProvider
             return coordinates.equals(artifact);
         }
         return false;
+    }
+
+    @Override
+    public Set<String> getDefaultArtifactCoordinateValidators()
+    {
+        return p2RepositoryFeatures.getDefaultArtifactCoordinateValidators();
     }
 
     @Override

@@ -12,12 +12,16 @@ import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.*;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
+import org.carlspring.strongbox.services.ArtifactSearchService;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
@@ -94,6 +98,10 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
+    @Inject
+    private MavenRepositoryFactory mavenRepositoryFactory;
+
+
     protected void createRepositoryWithArtifacts(Repository repository,
                                                  String ga,
                                                  String... versions)
@@ -168,9 +176,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                     MavenRepositoryConfiguration repositoryConfiguration)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
-        Repository repository = new Repository(repositoryId);
+        Repository repository = mavenRepositoryFactory.createRepository(storageId, repositoryId);
         repository.setPolicy(policy);
-        repository.setStorage(configurationManagementService.getStorage(storageId));
         repository.setRepositoryConfiguration(repositoryConfiguration);
 
         createRepository(repository);
@@ -187,9 +194,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         RemoteRepository remoteRepository = new RemoteRepository();
         remoteRepository.setUrl(remoteRepositoryUrl);
 
-        Repository repository = new Repository(repositoryId);
+        Repository repository = mavenRepositoryFactory.createRepository(storageId, repositoryId);
         repository.setRemoteRepository(remoteRepository);
-        repository.setStorage(configurationManagementService.getStorage(storageId));
         repository.setRepositoryConfiguration(repositoryConfiguration);
 
         createRepository(repository);
@@ -223,7 +229,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     public void reIndex(String storageId,
                         String repositoryId,
                         String path)
-            throws IOException
     {
         Repository repository = configurationManagementService.getConfiguration()
                                                               .getStorage(storageId)

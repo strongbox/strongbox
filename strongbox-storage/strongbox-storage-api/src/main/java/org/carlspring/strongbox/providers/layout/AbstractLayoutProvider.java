@@ -61,6 +61,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     @Inject
     private RepositoryEventListenerRegistry repositoryEventListenerRegistry;
 
+
+    public abstract Set<String> getDefaultArtifactCoordinateValidators();
+
     public LayoutProviderRegistry getLayoutProviderRegistry()
     {
         return layoutProviderRegistry;

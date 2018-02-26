@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.repository.group;
 
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -95,9 +96,11 @@ public class BaseMavenGroupRepositoryComponentTest
         configuration.setIndexingEnabled(true);
 
         repository.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setAllowsForceDeletion(true);
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository.setRepositoryConfiguration(configuration);
+
         super.createRepository(repository);
     }
 
@@ -105,8 +108,11 @@ public class BaseMavenGroupRepositoryComponentTest
             throws Exception
     {
         Repository repository = new Repository(repositoryId);
-        repository.setType(new Random().nextInt(2) % 2 == 0 ? RepositoryTypeEnum.HOSTED.getType() :
+        repository.setLayout(Maven2LayoutProvider.ALIAS);
+        repository.setType(new Random().nextInt(2) % 2 == 0 ?
+                           RepositoryTypeEnum.HOSTED.getType() :
                            RepositoryTypeEnum.PROXY.getType());
+
         createRepository(repository);
     }
 
@@ -115,8 +121,10 @@ public class BaseMavenGroupRepositoryComponentTest
             throws Exception
     {
         Repository repository = new Repository(repositoryId);
+        repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setType(RepositoryTypeEnum.GROUP.getType());
         repository.setGroupRepositories(new HashSet<>(Arrays.asList(leafs)));
+
         createRepository(repository);
     }
 
@@ -198,10 +206,12 @@ public class BaseMavenGroupRepositoryComponentTest
     {
         Set<Repository> repositories = getRepositoriesToClean();
         addRepositoriesToClean(repositories);
+
         for (Repository repository : repositories)
         {
             getRepositoryIndexManager().closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
         }
+
         removeRepositories(repositories);
     }
 

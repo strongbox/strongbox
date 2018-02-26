@@ -2,8 +2,7 @@ package org.carlspring.strongbox.storage.validation.artifactid;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.validation.groupid.LowercaseValidationException;
+import org.carlspring.strongbox.storage.validation.artifact.LowercaseValidationException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,8 +23,6 @@ public class MavenArtifactIdLowercaseValidatorTest
     MavenArtifactIdLowercaseValidator mavenArtifactIdLowercaseValidator = new MavenArtifactIdLowercaseValidator();
 
     MavenArtifactCoordinates mavenArtifactCoordinates;
-    @Mock
-    RepositoryPath repositoryPath = new RepositoryPath(null, null);
 
     @Mock
     RepositoryFileAttributes repositoryFileAttributes;
@@ -48,7 +45,7 @@ public class MavenArtifactIdLowercaseValidatorTest
     {
         doReturn(repositoryFileAttributes).when(mavenArtifactIdLowercaseValidator).getAttributes(any());
         when(repositoryFileAttributes.getCoordinates()).thenReturn(mavenArtifactCoordinates);
-        mavenArtifactIdLowercaseValidator.validateCase(repositoryPath);
+        mavenArtifactIdLowercaseValidator.validate(null, mavenArtifactCoordinates);
     }
 
 }

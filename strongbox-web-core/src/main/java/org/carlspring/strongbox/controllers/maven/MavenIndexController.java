@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryIndexerNotFoundException;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -195,11 +195,11 @@ public class MavenIndexController
             response.sendError(HttpStatus.NOT_FOUND.value(), String.format("Repository %s not found.", repositoryId));
             return HttpStatus.NOT_FOUND;
         }
-        if (!RepositoryLayoutEnum.MAVEN_2.getLayout().equals(repository.getLayout()))
+        if (!Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
         {
             response.sendError(HttpStatus.BAD_REQUEST.value(),
                                String.format("Repository %s is not a %s repository.", repositoryId,
-                                             RepositoryLayoutEnum.MAVEN_2.getLayout()));
+                                             Maven2LayoutProvider.ALIAS));
             return HttpStatus.BAD_REQUEST;
         }
         return HttpStatus.OK;

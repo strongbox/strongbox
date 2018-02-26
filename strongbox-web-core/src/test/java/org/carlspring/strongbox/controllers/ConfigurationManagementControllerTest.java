@@ -13,11 +13,7 @@ import org.carlspring.strongbox.storage.routing.RuleSet;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -211,6 +207,9 @@ public class ConfigurationManagementControllerTest
         assertEquals("Failed to get storage (" + storageId + ")!",
                      "localhost",
                      storage.getRepositories().get("repository1").getProxyConfiguration().getHost());
+
+        deleteRepository(storageId, "repository0");
+        deleteRepository(storageId, "repository1");
     }
 
     private Storage getStorage(String storageId)
@@ -262,6 +261,19 @@ public class ConfigurationManagementControllerTest
                             .statusCode();
 
         return status;
+    }
+
+    private void deleteRepository(String storageId,
+                                  String repositoryId)
+    {
+        String url =
+                getContextBaseUrl() + String.format("/configuration/strongbox/storages/%s/%s", storageId, repositoryId);
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .delete(url)
+               .then()
+               .statusCode(200);
     }
 
     @Test
@@ -348,6 +360,8 @@ public class ConfigurationManagementControllerTest
                .peek() // Use peek() to print the ouput
                .then()
                .statusCode(404);
+
+        deleteRepository(storageId, repositoryId2);
     }
 
     @Test
