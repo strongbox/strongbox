@@ -297,7 +297,7 @@
                             <systemPropertyVariables>
                                 <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                                 <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
-                                <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
+                                <logging.dir>${strongbox.vault}/logs</logging.dir>
 
                                 <port.littleproxy>${port.littleproxy.listen}</port.littleproxy>
                                 <port.unboundid>${port.unboundid}</port.unboundid>
@@ -329,7 +329,7 @@
                         <configuration>
                             <systemPropertyVariables>
                                 <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
-                                <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
+                                <logging.dir>${strongbox.vault}/logs</logging.dir>
 
                                 <port.littleproxy>${port.littleproxy.listen}</port.littleproxy>
                                 <port.unboundid>${port.unboundid}</port.unboundid>
