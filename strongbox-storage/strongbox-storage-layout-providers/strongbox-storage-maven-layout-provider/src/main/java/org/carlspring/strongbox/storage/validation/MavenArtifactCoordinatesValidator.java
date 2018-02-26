@@ -13,8 +13,6 @@ import com.google.common.collect.Sets;
 public interface MavenArtifactCoordinatesValidator extends ArtifactCoordinatesValidator
 {
 
-    Set<String> SUPPORTED_PROVIDERS = Sets.newHashSet(Maven2LayoutProvider.ALIAS);
-
 
     @Override
     default boolean supports(Repository repository)
@@ -31,7 +29,7 @@ public interface MavenArtifactCoordinatesValidator extends ArtifactCoordinatesVa
     @Override
     default Set<String> getSupportedLayoutProviders()
     {
-        return SUPPORTED_PROVIDERS;
+        return Sets.newHashSet(Maven2LayoutProvider.ALIAS);
     }
 
 }

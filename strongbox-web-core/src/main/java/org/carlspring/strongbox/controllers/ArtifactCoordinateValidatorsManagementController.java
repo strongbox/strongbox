@@ -25,9 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @PreAuthorize("hasAuthority('ADMIN')")
-@RequestMapping(value = "/configuration/repositories/version-validators")
-@Api(value = "/configuration/repositories/version-validators")
-public class RepositoryVersionValidatorsManagementController
+@RequestMapping(value = "/configuration/artifact-coordinate-validators")
+@Api(value = "/configuration/artifact-coordinate-validators")
+public class ArtifactCoordinateValidatorsManagementController
         extends BaseController
 {
 
@@ -41,8 +41,8 @@ public class RepositoryVersionValidatorsManagementController
                     method = RequestMethod.GET,
                     produces = { MediaType.APPLICATION_XML_VALUE,
                                  MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity list(@PathVariable String storageId,
-                               @PathVariable String repositoryId)
+    public ResponseEntity listArtifactCoordinatesForRepository(@PathVariable String storageId,
+                                                               @PathVariable String repositoryId)
     {
         Repository repository = null;
         try

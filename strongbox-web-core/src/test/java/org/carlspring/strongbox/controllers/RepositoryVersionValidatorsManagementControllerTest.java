@@ -73,7 +73,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/repositories/version-validators/storage0/releases-with-single-validator")
+                          .get("/configuration/artifact-coordinate-validators/storage0/releases-with-single-validator")
                           .peek()
                           .then()
                           .body(equalTo("[ \"redeployment-validator\" ]"))
@@ -86,7 +86,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/repositories/version-validators/storage0/releases-with-default-validators")
+                          .get("/configuration/artifact-coordinate-validators/storage0/releases-with-default-validators")
                           .peek()
                           .then()
                           .body(anyOf(equalTo("[ \"redeployment-validator\", \"maven-release-version-validator\" ]"),
@@ -100,7 +100,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .delete("/configuration/repositories/version-validators/storage0/releases-with-default-validators/maven-snapshot-version-validator")
+                          .delete("/configuration/artifact-coordinate-validators/storage0/releases-with-default-validators/maven-snapshot-version-validator")
                           .peek()
                           .then()
                           .statusCode(200);
@@ -108,7 +108,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/repositories/version-validators/storage0/releases-with-default-validators")
+                          .get("/configuration/artifact-coordinate-validators/storage0/releases-with-default-validators")
                           .peek()
                           .then()
                           .body(anyOf(equalTo("[ \"redeployment-validator\", \"maven-release-version-validator\" ]"),
@@ -122,7 +122,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/repositories/version-validators/storage0/releases-with-single-validator")
+                          .get("/configuration/artifact-coordinate-validators/storage0/releases-with-single-validator")
                           .peek()
                           .then()
                           .body(equalTo("[ \"redeployment-validator\" ]"))
@@ -131,7 +131,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .put("/configuration/repositories/version-validators/storage0/releases-with-single-validator/maven-snapshot-version-validator")
+                          .put("/configuration/artifact-coordinate-validators/storage0/releases-with-single-validator/maven-snapshot-version-validator")
                           .peek()
                           .then()
                           .statusCode(200);
@@ -139,7 +139,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/repositories/version-validators/storage0/releases-with-single-validator")
+                          .get("/configuration/artifact-coordinate-validators/storage0/releases-with-single-validator")
                           .peek()
                           .then()
                           .body(anyOf(equalTo("[ \"redeployment-validator\", \"maven-snapshot-version-validator\" ]"),
@@ -149,7 +149,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .put("/configuration/repositories/version-validators/storage0/releases-with-single-validator/maven-snapshot-version-validator")
+                          .put("/configuration/artifact-coordinate-validators/storage0/releases-with-single-validator/maven-snapshot-version-validator")
                           .peek()
                           .then()
                           .statusCode(200);
@@ -157,7 +157,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/repositories/version-validators/storage0/releases-with-single-validator")
+                          .get("/configuration/artifact-coordinate-validators/storage0/releases-with-single-validator")
                           .peek()
                           .then()
                           .body(anyOf(equalTo("[ \"redeployment-validator\", \"maven-snapshot-version-validator\" ]"),
