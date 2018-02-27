@@ -41,6 +41,17 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     @Inject
     private RedeploymentValidator redeploymentValidator;
 
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, "releases-with-single-validator"));
+        repositories.add(createRepositoryMock(STORAGE0, "releases-with-default-validators"));
+        repositories.add(createRepositoryMock(STORAGE0, "another-releases-with-default-validators"));
+        repositories.add(createRepositoryMock(STORAGE0, "single-validator-only"));
+
+        return repositories;
+    }
+
     @Override
     public void init()
             throws Exception
@@ -60,18 +71,17 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
 
         createRepository(repository2);
 
-        Repository repository3 = mavenRepositoryFactory.createRepository(STORAGE0, "another-releases-with-default-validators");
+        Repository repository3 = mavenRepositoryFactory.createRepository(STORAGE0,
+                                                                         "another-releases-with-default-validators");
         repository3.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository3.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
-        repository3.setArtifactCoordinateValidators(
-                new LinkedHashSet<>(Collections.singletonList(redeploymentValidator.getAlias())));
 
         createRepository(repository3);
 
         Repository repository4 = new Repository("single-validator-only");
         repository4.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository4.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
-        repository4.setArtifactCoordinateValidators(new LinkedHashSet<>(Collections.singletonList(redeploymentValidator.getAlias())));
+        repository4.setArtifactCoordinateValidators(
+                new LinkedHashSet<>(Collections.singletonList(redeploymentValidator.getAlias())));
 
         createRepository(repository4);
 
@@ -105,8 +115,9 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-                .body("versionValidators",
-                      containsInAnyOrder("maven-release-version-validator", "maven-snapshot-version-validator", "redeployment-validator");
+               .body("versionValidators",
+                     containsInAnyOrder("maven-release-version-validator", "maven-snapshot-version-validator",
+                                        "redeployment-validator"));
     }
 
     @Test
@@ -280,17 +291,6 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
             throws IOException, JAXBException
     {
         removeRepositories(getRepositoriesToClean());
-    }
-
-    public static Set<Repository> getRepositoriesToClean()
-    {
-        Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, "releases-with-single-validator"));
-        repositories.add(createRepositoryMock(STORAGE0, "releases-with-default-validators"));
-        repositories.add(createRepositoryMock(STORAGE0, "another-releases-with-default-validators"));
-        repositories.add(createRepositoryMock(STORAGE0, "single-validator-only"));
-
-        return repositories;
     }
 
 }
