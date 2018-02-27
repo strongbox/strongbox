@@ -1,9 +1,10 @@
-package org.carlspring.strongbox.services;
+package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 
 import javax.inject.Inject;
@@ -29,7 +30,7 @@ import static org.junit.Assert.*;
  * @see https://dev.carlspring.org/youtrack/issue/SB-711
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@ContextConfiguration(classes = StorageApiTestConfig.class)
 public class ArtifactEntryServiceTest
 {
 
@@ -41,6 +42,51 @@ public class ArtifactEntryServiceTest
     @Inject
     ArtifactEntryService artifactEntryService;
 
+    @Test
+    public void cascadeUpdateShouldWork()
+        throws Exception
+    {
+        artifactEntryService.deleteAll();
+        createArtifacts(groupId, artifactId, storageId, repositoryId);
+        displayAllEntries();
+
+        Optional<ArtifactEntry> artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId,
+                                                                                             "org.carlspring.strongbox/coordinates-test123/1.2.3/jar");
+
+        assertTrue(artifactEntryOptional.isPresent());
+
+        ArtifactEntry artifactEntry = artifactEntryOptional.get();
+        assertThat(artifactEntry.getArtifactCoordinates(), CoreMatchers.notNullValue());
+        assertEquals("org.carlspring.strongbox/coordinates-test123/1.2.3/jar",
+                     artifactEntry.getArtifactCoordinates().toPath());
+
+        //Simple field update
+        artifactEntry.setRepositoryId(repositoryId + "abc");
+        artifactEntry = artifactEntryService.save(artifactEntry);
+
+        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId,
+                                                                     "org.carlspring.strongbox/coordinates-test123/1.2.3/jar");
+        assertFalse(artifactEntryOptional.isPresent());
+
+        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId + "abc",
+                                                                     "org.carlspring.strongbox/coordinates-test123/1.2.3/jar");
+        assertTrue(artifactEntryOptional.isPresent());
+
+        //Cascade field update
+        NullArtifactCoordinates nullArtifactCoordinates = (NullArtifactCoordinates)artifactEntry.getArtifactCoordinates();
+        nullArtifactCoordinates.setId("org.carlspring.strongbox/coordinates-test123/1.2.3/pom");
+        artifactEntryService.save(artifactEntry);
+
+        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId + "abc",
+                                                                     "org.carlspring.strongbox/coordinates-test123/1.2.3/jar");
+        assertFalse(artifactEntryOptional.isPresent());
+
+        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId + "abc",
+                                                                     "org.carlspring.strongbox/coordinates-test123/1.2.3/pom");
+        assertTrue(artifactEntryOptional.isPresent());
+
+    }
+    
     @Test
     public void searchBySizeShouldWork()
             throws Exception
@@ -151,10 +197,9 @@ public class ArtifactEntryServiceTest
         logger.debug("There are a total of " + artifactEntryService.count() + " artifacts.");
 
         // prepare search query key (coordinates)
-        MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
-        coordinates.setGroupId(groupId);
+        NullArtifactCoordinates coordinates = new NullArtifactCoordinates(groupId + "/");
 
-        List<ArtifactEntry> artifactEntries = artifactEntryService.findArtifactList(storageId, repositoryId, coordinates);
+        List<ArtifactEntry> artifactEntries = artifactEntryService.findArtifactList(storageId, repositoryId, coordinates.getCoordinates(), false);
 
         assertNotNull(artifactEntries);
         assertFalse(artifactEntries.isEmpty());
@@ -163,9 +208,7 @@ public class ArtifactEntryServiceTest
         artifactEntries.forEach(artifactEntry ->
                                 {
                                     logger.info("Found artifact " + artifactEntry);
-
-                                    assertEquals(groupId,
-                                                 ((MavenArtifactCoordinates)artifactEntry.getArtifactCoordinates()).getGroupId());
+                                    assertTrue(((NullArtifactCoordinates)artifactEntry.getArtifactCoordinates()).getPath().startsWith(groupId + "/"));
                                 });
     }
 
@@ -184,11 +227,9 @@ public class ArtifactEntryServiceTest
         logger.debug("There are a total of " + artifactEntryService.count() + " artifacts.");
 
         // prepare search query key (coordinates)
-        MavenArtifactCoordinates query = new MavenArtifactCoordinates();
-        query.setGroupId(groupId);
-        query.setArtifactId(artifactId);
+        NullArtifactCoordinates c1 = new NullArtifactCoordinates(groupId + "/" + artifactId + "/");
 
-        List<ArtifactEntry> result = artifactEntryService.findArtifactList(storageId, repositoryId, query);
+        List<ArtifactEntry> result = artifactEntryService.findArtifactList(storageId, repositoryId, c1.getCoordinates(), false);
         assertNotNull(result);
         assertFalse(result.isEmpty());
 
@@ -197,12 +238,10 @@ public class ArtifactEntryServiceTest
         result.forEach(artifactEntry ->
                        {
                            logger.debug("Found artifact " + artifactEntry);
-
-                           assertEquals(groupId, ((MavenArtifactCoordinates)artifactEntry.getArtifactCoordinates()).getGroupId());
-                           assertEquals(artifactId, ((MavenArtifactCoordinates)artifactEntry.getArtifactCoordinates()).getArtifactId());
+                           assertTrue(((NullArtifactCoordinates)artifactEntry.getArtifactCoordinates()).getPath().startsWith(groupId + "/" + artifactId));
                        });
 
-        Long c = artifactEntryService.countArtifacts(storageId, repositoryId, query.getCoordinates(), true);
+        Long c = artifactEntryService.countArtifacts(storageId, repositoryId, c1.getCoordinates(), false);
         assertEquals(Long.valueOf(1), c);
 
         artifactEntryService.deleteAll();
@@ -226,24 +265,9 @@ public class ArtifactEntryServiceTest
                                 String repositoryId)
     {
         // create 3 artifacts, one will have coordinates that matches our query, one - not
-
-        ArtifactCoordinates coordinates1 = new MavenArtifactCoordinates(groupId,
-                                                                        artifactId + "123",
-                                                                        "1.2.3",
-                                                                        null,
-                                                                        "jar");
-
-        ArtifactCoordinates coordinates2 = new MavenArtifactCoordinates(groupId,
-                                                                        artifactId,
-                                                                        "1.2.3",
-                                                                        null,
-                                                                        "jar");
-
-        ArtifactCoordinates coordinates3 = new MavenArtifactCoordinates(groupId + "myId",
-                                                                        artifactId + "321",
-                                                                        "1.2.3",
-                                                                        null,
-                                                                        "jar");
+        ArtifactCoordinates coordinates1 = new NullArtifactCoordinates(String.format("%s/%s/%s/%s", groupId, artifactId + "123", "1.2.3", "jar"));
+        ArtifactCoordinates coordinates2 = new NullArtifactCoordinates(String.format("%s/%s/%s/%s", groupId, artifactId, "1.2.3", "jar"));
+        ArtifactCoordinates coordinates3 = new NullArtifactCoordinates(String.format("%s/%s/%s/%s", groupId  + "myId", artifactId + "321", "1.2.3", "jar"));
 
         createArtifactEntry(coordinates1, storageId, repositoryId);
         createArtifactEntry(coordinates2, storageId, repositoryId);
@@ -265,11 +289,7 @@ public class ArtifactEntryServiceTest
     public ArtifactCoordinates createMavenArtifactCoordinates()
     {
 
-        return new MavenArtifactCoordinates("org.carlspring.strongbox.another.package",
-                                            "coordinates-test-super-test",
-                                            "1.2.3",
-                                            null,
-                                            "jar");
+        return new NullArtifactCoordinates(String.format("%s/%s/%s/%s", "org.carlspring.strongbox.another.package", "coordinates-test-super-test", "1.2.3", "jar"));
     }
 
     private void updateArtifactAttributes()

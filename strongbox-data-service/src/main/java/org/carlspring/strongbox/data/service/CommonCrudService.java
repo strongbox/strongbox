@@ -17,6 +17,7 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
@@ -39,29 +40,61 @@ public abstract class CommonCrudService<T extends GenericEntity>
         entityServiceRegistry.register(this.getEntityClass(), this);
     }
 
-    // TODO: recursive identification + collections
-    protected void cascadeEntityIdentification(T entity)
+    protected <S extends T> S cascadeEntitySave(T entity)
     {
         identifyEntity(entity);
-        ReflectionUtils.doWithFields(entity.getClass(), (field)->{
+        
+        ReflectionUtils.doWithFields(entity.getClass(), (field) -> {
             ReflectionUtils.makeAccessible(field);
-            Class<? extends GenericEntity> t = (Class<? extends GenericEntity>) field.getType();
-            if (!GenericEntity.class.isAssignableFrom(t))
-            {
-                return;
-            }
-            
-            GenericEntity subEntity = (GenericEntity) ReflectionUtils.getField(field, entity);
-            if (subEntity == null)
+            Class<?> fieldType = field.getType();
+            Object fieldValue = ReflectionUtils.getField(field, entity);
+
+            if (fieldValue == null)
             {
                 return;
             }
 
-            CommonCrudService<GenericEntity> entityService = (CommonCrudService<GenericEntity>) entityServiceRegistry.getEntityService(subEntity.getClass());
-            entityService.identifyEntity(subEntity);
+            if (Collection.class.isAssignableFrom(fieldType))
+            {
+                Collection<Object> collection = (Collection<Object>) fieldValue;
+                List<Object> replaceCollection = new LinkedList<>();
+                collection.removeIf(a -> {
+                    Object b = tryToCascadeEntitySave(a);
+                    if (b != a)
+                    {
+                        replaceCollection.add(b);
+                        return true;
+                    }
+                    return false;
+                });
+                collection.addAll(replaceCollection);
+            }
+            else
+            {
+                Object newFieldValue = tryToCascadeEntitySave(fieldValue);
+                if (newFieldValue != fieldValue)
+                {
+                    ReflectionUtils.setField(field, entity, newFieldValue);
+                }
+            }
+
         });
+
+        return getDelegate().save(entity);
     }
 
+    protected Object tryToCascadeEntitySave(Object entityCandidate)
+    {
+        if (!(entityCandidate instanceof GenericEntity))
+        {
+            return entityCandidate;
+        }
+
+        GenericEntity entity = (GenericEntity) entityCandidate;
+        CommonCrudService<GenericEntity> entityService = (CommonCrudService<GenericEntity>) entityServiceRegistry.getEntityService(entity.getClass());
+        return entityService.cascadeEntitySave(entity);
+    }
+    
     protected boolean identifyEntity(T entity)
     {
         if (entity.getObjectId() != null)
@@ -99,8 +132,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
     @Override
     public <S extends T> S save(S entity)
     {
-        cascadeEntityIdentification(entity);
-        return getDelegate().save(entity);
+        return cascadeEntitySave(entity);
     }
 
     @Override
