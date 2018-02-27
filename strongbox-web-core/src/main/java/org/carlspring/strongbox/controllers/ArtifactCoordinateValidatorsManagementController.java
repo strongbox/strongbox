@@ -43,8 +43,8 @@ public class ArtifactCoordinateValidatorsManagementController
     @GetMapping(value = "/{storageId}/{repositoryId}",
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity listArtifactCoordinatesForRepository(@PathVariable String storageId,
-                               @PathVariable String repositoryId,
-                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+                                                               @PathVariable String repositoryId,
+                                                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         if (storage == null)
