@@ -14,7 +14,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 /**
  * @author stodorov
  */
-public interface ArtifactMetadataService extends ConfigurationService
+public interface ArtifactMetadataService
 {
 
     /**

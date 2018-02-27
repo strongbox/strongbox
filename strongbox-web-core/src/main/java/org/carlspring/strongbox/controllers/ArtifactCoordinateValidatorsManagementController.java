@@ -1,9 +1,11 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -32,7 +34,7 @@ public class ArtifactCoordinateValidatorsManagementController
 {
 
     @Inject
-    private ConfigurationManager configurationManager;
+    private ConfigurationManagementService configurationManagementService;
 
     @ApiOperation(value = "Enumerates all version validators of the requested repository")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "All version validators of the requested repository"),
@@ -71,11 +73,13 @@ public class ArtifactCoordinateValidatorsManagementController
     public ResponseEntity add(@PathVariable String storageId,
                               @PathVariable String repositoryId,
                               @PathVariable String alias)
+            throws JAXBException
     {
+        Configuration configuration = configurationManager.getConfiguration();
         Repository repository = null;
         try
         {
-            repository = configurationManager.getRepository(storageId, repositoryId);
+            repository = configuration.getStorage(storageId).getRepository(repositoryId);
         }
         catch (Exception ex)
         {
@@ -88,6 +92,7 @@ public class ArtifactCoordinateValidatorsManagementController
         }
 
         repository.getArtifactCoordinateValidators().add(alias);
+        configurationManagementService.save(configuration);
 
         return ResponseEntity.ok().build();
     }
@@ -101,11 +106,13 @@ public class ArtifactCoordinateValidatorsManagementController
     public ResponseEntity delete(@PathVariable String storageId,
                                  @PathVariable String repositoryId,
                                  @PathVariable String alias)
+            throws JAXBException
     {
+        Configuration configuration = configurationManager.getConfiguration();
         Repository repository = null;
         try
         {
-            repository = configurationManager.getRepository(storageId, repositoryId);
+            repository = configuration.getStorage(storageId).getRepository(repositoryId);
         }
         catch (Exception ex)
         {
@@ -118,6 +125,7 @@ public class ArtifactCoordinateValidatorsManagementController
         }
 
         repository.getArtifactCoordinateValidators().remove(alias);
+        configurationManagementService.save(configuration);
 
         return ResponseEntity.ok().build();
     }

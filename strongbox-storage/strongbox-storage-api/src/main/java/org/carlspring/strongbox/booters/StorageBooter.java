@@ -218,7 +218,6 @@ public class StorageBooter
         {
             for (final Repository repository : storage.getRepositories().values())
             {
-                repository.setStorage(storage);
                 addRepositoriesByChildrenFirst(repositoriesHierarchy, repository);
             }
         }

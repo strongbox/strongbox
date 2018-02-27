@@ -60,7 +60,6 @@ public class ChecksumServiceImpl
         locator.locateArtifactDirectories();
     }
 
-    @Override
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
