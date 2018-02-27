@@ -18,10 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.controllers.RepositoryVersionValidatorsManagementController.*;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
+import static org.carlspring.strongbox.controllers.ArtifactCoordinateValidatorsManagementController.*;
+import static org.hamcrest.Matchers.*;
 
 /**
  * @author Przemyslaw Fusik
@@ -29,7 +27,7 @@ import static org.hamcrest.Matchers.equalTo;
  */
 @IntegrationTest
 @RunWith(SpringRunner.class)
-public class RepositoryVersionValidatorsManagementControllerTest
+public class ArtifactCoordinateValidatorsManagementControllerTest
         extends MavenRestAssuredBaseTest
 {
 
@@ -66,7 +64,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
 
         createRepository(repository3);
 
-        setContextBaseUrl(getContextBaseUrl() + "/configuration/repositories/version-validators");
+        setContextBaseUrl(getContextBaseUrl() + "/configuration/artifact-coordinate-validators");
     }
 
     @Test
