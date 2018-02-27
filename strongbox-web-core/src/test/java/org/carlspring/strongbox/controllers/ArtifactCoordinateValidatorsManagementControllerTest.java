@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.*;
  */
 @IntegrationTest
 @RunWith(SpringRunner.class)
-public class RepositoryVersionValidatorsManagementControllerTest
+public class ArtifactCoordinateValidatorsManagementControllerTest
         extends MavenRestAssuredBaseTest
 {
 
@@ -75,7 +75,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
 
         createRepository(repository4);
 
-        setContextBaseUrl(getContextBaseUrl() + "/configuration/repositories/version-validators");
+        setContextBaseUrl(getContextBaseUrl() + "/configuration/artifact-coordinate-validators");
     }
 
     @Test
