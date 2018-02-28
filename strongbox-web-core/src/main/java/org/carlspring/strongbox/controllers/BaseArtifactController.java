@@ -45,8 +45,6 @@ public abstract class BaseArtifactController
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
     
-    // ----------------------------------------------------------------------------------------------------------------
-    // Common-purpose methods
 
     public Storage getStorage(String storageId)
     {
@@ -271,6 +269,7 @@ public abstract class BaseArtifactController
         sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
         sb.append("<td></td>");
         sb.append("</tr>");
+
         return true;
     }
 
