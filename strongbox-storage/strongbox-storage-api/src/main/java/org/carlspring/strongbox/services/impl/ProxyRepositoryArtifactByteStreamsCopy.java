@@ -88,14 +88,10 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         try
         {
             long offset = simpleArtifactByteStreams.copy(from, to, artifactPath);
-            ctx.closeConnection();
-            
             ctx.setCurrentOffset(ctx.getCurrentOffset() + offset);
         }
         catch (ArtifactByteStreamsCopyException ex)
         {
-            ctx.closeConnection();
-            
             ctx.setCurrentOffset(ctx.getCurrentOffset() + ex.getOffset());
             retryCopyIfPossible(to, artifactPath, ex);
         }
@@ -148,6 +144,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         RestArtifactResolver client = ctx.getClient(remoteRepository);
         String resourcePath = getRestClientResourcePath(artifactPath);
         
+        ctx.closeConnection();
         CloseableRestResponse closeableRestResponse = client.get(resourcePath, ctx.getCurrentOffset());
         ctx.setConnection(closeableRestResponse);
         
@@ -240,7 +237,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     {
         final RepositoryPath finalArtifactPath = resolveToFinalArtifactPath(artifactPath);
         final Repository repository = finalArtifactPath.getFileSystem().getRepository();
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        final LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         final URI resource = layoutProvider.resolveResource(repository, finalArtifactPath.toString());
         return resource.toString();
     }
@@ -338,25 +335,28 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             return client = Optional.ofNullable(client).orElse(getRestArtifactResolver(repository));
         }
 
-        public Closeable getConnection()
-        {
-            return connection;
-        }
-
         public void setConnection(Closeable connection)
         {
             this.connection = connection;
         }
 
         public void closeConnection() {
-            Optional.ofNullable(connection).ifPresent(c -> IOUtils.closeQuietly(c));            
+            Optional.ofNullable(connection).ifPresent(c -> IOUtils.closeQuietly(c));
+            connection = null;
         }
         
         @Override
         public void close()
             throws IOException
         {
-            Optional.ofNullable(client).ifPresent(c -> IOUtils.closeQuietly(c));
+            try
+            {
+                Optional.ofNullable(client).ifPresent(c -> IOUtils.closeQuietly(c));
+                client = null;
+            } finally
+            {
+                artefactCopyContext.remove();
+            }
         }
         
     }
