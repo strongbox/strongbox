@@ -6,9 +6,16 @@ import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.persistence.CascadeType;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.PersistenceContext;
+
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -46,6 +53,22 @@ public abstract class CommonCrudService<T extends GenericEntity>
         
         ReflectionUtils.doWithFields(entity.getClass(), (field) -> {
             ReflectionUtils.makeAccessible(field);
+
+            Set<CascadeType> cascadeTypeSet = Arrays.stream(field.getAnnotations())
+                                                    .map(a -> exposeCascadeType(a))
+                                                    .reduce((c1,
+                                                             c2) -> {
+                                                        c1.addAll(c2);
+                                                        return c1;
+                                                    })
+                                                    .orElse(Collections.emptySet());
+            
+            if (!cascadeTypeSet.stream().anyMatch(c -> CascadeType.ALL.equals(c) || CascadeType.MERGE.equals(c)
+                    || CascadeType.PERSIST.equals(c)))
+            {
+                return;
+            }
+            
             Class<?> fieldType = field.getType();
             Object fieldValue = ReflectionUtils.getField(field, entity);
 
@@ -81,6 +104,28 @@ public abstract class CommonCrudService<T extends GenericEntity>
         });
 
         return getDelegate().save(entity);
+    }
+
+    private Set<CascadeType> exposeCascadeType(Annotation a)
+    {
+        Set<CascadeType> result = new HashSet<>();
+        if (a instanceof OneToMany)
+        {
+            result.addAll(Arrays.asList(((OneToMany) a).cascade()));
+        }
+        else if (a instanceof OneToOne)
+        {
+            result.addAll(Arrays.asList(((OneToOne) a).cascade()));
+        }
+        else if (a instanceof ManyToMany)
+        {
+            result.addAll(Arrays.asList(((ManyToMany) a).cascade()));
+        }
+        else if (a instanceof ManyToOne)
+        {
+            result.addAll(Arrays.asList(((ManyToOne) a).cascade()));
+        }
+        return result;
     }
 
     protected Object tryToCascadeEntitySave(Object entityCandidate)

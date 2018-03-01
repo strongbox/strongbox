@@ -107,6 +107,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             throws IOException
     {
         ArtefactCopyContext ctx = artefactCopyContext.get();
+        ctx.setAttempts(ctx.getAttempts() + 1);
         
         logger.debug("Retrying remote stream copying ... Attempt number = [{}], Current Offset = [{}] Duration Time = [{}]",
                      ctx.getAttempts(), ctx.getCurrentOffset(),
@@ -116,7 +117,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         tryToSleepRequestedAmountOfTimeBetweenAttempts(lastException);
         finishUnsuccessfullyIfTimeoutOccurred(lastException);
         
-        ctx.setAttempts(ctx.getAttempts() + 1);
+        
         
         if (!checkRemoteRepositoryHeartbeat(artifactPath))
         {

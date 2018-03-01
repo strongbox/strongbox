@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
@@ -28,7 +29,7 @@ public class ArtifactEntry
     private String repositoryId;
 
     // if you have to rename this field please update ArtifactEntryServiceImpl.findByCoordinates() implementation
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private AbstractArtifactCoordinates artifactCoordinates;
 
     @ManyToMany(targetEntity = ArtifactTagEntry.class)

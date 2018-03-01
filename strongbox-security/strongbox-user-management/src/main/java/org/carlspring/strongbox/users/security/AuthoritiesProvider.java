@@ -14,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * @author Przemyslaw Fusik
@@ -27,43 +28,45 @@ public class AuthoritiesProvider
     @Inject
     AuthorizationConfigProvider authorizationConfigProvider;
 
+    @Inject
+    private TransactionTemplate transactionTemplate;
+    
     private Set<GrantedAuthority> fullAuthorities;
 
     private Set<Role> configuredRoles;
 
     @PostConstruct
-    @Transactional
     public void init()
     {
         fullAuthorities = new HashSet<>();
         configuredRoles = new HashSet<>();
 
-        authorizationConfigProvider.getConfig()
-                                   .ifPresent(
-                                           config ->
-                                           {
-                                               try
-                                               {
-                                                   config.getRoles()
-                                                         .getRoles()
-                                                         .forEach(
-                                                                 role -> role.getPrivileges()
-                                                                             .forEach(
-                                                                                     privilegeName -> fullAuthorities.add(
-                                                                                             new SimpleGrantedAuthority(privilegeName.toUpperCase()))));
+        transactionTemplate.execute((s) -> {
+            authorizationConfigProvider.getConfig()
+                                       .ifPresent(
+                                                  config -> {
+                                                      try
+                                                      {
+                                                          config.getRoles()
+                                                                .getRoles()
+                                                                .forEach(role -> role.getPrivileges()
+                                                                                     .forEach(privilegeName -> fullAuthorities.add(new SimpleGrantedAuthority(
+                                                                                             privilegeName.toUpperCase()))));
 
-                                                   configuredRoles.addAll(config.getRoles()
-                                                                                .getRoles());
-                                               }
-                                               catch (Exception e)
-                                               {
-                                                   logger.error("Unable to process authorization config", e);
-                                               }
-                                           }
-                                   );
+                                                          configuredRoles.addAll(config.getRoles()
+                                                                                       .getRoles());
+                                                      }
+                                                      catch (Exception e)
+                                                      {
+                                                          logger.error("Unable to process authorization config",
+                                                                       e);
+                                                      }
+                                                  });
+            return null;
+        });        
+        
         authorizationConfigProvider.getConfig()
-                                   .orElseThrow(
-                                           () -> new RuntimeException("Unable to get authorization config"));
+                                   .orElseThrow(() -> new RuntimeException("Unable to get authorization config"));
     }
 
     public Set<GrantedAuthority> getAuthoritiesByRoleName(final String roleName)
