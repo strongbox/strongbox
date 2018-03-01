@@ -1,5 +1,19 @@
 package org.carlspring.strongbox.services.impl;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.util.Optional;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.client.RestArtifactResolverFactory;
@@ -13,18 +27,6 @@ import org.carlspring.strongbox.services.support.ArtifactByteStreamsCopyExceptio
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -52,7 +54,9 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     private LayoutProviderRegistry layoutProviderRegistry;
 
     private ArtifactByteStreamsCopyStrategy simpleArtifactByteStreams = SimpleArtifactByteStreamsCopy.INSTANCE;
-
+    
+    private ThreadLocal<ArtefactCopyContext> artefactCopyContext = new ThreadLocal<>();;
+    
     @Override
     public long copy(final InputStream from,
                      final OutputStream to,
@@ -61,145 +65,132 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
+        
+        try(ArtefactCopyContext context = new ArtefactCopyContext()){
+            context.setAttempts(1);
+            context.setCurrentOffset(0);
+            context.setStopWatch(stopWatch);
+            artefactCopyContext.set(context);
 
-        return copyWithOffset(from, to, artifactPath, stopWatch, 1, 0L, new MutableObject());
+            copyWithOffset(from, to, artifactPath);
+        }
+        
+        return artefactCopyContext.get().getCurrentOffset();
     }
 
-    private long copyWithOffset(final InputStream from,
+    private void copyWithOffset(final InputStream from,
                                 final OutputStream to,
-                                final RepositoryPath artifactPath,
-                                final StopWatch stopWatch,
-                                final int attempts,
-                                final long currentOffset,
-                                final MutableObject<Boolean> rangeRequestSupported)
+                                final RepositoryPath artifactPath)
             throws IOException
     {
+        ArtefactCopyContext ctx = artefactCopyContext.get();
+        
         try
         {
-            return currentOffset + copySimple(from, to, artifactPath);
+            long offset = simpleArtifactByteStreams.copy(from, to, artifactPath);
+            ctx.closeConnection();
+            
+            ctx.setCurrentOffset(ctx.getCurrentOffset() + offset);
         }
-        catch (final ArtifactByteStreamsCopyException ex)
+        catch (ArtifactByteStreamsCopyException ex)
         {
-            return retryCopyIfPossible(to,
-                                       artifactPath,
-                                       stopWatch,
-                                       attempts,
-                                       currentOffset + ex.getOffset(),
-                                       rangeRequestSupported,
-                                       ex);
+            ctx.closeConnection();
+            
+            ctx.setCurrentOffset(ctx.getCurrentOffset() + ex.getOffset());
+            retryCopyIfPossible(to, artifactPath, ex);
         }
     }
 
-    private long copySimple(final InputStream from,
-                            final OutputStream to,
-                            final RepositoryPath repositoryDestinationPath)
-            throws IOException
-    {
-        return simpleArtifactByteStreams.copy(from, to, repositoryDestinationPath);
-    }
-
-    private long retryCopyIfPossible(final OutputStream to,
+    private void retryCopyIfPossible(final OutputStream to,
                                      final RepositoryPath artifactPath,
-                                     final StopWatch stopWatch,
-                                     final int attempts,
-                                     final long currentOffset,
-                                     final MutableObject<Boolean> rangeRequestSupported,
                                      final IOException lastException)
             throws IOException
     {
-        logger.debug(
-                "Retrying remote stream copying ... Attempt number = [{}], Current Offset = [{}] Duration Time = [{}]",
-                attempts, currentOffset, stopWatch);
-        finishUnsuccessfullyIfNumberOfAttemptsExceedTheLimit(attempts, lastException);
+        ArtefactCopyContext ctx = artefactCopyContext.get();
+        
+        logger.debug("Retrying remote stream copying ... Attempt number = [{}], Current Offset = [{}] Duration Time = [{}]",
+                     ctx.getAttempts(), ctx.getCurrentOffset(),
+                     ctx.getStopWatch());
+        
+        finishUnsuccessfullyIfNumberOfAttemptsExceedTheLimit(lastException);
         tryToSleepRequestedAmountOfTimeBetweenAttempts(lastException);
-        finishUnsuccessfullyIfTimeoutOccurred(stopWatch, lastException);
-
-        if (checkRemoteRepositoryHeartbeat(artifactPath))
+        finishUnsuccessfullyIfTimeoutOccurred(lastException);
+        
+        ctx.setAttempts(ctx.getAttempts() + 1);
+        
+        if (!checkRemoteRepositoryHeartbeat(artifactPath))
         {
-            if (rangeRequestSupported.getValue() == null)
-            {
-                rangeRequestSupported.setValue(BooleanUtils.isTrue(isRangeRequestSupported(artifactPath)));
-            }
-            if (BooleanUtils.isNotTrue(rangeRequestSupported.getValue()))
-            {
-                throw new IOException("IOException occurred and repository of path " + artifactPath +
-                                      " does not support range requests.", lastException);
-            }
-
-            return performRangeRequest(to,
-                                       artifactPath,
-                                       stopWatch,
-                                       attempts + 1,
-                                       currentOffset,
-                                       rangeRequestSupported);
+            retryCopyIfPossible(to, artifactPath, lastException);
+        }
+        
+        ctx.setRangeRequestSupported(Optional.ofNullable(ctx.getRangeRequestSupported())
+                                             .orElse(BooleanUtils.isTrue(isRangeRequestSupported(artifactPath))));
+        
+        if (BooleanUtils.isNotTrue(ctx.getRangeRequestSupported()))
+        {
+            throw new IOException(
+                    String.format("IOException occurred and repository of path [%s] does not support range requests.",
+                                  artifactPath),
+                    lastException);
         }
 
-        return retryCopyIfPossible(to,
-                                   artifactPath,
-                                   stopWatch,
-                                   attempts + 1,
-                                   currentOffset,
-                                   rangeRequestSupported,
-                                   lastException);
+        performRangeRequest(to, artifactPath);
+    }
+
+    private void performRangeRequest(final OutputStream to,
+                                     final RepositoryPath artifactPath)
+            throws IOException
+    {
+        ArtefactCopyContext ctx = artefactCopyContext.get();
+        
+        RemoteRepository remoteRepository = artifactPath.getFileSystem().getRepository().getRemoteRepository();
+        RestArtifactResolver client = ctx.getClient(remoteRepository);
+        String resourcePath = getRestClientResourcePath(artifactPath);
+        
+        CloseableRestResponse closeableRestResponse = client.get(resourcePath, ctx.getCurrentOffset());
+        ctx.setConnection(closeableRestResponse);
+        
+        Response response = closeableRestResponse.getResponse();
+        if (response.getStatus() != 200 || response.getEntity() == null)
+        {
+            throw new IOException(String.format("Unreadable response from %s. Response status is %s",
+                                                remoteRepository.getUrl(), response.getStatus()));
+        }
+        InputStream is = response.readEntity(InputStream.class);
+        if (is == null)
+        {
+            throw new IOException(String.format("Unexpected null as InputStream from response from %s.",
+                                                remoteRepository.getUrl()));
+        }
+
+        copyWithOffset(is, to, artifactPath);
+        
     }
 
     private boolean isRangeRequestSupported(final RepositoryPath artifactPath)
             throws IOException
     {
-        final RemoteRepository remoteRepository = artifactPath.getFileSystem().getRepository().getRemoteRepository();
-        //TODO: we should cache this if once determined for concrete artifact
-        try (final RestArtifactResolver client = getRestArtifactResolver(remoteRepository))
+        ArtefactCopyContext ctx = artefactCopyContext.get();
+        
+        RemoteRepository remoteRepository = artifactPath.getFileSystem().getRepository().getRemoteRepository();
+        RestArtifactResolver client = ctx.getClient(remoteRepository);
+        
+        final String resourcePath = getRestClientResourcePath(artifactPath);
+        try (final CloseableRestResponse closeableRestResponse = client.head(resourcePath))
         {
-            final String resourcePath = getRestClientResourcePath(artifactPath);
-            try (final CloseableRestResponse closeableRestResponse = client.head(resourcePath))
+            final Response response = closeableRestResponse.getResponse();
+
+            if (response.getStatus() != 200 || response.getEntity() == null)
             {
-                final Response response = closeableRestResponse.getResponse();
-
-                if (response.getStatus() != 200 || response.getEntity() == null)
-                {
-                    return false;
-                }
-
-                final String acceptRangesHeader = response.getHeaderString("Accept-Ranges");
-                return StringUtils.isNotBlank(acceptRangesHeader) && !"none".equals(acceptRangesHeader);
+                return false;
             }
+
+            final String acceptRangesHeader = response.getHeaderString("Accept-Ranges");
+            return StringUtils.isNotBlank(acceptRangesHeader) && !"none".equals(acceptRangesHeader);
         }
-    }
-
-    private long performRangeRequest(final OutputStream to,
-                                     final RepositoryPath artifactPath,
-                                     final StopWatch stopWatch,
-                                     final int attempts,
-                                     final long currentOffset,
-                                     final MutableObject<Boolean> rangeRequestSupported)
-            throws IOException
-    {
-        final RemoteRepository remoteRepository = artifactPath.getFileSystem().getRepository().getRemoteRepository();
-        try (final RestArtifactResolver client = getRestArtifactResolver(remoteRepository))
-        {
-            final String resourcePath = getRestClientResourcePath(artifactPath);
-            try (final CloseableRestResponse closeableRestResponse = client.get(resourcePath, currentOffset))
-            {
-                final Response response = closeableRestResponse.getResponse();
-
-                if (response.getStatus() != 200 || response.getEntity() == null)
-                {
-                    throw new IOException(String.format("Unreadable response from %s. Response status is %s",
-                                                        remoteRepository.getUrl(), response.getStatus()));
-                }
-                final InputStream is = response.readEntity(InputStream.class);
-                if (is == null)
-                {
-                    throw new IOException(String.format("Unexpected null as InputStream from response from %s.",
-                                                        remoteRepository.getUrl()));
-                }
-
-                return copyWithOffset(is, to, artifactPath, stopWatch, attempts, currentOffset, rangeRequestSupported);
-            }
-        }
-    }
-
-
+        
+    }    
+    
     private boolean checkRemoteRepositoryHeartbeat(final RepositoryPath artifactPath)
     {
         final RemoteRepository remoteRepository = artifactPath.getFileSystem().getRepository().getRemoteRepository();
@@ -223,22 +214,20 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     }
 
 
-    private void finishUnsuccessfullyIfNumberOfAttemptsExceedTheLimit(final int attempts,
-                                                                      final IOException ex)
+    private void finishUnsuccessfullyIfNumberOfAttemptsExceedTheLimit(final IOException ex)
             throws IOException
     {
-        if (attempts > getMaxAllowedNumberOfRetryAttempts())
+        if (artefactCopyContext.get().getAttempts() > getMaxAllowedNumberOfRetryAttempts())
         {
             throw ex;
         }
     }
 
 
-    private void finishUnsuccessfullyIfTimeoutOccurred(final StopWatch stopWatch,
-                                                       final IOException ex)
+    private void finishUnsuccessfullyIfTimeoutOccurred(final IOException ex)
             throws IOException
     {
-        if (stopWatch.getTime() > getRetryTimeoutMillis())
+        if (artefactCopyContext.get().getStopWatch().getTime() > getRetryTimeoutMillis())
         {
             throw ex;
         }
@@ -293,5 +282,82 @@ public class ProxyRepositoryArtifactByteStreamsCopy
                                    .getRemoteRepositoryRetryArtifactDownloadConfiguration();
     }
 
+    private class ArtefactCopyContext implements Closeable
+    {
+        
+        private StopWatch stopWatch;
+        private int attempts;
+        private long currentOffset;
+        private Boolean rangeRequestSupported;
+        private RestArtifactResolver client;
+        private Closeable connection;
+
+        public StopWatch getStopWatch()
+        {
+            return stopWatch;
+        }
+
+        public void setStopWatch(StopWatch stopWatch)
+        {
+            this.stopWatch = stopWatch;
+        }
+
+        public int getAttempts()
+        {
+            return attempts;
+        }
+
+        public void setAttempts(int attempts)
+        {
+            this.attempts = attempts;
+        }
+
+        public long getCurrentOffset()
+        {
+            return currentOffset;
+        }
+
+        public void setCurrentOffset(long currentOffset)
+        {
+            this.currentOffset = currentOffset;
+        }
+
+        public Boolean getRangeRequestSupported()
+        {
+            return rangeRequestSupported;
+        }
+
+        public void setRangeRequestSupported(Boolean rangeRequestSupported)
+        {
+            this.rangeRequestSupported = rangeRequestSupported;
+        }
+
+        public RestArtifactResolver getClient(RemoteRepository repository)
+        {
+            return client = Optional.ofNullable(client).orElse(getRestArtifactResolver(repository));
+        }
+
+        public Closeable getConnection()
+        {
+            return connection;
+        }
+
+        public void setConnection(Closeable connection)
+        {
+            this.connection = connection;
+        }
+
+        public void closeConnection() {
+            Optional.ofNullable(connection).ifPresent(c -> IOUtils.closeQuietly(c));            
+        }
+        
+        @Override
+        public void close()
+            throws IOException
+        {
+            Optional.ofNullable(client).ifPresent(c -> IOUtils.closeQuietly(c));
+        }
+        
+    }
 
 }
