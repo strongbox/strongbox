@@ -2,21 +2,18 @@ package org.carlspring.strongbox.config;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 
 import org.carlspring.strongbox.data.CacheManagerConfiguration;
-import org.carlspring.strongbox.data.domain.GenericEntity;
-import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.server.OrientDbServer;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ServiceLocatorFactoryBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
@@ -24,22 +21,23 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.orm.jpa.EntityManagerFactoryUtils;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.core.sql.OCommandExecutorSQLFactory;
+import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
+
+import liquibase.integration.spring.SpringLiquibase;
 
 /**
  * Spring configuration for data service project.
@@ -66,17 +64,14 @@ public class DataServiceConfig
     @Inject
     private OrientDbServer orientDbServer;
     
+    @Inject
+    private SpringLiquibase springLiquibase;
+    
     @PostConstruct
     public void init()
         throws Exception
     {
-        orientDbServer.start();
-        
-        transactionTemplate().execute((s) ->
-                                    {
-                                        doInit(s);
-                                        return null;
-                                    });
+        //orientDbServer.start();
     }
     
     @PreDestroy
@@ -85,22 +80,6 @@ public class DataServiceConfig
         orientDbServer.stop();
     }
 
-    private void doInit(TransactionStatus s)
-    {
-        oEntityManager().registerEntityClass(GenericEntity.class);
-        EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(entityManagerFactory());
-        OClass oGenericEntityClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
-                                                                                      .getSchema()
-                                                                                      .getOrCreateClass(GenericEntity.class.getSimpleName());
-        
-        if (oGenericEntityClass.getIndexes()
-                      .stream()
-                      .noneMatch(oIndex -> oIndex.getName().equals("idx_uuid")))
-        {
-            oGenericEntityClass.createIndex("idx_uuid", OClass.INDEX_TYPE.UNIQUE, "uuid");
-        }
-    }    
-    
     @Bean
     public PlatformTransactionManager transactionManager()
     {
@@ -159,6 +138,36 @@ public class DataServiceConfig
         cmfb.setShared(false);
         cmfb.setCacheManagerName(cacheManagerConfiguration.getCacheCacheManagerId());
         return cmfb;
+    }
+    
+    @Bean
+    @Lazy(false)
+    @DependsOn
+    public SpringLiquibase springLiquibase(OrientDbServer orientDbServer, DataSource dataSource)
+    {
+        orientDbServer.start();
+        
+        SpringLiquibase result = new SpringLiquibase();
+        result.setDataSource(dataSource);
+        result.setChangeLog("classpath:/db/changelog/db.changelog-master.xml");
+        return result;
+    }
+
+    @Bean
+    public DataSource dataSource()
+    {
+        ServiceLoader.load(OSQLFunctionFactory.class);
+        ServiceLoader.load(OCommandExecutorSQLFactory.class);
+        
+        
+        SingleConnectionDataSource ds = new SingleConnectionDataSource();
+        ds.setAutoCommit(false);
+        
+        ds.setUsername(connectionConfig.getUsername());
+        ds.setPassword(connectionConfig.getPassword());
+        ds.setUrl(String.format("jdbc:orient:%s", connectionConfig.getUrl()));
+        
+        return ds;
     }
     
 }
