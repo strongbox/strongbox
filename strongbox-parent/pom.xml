@@ -341,6 +341,10 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.google.collections</groupId>
+                        <artifactId>google-collections</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -993,7 +997,12 @@
                 <artifactId>liquibase-core</artifactId>
                 <version>${version.liquibase}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.unbroken-dome.liquibase-orientdb</groupId>
+                <artifactId>liquibase-orientdb</artifactId>
+                <version>0.3.0</version>
+            </dependency>
+    
             <dependency>
                 <groupId>org.unbroken-dome.liquibase-orientdb</groupId>
                 <artifactId>liquibase-orientdb</artifactId>

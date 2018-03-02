@@ -241,11 +241,6 @@
         </dependency>
         
         <dependency>
-            <groupId>org.unbroken-dome.liquibase-orientdb</groupId>
-            <artifactId>liquibase-orientdb</artifactId>
-        </dependency>
-        
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
         </dependency>
@@ -282,6 +277,10 @@
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.unbroken-dome.liquibase-orientdb</groupId>
+            <artifactId>liquibase-orientdb</artifactId>
         </dependency>
         
     </dependencies>
