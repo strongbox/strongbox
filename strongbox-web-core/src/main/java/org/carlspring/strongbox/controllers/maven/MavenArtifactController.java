@@ -249,5 +249,22 @@ public class MavenArtifactController
 
         return ResponseEntity.ok("The artifact was deleted.");
     }
-    
+
+    @Override
+    protected boolean provideArtifactDownloadResponse(final HttpServletRequest request,
+                                                      final HttpServletResponse response,
+                                                      final HttpHeaders httpHeaders,
+                                                      final Repository repository,
+                                                      final String requestedPath)
+            throws Exception
+    {
+        String path = correctIndexPathIfNecessary(requestedPath);
+        return super.provideArtifactDownloadResponse(request, response, httpHeaders, repository, path);
+    }
+
+    private String correctIndexPathIfNecessary(final String requestedPath)
+    {
+        return MavenIndexPathTransformer.getInstance().apply(requestedPath);
+    }
+
 }
