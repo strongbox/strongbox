@@ -36,8 +36,7 @@ public class ArtifactEntry
     private Set<ArtifactTag> tagSet;
     
     /**
-     * This field is used as part of [storageId, repositoryId, artifactPath] unique index. The value of this field is
-     * populated within {@link GenericEntityHook}.
+     * This field is used as part of [storageId, repositoryId, artifactPath] unique index.
      */
     private String artifactPath;
 
