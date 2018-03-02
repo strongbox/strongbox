@@ -58,7 +58,8 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
     private EntityManager createEntityManager(final OJPAProperties properties)
     {
         OObjectDatabaseTx db = new OObjectDatabaseTx(databasePool.acquire());
-        Boolean automaticSchemaGeneration = Boolean.valueOf(properties.get(OJPAObjectDatabaseTxPersistence.PROPERTY_AUTOMATIC_SCHEMA_GENERATION)
+        Boolean automaticSchemaGeneration = Boolean.valueOf(properties.getOrDefault(OJPAObjectDatabaseTxPersistence.PROPERTY_AUTOMATIC_SCHEMA_GENERATION,
+                                                                                    Boolean.FALSE.toString())
                                                                       .toString());
         db.setAutomaticSchemaGeneration(Boolean.TRUE.equals(automaticSchemaGeneration));
         return new OJPAObjectDatabaseTxEntityManager(db, this, properties);
