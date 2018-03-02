@@ -66,6 +66,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         
+        long result;
         try(ArtefactCopyContext context = new ArtefactCopyContext()){
             context.setAttempts(1);
             context.setCurrentOffset(0);
@@ -73,9 +74,12 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             artefactCopyContext.set(context);
 
             copyWithOffset(from, to, artifactPath);
+            
+            result = artefactCopyContext.get().getCurrentOffset();
         }
         
-        return artefactCopyContext.get().getCurrentOffset();
+        
+        return result;
     }
 
     private void copyWithOffset(final InputStream from,
