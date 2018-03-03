@@ -29,7 +29,7 @@ public class BrowseStoragesControllerTest
     public void testBrowseStorages()
             throws Exception
     {
-        String path = "/storages/";
+        String path = "/browse/";
 
         RestAssuredMockMvc.given()
                           .header("User-Agent", "unknown/*")
@@ -44,7 +44,7 @@ public class BrowseStoragesControllerTest
     public void testBrowseRepositoriesInStorages()
             throws Exception
     {
-        String path = "/storages/storage0/";
+        String path = "/browse/storage0/";
 
         RestAssuredMockMvc.given()
                           .header("User-Agent", "unknown/*")
