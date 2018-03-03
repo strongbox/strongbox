@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
  * @author Alex Oreshkevich
  */
 public class AccessModel
-        extends GenericEntity
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AccessModel.class);

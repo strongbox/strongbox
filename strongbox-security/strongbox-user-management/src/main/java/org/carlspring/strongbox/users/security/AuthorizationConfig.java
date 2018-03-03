@@ -3,7 +3,9 @@ package org.carlspring.strongbox.users.security;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.security.Roles;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
+import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;

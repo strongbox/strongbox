@@ -57,6 +57,8 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     public <S extends ArtifactEntry> S save(S entity,
                                             boolean updateLastVersion)
     {
+        entity.setArtifactCoordinates(entity.getArtifactCoordinates());
+        
         ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
         if (coordinates == null)
         {
