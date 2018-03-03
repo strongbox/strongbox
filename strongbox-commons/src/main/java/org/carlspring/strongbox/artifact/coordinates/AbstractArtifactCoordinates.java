@@ -87,7 +87,7 @@ public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoor
         return path;
     }
 
-    public void setPath(String path)
+    protected void setPath(String path)
     {
         this.path = path;
     }
