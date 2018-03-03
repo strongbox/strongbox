@@ -6,7 +6,6 @@ import java.io.IOException;
  * @author Kate Novik.
  */
 public interface ChecksumService
-        extends ConfigurationService
 {
 
     /**

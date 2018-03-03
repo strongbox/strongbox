@@ -259,6 +259,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                      String[] repositoryIds,
                                      String rulePattern,
                                      int type)
+            throws IOException, JAXBException
     {
         Set<String> repositories = new LinkedHashSet<>();
         repositories.addAll(Arrays.asList(repositoryIds));

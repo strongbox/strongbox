@@ -1,10 +1,13 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
+import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.rest.common.RestAssuredTestExecutionListener;
 
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -19,6 +22,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.web.WebAppConfiguration;
+import static org.mockito.Matchers.any;
 
 /**
  * Helper meta annotation for all rest-assured based tests. Specifies tests that
@@ -55,6 +59,19 @@ public @interface IntegrationTest
         CronJobSchedulerService cronJobSchedulerService()
         {
             return Mockito.mock(CronJobSchedulerService.class);
+        }
+
+        @Bean
+        @Primary
+        ConfigurationFileManager configurationFileManager()
+                throws IOException, JAXBException
+        {
+            final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager());
+
+            Mockito.doNothing().when(configurationFileManager).store(
+                    any(org.carlspring.strongbox.configuration.Configuration.class));
+
+            return configurationFileManager;
         }
     }
 

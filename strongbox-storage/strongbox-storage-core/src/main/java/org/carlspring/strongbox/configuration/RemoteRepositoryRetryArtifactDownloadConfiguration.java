@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 /**
  * @author Przemyslaw Fusik
@@ -11,6 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "retry-artifact-download-configuration")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RemoteRepositoryRetryArtifactDownloadConfiguration
+        implements Serializable
 {
 
     public static final RemoteRepositoryRetryArtifactDownloadConfiguration DEFAULT = new RemoteRepositoryRetryArtifactDownloadConfiguration()

@@ -7,6 +7,8 @@ import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesV
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * @author mtodorov
@@ -25,6 +27,11 @@ public interface ArtifactCoordinatesValidator
         return true;
     }
 
+    default boolean supports(String layoutProvider)
+    {
+        return true;
+    }
+
     /**
      * Checks if an artifact version is acceptable by the repository.
      *
@@ -37,5 +44,16 @@ public interface ArtifactCoordinatesValidator
                    ProviderImplementationException,
                    ArtifactCoordinatesValidationException,
                    IOException;
+
+    /**
+     * Returns the list of supported validators. By default, it returns an empty set, meaning that there is
+     * no explicit list of supported providers to be limited to, (hence it accepts any provider).
+     *
+     * @return
+     */
+    default Set<String> getSupportedLayoutProviders()
+    {
+        return Collections.emptySet();
+    }
 
 }

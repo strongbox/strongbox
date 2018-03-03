@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -71,6 +72,17 @@ public abstract class BaseController
     protected ResponseEntity getJSONListResponseEntityBody(String fieldName, List<?> list)
     {
         return ResponseEntity.ok(new ListEntityBody(fieldName, list));
+    }
+
+    /**
+     * @param fieldName JSON field name
+     * @param iterable  the iterable
+     * @return ResponseEntity
+     */
+    protected ResponseEntity getJSONListResponseEntityBody(String fieldName, final Iterable<?> iterable)
+    {
+        List<?> list = IteratorUtils.toList(iterable.iterator());
+        return getJSONListResponseEntityBody(fieldName, list);
     }
 
     /**

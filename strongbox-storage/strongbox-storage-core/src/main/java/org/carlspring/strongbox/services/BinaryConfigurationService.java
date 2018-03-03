@@ -3,14 +3,15 @@ package org.carlspring.strongbox.services;
 import org.carlspring.strongbox.configuration.BinaryConfiguration;
 import org.carlspring.strongbox.data.service.CrudService;
 
-import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 /**
- * @author Alex Oreshkevich
+ * @author Przemyslaw Fusik
  */
-@Transactional
-public interface ServerConfigurationService
+public interface BinaryConfigurationService
         extends CrudService<BinaryConfiguration, String>
 {
+
+    Optional<BinaryConfiguration> findOne();
 
 }

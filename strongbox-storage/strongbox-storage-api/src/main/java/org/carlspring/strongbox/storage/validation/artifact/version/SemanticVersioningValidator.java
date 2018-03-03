@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.validation.artifact.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 
 import javax.annotation.PostConstruct;
@@ -13,11 +14,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SemanticVersioningValidator implements VersionValidator
+public class SemanticVersioningValidator
+        implements ArtifactCoordinatesValidator
 {
 
     private static final Logger logger = LoggerFactory.getLogger(SemanticVersioningValidator.class);
-
 
     public static final String ALIAS = "semantic-version-validator";
 
@@ -53,6 +54,12 @@ public class SemanticVersioningValidator implements VersionValidator
     public boolean supports(Repository repository)
     {
         return repository.getArtifactCoordinateValidators().contains(ALIAS);
+    }
+
+    @Override
+    public boolean supports(String layoutProvider)
+    {
+        return true;
     }
 
     @Override

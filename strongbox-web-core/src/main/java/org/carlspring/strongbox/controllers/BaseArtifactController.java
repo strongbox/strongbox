@@ -37,8 +37,6 @@ public abstract class BaseArtifactController
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
     
-    // ----------------------------------------------------------------------------------------------------------------
-    // Common-purpose methods
 
     public Storage getStorage(String storageId)
     {

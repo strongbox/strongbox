@@ -2,8 +2,8 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
@@ -18,6 +18,8 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.*;
 
+import com.google.common.collect.Sets;
+import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -50,8 +52,9 @@ public class ConfigurationManagementServiceImplTest
 
     private static final String REPOSITORY_GROUP_2 = "csmi-group-2";
 
-    @Inject
-    private ConfigurationRepository configurationRepository;
+    private static final String REPOSITORY_4_DB_VERSION_1 = "db-versioned-conf-release-1";
+
+    private static final String REPOSITORY_4_DB_VERSION_2 = "db-versioned-conf-release-2";
 
     @Inject
     private ConfigurationManagementService configurationManagementService;
@@ -65,6 +68,19 @@ public class ConfigurationManagementServiceImplTest
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_4_DB_VERSION_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_4_DB_VERSION_2));
+
+        return repositories;
     }
 
     @Before
@@ -96,17 +112,6 @@ public class ConfigurationManagementServiceImplTest
             throws IOException, JAXBException
     {
         removeRepositories(getRepositoriesToClean());
-    }
-
-    public static Set<Repository> getRepositoriesToClean()
-    {
-        Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_2));
-
-        return repositories;
     }
 
     @Test
@@ -161,7 +166,8 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    public void testSetProxyRepositoryMaxConnections() throws IOException, JAXBException
+    public void testSetProxyRepositoryMaxConnections()
+            throws IOException, JAXBException
     {
         Storage storage = configurationManagementService.getStorage(STORAGE0);
 
@@ -180,10 +186,11 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void addAcceptedRuleSet()
+            throws Exception
     {
         final RuleSet ruleSet = getRuleSet();
         final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
-        final Configuration configuration = configurationRepository.getConfiguration();
+        final Configuration configuration = configurationManagementService.getConfiguration();
 
         final RuleSet addedRuleSet = configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1);
 
@@ -197,12 +204,13 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void testRemoveAcceptedRuleSet()
+            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
         final boolean removed = configurationManagementService.removeAcceptedRuleSet(REPOSITORY_GROUP_1);
 
-        final Configuration configuration = configurationRepository.getConfiguration();
+        final Configuration configuration = configurationManagementService.getConfiguration();
         final RuleSet addedRuleSet = configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1);
 
         assertTrue(removed);
@@ -211,12 +219,13 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void testAddAcceptedRepo()
+            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
         final boolean added = configurationManagementService.saveAcceptedRepository(REPOSITORY_GROUP_1,
                                                                                     getRoutingRule());
-        final Configuration configuration = configurationRepository.getConfiguration();
+        final Configuration configuration = configurationManagementService.getConfiguration();
 
         assertTrue(added);
 
@@ -231,6 +240,7 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void testRemoveAcceptedRepository()
+            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
@@ -238,9 +248,10 @@ public class ConfigurationManagementServiceImplTest
                                                                                         RULE_PATTERN,
                                                                                         REPOSITORY_RELEASES_1);
 
-        final Configuration configuration = configurationRepository.getConfiguration();
+        final Configuration configuration = configurationManagementService.getConfiguration();
         configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1).getRoutingRules().forEach(
-                routingRule -> {
+                routingRule ->
+                {
                     if (routingRule.getPattern().equals(RULE_PATTERN))
                     {
                         assertFalse(routingRule.getRepositories().contains(REPOSITORY_RELEASES_1));
@@ -253,14 +264,16 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void testOverrideAcceptedRepositories()
+            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
         final RoutingRule rl = getRoutingRule();
         final boolean overridden = configurationManagementService.overrideAcceptedRepositories(REPOSITORY_GROUP_1, rl);
-        final Configuration configuration = configurationRepository.getConfiguration();
+        final Configuration configuration = configurationManagementService.getConfiguration();
         configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1).getRoutingRules().forEach(
-                routingRule -> {
+                routingRule ->
+                {
                     if (routingRule.getPattern().equals(rl.getPattern()))
                     {
                         assertEquals(1, routingRule.getRepositories().size());
@@ -298,6 +311,36 @@ public class ConfigurationManagementServiceImplTest
                                                                                                  maven2Layout);
 
         assertTrue(repositories.isEmpty());
+    }
+
+    @Test(expected = OConcurrentModificationException.class)
+    public void shouldProtectConcurrentModification()
+            throws Exception
+    {
+        Configuration configuration = configurationManagementService.getConfiguration();
+
+        Repository repository1 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_4_DB_VERSION_1);
+        createRepository(repository1);
+
+        Repository repository2 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_4_DB_VERSION_2);
+        configuration.getStorage(STORAGE0).addRepository(repository2);
+
+        configurationManagementService.save(configuration);
+    }
+
+    @Test(expected = OConcurrentModificationException.class)
+    public void shouldProtectConcurrentModificationDuringSet()
+            throws Exception
+    {
+        Configuration configuration = configurationManagementService.getConfiguration();
+
+        Repository repository1 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_4_DB_VERSION_1);
+        createRepository(repository1);
+
+        Repository repository2 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_4_DB_VERSION_2);
+        configuration.getStorage(STORAGE0).addRepository(repository2);
+
+        configurationManagementService.setConfiguration(configuration);
     }
 
     private RoutingRule getRoutingRule()
