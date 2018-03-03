@@ -45,6 +45,8 @@ import liquibase.integration.spring.SpringLiquibase;
  * @author Alex Oreshkevich
  */
 @Configuration
+//@DependsOn({"springLiquibase"})
+@Lazy(false)
 @EnableTransactionManagement(proxyTargetClass = true, order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.data" })
@@ -61,25 +63,16 @@ public class DataServiceConfig
     @Inject
     private ConnectionConfig connectionConfig;
     
-    @Inject
-    private OrientDbServer orientDbServer;
-    
-    @Inject
+    //@Inject
     private SpringLiquibase springLiquibase;
     
-    @PostConstruct
+    //@PostConstruct
     public void init()
         throws Exception
     {
         //orientDbServer.start();
     }
     
-    @PreDestroy
-    public void destroy()
-    {
-        orientDbServer.stop();
-    }
-
     @Bean
     public PlatformTransactionManager transactionManager()
     {
@@ -142,11 +135,8 @@ public class DataServiceConfig
     
     @Bean
     @Lazy(false)
-    @DependsOn
-    public SpringLiquibase springLiquibase(OrientDbServer orientDbServer, DataSource dataSource)
+    public SpringLiquibase springLiquibase(DataSource dataSource)
     {
-        orientDbServer.start();
-        
         SpringLiquibase result = new SpringLiquibase();
         result.setDataSource(dataSource);
         result.setChangeLog("classpath:/db/changelog/db.changelog-master.xml");
@@ -154,6 +144,7 @@ public class DataServiceConfig
     }
 
     @Bean
+    @DependsOn("orientDbServer")
     public DataSource dataSource()
     {
         ServiceLoader.load(OSQLFunctionFactory.class);

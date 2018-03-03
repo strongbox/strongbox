@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.data.server;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.config.ConnectionConfig;
@@ -9,13 +10,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.stereotype.Component;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 
-@Component
+@Component("orientDbServer")
+@Lazy(false)
 @Conditional(InMemoryOrientDbServer.class)
 public class InMemoryOrientDbServer implements OrientDbServer, Condition
 {
@@ -26,6 +29,7 @@ public class InMemoryOrientDbServer implements OrientDbServer, Condition
     private ConnectionConfig connectionConfig;
 
     @Override
+    @PostConstruct
     public void start()
     {
         String database = connectionConfig.getDatabase();
