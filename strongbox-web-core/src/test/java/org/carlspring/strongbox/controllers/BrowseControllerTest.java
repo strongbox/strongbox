@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * @author Guido Grazioli
  */
+@Ignore
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class BrowseControllerTest
