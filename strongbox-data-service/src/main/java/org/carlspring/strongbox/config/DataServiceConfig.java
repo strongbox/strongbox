@@ -41,6 +41,7 @@ import liquibase.integration.spring.SpringLiquibase;
  * @author Alex Oreshkevich
  */
 @Configuration
+@Lazy(false)
 @EnableTransactionManagement(proxyTargetClass = true, order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.data" })
@@ -56,6 +57,9 @@ public class DataServiceConfig
 
     @Inject
     private ConnectionConfig connectionConfig;
+    
+    @Inject
+    protected SpringLiquibase springLiquibase;
     
     @Bean
     public PlatformTransactionManager transactionManager()
@@ -118,7 +122,6 @@ public class DataServiceConfig
     }
     
     @Bean
-    @Lazy(false)
     public SpringLiquibase springLiquibase(DataSource dataSource)
     {
         SpringLiquibase result = new SpringLiquibase();
