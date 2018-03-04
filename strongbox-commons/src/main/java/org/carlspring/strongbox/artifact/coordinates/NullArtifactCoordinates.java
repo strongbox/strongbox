@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author carlspring
@@ -20,26 +21,19 @@ public class NullArtifactCoordinates
     public NullArtifactCoordinates(String path)
     {
         this();
-        setPath(path);
+        setCoordinate(PATH, path);
     }
 
-    /**
-     * WARNING: Unsurprisingly, this is null.
-     * @return  null
-     */
     @Override
     public String getId()
     {
-        return null;
+        return getPath();
     }
 
-    /**
-     * WARNING: Unsurprisingly, this is null.
-     * @return  null
-     */
     @Override
     public void setId(String id)
     {
+        setCoordinate(PATH, id);
     }
 
     /**
@@ -72,7 +66,7 @@ public class NullArtifactCoordinates
     @Override
     public String toPath()
     {
-        return getPath();
+        return Optional.ofNullable(getCoordinate(PATH)).orElse("");
     }
 
     @Override

@@ -107,8 +107,7 @@ public class AuthorizationConfigProvider
             {
                 // get first of the available configs into work
                 configService.findAll()
-                             .ifPresent(
-                                        authorizationConfigs -> config = authorizationConfigs.get(0));
+                             .ifPresent(authorizationConfigs -> config = authorizationConfigs.get(0));
 
                 // process the case when for some reason we have more than one config
                 if (configCount > 1)

@@ -1,13 +1,17 @@
 package org.carlspring.strongbox.security;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.LinkedHashSet;
-import java.util.Set;
+
+import org.carlspring.strongbox.data.domain.GenericEntity;
 
 /**
  * @author mtodorov
@@ -19,6 +23,7 @@ public class Privileges
 {
 
     @XmlElement(name = "privilege")
+    @OneToMany(cascade = CascadeType.ALL)
     private Set<Privilege> privileges = new LinkedHashSet<>();
 
     public Privileges()

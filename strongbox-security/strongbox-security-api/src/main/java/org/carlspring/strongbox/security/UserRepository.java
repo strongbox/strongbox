@@ -2,6 +2,8 @@ package org.carlspring.strongbox.security;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
+import javax.persistence.CascadeType;
+import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -27,6 +29,7 @@ public class UserRepository
     private String repositoryId;
 
     @XmlElement(name = "path-permissions")
+    @OneToOne(cascade = CascadeType.ALL)
     private UserPathPermissions pathPermissions;
 
     public UserRepository()
