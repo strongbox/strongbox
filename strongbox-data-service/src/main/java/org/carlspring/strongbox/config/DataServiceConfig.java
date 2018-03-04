@@ -4,16 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.carlspring.strongbox.data.CacheManagerConfiguration;
-import org.carlspring.strongbox.data.server.OrientDbServer;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
-import org.springframework.beans.factory.config.ServiceLocatorFactoryBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
@@ -45,8 +41,6 @@ import liquibase.integration.spring.SpringLiquibase;
  * @author Alex Oreshkevich
  */
 @Configuration
-//@DependsOn({"springLiquibase"})
-@Lazy(false)
 @EnableTransactionManagement(proxyTargetClass = true, order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.data" })
@@ -62,16 +56,6 @@ public class DataServiceConfig
 
     @Inject
     private ConnectionConfig connectionConfig;
-    
-    //@Inject
-    private SpringLiquibase springLiquibase;
-    
-    //@PostConstruct
-    public void init()
-        throws Exception
-    {
-        //orientDbServer.start();
-    }
     
     @Bean
     public PlatformTransactionManager transactionManager()
