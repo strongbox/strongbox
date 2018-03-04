@@ -57,6 +57,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     
     private ThreadLocal<ArtefactCopyContext> artefactCopyContext = new ThreadLocal<>();;
     
+    
     @Override
     public long copy(final InputStream from,
                      final OutputStream to,
@@ -67,7 +68,8 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         stopWatch.start();
         
         long result;
-        try(ArtefactCopyContext context = new ArtefactCopyContext()){
+        try(ArtefactCopyContext context = new ArtefactCopyContext())
+        {
             context.setAttempts(1);
             context.setCurrentOffset(0);
             context.setStopWatch(stopWatch);
@@ -77,7 +79,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             
             result = artefactCopyContext.get().getCurrentOffset();
         }
-        
         
         return result;
     }
@@ -344,7 +345,8 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             this.connection = connection;
         }
 
-        public void closeConnection() {
+        public void closeConnection()
+        {
             Optional.ofNullable(connection).ifPresent(c -> IOUtils.closeQuietly(c));
             connection = null;
         }
@@ -357,7 +359,8 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             {
                 Optional.ofNullable(client).ifPresent(c -> IOUtils.closeQuietly(c));
                 client = null;
-            } finally
+            }
+            finally
             {
                 artefactCopyContext.remove();
             }
