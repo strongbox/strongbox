@@ -247,7 +247,7 @@ public class UserController
                             @ApiResponse(code = 403, message = "Not enough access rights for this operation."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
-    @PutMapping(value = "user/{username}/access-model", produces = { MediaType.TEXT_PLAIN_VALUE,
+    @PutMapping(value = "user/{userName}/access-model", produces = { MediaType.TEXT_PLAIN_VALUE,
                                                                      MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity updateAccessModel(@ApiParam(value = "The name of the user") @PathVariable String userName,
                                             @RequestBody AccessModel accessModel,
