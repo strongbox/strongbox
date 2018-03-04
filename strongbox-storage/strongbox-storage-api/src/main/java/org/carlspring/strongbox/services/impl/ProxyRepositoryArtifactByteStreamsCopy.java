@@ -57,6 +57,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     
     private ThreadLocal<ArtifactCopyContext> artifactCopyContext = new ThreadLocal<>();;
     
+    
     @Override
     public long copy(final InputStream from,
                      final OutputStream to,
@@ -67,7 +68,8 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         stopWatch.start();
         
         long result;
-        try(ArtifactCopyContext context = new ArtifactCopyContext()){
+        try(ArtifactCopyContext context = new ArtifactCopyContext())
+        {
             context.setAttempts(1);
             context.setCurrentOffset(0);
             context.setStopWatch(stopWatch);
@@ -77,7 +79,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             
             result = artifactCopyContext.get().getCurrentOffset();
         }
-        
         
         return result;
     }
@@ -116,8 +117,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         finishUnsuccessfullyIfNumberOfAttemptsExceedTheLimit(lastException);
         tryToSleepRequestedAmountOfTimeBetweenAttempts(lastException);
         finishUnsuccessfullyIfTimeoutOccurred(lastException);
-        
-        
         
         if (!checkRemoteRepositoryHeartbeat(artifactPath))
         {
@@ -166,7 +165,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         }
 
         copyWithOffset(is, to, artifactPath);
-        
     }
 
     private boolean isRangeRequestSupported(final RepositoryPath artifactPath)
@@ -190,7 +188,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             final String acceptRangesHeader = response.getHeaderString("Accept-Ranges");
             return StringUtils.isNotBlank(acceptRangesHeader) && !"none".equals(acceptRangesHeader);
         }
-        
     }    
     
     private boolean checkRemoteRepositoryHeartbeat(final RepositoryPath artifactPath)
@@ -215,7 +212,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         }
     }
 
-
     private void finishUnsuccessfullyIfNumberOfAttemptsExceedTheLimit(final IOException ex)
             throws IOException
     {
@@ -225,7 +221,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         }
     }
 
-
     private void finishUnsuccessfullyIfTimeoutOccurred(final IOException ex)
             throws IOException
     {
@@ -234,7 +229,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             throw ex;
         }
     }
-
 
     private String getRestClientResourcePath(final RepositoryPath artifactPath)
             throws IOException
@@ -344,7 +338,8 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             this.connection = connection;
         }
 
-        public void closeConnection() {
+        public void closeConnection()
+        {
             Optional.ofNullable(connection).ifPresent(c -> IOUtils.closeQuietly(c));
             connection = null;
         }
@@ -357,7 +352,8 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             {
                 Optional.ofNullable(client).ifPresent(c -> IOUtils.closeQuietly(c));
                 client = null;
-            } finally
+            }
+            finally
             {
                 artifactCopyContext.remove();
             }
