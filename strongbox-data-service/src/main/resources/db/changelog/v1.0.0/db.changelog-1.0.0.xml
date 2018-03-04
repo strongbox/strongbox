@@ -6,6 +6,6 @@
                         
     <include file="v1.0.0.1__GenericEntity.xml" relativeToChangelogFile="true" />
     <include file="v1.0.0.2__ArtefactEntry.xml" relativeToChangelogFile="true" />
-    
+    <include file="v1.0.0.3__AuthorizationConfig.xml" relativeToChangelogFile="true" />
 
 </databaseChangeLog> 
