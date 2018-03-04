@@ -55,7 +55,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
 
     private ArtifactByteStreamsCopyStrategy simpleArtifactByteStreams = SimpleArtifactByteStreamsCopy.INSTANCE;
     
-    private ThreadLocal<ArtefactCopyContext> artefactCopyContext = new ThreadLocal<>();;
+    private ThreadLocal<ArtifactCopyContext> artifactCopyContext = new ThreadLocal<>();;
     
     @Override
     public long copy(final InputStream from,
@@ -67,15 +67,15 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         stopWatch.start();
         
         long result;
-        try(ArtefactCopyContext context = new ArtefactCopyContext()){
+        try(ArtifactCopyContext context = new ArtifactCopyContext()){
             context.setAttempts(1);
             context.setCurrentOffset(0);
             context.setStopWatch(stopWatch);
-            artefactCopyContext.set(context);
+            artifactCopyContext.set(context);
 
             copyWithOffset(from, to, artifactPath);
             
-            result = artefactCopyContext.get().getCurrentOffset();
+            result = artifactCopyContext.get().getCurrentOffset();
         }
         
         
@@ -87,7 +87,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
                                 final RepositoryPath artifactPath)
             throws IOException
     {
-        ArtefactCopyContext ctx = artefactCopyContext.get();
+        ArtifactCopyContext ctx = artifactCopyContext.get();
         
         try
         {
@@ -106,7 +106,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
                                      final IOException lastException)
             throws IOException
     {
-        ArtefactCopyContext ctx = artefactCopyContext.get();
+        ArtifactCopyContext ctx = artifactCopyContext.get();
         ctx.setAttempts(ctx.getAttempts() + 1);
         
         logger.debug("Retrying remote stream copying ... Attempt number = [{}], Current Offset = [{}] Duration Time = [{}]",
@@ -142,7 +142,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
                                      final RepositoryPath artifactPath)
             throws IOException
     {
-        ArtefactCopyContext ctx = artefactCopyContext.get();
+        ArtifactCopyContext ctx = artifactCopyContext.get();
         
         RemoteRepository remoteRepository = artifactPath.getFileSystem().getRepository().getRemoteRepository();
         RestArtifactResolver client = ctx.getClient(remoteRepository);
@@ -172,7 +172,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     private boolean isRangeRequestSupported(final RepositoryPath artifactPath)
             throws IOException
     {
-        ArtefactCopyContext ctx = artefactCopyContext.get();
+        ArtifactCopyContext ctx = artifactCopyContext.get();
         
         RemoteRepository remoteRepository = artifactPath.getFileSystem().getRepository().getRemoteRepository();
         RestArtifactResolver client = ctx.getClient(remoteRepository);
@@ -219,7 +219,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     private void finishUnsuccessfullyIfNumberOfAttemptsExceedTheLimit(final IOException ex)
             throws IOException
     {
-        if (artefactCopyContext.get().getAttempts() > getMaxAllowedNumberOfRetryAttempts())
+        if (artifactCopyContext.get().getAttempts() > getMaxAllowedNumberOfRetryAttempts())
         {
             throw ex;
         }
@@ -229,7 +229,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     private void finishUnsuccessfullyIfTimeoutOccurred(final IOException ex)
             throws IOException
     {
-        if (artefactCopyContext.get().getStopWatch().getTime() > getRetryTimeoutMillis())
+        if (artifactCopyContext.get().getStopWatch().getTime() > getRetryTimeoutMillis())
         {
             throw ex;
         }
@@ -284,7 +284,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
                                    .getRemoteRepositoryRetryArtifactDownloadConfiguration();
     }
 
-    private class ArtefactCopyContext implements Closeable
+    private class ArtifactCopyContext implements Closeable
     {
         
         private StopWatch stopWatch;
@@ -359,7 +359,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
                 client = null;
             } finally
             {
-                artefactCopyContext.remove();
+                artifactCopyContext.remove();
             }
         }
         
