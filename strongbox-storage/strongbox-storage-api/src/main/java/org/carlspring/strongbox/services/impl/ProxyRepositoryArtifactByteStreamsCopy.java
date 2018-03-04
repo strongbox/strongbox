@@ -118,8 +118,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         tryToSleepRequestedAmountOfTimeBetweenAttempts(lastException);
         finishUnsuccessfullyIfTimeoutOccurred(lastException);
         
-        
-        
         if (!checkRemoteRepositoryHeartbeat(artifactPath))
         {
             retryCopyIfPossible(to, artifactPath, lastException);
@@ -167,7 +165,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         }
 
         copyWithOffset(is, to, artifactPath);
-        
     }
 
     private boolean isRangeRequestSupported(final RepositoryPath artifactPath)
@@ -191,7 +188,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             final String acceptRangesHeader = response.getHeaderString("Accept-Ranges");
             return StringUtils.isNotBlank(acceptRangesHeader) && !"none".equals(acceptRangesHeader);
         }
-        
     }    
     
     private boolean checkRemoteRepositoryHeartbeat(final RepositoryPath artifactPath)
@@ -216,7 +212,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         }
     }
 
-
     private void finishUnsuccessfullyIfNumberOfAttemptsExceedTheLimit(final IOException ex)
             throws IOException
     {
@@ -226,7 +221,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         }
     }
 
-
     private void finishUnsuccessfullyIfTimeoutOccurred(final IOException ex)
             throws IOException
     {
@@ -235,7 +229,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             throw ex;
         }
     }
-
 
     private String getRestClientResourcePath(final RepositoryPath artifactPath)
             throws IOException
