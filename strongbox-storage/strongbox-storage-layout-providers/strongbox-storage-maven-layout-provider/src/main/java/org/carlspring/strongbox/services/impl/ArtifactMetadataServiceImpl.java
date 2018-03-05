@@ -376,7 +376,6 @@ public class ArtifactMetadataServiceImpl
         }
     }
 
-    @Override
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();

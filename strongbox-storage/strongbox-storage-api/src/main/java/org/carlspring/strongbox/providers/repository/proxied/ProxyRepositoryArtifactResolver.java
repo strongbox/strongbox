@@ -76,7 +76,7 @@ public abstract class ProxyRepositoryArtifactResolver
                                                                                          remoteRepository.getUsername(),
                                                                                          remoteRepository.getPassword()))
         {
-            final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+            final LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
             URI resource;
             try

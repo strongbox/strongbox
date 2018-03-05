@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.security;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -15,7 +13,6 @@ import com.google.common.base.Objects;
 @XmlRootElement(name = "features")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UserAccessModel
-        extends GenericEntity
 {
 
     @XmlElement

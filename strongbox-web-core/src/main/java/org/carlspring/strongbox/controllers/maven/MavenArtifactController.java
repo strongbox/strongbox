@@ -122,23 +122,6 @@ public class MavenArtifactController
             return;
         }
 
-        if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
-        {
-            try
-            {
-                getDirectoryListing(repository, path, request, response);
-            }
-            catch (Exception e)
-            {
-                logger.debug("Unable to generate directory listing for " +
-                        "/" + storageId + "/" + repositoryId + "/" + path, e);
-
-                response.setStatus(INTERNAL_SERVER_ERROR.value());
-            }
-
-            return;
-        }
-
         provideArtifactDownloadResponse(request, response, httpHeaders, repository, path);
     }
 
@@ -266,13 +249,22 @@ public class MavenArtifactController
 
         return ResponseEntity.ok("The artifact was deleted.");
     }
-    
+
     @Override
-    protected boolean isPermittedForDirectoryListing(File file,
-                                                     String path)
+    protected boolean provideArtifactDownloadResponse(final HttpServletRequest request,
+                                                      final HttpServletResponse response,
+                                                      final HttpHeaders httpHeaders,
+                                                      final Repository repository,
+                                                      final String requestedPath)
+            throws Exception
     {
-        return (path.startsWith(".index") || (super.isPermittedForDirectoryListing(file, path)));
+        String path = correctIndexPathIfNecessary(requestedPath);
+        return super.provideArtifactDownloadResponse(request, response, httpHeaders, repository, path);
     }
-   
+
+    private String correctIndexPathIfNecessary(final String requestedPath)
+    {
+        return MavenIndexPathTransformer.getInstance().apply(requestedPath);
+    }
 
 }

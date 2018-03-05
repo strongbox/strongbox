@@ -50,7 +50,7 @@ import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.g
  * @author mtodorov
  */
 @Component
-public class ArtifactManagementService implements ConfigurationService
+public class ArtifactManagementService
 {
     
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementService.class);

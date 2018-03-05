@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers;
 
+import org.apache.commons.io.FileUtils;
 import org.carlspring.logging.exceptions.AppenderNotFoundException;
 import org.carlspring.logging.exceptions.LoggerNotFoundException;
 import org.carlspring.logging.exceptions.LoggingConfigurationException;
@@ -9,13 +10,18 @@ import org.carlspring.strongbox.data.PropertyUtils;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -38,7 +44,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import static org.carlspring.strongbox.controllers.BaseArtifactController.appendFile;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
@@ -361,6 +366,32 @@ public class LoggingManagementController
             
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
+    }
+    
+    protected static boolean appendFile(StringBuilder sb,
+                                        File childFile,
+                                        final String requestURL)
+            throws UnsupportedEncodingException
+    {
+        String name = childFile.getName();
+
+        if (name.startsWith(".") || childFile.isHidden())
+        {
+            return false;
+        }
+
+        String lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(
+                new Date(childFile.lastModified()));
+
+        sb.append("<tr>");
+        sb.append("<td><a href=\"" + requestURL + URLEncoder.encode(name, "UTF-8") +
+                  (childFile.isDirectory() ? "/" : "") + "\">" + name + (childFile.isDirectory() ? "/" : "") +
+                  "</a></td>");
+        sb.append("<td>" + lastModified + "</td>");
+        sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
+        sb.append("<td></td>");
+        sb.append("</tr>");
+        return true;
     }
     
 }

@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -31,10 +30,6 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
 
     @Inject
     private ConfigurationManagementService configurationManagementService;
-
-    @Inject
-    protected ConfigurationRepository configurationRepository;
-
 
     public LayoutProviderRegistry()
     {
@@ -172,7 +167,7 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
             }
         }
 
-        configurationRepository.updateConfiguration(configuration);
+        configurationManagementService.save(configuration);
     }
 
     @Override

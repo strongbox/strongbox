@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -38,7 +39,7 @@ import org.springframework.transaction.support.TransactionTemplate;
                  "org.carlspring.strongbox.storage",
                  "org.carlspring.strongbox.xml",
                  "org.carlspring.strongbox.dependency"
-               })
+})
 public class StorageApiConfig
 {
 
@@ -50,19 +51,19 @@ public class StorageApiConfig
 
     @Inject
     private OEntityManager oEntityManager;
-    
+
     @Inject
     private TransactionTemplate transactionTemplate;
 
-    
+
     @PostConstruct
     public void init()
     {
         transactionTemplate.execute((s) ->
-        {
-            doInit();
-            return null;
-        });
+                                    {
+                                        doInit();
+                                        return null;
+                                    });
     }
 
     private void doInit()
@@ -71,39 +72,7 @@ public class StorageApiConfig
         oEntityManager.registerEntityClass(ArtifactEntry.class);
         oEntityManager.registerEntityClass(RemoteArtifactEntry.class);
         oEntityManager.registerEntityClass(ArtifactTagEntry.class);
-
-        OClass artifactEntryClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
-                                                                                     .getSchema()
-                                                                                     .getClass(ArtifactEntry.class);
-        if (artifactEntryClass.getIndexes()
-                              .stream()
-                              .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact")))
-        {
-            artifactEntryClass.createIndex("idx_artifact", OClass.INDEX_TYPE.UNIQUE, "storageId", "repositoryId",
-                                           "artifactPath");
-        }
-
-        OClass artifactCoordinatesClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
-                                                                                           .getSchema()
-                                                                                           .getClass(AbstractArtifactCoordinates.class);
-        if (artifactCoordinatesClass.getIndexes()
-                                    .stream()
-                                    .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact_coordinates")))
-        {
-            artifactCoordinatesClass.createIndex("idx_artifact_coordinates", OClass.INDEX_TYPE.UNIQUE, "path");
-        }
-
-        OClass artifactTagClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
-                                                                                   .getSchema()
-                                                                                   .getClass(ArtifactTagEntry.class);
-        
-        if (artifactTagClass.getIndexes()
-                            .stream()
-                            .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact_tag")))
-        {
-            artifactTagClass.createIndex("idx_artifact_tag", OClass.INDEX_TYPE.UNIQUE, "name");
-        }
-
+        oEntityManager.registerEntityClass(NullArtifactCoordinates.class);
     }
 
     @Bean(name = "checksumCacheManager")

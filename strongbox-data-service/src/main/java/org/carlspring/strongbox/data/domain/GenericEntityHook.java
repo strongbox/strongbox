@@ -34,44 +34,43 @@ public class GenericEntityHook extends ORecordHookAbstract
         {
             return result;
         }
+
         ODocument doc = (ODocument) iRecord;
-
-        String uuid = doc.field("uuid");
-        if (uuid == null || uuid.trim().isEmpty())
-        {
-            throw new OValidationException(
-                    String.format("Failed to persist document [%s]. UUID can't be empty or null.",
-                                  doc.getSchemaClass()));
-        }
-
         for (OClass oClass : doc.getSchemaClass().getAllSuperClasses())
         {
-            if (!"ArtifactEntry".equals(oClass.getName()))
+            if ("GenericEntity".equals(oClass.getName()))
             {
-                continue;
+                String uuid = doc.field("uuid");
+                if (uuid == null || uuid.trim().isEmpty())
+                {
+                    throw new OValidationException(
+                            String.format("Failed to persist document [%s]. UUID can't be empty or null.",
+                                          doc.getSchemaClass()));
+                }
             }
-            ODocument artifactCoordinates = doc.field("artifactCoordinates");
-            String artifactCoordinatesPath = artifactCoordinates == null ? "" : artifactCoordinates.field("path");
-            
-            String artifactEntryPath = doc.field("artifactPath");
-            artifactEntryPath = artifactEntryPath == null ? "" : artifactEntryPath.trim();
-            
-            if (artifactCoordinatesPath.trim().isEmpty() && artifactEntryPath.trim().isEmpty())
+            else if ("ArtifactEntry".equals(oClass.getName()))
             {
-                throw new OValidationException(
-                        String.format("Failed to persist document [%s]. 'artifactPath' can't be empty or null.",
-                                      doc.getSchemaClass()));
+                ODocument artifactCoordinates = doc.field("artifactCoordinates");
+                String artifactCoordinatesPath = artifactCoordinates == null ? "" : artifactCoordinates.field("path");
+
+                String artifactEntryPath = doc.field("artifactPath");
+                artifactEntryPath = artifactEntryPath == null ? "" : artifactEntryPath.trim();
+
+                if (artifactCoordinatesPath.trim().isEmpty() && artifactEntryPath.trim().isEmpty())
+                {
+                    throw new OValidationException(
+                            String.format("Failed to persist document [%s]. 'artifactPath' can't be empty or null.",
+                                          doc.getSchemaClass()));
+                }
+                else if (artifactCoordinates != null && !artifactEntryPath.equals(artifactCoordinatesPath))
+                {
+                    throw new OValidationException(
+                            String.format("Failed to persist document [%s]. Paths [%s] and [%s] dont match.",
+                                          doc.getSchemaClass(), artifactEntryPath, artifactCoordinatesPath));
+                }
             }
-            else if (artifactCoordinates != null && !artifactEntryPath.equals(artifactCoordinatesPath))
-            {
-                throw new OValidationException(
-                        String.format("Failed to persist document [%s]. Paths [%s] and [%s] dont match.",
-                                      doc.getSchemaClass(), artifactEntryPath, artifactCoordinatesPath));
-            }
-            
-            break;
         }
-        
+
         return result;
     }
 

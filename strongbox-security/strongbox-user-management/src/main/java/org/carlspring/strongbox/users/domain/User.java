@@ -5,6 +5,10 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Embedded;
+import javax.persistence.OneToOne;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Objects;
 
@@ -26,6 +30,7 @@ public class User
 
     private String securityTokenKey;
 
+    @Embedded
     private AccessModel accessModel;
 
     public User()

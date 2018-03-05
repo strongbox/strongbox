@@ -155,8 +155,19 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
            throws IOException
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-
+        if (repository == null)
+        {
+            logger.warn(String.format("Trying to resolve repository which not exists [%s].", repositoryId));
+            return null;
+        }
+        
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        if (layoutProvider == null)
+        {
+            logger.warn(String.format("Trying to resolve repository with unknown layout [%s].", repository.getLayout()));
+            return null;
+        }
+        
         final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
 
         logger.debug(" -> Checking local cache for {} ...", artifactPath);

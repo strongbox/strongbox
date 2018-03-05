@@ -2,9 +2,10 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
@@ -12,6 +13,7 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -51,7 +53,7 @@ public class MavenGroupRepositoryProviderTest
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
     @Inject
-    private ConfigurationManager configurationManager;
+    private ConfigurationManagementService configurationManagementService;
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
@@ -163,6 +165,7 @@ public class MavenGroupRepositoryProviderTest
     }
 
     private void createRoutingRules()
+            throws IOException, JAXBException
     {
         /**
          <accepted>
@@ -331,10 +334,9 @@ public class MavenGroupRepositoryProviderTest
     {
         System.out.println("# Testing group includes with out of service repository...");
 
-        configurationManager.getConfiguration()
-                            .getStorage(STORAGE0)
-                            .getRepository(REPOSITORY_RELEASES_2)
-                            .putOutOfService();
+        Configuration configuration = configurationManagementService.getConfiguration();
+        configuration.getStorage(STORAGE0).getRepository(REPOSITORY_RELEASES_2).putOutOfService();
+        configurationManagementService.save(configuration);
 
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
@@ -344,10 +346,9 @@ public class MavenGroupRepositoryProviderTest
                                                                 "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"))
         {
 
-            configurationManager.getConfiguration()
-                                .getStorage(STORAGE0)
-                                .getRepository(REPOSITORY_RELEASES_2)
-                                .putInService();
+            configuration = configurationManagementService.getConfiguration();
+            configuration.getStorage(STORAGE0).getRepository(REPOSITORY_RELEASES_2).putInService();
+            configurationManagementService.save(configuration);
 
             assertNull(is);
         }
