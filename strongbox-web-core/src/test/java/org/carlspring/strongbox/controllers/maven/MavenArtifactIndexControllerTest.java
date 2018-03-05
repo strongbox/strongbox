@@ -14,12 +14,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.base.Throwables;
+import io.restassured.http.Header;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.CoreMatchers;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
@@ -210,15 +212,16 @@ public class MavenArtifactIndexControllerTest
     }
 
     @Test
-    public void shouldReturnBadRequestWhenIndexingIsNotEnabled()
+    public void shouldReturnNotFoundWhenIndexingIsNotEnabled()
             throws Exception
     {
         String url = getContextBaseUrl() + "/storages/public/public-group/.index/nexus-maven-repository-index.gz";
 
-        given().get(url)
+        given().header(new Header("User-Agent", "Maven/*"))
+               .get(url)
                .peek()
                .then()
-               .statusCode(HttpStatus.BAD_REQUEST.value());
+               .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -230,7 +233,8 @@ public class MavenArtifactIndexControllerTest
         String url = getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
                      "/.index/nexus-maven-repository-index.gz";
 
-        given().get(url)
+        given().header(new Header("User-Agent", "Maven/*"))
+               .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -247,7 +251,8 @@ public class MavenArtifactIndexControllerTest
         String url = getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
                      "/.index/nexus-maven-repository-index.properties";
 
-        given().get(url)
+        given().header(new Header("User-Agent", "Maven/*"))
+               .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())

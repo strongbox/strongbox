@@ -66,7 +66,7 @@ public abstract class RepositoryFileSystem
 
     public PathMatcher getPathMatcher(String syntaxAndPattern)
     {
-        throw new UnsupportedOperationException();
+        return getTarget().getPathMatcher(syntaxAndPattern);
     }
     
     public abstract Set<String> getDigestAlgorithmSet();
