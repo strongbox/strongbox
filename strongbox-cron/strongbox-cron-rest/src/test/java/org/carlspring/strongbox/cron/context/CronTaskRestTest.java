@@ -23,7 +23,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ContextConfiguration(classes = { RestAssuredConfig.class,
                                   CronTasksConfig.class,
                                   WebConfig.class })
-@WebAppConfiguration
+@WebAppConfiguration("classpath:")
 @TestExecutionListeners(listeners = RestAssuredTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @WithUserDetails(value = "admin")
 public @interface CronTaskRestTest

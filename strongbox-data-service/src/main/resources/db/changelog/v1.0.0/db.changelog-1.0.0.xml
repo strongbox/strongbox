@@ -9,5 +9,6 @@
     <include file="v1.0.0.3__AuthorizationConfig.xml" relativeToChangelogFile="true" />
     <include file="v1.0.0.4__BinaryConfiguration.xml" relativeToChangelogFile="true" />
     <include file="v1.0.0.5__CronTaskConfiguration.xml" relativeToChangelogFile="true" />
+    <include file="v1.0.0.6__User.xml" relativeToChangelogFile="true" />
     
 </databaseChangeLog> 
