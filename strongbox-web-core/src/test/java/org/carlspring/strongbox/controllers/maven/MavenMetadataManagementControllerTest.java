@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
@@ -46,9 +45,6 @@ public class MavenMetadataManagementControllerTest
 
     private static final File REPOSITORY_BASEDIR_SNAPSHOTS = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                       "/storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS);
-
-    @Inject
-    private ConfigurationManager configurationManager;
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;

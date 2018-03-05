@@ -27,17 +27,19 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  */
 @RestController
 @PreAuthorize("hasAuthority('ADMIN')")
-@RequestMapping(value = "/configuration/cors")
-@Api(value = "/configuration/cors")
+@RequestMapping(value = "/api/configuration/cors")
+@Api(value = "/api/configuration/cors")
 public class CorsConfigurationController
         extends BaseController
 {
 
     public static final String SUCCESSFUL_UPDATE = "CORS allowed origins was updated.";
+
     public static final String FAILED_UPDATE = "Could not update CORS allowed origins.";
 
     @Inject
     private CorsConfigurationSource corsConfigurationSource;
+
 
     @ApiOperation(value = "Returns allowed origins")
     @ApiResponses(value = @ApiResponse(code = 200, message = "Allowed origins."))
@@ -85,4 +87,5 @@ public class CorsConfigurationController
             return getBadRequestResponseEntity(FAILED_UPDATE, accept);
         }
     }
+
 }

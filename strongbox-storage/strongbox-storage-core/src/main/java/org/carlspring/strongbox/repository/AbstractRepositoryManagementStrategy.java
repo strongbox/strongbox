@@ -31,7 +31,7 @@ public abstract class AbstractRepositoryManagementStrategy
                                  String repositoryId)
             throws IOException, RepositoryManagementStrategyException
     {
-        logger.info(String.format("Create repository [%s/%s]", storageId, repositoryId));
+        logger.debug(String.format("Creating repository [%s/%s]...", storageId, repositoryId));
 
         Storage storage = getStorage(storageId);
         createRepositoryStructure(storage.getBasedir(), repositoryId);

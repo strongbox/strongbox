@@ -114,10 +114,10 @@ public class UserServiceImpl
     }
 
     @Override
-    public String generateSecurityToken(String userName)
+    public String generateSecurityToken(String username)
             throws JoseException
     {
-        User user = findByUserName(userName);
+        User user = findByUserName(username);
 
         if (StringUtils.isEmpty(user.getSecurityTokenKey()))
         {
@@ -127,32 +127,32 @@ public class UserServiceImpl
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put("security-token-key", user.getSecurityTokenKey());
 
-        return tokenProvider.getToken(userName, claimMap, null);
+        return tokenProvider.getToken(username, claimMap, null);
     }
 
     @Override
-    public String generateAuthenticationToken(String userName,
+    public String generateAuthenticationToken(String username,
                                               Integer expireMinutes)
             throws JoseException
     {
-        User user = findByUserName(userName);
+        User user = findByUserName(username);
 
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put("credentials", user.getPassword());
 
-        return tokenProvider.getToken(userName, claimMap, expireMinutes);
+        return tokenProvider.getToken(username, claimMap, expireMinutes);
     }
 
     @Override
-    public void verifySecurityToken(String userName,
+    public void verifySecurityToken(String username,
                                     String apiKey)
     {
-        User user = findByUserName(userName);
+        User user = findByUserName(username);
 
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put("security-token-key", user.getSecurityTokenKey());
 
-        tokenProvider.verifyToken(apiKey, userName, claimMap);
+        tokenProvider.verifyToken(apiKey, username, claimMap);
     }
 
     @Override

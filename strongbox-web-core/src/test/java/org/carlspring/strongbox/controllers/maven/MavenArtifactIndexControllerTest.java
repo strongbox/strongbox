@@ -105,6 +105,7 @@ public class MavenArtifactIndexControllerTest
         {
             throw Throwables.propagate(e);
         }
+
         super.shutdown();
     }
 
@@ -158,11 +159,11 @@ public class MavenArtifactIndexControllerTest
 
     @Test
     public void shouldNotBeAllowedToProvideAbsolutePaths()
-            throws Exception
     {
         MockMvcResponse mockMvcResponse = client.rebuildIndexes(STORAGE_ID, REPOSITORY_RELEASES_2, "/");
-        mockMvcResponse.then().body("error", CoreMatchers.equalTo("Only valid relative paths are allowed")).statusCode(
-                HttpStatus.BAD_REQUEST.value());
+        mockMvcResponse.then()
+                       .body("error", CoreMatchers.equalTo("Only valid relative paths are allowed"))
+                       .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -211,7 +212,6 @@ public class MavenArtifactIndexControllerTest
 
     @Test
     public void shouldReturnBadRequestWhenIndexingIsNotEnabled()
-            throws Exception
     {
         String url = getContextBaseUrl() + "/storages/public/public-group/.index/nexus-maven-repository-index.gz";
 
@@ -230,7 +230,8 @@ public class MavenArtifactIndexControllerTest
         String url = getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
                      "/.index/nexus-maven-repository-index.gz";
 
-        given().get(url)
+        given().header("User-Agent", "Maven/*")
+               .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -247,11 +248,13 @@ public class MavenArtifactIndexControllerTest
         String url = getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
                      "/.index/nexus-maven-repository-index.properties";
 
-        given().get(url)
+        given().header("User-Agent", "Maven/*")
+               .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
                .contentType("text/plain")
                .body(CoreMatchers.notNullValue());
     }
+
 }

@@ -2,10 +2,8 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.controllers.support.ExampleEntityBody;
 import org.carlspring.strongbox.forms.ExampleForm;
-import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,10 +32,8 @@ public class ExampleController
         extends BaseController
 {
 
-    @Inject
-    private UserService userService;
-
     public static final String NOT_FOUND_MESSAGE = "Could not find record in database.";
+
 
     @ApiOperation(value = "List available examples")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok") })

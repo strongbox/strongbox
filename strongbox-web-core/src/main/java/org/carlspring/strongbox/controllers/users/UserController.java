@@ -28,8 +28,8 @@ import org.springframework.web.bind.annotation.*;
  * @author Pablo Tirado
  */
 @Controller
-@RequestMapping("/users")
-@Api(value = "/users")
+@RequestMapping("/api/users")
+@Api(value = "/api/users")
 public class UserController
         extends BaseController
 {
@@ -247,13 +247,13 @@ public class UserController
                             @ApiResponse(code = 403, message = "Not enough access rights for this operation."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
-    @PutMapping(value = "user/{userName}/access-model", produces = { MediaType.TEXT_PLAIN_VALUE,
+    @PutMapping(value = "user/{username}/access-model", produces = { MediaType.TEXT_PLAIN_VALUE,
                                                                      MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity updateAccessModel(@ApiParam(value = "The name of the user") @PathVariable String userName,
+    public ResponseEntity updateAccessModel(@ApiParam(value = "The name of the user") @PathVariable String username,
                                             @RequestBody AccessModel accessModel,
                                             @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        User user = userService.findByUserName(userName);
+        User user = userService.findByUserName(username);
         if (user == null || user.getObjectId() == null)
         {
             String message = "The specified user does not exist!";

@@ -49,7 +49,6 @@ public class AuthenticatorsConfigControllerTest
 
     @Before
     public void setUp()
-            throws Exception
     {
         Iterator<Authenticator> iterator = authenticatorsRegistry.iterator();
         originalRegistryList = Lists.newArrayList(iterator);
@@ -63,11 +62,10 @@ public class AuthenticatorsConfigControllerTest
 
     @Test
     public void registryShouldReturnExpectedInitialArray()
-            throws Exception
     {
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/configuration/authenticators/")
+               .get("/api/configuration/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
@@ -85,13 +83,11 @@ public class AuthenticatorsConfigControllerTest
     }
 
     private void registryShouldBeReloadable(String acceptHeader)
-            throws Exception
     {
-
         // Registry should have form setup in test, first
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/configuration/authenticators/")
+               .get("/api/configuration/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
@@ -102,8 +98,7 @@ public class AuthenticatorsConfigControllerTest
                .body("authenticators.authenticator[1].index",
                      equalByToString(1))
                .body("authenticators.authenticator[1].name",
-                     CoreMatchers.equalTo(
-                             "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
+                     CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
                .body("authenticators.authenticator.size()", is(2))
                .statusCode(HttpStatus.OK.value());
 
@@ -111,28 +106,26 @@ public class AuthenticatorsConfigControllerTest
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .put("/configuration/authenticators/reorder/0/1")
+               .put("/api/configuration/authenticators/reorder/0/1")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
                .body(containsString(AuthenticatorsConfigController.SUCCESSFUL_REORDER));
 
-        // Confirm they are reordered
+        // Confirm they are re-ordered
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/configuration/authenticators/")
+               .get("/api/configuration/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
                      equalByToString(0))
                .body("authenticators.authenticator[0].name",
-                     CoreMatchers.equalTo(
-                             "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
+                     CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
                .body("authenticators.authenticator[1].index",
                      equalByToString(1))
                .body("authenticators.authenticator[1].name",
-                     CoreMatchers.equalTo(
-                             "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
+                     CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
                .body("authenticators.authenticator.size()", is(2))
                .statusCode(HttpStatus.OK.value());
 
@@ -140,7 +133,7 @@ public class AuthenticatorsConfigControllerTest
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .put("/configuration/authenticators/reload")
+               .put("/api/configuration/authenticators/reload")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -149,45 +142,40 @@ public class AuthenticatorsConfigControllerTest
         // Registry should be reloaded
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/configuration/authenticators/")
+               .get("/api/configuration/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
                      equalByToString(0))
                .body("authenticators.authenticator[0].name",
-                     CoreMatchers.equalTo(
-                             "org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator"))
+                     CoreMatchers.equalTo("org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator"))
                .body("authenticators.authenticator[1].index",
                      equalByToString(1))
                .body("authenticators.authenticator[1].name",
-                     CoreMatchers.equalTo(
-                             "org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator"))
+                     CoreMatchers.equalTo("org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator"))
                .body("authenticators.authenticator.size()", is(2))
                .statusCode(HttpStatus.OK.value());
     }
 
     @Test
     public void registryShouldBeReloadableWithResponseInJson()
-            throws Exception
     {
         registryShouldBeReloadable(MediaType.APPLICATION_JSON_VALUE);
     }
 
     @Test
     public void registryShouldBeReloadableWithResponseInText()
-            throws Exception
     {
         registryShouldBeReloadable(MediaType.TEXT_PLAIN_VALUE);
     }
 
     private void registryShouldBeAbleToReorderElement(String acceptHeader)
-            throws Exception
     {
         // when
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .put("/configuration/authenticators/reorder/0/1")
+               .put("/api/configuration/authenticators/reorder/0/1")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -196,33 +184,29 @@ public class AuthenticatorsConfigControllerTest
         // then
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/configuration/authenticators/")
+               .get("/api/configuration/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
                      equalByToString(0))
                .body("authenticators.authenticator[0].name",
-                     CoreMatchers.equalTo(
-                             "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
+                     CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
                .body("authenticators.authenticator[1].index",
                      equalByToString(1))
                .body("authenticators.authenticator[1].name",
-                     CoreMatchers.equalTo(
-                             "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
+                     CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
                .body("authenticators.authenticator.size()", is(2))
                .statusCode(HttpStatus.OK.value());
     }
 
     @Test
     public void registryShouldBeAbleToReorderElementsWithResponseInJson()
-            throws Exception
     {
         registryShouldBeAbleToReorderElement(MediaType.APPLICATION_JSON_VALUE);
     }
 
     @Test
     public void registryShouldBeAbleToReorderElementsWithResponseInText()
-            throws Exception
     {
         registryShouldBeAbleToReorderElement(MediaType.TEXT_PLAIN_VALUE);
     }
