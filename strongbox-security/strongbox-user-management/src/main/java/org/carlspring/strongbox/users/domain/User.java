@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
+import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,6 +16,7 @@ import com.google.common.base.Objects;
 /**
  * An application user
  */
+@Entity
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User
         extends GenericEntity

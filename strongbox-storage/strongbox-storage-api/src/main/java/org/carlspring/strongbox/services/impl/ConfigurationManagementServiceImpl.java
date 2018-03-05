@@ -1,13 +1,10 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.configuration.BinaryConfiguration;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-import org.carlspring.strongbox.services.BinaryConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.services.support.ConfigurationReadException;
+import org.carlspring.strongbox.services.ConfigurationService;
 import org.carlspring.strongbox.services.support.ConfigurationSaveException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
@@ -16,19 +13,13 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.orientechnologies.orient.core.entity.OEntityManager;
-import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -44,190 +35,47 @@ public class ConfigurationManagementServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementService.class);
 
-    private final GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
-
     @Inject
-    private BinaryConfigurationService binaryConfigurationService;
-
-    @Inject
-    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+    private ConfigurationService configurationService;
 
     @Inject
     private ConfigurationFileManager configurationFileManager;
 
-    @Inject
-    private OEntityManager oEntityManager;
-
-    @PostConstruct
-    void init()
-    {
-        final Configuration configuration;
-        try
-        {
-            configuration = configurationFileManager.read();
-        }
-        catch (JAXBException | IOException ex)
-        {
-            throw new ConfigurationReadException(ex);
-        }
-
-        postRead(configuration);
-        setProxyRepositoryConnectionPoolConfigurations(configuration);
-        dump(configuration);
-
-        oEntityManager.registerEntityClass(BinaryConfiguration.class);
-        save(configuration);
-    }
-
-    private void postRead(final Configuration configuration)
-    {
-        setRepositoryStorageRelationships(configuration);
-        setAllows(configuration);
-    }
-
-    private void setAllows(final Configuration configuration)
-    {
-        final Map<String, Storage> storages = configuration.getStorages();
-
-        if (storages != null && !storages.isEmpty())
-        {
-            for (Storage storage : storages.values())
-            {
-                if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
-                {
-                    for (Repository repository : storage.getRepositories().values())
-                    {
-                        if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
-                        {
-                            repository.setAllowsDelete(false);
-                            repository.setAllowsDeployment(false);
-                            repository.setAllowsRedeployment(false);
-                        }
-                        if (repository.getType().equals(RepositoryTypeEnum.PROXY.getType()))
-                        {
-                            repository.setAllowsDeployment(false);
-                            repository.setAllowsRedeployment(false);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Sets the repository <--> storage relationships explicitly, as initially, when these are deserialized from the
-     * XML, they have no such relationship.
-     *
-     * @param configuration
-     */
-    private void setRepositoryStorageRelationships(final Configuration configuration)
-    {
-        final Map<String, Storage> storages = configuration.getStorages();
-
-        if (storages != null && !storages.isEmpty())
-        {
-            for (Storage storage : storages.values())
-            {
-                if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
-                {
-                    for (Repository repository : storage.getRepositories().values())
-                    {
-                        repository.setStorage(storage);
-                    }
-                }
-            }
-        }
-    }
-
-    private void setProxyRepositoryConnectionPoolConfigurations(final Configuration configuration)
-    {
-        configuration.getStorages().values().stream()
-                     .filter(storage -> MapUtils.isNotEmpty(storage.getRepositories()))
-                     .flatMap(storage -> storage.getRepositories().values().stream())
-                     .forEach(repository ->
-                              {
-                                  if (repository.getHttpConnectionPool() != null
-                                      && repository.getRemoteRepository() != null &&
-                                      repository.getRemoteRepository().getUrl() != null)
-                                  {
-                                      proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
-                                              repository.getRemoteRepository().getUrl(),
-                                              repository.getHttpConnectionPool().getAllocatedConnections());
-                                  }
-                              });
-    }
-
-    private void dump(final Configuration configuration)
-    {
-        if (!configuration.getStorages().isEmpty())
-        {
-            logger.info("Loading storages...");
-            for (String storageKey : configuration.getStorages().keySet())
-            {
-                logger.info(" -> Storage: " + storageKey);
-                if (storageKey == null)
-                {
-                    throw new IllegalArgumentException("Null keys do not supported");
-                }
-
-                Storage storage = configuration.getStorages().get(storageKey);
-                for (String repositoryKey : storage.getRepositories().keySet())
-                {
-                    logger.info("    -> Repository: " + repositoryKey);
-                }
-            }
-        }
-    }
 
     @Override
     public void save(Configuration configuration)
     {
-        final BinaryConfiguration binaryConfiguration = binaryConfigurationService.findOne().orElse(
-                new BinaryConfiguration());
-        if (configuration.getUuid() != null)
+        if (configuration.getUuid() == null)
         {
-            // TODO https://youtrack.carlspring.org/issue/SB-930
-            configuration.copyTrackingFields(binaryConfiguration);
+            configurationService.deleteAll();
+        }
+        else
+        {
+            final Optional<Configuration> maybeDbConfiguration = configurationService.findOne();
+            if (maybeDbConfiguration.isPresent() &&
+                !Objects.equals(configuration.getUuid(), maybeDbConfiguration.get().getUuid()))
+            {
+                throw new ConfigurationSaveException("Only one configuration is allowed");
+            }
         }
 
-        try
-        {
-            // TODO benchmark serialization
-            final String data = serializeToString(configuration);
-            binaryConfiguration.setData(data);
-            binaryConfigurationService.save(binaryConfiguration);
+        configurationService.save(configuration);
 
-            configurationFileManager.store(configuration);
-        }
-        catch (JAXBException | IOException ex)
-        {
-            throw new ConfigurationSaveException(ex);
-        }
+        configurationFileManager.store(configuration);
     }
 
     @Override
     public Configuration getConfiguration()
     {
-        final Optional<BinaryConfiguration> maybeConfiguration = binaryConfigurationService.findOne();
+        final Optional<Configuration> maybeConfiguration = configurationService.findOne();
         if (!maybeConfiguration.isPresent())
         {
             return null;
         }
 
-        try
-        {
-            final BinaryConfiguration binaryConfiguration = maybeConfiguration.get();
-            // TODO benchmark deserialization
-            final Configuration configuration = parser.deserialize(binaryConfiguration.getData());
-            // TODO https://youtrack.carlspring.org/issue/SB-930
-            binaryConfiguration.copyTrackingFields(configuration);
-            postRead(configuration);
-            return configuration;
-        }
-        catch (JAXBException e)
-        {
-            throw new ConfigurationReadException(e);
-        }
+        final Configuration configuration = maybeConfiguration.get();
+        postRead(configuration);
+        return configuration;
     }
 
     @Override
@@ -580,10 +428,64 @@ public class ConfigurationManagementServiceImpl
         return getConfiguration().getRoutingRules();
     }
 
-    private String serializeToString(final Configuration configuration)
-            throws JAXBException
+    private void postRead(final Configuration configuration)
     {
-        return parser.serialize(configuration);
+        setRepositoryStorageRelationships(configuration);
+        setAllows(configuration);
+    }
+
+    private void setAllows(final Configuration configuration)
+    {
+        final Map<String, Storage> storages = configuration.getStorages();
+
+        if (storages != null && !storages.isEmpty())
+        {
+            for (Storage storage : storages.values())
+            {
+                if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
+                {
+                    for (Repository repository : storage.getRepositories().values())
+                    {
+                        if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
+                        {
+                            repository.setAllowsDelete(false);
+                            repository.setAllowsDeployment(false);
+                            repository.setAllowsRedeployment(false);
+                        }
+                        if (repository.getType().equals(RepositoryTypeEnum.PROXY.getType()))
+                        {
+                            repository.setAllowsDeployment(false);
+                            repository.setAllowsRedeployment(false);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets the repository <--> storage relationships explicitly, as initially, when these are deserialized from the
+     * XML, they have no such relationship.
+     *
+     * @param configuration
+     */
+    private void setRepositoryStorageRelationships(final Configuration configuration)
+    {
+        final Map<String, Storage> storages = configuration.getStorages();
+
+        if (storages != null && !storages.isEmpty())
+        {
+            for (Storage storage : storages.values())
+            {
+                if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
+                {
+                    for (Repository repository : storage.getRepositories().values())
+                    {
+                        repository.setStorage(storage);
+                    }
+                }
+            }
+        }
     }
 
 }

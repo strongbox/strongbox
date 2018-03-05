@@ -1,15 +1,8 @@
 package org.carlspring.strongbox.users.domain;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import javax.persistence.Entity;
+import java.io.Serializable;
+import java.util.*;
 
 import com.google.common.base.Objects;
 import org.slf4j.Logger;
@@ -20,7 +13,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Alex Oreshkevich
  */
+@Entity
 public class AccessModel
+        implements Serializable
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AccessModel.class);

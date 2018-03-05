@@ -5,6 +5,7 @@ import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.xml.StorageMapAdapter;
 
 import javax.persistence.Embedded;
+import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -19,6 +20,7 @@ import com.google.common.base.Objects;
 /**
  * @author mtodorov
  */
+@Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Configuration

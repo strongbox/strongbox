@@ -6,6 +6,8 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 
+import javax.persistence.Entity;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.*;
 import java.io.File;
 import java.io.Serializable;
@@ -14,13 +16,14 @@ import java.util.*;
 /**
  * @author mtodorov
  */
+@Entity
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "repository")
 public class Repository
         implements Serializable
 {
 
-    @XmlAttribute
+    @XmlAttribute(required = true)
     private String id;
 
     @XmlAttribute
@@ -94,6 +97,7 @@ public class Repository
     @XmlElementWrapper(name = "artifact-coordinate-validators")
     private Set<String> artifactCoordinateValidators = new LinkedHashSet<>();
 
+    @Transient
     @XmlTransient
     private Storage storage;
 

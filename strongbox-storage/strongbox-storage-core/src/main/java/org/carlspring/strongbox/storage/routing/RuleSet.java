@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.routing;
 
+import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -12,6 +13,7 @@ import java.util.List;
 /**
  * @author mtodorov
  */
+@Entity
 @XmlRootElement(name = "rule-set")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RuleSet

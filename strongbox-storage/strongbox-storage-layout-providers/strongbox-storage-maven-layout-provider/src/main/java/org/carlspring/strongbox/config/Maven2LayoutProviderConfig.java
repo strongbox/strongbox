@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
@@ -8,12 +7,9 @@ import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.indexing.SafeArtifactContextProducer;
 import org.carlspring.strongbox.storage.indexing.StrongboxIndexer;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.orientechnologies.orient.core.entity.OEntityManager;
 import org.apache.maven.index.*;
 import org.apache.maven.index.artifact.ArtifactPackagingMapper;
 import org.apache.maven.index.artifact.DefaultArtifactPackagingMapper;
@@ -30,7 +26,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.configuration",
@@ -41,12 +36,6 @@ import org.springframework.transaction.support.TransactionTemplate;
                  "org.carlspring.strongbox.storage" })
 public class Maven2LayoutProviderConfig
 {
-
-    @Inject
-    private TransactionTemplate transactionTemplate;
-    
-    @Inject
-    private OEntityManager oEntityManager;
     
     @Bean(name = "indexer")
     Indexer indexer()
@@ -97,16 +86,6 @@ public class Maven2LayoutProviderConfig
     Maven2LayoutProvider maven2LayoutProvider()
     {
         return new Maven2LayoutProvider();
-    }
-
-
-    @PostConstruct
-    public void init()
-    {
-        transactionTemplate.execute((s) -> {
-            oEntityManager.registerEntityClass(MavenArtifactCoordinates.class);
-            return null;
-        });
     }
 
     @Bean(name = "mavenRepositoryManagementStrategy")

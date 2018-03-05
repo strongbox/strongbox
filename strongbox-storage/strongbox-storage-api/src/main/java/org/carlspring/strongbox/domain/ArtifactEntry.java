@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
@@ -19,6 +20,7 @@ import org.carlspring.strongbox.data.domain.GenericEntityHook;
 /**
  * @author carlspring
  */
+@Entity
 public class ArtifactEntry
         extends GenericEntity
         implements Serializable

@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.services.support.ConfigurationReadException;
+import org.carlspring.strongbox.services.support.ConfigurationSaveException;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
@@ -25,16 +27,27 @@ public class ConfigurationFileManager
     }
 
     public void store(final Configuration configuration)
-            throws IOException, JAXBException
     {
-        parser.store(configuration, getConfigurationResource().getFile());
+        try
+        {
+            parser.store(configuration, getConfigurationResource().getFile());
+        }
+        catch (JAXBException | IOException e)
+        {
+            throw new ConfigurationSaveException(e);
+        }
     }
 
     public Configuration read()
-            throws IOException, JAXBException
     {
-        return parser.parse(getConfigurationResource().getFile());
+        try
+        {
+            return parser.parse(getConfigurationResource().getFile());
+        }
+        catch (JAXBException | IOException e)
+        {
+            throw new ConfigurationReadException(e);
+        }
     }
-
 
 }

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.xml.configuration.repository;
 
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 
+import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -9,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author carlspring
  */
+@Entity
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "raw-repository-configuration")
 public class RawRepositoryConfiguration

@@ -76,9 +76,6 @@ public class AuthorizationConfigProvider
         throws IOException,
         JAXBException
     {
-        // update schema in any case
-        registerEntities();
-
         // check database for any configuration source, if something is already in place
         // reuse it and skip reading configuration from XML
         transactionTemplate.execute((s) -> {
@@ -156,16 +153,6 @@ public class AuthorizationConfigProvider
         {
             logger.error("Unable to save configuration: ", e);
         }
-    }
-
-    private synchronized void registerEntities()
-    {
-        transactionTemplate.execute((s) -> {
-            oEntityManager.registerEntityClass(AuthorizationConfig.class);
-            oEntityManager.registerEntityClass(org.carlspring.strongbox.security.Roles.class);
-            oEntityManager.registerEntityClass(Role.class);
-            return null;
-        });
     }
 
     private void validateConfig(@NotNull AuthorizationConfig config)

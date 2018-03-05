@@ -19,14 +19,14 @@ import static org.mockito.Matchers.any;
  * @author Martin Todorov
  */
 @Configuration
-@Import({ NugetLayoutProviderConfig.class,
+@Import({ TestingCoreConfig.class,
+          DataServiceConfig.class,
+          CommonConfig.class,
           StorageCoreConfig.class,
           StorageApiConfig.class,
+          NugetLayoutProviderConfig.class,
           MockedRemoteRepositoriesHeartbeatConfig.class,
-          CommonConfig.class,
           ClientConfig.class,
-          DataServiceConfig.class,
-          TestingCoreConfig.class,
           CronTasksConfig.class
 })
 public class NugetLayoutProviderTestConfig
