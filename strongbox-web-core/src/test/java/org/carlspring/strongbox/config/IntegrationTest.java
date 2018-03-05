@@ -36,7 +36,7 @@ import static org.mockito.Matchers.any;
                                   WebConfig.class,
                                   MockedRemoteRepositoriesHeartbeatConfig.class,
                                   IntegrationTest.TestConfig.class })
-@WebAppConfiguration
+@WebAppConfiguration("classpath:")
 @WithUserDetails(value = "admin")
 @TestExecutionListeners(listeners = RestAssuredTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Rollback

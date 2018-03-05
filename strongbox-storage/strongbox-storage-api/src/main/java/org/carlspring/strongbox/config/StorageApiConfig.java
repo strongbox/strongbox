@@ -73,40 +73,6 @@ public class StorageApiConfig
         oEntityManager.registerEntityClass(RemoteArtifactEntry.class);
         oEntityManager.registerEntityClass(ArtifactTagEntry.class);
         oEntityManager.registerEntityClass(NullArtifactCoordinates.class);
-
-        OClass artifactEntryClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
-                                                                                     .getSchema()
-                                                                                     .getClass(ArtifactEntry.class);
-        if (artifactEntryClass.getIndexes()
-                              .stream()
-                              .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact")))
-        {
-            artifactEntryClass.createIndex("idx_artifact", OClass.INDEX_TYPE.UNIQUE, "storageId", "repositoryId",
-                                           "artifactPath");
-        }
-
-        OClass artifactCoordinatesClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
-                                                                                           .getSchema()
-                                                                                           .getClass(
-                                                                                                   AbstractArtifactCoordinates.class);
-        if (artifactCoordinatesClass.getIndexes()
-                                    .stream()
-                                    .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact_coordinates")))
-        {
-            artifactCoordinatesClass.createIndex("idx_artifact_coordinates", OClass.INDEX_TYPE.UNIQUE, "path");
-        }
-
-        OClass artifactTagClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
-                                                                                   .getSchema()
-                                                                                   .getClass(ArtifactTagEntry.class);
-
-        if (artifactTagClass.getIndexes()
-                            .stream()
-                            .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact_tag")))
-        {
-            artifactTagClass.createIndex("idx_artifact_tag", OClass.INDEX_TYPE.UNIQUE, "name");
-        }
-
     }
 
     @Bean(name = "checksumCacheManager")

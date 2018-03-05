@@ -87,6 +87,7 @@
         <version.hibernate.validator>6.0.7.Final</version.hibernate.validator>
         <version.glassfish.javax.el>3.0.1-b08</version.glassfish.javax.el>
         <version.antlr>4.7.1</version.antlr>
+        <version.liquibase>3.5.5</version.liquibase>
         <!-- Version properties. -->
     </properties>
 
@@ -340,6 +341,10 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.google.collections</groupId>
+                        <artifactId>google-collections</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -433,6 +438,12 @@
                 <artifactId>orientdb-distributed</artifactId>
                 <version>${version.orientdb}</version>
             </dependency>
+            <dependency>
+                <groupId>com.orientechnologies</groupId>
+                <artifactId>orientdb-jdbc</artifactId>
+                <version>${version.orientdb}</version>
+            </dependency>
+            
             <!-- End of OrientDB dependencies -->
 
             <dependency>
@@ -979,6 +990,29 @@
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
                 <version>${version.antlr}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>${version.liquibase}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.unbroken-dome.liquibase-orientdb</groupId>
+                <artifactId>liquibase-orientdb</artifactId>
+                <version>0.3.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-validator</artifactId>
+                    </exclusion>               
+                </exclusions>
             </dependency>
 
         </dependencies>
