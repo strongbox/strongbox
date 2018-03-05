@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.*;
  * @author Pablo Tirado
  */
 @Controller
-@RequestMapping("/trash")
-@Api(value = "/trash")
+@RequestMapping("/api/trash")
+@Api(value = "/api/trash")
 public class TrashController
         extends BaseArtifactController
 {
@@ -43,11 +43,9 @@ public class TrashController
     @DeleteMapping(value = "{storageId}/{repositoryId}",
                    produces = { MediaType.TEXT_PLAIN_VALUE,
                                 MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity delete(@ApiParam(value = "The storageId",
-            required = true)
+    public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable String storageId,
-                                 @ApiParam(value = "The repositoryId",
-                                         required = true)
+                                 @ApiParam(value = "The repositoryId", required = true)
                                  @PathVariable String repositoryId,
                                  @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws IOException
@@ -123,11 +121,9 @@ public class TrashController
                                          message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @PostMapping("{storageId}/{repositoryId}/{path:.+}")
-    public ResponseEntity undelete(@ApiParam(value = "The storageId",
-                                             required = true)
+    public ResponseEntity undelete(@ApiParam(value = "The storageId", required = true)
                                    @PathVariable String storageId,
-                                   @ApiParam(value = "The repositoryId",
-                                             required = true)
+                                   @ApiParam(value = "The repositoryId", required = true)
                                    @PathVariable String repositoryId,
                                    @PathVariable String path,
                                    @RequestHeader(HttpHeaders.ACCEPT) String accept)
@@ -158,6 +154,7 @@ public class TrashController
         catch (ArtifactStorageException e)
         {
             String message = "Could not restore the trash for the specified repository.";
+
             logger.error(message, e);
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -180,11 +177,9 @@ public class TrashController
     @PutMapping(value = "{storageId}/{repositoryId}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity undelete(@ApiParam(value = "The storageId",
-                                             required = true)
+    public ResponseEntity undelete(@ApiParam(value = "The storageId", required = true)
                                    @PathVariable String storageId,
-                                   @ApiParam(value = "The repositoryId",
-                                             required = true)
+                                   @ApiParam(value = "The repositoryId", required = true)
                                    @PathVariable String repositoryId,
                                    @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws Exception
@@ -212,13 +207,12 @@ public class TrashController
                                          .body(getResponseEntityBody("The specified repositoryId does not exist!", accept));
                 }
 
-                String message = "Could not restore the trash for a specified repository.";
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                     .body(getResponseEntityBody(message, accept));
+                                     .body(getResponseEntityBody("Could not restore the trash for a specified repository.", accept));
             }
 
-            String message = "The trash in '" + storageId + ":" + repositoryId + "' has been restored successfully.";
-            return ResponseEntity.ok(getResponseEntityBody(message, accept));
+            return ResponseEntity.ok(getResponseEntityBody("The trash in '" + storageId + ":" + repositoryId + "' " +
+                                                           "has been restored successfully.", accept));
         }
         else
         {
@@ -248,14 +242,15 @@ public class TrashController
         catch (ArtifactStorageException e)
         {
             String message = "Could not restore the trash for all repositories.";
+
             logger.error(message, e);
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                  .body(getResponseEntityBody(message, accept));
         }
 
-        String message = "The trash for all repositories was successfully restored.";
-        return ResponseEntity.ok(getResponseEntityBody(message, accept));
+        return ResponseEntity.ok(getResponseEntityBody("The trash for all repositories was successfully restored.",
+                                                       accept));
     }
 
 }

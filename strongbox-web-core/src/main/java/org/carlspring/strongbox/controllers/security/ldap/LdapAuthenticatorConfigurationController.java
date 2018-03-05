@@ -33,8 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @PreAuthorize("hasAuthority('ADMIN')")
-@RequestMapping(value = "/configuration/ldap")
-@Api(value = "/configuration/ldap")
+@RequestMapping(value = "/api/configuration/ldap")
+@Api(value = "/api/configuration/ldap")
 public class LdapAuthenticatorConfigurationController
         extends BaseController
 {

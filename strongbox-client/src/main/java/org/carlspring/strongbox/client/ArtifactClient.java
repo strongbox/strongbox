@@ -317,7 +317,7 @@ public class ArtifactClient
     public void deleteTrash()
             throws ArtifactOperationException
     {
-        String url = getContextBaseUrl() + "/trash";
+        String url = getContextBaseUrl() + "/api/trash";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -364,7 +364,7 @@ public class ArtifactClient
     public void undeleteTrash()
             throws ArtifactOperationException
     {
-        String url = getContextBaseUrl() + "/trash";
+        String url = getContextBaseUrl() + "/api/trash";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -477,7 +477,7 @@ public class ArtifactClient
     public String getUrlForTrash(String storageId,
                                  String repositoryId)
     {
-        return getContextBaseUrl() + "/trash/" + storageId + "/" + repositoryId;
+        return getContextBaseUrl() + "/api/trash/" + storageId + "/" + repositoryId;
     }
 
     public WebTarget setupAuthentication(WebTarget target)
