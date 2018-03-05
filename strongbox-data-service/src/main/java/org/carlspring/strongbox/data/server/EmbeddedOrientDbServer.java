@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +38,8 @@ import com.orientechnologies.orient.server.config.OServerUserConfiguration;
  *
  * @author Alex Oreshkevich
  */
-@Component
+@Component("orientDbServer")
+@Lazy(false)
 @Conditional(EmbeddedOrientDbServer.class)
 public class EmbeddedOrientDbServer implements OrientDbServer, Condition
 {
@@ -51,11 +53,9 @@ public class EmbeddedOrientDbServer implements OrientDbServer, Condition
     @Inject
     private ConnectionConfig connectionConfig;
 
-    @PostConstruct
     public void init()
         throws Exception
     {
-
         String database = connectionConfig.getDatabase();
         logger.info(String.format("Initialize Embedded OrientDB server for [%s]", database));
 
@@ -98,6 +98,7 @@ public class EmbeddedOrientDbServer implements OrientDbServer, Condition
         serverConfiguration.network = networkConfiguration;
         serverConfiguration.users = users.toArray(new OServerUserConfiguration[users.size()]);
         serverConfiguration.properties = properties.toArray(new OServerEntryConfiguration[properties.size()]);
+        
     }
 
     private OServerUserConfiguration buildUser(String name,
@@ -134,10 +135,13 @@ public class EmbeddedOrientDbServer implements OrientDbServer, Condition
         server.shutdown();
     }
 
+    @PostConstruct
     public void start()
     {
+        
         try
         {
+            init();
             activate();
         }
         catch (Exception e)

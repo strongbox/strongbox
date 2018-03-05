@@ -4,8 +4,5 @@
 
     <persistence-unit name="persistenceUnit">
         <provider>com.orientechnologies.orient.object.jpa.OJPAObjectDatabaseTxPersistence</provider>
-        <properties>
-           <property name="com.orientechnologies.orient.object.jpa.automaticSchemaGeneration" value="true"/>
-        </properties>        
     </persistence-unit>
 </persistence>

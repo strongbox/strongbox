@@ -1,33 +1,24 @@
 package org.carlspring.strongbox.controllers.maven;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.repository.RepositoryIndexerNotFoundException;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.QueryParam;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import io.swagger.annotations.*;
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.index.context.IndexingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
@@ -35,7 +26,7 @@ import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
  * @author carlspring
  */
 @RestController
-// @Api(value = "/api/maven/index")
+@Api(value = "/api/maven/index")
 public class MavenIndexController
         extends BaseController
 {
@@ -44,12 +35,6 @@ public class MavenIndexController
 
     @Inject
     private ArtifactIndexesService artifactIndexesService;
-
-    @Inject
-    private MavenRepositoryFeatures mavenRepositoryFeatures;
-
-    @Inject
-    private ConfigurationManager configurationManager;
 
 
     @ApiOperation(value = "Used to rebuild the indexes in a repository or for artifact.", position = 0)
@@ -107,110 +92,4 @@ public class MavenIndexController
                                  .body(e.getMessage());
         }
     }
-
-    @ApiOperation(value = "Exposes the packed Maven index")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The index has been successfully downloaded!"),
-                            @ApiResponse(code = 400, message = "Not a maven repository or indexing not supported."),
-                            @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
-    @RequestMapping(value = "/storages/{storageId}/{repositoryId}/.index/" + IndexingContext.INDEX_FILE_PREFIX + ".gz",
-                    method = RequestMethod.GET)
-    public void downloadIndex(@ApiParam(value = "The storageId", required = true) @PathVariable("storageId") String storageId,
-                              @ApiParam(value = "The repositoryId", required = true) @PathVariable("repositoryId") String repositoryId,
-                              HttpServletResponse response)
-            throws IOException
-    {
-        serveIndexRelatedFile(storageId,
-                              repositoryId,
-                              IndexingContext.INDEX_FILE_PREFIX + ".gz",
-                              com.google.common.net.MediaType.GZIP.toString(),
-                              response);
-    }
-
-    @ApiOperation(value = "Exposes the Maven index properties file")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The properties file has been successfully downloaded!"),
-                            @ApiResponse(code = 400, message = "Not a maven repository or indexing not supported."),
-                            @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist! or index properties file not found") })
-    @RequestMapping(value = "/storages/{storageId}/{repositoryId}/.index/" + IndexingContext.INDEX_REMOTE_PROPERTIES_FILE,
-                    method = RequestMethod.GET)
-    public void downloadProperties(@ApiParam(value = "The storageId", required = true) @PathVariable String storageId,
-                                   @ApiParam(value = "The repositoryId", required = true) @PathVariable String repositoryId,
-                                   HttpServletResponse response)
-            throws IOException
-    {
-        serveIndexRelatedFile(storageId,
-                              repositoryId,
-                              IndexingContext.INDEX_REMOTE_PROPERTIES_FILE,
-                              MediaType.TEXT_PLAIN_VALUE,
-                              response);
-    }
-
-    private void serveIndexRelatedFile(String storageId,
-                                       String repositoryId,
-                                       String path,
-                                       String responseContentType,
-                                       HttpServletResponse response)
-            throws IOException
-    {
-        final HttpStatus httStatus = preConditionsCheck(storageId, repositoryId, response);
-        if (HttpStatus.OK != httStatus)
-        {
-            return;
-        }
-
-        final Path indexPath;
-        try
-        {
-            indexPath = mavenRepositoryFeatures.resolveIndexPath(storageId, repositoryId, path);
-        }
-        catch (RepositoryIndexerNotFoundException ex)
-        {
-            response.sendError(HttpStatus.BAD_REQUEST.value(),
-                               String.format("Repository %s is not indexable.", repositoryId));
-            return;
-        }
-        if (!Files.exists(indexPath))
-        {
-            response.sendError(HttpStatus.NOT_FOUND.value(),
-                               String.format("Index file does not exist for repository %s.", repositoryId));
-            return;
-        }
-        try (final InputStream is = Files.newInputStream(indexPath))
-        {
-            final int length = IOUtils.copy(is, response.getOutputStream());
-            response.setContentType(responseContentType);
-            response.setContentLength(length);
-            response.flushBuffer();
-        }
-    }
-
-    private HttpStatus preConditionsCheck(String storageId,
-                                          String repositoryId,
-                                          HttpServletResponse response)
-            throws IOException
-    {
-        if (configurationManager.getConfiguration().getStorage(storageId) == null)
-        {
-            response.sendError(HttpStatus.NOT_FOUND.value(), String.format("Storage %s not found.", storageId));
-            return HttpStatus.NOT_FOUND;
-        }
-
-        Repository repository = configurationManager.getConfiguration()
-                                                    .getStorage(storageId)
-                                                    .getRepository(repositoryId);
-        if (repository == null)
-        {
-            response.sendError(HttpStatus.NOT_FOUND.value(), String.format("Repository %s not found.", repositoryId));
-            return HttpStatus.NOT_FOUND;
-        }
-        if (!Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
-        {
-            response.sendError(HttpStatus.BAD_REQUEST.value(),
-                               String.format("Repository %s is not a %s repository.", repositoryId,
-                                             Maven2LayoutProvider.ALIAS));
-            return HttpStatus.BAD_REQUEST;
-        }
-
-        return HttpStatus.OK;
-    }
-
 }

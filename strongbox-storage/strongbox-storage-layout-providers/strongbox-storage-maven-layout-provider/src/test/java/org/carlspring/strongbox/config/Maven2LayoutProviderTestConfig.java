@@ -21,15 +21,14 @@ import static org.mockito.Matchers.any;
  * @author Przemyslaw Fusik
  */
 @Configuration
-@Import({ StorageCoreConfig.class,
+@Import({ TestingCoreConfig.class,
+          DataServiceConfig.class,
+          CommonConfig.class,
+          StorageCoreConfig.class,
           StorageApiConfig.class,
           Maven2LayoutProviderConfig.class,
           MockedRemoteRepositoriesHeartbeatConfig.class,
-          CommonConfig.class,
-          ClientConfig.class,
-          DataServiceConfig.class,
-          TestingCoreConfig.class,
-          StorageApiConfig.class
+          ClientConfig.class
 })
 public class Maven2LayoutProviderTestConfig
 {

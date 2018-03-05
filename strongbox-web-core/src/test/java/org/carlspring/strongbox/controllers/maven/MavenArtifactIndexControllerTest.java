@@ -14,12 +14,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.base.Throwables;
+import io.restassured.http.Header;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.CoreMatchers;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
@@ -105,7 +107,6 @@ public class MavenArtifactIndexControllerTest
         {
             throw Throwables.propagate(e);
         }
-
         super.shutdown();
     }
 
@@ -159,11 +160,11 @@ public class MavenArtifactIndexControllerTest
 
     @Test
     public void shouldNotBeAllowedToProvideAbsolutePaths()
+            throws Exception
     {
         MockMvcResponse mockMvcResponse = client.rebuildIndexes(STORAGE_ID, REPOSITORY_RELEASES_2, "/");
-        mockMvcResponse.then()
-                       .body("error", CoreMatchers.equalTo("Only valid relative paths are allowed"))
-                       .statusCode(HttpStatus.BAD_REQUEST.value());
+        mockMvcResponse.then().body("error", CoreMatchers.equalTo("Only valid relative paths are allowed")).statusCode(
+                HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -211,14 +212,15 @@ public class MavenArtifactIndexControllerTest
     }
 
     @Test
-    public void shouldReturnBadRequestWhenIndexingIsNotEnabled()
+    public void shouldReturnNotFoundWhenIndexingIsNotEnabled()
     {
         String url = getContextBaseUrl() + "/storages/public/public-group/.index/nexus-maven-repository-index.gz";
 
-        given().get(url)
+        given().header(new Header("User-Agent", "Maven/*"))
+               .get(url)
                .peek()
                .then()
-               .statusCode(HttpStatus.BAD_REQUEST.value());
+               .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -230,7 +232,7 @@ public class MavenArtifactIndexControllerTest
         String url = getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
                      "/.index/nexus-maven-repository-index.gz";
 
-        given().header("User-Agent", "Maven/*")
+        given().header(new Header("User-Agent", "Maven/*"))
                .get(url)
                .peek()
                .then()
@@ -248,7 +250,7 @@ public class MavenArtifactIndexControllerTest
         String url = getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
                      "/.index/nexus-maven-repository-index.properties";
 
-        given().header("User-Agent", "Maven/*")
+        given().header(new Header("User-Agent", "Maven/*"))
                .get(url)
                .peek()
                .then()
@@ -256,5 +258,4 @@ public class MavenArtifactIndexControllerTest
                .contentType("text/plain")
                .body(CoreMatchers.notNullValue());
     }
-
 }

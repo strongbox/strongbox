@@ -1,16 +1,12 @@
 package org.carlspring.strongbox.security;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import com.google.common.base.Objects;
 
@@ -20,11 +16,9 @@ import com.google.common.base.Objects;
 @XmlRootElement(name = "storages")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UserStorages
-        extends GenericEntity
 {
 
     @XmlElement(name = "storage")
-    @OneToMany(cascade = CascadeType.ALL)
     private Set<UserStorage> storages = new LinkedHashSet<>();
 
 
