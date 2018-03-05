@@ -7,8 +7,8 @@ def SERVER_URL = 'https://dev.carlspring.org/nexus/content/repositories/carlspri
 pipeline {
     agent {
         docker {
-            args '-v /mnt/ramdisk/3:/home/jenkins --privileged=true'
-            image 'hub.carlspring.org/jenkins/opensuse-slave:latest'
+            args  '-v /mnt/ramdisk/3:/home/jenkins --privileged=true'
+            image 'strongboxci/alpine:jdk8-mvn-3.5'
         }
     }
     options {
@@ -125,7 +125,7 @@ pipeline {
         always {
             script {
                 // unmount and copy back to hdd
-                sh "sudo umount --force $RAMMOUNT"
+                sh "sudo umount -f $RAMMOUNT"
                 sh "cp -R '$RAMWS/.' '$RAMMOUNT'"
             }
 
