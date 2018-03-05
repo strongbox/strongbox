@@ -33,7 +33,7 @@ public class CustomLoginSupplierTest
     public void shouldSupportExpectedRequest()
             throws Exception
     {
-        MockHttpServletRequest request = new MockHttpServletRequest("post", "/login");
+        MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
         request.setContentType("application/json");
 
         assertTrue(customLoginSupplier.supports(request));
@@ -43,7 +43,7 @@ public class CustomLoginSupplierTest
     public void shouldNotSupportGetRequest()
             throws Exception
     {
-        MockHttpServletRequest request = new MockHttpServletRequest("get", "/login");
+        MockHttpServletRequest request = new MockHttpServletRequest("get", "/api/login");
         request.setContentType("application/json");
 
         assertFalse(customLoginSupplier.supports(request));
@@ -53,7 +53,7 @@ public class CustomLoginSupplierTest
     public void shouldNotSupportXmlRequest()
             throws Exception
     {
-        MockHttpServletRequest request = new MockHttpServletRequest("post", "/login");
+        MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
         request.setContentType("application/xml");
 
         assertFalse(customLoginSupplier.supports(request));
@@ -68,7 +68,7 @@ public class CustomLoginSupplierTest
         loginInput.setUsername("przemyslaw");
         loginInput.setPassword("fusik");
 
-        MockHttpServletRequest request = new MockHttpServletRequest("post", "/login");
+        MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
         request.setContent(objectMapper.writeValueAsBytes(loginInput));
 
         Authentication authentication = customLoginSupplier.supply(request);

@@ -343,7 +343,7 @@ public class RestAssuredArtifactClient
                          String searchProvider)
             throws UnsupportedEncodingException
     {
-        String url = getContextBaseUrl() + "/search";
+        String url = getContextBaseUrl() + "/api/search";
 
         if (repositoryId == null)
         {

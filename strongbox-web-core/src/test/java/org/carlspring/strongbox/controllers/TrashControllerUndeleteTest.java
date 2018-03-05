@@ -163,7 +163,7 @@ public class TrashControllerUndeleteTest
                                           "+v:1.0 " +
                                           "+p:jar"));
 
-        String url = getContextBaseUrl() + "/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH +
+        String url = getContextBaseUrl() + "/api/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH +
                      "/org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar";
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
@@ -212,7 +212,7 @@ public class TrashControllerUndeleteTest
         assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
                    Files.exists(artifactFileInTrash.getParent()));
 
-        String url = getContextBaseUrl() + "/trash";
+        String url = getContextBaseUrl() + "/api/trash";
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .when()
@@ -258,7 +258,7 @@ public class TrashControllerUndeleteTest
         assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
                    Files.exists(artifactFileInTrash.getParent()));
 
-        String url = getContextBaseUrl() + "/trash";
+        String url = getContextBaseUrl() + "/api/trash";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
