@@ -84,19 +84,6 @@ public class UsersConfig
         oEntityManager.registerEntityClass(User.class);
         oEntityManager.registerEntityClass(AccessModel.class);
 
-        // set unique constraints and index field 'username' if it isn't present yet
-        OClass oUserClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
-                                                                             .getSchema()
-                                                                             .getOrCreateClass(
-                                                                                     userClass.getSimpleName());
-
-        if (oUserClass.getIndexes()
-                      .stream()
-                      .noneMatch(oIndex -> oIndex.getName().equals("idx_username")))
-        {
-            oUserClass.createIndex("idx_username", OClass.INDEX_TYPE.UNIQUE, "username");
-        }
-
         // remove all possible existing users (due to test executions with @Rollback(false) or another causes)
         // just to make sure
         userService.deleteAll();
