@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.SetUtils;
 import org.junit.After;
 import org.junit.Test;
@@ -636,6 +637,9 @@ public class UserControllerTest
         String username = "test_" + System.currentTimeMillis();
 
         UserInput test = buildUser(username, "password");
+        test.setAccessModel(new AccessModel());
+        test.getAccessModel().getRepositoryPrivileges().put("releases", Lists.newArrayList("ARTIFACTS_RESOLVE"));
+        test.getAccessModel().getWildCardPrivilegesMap().put("com/mycorp/.*", Lists.newArrayList("ARTIFACTS_RESOLVE"));
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
