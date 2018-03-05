@@ -1007,12 +1007,12 @@
                 <groupId>org.unbroken-dome.liquibase-orientdb</groupId>
                 <artifactId>liquibase-orientdb</artifactId>
                 <version>0.3.0</version>
-            </dependency>
-    
-            <dependency>
-                <groupId>org.unbroken-dome.liquibase-orientdb</groupId>
-                <artifactId>liquibase-orientdb</artifactId>
-                <version>0.3.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-validator</artifactId>
+                    </exclusion>               
+                </exclusions>
             </dependency>
 
         </dependencies>
