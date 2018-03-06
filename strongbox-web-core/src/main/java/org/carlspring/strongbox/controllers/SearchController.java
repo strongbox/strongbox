@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author Alex Oreshkevich
  */
 @Controller
-@RequestMapping("/search")
-@Api(value = "/search")
+@RequestMapping("/api/search")
+@Api(value = "/api/search")
 public class SearchController
         extends BaseController
 {
@@ -47,8 +47,7 @@ public class SearchController
     @ApiOperation(value = "Used to search for artifacts.", response = SearchResults.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
     @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
-    @RequestMapping(value = "",
-                    method = RequestMethod.GET,
+    @RequestMapping(method = RequestMethod.GET,
                     consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
                                  MediaType.TEXT_PLAIN_VALUE },
                     produces = { MediaType.APPLICATION_XML_VALUE,

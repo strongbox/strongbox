@@ -20,21 +20,24 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @PreAuthorize("hasAuthority('ADMIN')")
-@RequestMapping(value = "/configuration/authenticators")
-@Api(value = "/configuration/authenticators")
+@RequestMapping("/api/configuration/authenticators")
+@Api(value = "/api/configuration/authenticators")
 public class AuthenticatorsConfigController
         extends BaseController
 {
 
-    static final String SUCCESSFUL_REORDER = "Reorder succeeded.";
+    static final String SUCCESSFUL_REORDER = "Re-order succeeded.";
+
     static final String FAILED_REORDER = "Could not reorder authenticators registry.";
 
     static final String SUCCESSFUL_RELOAD = "Reload succeeded.";
+
     static final String FAILED_RELOAD = "Could not reload authenticators registry.";
 
     private final AuthenticatorsRegistry authenticatorsRegistry;
 
     private final AuthenticatorsScanner authenticatorsScanner;
+
 
     public AuthenticatorsConfigController(AuthenticatorsRegistry authenticatorsRegistry,
                                           AuthenticatorsScanner authenticatorsScanner)
@@ -45,8 +48,7 @@ public class AuthenticatorsConfigController
 
     @ApiOperation(value = "Enumerates ordered collection of authenticators with order number and name")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned successfully.") })
-    @GetMapping(value = "/",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
+    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity list()
     {
@@ -56,7 +58,7 @@ public class AuthenticatorsConfigController
     @ApiOperation(value = "Reorders authenticators by their indexes")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REORDER),
                             @ApiResponse(code = 400, message = FAILED_REORDER) })
-    @PutMapping(value = "/reorder/{first}/{second}",
+    @PutMapping(path = "/reorder/{first}/{second}",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -78,7 +80,7 @@ public class AuthenticatorsConfigController
     @ApiOperation(value = "Reloads authenticators registry")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_RELOAD),
                             @ApiResponse(code = 500, message = FAILED_RELOAD) })
-    @PutMapping(value = "/reload",
+    @PutMapping(path = "/reload",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })

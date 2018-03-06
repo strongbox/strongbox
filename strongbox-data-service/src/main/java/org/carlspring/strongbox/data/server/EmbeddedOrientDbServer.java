@@ -164,7 +164,8 @@ public class EmbeddedOrientDbServer implements OrientDbServer, Condition
                                                                                        connectionConfig.getPassword());
         if (!serverAdmin.existsDatabase())
         {
-            logger.info(String.format("Create database [%s]", connectionConfig.getDatabase()));
+            logger.info(String.format("Creating database [%s]...", connectionConfig.getDatabase()));
+
             serverAdmin.createDatabase(connectionConfig.getDatabase(), "document", "plocal");
         }
         else

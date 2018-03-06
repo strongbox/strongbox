@@ -44,7 +44,7 @@ public class CronTaskConfigurationControllerTest
             throws Exception
     {
         super.init();
-        setContextBaseUrl(getContextBaseUrl() + "/configuration/crontasks");
+        setContextBaseUrl(getContextBaseUrl() + "/api/configuration/crontasks");
     }
 
     @Test

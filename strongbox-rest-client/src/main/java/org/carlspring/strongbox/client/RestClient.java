@@ -73,13 +73,13 @@ public class RestClient
     public int setConfiguration(Configuration configuration)
             throws IOException, JAXBException
     {
-        return setServerConfiguration(configuration, "/configuration/strongbox/xml", Configuration.class);
+        return setServerConfiguration(configuration, "/api/api/configuration/strongbox/xml", Configuration.class);
     }
 
     public Configuration getConfiguration()
-            throws IOException, JAXBException
+            throws JAXBException
     {
-        return (Configuration) getServerConfiguration("/configuration/strongbox/xml", Configuration.class);
+        return (Configuration) getServerConfiguration("/api/api/configuration/strongbox/xml", Configuration.class);
     }
 
     public int setServerConfiguration(ServerConfiguration configuration,
@@ -105,7 +105,7 @@ public class RestClient
 
     public ServerConfiguration getServerConfiguration(String path,
                                                       Class... classes)
-            throws IOException, JAXBException
+            throws JAXBException
     {
         String url = getContextBaseUrl() + path;
 
@@ -137,7 +137,7 @@ public class RestClient
      */
     public int setListeningPort(int port)
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/port/" + port;
+        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/port/" + port;
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -154,7 +154,7 @@ public class RestClient
      */
     public int getListeningPort()
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/port";
+        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/port";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -170,7 +170,7 @@ public class RestClient
      */
     public int setBaseUrl(String baseUrl)
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/baseUrl/" + baseUrl;
+        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/baseUrl/" + baseUrl;
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -187,7 +187,7 @@ public class RestClient
      */
     public String getBaseUrl()
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
+        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/baseUrl";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -198,7 +198,7 @@ public class RestClient
     public int setProxyConfiguration(ProxyConfiguration proxyConfiguration)
             throws IOException, JAXBException
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
+        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/proxy-configuration";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -218,7 +218,7 @@ public class RestClient
                                                     String repositoryId)
             throws JAXBException
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration" +
+        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/proxy-configuration" +
                      (storageId != null && repositoryId != null ?
                       "?storageId=" + storageId + "&repositoryId=" + repositoryId : "");
 
@@ -256,7 +256,7 @@ public class RestClient
     public int addStorage(Storage storage)
             throws IOException, JAXBException
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/storages";
+        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/storages";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -280,9 +280,9 @@ public class RestClient
      * @throws IOException
      */
     public Storage getStorage(String storageId)
-            throws IOException, JAXBException
+            throws JAXBException
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
+        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/storages/" + storageId;
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -317,7 +317,7 @@ public class RestClient
     public int deleteStorage(String storageId,
                              boolean force)
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId +
+        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/storages/" + storageId +
                      (force ? "?force=true" : "");
 
         WebTarget resource = getClientInstance().target(url);
@@ -329,7 +329,6 @@ public class RestClient
     }
 
     public int addRepository(Repository repository)
-            throws IOException, JAXBException
     {
         if (repository == null)
         {
@@ -349,7 +348,7 @@ public class RestClient
 
         try
         {
-            String url = getContextBaseUrl() + "/configuration/strongbox/storages/" +
+            String url = getContextBaseUrl() + "/api/api/configuration/strongbox/storages/" +
                          repository.getStorage().getId() + "/" + repository.getId();
 
             resource = getClientInstance().target(url);
@@ -378,9 +377,9 @@ public class RestClient
      */
     public Repository getRepository(String storageId,
                                     String repositoryId)
-            throws IOException, JAXBException
+            throws JAXBException
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
+        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -418,7 +417,7 @@ public class RestClient
                                 boolean force)
     {
         String url = getContextBaseUrl() +
-                     "/configuration/strongbox/storages/" + storageId + "/" + repositoryId +
+                     "/api/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId +
                      (force ? "?force=true" : "");
 
         WebTarget resource = getClientInstance().target(url);
@@ -441,7 +440,7 @@ public class RestClient
                          MediaType mediaType)
             throws UnsupportedEncodingException
     {
-        String url = getContextBaseUrl() + "/search?" +
+        String url = getContextBaseUrl() + "/api/search?" +
                      (repositoryId != null ? "repositoryId=" + URLEncoder.encode(repositoryId, "UTF-8") : "") +
                      "&q=" + URLEncoder.encode(query, "UTF-8");
 
@@ -459,9 +458,8 @@ public class RestClient
     public int rebuildMetadata(String storageId,
                                String repositoryId,
                                String basePath)
-            throws IOException, JAXBException
     {
-        String url = getContextBaseUrl() + "/metadata/" + storageId + "/" + repositoryId + "/" +
+        String url = getContextBaseUrl() + "/api/maven/metadata/" + storageId + "/" + repositoryId + "/" +
                      (basePath != null ? basePath : "");
 
         WebTarget resource = getClientInstance().target(url);
@@ -479,9 +477,8 @@ public class RestClient
                                          String version,
                                          String classifier,
                                          String metadataType)
-            throws IOException, JAXBException
     {
-        String url = getContextBaseUrl() + "/metadata/" +
+        String url = getContextBaseUrl() + "/api/maven/metadata/" +
                      storageId + "/" + repositoryId + "/" +
                      (artifactPath != null ? artifactPath : "") +
                      "?version=" + version + (classifier != null ? "&classifier=" + classifier : "") +
@@ -558,7 +555,9 @@ public class RestClient
     public WebTarget prepareUnauthenticatedTarget(String arg)
     {
         String url = getContextBaseUrl() + arg;
+
         logger.debug("Prepare target URL " + url);
+
         return getClientInstance().target(url);
     }
 

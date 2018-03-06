@@ -29,7 +29,7 @@ public class AccessModel
 
     // maps URL tails including wildcards for regular expressions on set of privileges that was assigned
     // example:
-    //      key:    storage0/act-releases-1/pro/redsoft/bar/.*
+    //      key:    storage0/act-releases-1/org/carlspring/strongbox/bar/.*
     //      value:  {ARTIFACTS_VIEW, ARTIFACTS_RESOLVE, ARTIFACTS_DEPLOY}
     private Map<String, Collection<String>> urlToPrivilegesMap;
 

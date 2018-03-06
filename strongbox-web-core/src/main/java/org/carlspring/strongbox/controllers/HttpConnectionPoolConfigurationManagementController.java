@@ -30,8 +30,8 @@ import org.springframework.web.bind.annotation.*;
  */
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
-@RequestMapping("/configuration/proxy/connection-pool")
-@Api(value = "/configuration/proxy/connection-pool")
+@RequestMapping("/api/configuration/proxy/connection-pool")
+@Api(value = "/api/configuration/proxy/connection-pool")
 public class HttpConnectionPoolConfigurationManagementController
         extends BaseController
 {

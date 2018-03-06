@@ -80,7 +80,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         
         // TODO set basic authentication here instead of setting it always in client?
         /* CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(userName, password));
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
         config.property(ApacheClientProperties.CREDENTIALS_PROVIDER, credentialsProvider); */
         
         return ClientBuilder.newBuilder()

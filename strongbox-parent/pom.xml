@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
->
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -251,7 +250,7 @@
                 <plugin>
                     <groupId>com.github.kongchen</groupId>
                     <artifactId>swagger-maven-plugin</artifactId>
-                    <version>3.1.3</version>
+                    <version>3.1.6</version>
                 </plugin>
 
                 <plugin>
@@ -473,7 +472,7 @@
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-core</artifactId>
                 <scope>compile</scope>
-                <version>1.5.13</version>
+                <version>1.5.18</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.validation</groupId>
@@ -488,6 +487,10 @@
                             to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
                         <groupId>com.fasterxml.jackson.datatype</groupId>
                         <artifactId>jackson-datatype-joda</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.dataformat</groupId>
+                        <artifactId>jackson-dataformat-yaml</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

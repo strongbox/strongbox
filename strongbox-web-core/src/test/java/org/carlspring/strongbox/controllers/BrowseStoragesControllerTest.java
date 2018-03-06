@@ -1,14 +1,9 @@
 package org.carlspring.strongbox.controllers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
-
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.testing.TestCaseWithRepository;
 
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -27,9 +22,8 @@ public class BrowseStoragesControllerTest
     
     @Test
     public void testBrowseStorages()
-            throws Exception
     {
-        String path = "/browse/";
+        String path = "/api/browse/";
 
         RestAssuredMockMvc.given()
                           .header("User-Agent", "unknown/*")
@@ -42,9 +36,8 @@ public class BrowseStoragesControllerTest
 
     @Test
     public void testBrowseRepositoriesInStorages()
-            throws Exception
     {
-        String path = "/browse/storage0/";
+        String path = "/api/browse/storage0/";
 
         RestAssuredMockMvc.given()
                           .header("User-Agent", "unknown/*")

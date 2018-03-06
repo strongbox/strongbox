@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @PreAuthorize("hasAuthority('ADMIN')")
-@RequestMapping("/configuration/environment/info")
-@Api("/configuration/environment/info")
+@RequestMapping("/api/configuration/environment/info")
+@Api("/api/configuration/environment/info")
 public class EnvironmentInfoController
         extends BaseController
 {

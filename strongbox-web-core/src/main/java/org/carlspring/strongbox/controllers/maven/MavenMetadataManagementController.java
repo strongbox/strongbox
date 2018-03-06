@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author Martin Todorov
  */
 @Controller
-@RequestMapping("/metadata")
-@Api(value = "/metadata")
+@RequestMapping("/api/maven/metadata")
+@Api(value = "/api/maven/metadata")
 @PreAuthorize("hasAuthority('ROOT')")
 public class MavenMetadataManagementController
         extends BaseArtifactController
@@ -50,7 +50,6 @@ public class MavenMetadataManagementController
                                   @ApiParam(value = "The path")
                                   @RequestParam(value = "path", required = false) String path)
             throws IOException,
-                   AuthenticationException,
                    NoSuchAlgorithmException,
                    XmlPullParserException
     {
@@ -96,7 +95,6 @@ public class MavenMetadataManagementController
                                  @RequestParam(name = "metadataType") String metadataType,
                                  @PathVariable String path)
             throws IOException,
-                   AuthenticationException,
                    NoSuchAlgorithmException,
                    XmlPullParserException
     {

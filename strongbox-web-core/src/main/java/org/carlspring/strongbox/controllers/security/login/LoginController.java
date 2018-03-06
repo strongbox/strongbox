@@ -37,7 +37,7 @@ public class LoginController
         extends BaseController
 {
 
-    public static final String REQUEST_MAPPING = "/login";
+    public static final String REQUEST_MAPPING = "/api/login";
 
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 

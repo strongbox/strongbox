@@ -31,7 +31,7 @@ public class PasswordEncoderControllerTest
     {
 
         final String encodedPassword = given().when()
-                                              .get("/users/password-encoder/password")
+                                              .get("/api/users/password-encoder/password")
                                               .peek()
                                               .then()
                                               .statusCode(200)

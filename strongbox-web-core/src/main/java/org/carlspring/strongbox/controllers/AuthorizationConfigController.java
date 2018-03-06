@@ -42,8 +42,8 @@ import org.springframework.web.bind.annotation.*;
  */
 @Controller
 @PreAuthorize("hasAuthority('ADMIN')")
-@RequestMapping(value = "/configuration/authorization")
-@Api(value = "/configuration/authorization")
+@RequestMapping(value = "/api/configuration/authorization")
+@Api(value = "/api/configuration/authorization")
 public class AuthorizationConfigController
         extends BaseArtifactController
 {

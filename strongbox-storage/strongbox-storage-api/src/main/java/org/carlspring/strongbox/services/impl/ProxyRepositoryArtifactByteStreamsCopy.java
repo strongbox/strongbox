@@ -57,7 +57,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
     
     private ThreadLocal<ArtifactCopyContext> artifactCopyContext = new ThreadLocal<>();;
     
-    
+
     @Override
     public long copy(final InputStream from,
                      final OutputStream to,
@@ -68,7 +68,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
         stopWatch.start();
         
         long result;
-        try(ArtifactCopyContext context = new ArtifactCopyContext())
+        try (ArtifactCopyContext context = new ArtifactCopyContext())
         {
             context.setAttempts(1);
             context.setCurrentOffset(0);
@@ -79,7 +79,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             
             result = artifactCopyContext.get().getCurrentOffset();
         }
-        
+
         return result;
     }
 

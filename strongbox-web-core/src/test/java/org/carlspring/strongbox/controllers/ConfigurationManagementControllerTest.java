@@ -40,11 +40,10 @@ public class ConfigurationManagementControllerTest
 
     @Test
     public void testSetAndGetPort()
-            throws Exception
     {
         int newPort = 18080;
 
-        String url = getContextBaseUrl() + "/configuration/strongbox/port/" + newPort;
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/port/" + newPort;
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -53,7 +52,7 @@ public class ConfigurationManagementControllerTest
                .statusCode(HttpStatus.OK.value()) // check http status code
                .body("message", equalTo("The port was updated."));
 
-        url = getContextBaseUrl() + "/configuration/strongbox/port";
+        url = getContextBaseUrl() + "/api/configuration/strongbox/port";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -65,12 +64,11 @@ public class ConfigurationManagementControllerTest
 
     @Test
     public void testSetAndGetPortWithBody()
-            throws Exception
     {
         int newPort = 18080;
         PortEntityBody portEntity = new PortEntityBody(newPort);
 
-        String url = getContextBaseUrl() + "/configuration/strongbox/port";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/port";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -81,7 +79,7 @@ public class ConfigurationManagementControllerTest
                .statusCode(HttpStatus.OK.value()) // check http status code
                .body("message", equalTo("The port was updated."));
 
-        url = getContextBaseUrl() + "/configuration/strongbox/port";
+        url = getContextBaseUrl() + "/api/configuration/strongbox/port";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -93,12 +91,11 @@ public class ConfigurationManagementControllerTest
 
     @Test
     public void testSetAndGetBaseUrl()
-            throws Exception
     {
         String newBaseUrl = "http://localhost:" + 40080 + "/newurl";
         BaseUrlEntityBody baseUrlEntity = new BaseUrlEntityBody(newBaseUrl);
 
-        String url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/baseUrl";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -109,7 +106,7 @@ public class ConfigurationManagementControllerTest
                .statusCode(HttpStatus.OK.value()) // check http status code
                .body("message", equalTo("The base URL was updated."));
 
-        url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
+        url = getContextBaseUrl() + "/api/configuration/strongbox/baseUrl";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -121,11 +118,10 @@ public class ConfigurationManagementControllerTest
 
     @Test
     public void testSetAndGetGlobalProxyConfiguration()
-            throws Exception
     {
         ProxyConfiguration proxyConfiguration = createProxyConfiguration();
 
-        String url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(proxyConfiguration)
@@ -134,7 +130,7 @@ public class ConfigurationManagementControllerTest
                .then()
                .statusCode(200);
 
-        url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
+        url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration";
 
         logger.debug("Current proxy host: " + proxyConfiguration.getHost());
 
@@ -155,13 +151,12 @@ public class ConfigurationManagementControllerTest
 
     @Test
     public void testAddGetStorage()
-            throws Exception
     {
         String storageId = "storage1";
 
         Storage storage1 = new Storage("storage1");
 
-        String url = getContextBaseUrl() + "/configuration/strongbox/storages";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/storages";
 
         logger.debug("Using storage class " + storage1.getClass()
                                                       .getName());
@@ -214,8 +209,7 @@ public class ConfigurationManagementControllerTest
 
     private Storage getStorage(String storageId)
     {
-
-        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId;
 
         return given().contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
@@ -229,6 +223,7 @@ public class ConfigurationManagementControllerTest
         if (repository == null)
         {
             logger.error("Unable to add non-existing repository.");
+
             throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR,
                                                "Unable to add non-existing repository.");
         }
@@ -236,18 +231,20 @@ public class ConfigurationManagementControllerTest
         if (repository.getStorage() == null)
         {
             logger.error("Storage associated with repo is null.");
+
             throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR,
                                                "Storage associated with repo is null.");
         }
 
         try
         {
-            url = getContextBaseUrl() + "/configuration/strongbox/storages/" + repository.getStorage().getId() + "/" +
+            url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + repository.getStorage().getId() + "/" +
                   repository.getId();
         }
         catch (RuntimeException e)
         {
             logger.error("Unable to create web resource.", e);
+
             throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -266,8 +263,9 @@ public class ConfigurationManagementControllerTest
     private void deleteRepository(String storageId,
                                   String repositoryId)
     {
-        String url =
-                getContextBaseUrl() + String.format("/configuration/strongbox/storages/%s/%s", storageId, repositoryId);
+        String url = getContextBaseUrl() + String.format("/api/configuration/strongbox/storages/%s/%s",
+                                                         storageId,
+                                                         repositoryId);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -285,7 +283,7 @@ public class ConfigurationManagementControllerTest
 
         Storage storage2 = new Storage(storageId);
 
-        String url = getContextBaseUrl() + "/configuration/strongbox/storages";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/storages";
 
         given().contentType(MediaType.APPLICATION_XML_VALUE)
                .body(storage2)
@@ -309,19 +307,7 @@ public class ConfigurationManagementControllerTest
         addRepository(r1);
         addRepository(r2);
 
-        /*
-        final ProxyConfiguration pc = client.getProxyConfiguration(storageId, repositoryId1);
-
-        assertNotNull("Failed to get proxy configuration!", pc);
-        assertEquals("Failed to get proxy configuration!", pc.getHost(), pc.getHost());
-        assertEquals("Failed to get proxy configuration!", pc.getPort(), pc.getPort());
-        assertEquals("Failed to get proxy configuration!", pc.getUsername(), pc.getUsername());
-        assertEquals("Failed to get proxy configuration!", pc.getPassword(), pc.getPassword());
-        assertEquals("Failed to get proxy configuration!", pc.getType(), pc.getType());
-        */
-
-
-        url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
+        url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration";
 
         given().params("storageId", storageId, "repositoryId", repositoryId1)
                .when()
@@ -336,9 +322,8 @@ public class ConfigurationManagementControllerTest
         assertNotNull("Failed to get storage (" + storageId + ")!", storage);
         assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());
 
-        //    response = client.deleteRepository(storageId, repositoryId1, true);
+        url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
 
-        url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
         logger.debug(url);
 
         given().contentType(MediaType.TEXT_PLAIN_VALUE)
@@ -349,7 +334,7 @@ public class ConfigurationManagementControllerTest
                .then()
                .statusCode(200);
 
-        url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
+        url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
 
         logger.debug(storageId);
         logger.debug(repositoryId1);
@@ -366,7 +351,6 @@ public class ConfigurationManagementControllerTest
 
     @Test
     public void testGetAndSetConfiguration()
-            throws IOException, JAXBException
     {
         Configuration configuration = getConfigurationFromRemote();
 
@@ -374,7 +358,7 @@ public class ConfigurationManagementControllerTest
 
         configuration.addStorage(storage);
 
-        String url = getContextBaseUrl() + "/configuration/strongbox/xml";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/xml";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(configuration)
@@ -390,7 +374,7 @@ public class ConfigurationManagementControllerTest
 
     public Configuration getConfigurationFromRemote()
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/xml";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/xml";
 
         return given().contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
@@ -411,7 +395,7 @@ public class ConfigurationManagementControllerTest
     {
         acceptedRuleSet();
 
-        String url = getContextBaseUrl() + "/configuration/strongbox/routing/rules/set/accepted/group-releases-2";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/routing/rules/set/accepted/group-releases-2";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -435,8 +419,8 @@ public class ConfigurationManagementControllerTest
         acceptedRuleSet();
         acceptedRepository();
 
-        String url = getContextBaseUrl() +
-                     "/configuration/strongbox/routing/rules/accepted/group-releases-2/repositories/releases3?pattern=.*some.test";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/routing/rules/accepted" +
+                     "/group-releases-2/repositories/releases3?pattern=.*some.test";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -452,8 +436,8 @@ public class ConfigurationManagementControllerTest
         acceptedRuleSet();
         acceptedRepository();
 
-        String url = getContextBaseUrl() +
-                     "/configuration/strongbox/routing/rules/accepted/group-releases-2/override/repositories";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/routing/rules/accepted" +
+                     "/group-releases-2/override/repositories";
 
         RoutingRule routingRule = new RoutingRule();
         routingRule.setPattern(".*some.test");
@@ -471,9 +455,8 @@ public class ConfigurationManagementControllerTest
     }
 
     private void acceptedRuleSet()
-            throws IOException
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/routing/rules/set/accepted";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/routing/rules/set/accepted";
 
         RuleSet ruleSet = new RuleSet();
         ruleSet.setGroupRepository("group-releases-2");
@@ -497,10 +480,9 @@ public class ConfigurationManagementControllerTest
     }
 
     private void acceptedRepository()
-            throws IOException
     {
         String url =
-                getContextBaseUrl() + "/configuration/strongbox/routing/rules/accepted/group-releases-2/repositories";
+                getContextBaseUrl() + "/api/configuration/strongbox/routing/rules/accepted/group-releases-2/repositories";
 
         RoutingRule routingRule = new RoutingRule();
         routingRule.setPattern(".*some.test");

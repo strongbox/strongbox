@@ -85,7 +85,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
 
         createRepository(repository4);
 
-        setContextBaseUrl(getContextBaseUrl() + "/configuration/artifact-coordinate-validators");
+        setContextBaseUrl(getContextBaseUrl() + "/api/configuration/artifact-coordinate-validators");
     }
 
     @Test

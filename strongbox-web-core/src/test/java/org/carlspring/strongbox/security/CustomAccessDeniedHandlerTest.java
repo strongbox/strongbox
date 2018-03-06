@@ -61,7 +61,7 @@ public class CustomAccessDeniedHandlerTest
     {
         given().contentType("application/json")
                .when()
-               .get("/configuration/strongbox/xml")
+               .get("/api/configuration/strongbox/xml")
                .peek()
                .then()
                .body("error", CoreMatchers.equalTo("unauthorized"))

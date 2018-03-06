@@ -4,10 +4,12 @@ import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -27,7 +29,11 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  * <p>
  * Thanks to custom URL processing any path variable like '{path:.+}' will be processed as '**'.
  *
+ * @author Martin Todorov
  * @author Alex Oreshkevich
+ * @author Przemyslaw Fusik
+ * @author Sergey Bespalov
+ *
  * @see {@linkplain http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html#mvc-config-path-matching}
  */
 @RestController
@@ -52,7 +58,7 @@ public class MavenArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{storageId}/{repositoryId}/{path:.+}", method = RequestMethod.PUT)
     public ResponseEntity upload(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable(name = "storageId") String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)
@@ -77,10 +83,10 @@ public class MavenArtifactController
     @ApiOperation(value = "Used to retrieve an artifact", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 404, message = "Requested path not found."),
-                            @ApiResponse(code = 500, message = "Server Error."),
-                            @ApiResponse(code = 503, message = "Repository not in service currently.")})
+                            @ApiResponse(code = 500, message = "Server error."),
+                            @ApiResponse(code = 503, message = "Repository currently not in service.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = {RequestMethod.GET, RequestMethod.HEAD})
+    @RequestMapping(value = { "/{storageId}/{repositoryId}/{path:.+}" }, method = {RequestMethod.GET, RequestMethod.HEAD})
     public void download(@ApiParam(value = "The storageId", required = true)
                          @PathVariable String storageId,
                          @ApiParam(value = "The repositoryId", required = true)
@@ -201,7 +207,7 @@ public class MavenArtifactController
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
+    @RequestMapping(value = "/{storageId}/{repositoryId}/{path:.+}",
                     method = RequestMethod.DELETE)
     public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable String storageId,

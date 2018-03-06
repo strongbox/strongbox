@@ -37,11 +37,11 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
             return null;
         }
 
-        String userName = securityTokenProvider.getSubject(nugetApiKey);
+        String username = securityTokenProvider.getSubject(nugetApiKey);
         String securityToken = (String) securityTokenProvider.getClaims(nugetApiKey)
                                                              .getClaimValue("security-token-key");
 
-        return new SecurityTokenAuthentication(userName, securityToken);
+        return new SecurityTokenAuthentication(username, securityToken);
     }
 
     @Override

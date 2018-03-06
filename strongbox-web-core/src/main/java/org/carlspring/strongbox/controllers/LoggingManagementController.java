@@ -56,8 +56,8 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
  * @author Aditya Srinivasan
  */
 @Controller
-@Api(value = "/logging")
-@RequestMapping("/logging")
+@Api(value = "/api/logging")
+@RequestMapping("/api/logging")
 public class LoggingManagementController
         extends BaseController
 {
@@ -67,22 +67,17 @@ public class LoggingManagementController
 
     @ApiOperation(value = "Used to add new logger.",
                   position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The logger was added successfully."),
-                            @ApiResponse(code = 400,
-                                         message = "Could not add a new logger.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was added successfully."),
+                            @ApiResponse(code = 400, message = "Could not add a new logger.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_ADD_LOGGER','CONFIGURE_LOGS')")
     @PutMapping(value = "/logger",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addLogger(@ApiParam(value = "The logger name",
-                                              required = true)
+    public ResponseEntity addLogger(@ApiParam(value = "The logger name", required = true)
                                     @RequestParam("logger") String loggerPackage,
-                                    @ApiParam(value = "The logger level",
-                                              required = true)
+                                    @ApiParam(value = "The logger level", required = true)
                                     @RequestParam("level") String level,
-                                    @ApiParam(value = "The logger appender name",
-                                              required = true)
+                                    @ApiParam(value = "The logger appender name", required = true)
                                     @RequestParam("appenderName") String appenderName,
                                     @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
@@ -95,6 +90,7 @@ public class LoggingManagementController
         catch (LoggingConfigurationException | AppenderNotFoundException e)
         {
             String message = "Could not add a new logger.";
+
             logger.error(message, e);
 
             return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
@@ -103,12 +99,9 @@ public class LoggingManagementController
 
     @ApiOperation(value = "Used to update existing logger.",
                   position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The logger was updated successfully."),
-                            @ApiResponse(code = 400,
-                                         message = "Could not update logger."),
-                            @ApiResponse(code = 404,
-                                         message = "Logger was not found.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was updated successfully."),
+                            @ApiResponse(code = 400, message = "Could not update logger."),
+                            @ApiResponse(code = 404, message = "Logger was not found.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_UPDATE_LOGGER','CONFIGURE_LOGS')")
     @PostMapping(value = "/logger",
                  produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -206,10 +199,8 @@ public class LoggingManagementController
     }
 
     @ApiOperation(value = "Used to download logback configuration.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The logger configuration was retrieved successfully."),
-                            @ApiResponse(code = 400,
-                                         message = "Could not download logback configuration.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger configuration was retrieved successfully."),
+                            @ApiResponse(code = 400, message = "Could not download logback configuration.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOGBACK_CFG','CONFIGURE_LOGS')")
     @GetMapping(value = "/logback",
                 produces = MediaType.APPLICATION_XML_VALUE)
@@ -391,6 +382,7 @@ public class LoggingManagementController
         sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
         sb.append("<td></td>");
         sb.append("</tr>");
+
         return true;
     }
     
