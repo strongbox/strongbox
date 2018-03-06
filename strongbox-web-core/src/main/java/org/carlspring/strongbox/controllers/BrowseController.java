@@ -54,7 +54,7 @@ public class BrowseController extends BaseArtifactController
     private static final Logger logger = LoggerFactory.getLogger(BrowseController.class);
 
     // must be the same as @RequestMapping value on the class definition
-    public final static String ROOT_CONTEXT = "/browse";
+    public final static String ROOT_CONTEXT = "/api/browse";
     
     @Inject
     private DirectoryContentFetcher directoryContentFetcher;
