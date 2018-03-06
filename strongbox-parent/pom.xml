@@ -251,7 +251,7 @@
                 <plugin>
                     <groupId>com.github.kongchen</groupId>
                     <artifactId>swagger-maven-plugin</artifactId>
-                    <version>3.1.3</version>
+                    <version>3.1.6</version>
                 </plugin>
 
                 <plugin>
@@ -473,7 +473,7 @@
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-core</artifactId>
                 <scope>compile</scope>
-                <version>1.5.13</version>
+                <version>1.5.18</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.validation</groupId>
