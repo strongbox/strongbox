@@ -170,7 +170,7 @@ public class TrashControllerTest
     @Test
     public void testDeleteArtifactAndEmptyTrashForRepositoryWithTextAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
+        String url = getContextBaseUrl() + "/api/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .when()
@@ -188,7 +188,7 @@ public class TrashControllerTest
     @Test
     public void testDeleteArtifactAndEmptyTrashForRepositoryWithJsonAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
+        String url = getContextBaseUrl() + "/api/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -206,7 +206,7 @@ public class TrashControllerTest
     @Test
     public void testDeleteArtifactAndEmptyTrashForAllRepositoriesWithTextAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/trash";
+        String url = getContextBaseUrl() + "/api/trash";
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .when()
@@ -223,7 +223,7 @@ public class TrashControllerTest
     @Test
     public void testDeleteArtifactAndEmptyTrashForAllRepositoriesWithJsonAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/trash";
+        String url = getContextBaseUrl() + "/api/trash";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()

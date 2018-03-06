@@ -49,7 +49,7 @@ public class InMemoryOrientDbServer implements OrientDbServer, Condition, ODatab
         ODatabaseDocumentTx tx = new ODatabaseDocumentTx(connectionConfig.getUrl());
         if (!tx.exists())
         {
-            logger.info(String.format("Create database [%s]", connectionConfig.getDatabase()));
+            logger.info(String.format("Creating database [%s]...", connectionConfig.getDatabase()));
             tx.create();
 
             OCommandSQL cmd = new OCommandSQL("UPDATE ouser SET password = :password WHERE name = :name");

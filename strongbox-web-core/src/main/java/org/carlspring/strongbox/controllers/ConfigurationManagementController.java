@@ -35,8 +35,8 @@ import org.springframework.web.bind.annotation.*;
  * @author Pablo Tirado
  */
 @Controller
-@RequestMapping("/configuration/strongbox")
-@Api(value = "/configuration/strongbox")
+@RequestMapping("/api/configuration/strongbox")
+@Api(value = "/api/configuration/strongbox")
 public class ConfigurationManagementController
         extends BaseController
 {

@@ -32,8 +32,8 @@ class JWTAuthenticationSupplier
         }
 
         final String token = optToken.get();
-        String userName = securityTokenProvider.getSubject(token);
+        String username = securityTokenProvider.getSubject(token);
         String password = securityTokenProvider.getPassword(token);
-        return new UsernamePasswordAuthenticationToken(userName, password);
+        return new UsernamePasswordAuthenticationToken(username, password);
     }
 }

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.maven;
 
-import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
@@ -9,10 +9,9 @@ import javax.inject.Inject;
 import javax.ws.rs.QueryParam;
 import java.io.IOException;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,20 +26,23 @@ import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
  * @author carlspring
  */
 @RestController
+@Api(value = "/api/maven/index")
 public class MavenIndexController
-        extends BaseArtifactController
+        extends BaseController
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(MavenIndexController.class);
 
     @Inject
     private ArtifactIndexesService artifactIndexesService;
 
-    @ApiOperation(value = "Used to rebuild the indexes in repository or for artifact.",
-            position = 0)
+
+    @ApiOperation(value = "Used to rebuild the indexes in a repository or for artifact.", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The indexes were successfully rebuilt!"),
                             @ApiResponse(code = 500, message = "An error occurred."),
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_INDEXES')")
-    @RequestMapping(value = "/index", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(path = "/api/maven/index", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
                                   @QueryParam("storageId") String storageId,
                                   @ApiParam(value = "The repositoryId", required = true)
@@ -49,12 +51,12 @@ public class MavenIndexController
                                   @QueryParam("path") String path)
             throws IOException
     {
-        if (storageId != null && getStorage(storageId) == null)
+        if (storageId != null && getConfiguration().getStorage(storageId) == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body("The specified storageId does not exist!");
         }
-        if (repositoryId != null && getRepository(storageId, repositoryId) == null)
+        if (repositoryId != null && getConfiguration().getStorage(storageId).getRepository(repositoryId) == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body("The specified repositoryId does not exist!");

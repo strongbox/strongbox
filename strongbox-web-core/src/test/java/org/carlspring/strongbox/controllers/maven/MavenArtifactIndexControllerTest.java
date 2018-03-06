@@ -213,7 +213,6 @@ public class MavenArtifactIndexControllerTest
 
     @Test
     public void shouldReturnNotFoundWhenIndexingIsNotEnabled()
-            throws Exception
     {
         String url = getContextBaseUrl() + "/storages/public/public-group/.index/nexus-maven-repository-index.gz";
 

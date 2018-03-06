@@ -39,7 +39,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/ldap/rolesMapping")
+                          .get("/api/configuration/ldap/rolesMapping")
                           .peek()
                           .then()
                           .body("roles-mapping.Developers",
@@ -56,7 +56,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/ldap/userDnPatterns")
+                          .get("/api/configuration/ldap/userDnPatterns")
                           .peek()
                           .then()
                           .body("user-dn-pattern[0]",
@@ -71,7 +71,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/ldap/userSearchFilter")
+                          .get("/api/configuration/ldap/userSearchFilter")
                           .peek()
                           .then()
                           .body("search-filter",
@@ -88,7 +88,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/ldap/groupSearchFilter")
+                          .get("/api/configuration/ldap/groupSearchFilter")
                           .peek()
                           .then()
                           .body("search-base",
@@ -104,7 +104,7 @@ public class LdapAuthenticatorConfigurationControllerTest
             throws Exception
     {
         RestAssuredMockMvc.when()
-                          .put("/configuration/ldap/rolesMapping/Developers/REPOSITORY_READER")
+                          .put("/api/configuration/ldap/rolesMapping/Developers/REPOSITORY_READER")
                           .peek()
                           .then()
                           .statusCode(200);
@@ -115,7 +115,7 @@ public class LdapAuthenticatorConfigurationControllerTest
             throws Exception
     {
         RestAssuredMockMvc.when()
-                          .put("/configuration/ldap/rolesMapping/Managers/REPOSITORY_MANAGER")
+                          .put("/api/configuration/ldap/rolesMapping/Managers/REPOSITORY_MANAGER")
                           .peek()
                           .then()
                           .statusCode(200);
@@ -126,7 +126,7 @@ public class LdapAuthenticatorConfigurationControllerTest
             throws Exception
     {
         RestAssuredMockMvc.when()
-                          .post("/configuration/ldap/rolesMapping/Contributors/REPOSITORY_READER")
+                          .post("/api/configuration/ldap/rolesMapping/Contributors/REPOSITORY_READER")
                           .peek()
                           .then()
                           .statusCode(400);
@@ -137,7 +137,7 @@ public class LdapAuthenticatorConfigurationControllerTest
             throws Exception
     {
         RestAssuredMockMvc.when()
-                          .post("/configuration/ldap/rolesMapping/Testers/REPOSITORY_READER")
+                          .post("/api/configuration/ldap/rolesMapping/Testers/REPOSITORY_READER")
                           .peek()
                           .then()
                           .statusCode(200);
@@ -148,7 +148,7 @@ public class LdapAuthenticatorConfigurationControllerTest
             throws Exception
     {
         RestAssuredMockMvc.when()
-                          .delete("/configuration/ldap/rolesMapping/Contributors")
+                          .delete("/api/configuration/ldap/rolesMapping/Contributors")
                           .peek()
                           .then()
                           .statusCode(200);
@@ -159,7 +159,7 @@ public class LdapAuthenticatorConfigurationControllerTest
             throws Exception
     {
         RestAssuredMockMvc.when()
-                          .delete("/configuration/ldap/rolesMapping/Testers")
+                          .delete("/api/configuration/ldap/rolesMapping/Testers")
                           .peek()
                           .then()
                           .statusCode(400);
@@ -173,7 +173,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                           .header("Accept", "application/xml")
                           .when()
                           // below line is a workaround URI placeholders in RestAssuredMockMvc
-                          .put("/configuration/ldap/userSearchFilter/ou=guys/(uid={0})", "{0}")
+                          .put("/api/configuration/ldap/userSearchFilter/ou=guys/(uid={0})", "{0}")
                           .peek()
                           .then()
                           .body(CoreMatchers.equalTo("User search filter updated."))
@@ -182,7 +182,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/ldap/userSearchFilter")
+                          .get("/api/configuration/ldap/userSearchFilter")
                           .peek()
                           .then()
                           .body("search-filter",
@@ -198,7 +198,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         RestAssuredMockMvc.given()
                           // below line is a workaround URI placeholders in RestAssuredMockMvc
-                          .put("/configuration/ldap/groupSearchFilter/ou=guys/(participiant={0})", "{0}")
+                          .put("/api/configuration/ldap/groupSearchFilter/ou=guys/(participiant={0})", "{0}")
                           .peek()
                           .then()
                           .body(CoreMatchers.equalTo("Group search filter updated."))
@@ -207,7 +207,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/ldap/groupSearchFilter")
+                          .get("/api/configuration/ldap/groupSearchFilter")
                           .peek()
                           .then()
                           .body("search-base",
@@ -223,7 +223,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         RestAssuredMockMvc.given()
                           // below line is a workaround URI placeholders in RestAssuredMockMvc
-                          .delete("/configuration/ldap/userDnPatterns/uid={0},ou=Users", "{0}")
+                          .delete("/api/configuration/ldap/userDnPatterns/uid={0},ou=Users", "{0}")
                           .peek()
                           .then()
                           .body(CoreMatchers.equalTo(
@@ -239,7 +239,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                           .header("Accept", "application/xml")
                           .when()
                           // below line is a workaround URI placeholders in RestAssuredMockMvc
-                          .post("/configuration/ldap/userDnPatterns/uid={0},ou=Guys", "{0}")
+                          .post("/api/configuration/ldap/userDnPatterns/uid={0},ou=Guys", "{0}")
                           .peek()
                           .then()
                           .body(CoreMatchers.equalTo(
@@ -249,7 +249,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
                           .when()
-                          .get("/configuration/ldap/userDnPatterns")
+                          .get("/api/configuration/ldap/userDnPatterns")
                           .peek()
                           .then()
                           .body("user-dn-pattern[0]",

@@ -24,6 +24,7 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.get;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Pablo Tirado
@@ -45,13 +46,12 @@ public class LoggingManagementControllerTestIT
 
     private static final String LOGS_HOME_DIRECTORY = PropertyUtils.getVaultDirectory() + "/logs";
     
+    
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_ADD_LOGGER" })
     public void testAddLoggerWithTextAcceptHeader()
-            throws Exception
     {
-
-        String url = getContextBaseUrl() + "/logging/logger";
+        String url = getContextBaseUrl() + "/api/logging/logger";
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .param("logger", LOGGER_PACKAGE)
@@ -68,10 +68,8 @@ public class LoggingManagementControllerTestIT
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_ADD_LOGGER" })
     public void testAddLoggerWithJsonAcceptHeader()
-            throws Exception
     {
-
-        String url = getContextBaseUrl() + "/logging/logger";
+        String url = getContextBaseUrl() + "/api/logging/logger";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .param("logger", LOGGER_PACKAGE)
@@ -88,10 +86,8 @@ public class LoggingManagementControllerTestIT
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerWithTextAcceptHeader()
-            throws Exception
     {
-
-        String url = getContextBaseUrl() + "/logging/logger";
+        String url = getContextBaseUrl() + "/api/logging/logger";
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .param("logger", LOGGER_PACKAGE)
@@ -107,10 +103,8 @@ public class LoggingManagementControllerTestIT
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerWithJsonAcceptHeader()
-            throws Exception
     {
-
-        String url = getContextBaseUrl() + "/logging/logger";
+        String url = getContextBaseUrl() + "/api/logging/logger";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .param("logger", LOGGER_PACKAGE)
@@ -126,10 +120,8 @@ public class LoggingManagementControllerTestIT
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerNotFoundWithTextAcceptHeader()
-            throws Exception
     {
-
-        String url = getContextBaseUrl() + "/logging/logger";
+        String url = getContextBaseUrl() + "/api/logging/logger";
         String loggerPackage = LOGGER_PACKAGE_NON_EXISTING;
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
@@ -146,10 +138,8 @@ public class LoggingManagementControllerTestIT
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerNotFoundWithJsonAcceptHeader()
-            throws Exception
     {
-
-        String url = getContextBaseUrl() + "/logging/logger";
+        String url = getContextBaseUrl() + "/api/logging/logger";
         String loggerPackage = LOGGER_PACKAGE_NON_EXISTING;
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -166,10 +156,8 @@ public class LoggingManagementControllerTestIT
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerWithTextAcceptHeader()
-            throws Exception
     {
-
-        String url = getContextBaseUrl() + "/logging/logger";
+        String url = getContextBaseUrl() + "/api/logging/logger";
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .param("logger", LOGGER_PACKAGE)
@@ -184,10 +172,8 @@ public class LoggingManagementControllerTestIT
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerWithJsonAcceptHeader()
-            throws Exception
     {
-
-        String url = getContextBaseUrl() + "/logging/logger";
+        String url = getContextBaseUrl() + "/api/logging/logger";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .param("logger", LOGGER_PACKAGE)
@@ -202,10 +188,9 @@ public class LoggingManagementControllerTestIT
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerNotFoundWithTextAcceptHeader()
-            throws Exception
     {
 
-        String url = getContextBaseUrl() + "/logging/logger";
+        String url = getContextBaseUrl() + "/api/logging/logger";
         String loggerPackage = LOGGER_PACKAGE_NON_EXISTING;
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
@@ -221,10 +206,8 @@ public class LoggingManagementControllerTestIT
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerNotFoundWithJsonAcceptHeader()
-            throws Exception
     {
-
-        String url = getContextBaseUrl() + "/logging/logger";
+        String url = getContextBaseUrl() + "/api/logging/logger";
         String loggerPackage = LOGGER_PACKAGE_NON_EXISTING;
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -247,7 +230,7 @@ public class LoggingManagementControllerTestIT
              .toFile()
              .deleteOnExit();
 
-        String url = getContextBaseUrl() + "/logging/log/" + testLogName;
+        String url = getContextBaseUrl() + "/api/logging/log/" + testLogName;
 
         given().contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
@@ -260,9 +243,8 @@ public class LoggingManagementControllerTestIT
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_RETRIEVE_LOGBACK_CFG" })
     public void testDownloadLogbackConfiguration()
-            throws Exception
     {
-        String url = getContextBaseUrl() + "/logging/logback";
+        String url = getContextBaseUrl() + "/api/logging/logback";
 
         given().contentType(MediaType.APPLICATION_XML_VALUE)
                .when()
@@ -275,9 +257,8 @@ public class LoggingManagementControllerTestIT
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_UPLOAD_LOGBACK_CFG" })
     public void testUploadLogbackConfigurationWithTextAcceptHeader()
-            throws Exception
     {
-        String url = getContextBaseUrl() + "/logging/logback";
+        String url = getContextBaseUrl() + "/api/logging/logback";
 
         // Obtain the current logback XML.
         byte[] byteArray = get(url).asByteArray();
@@ -296,9 +277,8 @@ public class LoggingManagementControllerTestIT
     @Test
     @WithMockUser(authorities = { "CONFIGURE_LOGS" })
     public void testUploadLogbackConfigurationWithJsonAcceptHeader()
-            throws Exception
     {
-        String url = getContextBaseUrl() + "/logging/logback";
+        String url = getContextBaseUrl() + "/api/logging/logback";
 
         // Obtain the current logback XML.
         byte[] byteArray = get(url).asByteArray();
@@ -328,9 +308,8 @@ public class LoggingManagementControllerTestIT
             tempLogFilesArray[i] = paths[i].getFileName()
                                            .toString();
         }
-        
-        
-        String logDirectoryHomeUrl = getContextBaseUrl() + "/logging/logs/";
+
+        String logDirectoryHomeUrl = getContextBaseUrl() + "/api/logging/logs/";
         
         //When
         //Getting the table elements
@@ -378,17 +357,16 @@ public class LoggingManagementControllerTestIT
                                            .toString();
         }
         
-        String logSubDirectoryUrl = getContextBaseUrl() + "/logging/logs/test/";
+        String logSubDirectoryUrl = getContextBaseUrl() + "/api/logging/logs/test/";
         
         //When
         //Getting the table elements
-        String tableElementsAsString = given()
-                                               .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                               .when()
-                                               .get(logSubDirectoryUrl)
-                                               .body()
-                                               .htmlPath()
-                                               .getString("html.body");
+        String tableElementsAsString = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                              .when()
+                                              .get(logSubDirectoryUrl)
+                                              .body()
+                                              .htmlPath()
+                                              .getString("html.body");
         
         //Assertion Test to see if given file names and test folder are contained in the HTML body
         boolean shouldContainLogFilesInHtmlTableElement = false;
@@ -411,13 +389,11 @@ public class LoggingManagementControllerTestIT
             //Delete the test sub directory even if the test fails
             deleteTestLogFilesAndDirectories(true);
         }
-        
     }
     
     //This method creates temporary log files, and if necessary for subdirectory browsing, a log subdirectory.
     private static Path[] createTestLogFilesAndDirectories(boolean shouldICreateATestSubDirectory)
     {
-        
         //If a test directory is needed, a new directory called `test` under `/logs/` will be created.
         //Otherwise the path of `/logs` will be returned.
         Path logDirectoryPath;
@@ -439,23 +415,23 @@ public class LoggingManagementControllerTestIT
             for (int i = 0; i < 4; i++)
             {
                 paths[i] = Files.createTempFile(logDirectoryPath, "TestLogFile" + i, ".log");
-            }
-            
+            }   
         }
         catch (IOException e)
         {
-            System.out.println("\n\nUNABLE TO CREATE TEST LOG FILES AND/OR DIRECTORIES\n\n");
-            e.printStackTrace();
+            fail("Unable to create test log files and/or directories!");
         }
+        
         return paths;
     }
     
     //This method deletes temporary log files, and if used for subdirectory browsing, the test log subdirectory.
     private static void deleteTestLogFilesAndDirectories(boolean wasATestSubDirectoryCreated)
     {
+        
         //This local class extends the SimpleFileVisitor and overrides the `visitFile` method to delete any
         //Test Log Files upon encountering it.
-        class SFVExtend
+        class LogFileVisitor
                 extends SimpleFileVisitor<Path>
         {
 
@@ -464,14 +440,12 @@ public class LoggingManagementControllerTestIT
                                              BasicFileAttributes attrs)
                     throws IOException
             {
-
                 //Possessive Regex for speed
-                if (file.getFileName()
-                        .toString()
-                        .matches("TestLog.*+"))
+                if (file.getFileName().toString().matches("TestLog.*+"))
                 {
                     Files.delete(file);
                 }
+
                 return FileVisitResult.CONTINUE;
             }
         }
@@ -482,7 +456,7 @@ public class LoggingManagementControllerTestIT
             {
                 Path pathToLogHomeDirectory = Paths.get(LOGS_HOME_DIRECTORY, "/test");
 
-                Files.walkFileTree(pathToLogHomeDirectory, new SFVExtend());
+                Files.walkFileTree(pathToLogHomeDirectory, new LogFileVisitor());
 
                 Files.delete(Paths.get(LOGS_HOME_DIRECTORY, "/test"));
             }
@@ -490,13 +464,13 @@ public class LoggingManagementControllerTestIT
             {
                 Path pathToLogHomeDirectory = Paths.get(LOGS_HOME_DIRECTORY);
 
-                Files.walkFileTree(pathToLogHomeDirectory, new SFVExtend());
+                Files.walkFileTree(pathToLogHomeDirectory, new LogFileVisitor());
             }
         }
         catch (IOException e)
         {
-            System.out.println("\n\nUNABLE TO DELETE TEST LOG FILES AND/OR DIRECTORIES\n\n");
-            e.printStackTrace();
+            fail("Unable to delete test log files and/or directories!");
         }
     }
+
 }

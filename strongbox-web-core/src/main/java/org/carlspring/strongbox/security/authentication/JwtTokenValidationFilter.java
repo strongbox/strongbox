@@ -69,17 +69,17 @@ public class JwtTokenValidationFilter
         }
 
         String token = optToken.get();
-        String userName = null;
+        String username = null;
 
         try
         {
-            userName = securityTokenProvider.getSubject(token);
+            username = securityTokenProvider.getSubject(token);
             String password = securityTokenProvider.getPassword(token);
-            securityTokenProvider.verifyToken(token, userName, securityTokenProvider.passwordClaimMap(password));
+            securityTokenProvider.verifyToken(token, username, securityTokenProvider.passwordClaimMap(password));
         }
         catch (SecurityTokenExpiredException ex)
         {
-            logger.debug("Token {} of user {} expired.", token, userName);
+            logger.debug("Token {} of user {} expired.", token, username);
             sendJsonErrorToResponse(response, "expired");
         }
         catch (SecurityTokenException ex)
@@ -87,7 +87,7 @@ public class JwtTokenValidationFilter
             sendJsonErrorToResponse(response, "invalid.token");
         }
 
-        logger.debug("Token {} of user {} verified.", token, userName);
+        logger.debug("Token {} of user {} verified.", token, username);
     }
 
     private void sendJsonErrorToResponse(HttpServletResponse response,

@@ -7,7 +7,6 @@ import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
@@ -92,9 +91,6 @@ public class MavenArtifactControllerTest
     private static String pluginXmlFilePath;
 
     @Inject
-    private ConfigurationManager configurationManager;
-
-    @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
 
 
@@ -103,7 +99,6 @@ public class MavenArtifactControllerTest
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
-
     }
 
     @Before
@@ -653,7 +648,7 @@ public class MavenArtifactControllerTest
 
         assertTrue("Failed to locate artifact file '" + artifact.getAbsolutePath() + "'!", artifact.exists());
 
-        String basePath = "browse/" + STORAGE0 + "/" + REPOSITORY_RELEASES1;
+        String basePath = "/api/browse/" + STORAGE0 + "/" + REPOSITORY_RELEASES1;
 
         ExtractableResponse repositoryRoot = client.getResourceWithResponse(basePath, "");
         ExtractableResponse trashDirectoryListing = client.getResourceWithResponse(basePath, ".trash");
@@ -672,14 +667,12 @@ public class MavenArtifactControllerTest
         assertFalse(".trash directory should not be visible in directory listing!",
                     repositoryRootContent.contains(".trash"));
         assertTrue(".trash directory should not be browsable!",
-                   trashDirectoryListing.response()
-                                        .getStatusCode() == 404);
+                   trashDirectoryListing.response().getStatusCode() == 404);
 
         assertFalse(".index directory should not be visible in directory listing!",
                     repositoryRootContent.contains(".index"));
         assertTrue(".index directory should be browsable!",
-                   indexDirectoryListing.response()
-                                        .getStatusCode() == 302);
+                   indexDirectoryListing.response().getStatusCode() == 302);
 
         logger.debug(directoryListingContent);
 
@@ -687,8 +680,7 @@ public class MavenArtifactControllerTest
         assertTrue(fileListingContent.contains("foo-bar-1.0.jar"));
         assertTrue(fileListingContent.contains("foo-bar-1.0.pom"));
 
-        assertTrue(invalidPath.response()
-                              .getStatusCode() == 404);
+        assertTrue(invalidPath.response().getStatusCode() == 404);
     }
 
     @Test
@@ -749,13 +741,13 @@ public class MavenArtifactControllerTest
         checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion4, "javadoc", "jar");
         checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion4, null, "pom");
 
-        assertNotNull(versionLevelMetadata.getVersioning()
-                                          .getLastUpdated());
+        assertNotNull(versionLevelMetadata.getVersioning().getLastUpdated());
     }
 
     @Spy
-    Artifact artifact1 = getArtifactFromGAVTC(
-            "org.carlspring.strongbox.metadata" + ":" + "metadata-foo-maven-plugin" + ":" + "3.1");
+    Artifact artifact1 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" +
+                                              "metadata-foo-maven-plugin" + ":" +
+                                              "3.1");
     @Spy
     Artifact artifact2 = getArtifactFromGAVTC(
             "org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.1");
@@ -767,6 +759,7 @@ public class MavenArtifactControllerTest
             "org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.2");
     @Spy
     Artifact artifact5 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.1");
+
     @Spy
     Artifact artifact6 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.2");
 
@@ -783,41 +776,51 @@ public class MavenArtifactControllerTest
         String version1 = "3.1";
         String version2 = "3.2";
 
-
         createPluginXmlFile(groupId, artifactId1, version1);
         crateJarFile(artifactId1 + "-" + version1);
-        String filePath =
-                Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId1 + "-" + version1 + ".jar";
+
+        String filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId1 + "-" + version1 + ".jar";
+
         Mockito.doReturn(new File(filePath)).when(artifact1).getFile();
 
         createPluginXmlFile(groupId, artifactId2, version1);
         crateJarFile(artifactId2 + "-" + version1);
+
         filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId2 + "-" + version1 + ".jar";
+
         Mockito.doReturn(new File(filePath)).when(artifact2).getFile();
 
         //artifact3 = getArtifactFromGAVTC(groupId + ":" + artifactId1 + ":" + version2);
         createPluginXmlFile(groupId, artifactId1, version2);
         crateJarFile(artifactId1 + "-" + version2);
+
         filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId1 + "-" + version2 + ".jar";
+
         Mockito.doReturn(new File(filePath)).when(artifact3).getFile();
 
         //artifact4 = getArtifactFromGAVTC(groupId + ":" + artifactId2 + ":" + version2);
         createPluginXmlFile(groupId, artifactId2, version2);
         crateJarFile(artifactId2 + "-" + version2);
+
         filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId2 + "-" + version2 + ".jar";
+
         Mockito.doReturn(new File(filePath)).when(artifact4).getFile();
 
         // Artifacts
         // Artifact artifact5 = getArtifactFromGAVTC(groupId + ":" + artifactId3 + ":" + version1);
         createPluginXmlFile(groupId, artifactId3, version1);
         crateJarFile(artifactId3 + "-" + version1);
+
         filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId3 + "-" + version1 + ".jar";
+
         Mockito.doReturn(new File(filePath)).when(artifact5).getFile();
 
         //artifact6 = getArtifactFromGAVTC(groupId + ":" + artifactId3 + ":" + version2);
         createPluginXmlFile(groupId, artifactId3, version2);
         crateJarFile(artifactId3 + "-" + version2);
+
         filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId3 + "-" + version2 + ".jar";
+
         Mockito.doReturn(new File(filePath)).when(artifact6).getFile();
 
         Plugin p1 = new Plugin();

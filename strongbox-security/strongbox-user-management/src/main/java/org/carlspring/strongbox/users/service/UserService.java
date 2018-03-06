@@ -20,32 +20,32 @@ public interface UserService
      * Generates another one 'Security Token' for specific user.<br>
      * Token will be based on 'username' with 'securityTokenKey' used as clam.
      *
-     * @param userName
+     * @param username
      *            user ID
      * @return encrypted token
      * @throws JoseException
      */
-    String generateSecurityToken(String userName)
+    String generateSecurityToken(String username)
             throws JoseException;
 
     /**
      * Generates 'Authentication Token' for specific user.<br>
      * This token can be used for JWT Authentication.
      *
-     * @param userName     user ID
+     * @param username     user ID
      * @param expireSeconds token expiration in seconds (endless if empty)
      * @return encrypted token
      * @throws JoseException
      */
-    String generateAuthenticationToken(String userName,
+    String generateAuthenticationToken(String username,
                                        Integer expireSeconds)
             throws JoseException;
 
     /**
-     * @param userName
+     * @param username
      * @param token
      */
-    void verifySecurityToken(String userName,
+    void verifySecurityToken(String username,
                              String token);
 
     User updatePassword(User userToUpdate);

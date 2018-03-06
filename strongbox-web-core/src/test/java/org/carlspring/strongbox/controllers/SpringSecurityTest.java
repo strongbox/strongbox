@@ -41,11 +41,10 @@ public class SpringSecurityTest
     @Ignore
     public void testThatAnonymousUserHasFullAccessAccordingToAuthorities()
     {
-        anonymousAuthenticationFilter.getAuthorities()
-                                     .add(new SimpleGrantedAuthority("VIEW_USER"));
+        anonymousAuthenticationFilter.getAuthorities().add(new SimpleGrantedAuthority("VIEW_USER"));
 
-        final String userName = "anyName";
-        String url = getContextBaseUrl() + "/users/user/" + userName;
+        final String username = "anyName";
+        String url = getContextBaseUrl() + "/api/users/user/" + username;
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .when()
@@ -53,16 +52,14 @@ public class SpringSecurityTest
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(containsString(userName));
+               .body(containsString(username));
     }
 
     @Test
     @WithUserDetails("admin")
     public void testUserAuth()
-            throws Exception
     {
-
-        String url = getContextBaseUrl() + "/users/greet";
+        String url = getContextBaseUrl() + "/api/users/greet";
         String name = "Johan";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -85,7 +82,7 @@ public class SpringSecurityTest
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .param("name", "John")
                .when()
-               .get(getContextBaseUrl() + "/users/greet")
+               .get(getContextBaseUrl() + "/api/users/greet")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value());
@@ -95,7 +92,7 @@ public class SpringSecurityTest
     @Ignore
     public void testJWTAuth()
     {
-        String url = getContextBaseUrl() + "/users/user/authenticate";
+        String url = getContextBaseUrl() + "/api/users/user/authenticate";
 
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
         logger.info(String.format("Get JWT Token with Basic Authentication: user-[%s]; auth-[%s]", "admin",
@@ -110,7 +107,7 @@ public class SpringSecurityTest
                               .extract()
                               .asString();
 
-        logger.info(String.format("Gereet with Basic Authentication: user-[%s]; auth-[%s]", "admin",
+        logger.info(String.format("Greet with Basic Authentication: user-[%s]; auth-[%s]", "admin",
                                   basicAuth));
         url = getContextBaseUrl() + "/users/greet";
         given().header(HttpHeaders.AUTHORIZATION, basicAuth)
@@ -120,7 +117,7 @@ public class SpringSecurityTest
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value());
 
-        logger.info(String.format("Gereet with JWT Authentication: user-[%s]; token-[%s]", "admin",
+        logger.info(String.format("Greet with JWT Authentication: user-[%s]; token-[%s]", "admin",
                                   token));
         given().header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -136,7 +133,7 @@ public class SpringSecurityTest
     public void testJWTExpire()
             throws InterruptedException
     {
-        String url = getContextBaseUrl() + "/users/user/authenticate";
+        String url = getContextBaseUrl() + "/api/users/user/authenticate";
 
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
         logger.info(String.format("Get JWT Token with Basic Authentication: user-[%s]; auth-[%s]", "admin",
@@ -150,9 +147,9 @@ public class SpringSecurityTest
                               .extract()
                               .asString();
 
-        logger.info(String.format("Gereet with JWT Authentication: user-[%s]; token-[%s]", "admin",
+        logger.info(String.format("Greet with JWT Authentication: user-[%s]; token-[%s]", "admin",
                                   token));
-        url = getContextBaseUrl() + "/users/greet";
+        url = getContextBaseUrl() + "/api/users/greet";
         given().header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -175,10 +172,10 @@ public class SpringSecurityTest
     @WithUserDetails("user")
     public void testThatUserHasViewUsersPrivilege()
     {
-        String userName = "user";
+        String username = "user";
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/users/user/" + userName)
+               .get("/api/users/user/" + username)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
@@ -194,7 +191,7 @@ public class SpringSecurityTest
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .body(user)
                .when()
-               .put("/users/user")
+               .put("/api/users/user")
                .peek()
                .then()
                .body("error", CoreMatchers.equalTo("unauthorized"))

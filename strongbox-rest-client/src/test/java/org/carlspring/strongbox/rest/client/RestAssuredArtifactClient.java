@@ -5,7 +5,6 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.BaseArtifactClient;
 import org.carlspring.strongbox.client.IArtifactClient;
 
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -248,7 +247,6 @@ public class RestAssuredArtifactClient
                        String repositoryId,
                        String path,
                        boolean force)
-            throws ArtifactOperationException
     {
         String url = getContextBaseUrl() + "/storages/" +
                      storageId + "/" + repositoryId + "/" + path;
@@ -282,9 +280,8 @@ public class RestAssuredArtifactClient
     public void rebuildMetadata(String storageId,
                                 String repositoryId,
                                 String path)
-            throws IOException, JAXBException
     {
-        String url = getContextBaseUrl() + "/metadata?" + (storageId != null ? "storageId=" + storageId : "") +
+        String url = getContextBaseUrl() + "/api/maven/metadata?" + (storageId != null ? "storageId=" + storageId : "") +
                      (repositoryId != null ? (storageId != null ? "&" : "") + "repositoryId=" + repositoryId : "") +
                      (path != null ? (storageId != null || repositoryId != null ? "&" : "") + "path=" + path : "");
 
@@ -299,16 +296,15 @@ public class RestAssuredArtifactClient
     public MockMvcResponse rebuildIndexes(String storageId,
                                           String repositoryId,
                                           String path)
-            throws IOException
     {
-        String url = getContextBaseUrl() + "/index?" + (storageId != null ? "storageId=" + storageId : "") +
+        String url = getContextBaseUrl() + "/api/maven/index?" + (storageId != null ? "storageId=" + storageId : "") +
                      (repositoryId != null ? (storageId != null ? "&" : "") + "repositoryId=" + repositoryId : "") +
                      (path != null ? (storageId != null || repositoryId != null ? "&" : "") + "path=" + path : "");
 
         return givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-                    .when()
-                    .post(url)
-                    .peek();
+                           .when()
+                           .post(url)
+                           .peek();
     }
 
     public void removeVersionFromMetadata(String storageId,
@@ -318,7 +314,7 @@ public class RestAssuredArtifactClient
                                           String classifier,
                                           String metadataType)
     {
-        String url = getContextBaseUrl() + "/metadata/" +
+        String url = getContextBaseUrl() + "/api/maven/metadata/" +
                      storageId + "/" + repositoryId + "/" +
                      (artifactPath != null ? artifactPath : "");
 
@@ -347,7 +343,7 @@ public class RestAssuredArtifactClient
                          String searchProvider)
             throws UnsupportedEncodingException
     {
-        String url = getContextBaseUrl() + "/search";
+        String url = getContextBaseUrl() + "/api/search";
 
         if (repositoryId == null)
         {

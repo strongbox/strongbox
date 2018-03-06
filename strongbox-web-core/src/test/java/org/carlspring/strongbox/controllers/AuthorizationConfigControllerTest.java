@@ -67,13 +67,12 @@ public class AuthorizationConfigControllerTest
 
     private void roleShouldBeAdded(String acceptHeader,
                                    RoleForm role)
-            throws Exception
     {
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(role)
                .when()
-               .post("/configuration/authorization/role")
+               .post("/api/configuration/authorization/role")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
@@ -82,7 +81,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testRoleShouldBeAddedWithResponseInJson()
-            throws Exception
     {
         final RoleForm customRole = new RoleForm();
         customRole.setName("TEST_ROLE");
@@ -95,7 +93,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testRoleShouldBeAddedWithResponseInText()
-            throws Exception
     {
         final RoleForm customRole = new RoleForm();
         customRole.setName("TEST_ROLE");
@@ -108,7 +105,6 @@ public class AuthorizationConfigControllerTest
 
     private void roleShouldNotBeAdded(String acceptHeader,
                                       String roleName)
-            throws Exception
     {
         // prepare new role
         final Role customRole = new Role();
@@ -118,7 +114,7 @@ public class AuthorizationConfigControllerTest
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(customRole)
                .when()
-               .post("/configuration/authorization/role")
+               .post("/api/configuration/authorization/role")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
@@ -127,7 +123,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testExistingRoleShouldNotBeAddedWithResponseInJson()
-            throws Exception
     {
         String existingRoleName = originalRoles.iterator().next().getName();
         roleShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, existingRoleName);
@@ -135,7 +130,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testExistingRoleShouldNotBeAddedWithResponseInText()
-            throws Exception
     {
         String existingRoleName = originalRoles.iterator().next().getName();
         roleShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, existingRoleName);
@@ -143,7 +137,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testEmptyRoleNameShouldNotBeAddedWithResponseInJson()
-            throws Exception
     {
         String roleName = "";
         roleShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, roleName);
@@ -151,19 +144,17 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testEmptyRoleNameShouldNotBeAddedWithResponseInText()
-            throws Exception
     {
         String roleName = "";
         roleShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, roleName);
     }
 
     private void configXMLCouldBeDownloaded(String acceptHeader)
-            throws Exception
     {
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .get("/configuration/authorization/xml")
+               .get("/api/configuration/authorization/xml")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()); // check http status code
@@ -171,27 +162,24 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testThatConfigXMLCouldBeDownloadedWithResponseInJson()
-            throws Exception
     {
         configXMLCouldBeDownloaded(MediaType.APPLICATION_JSON_VALUE);
     }
 
     @Test
     public void testThatConfigXMLCouldBeDownloadedWithResponseInXml()
-            throws Exception
     {
         configXMLCouldBeDownloaded(MediaType.APPLICATION_XML_VALUE);
     }
 
     private void roleShouldBeDeleted(String acceptHeader,
                                      String roleName)
-            throws Exception
     {
         // delete role
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .delete("/configuration/authorization/role/" + roleName)
+               .delete("/api/configuration/authorization/role/" + roleName)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
@@ -200,7 +188,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testRoleShouldBeDeletedWithResponseInJson()
-            throws Exception
     {
         String roleName = originalRoles.iterator().next().getName();
         roleShouldBeDeleted(MediaType.APPLICATION_JSON_VALUE, roleName);
@@ -208,7 +195,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testRoleShouldBeDeletedWithResponseInText()
-            throws Exception
     {
         String roleName = originalRoles.iterator().next().getName();
         roleShouldBeDeleted(MediaType.TEXT_PLAIN_VALUE, roleName);
@@ -216,13 +202,12 @@ public class AuthorizationConfigControllerTest
 
     private void roleShouldNotBeDeleted(String acceptHeader,
                                         String roleName)
-            throws Exception
     {
         // delete role
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .delete("/configuration/authorization/role/" + roleName)
+               .delete("/api/configuration/authorization/role/" + roleName)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
@@ -231,7 +216,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testRoleShouldNotBeDeletedWithResponseInJson()
-            throws Exception
     {
         String nonExistingRoleName = "TEST_ROLE";
         roleShouldNotBeDeleted(MediaType.APPLICATION_JSON_VALUE, nonExistingRoleName);
@@ -239,7 +223,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testRoleShouldNotBeDeletedWithResponseInText()
-            throws Exception
     {
         String nonExistingRoleName = "TEST_ROLE";
         roleShouldNotBeDeleted(MediaType.TEXT_PLAIN_VALUE, nonExistingRoleName);
@@ -247,7 +230,6 @@ public class AuthorizationConfigControllerTest
 
     private void privilegesToAnonymousShouldBeAdded(String acceptHeader,
                                                     String privilegeName)
-            throws Exception
     {
         // assign privileges to anonymous user
         PrivilegeListForm privilegeListForm = new PrivilegeListForm();
@@ -260,7 +242,7 @@ public class AuthorizationConfigControllerTest
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(privilegeListForm)
                .when()
-               .post("/configuration/authorization/anonymous/privileges")
+               .post("/api/configuration/authorization/anonymous/privileges")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
@@ -269,7 +251,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testPrivilegesToAnonymousShouldBeAddedWithResponseInJson()
-            throws Exception
     {
         String privilegeName = Privileges.ADMIN_LIST_REPO.name();
         privilegesToAnonymousShouldBeAdded(MediaType.APPLICATION_JSON_VALUE, privilegeName);
@@ -277,7 +258,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testPrivilegesToAnonymousShouldBeAddedWithResponseInText()
-            throws Exception
     {
         String privilegeName = Privileges.ARTIFACTS_DEPLOY.name();
         privilegesToAnonymousShouldBeAdded(MediaType.TEXT_PLAIN_VALUE, privilegeName);
@@ -285,7 +265,6 @@ public class AuthorizationConfigControllerTest
 
     private void privilegesToAnonymousShouldNotBeAdded(String acceptHeader,
                                                        String privilegeName)
-            throws Exception
     {
         // assign privileges to anonymous user
         PrivilegeListForm privilegeListForm = new PrivilegeListForm();
@@ -298,7 +277,7 @@ public class AuthorizationConfigControllerTest
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(privilegeListForm)
                .when()
-               .post("/configuration/authorization/anonymous/privileges")
+               .post("/api/configuration/authorization/anonymous/privileges")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
@@ -307,7 +286,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testEmptyPrivilegeNameToAnonymousShouldNotBeAddedWithResponseInJson()
-            throws Exception
     {
         String privilegeName = "";
         privilegesToAnonymousShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, privilegeName);
@@ -315,7 +293,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testEmptyPrivilegeNameToAnonymousShouldNotBeAddedWithResponseInText()
-            throws Exception
     {
         String privilegeName = "";
         privilegesToAnonymousShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, privilegeName);
@@ -323,7 +300,6 @@ public class AuthorizationConfigControllerTest
 
     private void rolesToAnonymousShouldBeAdded(String acceptHeader,
                                                String roleName)
-            throws Exception
     {
         // assign roles to anonymous user
         RoleListForm roleListForm = new RoleListForm();
@@ -339,7 +315,7 @@ public class AuthorizationConfigControllerTest
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(roleListForm)
                .when()
-               .post("/configuration/authorization/anonymous/roles")
+               .post("/api/configuration/authorization/anonymous/roles")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
@@ -348,7 +324,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testRolesToAnonymousShouldBeAddedWithResponseInJson()
-            throws Exception
     {
         String roleName = "TEST_ROLE";
         rolesToAnonymousShouldBeAdded(MediaType.APPLICATION_JSON_VALUE, roleName);
@@ -356,7 +331,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testRolesToAnonymousShouldBeAddedWithResponseInText()
-            throws Exception
     {
         String roleName = "TEST_ROLE";
         rolesToAnonymousShouldBeAdded(MediaType.TEXT_PLAIN_VALUE, roleName);
@@ -364,7 +338,6 @@ public class AuthorizationConfigControllerTest
 
     private void rolesToAnonymousShouldNotBeAdded(String acceptHeader,
                                                   String roleName)
-            throws Exception
     {
         // assign roles to anonymous user
         RoleListForm roleListForm = new RoleListForm();
@@ -380,7 +353,7 @@ public class AuthorizationConfigControllerTest
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(roleListForm)
                .when()
-               .post("/configuration/authorization/anonymous/roles")
+               .post("/api/configuration/authorization/anonymous/roles")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
@@ -389,7 +362,6 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testEmptyRoleNameToAnonymousShouldNotBeAddedWithResponseInJson()
-            throws Exception
     {
         String roleName = "";
         rolesToAnonymousShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, roleName);
@@ -397,9 +369,9 @@ public class AuthorizationConfigControllerTest
 
     @Test
     public void testEmptyRoleNameToAnonymousShouldNotBeAddedWithResponseInText()
-            throws Exception
     {
         String roleName = "";
         rolesToAnonymousShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, roleName);
     }
+
 }

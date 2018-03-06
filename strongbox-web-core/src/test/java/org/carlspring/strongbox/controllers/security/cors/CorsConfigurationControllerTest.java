@@ -39,13 +39,13 @@ public class CorsConfigurationControllerTest
 
     private Map<String, CorsConfiguration> initialConfiguration;
 
-    private static final String url = "/configuration/cors";
+    private static final String url = "/api/configuration/cors";
+
 
     @Before
     public void before()
     {
-        initialConfiguration = new HashMap<>(
-                ((UrlBasedCorsConfigurationSource) corsConfigurationSource).getCorsConfigurations());
+        initialConfiguration = new HashMap<>(((UrlBasedCorsConfigurationSource) corsConfigurationSource).getCorsConfigurations());
     }
 
     @After
@@ -56,7 +56,6 @@ public class CorsConfigurationControllerTest
 
     @Test
     public void testUpdateWithEmptyCollectionAndJsonResponse()
-            throws Exception
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -81,7 +80,6 @@ public class CorsConfigurationControllerTest
 
     @Test
     public void testUpdateWithEmptyCollectionAndTextResponse()
-            throws Exception
     {
         given().accept(MediaType.TEXT_PLAIN_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -105,7 +103,6 @@ public class CorsConfigurationControllerTest
 
     @Test
     public void testAllowOneOrigin()
-            throws Exception
     {
         given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -129,7 +126,6 @@ public class CorsConfigurationControllerTest
 
     @Test
     public void testAllowAllOrigins()
-            throws Exception
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -154,7 +150,6 @@ public class CorsConfigurationControllerTest
 
     @Test
     public void testAllowMultipleOrigins()
-            throws Exception
     {
         given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -178,4 +173,5 @@ public class CorsConfigurationControllerTest
                .body("origins", hasSize(equalTo(4)))
                .body("origins", hasItem("https://google.com"));
     }
+
 }
