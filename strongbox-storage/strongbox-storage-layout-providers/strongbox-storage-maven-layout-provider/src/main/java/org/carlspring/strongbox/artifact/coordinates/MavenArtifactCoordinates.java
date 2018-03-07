@@ -4,6 +4,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 
 import java.util.Map;
 
+import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -18,6 +19,7 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 /**
  * @author carlspring
  */
+@Entity
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 public class MavenArtifactCoordinates extends AbstractArtifactCoordinates<MavenArtifactCoordinates, ComparableVersion>

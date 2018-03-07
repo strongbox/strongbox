@@ -80,10 +80,6 @@ public class UsersConfig
 
     private void doInit()
     {
-        // register all domain entities
-        oEntityManager.registerEntityClass(User.class);
-        oEntityManager.registerEntityClass(AccessModel.class);
-
         // remove all possible existing users (due to test executions with @Rollback(false) or another causes)
         // just to make sure
         userService.deleteAll();

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -16,7 +17,7 @@ import org.semver.Version;
  * @author Sergey Bespalov
  *
  */
-
+@Entity
 @XmlRootElement(name = "nugetArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 public class NugetArtifactCoordinates extends AbstractArtifactCoordinates<NugetArtifactCoordinates, Version>

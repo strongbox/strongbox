@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import javax.persistence.Entity;
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * @author carlspring
  */
+@Entity
 public class NullArtifactCoordinates
         extends AbstractArtifactCoordinates<NullArtifactCoordinates, NullArtifactCoordinates>
 {

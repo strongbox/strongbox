@@ -3,6 +3,7 @@ package org.carlspring.strongbox.cron.domain;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.xml.PropertiesAdapter;
 
+import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -16,6 +17,7 @@ import org.springframework.util.Assert;
 /**
  * @author Yougeshwar
  */
+@Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public class CronTaskConfiguration

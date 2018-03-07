@@ -100,10 +100,4 @@ public abstract class GenericEntity
         return objectId.hashCode();
     }
 
-    public void copyTrackingFields(final GenericEntity target)
-    {
-        target.entityVersion = this.entityVersion;
-        target.uuid = this.uuid;
-    }
-
 }

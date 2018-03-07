@@ -4,12 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.persistence.Entity;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.carlspring.strongbox.data.CacheManagerConfiguration;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
+
+import org.reflections.Reflections;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
@@ -60,6 +64,31 @@ public class DataServiceConfig
     
     @Inject
     protected SpringLiquibase springLiquibase;
+
+    @Inject
+    private TransactionTemplate transactionTemplate;
+
+    @Inject
+    private OEntityManager oEntityManager;
+
+    @PostConstruct
+    public void init()
+    {
+        transactionTemplate.execute((s) ->
+                                    {
+                                        doInit();
+                                        return null;
+                                    });
+    }
+
+    private void doInit()
+    {
+        // register all domain entities
+        new Reflections("org.carlspring.strongbox")
+                .getTypesAnnotatedWith(Entity.class)
+                .stream()
+                .forEach(oEntityManager::registerEntityClass);
+    }
     
     @Bean
     public PlatformTransactionManager transactionManager()

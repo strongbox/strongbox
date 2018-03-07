@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.domain;
 
+import javax.persistence.Entity;
 import java.io.Serializable;
 
 /**
  * @author Sergey Bespalov
  */
+@Entity
 public class RemoteArtifactEntry
         extends ArtifactEntry
         implements Serializable
