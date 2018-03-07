@@ -4,9 +4,12 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.support.ConfigurationReadException;
 import org.carlspring.strongbox.services.support.ConfigurationSaveException;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -17,6 +20,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfigurationFileManager
 {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileManager.class);
 
     private final GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
 
@@ -30,7 +35,13 @@ public class ConfigurationFileManager
     {
         try
         {
-            parser.store(configuration, getConfigurationResource().getFile());
+            Resource configurationResource = getConfigurationResource();
+            if (!configurationResource.isFile())
+            {
+                LOGGER.warn(String.format("Skip configuration resource store [%s]", configurationResource));
+                return;
+            }
+            parser.store(configuration, configurationResource.getFile());
         }
         catch (JAXBException | IOException e)
         {
@@ -40,9 +51,9 @@ public class ConfigurationFileManager
 
     public Configuration read()
     {
-        try
+        try(InputStream inputStream = getConfigurationResource().getInputStream())
         {
-            return parser.parse(getConfigurationResource().getFile());
+            return parser.parse(inputStream);
         }
         catch (JAXBException | IOException e)
         {

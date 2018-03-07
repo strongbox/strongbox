@@ -136,17 +136,17 @@ public class BrowseController extends BaseArtifactController
             
             Set<Entry<String, Repository>> repositories = storage.getRepositories().entrySet();
             
-            List<Path> repositoryPaths = new ArrayList<Path>();
-            
+            DirectoryContent content = new DirectoryContent();
+            content.setDirectories(new ArrayList<>());
+            content.setFiles(new ArrayList<>());
             for(Entry<String, Repository> entry : repositories)
             {
                 Repository repository = entry.getValue();
-                RepositoryProvider respositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-                Path repositoryBaseDir = respositoryProvider.resolvePath(storageId, repository.getId(), "");
-                repositoryPaths.add(repositoryBaseDir);
-            }
-                        
-            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(repositoryPaths);            
+                FileContent fileContent = new FileContent();
+                content.getDirectories().add(fileContent);
+                fileContent.setName(repository.getId());
+            }            
+            
             if (headers.getAccept().contains(MediaType.APPLICATION_JSON))
             {
                 return ResponseEntity.ok(objectMapper.writer().writeValueAsString(content));
