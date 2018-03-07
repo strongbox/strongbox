@@ -161,8 +161,10 @@ public class DataServiceConfig
 
     @Bean
     @DependsOn("orientDbServer")
-    public DataSource dataSource()
+    public DataSource dataSource() throws ClassNotFoundException
     {
+        Class.forName("com.orientechnologies.orient.jdbc.OrientJdbcDriver");
+        
         ServiceLoader.load(OSQLFunctionFactory.class);
         ServiceLoader.load(OCommandExecutorSQLFactory.class);
         
