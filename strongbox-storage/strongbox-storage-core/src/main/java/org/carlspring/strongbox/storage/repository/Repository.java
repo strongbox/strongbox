@@ -6,17 +6,20 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 
-import javax.persistence.Entity;
+import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.*;
 import java.io.File;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author mtodorov
  */
-@Entity
+@Embeddable
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "repository")
 public class Repository

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.users.domain;
 
-import javax.persistence.Entity;
+import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.*;
 
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Alex Oreshkevich
  */
-@Entity
+@Embeddable
 public class AccessModel
         implements Serializable
 {

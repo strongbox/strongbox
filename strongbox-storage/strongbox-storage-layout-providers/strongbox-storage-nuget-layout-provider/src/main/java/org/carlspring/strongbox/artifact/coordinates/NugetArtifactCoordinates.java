@@ -1,15 +1,14 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import java.net.URI;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.persistence.Entity;
+import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.net.URI;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.semver.Version;
 
@@ -17,10 +16,11 @@ import org.semver.Version;
  * @author Sergey Bespalov
  *
  */
-@Entity
+@Embeddable
 @XmlRootElement(name = "nugetArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
-public class NugetArtifactCoordinates extends AbstractArtifactCoordinates<NugetArtifactCoordinates, Version>
+public class NugetArtifactCoordinates
+        extends AbstractArtifactCoordinates<NugetArtifactCoordinates, Version>
 {
     public static final String ID = "id";
     public static final String VERSION = "version";

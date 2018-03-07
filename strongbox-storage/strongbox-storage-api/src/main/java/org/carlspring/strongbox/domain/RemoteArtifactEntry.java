@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.domain;
 
 import javax.persistence.Entity;
-import java.io.Serializable;
 
 /**
  * @author Sergey Bespalov
@@ -9,7 +8,6 @@ import java.io.Serializable;
 @Entity
 public class RemoteArtifactEntry
         extends ArtifactEntry
-        implements Serializable
 {
 
     private Boolean isCached = Boolean.FALSE;

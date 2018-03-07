@@ -3,9 +3,10 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.data.service.SingletonCrudService;
+import org.carlspring.strongbox.data.service.SingletonEntityProvider;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.ConfigurationService;
-import org.carlspring.strongbox.services.support.ConfigurationSaveException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 @Transactional
 @Service
 public class ConfigurationManagementServiceImpl
+        extends SingletonEntityProvider<Configuration, String>
         implements ConfigurationManagementService
 {
 
@@ -41,41 +43,29 @@ public class ConfigurationManagementServiceImpl
     @Inject
     private ConfigurationFileManager configurationFileManager;
 
+    @Override
+    public SingletonCrudService<Configuration, String> getService()
+    {
+        return configurationService;
+    }
 
     @Override
-    public void save(Configuration configuration)
+    protected void postSave(final Configuration configuration)
     {
-        if (configuration.getUuid() == null)
-        {
-            configurationService.deleteAll();
-        }
-        else
-        {
-            final Optional<Configuration> maybeDbConfiguration = configurationService.findOne();
-            if (maybeDbConfiguration.isPresent() &&
-                !Objects.equals(configuration.getUuid(), maybeDbConfiguration.get().getUuid()))
-            {
-                throw new ConfigurationSaveException("Only one configuration is allowed");
-            }
-        }
-
-        configurationService.save(configuration);
-
         configurationFileManager.store(configuration);
+    }
+
+    @Override
+    protected void postGet(final Configuration configuration)
+    {
+        setRepositoryStorageRelationships(configuration);
+        setAllows(configuration);
     }
 
     @Override
     public Configuration getConfiguration()
     {
-        final Optional<Configuration> maybeConfiguration = configurationService.findOne();
-        if (!maybeConfiguration.isPresent())
-        {
-            return null;
-        }
-
-        final Configuration configuration = maybeConfiguration.get();
-        postRead(configuration);
-        return configuration;
+        return get().orElse(null);
     }
 
     @Override
@@ -426,12 +416,6 @@ public class ConfigurationManagementServiceImpl
     public RoutingRules getRoutingRules()
     {
         return getConfiguration().getRoutingRules();
-    }
-
-    private void postRead(final Configuration configuration)
-    {
-        setRepositoryStorageRelationships(configuration);
-        setAllows(configuration);
     }
 
     private void setAllows(final Configuration configuration)

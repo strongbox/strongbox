@@ -44,7 +44,7 @@ public class AuthorizationConfigControllerTest
     @Before
     public void beforeEveryTest()
     {
-        Optional<AuthorizationConfig> configOptional = configProvider.getConfig();
+        Optional<AuthorizationConfig> configOptional = configProvider.get();
         // Saves original roles list.
         configOptional.ifPresent(authorizationConfig ->
                                          originalRoles = Sets.newHashSet(authorizationConfig.getRoles().getRoles()));
@@ -54,12 +54,12 @@ public class AuthorizationConfigControllerTest
     @After
     public void afterEveryTest()
     {
-        Optional<AuthorizationConfig> configOptional = configProvider.getConfig();
+        Optional<AuthorizationConfig> configOptional = configProvider.get();
         // Retrieve original roles list and updates the config.
         configOptional.ifPresent(authorizationConfig ->
                                  {
                                      authorizationConfig.getRoles().setRoles(originalRoles);
-                                     configProvider.updateConfig(authorizationConfig);
+                                     configProvider.save(authorizationConfig);
                                  }
         );
         configOptional.orElseThrow(() -> new RuntimeException("Unable to load config"));

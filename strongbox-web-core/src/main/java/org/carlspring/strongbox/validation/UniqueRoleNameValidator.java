@@ -29,7 +29,7 @@ public class UniqueRoleNameValidator
     @Override
     public void initialize(UniqueRoleName constraint)
     {
-        Optional<AuthorizationConfig> configOptional = configProvider.getConfig();
+        Optional<AuthorizationConfig> configOptional = configProvider.get();
         configOptional.ifPresent(authorizationConfig -> config = authorizationConfig);
     }
 

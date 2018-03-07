@@ -31,8 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * Spring configuration for all user-related code.
@@ -44,7 +42,8 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 @EnableTransactionManagement(proxyTargetClass = true,
                              order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
 @Import({ DataServiceConfig.class,
-          CommonConfig.class })
+          CommonConfig.class,
+          AuthoritiesConfig.class })
 public class UsersConfig
 {
 

@@ -1,14 +1,13 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import javax.persistence.Embeddable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.persistence.Entity;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.semver.Version;
 import org.springframework.util.Assert;
@@ -20,7 +19,7 @@ import org.springframework.util.Assert;
  * @author sbespalov
  *
  */
-@Entity
+@Embeddable
 @SuppressWarnings("serial")
 @XmlRootElement(name = "npmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)

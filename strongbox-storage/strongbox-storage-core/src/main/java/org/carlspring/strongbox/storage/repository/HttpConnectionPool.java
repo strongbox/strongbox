@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.repository;
 
-import javax.persistence.Entity;
+import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * @author korest
  */
-@Entity
+@Embeddable
 @XmlRootElement(name = "http-connection-pool")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HttpConnectionPool
