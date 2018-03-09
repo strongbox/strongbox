@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
-import org.carlspring.strongbox.controllers.security.login.LoginController;
-import org.carlspring.strongbox.controllers.security.login.LoginInput;
+import org.carlspring.strongbox.controllers.login.LoginController;
+import org.carlspring.strongbox.controllers.login.LoginInput;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
