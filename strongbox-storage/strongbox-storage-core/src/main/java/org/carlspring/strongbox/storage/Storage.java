@@ -4,6 +4,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 
+import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -18,13 +19,14 @@ import java.util.Map;
 /**
  * @author mtodorov
  */
+@Entity
 @XmlRootElement(name = "storage")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Storage
         implements Serializable
 {
 
-    @XmlAttribute
+    @XmlAttribute(required = true)
     private String id;
     
     @XmlAttribute

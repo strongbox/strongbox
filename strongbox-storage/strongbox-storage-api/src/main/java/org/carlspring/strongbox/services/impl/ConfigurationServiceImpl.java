@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.configuration.BinaryConfiguration;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.data.service.CommonCrudService;
-import org.carlspring.strongbox.services.BinaryConfigurationService;
+import org.carlspring.strongbox.services.ConfigurationService;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -15,26 +15,26 @@ import org.springframework.stereotype.Service;
  */
 @Transactional
 @Service
-public class BinaryConfigurationServiceImpl
-        extends CommonCrudService<BinaryConfiguration>
-        implements BinaryConfigurationService
+public class ConfigurationServiceImpl
+        extends CommonCrudService<Configuration>
+        implements ConfigurationService
 {
 
     @Override
-    public Class<BinaryConfiguration> getEntityClass()
+    public Class<Configuration> getEntityClass()
     {
-        return BinaryConfiguration.class;
+        return Configuration.class;
     }
 
     @Override
-    public Optional<BinaryConfiguration> findOne()
+    public Optional<Configuration> findOne()
     {
-        final Optional<List<BinaryConfiguration>> all = findAll();
+        final Optional<List<Configuration>> all = findAll();
         if (!all.isPresent())
         {
             return Optional.empty();
         }
-        final List<BinaryConfiguration> configurations = all.get();
+        final List<Configuration> configurations = all.get();
         if (configurations.size() != 1)
         {
             throw new IllegalStateException("Found more than one Configuration");

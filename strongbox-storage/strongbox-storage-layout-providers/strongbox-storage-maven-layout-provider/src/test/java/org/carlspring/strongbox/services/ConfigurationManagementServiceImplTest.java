@@ -3,7 +3,6 @@ package org.carlspring.strongbox.services;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
@@ -18,7 +17,6 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.*;
 
-import com.google.common.collect.Sets;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import org.junit.After;
 import org.junit.Before;

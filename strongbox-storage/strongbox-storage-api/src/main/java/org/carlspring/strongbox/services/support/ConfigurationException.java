@@ -11,4 +11,9 @@ public abstract class ConfigurationException
     {
         super(cause);
     }
+
+    public ConfigurationException(final String message)
+    {
+        super(message);
+    }
 }

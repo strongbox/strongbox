@@ -59,6 +59,8 @@
     <logger name="org.apache.http" level="ERROR"/>
     <logger name="org.glassfish.jersey" level="ERROR"/>
 
+    <logger name="org.reflections" level="ERROR"/>
+
     <!-- ApacheDS -->
     <logger name="org.apache.directory" level="ERROR"/>
     <logger name="org.apache.mina" level="ERROR"/>

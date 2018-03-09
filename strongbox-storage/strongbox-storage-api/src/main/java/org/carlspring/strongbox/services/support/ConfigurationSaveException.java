@@ -11,4 +11,9 @@ public class ConfigurationSaveException
     {
         super(cause);
     }
+
+    public ConfigurationSaveException(final String message)
+    {
+        super(message);
+    }
 }

@@ -1,12 +1,10 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.configuration.ConfigurationFileManager;
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 
@@ -18,12 +16,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -55,6 +51,14 @@ public class StorageApiConfig
     @Inject
     private TransactionTemplate transactionTemplate;
 
+    @Inject
+    private ConfigurationFileManager configurationFileManager;
+
+    @Inject
+    private ConfigurationManagementService configurationManagementService;
+
+    @Inject
+    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     @PostConstruct
     public void init()
@@ -68,11 +72,9 @@ public class StorageApiConfig
 
     private void doInit()
     {
-        // register all domain entities
-        oEntityManager.registerEntityClass(ArtifactEntry.class);
-        oEntityManager.registerEntityClass(RemoteArtifactEntry.class);
-        oEntityManager.registerEntityClass(ArtifactTagEntry.class);
-        oEntityManager.registerEntityClass(NullArtifactCoordinates.class);
+        final org.carlspring.strongbox.configuration.Configuration configuration = configurationFileManager.read();
+        setProxyRepositoryConnectionPoolConfigurations(configuration);
+        configurationManagementService.save(configuration);
     }
 
     @Bean(name = "checksumCacheManager")
@@ -101,6 +103,20 @@ public class StorageApiConfig
     StorageBooter getStorageBooter()
     {
         return new StorageBooter();
+    }
+
+
+    private void setProxyRepositoryConnectionPoolConfigurations(final org.carlspring.strongbox.configuration.Configuration configuration)
+    {
+        configuration.getStorages().values().stream()
+                     .filter(storage -> MapUtils.isNotEmpty(storage.getRepositories()))
+                     .flatMap(storage -> storage.getRepositories().values().stream())
+                     .filter(repository -> repository.getHttpConnectionPool() != null &&
+                                           repository.getRemoteRepository() != null &&
+                                           repository.getRemoteRepository().getUrl() != null)
+                     .forEach(repository -> proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
+                             repository.getRemoteRepository().getUrl(),
+                             repository.getHttpConnectionPool().getAllocatedConnections()));
     }
 
 }
