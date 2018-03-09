@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.controllers;
 
-import org.apache.commons.io.FileUtils;
 import org.carlspring.logging.exceptions.AppenderNotFoundException;
 import org.carlspring.logging.exceptions.LoggerNotFoundException;
 import org.carlspring.logging.exceptions.LoggingConfigurationException;
@@ -10,7 +9,6 @@ import org.carlspring.strongbox.data.PropertyUtils;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +28,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -85,15 +84,13 @@ public class LoggingManagementController
         {
             loggingManagementService.addLogger(loggerPackage, level, appenderName);
 
-            return ResponseEntity.ok(getResponseEntityBody("The logger was added successfully.", accept));
+            return getSuccessfulResponseEntity("The logger was added successfully.", accept);
         }
         catch (LoggingConfigurationException | AppenderNotFoundException e)
         {
             String message = "Could not add a new logger.";
 
-            logger.error(message, e);
-
-            return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
+            return getExceptionResponseEntity(BAD_REQUEST, message, e, accept);
         }
     }
 
@@ -116,22 +113,18 @@ public class LoggingManagementController
         {
             loggingManagementService.updateLogger(loggerPackage, level);
 
-            return ResponseEntity.ok(getResponseEntityBody("The logger was updated successfully.", accept));
+            return getSuccessfulResponseEntity("The logger was updated successfully.", accept);
         }
         catch (LoggingConfigurationException e)
         {
             String message = "Could not update logger.";
-            logger.error(message, e);
 
-            return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
+            return getExceptionResponseEntity(BAD_REQUEST, message, e, accept);
         }
         catch (LoggerNotFoundException e)
         {
             String message = "Logger '" + loggerPackage + "' not found!";
-            
-            logger.error(message, e);
-
-            return ResponseEntity.status(NOT_FOUND).body(getResponseEntityBody(message, accept));
+            return getExceptionResponseEntity(NOT_FOUND, message, e, accept);
         }
     }
 
@@ -151,7 +144,7 @@ public class LoggingManagementController
         {
             loggingManagementService.deleteLogger(loggerPackage);
 
-            return ResponseEntity.ok(getResponseEntityBody("The logger was deleted successfully.", accept));
+            return getSuccessfulResponseEntity("The logger was deleted successfully.", accept);
         }
         catch (LoggingConfigurationException e)
         {
@@ -164,9 +157,8 @@ public class LoggingManagementController
         catch (LoggerNotFoundException e)
         {
             String message = "Logger '" + loggerPackage + "' not found!";
-            logger.error(message, e);
 
-            return ResponseEntity.status(NOT_FOUND).body(getResponseEntityBody(message, accept));
+            return getExceptionResponseEntity(NOT_FOUND, message, e, accept);
         }
     }
 
@@ -238,15 +230,12 @@ public class LoggingManagementController
         {
             loggingManagementService.uploadLogbackConfiguration(request.getInputStream());
 
-            return ResponseEntity.ok(getResponseEntityBody("Logback configuration uploaded successfully.", accept));
+            return getSuccessfulResponseEntity("Logback configuration uploaded successfully.", accept);
         }
         catch (IOException | LoggingConfigurationException e)
         {
             String message = "Could not upload logback configuration.";
-            
-            logger.error(message, e);
-
-            return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
+            return getExceptionResponseEntity(BAD_REQUEST, message, e, accept);
         }
     }
 
