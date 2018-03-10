@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers;
+package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -31,7 +31,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
  */
 @IntegrationTest
 @RunWith(SpringRunner.class)
-public class HttpConnectionPoolConfigurationManagementControllerTest
+public class HttpConnectionPoolConfigurationManagementControllerTestIT
         extends RestAssuredBaseTest
 {
 
