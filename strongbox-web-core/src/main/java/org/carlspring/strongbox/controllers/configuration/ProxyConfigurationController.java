@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.controllers.BaseController;
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.support.ConfigurationException;
 
+import javax.inject.Inject;
+
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,16 +25,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/api/configuration/strongbox/proxy-configuration")
 @Api(value = "/api/configuration/strongbox/proxy-configuration")
 public class ProxyConfigurationController
-        extends BaseController
+        extends BaseConfigurationController
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(ProxyConfigurationController.class);
-
-    private final ConfigurationManagementService configurationManagementService;
 
     public ProxyConfigurationController(ConfigurationManagementService configurationManagementService)
     {
-        this.configurationManagementService = configurationManagementService;
+        super(configurationManagementService);
     }
 
     @ApiOperation(value = "Updates the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")

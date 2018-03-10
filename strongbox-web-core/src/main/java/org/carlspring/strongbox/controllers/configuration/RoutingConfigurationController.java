@@ -1,13 +1,10 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 
 import io.swagger.annotations.Api;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +18,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/configuration/strongbox/routing")
 @Api(value = "/api/configuration/strongbox/routing")
 public class RoutingConfigurationController
-        extends BaseController
+        extends BaseConfigurationController
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(RoutingConfigurationController.class);
-
-    private final ConfigurationManagementService configurationManagementService;
 
     public RoutingConfigurationController(ConfigurationManagementService configurationManagementService)
     {
-        this.configurationManagementService = configurationManagementService;
+        super(configurationManagementService);
     }
 
     @RequestMapping(value = "/rules",

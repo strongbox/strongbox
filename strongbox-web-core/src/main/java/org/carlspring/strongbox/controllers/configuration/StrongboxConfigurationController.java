@@ -1,13 +1,10 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.support.ConfigurationException;
 
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,18 +21,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/api/configuration/strongbox/xml")
 @Api(value = "/api/configuration/strongbox/xml")
 public class StrongboxConfigurationController
-        extends BaseController
+        extends BaseConfigurationController
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(StrongboxConfigurationController.class);
-
-    private final ConfigurationManagementService configurationManagementService;
 
     public StrongboxConfigurationController(ConfigurationManagementService configurationManagementService)
     {
-        this.configurationManagementService = configurationManagementService;
+        super(configurationManagementService);
     }
-
 
     @ApiOperation(value = "Upload a strongbox.xml and reload the server's configuration.")
     @ApiResponses(value = { @ApiResponse(code = 200,

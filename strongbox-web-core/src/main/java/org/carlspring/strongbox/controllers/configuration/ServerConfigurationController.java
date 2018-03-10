@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
 import org.carlspring.strongbox.controllers.support.PortEntityBody;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -10,8 +8,6 @@ import org.carlspring.strongbox.services.support.ConfigurationException;
 import java.io.IOException;
 
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,16 +23,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/configuration/strongbox")
 @Api(value = "/api/configuration/strongbox")
 public class ServerConfigurationController
-        extends BaseController
+        extends BaseConfigurationController
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(ServerConfigurationController.class);
-
-    private final ConfigurationManagementService configurationManagementService;
 
     public ServerConfigurationController(ConfigurationManagementService configurationManagementService)
     {
-        this.configurationManagementService = configurationManagementService;
+        super(configurationManagementService);
     }
 
     @ApiOperation(value = "Updates the base URL of the service.")
