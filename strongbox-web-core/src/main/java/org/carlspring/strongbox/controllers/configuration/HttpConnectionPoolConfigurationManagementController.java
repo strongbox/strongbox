@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.controllers.support.NumberOfConnectionsEntityBody;
 import org.carlspring.strongbox.controllers.support.PoolStatsEntityBody;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
@@ -33,20 +32,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/configuration/proxy/connection-pool")
 @Api(value = "/api/configuration/proxy/connection-pool")
 public class HttpConnectionPoolConfigurationManagementController
-        extends BaseController
+        extends BaseConfigurationController
 {
-
-    private final ConfigurationManagementService configurationManagementService;
-
     private final ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     public HttpConnectionPoolConfigurationManagementController(ConfigurationManagementService configurationManagementService,
                                                                ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService)
     {
-        this.configurationManagementService = configurationManagementService;
+        super(configurationManagementService);
         this.proxyRepositoryConnectionPoolConfigurationService = proxyRepositoryConnectionPoolConfigurationService;
     }
-
 
     @ApiOperation(value = "Update number of pool connections pool for proxy repository")
     @ApiResponses(value = { @ApiResponse(code = 200,

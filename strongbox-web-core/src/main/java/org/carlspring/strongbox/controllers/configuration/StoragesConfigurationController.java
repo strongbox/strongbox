@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -15,8 +14,6 @@ import java.io.File;
 import java.io.IOException;
 
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,12 +28,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/configuration/strongbox/storages")
 @Api(value = "/api/configuration/strongbox/storages")
 public class StoragesConfigurationController
-        extends BaseController
+        extends BaseConfigurationController
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(StoragesConfigurationController.class);
-
-    private final ConfigurationManagementService configurationManagementService;
 
     private final StorageManagementService storageManagementService;
 
@@ -49,7 +42,7 @@ public class StoragesConfigurationController
                                            RepositoryManagementService repositoryManagementService,
                                            RepositoryIndexManager repositoryIndexManager)
     {
-        this.configurationManagementService = configurationManagementService;
+        super(configurationManagementService);
         this.storageManagementService = storageManagementService;
         this.repositoryManagementService = repositoryManagementService;
         this.repositoryIndexManager = repositoryIndexManager;
@@ -277,7 +270,7 @@ public class StoragesConfigurationController
                     repositoryManagementService.removeRepository(storageId, repository.getId());
                 }
 
-                Configuration configuration = configurationManagementService.getConfiguration();
+                Configuration configuration = getConfiguration();
                 Storage storage = configuration.getStorage(storageId);
                 storage.removeRepository(repositoryId);
 
