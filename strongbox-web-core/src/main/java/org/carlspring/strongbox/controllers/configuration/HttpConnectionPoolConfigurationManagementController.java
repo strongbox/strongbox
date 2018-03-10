@@ -1,5 +1,6 @@
-package org.carlspring.strongbox.controllers;
+package org.carlspring.strongbox.controllers.configuration;
 
+import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.controllers.support.NumberOfConnectionsEntityBody;
 import org.carlspring.strongbox.controllers.support.PoolStatsEntityBody;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
@@ -7,7 +8,6 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
@@ -36,11 +36,16 @@ public class HttpConnectionPoolConfigurationManagementController
         extends BaseController
 {
 
-    @Inject
-    private ConfigurationManagementService configurationManagementService;
+    private final ConfigurationManagementService configurationManagementService;
 
-    @Inject
-    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+    private final ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+
+    public HttpConnectionPoolConfigurationManagementController(ConfigurationManagementService configurationManagementService,
+                                                               ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService)
+    {
+        this.configurationManagementService = configurationManagementService;
+        this.proxyRepositoryConnectionPoolConfigurationService = proxyRepositoryConnectionPoolConfigurationService;
+    }
 
 
     @ApiOperation(value = "Update number of pool connections pool for proxy repository")
@@ -50,7 +55,7 @@ public class HttpConnectionPoolConfigurationManagementController
                                          message = "Repository doesn't have remote repository!"),
                             @ApiResponse(code = 404,
                                     message = "The (storage/repository) does not exist!") })
-    @PutMapping(value = "{storageId}/{repositoryId}/{numberOfConnections}",
+    @PutMapping(value = "/{storageId}/{repositoryId}/{numberOfConnections}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setNumberOfConnectionsForProxyRepository(@PathVariable(value = "storageId") String storageId,
@@ -99,7 +104,7 @@ public class HttpConnectionPoolConfigurationManagementController
                                          message = "Repository doesn't have remote repository!"),
                             @ApiResponse(code = 404,
                                     message = "The (storage/repository) does not exist!") })
-    @GetMapping(value = "{storageId}/{repositoryId}",
+    @GetMapping(value = "/{storageId}/{repositoryId}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getPoolStatsForProxyRepository(@PathVariable(value = "storageId") String storageId,
@@ -139,7 +144,7 @@ public class HttpConnectionPoolConfigurationManagementController
                                          message = "Default number of connections for proxy repository was updated successfully."),
                             @ApiResponse(code = 400,
                                          message = "Could not update default number of connections for proxy repository.") })
-    @PutMapping(value = "default/{numberOfConnections}",
+    @PutMapping(value = "/default/{numberOfConnections}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setDefaultNumberOfConnectionsForProxyRepository(@PathVariable(value = "numberOfConnections")
@@ -156,7 +161,7 @@ public class HttpConnectionPoolConfigurationManagementController
                                          message = "Default number of connections was retrieved."),
                             @ApiResponse(code = 400,
                                          message = "Could not get default number of connections for proxy repository.") })
-    @GetMapping(value = "default-number",
+    @GetMapping(value = "/default-number",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getDefaultNumberOfConnectionsForProxyRepository(@RequestHeader(HttpHeaders.ACCEPT) String accept)
@@ -170,7 +175,7 @@ public class HttpConnectionPoolConfigurationManagementController
                                          message = "Max number of connections for proxy repository was updated successfully."),
                             @ApiResponse(code = 400,
                                          message = "Could not update max number of connections for proxy repository.") })
-    @PutMapping(value = "max/{numberOfConnections}",
+    @PutMapping(value = "/max/{numberOfConnections}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setMaxNumberOfConnectionsForProxyRepository(@PathVariable(value = "numberOfConnections")
