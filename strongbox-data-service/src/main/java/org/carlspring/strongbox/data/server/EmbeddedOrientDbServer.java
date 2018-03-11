@@ -179,7 +179,8 @@ public class EmbeddedOrientDbServer implements OrientDbServer, Condition
                            AnnotatedTypeMetadata metadata)
 
     {
-        return ConnectionConfigOrientDB.resolveProtocol(conditionContext.getEnvironment()).equals("remote");
+        return ConnectionConfigOrientDB.resolveProfile(conditionContext.getEnvironment())
+                                       .equals(ConnectionConfigOrientDB.PROFILE_EMBEDDED);
     }
 
 }
