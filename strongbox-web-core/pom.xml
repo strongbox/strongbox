@@ -762,6 +762,16 @@
                                             <outputDirectory>${dir.strongbox.home}</outputDirectory>
                                             <includes>etc/conf/strongbox.xml</includes>
                                         </artifactItem>
+                                        <artifactItem>
+                                            <groupId>${project.groupId}</groupId>
+                                            <artifactId>strongbox-user-management</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${dir.strongbox.home}</outputDirectory>
+                                            <includes>etc/conf/strongbox-authorization.xml</includes>
+                                        </artifactItem>
                                     </artifactItems>
                                 </configuration>
                             </execution>
@@ -881,6 +891,10 @@
                                 <systemProperty>
                                     <name>strongbox.config.xml</name>
                                     <value>${dir.strongbox.home}/etc/conf/strongbox.xml</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>authorization.config.xml</name>
+                                    <value>${dir.strongbox.home}/etc/conf/strongbox-authorization.xml</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <name>strongbox.storage.booter.basedir</name>
