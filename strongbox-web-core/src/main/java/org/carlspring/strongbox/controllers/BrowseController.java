@@ -2,8 +2,7 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.domain.DirectoryContent;
 import org.carlspring.strongbox.domain.FileContent;
-import org.carlspring.strongbox.providers.repository.RepositoryProvider;
-import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.DirectoryContentFetcher;
 import org.carlspring.strongbox.storage.Storage;
@@ -12,19 +11,15 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
@@ -64,9 +59,6 @@ public class BrowseController extends BaseArtifactController
 
     @Inject
     private ArtifactResolutionService artifactResolutionService;
-    
-    @Inject
-    private RepositoryProviderRegistry repositoryProviderRegistry;
     
     @ApiOperation(value = "List configured storages.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
@@ -199,11 +191,9 @@ public class BrowseController extends BaseArtifactController
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body("{ 'error': 'The requested repository was not found.' }");
             }
-                      
-            RepositoryProvider respositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-            Path dirPath = respositoryProvider.resolvePath(storageId, repositoryId, path);
-                                    
-            if (dirPath == null || !Files.exists(dirPath))
+
+            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
+            if (repositoryPath == null || !Files.exists(repositoryPath))
             {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body("{ 'error': 'The requested repository path was not found.' }");
@@ -216,14 +206,14 @@ public class BrowseController extends BaseArtifactController
                 return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                         .body("{ 'error': 'Repository is not in service.' }");
             }
-            
-            if (!repository.allowsDirectoryBrowsing() || !probeForDirectoryListing(repository, path))
+
+            if (!repository.allowsDirectoryBrowsing() || !probeForDirectoryListing(repositoryPath))
             {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body("{ 'error': 'Requested repository doesn't allow browsing.' }");
             }
             
-            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(dirPath);
+            DirectoryContent content = directoryContentFetcher.fetchDirectoryContent(repositoryPath);
             
             if (headers.getAccept().contains(MediaType.APPLICATION_JSON))
             {
@@ -362,39 +352,20 @@ public class BrowseController extends BaseArtifactController
 
         return true;
     }
-    
-    protected boolean probeForDirectoryListing(Repository repository,
-                                               String path)
+
+    protected boolean probeForDirectoryListing(final RepositoryPath repositoryPath)
+            throws IOException
     {
-        String filePath = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
-
-        String dir = repository.getBasedir() + File.separator + filePath;
-
-        File file = new File(dir);
-
-        // Do not allow .index and .trash directories (or any other directory starting with ".") to be browseable.
-        // NB: Files will still be downloadable.
-        if (isPermittedForDirectoryListing(file, path))
-        {
-            if (file.exists() && file.isDirectory())
-            {
-                return true;
-            }
-
-            file = new File(dir + File.separator);
-
-            return file.exists() && file.isDirectory();
-        }
-        else
-        {
-            return false;
-        }
+        return Files.exists(repositoryPath) &&
+               Files.isDirectory(repositoryPath) &&
+               isPermittedForDirectoryListing(repositoryPath);
     }
-    
-    protected boolean isPermittedForDirectoryListing(File file,
-                                                     String path)
+
+    protected boolean isPermittedForDirectoryListing(final RepositoryPath repositoryPath)
+            throws IOException
     {
-        return path.startsWith(".index") || (!file.isHidden() && !path.startsWith(".") && !path.contains("/."));        
+        final String relativePath = repositoryPath.relativize().toString();
+        return relativePath.startsWith(".index") || (!Files.isHidden(repositoryPath) && !relativePath.startsWith(".") && !relativePath.contains("/."));
     }
     
 }
