@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.repository.remote;
 
-import javax.persistence.Entity;
+import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -12,7 +12,7 @@ import static org.carlspring.strongbox.configuration.RemoteRepositoriesConfigura
 /**
  * @author mtodorov
  */
-@Entity
+@Embeddable
 @XmlRootElement(name = "remote-repository")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RemoteRepository

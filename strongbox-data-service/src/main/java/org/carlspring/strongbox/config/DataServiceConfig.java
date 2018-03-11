@@ -1,30 +1,29 @@
 package org.carlspring.strongbox.config;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ServiceLoader;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.persistence.Entity;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-
 import org.carlspring.strongbox.data.CacheManagerConfiguration;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.stream.Stream;
+
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.core.sql.OCommandExecutorSQLFactory;
+import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
+import liquibase.integration.spring.SpringLiquibase;
 import org.reflections.Reflections;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -32,12 +31,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.core.sql.OCommandExecutorSQLFactory;
-import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
-
-import liquibase.integration.spring.SpringLiquibase;
 
 /**
  * Spring configuration for data service project.
@@ -84,10 +77,9 @@ public class DataServiceConfig
     private void doInit()
     {
         // register all domain entities
-        new Reflections("org.carlspring.strongbox")
-                .getTypesAnnotatedWith(Entity.class)
-                .stream()
-                .forEach(oEntityManager::registerEntityClass);
+        Stream.concat(new Reflections("org.carlspring.strongbox").getTypesAnnotatedWith(Entity.class).stream(),
+                      new Reflections("org.carlspring.strongbox").getTypesAnnotatedWith(Embeddable.class).stream())
+              .forEach(oEntityManager::registerEntityClass);
     }
     
     @Bean

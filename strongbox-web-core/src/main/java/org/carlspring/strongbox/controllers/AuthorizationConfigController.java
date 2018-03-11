@@ -114,7 +114,7 @@ public class AuthorizationConfigController
 
         if (result)
         {
-            configProvider.updateConfig(config);
+            configProvider.save(config);
         }
     }
 
@@ -170,7 +170,7 @@ public class AuthorizationConfigController
             config.getRoles()
                   .getRoles()
                   .remove(target);
-            configProvider.updateConfig(config);
+            configProvider.save(config);
 
             // revoke role from every user that exists in the system
             getAllUsers().forEach(user ->
@@ -276,7 +276,7 @@ public class AuthorizationConfigController
                                          CustomSuccessResponseBuilder customSuccessResponseBuilder,
                                          String acceptHeader)
     {
-        Optional<AuthorizationConfig> configOptional = configProvider.getConfig();
+        Optional<AuthorizationConfig> configOptional = configProvider.get();
 
         if (configOptional.isPresent())
         {

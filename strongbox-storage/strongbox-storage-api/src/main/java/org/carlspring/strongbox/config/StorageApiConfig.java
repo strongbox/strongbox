@@ -10,12 +10,9 @@ import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import com.orientechnologies.orient.core.entity.OEntityManager;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -41,12 +38,6 @@ public class StorageApiConfig
 
     @Inject
     private List<ArtifactCoordinatesValidator> versionValidators;
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    @Inject
-    private OEntityManager oEntityManager;
 
     @Inject
     private TransactionTemplate transactionTemplate;

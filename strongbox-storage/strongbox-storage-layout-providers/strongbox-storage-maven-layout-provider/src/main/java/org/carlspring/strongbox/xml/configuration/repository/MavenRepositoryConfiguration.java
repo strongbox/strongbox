@@ -2,7 +2,7 @@ package org.carlspring.strongbox.xml.configuration.repository;
 
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 
-import javax.persistence.Entity;
+import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author carlspring
  */
-@Entity
+@Embeddable
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "maven-repository-configuration")
 public class MavenRepositoryConfiguration

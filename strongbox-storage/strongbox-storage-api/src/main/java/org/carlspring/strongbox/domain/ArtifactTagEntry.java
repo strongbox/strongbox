@@ -1,19 +1,20 @@
 package org.carlspring.strongbox.domain;
 
-import java.io.Serializable;
-
-import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import javax.persistence.Entity;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Sergey Bespalov
  *
  */
 @Entity
-public class ArtifactTagEntry extends GenericEntity implements ArtifactTag, Serializable
+public class ArtifactTagEntry
+        extends GenericEntity
+        implements ArtifactTag
 {
 
     private String name;

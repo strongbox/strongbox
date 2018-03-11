@@ -2,7 +2,7 @@ package org.carlspring.strongbox.storage.routing;
 
 import org.carlspring.strongbox.xml.RuleSetMapAdapter;
 
-import javax.persistence.Entity;
+import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * @author mtodorov
  */
-@Entity
+@Embeddable
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "routing-rules")
 public class RoutingRules

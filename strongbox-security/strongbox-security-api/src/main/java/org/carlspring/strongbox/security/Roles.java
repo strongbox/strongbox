@@ -1,19 +1,18 @@
 package org.carlspring.strongbox.security;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
+import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
-import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * @author mtodorov
  */
-@Entity
+@Embeddable
 @XmlRootElement(name = "roles")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Roles
