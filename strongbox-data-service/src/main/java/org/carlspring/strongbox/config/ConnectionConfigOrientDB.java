@@ -14,7 +14,7 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionConfigOrientDB.class);
 
-    public static final String PROPERTY_PROFILE = "orientdb.profile";
+    public static final String PROPERTY_PROFILE = "strongbox.orientdb.profile";
 
     public static final String PROFILE_MEMORY = "orientdb_MEMORY";
     public static final String PROFILE_EMBEDDED = "orientdb_EMBEDDED";

@@ -907,7 +907,7 @@
                                     <value>${dir.strongbox.home}/etc/ssl/truststore.jks</value>
                                 </systemProperty>
                                 <systemProperty>
-                                    <name>orientdb.profile</name>
+                                    <name>strongbox.orientdb.profile</name>
                                     <value>orientdb_MEMORY</value>
                                 </systemProperty>
                                 <systemProperty>
