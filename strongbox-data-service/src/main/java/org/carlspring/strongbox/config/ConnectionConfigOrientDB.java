@@ -20,8 +20,6 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
     public static final String PROFILE_EMBEDDED = "orientdb_EMBEDDED";
     public static final String PROFILE_REMOTE = "orientdb_REMOTE";
 
-    private static final String PROPERTY_PROTOCOL = "strongbox.orientdb.protocol";
-
     @Value("${strongbox.orientdb.protocol:}")
     private String protocol;
 
