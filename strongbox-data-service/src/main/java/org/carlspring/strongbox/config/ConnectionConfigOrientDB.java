@@ -12,14 +12,13 @@ import org.springframework.core.env.Environment;
 public class ConnectionConfigOrientDB implements ConnectionConfig
 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionConfigOrientDB.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConnectionConfigOrientDB.class);
 
-    public static final String PROPERTY_PROFILE = "orientdb.profile";
+    public static final String PROPERTY_PROFILE = "strongbox.orientdb.profile";
 
     public static final String PROFILE_MEMORY = "orientdb_MEMORY";
+    public static final String PROFILE_EMBEDDED = "orientdb_EMBEDDED";
     public static final String PROFILE_REMOTE = "orientdb_REMOTE";
-
-    private static final String PROPERTY_PROTOCOL = "strongbox.orientdb.protocol";
 
     @Value("${strongbox.orientdb.protocol:}")
     private String protocol;
@@ -116,25 +115,17 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
         this.password = password;
     }
 
-    public static String resolveProtocol(Environment environment)
+    public static String resolveProfile(Environment environment)
     {
-        return environment.getProperty(PROPERTY_PROTOCOL, "memory");
+        return environment.getProperty(PROPERTY_PROFILE, PROFILE_MEMORY);
     }
 
-    public static void bootstrap(String profile)
+    public static void bootstrap()
         throws IOException
     {
-        if (System.getProperty(PROPERTY_PROFILE) != null)
-        {
-            LOGGER.info(String.format("Can't override already provided OrientDB connection profile, skip profile [%s] bootstrap.",
-                                      profile));
-            return;
-        }
-
-        LOGGER.info(String.format("Bootstrap OrientDB connection properties with profile [%s].",
+        String profile = System.getProperty(PROPERTY_PROFILE, PROFILE_MEMORY);
+        logger.info(String.format("Bootstrap OrientDB connection properties with profile [%s].",
                                   profile));
-
-        System.setProperty(PROPERTY_PROFILE, profile);
 
         try (InputStream is = ConnectionConfigOrientDB.class.getResourceAsStream(String.format("/%s.properties",
                                                                                                profile)))
@@ -145,13 +136,13 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
             properties.keySet()
                       .stream()
                       .forEach(p -> {
-                          if (System.getProperty((String) p) == null)
+                          if (System.getProperty((String) p) != null)
                           {
-                              System.setProperty((String) p, properties.getProperty((String) p));
                               return;
                           }
-                          LOGGER.info(String.format("Can't override already provided OrientDB connection property [%s].",
+                          logger.info(String.format("Use default value for OrientDB connection property [%s].",
                                                     p));
+                          System.setProperty((String) p, properties.getProperty((String) p));
                       });
         }
 

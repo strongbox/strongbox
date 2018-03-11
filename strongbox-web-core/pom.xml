@@ -906,7 +906,18 @@
                                     <name>strongbox.truststore.jks</name>
                                     <value>${dir.strongbox.home}/etc/ssl/truststore.jks</value>
                                 </systemProperty>
-
+                                <systemProperty>
+                                    <name>strongbox.orientdb.profile</name>
+                                    <value>orientdb_MEMORY</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>strongbox.nuget.download.feed</name>
+                                    <value>false</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>strongbox.download.indexes</name>
+                                    <value>false</value>
+                                </systemProperty>
                             </systemProperties>
 
                             <!-- Restore the following for SSL/HTTPSL when the time comes:

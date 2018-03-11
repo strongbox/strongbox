@@ -20,7 +20,7 @@ public class DataServicePropertiesConfig
     public ConnectionConfig connectionConfig()
         throws IOException
     {
-        ConnectionConfigOrientDB.bootstrap(ConnectionConfigOrientDB.PROFILE_MEMORY);
+        ConnectionConfigOrientDB.bootstrap();
 
         return new ConnectionConfigOrientDB();
     }
