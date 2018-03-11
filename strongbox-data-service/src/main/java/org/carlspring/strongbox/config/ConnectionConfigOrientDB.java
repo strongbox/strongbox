@@ -12,7 +12,7 @@ import org.springframework.core.env.Environment;
 public class ConnectionConfigOrientDB implements ConnectionConfig
 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionConfigOrientDB.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConnectionConfigOrientDB.class);
 
     public static final String PROPERTY_PROFILE = "strongbox.orientdb.profile";
 
@@ -124,7 +124,7 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
         throws IOException
     {
         String profile = System.getProperty(PROPERTY_PROFILE, PROFILE_MEMORY);
-        LOGGER.info(String.format("Bootstrap OrientDB connection properties with profile [%s].",
+        logger.info(String.format("Bootstrap OrientDB connection properties with profile [%s].",
                                   profile));
 
         try (InputStream is = ConnectionConfigOrientDB.class.getResourceAsStream(String.format("/%s.properties",
@@ -140,7 +140,7 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
                           {
                               return;
                           }
-                          LOGGER.info(String.format("Use default value for OrientDB connection property [%s].",
+                          logger.info(String.format("Use default value for OrientDB connection property [%s].",
                                                     p));
                           System.setProperty((String) p, properties.getProperty((String) p));
                       });
