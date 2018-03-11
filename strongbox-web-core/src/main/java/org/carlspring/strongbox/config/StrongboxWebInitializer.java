@@ -53,13 +53,14 @@ public class StrongboxWebInitializer
 
         try
         {
-            ConnectionConfigOrientDB.bootstrap(ConnectionConfigOrientDB.PROFILE_REMOTE);
+            ConnectionConfigOrientDB.bootstrap(ConnectionConfigOrientDB.PROFILE_EMBEDDED);
         }
         catch (IOException e)
         {
             logger.error(String.format("Failetd to bootstrap OrientDB profile [%s]",
-                                       ConnectionConfigOrientDB.PROFILE_REMOTE),
+                                       ConnectionConfigOrientDB.PROFILE_EMBEDDED),
                          e);
+            throw new ServletException(e);
         }
         
         servletContext.addListener(new RequestContextListener());

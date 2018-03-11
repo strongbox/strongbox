@@ -17,7 +17,7 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
     public static final String PROPERTY_PROFILE = "orientdb.profile";
 
     public static final String PROFILE_MEMORY = "orientdb_MEMORY";
-    public static final String PROFILE_REMOTE = "orientdb_REMOTE";
+    public static final String PROFILE_EMBEDDED = "orientdb_EMBEDDED";
 
     private static final String PROPERTY_PROTOCOL = "strongbox.orientdb.protocol";
 
@@ -121,13 +121,24 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
         return environment.getProperty(PROPERTY_PROTOCOL, "memory");
     }
 
-    public static void bootstrap(String profile)
+    public static void bootstrap(String profile) throws IOException {
+        bootstrap(profile, true);
+    }
+    
+    public static void bootstrap(String profile, boolean force)
         throws IOException
     {
-        if (System.getProperty(PROPERTY_PROFILE) != null)
+        if (!profile.equals(System.getProperty(PROPERTY_PROFILE, profile)))
         {
             LOGGER.info(String.format("Can't override already provided OrientDB connection profile, skip profile [%s] bootstrap.",
                                       profile));
+            return;
+        }
+
+        if (!force)
+        {
+            LOGGER.debug(String.format("Skip OrientDB connection properties bootstrap profile [%s].",
+                                       profile));
             return;
         }
 
