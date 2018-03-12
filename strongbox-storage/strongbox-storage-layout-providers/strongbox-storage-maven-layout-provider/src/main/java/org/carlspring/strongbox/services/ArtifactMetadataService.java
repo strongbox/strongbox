@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 
@@ -7,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
@@ -92,7 +92,7 @@ public interface ArtifactMetadataService
      * @throws IOException
      * @throws XmlPullParserException
      */
-    void mergeMetadata(String storageId, String repositoryId, Artifact artifact, Metadata mergeMetadata)
+    void mergeMetadata(String storageId, String repositoryId, MavenArtifact artifact, Metadata mergeMetadata)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException;
 
     /**

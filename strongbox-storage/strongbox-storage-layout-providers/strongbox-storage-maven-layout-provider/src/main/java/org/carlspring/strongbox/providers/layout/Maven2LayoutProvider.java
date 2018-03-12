@@ -2,6 +2,8 @@ package org.carlspring.strongbox.providers.layout;
 
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -38,7 +40,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.index.ArtifactInfo;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -110,7 +111,7 @@ public class Maven2LayoutProvider
         MavenArtifactCoordinates coordinates;
         if (isMetadata(path))
         {
-            Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
+            MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(path);
             coordinates = new MavenArtifactCoordinates(artifact);
         }
         else
@@ -214,7 +215,7 @@ public class Maven2LayoutProvider
         final RepositoryIndexer indexer = getRepositoryIndexer(path);
         if (indexer != null)
         {
-            Artifact artifact = ArtifactUtils.convertPathToArtifact(RepositoryFiles.stringValue(path));
+            MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(RepositoryFiles.stringValue(path));
             MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
 
             indexer.delete(Collections.singletonList(new ArtifactInfo(repository.getId(),

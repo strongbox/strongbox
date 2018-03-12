@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryInitializationException;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +52,8 @@ public class RepositoryIndexerFactory
     public RepositoryIndexer createRepositoryIndexer(String storageId,
                                                      String repositoryId,
                                                      String indexType,
-                                                     File repositoryBasedir,
-                                                     File indexDir)
+                                                     RepositoryPath repositoryBasedir,
+                                                     RepositoryPath indexDir)
             throws RepositoryInitializationException
     {
         IndexingContext indexingContext;
@@ -71,7 +71,6 @@ public class RepositoryIndexerFactory
         RepositoryIndexer repositoryIndexer = new RepositoryIndexer(storageId + ":" + repositoryId + ":" + indexType);
         repositoryIndexer.setStorageId(storageId);
         repositoryIndexer.setRepositoryId(repositoryId);
-        repositoryIndexer.setRepositoryBasedir(repositoryBasedir);
         repositoryIndexer.setIndexDir(indexDir);
         repositoryIndexer.setIndexingContext(indexingContext);
         repositoryIndexer.setIndexer(indexerConfiguration.getIndexer());
@@ -85,14 +84,14 @@ public class RepositoryIndexerFactory
     private IndexingContext createIndexingContext(String storageId,
                                                   String repositoryId,
                                                   String indexType,
-                                                  File repositoryBasedir,
-                                                  File indexDir)
+                                                  RepositoryPath repositoryBasedir,
+                                                  RepositoryPath indexDir)
             throws IOException
     {
         return getIndexer().createIndexingContext(storageId + ":" + repositoryId + ":" + indexType,
                                                   repositoryId,
-                                                  repositoryBasedir,
-                                                  indexDir,
+                                                  repositoryBasedir.toFile(),
+                                                  indexDir.toFile(),
                                                   null,
                                                   null,
                                                   true, // if context should be searched in non-targeted mode.

@@ -289,8 +289,8 @@ public class MavenArtifactGenerator
             String md5 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
             String sha1 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
-            MessageDigestUtils.writeChecksum(artifactFile, EncryptionAlgorithmsEnum.MD5.getExtension(), md5);
-            MessageDigestUtils.writeChecksum(artifactFile, EncryptionAlgorithmsEnum.SHA1.getExtension(), sha1);
+            MessageDigestUtils.writeChecksum(artifactFile.toPath(), EncryptionAlgorithmsEnum.MD5.getExtension(), md5);
+            MessageDigestUtils.writeChecksum(artifactFile.toPath(), EncryptionAlgorithmsEnum.SHA1.getExtension(), sha1);
         }
     }
 

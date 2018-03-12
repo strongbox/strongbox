@@ -1,7 +1,8 @@
 package org.carlspring.strongbox.storage.metadata;
 
 import org.carlspring.commons.io.MultipleDigestOutputStream;
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
@@ -17,7 +18,11 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +35,6 @@ import java.util.function.Consumer;
 import com.google.common.base.Throwables;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
@@ -68,7 +72,7 @@ public class MavenMetadataManager
     }
 
     public Metadata readMetadata(Repository repository,
-                                 Artifact artifact)
+                                 MavenArtifact artifact)
             throws IOException,
                    XmlPullParserException,
                    ProviderImplementationException
@@ -77,7 +81,7 @@ public class MavenMetadataManager
 
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(
-                ArtifactUtils.convertArtifactToPath(artifact));
+                MavenArtifactUtils.convertArtifactToPath(artifact));
 
         if (layoutProvider.containsArtifact(repository, coordinates))
         {
@@ -186,7 +190,7 @@ public class MavenMetadataManager
                          " in '" + repository.getStorage().getId() + ":" + repository.getId() + "'" +
                          " [policy: " + repository.getPolicy() + "].");
 
-            Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
+            MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(path);
 
             Metadata metadata = new Metadata();
             metadata.setArtifactId(artifact.getArtifactId());
@@ -247,7 +251,7 @@ public class MavenMetadataManager
                     for (String version : metadata.getVersioning().getVersions())
                     {
                         Path snapshotBasePath = Paths.get(request.getArtifactBasePath().toAbsolutePath() + "/" +
-                                                          ArtifactUtils.getSnapshotBaseVersion(version));
+                                                          MavenArtifactUtils.getSnapshotBaseVersion(version));
 
                         generateSnapshotVersioningMetadata(snapshotBasePath, artifact, version, true);
                     }
@@ -281,7 +285,7 @@ public class MavenMetadataManager
     }
 
     private void generateMavenPluginMetadata(VersionCollectionRequest request,
-                                             Artifact artifact)
+                                             MavenArtifact artifact)
             throws IOException, NoSuchAlgorithmException
     {
         Metadata pluginMetadata = new Metadata();
@@ -296,7 +300,7 @@ public class MavenMetadataManager
     }
 
     public Metadata generateSnapshotVersioningMetadata(Path snapshotBasePath,
-                                                       Artifact artifact,
+                                                       MavenArtifact artifact,
                                                        String version,
                                                        boolean store)
             throws IOException, NoSuchAlgorithmException
@@ -366,7 +370,7 @@ public class MavenMetadataManager
     }
 
     public void mergeAndStore(Repository repository,
-                              Artifact artifact,
+                              MavenArtifact artifact,
                               Metadata mergeMetadata)
             throws IOException,
                    XmlPullParserException,
@@ -375,18 +379,18 @@ public class MavenMetadataManager
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(
-                ArtifactUtils.convertArtifactToPath(artifact));
+                MavenArtifactUtils.convertArtifactToPath(artifact));
 
         if (layoutProvider.containsArtifact(repository, coordinates))
         {
             Path artifactBasePath;
-            if (artifact.getFile() != null && !artifact.getFile().isDirectory())
+            if (artifact.getPath() != null && !Files.isDirectory(artifact.getPath()))
             {
-                artifactBasePath = artifact.getFile().toPath().getParent().getParent();
+                artifactBasePath = artifact.getPath().getParent().getParent();
             }
             else
             {
-                artifactBasePath = artifact.getFile().toPath();
+                artifactBasePath = artifact.getPath();
             }
 
             logger.debug("Artifact merge metadata triggered for " + artifact.toString() +

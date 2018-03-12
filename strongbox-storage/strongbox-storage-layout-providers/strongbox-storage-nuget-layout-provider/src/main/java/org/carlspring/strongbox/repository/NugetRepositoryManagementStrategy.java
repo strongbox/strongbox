@@ -7,7 +7,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-import java.io.File;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,22 +36,6 @@ public class NugetRepositoryManagementStrategy
         if (repository.isProxyRepository())
         {
             createRemoteFeedDownloaderCronTask(storageId, repositoryId);
-        }
-    }
-
-    @Override
-    public void createRepositoryStructure(String storageBasedirPath,
-                                          String repositoryId)
-    {
-        final File storageBasedir = new File(storageBasedirPath);
-        final File repositoryDir = new File(storageBasedir, repositoryId);
-
-        if (!repositoryDir.exists())
-        {
-            // noinspection ResultOfMethodCallIgnored
-            repositoryDir.mkdirs();
-            // noinspection ResultOfMethodCallIgnored
-            new File(repositoryDir, ".trash").mkdirs();
         }
     }
 

@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers.maven;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -27,7 +28,14 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -63,8 +71,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
-import static org.junit.Assert.*;
+import static org.carlspring.strongbox.artifact.MavenArtifactUtils.getArtifactFromGAVTC;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Test cases for {@link MavenArtifactController}.
@@ -93,6 +105,7 @@ public class MavenArtifactControllerTest
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
 
+    private MavenArtifactDeployer defaultMavenArtifactDeployer;
 
     @BeforeClass
     public static void cleanUp()
@@ -105,8 +118,8 @@ public class MavenArtifactControllerTest
     public void setUp()
     {
         MockitoAnnotations.initMocks(this);
+        defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
     }
-
 
     @AfterClass
     public static void down()
@@ -553,7 +566,7 @@ public class MavenArtifactControllerTest
         File artifactFileRestoredFromTrash = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
         if (artifactFileRestoredFromTrash.exists())
         {
-            removeDir(artifactFileRestoredFromTrash);
+            removeDir(artifactFileRestoredFromTrash.toPath());
         }
 
         assertFalse("Unexpected artifact in repository '" + destRepositoryBasedir + "'!",
@@ -693,19 +706,19 @@ public class MavenArtifactControllerTest
     {
         String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
-        Artifact artifact1 = getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
+        MavenArtifact artifact1 = getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
 
         String snapshotVersion1 = createSnapshotVersion("3.1", 1);
         String snapshotVersion2 = createSnapshotVersion("3.1", 2);
         String snapshotVersion3 = createSnapshotVersion("3.1", 3);
         String snapshotVersion4 = createSnapshotVersion("3.1", 4);
 
-        Artifact artifact1WithTimestamp1 = getArtifactFromGAVTC(ga + ":" + snapshotVersion1);
-        Artifact artifact1WithTimestamp2 = getArtifactFromGAVTC(ga + ":" + snapshotVersion2);
-        Artifact artifact1WithTimestamp3 = getArtifactFromGAVTC(ga + ":" + snapshotVersion3);
-        Artifact artifact1WithTimestamp4 = getArtifactFromGAVTC(ga + ":" + snapshotVersion4);
+        MavenArtifact artifact1WithTimestamp1 = getArtifactFromGAVTC(ga + ":" + snapshotVersion1);
+        MavenArtifact artifact1WithTimestamp2 = getArtifactFromGAVTC(ga + ":" + snapshotVersion2);
+        MavenArtifact artifact1WithTimestamp3 = getArtifactFromGAVTC(ga + ":" + snapshotVersion3);
+        MavenArtifact artifact1WithTimestamp4 = getArtifactFromGAVTC(ga + ":" + snapshotVersion4);
 
-        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
 
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, STORAGE0, REPOSITORY_SNAPSHOTS);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, STORAGE0, REPOSITORY_SNAPSHOTS);
@@ -719,7 +732,7 @@ public class MavenArtifactControllerTest
 
         logger.info("[retrieveMetadata] Load metadata by URL " + metadataUrl);
 
-        Metadata versionLevelMetadata = client.retrieveMetadata(url + path);
+        Metadata versionLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(url + path);
 
         assertNotNull(versionLevelMetadata);
         assertEquals("org.carlspring.strongbox.metadata", versionLevelMetadata.getGroupId());
@@ -745,23 +758,23 @@ public class MavenArtifactControllerTest
     }
 
     @Spy
-    Artifact artifact1 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" +
+    MavenArtifact artifact1 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" +
                                               "metadata-foo-maven-plugin" + ":" +
                                               "3.1");
     @Spy
-    Artifact artifact2 = getArtifactFromGAVTC(
+    MavenArtifact artifact2 = getArtifactFromGAVTC(
             "org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.1");
     @Spy
-    Artifact artifact3 = getArtifactFromGAVTC(
+    MavenArtifact artifact3 = getArtifactFromGAVTC(
             "org.carlspring.strongbox.metadata" + ":" + "metadata-foo-maven-plugin" + ":" + "3.2");
     @Spy
-    Artifact artifact4 = getArtifactFromGAVTC(
+    MavenArtifact artifact4 = getArtifactFromGAVTC(
             "org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.2");
     @Spy
-    Artifact artifact5 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.1");
+    MavenArtifact artifact5 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.1");
 
     @Spy
-    Artifact artifact6 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.2");
+    MavenArtifact artifact6 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.2");
 
     @Test
     public void testMetadataAtGroupAndArtifactIdLevel()
@@ -848,7 +861,7 @@ public class MavenArtifactControllerTest
         PluginArtifact c = new PluginArtifact(p3, artifact3);
         PluginArtifact d = new PluginArtifact(p4, artifact4);
 
-        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
 
         // When
         artifactDeployer.generateAndDeployArtifact(a, STORAGE0, REPOSITORY_RELEASES2);
@@ -860,7 +873,7 @@ public class MavenArtifactControllerTest
 
         // Then
         // Group level metadata
-        Metadata groupLevelMetadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" +
+        Metadata groupLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" +
                                                               REPOSITORY_RELEASES2 + "/" +
                                                               ArtifactUtils.getGroupLevelMetadataPath(artifact1));
 
@@ -868,7 +881,7 @@ public class MavenArtifactControllerTest
         assertEquals(2, groupLevelMetadata.getPlugins().size());
 
         // Artifact Level metadata
-        Metadata artifactLevelMetadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" +
+        Metadata artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" +
                                                                  REPOSITORY_RELEASES2 + "/" +
                                                                  ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
 
@@ -880,7 +893,7 @@ public class MavenArtifactControllerTest
         assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
-        artifactLevelMetadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
+        artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                                                         ArtifactUtils.getArtifactLevelMetadataPath(artifact2));
 
         assertNotNull(artifactLevelMetadata);
@@ -891,7 +904,7 @@ public class MavenArtifactControllerTest
         assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
-        artifactLevelMetadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
+        artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                                                         ArtifactUtils.getArtifactLevelMetadataPath(artifact5));
 
         assertNotNull(artifactLevelMetadata);
@@ -917,7 +930,7 @@ public class MavenArtifactControllerTest
         Artifact artifact2 = getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2);
         Artifact artifact3 = getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2 + ":jar:javadoc");
 
-        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
 
         artifactDeployer.generateAndDeployArtifact(artifact1, STORAGE0, REPOSITORY_RELEASES2);
         artifactDeployer.generateAndDeployArtifact(artifact2, STORAGE0, REPOSITORY_RELEASES2);
@@ -956,7 +969,7 @@ public class MavenArtifactControllerTest
         client.delete(STORAGE0, REPOSITORY_RELEASES2, path);
 
         // Then
-        Metadata metadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
+        Metadata metadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
 
         // Re-run the search and check, if the results are now different
@@ -986,7 +999,7 @@ public class MavenArtifactControllerTest
         Artifact artifact1WithTimestamp3 = getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 3));
         Artifact artifact1WithTimestamp4 = getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 4));
 
-        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
 
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, STORAGE0, REPOSITORY_SNAPSHOTS);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, STORAGE0, REPOSITORY_SNAPSHOTS);
@@ -999,7 +1012,7 @@ public class MavenArtifactControllerTest
         client.delete(STORAGE0, REPOSITORY_SNAPSHOTS, path);
 
         // Then
-        Metadata metadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS + "/" +
+        Metadata metadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
 
         assertFalse(metadata.getVersioning()
@@ -1098,7 +1111,7 @@ public class MavenArtifactControllerTest
             throws Exception
     {
 
-        Metadata libraryMetadata = client.retrieveMetadata(
+        Metadata libraryMetadata = defaultMavenArtifactDeployer.retrieveMetadata(
                 "/storages/storage-common-proxies/carlspring/org/carlspring/commons/commons-http/maven-metadata.xml");
 
         if (libraryMetadata == null)
@@ -1116,7 +1129,7 @@ public class MavenArtifactControllerTest
             return null;
         }
 
-        Metadata artifactMetadata = client.retrieveMetadata("/storages/storage-common-proxies/carlspring/" +
+        Metadata artifactMetadata = defaultMavenArtifactDeployer.retrieveMetadata("/storages/storage-common-proxies/carlspring/" +
                                                             "org/carlspring/commons/commons-http/" +
                                                             commonsHttpSnapshotVersion + "/maven-metadata.xml");
 

@@ -22,7 +22,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.util.FileUtils;
+import org.carlspring.strongbox.util.TestFileUtils;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
@@ -161,7 +161,7 @@ public class ArtifactDirectoryLocatorTest
 
     private void removeGeneratedArtifacts()
     {
-        generatedArtifacts.stream().forEach(FileUtils::deleteIfExists);
+        generatedArtifacts.stream().forEach(TestFileUtils::deleteIfExists);
     }
 
     private void resetOutput()

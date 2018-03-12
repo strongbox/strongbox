@@ -1,24 +1,10 @@
 package org.carlspring.strongbox.io;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.artifact.Artifact;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -27,12 +13,25 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -81,7 +80,7 @@ public class ArtifactOutputStreamTest
         final Storage storage = getConfiguration().getStorage(STORAGE0);
         final Repository repository = storage.getRepository(REPOSITORY_RELEASES);
 
-        final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.3:jar");
+        final MavenArtifact artifact = MavenArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.3:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
@@ -111,7 +110,7 @@ public class ArtifactOutputStreamTest
         final Storage storage = getConfiguration().getStorage(STORAGE0);
         final Repository repository = storage.getRepository(REPOSITORY_RELEASES);
 
-        final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.4:jar");
+        final MavenArtifact artifact = MavenArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.4:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());

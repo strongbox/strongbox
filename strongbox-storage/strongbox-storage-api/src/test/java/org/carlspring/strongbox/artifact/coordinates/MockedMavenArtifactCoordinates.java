@@ -1,28 +1,27 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenDetachedArtifact;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 
-import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DefaultArtifact;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 
 /**
  * @author carlspring
  */
-@Embeddable
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
-public class MavenArtifactCoordinates
-        extends AbstractArtifactCoordinates<MavenArtifactCoordinates, ComparableVersion>
+public class MockedMavenArtifactCoordinates
+        extends AbstractArtifactCoordinates<MockedMavenArtifactCoordinates, ComparableVersion>
 {
+
 
     private static final String GROUPID = "groupId";
 
@@ -42,60 +41,15 @@ public class MavenArtifactCoordinates
 
     private String classifier;
 
-    private String extension = "jar";
+    private String extension;
 
 
-    public MavenArtifactCoordinates()
+    public MockedMavenArtifactCoordinates()
     {
         defineCoordinates(GROUPID, ARTIFACTID, VERSION, CLASSIFIER, EXTENSION);
     }
 
-    public MavenArtifactCoordinates(String path)
-    {
-        this(MavenArtifactUtils.convertPathToArtifact(path));
-    }
-
-    public MavenArtifactCoordinates(String... coordinateValues)
-    {
-        this();
-
-        int i = 0;
-        for (String coordinateValue : coordinateValues)
-        {
-            // Please, forgive the following construct...
-            // (In my defense, I felt equally stupid and bad for doing it this way):
-            switch (i)
-            {
-                case 0:
-                    setGroupId(coordinateValue);
-                    break;
-                case 1:
-                    setArtifactId(coordinateValue);
-                    break;
-                case 2:
-                    setVersion(coordinateValue);
-                    break;
-                case 3:
-                    setClassifier(coordinateValue);
-                    break;
-                case 4:
-                    setExtension(coordinateValue);
-                    break;
-                default:
-                    break;
-            }
-
-            i++;
-        }
-
-        if (extension == null)
-        {
-            extension = "jar";
-        }
-
-    }
-
-    public MavenArtifactCoordinates(MavenArtifact artifact)
+    public MockedMavenArtifactCoordinates(Artifact artifact)
     {
         this();
 
@@ -103,16 +57,13 @@ public class MavenArtifactCoordinates
         setArtifactId(artifact.getArtifactId());
         setVersion(artifact.getVersion());
         setClassifier(artifact.getClassifier());
-        if (artifact.getPath() != null)
+
+        if (artifact.getFile() != null)
         {
             String extension = artifact.getFile().getAbsolutePath();
             extension = extension.substring(extension.lastIndexOf('.'), extension.length());
 
             setExtension(extension);
-        }
-        else if (StringUtils.isNotBlank(artifact.getType()))
-        {
-            setExtension(artifact.getType());
         }
         else
         {
@@ -125,7 +76,7 @@ public class MavenArtifactCoordinates
     {
         try
         {
-            return MavenArtifactUtils.convertArtifactToPath(toArtifact());
+            return ArtifactUtils.convertArtifactToPath(toArtifact());
         }
         catch (Exception e)
         {
@@ -134,9 +85,15 @@ public class MavenArtifactCoordinates
         }
     }
 
-    public MavenArtifact toArtifact()
+    public Artifact toArtifact()
     {
-        return new MavenDetachedArtifact(getGroupId(), getArtifactId(), getVersion(), getExtension(), getClassifier());
+        return new DefaultArtifact(getGroupId(),
+                                   getArtifactId(),
+                                   getVersion(),
+                                   "compile",
+                                   getExtension(),
+                                   getClassifier(),
+                                   new DefaultArtifactHandler(getExtension()));
     }
 
     @XmlAttribute(name = "groupId")
@@ -230,13 +187,5 @@ public class MavenArtifactCoordinates
         Map<String, String> result = getCoordinates();
         result.remove(VERSION);
         return result;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "MavenArtifactCoordinates{" + "groupId='" + groupId + '\'' + ", artifactId='" + artifactId + '\'' +
-               ", version='" + version + '\'' + ", classifier='" + classifier + '\'' + ", extension='" + extension +
-               '\'' + ", as path: " + toPath() + '}';
     }
 }

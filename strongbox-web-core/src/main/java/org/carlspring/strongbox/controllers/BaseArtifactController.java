@@ -2,7 +2,6 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -27,9 +26,6 @@ public abstract class BaseArtifactController
 
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
-
-    @Inject
-    protected RepositoryPathResolver repositoryPathResolver;
 
     public Storage getStorage(String storageId)
     {

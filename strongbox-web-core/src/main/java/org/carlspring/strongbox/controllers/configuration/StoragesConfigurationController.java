@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -10,8 +11,8 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import io.swagger.annotations.*;
 import org.springframework.http.HttpStatus;
@@ -178,8 +179,8 @@ public class StoragesConfigurationController
             repository.setStorage(configurationManagementService.getStorage(storageId));
             configurationManagementService.saveRepository(storageId, repository);
 
-            final File repositoryBaseDir = new File(repository.getBasedir());
-            if (!repositoryBaseDir.exists())
+            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+            if (!Files.exists(repositoryPath))
             {
                 repositoryManagementService.createRepository(storageId, repository.getId());
             }
@@ -261,8 +262,8 @@ public class StoragesConfigurationController
             {
                 repositoryIndexManager.closeIndexer(storageId + ":" + repositoryId);
 
-                final File repositoryBaseDir = new File(repository.getBasedir());
-                if (!repositoryBaseDir.exists() && force)
+                final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+                if (!Files.exists(repositoryPath) && force)
                 {
                     repositoryManagementService.removeRepository(storageId, repository.getId());
                 }

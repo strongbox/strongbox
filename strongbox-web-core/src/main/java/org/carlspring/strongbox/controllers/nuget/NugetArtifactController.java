@@ -1,39 +1,5 @@
 package org.carlspring.strongbox.controllers.nuget;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBException;
-
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.apache.commons.fileupload.MultipartStream;
-import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -45,11 +11,7 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.io.ReplacingInputStream;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
-import org.carlspring.strongbox.nuget.filter.NugetODataFilterLexer;
-import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParserTemplate;
-import org.carlspring.strongbox.nuget.filter.NugetODataFilterVisitor;
-import org.carlspring.strongbox.nuget.filter.NugetODataFilterVisitorImpl;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
@@ -59,6 +21,33 @@ import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.apache.commons.fileupload.MultipartStream;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -67,28 +56,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import ru.aristar.jnuget.files.NugetFormatException;
 import ru.aristar.jnuget.files.Nupkg;
 import ru.aristar.jnuget.files.TempNupkgFile;
-import ru.aristar.jnuget.rss.EntryProperties;
-import ru.aristar.jnuget.rss.PackageDownloadCountComparator;
-import ru.aristar.jnuget.rss.PackageEntry;
-import ru.aristar.jnuget.rss.PackageFeed;
-import ru.aristar.jnuget.rss.PackageIdAndVersionComparator;
-import ru.aristar.jnuget.rss.PackageUpdateDateDescComparator;
+import ru.aristar.jnuget.rss.*;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 /**
  * This Controller used to handle Nuget requests.
@@ -459,7 +434,7 @@ public class NugetArtifactController extends BaseArtifactController
         try
         {
             ServletInputStream is = request.getInputStream();
-            FileInputStream packagePartInputStream = extractPackageMultipartStream(extractBoundary(contentType), is);
+            InputStream packagePartInputStream = extractPackageMultipartStream(extractBoundary(contentType), is);
 
             if (packagePartInputStream == null)
             {
@@ -593,8 +568,8 @@ public class NugetArtifactController extends BaseArtifactController
         return boundaryString;
     }
 
-    private FileInputStream extractPackageMultipartStream(String boundaryString,
-                                                          ServletInputStream is)
+    private InputStream extractPackageMultipartStream(String boundaryString,
+                                                      ServletInputStream is)
             throws IOException
     {
         if (StringUtils.isEmpty(boundaryString))
@@ -602,19 +577,19 @@ public class NugetArtifactController extends BaseArtifactController
             return null;
         }
 
-        File packagePartFile = File.createTempFile("nupkg", "part");
-        try (FileOutputStream packagePartOutputStream = new FileOutputStream(packagePartFile))
+        final Path packagePartFile = Files.createTempFile("nupkg", "part");
+        try (OutputStream packagePartOutputStream = Files.newOutputStream(packagePartFile))
         {
 
             writePackagePart(boundaryString, is, packagePartOutputStream);
         }
 
-        return new FileInputStream(packagePartFile);
+        return Files.newInputStream(packagePartFile);
     }
 
     private void writePackagePart(String boundaryString,
                                   InputStream is,
-                                  FileOutputStream packagePartOutputStream)
+                                  OutputStream packagePartOutputStream)
         throws IOException
     {
         // According to the specification, the final Boundary of MultipartStream should be prefixed with
@@ -681,18 +656,18 @@ public class NugetArtifactController extends BaseArtifactController
 
             nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, nupkgFile.getStream());
 
-            File nuspecFile = File.createTempFile(nupkgFile.getId(), "nuspec");
-            try (FileOutputStream fileOutputStream = new FileOutputStream(nuspecFile))
+            Path nuspecFile = Files.createTempFile(nupkgFile.getId(), "nuspec");
+            try (OutputStream outputStream = Files.newOutputStream(nuspecFile))
             {
-                nupkgFile.getNuspecFile().saveTo(fileOutputStream);
+                nupkgFile.getNuspecFile().saveTo(outputStream);
             }
             path = String.format("%s/%s/%s.nuspec", nupkgFile.getId(), nupkgFile.getVersion(), nupkgFile.getId());
 
-            nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, new FileInputStream(nuspecFile));
+            nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, Files.newInputStream(nuspecFile));
 
-            File hashFile = File.createTempFile(String.format("%s.%s", nupkgFile.getId(), nupkgFile.getVersion()),
+            Path hashFile = Files.createTempFile(String.format("%s.%s", nupkgFile.getId(), nupkgFile.getVersion()),
                                                 "nupkg.sha512");
-            nupkgFile.getHash().saveTo(hashFile);
+            nupkgFile.getHash().saveTo(Files.newOutputStream(hashFile));
 
             path = String.format("%s/%s/%s.%s.nupkg.sha512",
                                  nupkgFile.getId(),
@@ -700,7 +675,7 @@ public class NugetArtifactController extends BaseArtifactController
                                  nupkgFile.getId(),
                                  nupkgFile.getVersion());
 
-            nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, new FileInputStream(hashFile));
+            nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, Files.newInputStream(hashFile));
         }
 
         return new URI("");

@@ -2,7 +2,6 @@ package org.carlspring.strongbox.rest.client;
 
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.client.BaseArtifactClient;
 import org.carlspring.strongbox.client.IArtifactClient;
 
 import java.io.ByteArrayInputStream;
@@ -18,6 +17,8 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import io.restassured.response.ExtractableResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -28,9 +29,9 @@ import org.springframework.stereotype.Component;
  * @author Alex Oreshkevich
  */
 @Component
-public class RestAssuredArtifactClient
-        extends BaseArtifactClient
+public class RestAssuredArtifactClient implements IArtifactClient
 {
+    private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     /**
      * Default validation policy for GET requests.
@@ -426,6 +427,14 @@ public class RestAssuredArtifactClient
     public void setUserAgent(String userAgent)
     {
         this.userAgent = userAgent;
+    }
+
+    protected String escapeUrl(String path)
+    {
+        String baseUrl = getContextBaseUrl() + (getContextBaseUrl().endsWith("/") ? "" : "/");
+        String p = (path.startsWith("/") ? path.substring(1, path.length()) : path);
+
+        return baseUrl + p;
     }
 
 }

@@ -1,13 +1,20 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenDetachedArtifact;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.search.SearchResult;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
@@ -16,10 +23,13 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.BooleanQuery.Builder;
 import org.apache.lucene.search.Query;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
-import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.index.*;
+import org.apache.maven.index.ArtifactContext;
+import org.apache.maven.index.ArtifactContextProducer;
+import org.apache.maven.index.ArtifactInfo;
+import org.apache.maven.index.FlatSearchRequest;
+import org.apache.maven.index.FlatSearchResponse;
+import org.apache.maven.index.Indexer;
+import org.apache.maven.index.MAVEN;
 import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
@@ -54,9 +64,7 @@ public class RepositoryIndexer
 
     private String repositoryId;
 
-    private File repositoryBasedir;
-
-    private File indexDir;
+    private RepositoryPath indexDir;
 
     private IndexerConfiguration indexerConfiguration;
 
@@ -278,14 +286,11 @@ public class RepositoryIndexer
         Set<SearchResult> results = new LinkedHashSet<>(artifactInfos.size());
         for (ArtifactInfo artifactInfo : artifactInfos)
         {
-            Artifact artifact = new DefaultArtifact(artifactInfo.getGroupId(),
-                                                    artifactInfo.getArtifactId(),
-                                                    artifactInfo.getVersion(),
-                                                    "compile",
-                                                    artifactInfo.getFileExtension(),
-                                                    artifactInfo.getClassifier(),
-                                                    // This particular part is not quite smart, but should do:
-                                                    new DefaultArtifactHandler(artifactInfo.getFileExtension()));
+            MavenArtifact artifact = new MavenDetachedArtifact(artifactInfo.getGroupId(),
+                                                               artifactInfo.getArtifactId(),
+                                                               artifactInfo.getVersion(),
+                                                               artifactInfo.getFileExtension(),
+                                                               artifactInfo.getClassifier());
 
             MavenArtifactCoordinates artifactCoordinates = new MavenArtifactCoordinates(artifact);
             String url = getURLForArtifact(storageId, repositoryId, artifactCoordinates.toPath());
@@ -307,17 +312,6 @@ public class RepositoryIndexer
         baseUrl = (baseUrl.endsWith("/") ? baseUrl : baseUrl + "/");
 
         return baseUrl + "storages/" + storageId + "/" + repositoryId + "/" + pathToArtifactFile;
-    }
-
-    private String obtainClassifier(Artifact artifactInfo)
-    {
-        String classifier = artifactInfo.getClassifier();
-        if (classifier == null || classifier.isEmpty() || classifier.equalsIgnoreCase("null"))
-        {
-            return null;
-        }
-
-        return classifier;
     }
 
     public void close()
@@ -402,22 +396,12 @@ public class RepositoryIndexer
         this.repositoryId = repositoryId;
     }
 
-    public File getRepositoryBasedir()
-    {
-        return repositoryBasedir;
-    }
-
-    public void setRepositoryBasedir(File repositoryBasedir)
-    {
-        this.repositoryBasedir = repositoryBasedir;
-    }
-
-    public File getIndexDir()
+    public RepositoryPath getIndexDir()
     {
         return indexDir;
     }
 
-    public void setIndexDir(File indexDir)
+    public void setIndexDir(RepositoryPath indexDir)
     {
         this.indexDir = indexDir;
     }

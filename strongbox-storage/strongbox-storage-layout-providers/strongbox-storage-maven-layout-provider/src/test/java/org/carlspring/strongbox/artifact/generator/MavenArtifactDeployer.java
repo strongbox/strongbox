@@ -1,6 +1,12 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileName;
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.io.MultipleDigestInputStream;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.client.IArtifactClient;
+import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -14,17 +20,10 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.project.artifact.PluginArtifact;
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.io.MultipleDigestInputStream;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.client.ArtifactClient;
-import org.carlspring.strongbox.client.ArtifactOperationException;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.client.IArtifactClient;
-import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileName;
 
 /**
  * @author mtodorov
@@ -43,23 +42,9 @@ public class MavenArtifactDeployer
 
     private MetadataMerger metadataMerger;
 
-    public MavenArtifactDeployer()
-    {
-    }
-
     public MavenArtifactDeployer(String basedir)
     {
         super(basedir);
-    }
-
-    public MavenArtifactDeployer(File basedir)
-    {
-        super(basedir);
-    }
-
-    private IArtifactClient getDefaultArtifactClient()
-    {
-        return ArtifactClient.getTestInstance();
     }
 
     public void generateAndDeployArtifact(Artifact artifact,
@@ -83,11 +68,6 @@ public class MavenArtifactDeployer
                    IOException,
                    ArtifactOperationException, ArtifactTransportException
     {
-        if (client == null)
-        {
-            client = getDefaultArtifactClient();
-        }
-
         generatePom(artifact, packaging);
         createArchive(artifact);
 
@@ -177,7 +157,12 @@ public class MavenArtifactDeployer
         InputStream is = new FileInputStream(metadataFile);
         MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
 
-        client.addMetadata(metadata, metadataPath, storageId, repositoryId, is);
+        String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + metadataPath;
+
+        logger.debug("Deploying " + url + "...");
+
+        client.deployMetadata(is, url, metadataPath.substring(metadataPath.lastIndexOf("/")));
+
         deployChecksum(mdis,
                        storageId,
                        repositoryId,
@@ -213,7 +198,7 @@ public class MavenArtifactDeployer
         }
     }
 
-    private Metadata retrieveMetadata(String path)
+    public Metadata retrieveMetadata(String path)
             throws ArtifactTransportException,
                    IOException,
                    XmlPullParserException
@@ -238,7 +223,14 @@ public class MavenArtifactDeployer
         try (InputStream is = new FileInputStream(artifactFile);
                 MultipleDigestInputStream ais = new MultipleDigestInputStream(is))
         {
-            client.addArtifact(artifact, storageId, repositoryId, ais);
+
+            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + ArtifactUtils.convertArtifactToPath(artifact);
+
+            logger.debug("Deploying " + url + "...");
+
+            String fileName = ArtifactUtils.getArtifactFileName(artifact);
+
+            client.deployFile(is, url, fileName);
 
             deployChecksum(ais, storageId, repositoryId, artifact);
         }
@@ -283,7 +275,12 @@ public class MavenArtifactDeployer
         try (InputStream is = new FileInputStream(pomFile);
                 MultipleDigestInputStream ais = new MultipleDigestInputStream(is))
         {
-            client.addArtifact(artifact, storageId, repositoryId, ais);
+            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
+                         ArtifactUtils.convertArtifactToPath(artifact);
+
+            String fileName = ArtifactUtils.getArtifactFileName(artifact);
+
+            client.deployFile(is, url, fileName);
 
             deployChecksum(ais, storageId, repositoryId, artifact);
         }

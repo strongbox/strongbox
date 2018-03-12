@@ -310,6 +310,10 @@
             <groupId>org.apache.maven.indexer</groupId>
             <artifactId>indexer-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.carlspring.maven</groupId>
+            <artifactId>maven-commons</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.codehaus.groovy</groupId>

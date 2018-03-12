@@ -7,9 +7,10 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -64,7 +65,7 @@ public class RawArtifactControllerTest
         createRepository(repository1);
 
         //noinspection ResultOfMethodCallIgnored
-        new File(TEST_RESOURCES).mkdirs();
+        Files.createDirectories(Paths.get(TEST_RESOURCES));
     }
 
     @Test

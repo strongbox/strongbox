@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -28,7 +30,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
@@ -141,7 +142,7 @@ public class ArtifactMetadataServiceImpl
     @Override
     public void mergeMetadata(String storageId,
                               String repositoryId,
-                              Artifact artifact,
+                              MavenArtifact artifact,
                               Metadata mergeMetadata)
             throws IOException,
                    XmlPullParserException,
@@ -214,7 +215,7 @@ public class ArtifactMetadataServiceImpl
 
         Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
 
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+        MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(artifactPath);
 
         Metadata snapshotMetadata = mavenMetadataManager.generateSnapshotVersioningMetadata(artifactBasePath,
                                                                                             artifact,
@@ -272,7 +273,7 @@ public class ArtifactMetadataServiceImpl
         {
             Path snapshotBasePath = Paths.get(artifactBasePath + "/" + ArtifactUtils.getSnapshotBaseVersion(version));
 
-            Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+            MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(artifactPath);
 
             mavenMetadataManager.generateSnapshotVersioningMetadata(snapshotBasePath, artifact, version, true);
         }
@@ -305,7 +306,7 @@ public class ArtifactMetadataServiceImpl
 
         Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
 
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+        MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(artifactPath);
 
         Metadata snapshotMetadata = mavenMetadataManager.generateSnapshotVersioningMetadata(artifactBasePath,
                                                                                             artifact,

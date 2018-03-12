@@ -5,7 +5,6 @@ import org.carlspring.strongbox.testing.TestCaseWithRepositoryManagement;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.util.Collection;
 
 import org.junit.After;
@@ -77,39 +76,6 @@ public abstract class RawRestAssuredBaseTest
     protected Collection<? extends GrantedAuthority> provideAuthorities()
     {
         return Roles.ADMIN.getPrivileges();
-    }
-
-    public static void removeDir(String path)
-    {
-        removeDir(new File(path));
-    }
-
-    /**
-     * Recursively removes directory or file #file and all it's content.
-     *
-     * @param file directory or file to be removed
-     */
-    public static void removeDir(File file)
-    {
-        if (file == null || !file.exists())
-        {
-            return;
-        }
-
-        if (file.isDirectory())
-        {
-            File[] files = file.listFiles();
-            if (files != null)
-            {
-                for (File f : files)
-                {
-                    removeDir(f);
-                }
-            }
-        }
-
-        //noinspection ResultOfMethodCallIgnored
-        file.delete();
     }
 
     protected boolean pathExists(String url)

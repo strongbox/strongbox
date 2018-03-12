@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.repository;
 
+import org.carlspring.strongbox.storage.repository.Repository;
+
 import java.io.IOException;
 
 /**
@@ -12,8 +14,7 @@ public interface RepositoryManagementStrategy
                           String repositoryId)
             throws IOException, RepositoryManagementStrategyException;
 
-    void createRepositoryStructure(String storageBasedirPath,
-                                   String repositoryId)
+    void createRepositoryStructure(Repository repository)
             throws IOException;
 
     void removeRepository(String storageId,

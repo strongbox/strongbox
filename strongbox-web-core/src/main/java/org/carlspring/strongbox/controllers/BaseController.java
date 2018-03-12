@@ -5,6 +5,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.controllers.support.ListEntityBody;
 import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
 
 import javax.inject.Inject;
@@ -37,6 +38,9 @@ public abstract class BaseController
 
     @Inject
     protected ConfigurationManager configurationManager;
+
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
 
     protected Configuration getConfiguration()
     {

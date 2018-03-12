@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -51,13 +52,14 @@ public class StoragesConfigurationControllerTestIT
         r1.setAllowsRedeployment(true);
         r1.setSecured(true);
         r1.setStorage(storage1);
+        r1.setLayout(Maven2LayoutProvider.ALIAS);
 
         Repository r2 = new Repository("repository1");
         r2.setAllowsForceDeletion(true);
         r2.setTrashEnabled(true);
         r2.setStorage(storage1);
         r2.setProxyConfiguration(createProxyConfiguration());
-
+        r2.setLayout(Maven2LayoutProvider.ALIAS);
 
         addRepository(r1);
         addRepository(r2);
@@ -177,11 +179,13 @@ public class StoragesConfigurationControllerTestIT
         r1.setSecured(true);
         r1.setStorage(storage2);
         r1.setProxyConfiguration(createProxyConfiguration());
+        r1.setLayout(Maven2LayoutProvider.ALIAS);
 
         Repository r2 = new Repository(repositoryId2);
         r2.setAllowsRedeployment(true);
         r2.setSecured(true);
         r2.setStorage(storage2);
+        r2.setLayout(Maven2LayoutProvider.ALIAS);
 
         addRepository(r1);
         addRepository(r2);

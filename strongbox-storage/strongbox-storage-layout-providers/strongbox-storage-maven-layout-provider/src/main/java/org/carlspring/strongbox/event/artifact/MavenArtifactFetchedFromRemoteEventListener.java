@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.event.artifact;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
@@ -21,7 +22,6 @@ import java.util.function.Consumer;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.springframework.stereotype.Component;
 
@@ -115,8 +115,8 @@ public class MavenArtifactFetchedFromRemoteEventListener
 
         getMetadataInputStreamWithCallback(simpleProxyRepositoryArtifactResolver, metadataRelativePath, event, is ->
         {
-            final Artifact localArtifact = ArtifactUtils.convertPathToArtifact(event.getPath());
-            localArtifact.setFile(artifactAbsolutePath.toFile());
+            final MavenArtifact localArtifact = MavenArtifactUtils.convertPathToArtifact(event.getPath());
+            localArtifact.setPath(artifactAbsolutePath);
 
             try
             {

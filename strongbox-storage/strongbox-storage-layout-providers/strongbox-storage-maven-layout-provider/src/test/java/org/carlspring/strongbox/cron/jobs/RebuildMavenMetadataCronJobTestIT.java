@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -14,10 +15,13 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -61,13 +65,13 @@ public class RebuildMavenMetadataCronJobTestIT
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_METADATA = "org/carlspring/strongbox/strongbox-metadata-one";
 
-    private static Artifact artifact1;
+    private static MavenArtifact artifact1;
 
-    private static Artifact artifact2;
+    private static MavenArtifact artifact2;
 
-    private static Artifact artifact3;
+    private static MavenArtifact artifact3;
 
-    private static Artifact artifact4;
+    private static MavenArtifact artifact4;
 
     @Rule
     public TestRule watcher = new TestWatcher()

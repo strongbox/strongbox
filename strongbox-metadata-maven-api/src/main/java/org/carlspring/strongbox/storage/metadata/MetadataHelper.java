@@ -3,7 +3,6 @@ package org.carlspring.strongbox.storage.metadata;
 import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -246,8 +245,7 @@ public class MetadataHelper
         }
         else
         {
-            throw new FileNotFoundException("Could not find " +
-                                            new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml") + "!");
+            throw new FileNotFoundException(String.format("Path %s does not exist", artifactBasePath.toString()));
         }
     }
 

@@ -7,6 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 
 import org.slf4j.Logger;
@@ -44,21 +47,20 @@ public class MessageDigestUtils
     }
 
     public static void writeDigestAsHexadecimalString(MessageDigest digest,
-                                                      File artifactFile,
+                                                      Path artifactPath,
                                                       String checksumFileExtension)
             throws IOException
     {
         String checksum = MessageDigestUtils.convertToHexadecimalString(digest);
 
-        writeChecksum(artifactFile, checksumFileExtension, checksum);
+        writeChecksum(artifactPath, checksumFileExtension, checksum);
     }
 
-    public static void writeChecksum(File artifactFile, String checksumFileExtension, String checksum)
+    public static void writeChecksum(Path artifactPath, String checksumFileExtension, String checksum)
             throws IOException
     {
-        final File checksumFile = new File(artifactFile.getAbsolutePath() + checksumFileExtension);
-
-        try (FileOutputStream fos = new FileOutputStream(checksumFile))
+        final Path checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + checksumFileExtension);
+        try (OutputStream fos = Files.newOutputStream(checksumPath))
         {
             fos.write((checksum).getBytes());
             fos.flush();

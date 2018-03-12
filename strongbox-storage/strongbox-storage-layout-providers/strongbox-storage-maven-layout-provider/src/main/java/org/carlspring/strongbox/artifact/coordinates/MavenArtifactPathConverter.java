@@ -1,8 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
-import org.apache.maven.artifact.Artifact;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 
 /**
  * @author carlspring
@@ -14,7 +13,7 @@ public class MavenArtifactPathConverter
     @Override
     public MavenArtifactCoordinates convertPathToCoordinates(String path)
     {
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
+        MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(path);
 
         return new MavenArtifactCoordinates(artifact);
     }
@@ -22,7 +21,7 @@ public class MavenArtifactPathConverter
     @Override
     public String convertCoordinatesToPath(MavenArtifactCoordinates coordinates)
     {
-        return ArtifactUtils.convertArtifactToPath(coordinates.toArtifact());
+        return MavenArtifactUtils.convertArtifactToPath(coordinates.toArtifact());
     }
 
 }
