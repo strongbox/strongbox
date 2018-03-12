@@ -40,7 +40,7 @@ public class AuthorizationConfigProviderTest
         // at the bean instantiation stage
         // config will be loaded from db or XML file, going to be validated aso.
         // if optional is present, it means that everything is really ok
-        assertTrue(authorizationConfigProvider.getConfig().isPresent());
+        assertTrue(authorizationConfigProvider.get().isPresent());
     }
 
     @Test
@@ -48,7 +48,7 @@ public class AuthorizationConfigProviderTest
             throws Exception
     {
 
-        Optional<AuthorizationConfig> configOptional = authorizationConfigProvider.getConfig();
+        Optional<AuthorizationConfig> configOptional = authorizationConfigProvider.get();
         configOptional.orElseThrow(() -> new RuntimeException("Unable to load config"));
         configOptional.ifPresent(this::displayEmbeddedRoles);
     }
@@ -57,7 +57,7 @@ public class AuthorizationConfigProviderTest
     public void testUpdateAndAccessToEmbeddedEntities()
             throws Exception
     {
-        Optional<AuthorizationConfig> configOptional = authorizationConfigProvider.getConfig();
+        Optional<AuthorizationConfig> configOptional = authorizationConfigProvider.get();
         configOptional.orElseThrow(() -> new RuntimeException("Unable to load config"));
         configOptional.ifPresent(authorizationConfig ->
                                  {
@@ -66,10 +66,10 @@ public class AuthorizationConfigProviderTest
                                      testRole.setName("MY_ROLE");
                                      testRole.getPrivileges().add("MY_PRIVILEGE");
                                      authorizationConfig.getRoles().getRoles().add(testRole);
-                                     authorizationConfigProvider.updateConfig(authorizationConfig);
+                                     authorizationConfigProvider.save(authorizationConfig);
 
                                      // retrieve config again and display embedded properties
-                                     authorizationConfigProvider.getConfig().ifPresent(this::displayEmbeddedRoles);
+                                     authorizationConfigProvider.get().ifPresent(this::displayEmbeddedRoles);
                                  });
     }
 

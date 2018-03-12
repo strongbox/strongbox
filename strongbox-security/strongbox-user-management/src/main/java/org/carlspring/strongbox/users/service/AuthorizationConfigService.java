@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.users.service;
 
-import org.carlspring.strongbox.data.service.CrudService;
+import org.carlspring.strongbox.data.service.SingletonCrudService;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
 
 /**
@@ -9,7 +9,7 @@ import org.carlspring.strongbox.users.security.AuthorizationConfig;
  * @author Alex Oreshkevich
  */
 public interface AuthorizationConfigService
-        extends CrudService<AuthorizationConfig, String>
+        extends SingletonCrudService<AuthorizationConfig, String>
 {
 
 }

@@ -1,12 +1,7 @@
 package org.carlspring.strongbox.storage.routing;
 
-import javax.persistence.Entity;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.persistence.Embeddable;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -14,7 +9,7 @@ import java.util.Set;
 /**
  * @author mtodorov
  */
-@Entity
+@Embeddable
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "rule")
 public class RoutingRule

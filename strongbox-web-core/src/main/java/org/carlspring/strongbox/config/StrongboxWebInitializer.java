@@ -51,15 +51,11 @@ public class StrongboxWebInitializer
     {
         super.onStartup(servletContext);
 
-        try
+        if (System.getProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE) == null)
         {
-            ConnectionConfigOrientDB.bootstrap(ConnectionConfigOrientDB.PROFILE_REMOTE);
-        }
-        catch (IOException e)
-        {
-            logger.error(String.format("Failetd to bootstrap OrientDB profile [%s]",
-                                       ConnectionConfigOrientDB.PROFILE_REMOTE),
-                         e);
+            logger.info(String.format("OrientDB profile not set, will use [%s] profile as default",
+                                      ConnectionConfigOrientDB.PROFILE_EMBEDDED));
+            System.setProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE, ConnectionConfigOrientDB.PROFILE_EMBEDDED);
         }
         
         servletContext.addListener(new RequestContextListener());

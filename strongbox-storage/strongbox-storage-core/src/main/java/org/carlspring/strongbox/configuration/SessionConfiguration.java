@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
-import javax.persistence.Entity;
+import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * @author Przemyslaw Fusik
  */
-@Entity
+@Embeddable
 @XmlRootElement(name = "session-configuration")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SessionConfiguration

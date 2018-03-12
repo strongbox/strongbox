@@ -123,7 +123,8 @@ public class InMemoryOrientDbServer implements OrientDbServer, Condition, ODatab
                            AnnotatedTypeMetadata metadata)
 
     {
-        return ConnectionConfigOrientDB.resolveProtocol(conditionContext.getEnvironment()).equals("memory");
+        return ConnectionConfigOrientDB.resolveProfile(conditionContext.getEnvironment())
+                                       .equals(ConnectionConfigOrientDB.PROFILE_MEMORY);
     }
 
 }

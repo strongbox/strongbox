@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.users.service.impl;
 
 import org.carlspring.strongbox.data.service.CommonCrudService;
+import org.carlspring.strongbox.data.service.SingletonCommonCrudService;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.service.AuthorizationConfigService;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
-public class AuthorizationConfigServiceImpl extends CommonCrudService<AuthorizationConfig>
+public class AuthorizationConfigServiceImpl extends SingletonCommonCrudService<AuthorizationConfig>
         implements AuthorizationConfigService
 {
 

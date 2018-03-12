@@ -1,14 +1,15 @@
 package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -154,29 +155,32 @@ public class MavenArtifactController
 
         try
         {
-            if (getStorage(srcStorageId) == null)
+            final Storage srcStorage = getStorage(srcStorageId);
+            if (srcStorage == null)
             {
                 return ResponseEntity.status(NOT_FOUND)
                                      .body("The source storageId does not exist!");
             }
-            if (getStorage(destStorageId) == null)
+            final Storage destStorage = getStorage(destStorageId);
+            if (destStorage == null)
             {
                 return ResponseEntity.status(NOT_FOUND)
                                      .body("The destination storageId does not exist!");
             }
-            if (getStorage(srcStorageId).getRepository(srcRepositoryId) == null)
+            final Repository srcRepository = srcStorage.getRepository(srcRepositoryId);
+            if (srcRepository == null)
             {
                 return ResponseEntity.status(NOT_FOUND)
                                      .body("The source repositoryId does not exist!");
             }
-            if (getStorage(destStorageId).getRepository(destRepositoryId) == null)
+            final Repository destRepository = destStorage.getRepository(destRepositoryId);
+            if (destRepository == null)
             {
                 return ResponseEntity.status(NOT_FOUND)
                                      .body("The destination repositoryId does not exist!");
             }
-            if (getStorage(srcStorageId) != null &&
-                getStorage(srcStorageId).getRepository(srcRepositoryId) != null &&
-                !new File(getStorage(srcStorageId).getRepository(srcRepositoryId).getBasedir(), path).exists())
+            final RepositoryPath srcRepositoryPath = repositoryPathResolver.resolve(srcRepository, path);
+            if (!Files.exists(srcRepositoryPath))
             {
                 return ResponseEntity.status(NOT_FOUND)
                                      .body("The source path does not exist!");
@@ -224,20 +228,20 @@ public class MavenArtifactController
 
         try
         {
-            if (getStorage(storageId) == null)
+            final Storage storage = getStorage(storageId);
+            if (storage == null)
             {
                 return ResponseEntity.status(NOT_FOUND)
                                      .body("The specified storageId does not exist!");
             }
-            if (getStorage(storageId).getRepository(repositoryId) == null)
+            final Repository repository = storage.getRepository(repositoryId);
+            if (repository == null)
             {
                 return ResponseEntity.status(NOT_FOUND)
                                      .body("The specified repositoryId does not exist!");
             }
-            if (getStorage(storageId) != null &&
-                getStorage(storageId).getRepository(repositoryId) != null &&
-                !new File(getStorage(storageId).getRepository(repositoryId)
-                                               .getBasedir(), path).exists())
+            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
+            if (!Files.exists(repositoryPath))
             {
                 return ResponseEntity.status(NOT_FOUND)
                                      .body("The specified path does not exist!");

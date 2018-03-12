@@ -1,21 +1,18 @@
 package org.carlspring.strongbox.domain;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-
-import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.data.domain.GenericEntity;
-import org.carlspring.strongbox.data.domain.GenericEntityHook;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author carlspring
@@ -23,7 +20,6 @@ import org.carlspring.strongbox.data.domain.GenericEntityHook;
 @Entity
 public class ArtifactEntry
         extends GenericEntity
-        implements Serializable
 {
 
     private String storageId;
