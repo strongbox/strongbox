@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration.security.ldap;
 
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapConstants;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapMessages;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserDnPatternsResponseEntityBody;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsSupplier;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater;
@@ -55,7 +55,7 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return toResponseEntityError(LdapConstants.LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
+            return toResponseEntityError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok(springSecurityLdapInternalsSupplier.getAuthoritiesMapper());
     }
@@ -71,7 +71,7 @@ public class LdapAuthenticatorConfigurationController
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
             return ResponseEntity.badRequest()
-                                 .body(LdapConstants.LdapMessages.NOT_CONFIGURED);
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
@@ -103,7 +103,7 @@ public class LdapAuthenticatorConfigurationController
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
             return ResponseEntity.badRequest()
-                                 .body(LdapConstants.LdapMessages.NOT_CONFIGURED);
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
@@ -129,7 +129,7 @@ public class LdapAuthenticatorConfigurationController
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
             return ResponseEntity.badRequest()
-                                 .body(LdapConstants.LdapMessages.NOT_CONFIGURED);
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
@@ -159,7 +159,7 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return toResponseEntityError(LdapConstants.LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
+            return toResponseEntityError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
         }
         List<String> userDnPatterns = springSecurityLdapInternalsSupplier.getUserDnPatterns();
         if (userDnPatterns == null)
@@ -180,7 +180,7 @@ public class LdapAuthenticatorConfigurationController
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
             return ResponseEntity.badRequest()
-                                 .body(LdapConstants.LdapMessages.NOT_CONFIGURED);
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         List<String> userDnPatterns = springSecurityLdapInternalsSupplier.getUserDnPatterns();
         if (userDnPatterns == null)
@@ -214,7 +214,7 @@ public class LdapAuthenticatorConfigurationController
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
             return ResponseEntity.badRequest()
-                                 .body(LdapConstants.LdapMessages.NOT_CONFIGURED);
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         List<String> userDnPatterns = springSecurityLdapInternalsSupplier.getUserDnPatterns();
         if (userDnPatterns == null)
@@ -225,7 +225,7 @@ public class LdapAuthenticatorConfigurationController
         if (!userDnPatterns.add(pattern))
         {
             return ResponseEntity.badRequest()
-                                 .body(LdapConstants.LdapMessages.NOT_CONFIGURED);
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
@@ -249,7 +249,7 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return toResponseEntityError(LdapConstants.LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
+            return toResponseEntityError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
         }
         LdapUserSearch userSearch = springSecurityLdapInternalsSupplier.getUserSearch();
         if (userSearch == null)
@@ -278,7 +278,7 @@ public class LdapAuthenticatorConfigurationController
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
             return ResponseEntity.badRequest()
-                                 .body(LdapConstants.LdapMessages.NOT_CONFIGURED);
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         AbstractLdapAuthenticator abstractLdapAuthenticator = springSecurityLdapInternalsSupplier.getAuthenticator();
         if (abstractLdapAuthenticator == null)
@@ -302,7 +302,7 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return toResponseEntityError(LdapConstants.LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
+            return toResponseEntityError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
         }
         LdapAuthoritiesPopulator populator = springSecurityLdapInternalsSupplier.getAuthoritiesPopulator();
         if (populator == null)
@@ -330,7 +330,7 @@ public class LdapAuthenticatorConfigurationController
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
             return ResponseEntity.badRequest()
-                                 .body(LdapConstants.LdapMessages.NOT_CONFIGURED);
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         LdapAuthoritiesPopulator ldapAuthoritiesPopulator = springSecurityLdapInternalsSupplier.getAuthoritiesPopulator();
         if (ldapAuthoritiesPopulator == null)
