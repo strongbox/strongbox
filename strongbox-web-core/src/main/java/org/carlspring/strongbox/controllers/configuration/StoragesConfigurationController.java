@@ -259,9 +259,6 @@ public class StoragesConfigurationController
         {
             try
             {
-                logger.debug(storageId);
-                logger.debug(repositoryId);
-
                 repositoryIndexManager.closeIndexer(storageId + ":" + repositoryId);
 
                 final File repositoryBaseDir = new File(repository.getBasedir());

@@ -70,7 +70,7 @@ public class StrongboxConfigurationController
                                  MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getConfigurationXML()
     {
-        logger.debug("Received configuration request.");
+        logger.debug("Retrieved strongbox.xml configuration file.");
 
         return ResponseEntity.status(HttpStatus.OK)
                              .body(getConfiguration());
