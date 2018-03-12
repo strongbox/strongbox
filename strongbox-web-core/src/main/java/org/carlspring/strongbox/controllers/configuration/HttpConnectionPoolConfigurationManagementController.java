@@ -47,10 +47,10 @@ public class HttpConnectionPoolConfigurationManagementController
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "Number of pool connections for proxy repository was updated successfully."),
                             @ApiResponse(code = 400,
-                                         message = "Repository doesn't have remote repository!"),
+                                         message = "The proxy repository has no associated remote repository."),
                             @ApiResponse(code = 404,
                                     message = "The (storage/repository) does not exist!") })
-    @PutMapping(value = "/{storageId}/{repositoryId}/{numberOfConnections}",
+    @PutMapping(value = "{storageId}/{repositoryId}/{numberOfConnections}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setNumberOfConnectionsForProxyRepository(@PathVariable(value = "storageId") String storageId,
@@ -80,7 +80,7 @@ public class HttpConnectionPoolConfigurationManagementController
                    .getRemoteRepository() == null)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body(getResponseEntityBody("Repository doesn't have remote repository!", accept));
+                                 .body(getResponseEntityBody("The proxy repository has no associated remote repository.", accept));
         }
 
         configurationManagementService.setProxyRepositoryMaxConnections(storageId, repositoryId, numberOfConnections);
@@ -99,7 +99,7 @@ public class HttpConnectionPoolConfigurationManagementController
                                          message = "Repository doesn't have remote repository!"),
                             @ApiResponse(code = 404,
                                     message = "The (storage/repository) does not exist!") })
-    @GetMapping(value = "/{storageId}/{repositoryId}",
+    @GetMapping(value = "{storageId}/{repositoryId}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getPoolStatsForProxyRepository(@PathVariable(value = "storageId") String storageId,
@@ -139,7 +139,7 @@ public class HttpConnectionPoolConfigurationManagementController
                                          message = "Default number of connections for proxy repository was updated successfully."),
                             @ApiResponse(code = 400,
                                          message = "Could not update default number of connections for proxy repository.") })
-    @PutMapping(value = "/default/{numberOfConnections}",
+    @PutMapping(value = "default/{numberOfConnections}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setDefaultNumberOfConnectionsForProxyRepository(@PathVariable(value = "numberOfConnections")
@@ -156,7 +156,7 @@ public class HttpConnectionPoolConfigurationManagementController
                                          message = "Default number of connections was retrieved."),
                             @ApiResponse(code = 400,
                                          message = "Could not get default number of connections for proxy repository.") })
-    @GetMapping(value = "/default-number",
+    @GetMapping(value = "default-number",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getDefaultNumberOfConnectionsForProxyRepository(@RequestHeader(HttpHeaders.ACCEPT) String accept)
@@ -170,7 +170,7 @@ public class HttpConnectionPoolConfigurationManagementController
                                          message = "Max number of connections for proxy repository was updated successfully."),
                             @ApiResponse(code = 400,
                                          message = "Could not update max number of connections for proxy repository.") })
-    @PutMapping(value = "/max/{numberOfConnections}",
+    @PutMapping(value = "max/{numberOfConnections}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setMaxNumberOfConnectionsForProxyRepository(@PathVariable(value = "numberOfConnections")
