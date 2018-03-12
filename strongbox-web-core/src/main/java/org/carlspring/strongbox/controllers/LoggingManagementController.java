@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
@@ -29,6 +28,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,7 +43,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
@@ -166,27 +167,24 @@ public class LoggingManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download log data.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOG','CONFIGURE_LOGS')")
-    @GetMapping(value = "/log/{path:.+}",
+    @GetMapping(value = "/log/{path}",
                 produces = TEXT_PLAIN_VALUE)
-    public void downloadLog(@PathVariable String path,
-                            HttpServletResponse response)
+    public ResponseEntity downloadLog(@PathVariable String path,
+                                      @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws Exception
     {
         try
         {
             logger.debug("Received a request to retrieve log file {}.", path);
 
-            InputStream is = loggingManagementService.downloadLog(path);
-            copyToResponse(is, response);
-
-            response.setStatus(OK.value());
+            return getStreamToResponseEntity(loggingManagementService.downloadLog(path),
+                                             FilenameUtils.getName(path));
         }
         catch (LoggingConfigurationException e)
         {
             String message = "Could not download log data.";
-            logger.error(message, e);
 
-            response.setStatus(BAD_REQUEST.value());
+            return getExceptionResponseEntity(BAD_REQUEST, message, e, accept);
         }
     }
 
@@ -196,22 +194,19 @@ public class LoggingManagementController
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOGBACK_CFG','CONFIGURE_LOGS')")
     @GetMapping(value = "/logback",
                 produces = MediaType.APPLICATION_XML_VALUE)
-    public void downloadLogbackConfiguration(HttpServletResponse response)
+    public ResponseEntity downloadLogbackConfiguration(@RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws Exception
     {
         try
         {
-            InputStream is = loggingManagementService.downloadLogbackConfiguration();
-            copyToResponse(is, response);
-            response.setStatus(OK.value());
+            return getStreamToResponseEntity(loggingManagementService.downloadLogbackConfiguration(),
+                                             "strongbox-logback-configuration.xml");
         }
         catch (LoggingConfigurationException e)
         {
             String message = "Could not download logback configuration.";
             
-            logger.error(message, e);
-
-            response.setStatus(BAD_REQUEST.value());
+            return getExceptionResponseEntity(BAD_REQUEST, message, e, accept);
         }
     }
 

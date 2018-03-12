@@ -17,11 +17,11 @@ import java.util.List;
 import org.apache.commons.collections.IteratorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 
 /**
@@ -243,6 +243,18 @@ public abstract class BaseController
             ResourceCloser.close(is, logger);
             ResourceCloser.close(os, logger);
         }
+    }
+
+    protected ResponseEntity<InputStreamResource> getStreamToResponseEntity(InputStream is,
+                                                                            String filename)
+            throws IllegalStateException
+    {
+        InputStreamResource inputStreamResource = new InputStreamResource(is);
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Content-Disposition", "attachment; filename=" + filename);
+
+        return new ResponseEntity<>(inputStreamResource, httpHeaders, HttpStatus.OK);
     }
 
 }
