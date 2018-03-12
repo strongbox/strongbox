@@ -46,7 +46,7 @@ public class SpringSecurityLdapInternalsSupplier
                                                           .filter(a -> a instanceof LdapAuthenticator)
                                                           .findFirst()
                                                           .orElseThrow(() -> new IllegalStateException(
-                                                                  LdapConstants.LdapMessages.NOT_CONFIGURED)))
+                                                                  LdapMessages.NOT_CONFIGURED)))
                                                     .getAuthenticationProvider();
     }
 
