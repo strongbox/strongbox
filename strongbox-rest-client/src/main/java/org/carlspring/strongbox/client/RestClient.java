@@ -73,13 +73,13 @@ public class RestClient
     public int setConfiguration(Configuration configuration)
             throws IOException, JAXBException
     {
-        return setServerConfiguration(configuration, "/api/api/configuration/strongbox/xml", Configuration.class);
+        return setServerConfiguration(configuration, "/api/configuration/strongbox/xml", Configuration.class);
     }
 
     public Configuration getConfiguration()
             throws JAXBException
     {
-        return (Configuration) getServerConfiguration("/api/api/configuration/strongbox/xml", Configuration.class);
+        return (Configuration) getServerConfiguration("/api/configuration/strongbox/xml", Configuration.class);
     }
 
     public int setServerConfiguration(ServerConfiguration configuration,
@@ -137,7 +137,7 @@ public class RestClient
      */
     public int setListeningPort(int port)
     {
-        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/port/" + port;
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/port/" + port;
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -154,7 +154,7 @@ public class RestClient
      */
     public int getListeningPort()
     {
-        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/port";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/port";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -170,7 +170,7 @@ public class RestClient
      */
     public int setBaseUrl(String baseUrl)
     {
-        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/baseUrl/" + baseUrl;
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/baseUrl/" + baseUrl;
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -187,7 +187,7 @@ public class RestClient
      */
     public String getBaseUrl()
     {
-        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/baseUrl";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/baseUrl";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -198,7 +198,7 @@ public class RestClient
     public int setProxyConfiguration(ProxyConfiguration proxyConfiguration)
             throws IOException, JAXBException
     {
-        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/proxy-configuration";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -218,7 +218,7 @@ public class RestClient
                                                     String repositoryId)
             throws JAXBException
     {
-        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/proxy-configuration" +
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration" +
                      (storageId != null && repositoryId != null ?
                       "?storageId=" + storageId + "&repositoryId=" + repositoryId : "");
 
@@ -256,7 +256,7 @@ public class RestClient
     public int addStorage(Storage storage)
             throws IOException, JAXBException
     {
-        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/storages";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/storages";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -282,7 +282,7 @@ public class RestClient
     public Storage getStorage(String storageId)
             throws JAXBException
     {
-        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/storages/" + storageId;
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId;
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -317,7 +317,7 @@ public class RestClient
     public int deleteStorage(String storageId,
                              boolean force)
     {
-        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/storages/" + storageId +
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId +
                      (force ? "?force=true" : "");
 
         WebTarget resource = getClientInstance().target(url);
@@ -348,7 +348,7 @@ public class RestClient
 
         try
         {
-            String url = getContextBaseUrl() + "/api/api/configuration/strongbox/storages/" +
+            String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" +
                          repository.getStorage().getId() + "/" + repository.getId();
 
             resource = getClientInstance().target(url);
@@ -379,7 +379,7 @@ public class RestClient
                                     String repositoryId)
             throws JAXBException
     {
-        String url = getContextBaseUrl() + "/api/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -417,7 +417,7 @@ public class RestClient
                                 boolean force)
     {
         String url = getContextBaseUrl() +
-                     "/api/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId +
+                     "/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId +
                      (force ? "?force=true" : "");
 
         WebTarget resource = getClientInstance().target(url);
