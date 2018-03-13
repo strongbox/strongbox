@@ -254,7 +254,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURATION_UPLOAD_LOGBACK_CFG" })
+    @WithMockUser(authorities = { "CONFIGURATION_UPLOAD_LOGBACK_CFG", "CONFIGURATION_RETRIEVE_LOGBACK_CFG" })
     public void testUploadLogbackConfigurationWithTextAcceptHeader()
     {
         String url = getContextBaseUrl() + "/api/logging/logback";
@@ -281,7 +281,7 @@ public class LoggingManagementControllerTestIT
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURE_LOGS" })
+    @WithMockUser(authorities = { "CONFIGURATION_UPLOAD_LOGBACK_CFG", "CONFIGURATION_RETRIEVE_LOGBACK_CFG"})
     public void testUploadLogbackConfigurationWithJsonAcceptHeader()
     {
         String url = getContextBaseUrl() + "/api/logging/logback";
