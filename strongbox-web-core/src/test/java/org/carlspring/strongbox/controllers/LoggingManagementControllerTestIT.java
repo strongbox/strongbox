@@ -20,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.get;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertTrue;
@@ -232,7 +231,7 @@ public class LoggingManagementControllerTestIT
 
         String url = getContextBaseUrl() + "/api/logging/log/" + testLogName;
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .when()
                .get(url)
                .peek() // Use peek() to print the output
@@ -246,7 +245,7 @@ public class LoggingManagementControllerTestIT
     {
         String url = getContextBaseUrl() + "/api/logging/logback";
 
-        given().contentType(MediaType.APPLICATION_XML_VALUE)
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
                .when()
                .get(url)
                .peek() // Use peek() to print the output
@@ -261,7 +260,14 @@ public class LoggingManagementControllerTestIT
         String url = getContextBaseUrl() + "/api/logging/logback";
 
         // Obtain the current logback XML.
-        byte[] byteArray = get(url).asByteArray();
+        byte[] byteArray = given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
+                                  .get(url)
+                                  .peek()
+                                  .then()
+                                  .statusCode(HttpStatus.OK.value())
+                                  .extract()
+                                  .asByteArray();
+
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .contentType(MediaType.APPLICATION_XML_VALUE)
@@ -281,7 +287,13 @@ public class LoggingManagementControllerTestIT
         String url = getContextBaseUrl() + "/api/logging/logback";
 
         // Obtain the current logback XML.
-        byte[] byteArray = get(url).asByteArray();
+        byte[] byteArray = given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
+                                  .get(url)
+                                  .peek()
+                                  .then()
+                                  .statusCode(HttpStatus.OK.value())
+                                  .extract()
+                                  .asByteArray();
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_XML_VALUE)
