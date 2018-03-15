@@ -191,7 +191,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         given().header("User-Agent", "NuGet/*")
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                       "/FindPackagesById()?Id='Org.Carlspring.Strongbox.Examples.Nuget.Mono'")
+                       "/FindPackagesById()?id='Org.Carlspring.Strongbox.Examples.Nuget.Mono'")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -395,7 +395,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     {
         given().header("User-Agent", "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/public/nuget-public/FindPackagesById()?Id=NHibernate")
+               .get(getContextBaseUrl() + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -440,7 +440,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         PackageFeed feed = given().header("User-Agent", "NuGet/*")
                                   .when()
                                   .get(getContextBaseUrl()
-                                          + "/storages/public/nuget-public/FindPackagesById()?Id=NHibernate&$orderby=Version")
+                                          + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate&$orderby=Version")
                                   .body()
                                   .as(PackageFeed.class);
 
