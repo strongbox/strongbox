@@ -18,6 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 
 /**
  * @author mtodorov
@@ -138,6 +139,17 @@ public class GenericParser<T>
         store(object, new File(path).getAbsoluteFile());
     }
 
+    public void store(T object,
+                      Resource fileResource) throws JAXBException, IOException {
+        //Check that target resource stored on FS and not under classpath for example
+        if (!fileResource.isFile())
+        {
+            logger.warn(String.format("Skip resource store [%s]", fileResource));
+            return;
+        }
+        store(object, fileResource.getFile());
+    }
+    
     public void store(T object,
                       File file)
             throws JAXBException, IOException

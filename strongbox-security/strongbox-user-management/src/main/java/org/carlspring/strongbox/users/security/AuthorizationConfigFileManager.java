@@ -2,9 +2,12 @@ package org.carlspring.strongbox.users.security;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -15,6 +18,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthorizationConfigFileManager
 {
+    
+    private static final Logger logger = LoggerFactory.getLogger(AuthoritiesProvider.class);
 
     private final GenericParser<AuthorizationConfig> parser = new GenericParser<>(AuthorizationConfig.class);
 
@@ -29,19 +34,20 @@ public class AuthorizationConfigFileManager
     {
         try
         {
-            parser.store(config, getConfigurationResource().getFile());
+            parser.store(config, getConfigurationResource());
         }
         catch (JAXBException | IOException e)
         {
-            throw new AuthorizationConfigSaveException(e);
+            throw new AuthorizationConfigReadException(e);
         }
+        
     }
 
     public AuthorizationConfig read()
     {
-        try
+        try(InputStream inputStream = getConfigurationResource().getInputStream())
         {
-            return parser.parse(getConfigurationResource().getFile());
+            return parser.parse(inputStream);
         }
         catch (JAXBException | IOException e)
         {
