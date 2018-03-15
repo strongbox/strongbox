@@ -34,14 +34,7 @@ public class AuthorizationConfigFileManager
     {
         try
         {
-            Resource configurationResource = getConfigurationResource();
-            //Check that target resource stored on FS and not under classpath for example
-            if (!configurationResource.isFile())
-            {
-                logger.warn(String.format("Skip configuration resource store [%s]", configurationResource));
-                return;
-            }
-            parser.store(config, configurationResource.getFile());
+            parser.store(config, getConfigurationResource());
         }
         catch (JAXBException | IOException e)
         {

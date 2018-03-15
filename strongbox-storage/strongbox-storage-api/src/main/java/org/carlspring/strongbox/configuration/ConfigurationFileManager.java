@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 public class ConfigurationFileManager
 {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationFileManager.class);
 
     private final GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
 
@@ -35,14 +35,7 @@ public class ConfigurationFileManager
     {
         try
         {
-            Resource configurationResource = getConfigurationResource();
-            //Check that target resource stored on FS and not under classpath for example
-            if (!configurationResource.isFile())
-            {
-                LOGGER.warn(String.format("Skip configuration resource store [%s]", configurationResource));
-                return;
-            }
-            parser.store(configuration, configurationResource.getFile());
+            parser.store(configuration, getConfigurationResource());
         }
         catch (JAXBException | IOException e)
         {

@@ -50,7 +50,7 @@ public class AuthenticationManager
         Resource resource = ConfigurationResourceResolver.getConfigurationResource("security.authentication.xml",
                                                                                    "etc/conf/security-authentication.xml");
 
-        parser.store(configuration, resource.getFile().getAbsoluteFile());
+        parser.store(configuration, resource);
     }
 
     public List<String> getRealms()
