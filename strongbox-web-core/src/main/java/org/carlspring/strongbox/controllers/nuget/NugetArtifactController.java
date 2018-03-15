@@ -309,7 +309,7 @@ public class NugetArtifactController extends BaseArtifactController
     @RequestMapping(path = { "{storageId}/{repositoryId}/FindPackagesById()" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
     public ResponseEntity<?> searchPackageById(@PathVariable(name = "storageId") String storageId,
                                                @PathVariable(name = "repositoryId") String repositoryId,
-                                               @RequestParam(name = "Id", required = true) String packageId,
+                                               @RequestParam(name = "id", required = true) String packageId,
                                                HttpServletResponse response)
             throws JAXBException, IOException
     {
