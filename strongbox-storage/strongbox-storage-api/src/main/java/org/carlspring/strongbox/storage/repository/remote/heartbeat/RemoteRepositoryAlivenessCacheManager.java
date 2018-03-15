@@ -30,13 +30,13 @@ public class RemoteRepositoryAlivenessCacheManager
 
     public boolean isAlive(RemoteRepository remoteRepository)
     {
-        return BooleanUtils.isTrue(cache.get(remoteRepository, Boolean.class));
+        return BooleanUtils.isNotFalse(cache.get(remoteRepository.getUrl(), Boolean.class));
     }
 
     public void put(RemoteRepository remoteRepository,
                     boolean aliveness)
     {
-        cache.put(remoteRepository, Boolean.valueOf(aliveness));
+        cache.put(remoteRepository.getUrl(), Boolean.valueOf(aliveness));
     }
 
     @Override
