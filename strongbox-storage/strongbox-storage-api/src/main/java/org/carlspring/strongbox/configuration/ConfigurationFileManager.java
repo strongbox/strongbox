@@ -36,6 +36,7 @@ public class ConfigurationFileManager
         try
         {
             Resource configurationResource = getConfigurationResource();
+            //Check that target resource stored on FS and not under classpath for example
             if (!configurationResource.isFile())
             {
                 LOGGER.warn(String.format("Skip configuration resource store [%s]", configurationResource));
