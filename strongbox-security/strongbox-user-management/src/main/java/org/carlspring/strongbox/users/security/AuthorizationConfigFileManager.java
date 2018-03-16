@@ -19,8 +19,6 @@ import org.springframework.stereotype.Component;
 public class AuthorizationConfigFileManager
 {
     
-    private static final Logger logger = LoggerFactory.getLogger(AuthoritiesProvider.class);
-
     private final GenericParser<AuthorizationConfig> parser = new GenericParser<>(AuthorizationConfig.class);
 
     private Resource getConfigurationResource()
