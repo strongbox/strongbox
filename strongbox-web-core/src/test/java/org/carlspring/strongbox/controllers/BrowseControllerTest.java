@@ -2,68 +2,104 @@ package org.carlspring.strongbox.controllers;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Throwables;
+import groovy.util.logging.Log;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-
+import java.util.LinkedHashSet;
+import java.util.Set;
+import javax.inject.Inject;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.DirectoryContent;
-import org.carlspring.strongbox.domain.FileContent;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Guido Grazioli
  */
-@Ignore
+
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class BrowseControllerTest
-        extends RestAssuredBaseTest
+        extends MavenRestAssuredBaseTest
 {
+    
+    private static final Logger logger = LoggerFactory.getLogger(BrowseControllerTest.class);
+    
+    private static final String REPOSITORY = "browsing-test-repository";
+    
+    @Inject
+    private MavenRepositoryFactory mavenRepositoryFactory;
 
     @BeforeClass
     public static void setup()
             throws Exception
     {
-        Files.createFile(Paths.get("target/strongbox-vault/storages/storage0/releases","testfile"))
-             .toFile()
-             .deleteOnExit();
-        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","testdir"))
-             .toFile()
-             .deleteOnExit();
-        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","testdir/testsubdir"))
-             .toFile()
-             .deleteOnExit();
-        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1"))
-             .toFile()
-             .deleteOnExit();
-        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir"))
-             .toFile()
-             .deleteOnExit();
-        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir/com"))
-             .toFile()
-             .deleteOnExit();
-        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir/com/artifactdir"))
-             .toFile()
-             .deleteOnExit();
-        Files.createDirectory(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir/com/artifactdir/1.0.0"))
-             .toFile()
-             .deleteOnExit();
-        Files.createFile(Paths.get("target/strongbox-vault/storages/storage0/releases","org1/groupdir/com/artifactdir/1.0.0/artifactdir-1.0.0.jar"))
-             .toFile()
-             .deleteOnExit();
+        cleanUp(getRepositoriesToClean());
+    }
+    
+    private static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY));
+        return repositories;        
+    }
+    
+    @Override
+    public void init()
+            throws Exception
+    {
+        super.init();
+
+        File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
+
+        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(true);
+
+        Repository repository = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY);
+        repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+        repository.setRepositoryConfiguration(mavenRepositoryConfiguration);
+
+        createRepository(repository);
+        
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY).getAbsolutePath(),
+                         "org.carlspring.strongbox.browsing:test-browsing",
+                         new String[]{ "1.1",
+                                       "3.2"  
+                         }
+        );      
+    } 
+    
+    @Override
+    public void shutdown()
+    {
+        try
+        {
+            getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY);
+        }
+        catch (IOException e)
+        {
+            throw Throwables.propagate(e);
+        }
+        super.shutdown();
     }
     
     @Test
@@ -72,20 +108,21 @@ public class BrowseControllerTest
     {
 
         String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT;
-        String storages = given().accept(MediaType.APPLICATION_JSON_VALUE)
-                                 .when()
-                                 .get(url)
-                                 .prettyPeek()
-                                 .asString();
         
+        String jsonResponse = given().accept(MediaType.APPLICATION_JSON_VALUE)
+                                     .when()
+                                     .get(url)
+                                     .prettyPeek()
+                                     .asString();
+
         DirectoryContent returned = new ObjectMapper()
-                .readValue(storages, DirectoryContent.class);
+                .readValue(jsonResponse, DirectoryContent.class);
               
         assertNotNull("Failed to get storage list!", returned);
         assertNotNull("Failed to get storage list!", returned.getDirectories());
         assertFalse("Returned storage size does not match", returned.getDirectories().isEmpty());
         
-        String responseBody = given().accept(MediaType.TEXT_HTML_VALUE)
+        String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
                                      .get(url + "/")
                                      .prettyPeek()
@@ -94,34 +131,35 @@ public class BrowseControllerTest
                                      .and()
                                      .extract()
                                      .asString();
-        
-        assertTrue("Returned HTML is incorrect", responseBody.contains("storage0"));
+       
+        assertTrue("Returned HTML is incorrect", htmlResponse.contains("storage0"));
     }
 
     @Test
     public void testGetRepositories()
             throws Exception
     {
-        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0";
-        String repos = given().accept(MediaType.APPLICATION_JSON_VALUE)
-                              .when()
-                              .get(url)
-                              .prettyPeek()
-                              .asString();
+        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/" + STORAGE0;
+        
+        String jsonResponse = given().accept(MediaType.APPLICATION_JSON_VALUE)
+                                     .when()
+                                     .get(url)
+                                     .prettyPeek()
+                                     .asString();
 
         DirectoryContent returned = new ObjectMapper()
-                .readValue(repos, DirectoryContent.class);
+                .readValue(jsonResponse, DirectoryContent.class);
         
         assertNotNull("Failed to get repository list!", returned);
         assertNotNull("Failed to get repository list!", returned.getDirectories());
         assertTrue("Returned repositories do not match", !returned.getDirectories().isEmpty());
         assertTrue("Repository not found", returned.getDirectories()
                                                    .stream()
-                                                   .filter(p -> p.getName().equals("releases"))
+                                                   .filter(p -> p.getName().equals(REPOSITORY))
                                                    .findFirst()
                                                    .isPresent());
         
-        String responseBody = given().accept(MediaType.TEXT_HTML_VALUE)
+        String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
                                      .get(url + "/")
                                      .prettyPeek()
@@ -131,7 +169,7 @@ public class BrowseControllerTest
                                      .extract()
                                      .asString();
 
-        assertTrue("Returned HTML is incorrect", responseBody.contains("releases"));
+        assertTrue("Returned HTML is incorrect", htmlResponse.contains(REPOSITORY));
 }
                                  
 
@@ -155,25 +193,34 @@ public class BrowseControllerTest
                .statusCode(404);
     }
 
-    @Ignore
     @Test
     public void testRepositoryContents()
             throws Exception
     {
-        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/releases";
-        String contents = given().accept(MediaType.APPLICATION_JSON_VALUE)
-                                 .when()
-                                 .get(url)
-                                 .prettyPeek()
-                                 .asString();
+        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/" + STORAGE0 + "/" + REPOSITORY
+                     + "/org/carlspring/strongbox/browsing/test-browsing/1.1";
+        
+        String jsonResponse = given().accept(MediaType.APPLICATION_JSON_VALUE)
+                                     .when()
+                                     .get(url)
+                                     .prettyPeek()
+                                     .asString();
         
         DirectoryContent returned = new ObjectMapper()
-                .readValue(contents, DirectoryContent.class);
+                .readValue(jsonResponse, DirectoryContent.class);
         
-        assertTrue("Invalid files returned", returned.getFiles().size() == 1
-                        && returned.getDirectories().get(0).getName().equals("testfile"));                                                           
-        assertTrue("Invalid files returned", returned.getDirectories().size() == 1
-                    && returned.getDirectories().get(0).getName().equals("testdir"));
+        assertTrue("Invalid files returned", returned.getFiles().size() == 6
+                        && returned.getFiles().get(0).getName().equals("test-browsing-1.1.jar"));                                                        
+    
+        String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
+                                     .when()
+                                     .get(url + "/")
+                                     .prettyPeek()
+                                     .asString();
+        
+        assertTrue("Returned HTML is incorrect", htmlResponse.contains(getContextBaseUrl() + "/storages/"
+        + STORAGE0 + "/" + REPOSITORY + "/org/carlspring/strongbox/browsing/test-browsing/1.1/test-browsing-1.1.jar"));
+
     }
 
     @Test
@@ -194,26 +241,7 @@ public class BrowseControllerTest
                .then()
                .statusCode(404);   
     }
-    
-    @Test
-    public void testRepositoryContentsWithPath()
-            throws Exception
-    {
-        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/releases/testdir";
-        String contents = given().accept(MediaType.APPLICATION_JSON_VALUE)
-                                 .when()
-                                 .get(url)
-                                 .prettyPeek()
-                                 .asString();
-
-        DirectoryContent returned = new ObjectMapper()
-                .readValue(contents, DirectoryContent.class);
-        
-        assertTrue("Invalid files returned", returned.getFiles().isEmpty());
-        assertTrue("Invalid files returned", returned.getDirectories().size() == 1
-                && returned.getDirectories().get(0).getName().equals("testsubdir"));
-    }
-
+  
     @Test
     public void testRepositoryContentsWithPathNotFound()
     {
@@ -232,22 +260,4 @@ public class BrowseControllerTest
                .then()
                .statusCode(404);        
     }
-    
-    @Test
-    public void testBrowseRepositoryContents()
-    {
-        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/releases/org1/groupdir/com/artifactdir/1.0.0/";
-        String responseBody = given().accept(MediaType.TEXT_HTML_VALUE)
-                                     .when()
-                                     .get(url)
-                                     .prettyPeek()
-                                     .then()
-                                     .statusCode(200)
-                                     .and()
-                                     .extract()
-                                     .asString();
-               
-        assertTrue("Returned HTML is incorrect", responseBody.contains("/storages/storage0/releases/org1/groupdir/com/artifactdir/1.0.0/artifactdir-1.0.0.jar'"));
-    }
-    
 }
