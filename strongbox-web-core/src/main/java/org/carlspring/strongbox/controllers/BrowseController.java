@@ -64,7 +64,7 @@ public class BrowseController extends BaseArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(method = RequestMethod.GET, produces = {MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> browse(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @RequestHeader HttpHeaders headers)
@@ -109,7 +109,7 @@ public class BrowseController extends BaseArtifactController
                             @ApiResponse(code = 404, message = "The requested storage was not found."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value="/{storageId}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value="/{storageId}", method = RequestMethod.GET, produces = {MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> repositories(@ApiParam(value = "The storageId", required = true) @PathVariable("storageId") String storageId,
                                                HttpServletRequest request,
                                                HttpServletResponse response,
@@ -163,7 +163,7 @@ public class BrowseController extends BaseArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
                     method = RequestMethod.GET, 
-                    produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE})
+                    produces = {MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> contents(@ApiParam(value = "The storageId", required = true)
                                            @PathVariable("storageId") String storageId,
                                            @ApiParam(value = "The repositoryId", required = true)
