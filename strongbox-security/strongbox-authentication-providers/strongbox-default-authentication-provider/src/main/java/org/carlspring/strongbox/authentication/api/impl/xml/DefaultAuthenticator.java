@@ -41,6 +41,7 @@ public class DefaultAuthenticator
         };
         authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
+        
         return authenticationProvider;
     }
 }
