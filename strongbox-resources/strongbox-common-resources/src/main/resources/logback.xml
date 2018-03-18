@@ -69,7 +69,7 @@
     <logger name="LOG_CHANGES" level="ERROR"/>
 
     <logger name="org.carlspring.strongbox" level="DEBUG"/>
-    <logger name="org.carlspring.strongbox.security.authentication" level="ERROR"/>
+    <logger name="org.carlspring.strongbox.security.authentication" level="DEBUG"/>
     <logger name="org.carlspring.strongbox.security.vote" level="DEBUG"/>
     <logger name="org.carlspring.strongbox.data" level="WARN"/>
     <logger name="org.carlspring.strongbox.data.tx" level="WARN"/>
