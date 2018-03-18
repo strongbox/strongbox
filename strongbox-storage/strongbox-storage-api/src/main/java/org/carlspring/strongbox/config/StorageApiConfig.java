@@ -22,8 +22,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
-@EnableTransactionManagement(proxyTargetClass = true, order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
-@EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.artifact",
                  "org.carlspring.strongbox.configuration",
                  "org.carlspring.strongbox.io",

@@ -35,14 +35,16 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @ComponentScan({ "org.carlspring.strongbox.security" })
-@Import({ EventsConfig.class,
+@Import({ DataServiceConfig.class,
+          EventsConfig.class,
           UsersConfig.class,
-          AuthenticationConfig.class })
+          AuthenticationConfig.class})
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig

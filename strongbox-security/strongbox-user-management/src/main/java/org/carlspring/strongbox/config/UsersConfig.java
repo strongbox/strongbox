@@ -39,8 +39,6 @@ import com.orientechnologies.orient.core.entity.OEntityManager;
  */
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.users" })
-@EnableTransactionManagement(proxyTargetClass = true,
-                             order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
 @Import({ DataServiceConfig.class,
           CommonConfig.class,
           AuthoritiesConfig.class })

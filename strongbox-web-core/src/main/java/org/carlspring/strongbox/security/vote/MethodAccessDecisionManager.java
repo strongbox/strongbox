@@ -2,8 +2,10 @@ package org.carlspring.strongbox.security.vote;
 
 import java.util.Arrays;
 
+import javax.inject.Inject;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
@@ -19,12 +21,10 @@ public class MethodAccessDecisionManager
 {
 
     @SuppressWarnings("unchecked")
-    public MethodAccessDecisionManager()
+    public MethodAccessDecisionManager(@Autowired ExtendedAuthoritiesVoter extendedAuthoritiesVoter)
     {
-        super(Arrays.asList(new CustomAccessDecisionVoter(),
-                            new CustomPreInvocationAuthorizationAdviceVoter(new ExpressionBasedPreInvocationAdvice()),
+        super(Arrays.asList(extendedAuthoritiesVoter,
                             new RoleVoter(),
-                            new AuthenticatedVoter()
-        ));
+                            new AuthenticatedVoter()));
     }
 }
