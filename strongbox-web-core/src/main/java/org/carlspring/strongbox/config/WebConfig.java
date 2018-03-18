@@ -54,6 +54,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
           StorageCoreConfig.class,
           SecurityConfig.class,
           ClientConfig.class,
+          UsersConfig.class,
           CronTasksConfig.class })
 @EnableCaching(order = 105)
 @EnableWebMvc
