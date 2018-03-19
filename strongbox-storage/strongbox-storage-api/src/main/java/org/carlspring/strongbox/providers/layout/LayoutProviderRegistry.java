@@ -9,12 +9,10 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -49,12 +47,7 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
                 {
                     logger.debug("Emptying trash for repository " + repository.getId() + "...");
 
-                    final File basedirTrash = repository.getTrashDir();
-
-                    FileUtils.deleteDirectory(basedirTrash);
-
-                    //noinspection ResultOfMethodCallIgnored
-                    basedirTrash.mkdirs();
+                    getProvider(repository.getLayout()).deleteTrash(storage.getId(), repository.getId());
                 }
                 else
                 {

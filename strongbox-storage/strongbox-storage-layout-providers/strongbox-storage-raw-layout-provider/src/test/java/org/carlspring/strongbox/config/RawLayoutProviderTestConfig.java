@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.MockedRepositoryPathResolverConfig;
 import org.carlspring.strongbox.data.CacheManagerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Primary;
           ClientConfig.class,
           DataServiceConfig.class,
           TestingCoreConfig.class,
+          MockedRepositoryPathResolverConfig.class
         })
 public class RawLayoutProviderTestConfig
 {

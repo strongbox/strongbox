@@ -1,20 +1,32 @@
 package org.carlspring.strongbox.controllers;
 
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryTrashPathResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Files;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * @author Martin Todorov
@@ -29,6 +41,9 @@ public class TrashController
 
     @Inject
     private RepositoryManagementService repositoryManagementService;
+
+    @Inject
+    private RepositoryTrashPathResolver repositoryTrashPathResolver;
 
 
     @ApiOperation(value = "Used to delete the trash for a specified repository.",
@@ -134,12 +149,14 @@ public class TrashController
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body(getResponseEntityBody("The specified storageId does not exist!", accept));
         }
+        Repository repository = getRepository(storageId, repositoryId);
         if (getRepository(storageId, repositoryId) == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body(getResponseEntityBody("The specified repositoryId does not exist!", accept));
         }
-        if (!Paths.get(getRepository(storageId, repositoryId).getBasedir() + "/.trash", path).toFile().exists())
+        final RepositoryPath trashPath = repositoryTrashPathResolver.resolve(repository);
+        if (!Files.exists(trashPath))
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body(getResponseEntityBody("The specified path does not exist!", accept));

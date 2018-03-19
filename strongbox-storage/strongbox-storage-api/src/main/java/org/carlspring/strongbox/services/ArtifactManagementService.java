@@ -12,6 +12,7 @@ import org.carlspring.strongbox.io.StreamUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.SearchException;
@@ -21,29 +22,37 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
-import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
-import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
+import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.FileSystemUtils;
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
@@ -52,39 +61,30 @@ import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.g
 @Component
 public class ArtifactManagementService
 {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementService.class);
-
-    private Map<URI, Lock> pathUriMap = new ConcurrentHashMap<>();
-
     @Inject
     protected ArtifactOperationsValidator artifactOperationsValidator;
-    
     @Inject
     protected ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
-    
     @Inject
     protected ConfigurationManager configurationManager;
-
     @Inject
     protected ArtifactEntryService artifactEntryService;
-
     @Inject
     protected LayoutProviderRegistry layoutProviderRegistry;
-
     @Inject
     protected ArtifactResolutionService artifactResolutionService;
-
     @Inject
     protected ChecksumCacheManager checksumCacheManager;
-
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
-
     @Inject
     protected ArtifactByteStreamsCopyStrategyDeterminator artifactByteStreamsCopyStrategyDeterminator;
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
+    private Map<URI, Lock> pathUriMap = new ConcurrentHashMap<>();
 
-    
     @Transactional
     public long validateAndStore(String storageId,
                                  String repositoryId,
@@ -99,12 +99,12 @@ public class ArtifactManagementService
         Repository repository = storage.getRepository(repositoryId);
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
-        
+
         performRepositoryAcceptanceValidation(repositoryPath);
 
         return store(repositoryPath, is);
     }
-    
+
     @Transactional
     public long store(RepositoryPath repositoryPath,
                       InputStream is)
@@ -118,7 +118,8 @@ public class ArtifactManagementService
         acquireLock(pathUri);
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(storage.getId(),
                                                                                           repository.getId(),
-                                                                                          RepositoryFiles.stringValue(repositoryPath)))
+                                                                                          RepositoryFiles.stringValue(
+                                                                                                  repositoryPath)))
         {
             return storeArtifact(repositoryPath, is, aos);
         }
@@ -156,7 +157,7 @@ public class ArtifactManagementService
             throws IOException
     {
         ArtifactOutputStream aos = StreamUtils.findSource(ArtifactOutputStream.class, os);
-        
+
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
 
@@ -167,7 +168,7 @@ public class ArtifactManagementService
         String artifactPath = storageId + "/" + repositoryId + "/" + artifactPathRelative;
 
         Boolean checksumAttribute = RepositoryFiles.isChecksum(repositoryPath);
-        
+
         boolean updatedMetadataFile = false;
         boolean updatedArtifactFile = false;
         boolean updatedArtifactChecksumFile = false;
@@ -187,7 +188,7 @@ public class ArtifactManagementService
                 updatedArtifactFile = true;
             }
         }
-        
+
         // If we have no digests, then we have a checksum to store.
         if (Boolean.TRUE.equals(checksumAttribute))
         {
@@ -239,7 +240,7 @@ public class ArtifactManagementService
             // Store artifact digests in cache if we have them.
             addChecksumsToCacheManager(digestMap, artifactPath);
         }
-        
+
         if (Boolean.TRUE.equals(checksumAttribute))
         {
             byte[] checksumValue = ((ByteArrayOutputStream) aos.getCacheOutputStream()).toByteArray();
@@ -309,7 +310,7 @@ public class ArtifactManagementService
 
         return matched != null && !matched.isEmpty();
     }
-    
+
     private void addChecksumsToCacheManager(Map<String, String> digestMap,
                                             String artifactPath)
     {
@@ -322,23 +323,24 @@ public class ArtifactManagementService
             throws IOException, ProviderImplementationException, ArtifactCoordinatesValidationException
     {
         logger.info(String.format("Validate artifact with path [%s]", path));
-        
+
         Repository repository = path.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
-        
+
         artifactOperationsValidator.validate(storage.getId(), repository.getId(), path.relativize().toString());
 
         if (!RepositoryFiles.isMetadata(path) && !RepositoryFiles.isChecksum(path))
         {
             ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(path);
-            
+
             logger.info(String.format("Validate artifact with coordinates [%s]", coordinates));
-            
+
             try
             {
                 for (String validatorKey : repository.getArtifactCoordinateValidators())
                 {
-                    ArtifactCoordinatesValidator validator = artifactCoordinatesValidatorRegistry.getProvider(validatorKey);
+                    ArtifactCoordinatesValidator validator = artifactCoordinatesValidatorRegistry.getProvider(
+                            validatorKey);
                     if (validator.supports(repository))
                     {
                         validator.validate(repository, coordinates);
@@ -356,7 +358,7 @@ public class ArtifactManagementService
 
         return true;
     }
-    
+
     public Storage getStorage(String storageId)
     {
         return getConfiguration().getStorages().get(storageId);
@@ -366,7 +368,7 @@ public class ArtifactManagementService
     {
         return configurationManager.getConfiguration();
     }
-    
+
     public InputStream resolve(String storageId,
                                String repositoryId,
                                String path)
@@ -386,15 +388,15 @@ public class ArtifactManagementService
 
         return null;
     }
-    
+
     public RepositoryPath getPath(String storageId,
                                   String repositoryId,
-                                  String path) 
-             throws IOException
+                                  String path)
+            throws IOException
     {
         return artifactResolutionService.resolvePath(storageId, repositoryId, path);
     }
-    
+
     public void delete(String storageId,
                        String repositoryId,
                        String artifactPath,
@@ -409,22 +411,25 @@ public class ArtifactManagementService
         artifactOperationsValidator.checkAllowsDeletion(repository);
 
         Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneArtifact(storageId,
-                repositoryId,
-                artifactPath);
+                                                                                     repositoryId,
+                                                                                     artifactPath);
 
         try
         {
             LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
             layoutProvider.delete(storageId, repositoryId, artifactPath, force);
-            artifactEntry.ifPresent(entry -> artifactEntryService.delete(new ArrayList<ArtifactEntry>(Collections.singletonList(entry))));
+            artifactEntry.ifPresent(entry -> artifactEntryService.delete(
+                    new ArrayList<ArtifactEntry>(Collections.singletonList(entry))));
         }
         catch (IOException | ProviderImplementationException | SearchException e)
         {
             throw new ArtifactStorageException(e.getMessage(), e);
         }
     }
-    
-    public boolean contains(String storageId, String repositoryId, String artifactPath)
+
+    public boolean contains(String storageId,
+                            String repositoryId,
+                            String artifactPath)
             throws IOException
     {
         final Storage storage = getStorage(storageId);
@@ -441,7 +446,7 @@ public class ArtifactManagementService
             throw new ArtifactStorageException(e.getMessage(), e);
         }
     }
-    
+
     public void copy(String srcStorageId,
                      String srcRepositoryId,
                      String destStorageId,
@@ -457,17 +462,17 @@ public class ArtifactManagementService
         final Storage destStorage = getStorage(destStorageId);
         final Repository destRepository = destStorage.getRepository(destRepositoryId);
 
-        File srcFile = new File(srcRepository.getBasedir(), path);
-        File destFile = new File(destRepository.getBasedir(), path);
+        final Path srcPath = repositoryPathResolver.resolve(srcRepository, path);
+        final Path destPath = repositoryPathResolver.resolve(destRepository, path);
 
-        if (srcFile.isDirectory())
+        if (Files.isDirectory(srcPath))
         {
-            FileUtils.copyDirectoryToDirectory(srcFile, destFile.getParentFile());
+            FileSystemUtils.copyRecursively(srcPath, destPath);
         }
         else
         {
-            FileUtils.copyFile(srcFile, destFile);
+            Files.copy(srcPath, destPath);
         }
     }
-    
+
 }

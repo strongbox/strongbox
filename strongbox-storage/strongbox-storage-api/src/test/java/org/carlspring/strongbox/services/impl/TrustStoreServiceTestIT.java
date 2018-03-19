@@ -8,6 +8,7 @@ import org.carlspring.strongbox.services.TrustStoreService;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.file.Paths;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,20 +42,20 @@ public class TrustStoreServiceTestIT
     {
         inetAddress = InetAddress.getByName("repository.apache.org");
         trustStore = getTrustStoreResource();
-        keyStoreManager.removeCertificates(trustStore.getFile(), "password".toCharArray(), inetAddress, 443);
+        keyStoreManager.removeCertificates(Paths.get(trustStore.getURI()), "password".toCharArray(), inetAddress, 443);
     }
 
     @Test
     public void shouldAddSslCertificatesToTrustStore()
             throws Exception
     {
-        Assert.assertFalse(keyStoreManager.listCertificates(trustStore.getFile(),
+        Assert.assertFalse(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
                                                             "password".toCharArray()).keySet().stream().filter(
                 name -> name.contains("*.apache.org")).findAny().isPresent());
 
         trustStoreService.addSslCertificatesToTrustStore("https://repository.apache.org/snapshots/");
 
-        Assert.assertTrue(keyStoreManager.listCertificates(trustStore.getFile(),
+        Assert.assertTrue(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
                                                            "password".toCharArray()).keySet().stream().filter(
                 name -> name.contains("*.apache.org")).findAny().isPresent());
     }

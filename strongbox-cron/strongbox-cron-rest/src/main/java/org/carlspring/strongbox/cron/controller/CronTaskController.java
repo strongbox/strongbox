@@ -12,7 +12,11 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -88,12 +92,8 @@ public class CronTaskController
 
                                                 if (classInstance instanceof GroovyCronJob)
                                                 {
-                                                    File file = new File(config.getProperty("script.path"));
-                                                    if (file.exists())
-                                                    {
-                                                        //noinspection ResultOfMethodCallIgnored
-                                                        file.delete();
-                                                    }
+                                                    Path path = Paths.get(config.getProperty("script.path"));
+                                                    Files.deleteIfExists(path);
                                                 }
                                             }
                                         }
@@ -220,33 +220,17 @@ public class CronTaskController
     private void storeGroovyCronTask(InputStream is,
                                      String dirPath,
                                      String fileName)
-            throws CronTaskException
+            throws CronTaskException, IOException
     {
-        File dir = new File(dirPath);
+        Path dir = Paths.get(dirPath);
 
-        if (!dir.exists())
+        if (!Files.exists(dir))
         {
-            //noinspection ResultOfMethodCallIgnored
-            dir.mkdirs();
+            Files.createDirectories(dir);
         }
 
-        File file = new File(dirPath + "/" + fileName);
-
-        try (OutputStream out = new FileOutputStream(file))
-        {
-            int read = 0;
-            byte[] bytes = new byte[1024];
-
-            while ((read = is.read(bytes)) != -1)
-            {
-                out.write(bytes, 0, read);
-            }
-            out.flush();
-        }
-        catch (IOException e)
-        {
-            throw new CronTaskException(e);
-        }
+        Path file = dir.resolve(fileName);
+        Files.copy(is, file);
     }
 
 }

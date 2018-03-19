@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -51,8 +52,10 @@ public class TrustStoreServiceImpl
 
         try
         {
-            keyStoreManager.addCertificates(trustStore.getFile(), PASSWORD.toCharArray(),
-                                            InetAddress.getByName(urlHost), urlPort);
+            keyStoreManager.addCertificates(Paths.get(trustStore.getURI()),
+                                            PASSWORD.toCharArray(),
+                                            InetAddress.getByName(urlHost),
+                                            urlPort);
         }
         catch (IOException | CertificateException | NoSuchAlgorithmException | KeyStoreException | KeyManagementException ex)
         {

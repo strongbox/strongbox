@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.data;
 
-import java.io.File;
+
+import java.nio.file.Paths;
 
 /**
  * @author Alex Oreshkevich
@@ -13,14 +14,7 @@ public class PropertyUtils
         final String basedir = System.getenv("STRONGBOX_VAULT") != null ?
                                System.getenv("STRONGBOX_VAULT") :
                                System.getProperty("strongbox.vault");
-        if (basedir != null)
-        {
-            return new File(basedir).getAbsolutePath();
-        }
-        else
-        {
-            return new File(".").getAbsolutePath();
-        }
+        return resolvePath(basedir, "");
     }
 
     public static String getHomeDirectory()
@@ -28,14 +22,7 @@ public class PropertyUtils
         final String basedir = System.getenv("STRONGBOX_HOME") != null ?
                                System.getenv("STRONGBOX_HOME") :
                                System.getProperty("strongbox.home");
-        if (basedir != null)
-        {
-            return new File(basedir).getAbsolutePath();
-        }
-        else
-        {
-            return new File(".").getAbsolutePath();
-        }
+        return resolvePath(basedir, "");
     }
 
     public static String getTempDirectory()
@@ -43,14 +30,7 @@ public class PropertyUtils
         final String basedir = System.getenv("STRONGBOX_TMP") != null ?
                                System.getenv("STRONGBOX_TMP") :
                                System.getProperty("java.io.tmp");
-        if (basedir != null)
-        {
-            return new File(basedir).getAbsolutePath();
-        }
-        else
-        {
-            return new File(getVaultDirectory() + "/tmp").getAbsolutePath();
-        }
+        return resolvePath(basedir, Paths.get(getVaultDirectory()).resolve("tmp").toString());
     }
 
     public static String getEtcDirectory()
@@ -58,13 +38,13 @@ public class PropertyUtils
         final String basedir = System.getenv("STRONGBOX_ETC") != null ?
                                System.getenv("STRONGBOX_ETC") :
                                System.getProperty("strongbox.etc");
-        if (basedir != null)
-        {
-            return new File(basedir).getAbsolutePath();
-        }
-        else
-        {
-            return new File("etc").getAbsolutePath();
-        }
+        return resolvePath(basedir, "etc");
+    }
+
+    private static String resolvePath(final String basedir,
+                                      final String defaultPath)
+    {
+        String pathToResolve = basedir != null ? basedir : defaultPath;
+        return Paths.get(pathToResolve).toAbsolutePath().toString();
     }
 }

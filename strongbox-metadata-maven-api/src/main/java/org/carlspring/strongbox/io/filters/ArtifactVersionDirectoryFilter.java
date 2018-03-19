@@ -1,58 +1,29 @@
 package org.carlspring.strongbox.io.filters;
 
-import org.carlspring.commons.io.filters.DirectoryFilter;
-import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
-
-import java.io.File;
-import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * @author mtodorov
+ * @author Przemyslaw Fusik
  */
 public class ArtifactVersionDirectoryFilter
-        extends DirectoryFilter
+        implements DirectoryStream.Filter<Path>
 {
 
     private boolean excludeHiddenDirectories = true;
 
-    private FilenameFilter filter;
-
-
-    public ArtifactVersionDirectoryFilter()
+    private boolean containsMetadataFiles(Path path)
+            throws IOException
     {
-    }
-
-    public ArtifactVersionDirectoryFilter(FilenameFilter filter)
-    {
-        this.filter = filter;
-    }
-
-    public ArtifactVersionDirectoryFilter(boolean excludeHiddenDirectories)
-    {
-        this.excludeHiddenDirectories = excludeHiddenDirectories;
-    }
-
-    public ArtifactVersionDirectoryFilter(FilenameFilter filter,
-                                          boolean excludeHiddenDirectories)
-    {
-        this.filter = filter;
-        this.excludeHiddenDirectories = excludeHiddenDirectories;
-    }
-
-    @Override
-    public boolean accept(File file)
-    {
-        return super.accept(file) && containsMetadataFiles(file);
-    }
-
-    private boolean containsMetadataFiles(File file)
-    {
-        if (file.isDirectory())
+        if (Files.isDirectory(path))
         {
-            filter = filter != null ? filter : new PomFilenameFilter();
-            File[] directories = file.listFiles(filter);
-
-            return directories != null && directories.length > 0;
+            try (DirectoryStream<Path> ds = Files.newDirectoryStream(path, PomPathnameFilter.INSTANCE))
+            {
+                return ds.iterator().hasNext();
+            }
         }
         else
         {
@@ -60,24 +31,32 @@ public class ArtifactVersionDirectoryFilter
         }
     }
 
-    public boolean excludeHiddenDirectories()
+    @Override
+    public boolean accept(final Path entry)
+            throws IOException
     {
-        return excludeHiddenDirectories;
+        return (Files.isDirectory(entry) &&
+                (!excludeHiddenDirectories || !entry.getFileName().toString().matches(".*//*\\..*"))) &&
+               containsMetadataFiles(entry);
+
     }
 
-    public void setExcludeHiddenDirectories(boolean excludeHiddenDirectories)
+    public void setExcludeHiddenDirectories(final boolean excludeHiddenDirectories)
     {
         this.excludeHiddenDirectories = excludeHiddenDirectories;
     }
 
-    public FilenameFilter getFilenameFilter()
+    private static class PomPathnameFilter
+            implements DirectoryStream.Filter<Path>
     {
-        return filter;
-    }
 
-    public void setFilenameFilter(FilenameFilter filter)
-    {
-        this.filter = filter;
-    }
+        private static final PomPathnameFilter INSTANCE = new PomPathnameFilter();
 
+        @Override
+        public boolean accept(final Path entry)
+                throws IOException
+        {
+            return entry.toString().endsWith(".pom");
+        }
+    }
 }

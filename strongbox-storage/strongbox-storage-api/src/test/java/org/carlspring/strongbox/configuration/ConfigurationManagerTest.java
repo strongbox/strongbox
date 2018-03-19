@@ -163,7 +163,7 @@ public class ConfigurationManagerTest
 
         assertTrue("Failed to store the produced XML!", outputFile.length() > 0);
 
-        Configuration c = parser.parse(outputFile);
+        Configuration c = parser.parse(outputFile.toURI().toURL());
 
         assertEquals("Failed to read repository groups!",
                      2,

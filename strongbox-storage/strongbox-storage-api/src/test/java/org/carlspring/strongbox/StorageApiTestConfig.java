@@ -25,6 +25,7 @@ import static org.mockito.Matchers.any;
 @Configuration
 @Import({ StorageCoreConfig.class,
           MockedRemoteRepositoriesHeartbeatConfig.class,
+          MockedRepositoryPathResolverConfig.class,
           CommonConfig.class,
           ClientConfig.class,
           DataServiceConfig.class,
@@ -33,7 +34,7 @@ import static org.mockito.Matchers.any;
 })
 public class StorageApiTestConfig
 {
-    
+
     @Bean
     @Primary
     public CacheManagerConfiguration cacheManagerConfiguration()

@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
+import org.carlspring.strongbox.MockedRepositoryPathResolverConfig;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
@@ -28,6 +29,7 @@ import static org.mockito.Matchers.any;
           StorageApiConfig.class,
           Maven2LayoutProviderConfig.class,
           MockedRemoteRepositoriesHeartbeatConfig.class,
+          MockedRepositoryPathResolverConfig.class,
           ClientConfig.class
 })
 public class Maven2LayoutProviderTestConfig

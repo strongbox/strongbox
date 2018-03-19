@@ -38,7 +38,7 @@ public class AuthenticationConfigurationParserTest
         System.out.println("Parsing " + xmlFile.getAbsolutePath() + "...");
 
         //noinspection unchecked
-        AuthenticationConfiguration configuration = (AuthenticationConfiguration) parser.parse(xmlFile);
+        AuthenticationConfiguration configuration = (AuthenticationConfiguration) parser.parse(xmlFile.toURI().toURL());
 
         assertTrue("Failed to parse the authorization configuration!", configuration != null);
     }

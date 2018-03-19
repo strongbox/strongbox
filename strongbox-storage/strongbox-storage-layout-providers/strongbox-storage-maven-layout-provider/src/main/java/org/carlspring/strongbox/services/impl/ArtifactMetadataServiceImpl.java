@@ -10,6 +10,8 @@ import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.io.RepositoryTempPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
@@ -61,6 +63,9 @@ public class ArtifactMetadataServiceImpl
     @Inject
     private ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+
     public ArtifactMetadataServiceImpl()
     {
     }
@@ -75,7 +80,7 @@ public class ArtifactMetadataServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
+        RepositoryPath artifactBasePath = repositoryPathResolver.resolve(repository, artifactPath);
 
         return mavenMetadataManager.readMetadata(artifactBasePath);
     }
@@ -166,7 +171,7 @@ public class ArtifactMetadataServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
+        RepositoryPath artifactBasePath = repositoryPathResolver.resolve(repository, artifactPath);
 
         Metadata metadata = getMetadata(artifactBasePath.toAbsolutePath().toString());
 
@@ -213,7 +218,7 @@ public class ArtifactMetadataServiceImpl
 
         String snapshot = ArtifactUtils.getSnapshotBaseVersion(version);
 
-        Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
+        RepositoryPath artifactBasePath = repositoryPathResolver.resolve(repository, artifactPath);
 
         MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(artifactPath);
 
@@ -264,14 +269,14 @@ public class ArtifactMetadataServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
+        RepositoryPath artifactBasePath = repositoryPathResolver.resolve(repository, artifactPath);
 
         Metadata metadata = getMetadata(artifactBasePath.toAbsolutePath().toString());
         Versioning versioning = metadata.getVersioning();
 
         if (ArtifactUtils.isSnapshot(version))
         {
-            Path snapshotBasePath = Paths.get(artifactBasePath + "/" + ArtifactUtils.getSnapshotBaseVersion(version));
+            RepositoryPath snapshotBasePath = artifactBasePath.resolve(ArtifactUtils.getSnapshotBaseVersion(version));
 
             MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(artifactPath);
 
@@ -304,7 +309,7 @@ public class ArtifactMetadataServiceImpl
 
         String snapshot = ArtifactUtils.getSnapshotBaseVersion(version);
 
-        Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
+        RepositoryPath artifactBasePath = repositoryPathResolver.resolve(repository, artifactPath);
 
         MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(artifactPath);
 
