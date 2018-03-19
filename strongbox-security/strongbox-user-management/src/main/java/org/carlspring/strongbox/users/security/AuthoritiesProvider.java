@@ -3,6 +3,7 @@ package org.carlspring.strongbox.users.security;
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.Roles;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * @author Przemyslaw Fusik
@@ -24,7 +26,29 @@ public class AuthoritiesProvider
     private static final Logger logger = LoggerFactory.getLogger(AuthoritiesProvider.class);
 
     @Inject
-    AuthorizationConfigProvider authorizationConfigProvider;
+    private TransactionTemplate transactionTemplate;
+
+    @Inject
+    private AuthorizationConfigFileManager authorizationConfigFileManager;
+
+    @Inject
+    private AuthorizationConfigProvider authorizationConfigProvider;
+
+    @PostConstruct
+    public void init()
+    {
+        transactionTemplate.execute((s) ->
+                                    {
+                                        doInit();
+                                        return null;
+                                    });
+    }
+
+    private void doInit()
+    {
+        final AuthorizationConfig config = authorizationConfigFileManager.read();
+        authorizationConfigProvider.save(config);
+    }
 
     @Transactional
     public Set<GrantedAuthority> getAuthoritiesByRoleName(final String roleName)

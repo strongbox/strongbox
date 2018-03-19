@@ -26,7 +26,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -40,8 +39,7 @@ import com.orientechnologies.orient.core.entity.OEntityManager;
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.users" })
 @Import({ DataServiceConfig.class,
-          CommonConfig.class,
-          AuthoritiesConfig.class })
+          CommonConfig.class})
 public class UsersConfig
 {
 
