@@ -32,10 +32,4 @@ public interface IArtifactClient    // named with I prefix because of existing A
                         String url,
                         String fileName)
             throws ArtifactOperationException;
-
-    void put(InputStream is,
-             String url,
-             String fileName,
-             String mediaType)
-            throws ArtifactOperationException;
 }

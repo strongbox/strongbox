@@ -140,9 +140,9 @@ public class TestCaseWithMavenArtifactGeneration
     }
 
     public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,
-                                                      String groupId,
-                                                      String artifactId,
-                                                      String baseSnapshotVersion)
+                                                           String groupId,
+                                                           String artifactId,
+                                                           String baseSnapshotVersion)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         return createTimestampedSnapshotArtifact(repositoryBasedir,
@@ -155,10 +155,10 @@ public class TestCaseWithMavenArtifactGeneration
     }
 
     public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,
-                                                      String groupId,
-                                                      String artifactId,
-                                                      String baseSnapshotVersion,
-                                                      int numberOfBuilds)
+                                                           String groupId,
+                                                           String artifactId,
+                                                           String baseSnapshotVersion,
+                                                           int numberOfBuilds)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         return createTimestampedSnapshotArtifact(repositoryBasedir,
@@ -171,10 +171,10 @@ public class TestCaseWithMavenArtifactGeneration
     }
 
     public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,
-                                                      String groupId,
-                                                      String artifactId,
-                                                      String baseSnapshotVersion,
-                                                      String[] classifiers)
+                                                           String groupId,
+                                                           String artifactId,
+                                                           String baseSnapshotVersion,
+                                                           String[] classifiers)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         return createTimestampedSnapshotArtifact(repositoryBasedir,
@@ -187,11 +187,11 @@ public class TestCaseWithMavenArtifactGeneration
     }
 
     public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,
-                                                      String groupId,
-                                                      String artifactId,
-                                                      String baseSnapshotVersion,
-                                                      String packaging,
-                                                      String[] classifiers)
+                                                           String groupId,
+                                                           String artifactId,
+                                                           String baseSnapshotVersion,
+                                                           String packaging,
+                                                           String[] classifiers)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         return createTimestampedSnapshotArtifact(repositoryBasedir,
@@ -204,12 +204,12 @@ public class TestCaseWithMavenArtifactGeneration
     }
 
     public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,
-                                                      String groupId,
-                                                      String artifactId,
-                                                      String baseSnapshotVersion,
-                                                      String packaging,
-                                                      String[] classifiers,
-                                                      int numberOfBuilds)
+                                                           String groupId,
+                                                           String artifactId,
+                                                           String baseSnapshotVersion,
+                                                           String packaging,
+                                                           String[] classifiers,
+                                                           int numberOfBuilds)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         MavenArtifact artifact = null;
@@ -238,13 +238,13 @@ public class TestCaseWithMavenArtifactGeneration
     }
 
     public MavenArtifact createTimestampedSnapshot(String repositoryBasedir,
-                                              String groupId,
-                                              String artifactId,
-                                              String baseSnapshotVersion,
-                                              String packaging,
-                                              String[] classifiers,
-                                              int numberOfBuild,
-                                              String timestamp)
+                                                   String groupId,
+                                                   String artifactId,
+                                                   String baseSnapshotVersion,
+                                                   String packaging,
+                                                   String[] classifiers,
+                                                   int numberOfBuild,
+                                                   String timestamp)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         MavenArtifact artifact;

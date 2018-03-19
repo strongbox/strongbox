@@ -874,16 +874,16 @@ public class MavenArtifactControllerTest
         // Then
         // Group level metadata
         Metadata groupLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" +
-                                                              REPOSITORY_RELEASES2 + "/" +
-                                                              ArtifactUtils.getGroupLevelMetadataPath(artifact1));
+                                                                                    REPOSITORY_RELEASES2 + "/" +
+                                                                                    ArtifactUtils.getGroupLevelMetadataPath(artifact1));
 
         assertNotNull(groupLevelMetadata);
         assertEquals(2, groupLevelMetadata.getPlugins().size());
 
         // Artifact Level metadata
         Metadata artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" +
-                                                                 REPOSITORY_RELEASES2 + "/" +
-                                                                 ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+                                                                                       REPOSITORY_RELEASES2 + "/" +
+                                                                                       ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
 
         assertNotNull(artifactLevelMetadata);
         assertEquals(groupId, artifactLevelMetadata.getGroupId());
@@ -893,8 +893,9 @@ public class MavenArtifactControllerTest
         assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
-        artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
-                                                        ArtifactUtils.getArtifactLevelMetadataPath(artifact2));
+        artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(
+                "storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
+                ArtifactUtils.getArtifactLevelMetadataPath(artifact2));
 
         assertNotNull(artifactLevelMetadata);
         assertEquals(groupId, artifactLevelMetadata.getGroupId());
@@ -904,8 +905,9 @@ public class MavenArtifactControllerTest
         assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
-        artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
-                                                        ArtifactUtils.getArtifactLevelMetadataPath(artifact5));
+        artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(
+                "storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
+                ArtifactUtils.getArtifactLevelMetadataPath(artifact5));
 
         assertNotNull(artifactLevelMetadata);
         assertEquals(groupId, artifactLevelMetadata.getGroupId());
@@ -969,8 +971,9 @@ public class MavenArtifactControllerTest
         client.delete(STORAGE0, REPOSITORY_RELEASES2, path);
 
         // Then
-        Metadata metadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
-                                                    ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+        Metadata metadata = defaultMavenArtifactDeployer.retrieveMetadata(
+                "storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
+                ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
 
         // Re-run the search and check, if the results are now different
         results = artifactSearchService.search(request);
@@ -1012,8 +1015,9 @@ public class MavenArtifactControllerTest
         client.delete(STORAGE0, REPOSITORY_SNAPSHOTS, path);
 
         // Then
-        Metadata metadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS + "/" +
-                                                    ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+        Metadata metadata = defaultMavenArtifactDeployer.retrieveMetadata(
+                "storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS + "/" +
+                ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
 
         assertFalse(metadata.getVersioning()
                             .getVersions()

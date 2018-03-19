@@ -2,6 +2,7 @@ package org.carlspring.strongbox.rest.client;
 
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.client.BaseArtifactClient;
 import org.carlspring.strongbox.client.IArtifactClient;
 
 import java.io.ByteArrayInputStream;
@@ -29,9 +30,9 @@ import org.springframework.stereotype.Component;
  * @author Alex Oreshkevich
  */
 @Component
-public class RestAssuredArtifactClient implements IArtifactClient
+public class RestAssuredArtifactClient
+        extends BaseArtifactClient
 {
-    private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     /**
      * Default validation policy for GET requests.
@@ -427,14 +428,6 @@ public class RestAssuredArtifactClient implements IArtifactClient
     public void setUserAgent(String userAgent)
     {
         this.userAgent = userAgent;
-    }
-
-    protected String escapeUrl(String path)
-    {
-        String baseUrl = getContextBaseUrl() + (getContextBaseUrl().endsWith("/") ? "" : "/");
-        String p = (path.startsWith("/") ? path.substring(1, path.length()) : path);
-
-        return baseUrl + p;
     }
 
 }

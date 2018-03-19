@@ -138,12 +138,12 @@ public abstract class MavenRestAssuredBaseTest
     }
 
     public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,
-                                                                    String groupId,
-                                                                    String artifactId,
-                                                                    String baseSnapshotVersion,
-                                                                    String packaging,
-                                                                    String[] classifiers,
-                                                                    int numberOfBuilds)
+                                                           String groupId,
+                                                           String artifactId,
+                                                           String baseSnapshotVersion,
+                                                           String packaging,
+                                                           String[] classifiers,
+                                                           int numberOfBuilds)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         return generator.createTimestampedSnapshotArtifact(repositoryBasedir,
