@@ -1,19 +1,19 @@
 package org.carlspring.strongbox.client;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
 import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.client.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpStatus;
-import org.apache.maven.artifact.Artifact;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -150,47 +150,6 @@ public class ArtifactClient
         handleFailures(response, "Failed to upload file!");
     }
 
-    public void getArtifact(Artifact artifact,
-                            String repository)
-            throws ArtifactTransportException,
-                   IOException
-    {
-        String url = getContextBaseUrl() + "/" + repository + "/" + ArtifactUtils.convertArtifactToPath(artifact);
-
-        logger.debug("Getting " + url + "...");
-
-        WebTarget webResource = getClientInstance().target(url);
-        setupAuthentication(webResource);
-
-        Response response = webResource.request(MediaType.TEXT_PLAIN)
-                                       .header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN)
-                                       .get();
-
-        final InputStream is = response.readEntity(InputStream.class);
-
-        int total = 0;
-        int len;
-        final int size = 4096;
-        byte[] bytes = new byte[size];
-
-        while ((len = is.read(bytes, 0, size)) != -1)
-        {
-            total += len;
-        }
-
-        logger.debug("Response code: " + response.getStatus() + ". Read: " + total + " bytes.");
-
-        int status = response.getStatus();
-        if (status != 200)
-        {
-            throw new ArtifactTransportException("Failed to resolve artifact!");
-        }
-
-        if (total == 0)
-        {
-            throw new ArtifactTransportException("Artifact size was zero!");
-        }
-    }
 
     public InputStream getResource(String path,
                                    long offset)
@@ -254,23 +213,6 @@ public class ArtifactClient
         setupAuthentication(resource);
 
         return resource.request(MediaType.TEXT_PLAIN).header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN).get();
-    }
-
-    public void deleteArtifact(Artifact artifact,
-                               String storageId,
-                               String repositoryId)
-            throws ArtifactOperationException
-    {
-        String url = getUrlForArtifact(artifact, storageId, repositoryId);
-
-        logger.info("Getting " + url + "...");
-        
-        WebTarget resource = getClientInstance().target(url);
-        setupAuthentication(resource);
-
-        Response response = resource.request().header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN).delete();
-
-        handleFailures(response, "Failed to delete artifact!");
     }
 
     public void delete(String storageId,
@@ -376,48 +318,6 @@ public class ArtifactClient
         handleFailures(response, "Failed to delete the trash!");
     }
 
-    public boolean artifactExists(Artifact artifact,
-                                  String storageId,
-                                  String repositoryId)
-            throws ResponseException
-    {
-        Response response = artifactExistsStatusCode(artifact, storageId, repositoryId);
-
-        try
-        {
-            if (response.getStatus() == HttpStatus.SC_OK)
-            {
-                return true;
-            }
-            else if (response.getStatus() == HttpStatus.SC_NOT_FOUND)
-            {
-                return false;
-            }
-            else
-            {
-                throw new ResponseException(response.getStatusInfo().getReasonPhrase(), response.getStatus());
-            }
-        }
-        finally
-        {
-            response.close();
-        }
-    }
-
-    public Response artifactExistsStatusCode(Artifact artifact,
-                                             String storageId,
-                                             String repositoryId)
-            throws ResponseException
-    {
-        String url = getUrlForArtifact(artifact, storageId, repositoryId);
-
-        logger.debug("Path to artifact: " + url);
-
-        WebTarget resource = getClientInstance().target(url);
-        setupAuthentication(resource);
-
-        return resource.request(MediaType.TEXT_PLAIN).header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN).get();
-    }
 
     public boolean pathExists(String path)
     {
@@ -464,14 +364,6 @@ public class ArtifactClient
             }
             logger.error(messageBuilder.toString());
         }
-    }
-
-    public String getUrlForArtifact(Artifact artifact,
-                                    String storageId,
-                                    String repositoryId)
-    {
-        return getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
-               ArtifactUtils.convertArtifactToPath(artifact);
     }
 
     public String getUrlForTrash(String storageId,

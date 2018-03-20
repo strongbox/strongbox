@@ -74,6 +74,7 @@
         <module>strongbox-security</module>
         <module>strongbox-testing</module>
         <module>strongbox-client</module>
+        <module>strongbox-rest-client</module>
         <module>strongbox-cron</module>
         <module>strongbox-storage</module>
         <module>strongbox-data-service</module>
