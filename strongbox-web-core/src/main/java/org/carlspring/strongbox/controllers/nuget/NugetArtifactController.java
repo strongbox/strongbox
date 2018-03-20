@@ -154,6 +154,8 @@ public class NugetArtifactController extends BaseArtifactController
                                                 @RequestParam(name = "searchTerm", required = false) String searchTerm,
                                                 @RequestParam(name = "targetFramework", required = false) String targetFramework)
     {
+        String normalizedSearchTerm = normaliseSearchTerm(searchTerm);
+        
         NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
         nugetSearchRequest.setFilter(filter);
         nugetSearchRequest.setSearchTerm(searchTerm);
@@ -163,7 +165,7 @@ public class NugetArtifactController extends BaseArtifactController
         Repository repository = getRepository(storageId, repositoryId);
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
         
-        Predicate predicate = createSearchPredicate(filter, normaliseSearchTerm(searchTerm));
+        Predicate predicate = createSearchPredicate(filter, normalizedSearchTerm);
         Long count = provider.count(storageId, repositoryId, predicate);
 
         return new ResponseEntity<>(String.valueOf(count), HttpStatus.OK);
@@ -182,6 +184,8 @@ public class NugetArtifactController extends BaseArtifactController
                                             HttpServletResponse response)
             throws JAXBException, IOException
     {
+        String normalizedSearchTerm = normaliseSearchTerm(searchTerm);
+        
         NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
         nugetSearchRequest.setFilter(filter);
         nugetSearchRequest.setSearchTerm(searchTerm);
@@ -199,7 +203,7 @@ public class NugetArtifactController extends BaseArtifactController
                                 repositoryId,
                                 filter,
                                 orderBy,
-                                searchTerm,
+                                normalizedSearchTerm,
                                 targetFramework,
                                 skip,
                                 top);
@@ -313,8 +317,10 @@ public class NugetArtifactController extends BaseArtifactController
                                                HttpServletResponse response)
             throws JAXBException, IOException
     {
+        String normalisedPackageId = normaliseSearchTerm(packageId);        
+        
         NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
-        nugetSearchRequest.setFilter(String.format("Id eq '%s'", packageId));
+        nugetSearchRequest.setFilter(String.format("id eq '%s'", packageId));
         repositorySearchEventListener.setNugetSearchRequest(nugetSearchRequest);
         
         Repository repository = getRepository(storageId, repositoryId);
@@ -323,7 +329,7 @@ public class NugetArtifactController extends BaseArtifactController
         Paginator paginator = new Paginator();
         paginator.setOrderBy("artifactCoordinates.coordinates.version");
 
-        Predicate predicate = Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.id", normaliseSearchTerm(packageId)));
+        Predicate predicate = Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.id", normalisedPackageId));
 
         Collection<? extends Nupkg> files = searchNupkg(storageId, repositoryId, provider, paginator, predicate);
 
