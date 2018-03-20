@@ -320,7 +320,7 @@ public class NugetArtifactController extends BaseArtifactController
         String normalisedPackageId = normaliseSearchTerm(packageId);        
         
         NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
-        nugetSearchRequest.setFilter(String.format("id eq '%s'", packageId));
+        nugetSearchRequest.setFilter(String.format("Id eq '%s'", packageId));
         repositorySearchEventListener.setNugetSearchRequest(nugetSearchRequest);
         
         Repository repository = getRepository(storageId, repositoryId);
