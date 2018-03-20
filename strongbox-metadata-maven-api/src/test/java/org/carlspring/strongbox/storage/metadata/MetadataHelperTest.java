@@ -10,6 +10,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -84,13 +85,22 @@ public class MetadataHelperTest
 
     private static void deleteTestResources()
     {
-        Path dirPath = Paths.get(pluginXmlFilePath).getParent();
+
+        Path dirPath = Paths.get(pluginXmlFilePath).getParent().getParent().getParent();
         try
         {
-            Files.walk(dirPath)
+            Files.walk(dirPath, FileVisitOption.FOLLOW_LINKS)
+                 .sorted(Comparator.reverseOrder())
                  .map(Path::toFile)
-                 .sorted(Comparator.comparing(File::isDirectory))
-                 .forEach(File::delete);
+                 .peek(System.out::println)
+                 .forEach(
+                         file ->{
+                             System.out.println(file.getName());
+                             if(!file.getName().endsWith("resources"))  {
+                                 file.delete();
+                             }
+                         }
+                 );
         }
         catch (IOException e)
         {
