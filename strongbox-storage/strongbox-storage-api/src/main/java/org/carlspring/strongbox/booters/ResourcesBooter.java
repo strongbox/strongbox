@@ -73,7 +73,12 @@ public class ResourcesBooter
         for (Resource resource : resources)
         {
             File destFile = new File(configDir, resource.getFilename());
-
+            
+            if (destFile.exists()) {
+                logger.info(String.format("Resource already exists, skip [%s].", destFile));
+                continue;
+            }
+            
             FileUtils.copyInputStreamToFile(resource.getInputStream(), destFile);
         }
     }

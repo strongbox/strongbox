@@ -23,7 +23,7 @@ public class ConfigurationResourceResolver
                                                     String propertyDefaultValue)
             throws IOException
     {
-        final String configurationPath = ConfigurationResourceResolver.getVaultDirectory() + "/" + propertyDefaultValue;
+        final String configurationPath = ConfigurationResourceResolver.getHomeDirectory() + "/" + propertyDefaultValue;
 
         return getConfigurationResource(configurationPath, propertyKey, propertyDefaultValue);
     }
