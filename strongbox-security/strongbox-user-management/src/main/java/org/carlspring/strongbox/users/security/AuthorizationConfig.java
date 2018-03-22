@@ -5,11 +5,7 @@ import org.carlspring.strongbox.security.Role;
 
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
+import javax.xml.bind.annotation.*;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -31,6 +27,7 @@ public class AuthorizationConfig
 {
 
     @XmlElement(name = "role")
+    @XmlElementWrapper(name = "roles")
     @Embedded
     private Set<Role> roles = new LinkedHashSet<>();
 

@@ -1,28 +1,28 @@
 <?xml version="1.0" standalone="yes"?>
 <authorization-configuration>
-
-    <!-- special treatment role -->
-    <role>
-        <name>ANONYMOUS_ROLE</name>
-        <description>Common anonymous user role</description>
-        <privileges>
-            <privilege>ARTIFACTS_RESOLVE</privilege>
-            <privilege>SEARCH_ARTIFACTS</privilege>
-        </privileges>
-    </role>
-    <role>
-        <name>USER_ROLE</name>
-        <description>Common user role</description>
-        <privileges>
-            <privilege>VIEW_USER</privilege>
-        </privileges>
-    </role>
-    <role>
-        <name>CUSTOM_ROLE</name>
-        <description>Deployment role</description>
-        <privileges>
-            <privilege>Deploy</privilege>
-        </privileges>
-    </role>
-
+    <roles>
+        <!-- special treatment role -->
+        <role>
+            <name>ANONYMOUS_ROLE</name>
+            <description>Common anonymous user role</description>
+            <privileges>
+                <privilege>ARTIFACTS_RESOLVE</privilege>
+                <privilege>SEARCH_ARTIFACTS</privilege>
+            </privileges>
+        </role>
+        <role>
+            <name>USER_ROLE</name>
+            <description>Common user role</description>
+            <privileges>
+                <privilege>VIEW_USER</privilege>
+            </privileges>
+        </role>
+        <role>
+            <name>CUSTOM_ROLE</name>
+            <description>Deployment role</description>
+            <privileges>
+                <privilege>Deploy</privilege>
+            </privileges>
+        </role>
+    </roles>
 </authorization-configuration>
