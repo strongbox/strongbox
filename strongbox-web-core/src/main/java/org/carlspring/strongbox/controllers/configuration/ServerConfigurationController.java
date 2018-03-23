@@ -2,8 +2,10 @@ package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
 import org.carlspring.strongbox.controllers.support.PortEntityBody;
+import org.carlspring.strongbox.forms.configuration.ServerSettingsForm;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.support.ConfigurationException;
+import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import java.io.IOException;
 
@@ -14,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -25,6 +29,9 @@ import org.springframework.web.bind.annotation.*;
 public class ServerConfigurationController
         extends BaseConfigurationController
 {
+
+    static final String SUCCESSFUL_SAVE_SERVER_SETTINGS = "The server settings were updated successfully.";
+    static final String FAILED_SAVE_SERVER_SETTINGS = "Server settings cannot be saved because the submitted form contains errors!";
 
     public ServerConfigurationController(ConfigurationManagementService configurationManagementService)
     {
@@ -146,6 +153,29 @@ public class ServerConfigurationController
     public ResponseEntity getPort(@RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         return ResponseEntity.ok(getPortEntityBody(configurationManagementService.getPort(), accept));
+    }
+
+    @ApiOperation(value = "Sets the server settings of the service.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_SAVE_SERVER_SETTINGS),
+                            @ApiResponse(code = 400, message = FAILED_SAVE_SERVER_SETTINGS) })
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_SET_BASE_URL', 'CONFIGURATION_SET_PORT')")
+    @PostMapping(value = "/serverSettings",
+                 consumes = MediaType.APPLICATION_JSON_VALUE,
+                 produces = { MediaType.TEXT_PLAIN_VALUE,
+                              MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity setServerSettings(@RequestBody @Validated ServerSettingsForm serverSettingsForm,
+                                            BindingResult bindingResult,
+                                            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    {
+        if (bindingResult.hasErrors())
+        {
+            throw new RequestBodyValidationException(FAILED_SAVE_SERVER_SETTINGS, bindingResult);
+        }
+
+        configurationManagementService.setBaseUrl(serverSettingsForm.getBaseUrl());
+        configurationManagementService.setPort(serverSettingsForm.getPort());
+
+        return ResponseEntity.ok(getResponseEntityBody(SUCCESSFUL_SAVE_SERVER_SETTINGS, acceptHeader));
     }
 
     private Object getBaseUrlEntityBody(String baseUrl,
