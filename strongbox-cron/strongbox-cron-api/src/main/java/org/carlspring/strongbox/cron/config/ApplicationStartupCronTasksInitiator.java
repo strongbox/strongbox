@@ -39,6 +39,20 @@ public class ApplicationStartupCronTasksInitiator
         for (final CronTaskConfiguration configuration : cronTasksConfiguration.getCronTaskConfigurations())
         {
             logger.debug("Saving cron configuration {}", configuration);
+            
+            String jobClass = configuration.getProperty("jobClass");
+            if (jobClass != null && !jobClass.trim().isEmpty())
+            {
+                try
+                {
+                    Class.forName(jobClass);
+                }
+                catch (ClassNotFoundException e)
+                {
+                    logger.warn(String.format("Skip configuration, job class not found [%s].", jobClass));
+                    continue;
+                }
+            }
             cronTaskConfigurationService.saveConfiguration(configuration);
         }
     }
