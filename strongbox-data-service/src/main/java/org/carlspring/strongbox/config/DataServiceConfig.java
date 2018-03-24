@@ -59,15 +59,12 @@ public class DataServiceConfig
     protected SpringLiquibase springLiquibase;
 
     @Inject
-    private TransactionTemplate transactionTemplate;
-
-    @Inject
     private OEntityManager oEntityManager;
 
     @PostConstruct
     public void init()
     {
-        transactionTemplate.execute((s) ->
+        transactionTemplate().execute((s) ->
                                     {
                                         doInit();
                                         return null;
