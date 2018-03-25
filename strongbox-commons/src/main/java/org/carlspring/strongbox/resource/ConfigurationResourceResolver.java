@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.resource;
 
 import org.carlspring.strongbox.data.PropertyUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,13 +19,15 @@ import org.springframework.core.io.Resource;
  */
 public class ConfigurationResourceResolver
 {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationResourceResolver.class);
 
 
     public static Resource getConfigurationResource(String propertyKey,
                                                     String propertyDefaultValue)
             throws IOException
     {
-        final String configurationPath = ConfigurationResourceResolver.getVaultDirectory() + "/" + propertyDefaultValue;
+        final String configurationPath = ConfigurationResourceResolver.getHomeDirectory() + "/" + propertyDefaultValue;
 
         return getConfigurationResource(configurationPath, propertyKey, propertyDefaultValue);
     }
@@ -44,12 +48,23 @@ public class ConfigurationResourceResolver
         String filename;
         Resource resource;
 
+        if (System.getProperty(propertyKey) != null)
+        {
+            filename = System.getProperty(propertyKey);
+            logger.info(String.format("Using provided resource path [%s]", filename));
+            return new FileSystemResource(new File(filename).getAbsoluteFile());
+        } 
+        
+        logger.info(String.format("Try to fetch configuration resource path [%s]", configurationPath));
+        
         if (configurationPath != null &&
             (!configurationPath.startsWith("classpath") && !(new File(configurationPath)).exists()))
         {
+            logger.info(String.format("Configuration resource not exists [%s], will try to resolve with configured location [%s].",
+                                      configurationPath, propertyKey));
             configurationPath = null;
         }
-
+        
         if (configurationPath != null)
         {
             if (configurationPath.toLowerCase()
@@ -66,24 +81,19 @@ public class ConfigurationResourceResolver
         }
         else
         {
-            if (System.getProperty(propertyKey) != null)
+            if (new File(propertyDefaultValue).exists())
             {
-                filename = System.getProperty(propertyKey);
+                filename = propertyDefaultValue;
+                logger.info(String.format("Using default resource path [%s]", filename));
+                
                 resource = new FileSystemResource(new File(filename).getAbsoluteFile());
             }
             else
             {
-                if (new File(propertyDefaultValue).exists())
-                {
-                    filename = propertyDefaultValue;
-                    resource = new FileSystemResource(new File(filename).getAbsoluteFile());
-                }
-                else
-                {
-                    // This should only really be used for development and testing
-                    // of Strongbox and is not advised for production.
-                    resource = new ClassPathResource(propertyDefaultValue);
-                }
+                logger.info(String.format("Using classpath resource path [%s]", propertyDefaultValue));
+                // This should only really be used for development and testing
+                // of Strongbox and is not advised for production.
+                resource = new ClassPathResource(propertyDefaultValue);
             }
         }
 

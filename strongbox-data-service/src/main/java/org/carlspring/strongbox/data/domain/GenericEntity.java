@@ -59,6 +59,7 @@ public abstract class GenericEntity
         this.objectId = objectId;
     }
 
+    @XmlTransient
     public String getUuid()
     {
         return uuid;
