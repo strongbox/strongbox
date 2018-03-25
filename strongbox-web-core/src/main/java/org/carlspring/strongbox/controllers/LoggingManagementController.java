@@ -9,16 +9,13 @@ import org.carlspring.strongbox.data.PropertyUtils;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -312,16 +309,16 @@ public class LoggingManagementController
                      {
                          if (Files.isDirectory(path))
                          {
-                             appendFile(sb, path.toFile(), localLogDirectoryPath);
+                             appendFile(sb, path, localLogDirectoryPath);
                          }
                          else
                          {
-                             appendFile(sb, path.toFile(), localLogFilePath);
+                             appendFile(sb, path, localLogFilePath);
                          }
                      }
-                     catch (UnsupportedEncodingException e)
+                     catch (Exception e)
                      {
-                         e.printStackTrace();
+                         logger.error(e.getMessage(), e);
                      }
                  });
             
@@ -344,26 +341,26 @@ public class LoggingManagementController
     }
     
     protected static boolean appendFile(StringBuilder sb,
-                                        File childFile,
+                                        Path childFile,
                                         final String requestURL)
-            throws UnsupportedEncodingException
+            throws IOException
     {
-        String name = childFile.getName();
-
-        if (name.startsWith(".") || childFile.isHidden())
+        String name = childFile.toString();
+        if (name.startsWith(".") || Files.isHidden(childFile))
         {
             return false;
         }
 
         String lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(
-                new Date(childFile.lastModified()));
+                Files.getLastModifiedTime(childFile).toMillis());
+        boolean isDirectory = Files.isDirectory(childFile);
 
         sb.append("<tr>");
         sb.append("<td><a href=\"" + requestURL + URLEncoder.encode(name, "UTF-8") +
-                  (childFile.isDirectory() ? "/" : "") + "\">" + name + (childFile.isDirectory() ? "/" : "") +
+                  (isDirectory ? "/" : "") + "\">" + name + (isDirectory ? "/" : "") +
                   "</a></td>");
         sb.append("<td>" + lastModified + "</td>");
-        sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
+        sb.append("<td>" + FileUtils.byteCountToDisplaySize(Files.size(childFile)) + "</td>");
         sb.append("<td></td>");
         sb.append("</tr>");
 

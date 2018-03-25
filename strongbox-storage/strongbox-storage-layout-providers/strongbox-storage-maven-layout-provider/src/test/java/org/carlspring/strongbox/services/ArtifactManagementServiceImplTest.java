@@ -1,7 +1,8 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -27,7 +28,6 @@ import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +36,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author mtodorov
@@ -189,10 +192,10 @@ public class ArtifactManagementServiceImplTest
                                              gavtc,
                                              true);
 
-            Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+            MavenArtifact artifact = MavenArtifactUtils.getArtifactFromGAVTC(gavtc);
             mavenArtifactManagementService.validateAndStore(STORAGE0,
                                                             REPOSITORY_RELEASES_WITHOUT_DELETE,
-                                                            ArtifactUtils.convertArtifactToPath(artifact),
+                                                            MavenArtifactUtils.convertArtifactToPath(artifact),
                                                             is);
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
@@ -226,10 +229,10 @@ public class ArtifactManagementServiceImplTest
                                              gavtc,
                                              true);
 
-            Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+            MavenArtifact artifact = MavenArtifactUtils.getArtifactFromGAVTC(gavtc);
             mavenArtifactManagementService.validateAndStore(STORAGE0,
                                                             REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT,
-                                                            ArtifactUtils.convertArtifactToPath(artifact),
+                                                            MavenArtifactUtils.convertArtifactToPath(artifact),
                                                             is);
 
             fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
@@ -253,10 +256,10 @@ public class ArtifactManagementServiceImplTest
         {
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.2:jar";
 
-            Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+            MavenArtifact artifact = MavenArtifactUtils.getArtifactFromGAVTC(gavtc);
             mavenArtifactManagementService.delete(STORAGE0,
                                                   REPOSITORY_RELEASES_WITHOUT_DELETE,
-                                                  ArtifactUtils.convertArtifactToPath(artifact),
+                                                  MavenArtifactUtils.convertArtifactToPath(artifact),
                                                   false);
 
             fail("Failed to deny artifact operation for repository with disallowed deletions.");
@@ -275,7 +278,7 @@ public class ArtifactManagementServiceImplTest
 
         String gavtc = "org.carlspring.strongbox:strongbox-utils:8.3:jar";
 
-        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+        MavenArtifact artifact = MavenArtifactUtils.getArtifactFromGAVTC(gavtc);
 
         //noinspection EmptyCatchBlock
         try
@@ -285,7 +288,7 @@ public class ArtifactManagementServiceImplTest
 
             mavenArtifactManagementService.validateAndStore(STORAGE0,
                                                             REPOSITORY_GROUP,
-                                                            ArtifactUtils.convertArtifactToPath(artifact),
+                                                            MavenArtifactUtils.convertArtifactToPath(artifact),
                                                             is);
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
@@ -307,7 +310,7 @@ public class ArtifactManagementServiceImplTest
             generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(), gavtc);
             mavenArtifactManagementService.validateAndStore(STORAGE0,
                                                             REPOSITORY_GROUP,
-                                                            ArtifactUtils.convertArtifactToPath(artifact),
+                                                            MavenArtifactUtils.convertArtifactToPath(artifact),
                                                             is);
 
             fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
@@ -327,7 +330,7 @@ public class ArtifactManagementServiceImplTest
         {
             mavenArtifactManagementService.delete(STORAGE0,
                                                   REPOSITORY_GROUP,
-                                                  ArtifactUtils.convertArtifactToPath(artifact),
+                                                  MavenArtifactUtils.convertArtifactToPath(artifact),
                                                   false);
 
             fail("Failed to deny artifact operation for repository with disallowed deletions (non-forced test).");
@@ -347,7 +350,7 @@ public class ArtifactManagementServiceImplTest
         {
             mavenArtifactManagementService.delete(STORAGE0,
                                                   REPOSITORY_GROUP,
-                                                  ArtifactUtils.convertArtifactToPath(artifact),
+                                                  MavenArtifactUtils.convertArtifactToPath(artifact),
                                                   true);
 
             fail("Failed to deny artifact operation for repository with disallowed deletions (forced test).");
@@ -438,7 +441,7 @@ public class ArtifactManagementServiceImplTest
                                                            0);
 
         File[] files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
+        MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(files[0].getPath());
         String artifactName = artifact.getVersion();
 
         assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1, files.length);
@@ -472,7 +475,7 @@ public class ArtifactManagementServiceImplTest
                                                            3);
 
         files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
-        artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
+        artifact = MavenArtifactUtils.convertPathToArtifact(files[0].getPath());
         artifactName = artifact.getVersion();
 
         assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1, files.length);

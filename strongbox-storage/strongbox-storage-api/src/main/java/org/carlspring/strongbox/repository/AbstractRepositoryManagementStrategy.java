@@ -1,15 +1,18 @@
 package org.carlspring.strongbox.repository;
 
-import java.io.File;
-import java.io.IOException;
-
-import javax.inject.Inject;
-
-import org.apache.commons.io.FileUtils;
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +28,8 @@ public abstract class AbstractRepositoryManagementStrategy
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     @Override
     public void createRepository(String storageId,
@@ -34,30 +39,45 @@ public abstract class AbstractRepositoryManagementStrategy
         logger.debug(String.format("Creating repository [%s/%s]...", storageId, repositoryId));
 
         Storage storage = getStorage(storageId);
-        createRepositoryStructure(storage.getBasedir(), repositoryId);
+        Repository repository = storage.getRepository(repositoryId);
+        createRepositoryStructure(repository);
         createRepositoryInternal(storage, getRepository(storageId, repositoryId));
     }
 
-    protected abstract void createRepositoryInternal(Storage storage, Repository repository)
-            throws IOException, RepositoryManagementStrategyException;
-
-    private Storage getStorage(String storageId)
+    @Override
+    public void createRepositoryStructure(final Repository repository)
+            throws IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        return storage;
+        final RepositoryPath rootRepositoryPath = repositoryPathResolver.resolve(repository);
+        if (!Files.exists(rootRepositoryPath))
+        {
+            Files.createDirectories(rootRepositoryPath);
+        }
+        final RepositoryPath trashRepositoryPath = rootRepositoryPath.resolve(".trash");
+        if (!Files.exists(trashRepositoryPath))
+        {
+            Files.createDirectories(trashRepositoryPath);
+        }
     }
 
-    protected Repository getRepository(String storageId, String repositoryId)
+    protected void createRepositoryInternal(Storage storage,
+                                            Repository repository)
+            throws IOException, RepositoryManagementStrategyException
+    {
+        // override if needed
+    }
+
+    protected Storage getStorage(String storageId)
+    {
+        return getConfiguration().getStorage(storageId);
+    }
+
+    protected Repository getRepository(String storageId,
+                                       String repositoryId)
     {
         return getStorage(storageId).getRepository(repositoryId);
     }
 
-    protected File getRepositoryBaseDir(String storageId,
-                                        String repositoryId)
-    {
-        return new File(getStorage(storageId).getBasedir(), repositoryId).getAbsoluteFile();
-    }
-    
     @Override
     public void removeRepository(String storageId,
                                  String repositoryId)
@@ -91,7 +111,8 @@ public abstract class AbstractRepositoryManagementStrategy
         }
     }
 
-    public Configuration getConfiguration()
+
+    protected Configuration getConfiguration()
     {
         return configurationManagementService.getConfiguration();
     }

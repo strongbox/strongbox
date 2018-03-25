@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenDetachedArtifact;
 
 import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,9 +12,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
-import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 
 /**
@@ -53,7 +52,7 @@ public class MavenArtifactCoordinates
 
     public MavenArtifactCoordinates(String path)
     {
-        this(ArtifactUtils.convertPathToArtifact(path));
+        this(MavenArtifactUtils.convertPathToArtifact(path));
     }
 
     public MavenArtifactCoordinates(String... coordinateValues)
@@ -96,7 +95,7 @@ public class MavenArtifactCoordinates
 
     }
 
-    public MavenArtifactCoordinates(Artifact artifact)
+    public MavenArtifactCoordinates(MavenArtifact artifact)
     {
         this();
 
@@ -104,7 +103,7 @@ public class MavenArtifactCoordinates
         setArtifactId(artifact.getArtifactId());
         setVersion(artifact.getVersion());
         setClassifier(artifact.getClassifier());
-        if (artifact.getFile() != null)
+        if (artifact.getPath() != null)
         {
             String extension = artifact.getFile().getAbsolutePath();
             extension = extension.substring(extension.lastIndexOf('.'), extension.length());
@@ -126,7 +125,7 @@ public class MavenArtifactCoordinates
     {
         try
         {
-            return ArtifactUtils.convertArtifactToPath(toArtifact());
+            return MavenArtifactUtils.convertArtifactToPath(toArtifact());
         }
         catch (Exception e)
         {
@@ -135,15 +134,9 @@ public class MavenArtifactCoordinates
         }
     }
 
-    public Artifact toArtifact()
+    public MavenArtifact toArtifact()
     {
-        return new DefaultArtifact(getGroupId(),
-                                   getArtifactId(),
-                                   getVersion(),
-                                   "compile",
-                                   getExtension(),
-                                   getClassifier(),
-                                   new DefaultArtifactHandler(getExtension()));
+        return new MavenDetachedArtifact(getGroupId(), getArtifactId(), getVersion(), getExtension(), getClassifier());
     }
 
     @XmlAttribute(name = "groupId")

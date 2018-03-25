@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.rest.common;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collection;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -24,6 +9,16 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
 import org.carlspring.strongbox.users.domain.Roles;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
+
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +26,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.junit.Assert.assertTrue;
 
 /**
  * General settings for the testing sub-system.
@@ -101,39 +99,6 @@ public abstract class NugetRestAssuredBaseTest
     protected Collection<? extends GrantedAuthority> provideAuthorities()
     {
         return Roles.ADMIN.getPrivileges();
-    }
-
-    public static void removeDir(String path)
-    {
-        removeDir(new File(path));
-    }
-
-    /**
-     * Recursively removes directory or file #file and all it's content.
-     *
-     * @param file directory or file to be removed
-     */
-    public static void removeDir(File file)
-    {
-        if (file == null || !file.exists())
-        {
-            return;
-        }
-
-        if (file.isDirectory())
-        {
-            File[] files = file.listFiles();
-            if (files != null)
-            {
-                for (File f : files)
-                {
-                    removeDir(f);
-                }
-            }
-        }
-
-        //noinspection ResultOfMethodCallIgnored
-        file.delete();
     }
 
     protected boolean pathExists(String url)

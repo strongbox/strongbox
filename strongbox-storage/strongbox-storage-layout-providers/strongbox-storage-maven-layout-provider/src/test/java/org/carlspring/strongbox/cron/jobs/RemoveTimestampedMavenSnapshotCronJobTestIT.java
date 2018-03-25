@@ -2,6 +2,8 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -17,7 +19,6 @@ import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.maven.artifact.Artifact;
 import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
@@ -349,7 +350,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     private String getSnapshotArtifactVersion(File artifactFile)
     {
         File[] files = artifactFile.listFiles(new JarFilenameFilter());
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
+        MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(files[0].getPath());
 
         return artifact.getVersion();
     }

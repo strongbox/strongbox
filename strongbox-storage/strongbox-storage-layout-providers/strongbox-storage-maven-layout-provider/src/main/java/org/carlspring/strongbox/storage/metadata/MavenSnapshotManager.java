@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.storage.metadata;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
@@ -21,7 +23,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -74,7 +75,7 @@ public class MavenSnapshotManager
                                              .getId() + ":" + repository.getId() + "'.");
 
             Versioning versioning = request.getVersioning();
-            Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+            MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(artifactPath);
 
             if (!versioning.getVersions()
                            .isEmpty())

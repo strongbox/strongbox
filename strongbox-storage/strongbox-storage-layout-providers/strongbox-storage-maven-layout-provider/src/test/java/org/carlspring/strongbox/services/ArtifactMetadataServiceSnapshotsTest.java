@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.maven.commons.DetachedArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenDetachedArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -16,7 +17,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.Versioning;
@@ -52,11 +52,11 @@ public class ArtifactMetadataServiceSnapshotsTest
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_METADATA = "org/carlspring/strongbox/strongbox-metadata";
 
-    private static Artifact artifact;
+    private static MavenArtifact artifact;
 
-    private static Artifact pluginArtifact;
+    private static MavenArtifact pluginArtifact;
 
-    private static Artifact mergeArtifact;
+    private static MavenArtifact mergeArtifact;
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
@@ -128,7 +128,7 @@ public class ArtifactMetadataServiceSnapshotsTest
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         // Create snapshot artifacts
-        Artifact deletedArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+        MavenArtifact deletedArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
                                                                      "org.carlspring.strongbox",
                                                                      "deleted",
                                                                      "1.0",
@@ -164,13 +164,13 @@ public class ArtifactMetadataServiceSnapshotsTest
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         // Create snapshot artifacts
-        Artifact addedArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
-                                                                   "org.carlspring.strongbox",
-                                                                   "added",
-                                                                   "2.0",
-                                                                   "jar",
-                                                                   CLASSIFIERS,
-                                                                   5);
+        MavenArtifact addedArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                                                        "org.carlspring.strongbox",
+                                                                        "added",
+                                                                        "2.0",
+                                                                        "jar",
+                                                                        CLASSIFIERS,
+                                                                        5);
 
         changeCreationDate(addedArtifact);
 
@@ -187,9 +187,9 @@ public class ArtifactMetadataServiceSnapshotsTest
         String timestamp = formatter.format(calendar.getTime());
         String version = "2.0-" + timestamp + "-" + 6;
 
-        addedArtifact = new DetachedArtifact(addedArtifact.getGroupId(),
-                                             addedArtifact.getArtifactId(),
-                                             version);
+        addedArtifact = new MavenDetachedArtifact(addedArtifact.getGroupId(),
+                                                  addedArtifact.getArtifactId(),
+                                                  version);
 
         artifactMetadataService.addTimestampedSnapshotVersion(STORAGE0,
                                                               REPOSITORY_SNAPSHOTS,
@@ -210,13 +210,13 @@ public class ArtifactMetadataServiceSnapshotsTest
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         // Create snapshot artifacts
-        Artifact deletedArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
-                                                                     "org.carlspring.strongbox",
-                                                                     "deleted",
-                                                                     "2.0",
-                                                                     "jar",
-                                                                     CLASSIFIERS,
-                                                                     5);
+        MavenArtifact deletedArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                                                          "org.carlspring.strongbox",
+                                                                          "deleted",
+                                                                          "2.0",
+                                                                          "jar",
+                                                                          CLASSIFIERS,
+                                                                          5);
 
         changeCreationDate(deletedArtifact);
 
@@ -253,7 +253,7 @@ public class ArtifactMetadataServiceSnapshotsTest
                          "org.carlspring.strongbox.snapshots:metadata:" + version);
         final String artifactPath = "org/carlspring/strongbox/snapshots/metadata";
 
-        Artifact snapshotArtifact = new DetachedArtifact("org.carlspring.strongbox.snapshots", "metadata", version);
+        MavenArtifact snapshotArtifact = new MavenDetachedArtifact("org.carlspring.strongbox.snapshots", "metadata", version);
 
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, artifactPath);
 

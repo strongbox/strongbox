@@ -6,6 +6,8 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
 import org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -14,8 +16,8 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.springframework.stereotype.Component;
 
@@ -42,18 +44,21 @@ public class MavenRepositoryManagementStrategy
     @Inject
     private MavenRepositoryFeatures repositoryFeatures;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     @Override
     protected void createRepositoryInternal(Storage storage, Repository repository)
             throws IOException, RepositoryManagementStrategyException
     {
-        String storageId = storage.getId();
-        String repositoryId = repository.getId();
-
-        File repositoryBasedir = getRepositoryBaseDir(storageId, repositoryId);
-        
         if (repositoryFeatures.isIndexingEnabled(repository))
         {
+
+            String storageId = storage.getId();
+            String repositoryId = repository.getId();
+
+            RepositoryPath repositoryBasedir = repositoryPathResolver.resolve(repository);
+
             if (repository.isProxyRepository())
             {
                 // Create a remote index
@@ -126,14 +131,15 @@ public class MavenRepositoryManagementStrategy
     public RepositoryIndexer createRepositoryIndexer(String storageId,
                                                      String repositoryId,
                                                      String indexType,
-                                                     File repositoryBasedir)
-            throws RepositoryInitializationException
+                                                     RepositoryPath repositoryBasedir)
+            throws IOException
     {
-        File repositoryIndexDir = new File(repositoryBasedir, ".index/" + indexType);
-        if (!repositoryIndexDir.exists())
+        RepositoryPath repositoryIndexDir = repositoryBasedir.resolve(".index").resolve(indexType);
+
+        if (!Files.exists(repositoryIndexDir))
         {
             //noinspection ResultOfMethodCallIgnored
-            repositoryIndexDir.mkdirs();
+            Files.createDirectories(repositoryIndexDir);
         }
 
         RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(storageId,
@@ -150,20 +156,15 @@ public class MavenRepositoryManagementStrategy
     }
 
     @Override
-    public void createRepositoryStructure(String storageBasedirPath,
-                                          String repositoryId)
+    public void createRepositoryStructure(final Repository repository)
+            throws IOException
     {
-        final File storageBasedir = new File(storageBasedirPath);
-        final File repositoryDir = new File(storageBasedir, repositoryId);
-
-        if (!repositoryDir.exists())
+        super.createRepositoryStructure(repository);
+        final RepositoryPath rootRepositoryPath = repositoryPathResolver.resolve(repository);
+        final RepositoryPath indexRepositoryPath = rootRepositoryPath.resolve(".index");
+        if (!Files.exists(indexRepositoryPath))
         {
-            //noinspection ResultOfMethodCallIgnored
-            repositoryDir.mkdirs();
-            //noinspection ResultOfMethodCallIgnored
-            new File(repositoryDir, ".index").mkdirs();
-            //noinspection ResultOfMethodCallIgnored
-            new File(repositoryDir, ".trash").mkdirs();
+            Files.createDirectories(indexRepositoryPath);
         }
     }
 

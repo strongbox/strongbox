@@ -6,6 +6,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.locator.handlers.RemoveTimestampedSnapshotOperation;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -26,10 +27,9 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -87,6 +87,9 @@ public class MavenRepositoryFeatures
     @Inject
     private MavenSnapshotVersionValidator mavenSnapshotVersionValidator;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+
     private Set<String> defaultArtifactCoordinateValidators;
 
 
@@ -101,17 +104,19 @@ public class MavenRepositoryFeatures
     public void downloadRemoteIndex(String storageId,
                                     String repositoryId)
             throws ArtifactTransportException,
-                   RepositoryInitializationException
+                   IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        File repositoryBasedir = new File(repository.getBasedir());
 
-        File remoteIndexDirectory = new File(repositoryBasedir, ".index/remote");
-        if (!remoteIndexDirectory.exists())
+        RepositoryPath repositoryBasedir = repositoryPathResolver.resolve(repository);
+        RepositoryPath remoteIndexDirectory = repositoryBasedir.resolve(".index").resolve(
+                IndexTypeEnum.REMOTE.getType());
+
+        if (!Files.exists(remoteIndexDirectory))
         {
             //noinspection ResultOfMethodCallIgnored
-            remoteIndexDirectory.mkdirs();
+            Files.createDirectories(remoteIndexDirectory);
         }
 
         // Create a remote index
@@ -152,13 +157,12 @@ public class MavenRepositoryFeatures
 
         RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
 
-        File startingPath = path != null ? new File(path) : new File(".");
 
         IndexingContext context = repositoryIndexer.getIndexingContext();
 
         ScanningRequest scanningRequest = new ScanningRequest(context,
                                                               new ReindexArtifactScanningListener(repositoryIndexer.getIndexer()),
-                                                              startingPath.getPath());
+                                                              path != null ? path : ".");
 
         ScanningResult scan = repositoryIndexer.getScanner().scan(scanningRequest);
 
@@ -187,7 +191,7 @@ public class MavenRepositoryFeatures
                 throw new ArtifactStorageException("Target repository not found!");
             }
 
-            targetIndex.getIndexingContext().merge(FSDirectory.open(sourceIndex.getIndexDir().toPath()));
+            targetIndex.getIndexingContext().merge(FSDirectory.open(sourceIndex.getIndexDir()));
         }
         catch (IOException e)
         {
@@ -229,10 +233,7 @@ public class MavenRepositoryFeatures
             throws RepositoryIndexerNotFoundException
     {
         final RepositoryIndexer indexer = getIndexer(storageId, repositoryId);
-        final Path result = Paths.get(indexer.getRepositoryBasedir()
-                                             .getAbsolutePath())
-                                 .resolve(".index")
-                                 .resolve("local");
+        final Path result = indexer.getIndexDir();
         return path == null ?
                result :
                result.resolve(path);

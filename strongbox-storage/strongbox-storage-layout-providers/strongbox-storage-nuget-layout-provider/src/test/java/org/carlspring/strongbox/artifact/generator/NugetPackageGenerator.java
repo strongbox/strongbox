@@ -287,7 +287,7 @@ public class NugetPackageGenerator
 
         String sha512 = mdis.getMessageDigestAsHexadecimalString("SHA-512");
 
-        MessageDigestUtils.writeChecksum(file, ".sha512", sha512);
+        MessageDigestUtils.writeChecksum(file.toPath(), ".sha512", sha512);
 
     }
 

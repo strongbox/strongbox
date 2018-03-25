@@ -70,11 +70,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.carlspring.maven</groupId>
-            <artifactId>maven-commons</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-common</artifactId>
         </dependency>
@@ -89,15 +84,6 @@
         <dependency>
             <groupId>org.glassfish.jersey.connectors</groupId>
             <artifactId>jersey-apache-connector</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-artifact</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-core</artifactId>
         </dependency>
 
         <dependency>

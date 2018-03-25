@@ -11,7 +11,6 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,11 +18,7 @@ import java.nio.file.Files;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,36 +227,6 @@ public class ArtifactControllerHelper
                                checksumValue);
         });
         
-    }
-
-    public static List<File> getDirectories(File file)
-    {
-        File[] files = file.listFiles();
-
-        if (files == null)
-        {
-            return Collections.emptyList();
-        }
-
-        return Arrays.stream(files)
-                     .filter(File::isDirectory)
-                     .sorted(Comparator.comparing(File::getName))
-                     .collect(Collectors.toList());
-    }
-
-    public static List<File> getFiles(File file)
-    {
-        File[] files = file.listFiles();
-
-        if (files == null)
-        {
-            return Collections.emptyList();
-        }
-
-        return Arrays.stream(files)
-                     .filter(File::isFile)
-                     .sorted(Comparator.comparing(File::getName))
-                     .collect(Collectors.toList());
     }
 
 }

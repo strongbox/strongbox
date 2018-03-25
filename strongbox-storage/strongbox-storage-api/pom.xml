@@ -219,11 +219,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-testing-storage</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.carlspring.maven</groupId>
-            <artifactId>maven-commons</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

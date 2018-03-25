@@ -1,22 +1,22 @@
 package org.carlspring.strongbox.rest.common;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collection;
-
-import javax.inject.Inject;
-
-import org.apache.maven.artifact.Artifact;
+import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.users.domain.Roles;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
@@ -26,6 +26,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.junit.Assert.assertTrue;
 
 /**
  * General settings for the testing sub-system.
@@ -89,37 +92,20 @@ public abstract class MavenRestAssuredBaseTest
         return Roles.ADMIN.getPrivileges();
     }
 
-    public static void removeDir(String path)
-    {
-        removeDir(new File(path));
-    }
-
     /**
      * Recursively removes directory or file #file and all it's content.
      *
-     * @param file directory or file to be removed
+     * @param path directory or file to be removed
      */
-    public static void removeDir(File file)
+    public static void removeDir(Path path)
+            throws IOException
     {
-        if (file == null || !file.exists())
+        final List<Path> pathsToDelete = Files.walk(path).sorted(Comparator.reverseOrder()).collect(
+                Collectors.toList());
+        for (Path toDelete : pathsToDelete)
         {
-            return;
+            Files.deleteIfExists(toDelete);
         }
-
-        if (file.isDirectory())
-        {
-            File[] files = file.listFiles();
-            if (files != null)
-            {
-                for (File f : files)
-                {
-                    removeDir(f);
-                }
-            }
-        }
-
-        //noinspection ResultOfMethodCallIgnored
-        file.delete();
     }
 
     protected boolean pathExists(String url)
@@ -138,12 +124,11 @@ public abstract class MavenRestAssuredBaseTest
         assertTrue("Path " + url + " doesn't exist.", pathExists(url));
     }
 
-    protected MavenArtifactDeployer buildArtifactDeployer(File file)
+    protected MavenArtifactDeployer buildArtifactDeployer(Path path)
     {
-        MavenArtifactDeployer artifactDeployer = new MavenArtifactDeployer(file.getAbsolutePath());
-        artifactDeployer.setClient(client);
-
-        return artifactDeployer;
+        MavenArtifactDeployer deployer = new MavenArtifactDeployer(path.toString());
+        deployer.setClient(client);
+        return deployer;
     }
 
     public String createSnapshotVersion(String baseSnapshotVersion,
@@ -152,13 +137,13 @@ public abstract class MavenRestAssuredBaseTest
         return generator.createSnapshotVersion(baseSnapshotVersion, buildNumber);
     }
 
-    public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
-                                                      String groupId,
-                                                      String artifactId,
-                                                      String baseSnapshotVersion,
-                                                      String packaging,
-                                                      String[] classifiers,
-                                                      int numberOfBuilds)
+    public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,
+                                                           String groupId,
+                                                           String artifactId,
+                                                           String baseSnapshotVersion,
+                                                           String packaging,
+                                                           String[] classifiers,
+                                                           int numberOfBuilds)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         return generator.createTimestampedSnapshotArtifact(repositoryBasedir,
