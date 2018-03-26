@@ -58,14 +58,15 @@ public abstract class BaseController
      */
     protected Object getResponseEntityBody(String message, String acceptHeader)
     {
-        if (MediaType.TEXT_PLAIN_VALUE.equals(acceptHeader))
+        if (acceptHeader != null && !acceptHeader.isEmpty())
         {
-            return message;
+            acceptHeader = acceptHeader.toLowerCase();
+            if((acceptHeader.contains(MediaType.TEXT_PLAIN_VALUE.toLowerCase()) || acceptHeader.contains(MediaType.TEXT_HTML_VALUE.toLowerCase()))) {
+                return message;
+            }
         }
-        else
-        {
-            return new ResponseEntityBody(message);
-        }
+
+        return new ResponseEntityBody(message);
     }
 
     /**
@@ -145,6 +146,20 @@ public abstract class BaseController
     }
 
     /**
+     * Used in cases where resource is not available not be found.
+     *
+     * @param message       Error to be returned to the client.
+     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
+     *
+     * @return ResponseEntity
+     */
+    protected ResponseEntity getServiceUnavailableResponseEntity(String message, String acceptHeader)
+    {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                             .body(getResponseEntityBody(message, acceptHeader));
+    }
+
+    /**
      * @param message       Error message to be returned to the client.
      * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
      *
@@ -186,6 +201,28 @@ public abstract class BaseController
                              .body(responseEntityBody);
     }
 
+    /**
+     * Used to stream files to the client.
+     *
+     * @param is        InputStream
+     * @param filename  String
+     *
+     * @return ResponseEntity
+     *
+     * @throws IllegalStateException
+     */
+    protected ResponseEntity<InputStreamResource> getStreamToResponseEntity(InputStream is, String filename)
+            throws IllegalStateException
+    {
+        InputStreamResource inputStreamResource = new InputStreamResource(is);
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Content-Disposition", "attachment; filename=" + filename);
+
+        return new ResponseEntity<>(inputStreamResource, httpHeaders, HttpStatus.OK);
+    }
+
+    // TODO: The methods below are obsolete and should be gradually removed from usage. We'll maybe only keep copyToResponse.
     protected ResponseEntity toResponseEntityError(String message,
                                                    HttpStatus httpStatus)
     {
@@ -247,18 +284,6 @@ public abstract class BaseController
             ResourceCloser.close(is, logger);
             ResourceCloser.close(os, logger);
         }
-    }
-
-    protected ResponseEntity<InputStreamResource> getStreamToResponseEntity(InputStream is,
-                                                                            String filename)
-            throws IllegalStateException
-    {
-        InputStreamResource inputStreamResource = new InputStreamResource(is);
-
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("Content-Disposition", "attachment; filename=" + filename);
-
-        return new ResponseEntity<>(inputStreamResource, httpHeaders, HttpStatus.OK);
     }
 
 }

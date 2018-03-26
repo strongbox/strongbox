@@ -325,13 +325,12 @@ public class LoggingManagementControllerTestIT
         
         //When
         //Getting the table elements
-        String tableElementsAsString = given()
-                                               .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                               .when()
-                                               .get(logDirectoryHomeUrl)
-                                               .body()
-                                               .htmlPath()
-                                               .getString("html.body.table");
+        String tableElementsAsString = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                              .when()
+                                              .get(logDirectoryHomeUrl)
+                                              .body()
+                                              .htmlPath()
+                                              .getString("html.body.table");
         
         //Assertion Test to see if given file names are contained in the HTML body
         boolean shouldContainLogFilesInHtmlTableElement = false;
