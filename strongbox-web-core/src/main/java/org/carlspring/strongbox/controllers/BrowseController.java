@@ -34,7 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * REST API for browsing storage/repository/filesystem structures.
- *z
+ *
  * @author Guido Grazioli <guido.grazioli@gmail.com>
  */
 @RestController

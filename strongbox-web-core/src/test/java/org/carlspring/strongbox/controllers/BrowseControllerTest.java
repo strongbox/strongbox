@@ -213,7 +213,7 @@ public class BrowseControllerTest
         String link = getContextBaseUrl() + "/storages/"
                       + STORAGE0 + "/" + REPOSITORY + "/org/carlspring/strongbox/browsing/test-browsing/1.1/test-browsing-1.1.jar";
 
-        assertTrue("Expected to have found [ "+link+" ] in the response html", htmlResponse.contains(link));
+        assertTrue("Expected to have found [ " + link + " ] in the response html", htmlResponse.contains(link));
 
     }
 

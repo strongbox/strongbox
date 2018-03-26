@@ -61,7 +61,8 @@ public abstract class BaseController
         if (acceptHeader != null && !acceptHeader.isEmpty())
         {
             acceptHeader = acceptHeader.toLowerCase();
-            if((acceptHeader.contains(MediaType.TEXT_PLAIN_VALUE.toLowerCase()) || acceptHeader.contains(MediaType.TEXT_HTML_VALUE.toLowerCase()))) {
+            if((acceptHeader.contains(MediaType.TEXT_PLAIN_VALUE.toLowerCase()) || acceptHeader.contains(MediaType.TEXT_HTML_VALUE.toLowerCase())))
+            {
                 return message;
             }
         }
