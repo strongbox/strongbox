@@ -277,6 +277,16 @@
             <artifactId>reflections</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.javatuples</groupId>
+            <artifactId>javatuples</artifactId>
+        </dependency>
+
         <dependency>            
             <groupId>org.webjars</groupId>
             <artifactId>orientdb-studio</artifactId>

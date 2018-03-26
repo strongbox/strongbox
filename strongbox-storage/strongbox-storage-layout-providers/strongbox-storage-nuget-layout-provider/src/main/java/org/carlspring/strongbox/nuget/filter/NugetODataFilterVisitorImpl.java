@@ -1,12 +1,11 @@
 package org.carlspring.strongbox.nuget.filter;
 
-import javax.persistence.criteria.Predicate.BooleanOperator;
-
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.criteria.ArtifactEntryCriteria;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.data.criteria.Predicate.BooleanOperator;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser.FilterContext;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser.FilterExpContext;
