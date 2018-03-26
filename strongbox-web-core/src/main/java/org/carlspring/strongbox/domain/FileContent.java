@@ -2,19 +2,29 @@ package org.carlspring.strongbox.domain;
 
 import java.util.Date;
 
-public class FileContent 
+public class FileContent
 {
     private String name;
 
     private Long size;
 
     private Date lastModified;
-    
+
     private String storageId;
-    
+
     private String repositoryId;
-    
+
     private String artifactPath;
+
+    public FileContent()
+    {
+
+    }
+
+    public FileContent(String name)
+    {
+        setName(name);
+    }
 
     public String getName()
     {
@@ -74,6 +84,6 @@ public class FileContent
     public void setArtifactPath(String artifactPath)
     {
         this.artifactPath = artifactPath;
-    }   
+    }
 }
 

@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jtwig.spring.JtwigViewResolver;
+import org.jtwig.web.servlet.JtwigRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -31,6 +33,7 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
+import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -181,4 +184,16 @@ public class WebConfig
         registry.addConverter(new RoleListFormToRoleListConverter());
         registry.addConverter(new PrivilegeListFormToPrivilegeListConverter());
     }
+
+    @Bean
+    public ViewResolver viewResolver()
+    {
+        JtwigViewResolver viewResolver = new JtwigViewResolver();
+        viewResolver.setRenderer(JtwigRenderer.defaultRenderer());
+        viewResolver.setPrefix("classpath:/WEB-INF/views/");
+        viewResolver.setSuffix(".twig.html");
+
+        return viewResolver;
+    }
+
 }

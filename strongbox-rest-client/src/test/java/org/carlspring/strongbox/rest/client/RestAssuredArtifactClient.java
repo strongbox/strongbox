@@ -271,7 +271,7 @@ public class RestAssuredArtifactClient
             url += "/" + pathVar;
         }
 
-        return givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
+        return givenLocal().accept(MediaType.TEXT_PLAIN_VALUE)
                            .when()
                            .get(url)
                            .peek()

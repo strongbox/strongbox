@@ -476,6 +476,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-oxm</artifactId>
         </dependency>
+
+        <!-- Theme -->
+        <dependency>
+            <groupId>org.jtwig</groupId>
+            <artifactId>jtwig-spring</artifactId>
+        </dependency>
         
         <!-- Spring security dependencies -->
         <dependency>

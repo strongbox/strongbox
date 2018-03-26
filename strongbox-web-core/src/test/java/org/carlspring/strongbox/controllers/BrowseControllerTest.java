@@ -7,16 +7,14 @@ import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
-import groovy.util.logging.Log;
+
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.inject.Inject;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.domain.DirectoryContent;
+import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
@@ -24,7 +22,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -115,8 +112,7 @@ public class BrowseControllerTest
                                      .prettyPeek()
                                      .asString();
 
-        DirectoryContent returned = new ObjectMapper()
-                .readValue(jsonResponse, DirectoryContent.class);
+        DirectoryListing returned = new ObjectMapper().readValue(jsonResponse, DirectoryListing.class);
               
         assertNotNull("Failed to get storage list!", returned);
         assertNotNull("Failed to get storage list!", returned.getDirectories());
@@ -147,17 +143,14 @@ public class BrowseControllerTest
                                      .prettyPeek()
                                      .asString();
 
-        DirectoryContent returned = new ObjectMapper()
-                .readValue(jsonResponse, DirectoryContent.class);
+        DirectoryListing returned = new ObjectMapper().readValue(jsonResponse, DirectoryListing.class);
         
         assertNotNull("Failed to get repository list!", returned);
         assertNotNull("Failed to get repository list!", returned.getDirectories());
         assertTrue("Returned repositories do not match", !returned.getDirectories().isEmpty());
         assertTrue("Repository not found", returned.getDirectories()
                                                    .stream()
-                                                   .filter(p -> p.getName().equals(REPOSITORY))
-                                                   .findFirst()
-                                                   .isPresent());
+                                                   .anyMatch(p -> p.getName().equals(REPOSITORY)));
         
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
@@ -206,8 +199,7 @@ public class BrowseControllerTest
                                      .prettyPeek()
                                      .asString();
         
-        DirectoryContent returned = new ObjectMapper()
-                .readValue(jsonResponse, DirectoryContent.class);
+        DirectoryListing returned = new ObjectMapper().readValue(jsonResponse, DirectoryListing.class);
         
         assertTrue("Invalid files returned", returned.getFiles().size() == 6
                         && returned.getFiles().get(0).getName().equals("test-browsing-1.1.jar"));                                                        
@@ -217,9 +209,11 @@ public class BrowseControllerTest
                                      .get(url + "/")
                                      .prettyPeek()
                                      .asString();
-        
-        assertTrue("Returned HTML is incorrect", htmlResponse.contains(getContextBaseUrl() + "/storages/"
-        + STORAGE0 + "/" + REPOSITORY + "/org/carlspring/strongbox/browsing/test-browsing/1.1/test-browsing-1.1.jar"));
+
+        String link = getContextBaseUrl() + "/storages/"
+                      + STORAGE0 + "/" + REPOSITORY + "/org/carlspring/strongbox/browsing/test-browsing/1.1/test-browsing-1.1.jar";
+
+        assertTrue("Expected to have found [ " + link + " ] in the response html", htmlResponse.contains(link));
 
     }
 
