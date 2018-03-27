@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers;
+package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
@@ -22,7 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.controllers.ArtifactCoordinateValidatorsManagementController.*;
+import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.*;
 import static org.hamcrest.Matchers.*;
 
 /**
@@ -234,6 +234,35 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     public void validatorsForReleaseRepositoryShouldBeAdditableAndFailSafeWithResponseInText()
     {
         validatorsForReleaseRepositoryShouldBeAdditableAndFailSafe(MediaType.TEXT_PLAIN_VALUE);
+    }
+    
+    @Test
+    public void getACollectionOfArtifactCoordinateValidators(){
+
+        String url = getContextBaseUrl() + "/validators";
+        
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(containsString("versionValdidators"),containsString("Maven 2"));
+    }
+
+    @Test
+    public void getAArtifactCoordinateValidatorsForLayoutProvider(){
+
+        String url = getContextBaseUrl() + "/validators";
+        String layoutProvider = "Maven 2";
+
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url,layoutProvider)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(containsString("supportedLayoutProviders"),containsString(layoutProvider));
     }
 
     private void validatorsForReleaseRepositoryShouldBeAdditableAndFailSafe(String acceptHeader)

@@ -76,4 +76,8 @@ public class ArtifactCoordinatesValidatorRegistry
         return configurationManagementService.getConfiguration().getStorage(storageId);
     }
 
+    public Map<String, Set<ArtifactCoordinatesValidator>> getArtifactCoordinatesValidators()
+    {
+        return validatorsByLayoutProvider;
+    }
 }
