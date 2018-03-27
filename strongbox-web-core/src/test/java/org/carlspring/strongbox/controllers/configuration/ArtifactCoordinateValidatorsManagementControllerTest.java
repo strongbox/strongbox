@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.*;
 /**
  * @author Przemyslaw Fusik
  * @author Pablo Tirado
+ * @author Aditya Srinivasan
  */
 @IntegrationTest
 @RunWith(SpringRunner.class)

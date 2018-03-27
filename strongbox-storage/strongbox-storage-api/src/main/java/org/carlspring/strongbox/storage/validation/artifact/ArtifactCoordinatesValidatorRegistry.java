@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
+ * @author Aditya Srinivasan
  */
 @Component
 public class ArtifactCoordinatesValidatorRegistry
