@@ -175,7 +175,7 @@ public class ServerConfigurationController
         configurationManagementService.setBaseUrl(serverSettingsForm.getBaseUrl());
         configurationManagementService.setPort(serverSettingsForm.getPort());
 
-        return ResponseEntity.ok(getResponseEntityBody(SUCCESSFUL_SAVE_SERVER_SETTINGS, acceptHeader));
+        return getSuccessfulResponseEntity(SUCCESSFUL_SAVE_SERVER_SETTINGS, acceptHeader);
     }
 
     private Object getBaseUrlEntityBody(String baseUrl,
