@@ -63,3 +63,4 @@ To accept, please:
 | Gokhan Kuyucak               |                                          | Izmir, Turkey                           | 2018-01-14 |
 | Guido Grazioli               |                                          | London, United Kingdom                  | 2018-01-15 |
 | Maxim Antonov                |                                          | Moscow, Russian Federation              | 2018-01-14 |
+| Sevastyan Pigarev			   | 										  | Barnaul, Russian Federation				| 2018-03-27 |
