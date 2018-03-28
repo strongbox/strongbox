@@ -110,7 +110,6 @@ public class AuthorizationConfigController
     {
 
         boolean result = config.getRoles()
-                               .getRoles()
                                .add(role);
 
         if (result)
@@ -155,8 +154,7 @@ public class AuthorizationConfigController
     {
         // find Privilege by name
         Role target = null;
-        for (Role role : config.getRoles()
-                               .getRoles())
+        for (Role role : config.getRoles())
         {
             if (role.getName()
                     .equalsIgnoreCase(name))
@@ -169,7 +167,6 @@ public class AuthorizationConfigController
         {
             // revoke role from current config
             config.getRoles()
-                  .getRoles()
                   .remove(target);
             configProvider.save(config);
 
@@ -257,7 +254,6 @@ public class AuthorizationConfigController
                                      List<Role> roles)
     {
         roles.forEach(role -> config.getRoles()
-                                    .getRoles()
                                     .stream()
                                     .filter(role1 -> role1.getName().equalsIgnoreCase(role.getName()))
                                     .forEach(foundedRole -> foundedRole.getPrivileges()

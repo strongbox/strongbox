@@ -82,8 +82,7 @@ public class AuthorizationConfigProvider
             throws ConfigurationException
     {
         // check that embedded roles was not overridden
-        throwIfNotEmpty(toIntersection(config.getRoles()
-                                             .getRoles(),
+        throwIfNotEmpty(toIntersection(config.getRoles(),
                                        Arrays.asList(Roles.values()),
                                        o -> ((Role) o).getName()
                                                       .toUpperCase(),
