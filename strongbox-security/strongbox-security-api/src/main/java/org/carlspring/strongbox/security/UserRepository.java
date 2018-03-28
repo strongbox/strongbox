@@ -1,23 +1,24 @@
 package org.carlspring.strongbox.security;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.google.common.base.Objects;
 
 /**
  * @author Alex Oreshkevich
+ * @author Pablo Tirado
  */
 @XmlRootElement(name = "repository")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UserRepository
 {
 
-    @XmlElement
-    private Privileges privileges;
+    @XmlElement(name = "privilege")
+    @XmlElementWrapper(name = "privileges")
+    private Set<Privilege> privileges = new LinkedHashSet<>();
 
     @XmlAttribute(name = "id",
                   required = true)
@@ -47,12 +48,12 @@ public class UserRepository
         return Objects.hashCode(privileges, repositoryId, pathPermissions);
     }
 
-    public Privileges getPrivileges()
+    public Set<Privilege> getPrivileges()
     {
         return privileges;
     }
 
-    public void setPrivileges(Privileges privileges)
+    public void setPrivileges(Set<Privilege> privileges)
     {
         this.privileges = privileges;
     }
