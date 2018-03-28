@@ -9,6 +9,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -151,7 +152,7 @@ public class GenericParser<T>
             throws JAXBException, IOException
     {
 
-        try (OutputStream os = Files.newOutputStream(path))
+        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(path)))
         {
             store(object, os);
         }

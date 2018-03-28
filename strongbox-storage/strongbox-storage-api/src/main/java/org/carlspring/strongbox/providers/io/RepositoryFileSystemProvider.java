@@ -2,6 +2,8 @@ package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -420,7 +422,7 @@ public abstract class RepositoryFileSystemProvider
                                       OpenOption... options)
             throws IOException
     {
-        return super.newInputStream(unwrap(path), options);
+        return new BufferedInputStream(super.newInputStream(unwrap(path), options));
     }
 
     @Override
@@ -428,7 +430,7 @@ public abstract class RepositoryFileSystemProvider
                                         OpenOption... options)
             throws IOException
     {
-        return super.newOutputStream(unwrap(path), options);
+        return new BufferedOutputStream(super.newOutputStream(unwrap(path), options));
     }
 
     public void copy(Path source,

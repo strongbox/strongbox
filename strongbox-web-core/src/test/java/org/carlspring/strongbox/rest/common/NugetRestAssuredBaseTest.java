@@ -12,6 +12,7 @@ import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -145,7 +146,7 @@ public abstract class NugetRestAssuredBaseTest
         ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
 
         MultipartEntityBuilder.create()
-                              .addBinaryBody("package", Files.newInputStream(packageFilePath))
+                              .addBinaryBody("package", new BufferedInputStream(Files.newInputStream(packageFilePath)))
                               .setBoundary("---------------------------123qwe")
                               .build()
                               .writeTo(contentStream);

@@ -1,6 +1,10 @@
 package org.carlspring.strongbox.io;
 
-import java.io.FilterInputStream;
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.util.MessageDigestUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -11,9 +15,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.util.MessageDigestUtils;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 /**
  * Note that this class is "abstract" and you don't need to instantiate it directly, see example below:
@@ -27,7 +28,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
  * @author mtodorov
  */
 public abstract class ArtifactInputStream
-        extends FilterInputStream
+        extends BufferedInputStream
 {
 
     public static final String[] DEFAULT_ALGORITHMS = { EncryptionAlgorithmsEnum.MD5.getAlgorithm(),

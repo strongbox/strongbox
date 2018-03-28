@@ -10,6 +10,8 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -72,7 +74,7 @@ public class KeyStoreManager
             return keyStore;
         }
 
-        try (InputStream is = Files.newInputStream(path))
+        try (InputStream is = new BufferedInputStream(Files.newInputStream(path)))
         {
             keyStore.load(is, password);
             return keyStore;
@@ -87,7 +89,7 @@ public class KeyStoreManager
                    NoSuchAlgorithmException,
                    KeyStoreException
     {
-        try (OutputStream os = Files.newOutputStream(path))
+        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(path)))
         {
             keyStore.store(os, password);
             return keyStore;

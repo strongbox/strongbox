@@ -11,6 +11,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import javax.inject.Qualifier;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,8 +28,9 @@ import org.springframework.stereotype.Component;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * TODO: @Przemyslaw can you please add some Javadoc here, explaining the appointment for all implementations of {@link ProxyRepositoryArtifactResolver} we have.
- * I always find it hard to remember the difference between them :)
+ * This implementation of {@link ProxyRepositoryArtifactResolver} does not try to resolve the artifact
+ * from the local cache storage. It always fetches the artifact from the proxy/remote
+ * repository and it never stores the artifact in the local cache storage.
  * 
  * @author Przemyslaw Fusik
  */
@@ -52,6 +54,8 @@ public class SimpleProxyRepositoryArtifactResolver
     {
         final Path tempDir = Paths.get(ConfigurationResourceResolver.getTempDirectory());
         final Path tempPath = Files.createTempFile(tempDir, "strongbox", ".tmp");
+
+        // buffered in ArtifactByteStreamsCopyStrategy.copy()
         try (final OutputStream tempPathOs = Files.newOutputStream(tempPath))
         {
             final Storage storage = getConfiguration().getStorage(storageId);
@@ -60,8 +64,9 @@ public class SimpleProxyRepositoryArtifactResolver
             final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
             artifactByteStreamsCopyStrategyDeterminator.determine(repository).copy(is, tempPathOs, artifactPath);
         }
+
         ResourceCloser.close(is, logger);
-        return Files.newInputStream(tempPath);
+        return new BufferedInputStream(Files.newInputStream(tempPath));
     }
 
     @Override

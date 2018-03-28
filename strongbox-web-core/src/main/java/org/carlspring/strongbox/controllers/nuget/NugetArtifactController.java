@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,7 +39,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -56,13 +62,23 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import ru.aristar.jnuget.files.NugetFormatException;
 import ru.aristar.jnuget.files.Nupkg;
 import ru.aristar.jnuget.files.TempNupkgFile;
-import ru.aristar.jnuget.rss.*;
+import ru.aristar.jnuget.rss.EntryProperties;
+import ru.aristar.jnuget.rss.PackageDownloadCountComparator;
+import ru.aristar.jnuget.rss.PackageEntry;
+import ru.aristar.jnuget.rss.PackageFeed;
+import ru.aristar.jnuget.rss.PackageIdAndVersionComparator;
+import ru.aristar.jnuget.rss.PackageUpdateDateDescComparator;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 /**
@@ -584,13 +600,13 @@ public class NugetArtifactController extends BaseArtifactController
         }
 
         final Path packagePartFile = Files.createTempFile("nupkg", "part");
-        try (OutputStream packagePartOutputStream = Files.newOutputStream(packagePartFile))
+        try (OutputStream packagePartOutputStream = new BufferedOutputStream(Files.newOutputStream(packagePartFile)))
         {
 
             writePackagePart(boundaryString, is, packagePartOutputStream);
         }
 
-        return Files.newInputStream(packagePartFile);
+        return new BufferedInputStream(Files.newInputStream(packagePartFile));
     }
 
     private void writePackagePart(String boundaryString,
@@ -620,8 +636,8 @@ public class NugetArtifactController extends BaseArtifactController
         long len = Files.copy(replacingIs, streamContentPath,
                    StandardCopyOption.REPLACE_EXISTING);
         System.out.println(len);
-        
-        try (InputStream streamContentIs = Files.newInputStream(streamContentPath))
+
+        try (InputStream streamContentIs = new BufferedInputStream(Files.newInputStream(streamContentPath)))
         {
             MultipartStream multipartStream = new MultipartStream(streamContentIs, boundary);
             multipartStream.skipPreamble();
@@ -663,17 +679,24 @@ public class NugetArtifactController extends BaseArtifactController
             nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, nupkgFile.getStream());
 
             Path nuspecFile = Files.createTempFile(nupkgFile.getId(), "nuspec");
-            try (OutputStream outputStream = Files.newOutputStream(nuspecFile))
+            try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(nuspecFile)))
             {
                 nupkgFile.getNuspecFile().saveTo(outputStream);
             }
             path = String.format("%s/%s/%s.nuspec", nupkgFile.getId(), nupkgFile.getVersion(), nupkgFile.getId());
 
-            nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, Files.newInputStream(nuspecFile));
+            try (InputStream bis = new BufferedInputStream(Files.newInputStream(nuspecFile)))
+            {
+                nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, bis);
+            }
 
             Path hashFile = Files.createTempFile(String.format("%s.%s", nupkgFile.getId(), nupkgFile.getVersion()),
                                                 "nupkg.sha512");
-            nupkgFile.getHash().saveTo(Files.newOutputStream(hashFile));
+
+            try (OutputStream bos = new BufferedOutputStream(Files.newOutputStream(hashFile)))
+            {
+                nupkgFile.getHash().saveTo(bos);
+            }
 
             path = String.format("%s/%s/%s.%s.nupkg.sha512",
                                  nupkgFile.getId(),
@@ -681,7 +704,10 @@ public class NugetArtifactController extends BaseArtifactController
                                  nupkgFile.getId(),
                                  nupkgFile.getVersion());
 
-            nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, Files.newInputStream(hashFile));
+            try (InputStream bis = new BufferedInputStream(Files.newInputStream(hashFile)))
+            {
+                nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, bis);
+            }
         }
 
         return new URI("");

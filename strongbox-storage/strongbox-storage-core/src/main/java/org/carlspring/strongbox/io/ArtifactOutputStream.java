@@ -4,11 +4,11 @@ import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,7 +44,7 @@ public abstract class ArtifactOutputStream
                                 ArtifactCoordinates coordinates)
             throws NoSuchAlgorithmException
     {
-        super(source, new String[]{});
+        super(new BufferedOutputStream(source), new String[]{});
         this.coordinates = coordinates;
     }
 
