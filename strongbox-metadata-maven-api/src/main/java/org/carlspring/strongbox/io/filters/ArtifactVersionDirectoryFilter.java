@@ -25,17 +25,15 @@ public class ArtifactVersionDirectoryFilter
                 return ds.iterator().hasNext();
             }
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
 
     @Override
     public boolean accept(final Path entry)
             throws IOException
     {
-        return (Files.isDirectory(entry) &&
+        return (entry != null && Files.isDirectory(entry) &&
                 (!excludeHiddenDirectories || !entry.getFileName().toString().matches(".*//*\\..*"))) &&
                containsMetadataFiles(entry);
 

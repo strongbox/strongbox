@@ -6,11 +6,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.google.common.base.Throwables;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.util.Assert;
 
 /**
@@ -24,18 +22,20 @@ public final class ClassLoaderFactory
 
     }
 
+    @SuppressFBWarnings(value = "DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED")
     public static URLClassLoader urlClassLoaderFromPaths(ClassLoader parent,
                                                          Collection<Path> paths)
     {
-        Assert.notNull(paths, "paths array cannot be null");
+        Assert.notNull(paths, "paths collection cannot be null");
 
-        final Set<URL> urls = new HashSet<>();
+        final URL[] urls;
         try
         {
-            final Set<URI> uris = paths.stream().map(Path::toUri).collect(Collectors.toSet());
-            for (URI uri : uris)
+            final URI[] uris = paths.stream().map(Path::toUri).toArray(size -> new URI[size]);
+            urls = new URL[uris.length];
+            for (int i = 0; i < uris.length; i++)
             {
-                urls.add(uri.toURL());
+                urls[i] = uris[i].toURL();
             }
         }
         catch (IOException e)
@@ -43,6 +43,6 @@ public final class ClassLoaderFactory
             throw Throwables.propagate(e);
         }
 
-        return new URLClassLoader(urls.toArray(new URL[0]), parent);
+        return new URLClassLoader(urls, parent);
     }
 }

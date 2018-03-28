@@ -96,7 +96,7 @@ public class ExternalAuthenticatorsHelper
 
     private static boolean isAuthenticatorJarPath(Path path)
     {
-        return !Files.isDirectory(path) &&
+        return path != null && !Files.isDirectory(path) &&
                AUTHENTICAION_PROVIDER_PATTERN.matcher(path.getFileName().toString()).matches();
     }
 
