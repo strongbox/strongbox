@@ -43,20 +43,26 @@ public class ArtifactCoordinateValidatorsManagementController
 {
 
     static final String SUCCESSFUL_LIST = "All version validators of the requested repository";
+    
     static final String NOT_FOUND_STORAGE_MESSAGE = "Could not find requested storage ${storageId}.";
+    
     static final String NOT_FOUND_REPOSITORY_MESSAGE = "Could not find requested repository ${storageId}:${repositoryId}.";
+    
     static final String NOT_FOUND_LAYOUT_PROVIDER_MESSAGE = "Could not find requested artifact coordinate validator for layout provider ${layoutProvider}.";
 
     static final String SUCCESSFUL_ADD = "Version validator type was added to the requested repository.";
 
     static final String SUCCESSFUL_DELETE = "Version validator type was deleted from the requested repository.";
+    
     static final String NOT_FOUND_ALIAS_MESSAGE = "Could not delete requested alias from the requested repository.";
 
     @Inject
     private ConfigurationManagementService configurationManagementService;
+    
     @Inject
     private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
-
+    
+    
     @ApiOperation(value = "Enumerates all version validators of the requested repository")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_LIST),
                             @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
@@ -150,10 +156,8 @@ public class ArtifactCoordinateValidatorsManagementController
     }
 
     @ApiOperation(value = "Returns a list of all the available artifact coordinate validators in the registry")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = SUCCESSFUL_LIST),
-                            @ApiResponse(code = 404,
-                                         message = NOT_FOUND_REPOSITORY_MESSAGE) })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_LIST),
+                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
     @GetMapping(value = "/validators",
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity listArtifactCoordinateValidators(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -164,23 +168,21 @@ public class ArtifactCoordinateValidatorsManagementController
     }
 
     @ApiOperation(value = "Returns a list of artifact coordinate validators supported for a given layout provider")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = SUCCESSFUL_LIST),
-                            @ApiResponse(code = 404,
-                                         message = NOT_FOUND_REPOSITORY_MESSAGE) })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_LIST),
+                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
     @GetMapping(value = "/validators/{layoutProvider}",
                 produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity listArtifactCoordinateValidatorsForLayoutProvider(
-            @PathVariable String layoutProvider,
-            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    public ResponseEntity listArtifactCoordinateValidatorsForLayoutProvider(@PathVariable String layoutProvider,
+                                                                            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-
         Map<String, Set<ArtifactCoordinatesValidator>> validators = artifactCoordinatesValidatorRegistry.getArtifactCoordinatesValidators();
 
         if (!validators.containsKey(layoutProvider))
         {
             return getNotFoundResponseEntity(NOT_FOUND_LAYOUT_PROVIDER_MESSAGE, acceptHeader);
         }
+        
         return getJSONListResponseEntityBody("versionValidators", validators.get(layoutProvider));
     }
+    
 }
