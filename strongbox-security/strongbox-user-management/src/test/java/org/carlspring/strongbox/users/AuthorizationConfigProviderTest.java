@@ -65,7 +65,7 @@ public class AuthorizationConfigProviderTest
                                      Role testRole = new Role();
                                      testRole.setName("MY_ROLE");
                                      testRole.getPrivileges().add("MY_PRIVILEGE");
-                                     authorizationConfig.getRoles().getRoles().add(testRole);
+                                     authorizationConfig.getRoles().add(testRole);
                                      authorizationConfigProvider.save(authorizationConfig);
 
                                      // retrieve config again and display embedded properties
@@ -77,10 +77,10 @@ public class AuthorizationConfigProviderTest
     {
         // iterate over all roles and print every name
         // (simulates access to embedded entity and it's properties)
-        authorizationConfig.getRoles().getRoles().forEach(role ->
-                                                          {
-                                                              logger.debug("Role name is " + role.getName());
-                                                              logger.debug("Privileges " + role.getPrivileges());
-                                                          });
+        authorizationConfig.getRoles().forEach(role ->
+                                               {
+                                                   logger.debug("Role name is " + role.getName());
+                                                   logger.debug("Privileges " + role.getPrivileges());
+                                               });
     }
 }

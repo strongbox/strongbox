@@ -47,7 +47,7 @@ public class AuthorizationConfigControllerTestIT
         Optional<AuthorizationConfig> configOptional = configProvider.get();
         // Saves original roles list.
         configOptional.ifPresent(authorizationConfig ->
-                                         originalRoles = Sets.newHashSet(authorizationConfig.getRoles().getRoles()));
+                                         originalRoles = Sets.newHashSet(authorizationConfig.getRoles()));
         configOptional.orElseThrow(() -> new RuntimeException("Unable to load config"));
     }
 
@@ -58,7 +58,7 @@ public class AuthorizationConfigControllerTestIT
         // Retrieve original roles list and updates the config.
         configOptional.ifPresent(authorizationConfig ->
                                  {
-                                     authorizationConfig.getRoles().setRoles(originalRoles);
+                                     authorizationConfig.setRoles(originalRoles);
                                      configProvider.save(authorizationConfig);
                                  }
         );
