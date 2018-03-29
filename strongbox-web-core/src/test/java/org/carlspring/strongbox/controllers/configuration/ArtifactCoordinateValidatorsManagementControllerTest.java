@@ -226,15 +226,15 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     }
 
     @Test
-    public void validatorsForReleaseRepositoryShouldBeAdditableAndFailSafeWithResponseInJson()
+    public void validatorsForReleaseRepositoryShouldBeAddableAndFailSafeWithResponseInJson()
     {
-        validatorsForReleaseRepositoryShouldBeAdditableAndFailSafe(MediaType.APPLICATION_JSON_VALUE);
+        validatorsForReleaseRepositoryShouldBeAddableAndFailSafe(MediaType.APPLICATION_JSON_VALUE);
     }
 
     @Test
-    public void validatorsForReleaseRepositoryShouldBeAdditableAndFailSafeWithResponseInText()
+    public void validatorsForReleaseRepositoryShouldBeAddableAndFailSafeWithResponseInText()
     {
-        validatorsForReleaseRepositoryShouldBeAdditableAndFailSafe(MediaType.TEXT_PLAIN_VALUE);
+        validatorsForReleaseRepositoryShouldBeAddableAndFailSafe(MediaType.TEXT_PLAIN_VALUE);
     }
     
     @Test
@@ -268,7 +268,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .body(containsString("supportedLayoutProviders"),containsString(layoutProvider));
     }
 
-    private void validatorsForReleaseRepositoryShouldBeAdditableAndFailSafe(String acceptHeader)
+    private void validatorsForReleaseRepositoryShouldBeAddableAndFailSafe(String acceptHeader)
     {
         String urlList = getContextBaseUrl() + "/{storageId}/{repositoryId}";
         String urlAdd = getContextBaseUrl() + "/{storageId}/{repositoryId}/{alias}";

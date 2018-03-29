@@ -162,7 +162,7 @@ public class ArtifactCoordinateValidatorsManagementController
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity listArtifactCoordinateValidators(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        return getJSONListResponseEntityBody("versionValdidators",
+        return getJSONListResponseEntityBody("versionValidators",
                                              artifactCoordinatesValidatorRegistry.getArtifactCoordinatesValidators()
                                                                                  .entrySet());
     }
