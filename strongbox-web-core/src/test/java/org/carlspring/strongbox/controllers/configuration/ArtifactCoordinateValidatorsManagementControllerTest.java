@@ -249,7 +249,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(containsString("versionValdidators"),containsString("Maven 2"));
+               .body(containsString("versionValidators"),containsString("Maven 2"));
     }
 
     @Test
