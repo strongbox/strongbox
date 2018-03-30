@@ -238,7 +238,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     }
     
     @Test
-    public void getACollectionOfArtifactCoordinateValidators()
+    public void getCollectionOfArtifactCoordinateValidators()
     {
 
         String url = getContextBaseUrl() + "/validators";
@@ -253,7 +253,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     }
 
     @Test
-    public void getAArtifactCoordinateValidatorsForLayoutProvider()
+    public void getArtifactCoordinateValidatorsForLayoutProvider()
     {
 
         String url = getContextBaseUrl() + "/validators";
