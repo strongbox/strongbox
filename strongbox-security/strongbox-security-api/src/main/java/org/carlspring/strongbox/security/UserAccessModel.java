@@ -1,22 +1,24 @@
 package org.carlspring.strongbox.security;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.google.common.base.Objects;
 
 /**
  * @author Alex Oreshkevich
+ * @author Pablo Tirado
  */
 @XmlRootElement(name = "features")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UserAccessModel
 {
 
-    @XmlElement
-    private UserStorages storages;
+    @XmlElement(name = "storage")
+    @XmlElementWrapper(name = "storages")
+    private Set<UserStorage> storages = new LinkedHashSet<>();
 
     public UserAccessModel()
     {
@@ -37,12 +39,12 @@ public class UserAccessModel
         return Objects.hashCode(storages);
     }
 
-    public UserStorages getStorages()
+    public Set<UserStorage> getStorages()
     {
         return storages;
     }
 
-    public void setStorages(UserStorages storages)
+    public void setStorages(Set<UserStorage> storages)
     {
         this.storages = storages;
     }
