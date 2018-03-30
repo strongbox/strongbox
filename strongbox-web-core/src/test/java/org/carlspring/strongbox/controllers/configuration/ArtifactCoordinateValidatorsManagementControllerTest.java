@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers;
+package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
@@ -22,12 +22,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.controllers.ArtifactCoordinateValidatorsManagementController.*;
+import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.*;
 import static org.hamcrest.Matchers.*;
 
 /**
  * @author Przemyslaw Fusik
  * @author Pablo Tirado
+ * @author Aditya Srinivasan
  */
 @IntegrationTest
 @RunWith(SpringRunner.class)
@@ -225,18 +226,49 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     }
 
     @Test
-    public void validatorsForReleaseRepositoryShouldBeAdditableAndFailSafeWithResponseInJson()
+    public void validatorsForReleaseRepositoryShouldBeAddableAndFailSafeWithResponseInJson()
     {
-        validatorsForReleaseRepositoryShouldBeAdditableAndFailSafe(MediaType.APPLICATION_JSON_VALUE);
+        validatorsForReleaseRepositoryShouldBeAddableAndFailSafe(MediaType.APPLICATION_JSON_VALUE);
     }
 
     @Test
-    public void validatorsForReleaseRepositoryShouldBeAdditableAndFailSafeWithResponseInText()
+    public void validatorsForReleaseRepositoryShouldBeAddableAndFailSafeWithResponseInText()
     {
-        validatorsForReleaseRepositoryShouldBeAdditableAndFailSafe(MediaType.TEXT_PLAIN_VALUE);
+        validatorsForReleaseRepositoryShouldBeAddableAndFailSafe(MediaType.TEXT_PLAIN_VALUE);
+    }
+    
+    @Test
+    public void getCollectionOfArtifactCoordinateValidators()
+    {
+
+        String url = getContextBaseUrl() + "/validators";
+        
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(containsString("versionValidators"),containsString("Maven 2"));
     }
 
-    private void validatorsForReleaseRepositoryShouldBeAdditableAndFailSafe(String acceptHeader)
+    @Test
+    public void getArtifactCoordinateValidatorsForLayoutProvider()
+    {
+
+        String url = getContextBaseUrl() + "/validators";
+        String layoutProvider = "Maven 2";
+
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url,layoutProvider)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(containsString("supportedLayoutProviders"),containsString(layoutProvider));
+    }
+
+    private void validatorsForReleaseRepositoryShouldBeAddableAndFailSafe(String acceptHeader)
     {
         String urlList = getContextBaseUrl() + "/{storageId}/{repositoryId}";
         String urlAdd = getContextBaseUrl() + "/{storageId}/{repositoryId}/{alias}";

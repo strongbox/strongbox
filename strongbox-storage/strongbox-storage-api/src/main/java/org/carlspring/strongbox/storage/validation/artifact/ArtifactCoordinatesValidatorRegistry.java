@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
+ * @author Aditya Srinivasan
  */
 @Component
 public class ArtifactCoordinatesValidatorRegistry
@@ -76,4 +77,8 @@ public class ArtifactCoordinatesValidatorRegistry
         return configurationManagementService.getConfiguration().getStorage(storageId);
     }
 
+    public Map<String, Set<ArtifactCoordinatesValidator>> getArtifactCoordinatesValidators()
+    {
+        return validatorsByLayoutProvider;
+    }
 }
