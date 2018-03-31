@@ -4,16 +4,15 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeVisitor;
-import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryParser;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser.FilterContext;
 
 /**
  * @author sbespalov
  *
  */
-public class NugetODataFilterQueryParser extends QueryParser
+public class NugetODataFilterQueryParser extends QueryParser<FilterContext, ArtifactEntry, NugetODataFilterVisitorImpl>
 {
 
     public NugetODataFilterQueryParser(String query)
@@ -29,13 +28,13 @@ public class NugetODataFilterQueryParser extends QueryParser
     }
 
     @Override
-    protected ParseTreeVisitor<Predicate> createTreeVisitor()
+    protected NugetODataFilterVisitorImpl createTreeVisitor()
     {
-        return new NugetODataFilterVisitorImpl(Predicate.empty());
+        return new NugetODataFilterVisitorImpl();
     }
 
     @Override
-    protected ParseTree parseQueryTree(Parser parser)
+    protected FilterContext parseQueryTree(Parser parser)
     {
         return ((NugetODataFilterParser) parser).filter();
     }

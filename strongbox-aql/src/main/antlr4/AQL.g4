@@ -6,7 +6,34 @@ grammar AQL;
 
 query
 :
-    queryExp+
+    queryExp+ orderExp? pageExp?
+;
+
+pageExp
+:
+    PAGE_SKIP COLON NUMBER
+;
+
+orderExp
+:
+    orderDirection COLON orderValue
+;
+
+orderValue
+:
+    STORAGE
+    | REPOSITORY
+    | LAYOUT
+    | VERSION
+    | TAG
+    | AGE
+    | IDENTIFIER
+;
+
+orderDirection
+:
+    ASC
+    | DESC
 ;
 
 queryExp
@@ -50,8 +77,6 @@ tokenKeyword
     | FROM
     | TO
     | AGE
-    | ASC
-    | DESC
 ;
 
 logicalOp
@@ -124,6 +149,12 @@ DESC
     'desc'
 ;
 
+PAGE_SKIP
+:
+    'skip'
+    | 'SKIP'
+;
+
 AMP
 :
     '&'
@@ -139,6 +170,7 @@ AND
     'and'
     | 'AND'
 ;
+
 
 PIPE
 :
@@ -179,6 +211,11 @@ ROUND_BRACKET_LEFT
 ROUND_BRACKET_RIGHT
 :
     ')'
+;
+
+NUMBER
+:
+    [0-9]+
 ;
 
 IDENTIFIER

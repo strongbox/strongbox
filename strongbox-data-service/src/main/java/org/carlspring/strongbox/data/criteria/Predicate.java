@@ -23,6 +23,10 @@ public class Predicate
 
     private List<Predicate> childPredicateList = new ArrayList<>();
 
+    private boolean nesteed;
+
+    private boolean negated;
+
     public Predicate()
     {
         super();
@@ -45,7 +49,12 @@ public class Predicate
 
     public Predicate or(Predicate p)
     {
-        Assert.state(!BooleanOperator.AND.equals(this.operator), "Only disjunction allowed.");
+        if (BooleanOperator.AND.equals(this.operator))
+        {
+            Predicate nesteedPredicate = Predicate.empty().or(p);
+            add(nesteedPredicate);
+            return nesteedPredicate;
+        }
 
         this.operator = BooleanOperator.OR;
         add(p);
@@ -55,7 +64,12 @@ public class Predicate
 
     public Predicate and(Predicate p)
     {
-        Assert.state(!BooleanOperator.OR.equals(this.operator), "Only conjunction allowed.");
+        if (BooleanOperator.OR.equals(this.operator))
+        {
+            Predicate nesteedPredicate = Predicate.empty().and(p);
+            add(nesteedPredicate);
+            return nesteedPredicate;
+        }
 
         this.operator = BooleanOperator.AND;
         add(p);
@@ -77,6 +91,38 @@ public class Predicate
         return expression == null && childPredicateList.isEmpty();
     }
 
+    public Predicate nesteed(boolean b)
+    {
+        this.nesteed = b;
+        return this;
+    }
+
+    public boolean isNesteed()
+    {
+        return nesteed;
+    }
+
+    public void setNesteed(boolean nesteed)
+    {
+        this.nesteed = nesteed;
+    }
+
+    public boolean isNegated()
+    {
+        return negated;
+    }
+
+    public void setNegated(boolean negated)
+    {
+        this.negated = negated;
+    }
+
+    public Predicate negated(boolean negated)
+    {
+        setNegated(negated);
+        return this;
+    }
+
     public static Predicate empty()
     {
         return new Predicate();
@@ -91,7 +137,20 @@ public class Predicate
 
     public static enum BooleanOperator
     {
-        AND, OR
+        AND, OR;
+
+        public static BooleanOperator of(String v)
+        {
+            if ("||".equals(v) || "|".equals(v))
+            {
+                return BooleanOperator.OR;
+            }
+            else if ("&&".equals(v) || "&".equals(v))
+            {
+                return BooleanOperator.AND;
+            }
+            return BooleanOperator.valueOf(v);
+        }
     }
 
 }

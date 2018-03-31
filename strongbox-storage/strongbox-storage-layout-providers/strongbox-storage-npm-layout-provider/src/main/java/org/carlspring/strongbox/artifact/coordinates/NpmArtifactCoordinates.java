@@ -23,6 +23,7 @@ import org.springframework.util.Assert;
 @SuppressWarnings("serial")
 @XmlRootElement(name = "npmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
+@ArtifactLayout("npm")
 public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtifactCoordinates, Version>
 {
     public static final String NPM_NAME_REGEX = "[a-z0-9][\\w-.]*";

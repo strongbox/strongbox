@@ -78,6 +78,7 @@
         <module>strongbox-cron</module>
         <module>strongbox-storage</module>
         <module>strongbox-data-service</module>
+        <module>strongbox-aql</module>
         <module>strongbox-web-core</module>
     </modules>
 

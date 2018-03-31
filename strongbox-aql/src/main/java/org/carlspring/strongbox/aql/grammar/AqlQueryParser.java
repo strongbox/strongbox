@@ -4,17 +4,15 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 import org.carlspring.strongbox.aql.grammar.AQLParser.QueryContext;
-import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryParser;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 
 /**
  * @author sbespalov
  *
  */
-public class AqlQueryParser extends QueryParser<QueryContext, AQLVisitorImpl>
+public class AqlQueryParser extends QueryParser<QueryContext, ArtifactEntry, AQLStatementVisitor>
 {
 
     public AqlQueryParser(String query)
@@ -30,9 +28,9 @@ public class AqlQueryParser extends QueryParser<QueryContext, AQLVisitorImpl>
     }
 
     @Override
-    protected AQLVisitorImpl createTreeVisitor()
+    protected AQLStatementVisitor createTreeVisitor()
     {
-        return new AQLVisitorImpl(Predicate.empty());
+        return new AQLStatementVisitor();
     }
 
     @Override

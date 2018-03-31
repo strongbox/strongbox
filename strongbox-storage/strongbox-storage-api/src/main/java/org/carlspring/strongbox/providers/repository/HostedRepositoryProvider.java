@@ -89,12 +89,11 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         Repository repository = storage.getRepository(repositoryId);
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         
-        Selector<ArtifactEntry> selector = createSelector(storageId, repositoryId, predicate);
-        selector.setFetch(true);
+        Selector<ArtifactEntry> selector = createSelector(storageId, repositoryId, predicate).with(paginator).fetch();
         
         QueryTemplate<List<ArtifactEntry>, ArtifactEntry> queryTemplate = new DetachQueryTemplate<>(entityManager);
         
-        List<ArtifactEntry> searchResult = queryTemplate.select(selector, paginator);
+        List<ArtifactEntry> searchResult = queryTemplate.select(selector);
         for (ArtifactEntry artifactEntry : searchResult)
         {
             

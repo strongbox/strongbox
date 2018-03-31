@@ -5,13 +5,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.carlspring.strongbox.aql.grammar.AqlQueryParser;
+import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryParserException;
+import org.carlspring.strongbox.data.criteria.Selector;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.javatuples.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableMap;
 
 public class AqlParserTestCase
 {
@@ -22,14 +27,37 @@ public class AqlParserTestCase
     public void testValidQuery()
         throws Exception
     {
-        String query = "(storage:storage0) +repository:releases OR +(groupId:'org.carlspring') AND (-(artifactId:'some strange group') || -version:'0.*')";
+        String query = "(storage:storage0) +repository:releases OR +(groupId:'org.carlspring') AND (-(artifactId:'some strange group') || -version:'0.*') asc: age skip: 12";
         AqlQueryParser aqlParser = new AqlQueryParser(query);
-        Predicate predicate = aqlParser.parseQuery();
 
         logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
+        Selector<ArtifactEntry> selector = aqlParser.parseQuery();
+        Predicate predicate = selector.getPredicate();
+        Assert.assertNotNull(predicate);
+        Assert.assertFalse(predicate.isEmpty());
         Assert.assertFalse(aqlParser.hasErrors());
-        
+
+        OQueryTemplate<Object, ArtifactEntry> queryTemplate = new OQueryTemplate<>(null);
+
+        String sqlQuery = queryTemplate.calculateQueryString(selector);
+        logger.info(String.format("Query [%s] parse result:\n[%s]", query, sqlQuery));
+        Assert.assertEquals("SELECT * " +
+                "FROM " +
+                "ArtifactEntry " +
+                "WHERE (storageId = :storageId_0) " +
+                "AND repositoryId = :repositoryId_1 " +
+                "OR (artifactCoordinates.coordinates.groupId = :groupId_1) " +
+                "AND ( NOT (artifactCoordinates.coordinates.artifactId = :artifactId_1) OR  NOT artifactCoordinates.version LIKE :version_2) " +
+                "ORDER BY lastUpdated ASC " +
+                "SKIP 12 " +
+                "LIMIT 1000", sqlQuery);
+
+        Map<String, Object> parameterMap = queryTemplate.exposeParameterMap(predicate);
+        logger.info(String.format("Query [%s] parse parameters:\n[%s]", query, parameterMap));
+        Assert.assertEquals(ImmutableMap.of("storageId_0", "storage0", "repositoryId_1", "releases", "groupId_1",
+                                            "org.carlspring", "version_2", "0.%", "artifactId_1", "some strange group"),
+                            parameterMap);
     }
 
     @Test

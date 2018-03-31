@@ -2,9 +2,7 @@ package org.carlspring.strongbox.data.criteria;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,6 +23,7 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.Trees;
+import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +32,11 @@ import org.slf4j.LoggerFactory;
  * @author sbespalov
  *
  */
-public abstract class QueryParser<T extends ParseTree, V extends ParseTreeVisitor<Predicate>> extends BaseErrorListener implements ParseTreeListener
+public abstract class QueryParser<T extends ParseTree, E extends GenericEntity, V extends ParseTreeVisitor<Selector<E>>>
+        extends BaseErrorListener implements ParseTreeListener
 {
 
+    @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(QueryParser.class);
 
     private final Parser parser;
@@ -62,7 +63,7 @@ public abstract class QueryParser<T extends ParseTree, V extends ParseTreeVisito
         ruleNames = Arrays.asList(parser.getRuleNames());
     }
 
-    public Predicate parseQuery()
+    public Selector<E> parseQuery()
     {
         T queryContext = parseQueryTree(parser);
         ParseTreeWalker.DEFAULT.walk(this, queryContext);

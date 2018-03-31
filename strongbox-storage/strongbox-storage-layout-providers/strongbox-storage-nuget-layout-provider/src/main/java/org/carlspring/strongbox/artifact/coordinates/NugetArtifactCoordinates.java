@@ -20,6 +20,7 @@ import org.springframework.util.Assert;
 @Embeddable
 @XmlRootElement(name = "nugetArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
+@ArtifactLayout("nuget")
 public class NugetArtifactCoordinates
         extends AbstractArtifactCoordinates<NugetArtifactCoordinates, Version>
 {

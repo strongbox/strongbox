@@ -20,6 +20,7 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 @Embeddable
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
+@ArtifactLayout("maven")
 public class MavenArtifactCoordinates
         extends AbstractArtifactCoordinates<MavenArtifactCoordinates, ComparableVersion>
 {

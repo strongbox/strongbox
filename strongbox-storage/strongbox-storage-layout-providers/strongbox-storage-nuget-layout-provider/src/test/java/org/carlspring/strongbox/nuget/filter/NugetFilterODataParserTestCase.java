@@ -95,7 +95,7 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGene
 
         NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
                 "tolower(Id) eq 'org.carlspring.strongbox.nuget.test.nfpt' and IsLatestVersion and Version eq '1.0.8'F");
-        Predicate predicate = t.parseQuery();
+        Predicate predicate = t.parseQuery().getPredicate();
 
         selector.where(predicate)
                 .and(Predicate.of(ExpOperator.EQ.of("storageId", STORAGE0)))

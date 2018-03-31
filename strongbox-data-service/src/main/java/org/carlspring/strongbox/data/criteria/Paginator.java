@@ -7,7 +7,9 @@ public class Paginator
 
     private Integer skip;
     private Integer limit;
-    private String orderBy;
+
+    private String property;
+    private Order order = Order.ASC;
 
     public Integer getSkip()
     {
@@ -29,14 +31,28 @@ public class Paginator
         this.limit = limit;
     }
 
-    public String getOrderBy()
+    public String getProperty()
     {
-        return orderBy;
+        return property;
     }
 
-    public void setOrderBy(String orderBy)
+    public void setProperty(String orderBy)
     {
-        this.orderBy = orderBy;
+        this.property = orderBy;
     }
 
+    public Order getOrder()
+    {
+        return order;
+    }
+
+    public void setOrder(Order order)
+    {
+        this.order = order;
+    }
+
+    public static enum Order
+    {
+        ASC, DESC;
+    }
 }

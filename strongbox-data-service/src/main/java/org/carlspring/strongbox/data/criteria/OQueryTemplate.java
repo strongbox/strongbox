@@ -26,6 +26,11 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
 
     protected EntityManager entityManager;
 
+    public OQueryTemplate()
+    {
+        super();
+    }
+
     public OQueryTemplate(EntityManager entityManager)
     {
         super();
@@ -37,13 +42,12 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
         return entityManager;
     }
 
-    public R select(Selector<T> s,
-                    Paginator p)
+    public R select(Selector<T> s)
     {
-        String sQuery = calculateQueryString(s, p);
+        String sQuery = calculateQueryString(s);
 
         OSQLSynchQuery<T> oQuery = new OSQLSynchQuery<>(sQuery);
-        Map<String, Object> parameterMap = exposeParameterMap(s.getPredicate(), 0);
+        Map<String, Object> parameterMap = exposeParameterMap(s.getPredicate());
 
         logger.debug(String.format("Executing SQL query:%n\t[%s]%nWith parameters:%n\t[%s]", sQuery, parameterMap));
 
@@ -52,7 +56,8 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
         if (result instanceof Collection && !((Collection) result).isEmpty()
                 && ((Collection) result).iterator().next() instanceof ODocument)
         {
-            //Commonly we don't need ODocument results, so if it's a ODocument then probably we assume to get it's contents
+            // Commonly we don't need ODocument results, so if it's a ODocument
+            // then probably we assume to get it's contents
             return (R) ((Collection<ODocument>) result).iterator().next().fieldValues()[0];
         }
         else
@@ -66,33 +71,37 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
         return (OObjectDatabaseTx) entityManager.getDelegate();
     }
 
+    public Map<String, Object> exposeParameterMap(Predicate p)
+    {
+        return exposeParameterMap(p, 0);
+    }
+
     private Map<String, Object> exposeParameterMap(Predicate p,
-                                                   int i)
+                                                   int tokenCount)
     {
         HashMap<String, Object> result = new HashMap<>();
         Expression e = p.getExpression();
         if (e != null)
         {
-            result.put(calculateParameterName(e.getProperty(), i), e.getValue());
+            result.put(calculateParameterName(e.getProperty(), tokenCount), e.getValue());
         }
 
         for (Predicate predicate : p.getChildPredicateList())
         {
-            result.putAll(exposeParameterMap(predicate, i++));
+            result.putAll(exposeParameterMap(predicate, tokenCount++));
         }
 
         return result;
     }
 
-    public String calculateQueryString(Selector<T> selector,
-                                       Paginator predicate)
+    public String calculateQueryString(Selector<T> selector)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ").append(selector.getProjection());
         sb.append(" FROM ").append(selector.getTargetClass().getSimpleName());
 
         Predicate p = selector.getPredicate();
-        if (p.getChildPredicateList().isEmpty() && p.getExpression() == null)
+        if (p.isEmpty())
         {
             return sb.toString();
         }
@@ -100,18 +109,19 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
         sb.append(" WHERE ");
         sb.append(predicateToken(p, 0));
 
-        if (predicate != null && predicate.getOrderBy() != null && !predicate.getOrderBy().trim().isEmpty())
+        Paginator paginator = selector.getPaginator();
+        if (paginator != null && paginator.getProperty() != null && !paginator.getProperty().trim().isEmpty())
         {
-            sb.append(String.format(" ORDER BY %s", predicate.getOrderBy()));
+            sb.append(String.format(" ORDER BY %s %s", paginator.getProperty(), paginator.getOrder()));
         }
-        
-        if (predicate != null && predicate.getSkip() > 0)
+
+        if (paginator != null && paginator.getSkip() > 0)
         {
-            sb.append(String.format(" SKIP %s", predicate.getSkip()));
+            sb.append(String.format(" SKIP %s", paginator.getSkip()));
         }
-        if (predicate != null && predicate.getLimit() > 0)
+        if (paginator != null && paginator.getLimit() > 0)
         {
-            sb.append(String.format(" LIMIT %s", predicate.getLimit()));
+            sb.append(String.format(" LIMIT %s", paginator.getLimit()));
         }
 
         if (selector.isFetch())
@@ -123,12 +133,17 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     }
 
     protected String predicateToken(Predicate p,
-                                    int i)
+                                    int tokenCount)
     {
+        if (p.isEmpty())
+        {
+            return "";
+        }
+
         StringBuffer sb = new StringBuffer();
         if (p.getExpression() != null)
         {
-            sb.append(expressionToken(p.getExpression(), i));
+            sb.append(expressionToken(p.getExpression(), tokenCount));
         }
 
         for (Predicate predicate : p.getChildPredicateList())
@@ -137,7 +152,17 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
             {
                 sb.append(String.format(" %s ", p.getOperator().name()));
             }
-            sb.append(predicateToken(predicate, i++));
+            sb.append(predicateToken(predicate, tokenCount++));
+        }
+
+        if (p.isNesteed())
+        {
+            sb.insert(0, "(").append(")");
+        }
+
+        if (p.isNegated())
+        {
+            sb.insert(0, " NOT ");
         }
 
         return sb.toString();
@@ -160,11 +185,11 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     {
         switch (e.getOperator())
         {
-            case CONTAINS:
-                String property = e.getProperty();
-                return property.substring(0, property.indexOf("."));
-            default:
-                break;
+        case CONTAINS:
+            String property = e.getProperty();
+            return property.substring(0, property.indexOf("."));
+        default:
+            break;
         }
         return e.getProperty();
     }
@@ -174,13 +199,13 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     {
         switch (e.getOperator())
         {
-            case CONTAINS:
-                String property = e.getProperty();
-                property = property.substring(property.indexOf(".") + 1);
-    
-                return String.format("(%s = :%s)", property, calculateParameterName(property, n));
-            default:
-                break;
+        case CONTAINS:
+            String property = e.getProperty();
+            property = property.substring(property.indexOf(".") + 1);
+
+            return String.format("(%s = :%s)", property, calculateParameterName(property, n));
+        default:
+            break;
         }
         String property = e.getProperty();
         return String.format(":%s", calculateParameterName(property, n));
@@ -197,12 +222,16 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     {
         switch (e.getOperator())
         {
-            case EQ:
-                return " = ";
-            case LIKE:
-                return " LIKE ";
-            case CONTAINS:
-                return " CONTAINS ";
+        case EQ:
+            return " = ";
+        case LE:
+            return " <= ";
+        case GE:
+            return " >=";            
+        case LIKE:
+            return " LIKE ";
+        case CONTAINS:
+            return " CONTAINS ";
         }
         return null;
     }

@@ -21,6 +21,8 @@ public class Selector<T extends GenericEntity>
     private Predicate predicate;
 
     private boolean fetch;
+    
+    private Paginator paginator = new Paginator();
 
     public Selector(Class<T> targetClass)
     {
@@ -64,9 +66,21 @@ public class Selector<T extends GenericEntity>
         return fetch;
     }
 
-    public void setFetch(boolean detach)
+    public Selector<T> fetch()
     {
-        this.fetch = detach;
+        this.fetch = true;
+        return this;
+    }
+
+    public Paginator getPaginator()
+    {
+        return paginator;
+    }
+
+    public Selector<T> with(Paginator paginator)
+    {
+        this.paginator = paginator;
+        return this;
     }
 
 }

@@ -428,6 +428,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-aql</artifactId>
+            <version>${project.version}</version>
+        </dependency>        
+        <dependency>
             <groupId>org.carlspring.maven</groupId>
             <artifactId>maven-commons</artifactId>
         </dependency>

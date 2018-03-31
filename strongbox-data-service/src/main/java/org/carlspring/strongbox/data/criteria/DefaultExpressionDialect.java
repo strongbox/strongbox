@@ -1,0 +1,27 @@
+package org.carlspring.strongbox.data.criteria;
+
+import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
+
+public class DefaultExpressionDialect implements ExpressionDialect
+{
+
+    @Override
+    public String parseProperty(String attribute)
+    {
+        return attribute;
+    }
+
+    @Override
+    public ExpOperator parseOperator(String operator)
+    {
+        return ExpOperator.valueOf(operator);
+    }
+
+    @Override
+    public String parseValue(String value)
+    {
+        return StringUtils.unwrap(value, '\'');
+    }
+
+}
