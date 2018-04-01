@@ -235,6 +235,7 @@ public class RepositoryPath
         return getTarget().toRealPath(options);
     }
 
+    @Deprecated
     public File toFile()
     {
         return getTarget().toFile();

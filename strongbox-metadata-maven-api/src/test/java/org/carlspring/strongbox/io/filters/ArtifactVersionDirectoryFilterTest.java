@@ -1,9 +1,14 @@
 package org.carlspring.strongbox.io.filters;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -15,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 public class ArtifactVersionDirectoryFilterTest
 {
 
-    public static final Path BASEDIR = Paths.get("target/test-resources");
+    public static final Path BASEDIR = Paths.get("target").resolve("test-resources");
 
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -41,11 +46,17 @@ public class ArtifactVersionDirectoryFilterTest
 
     @Test
     public void testFiltering()
+            throws IOException
     {
-        File[] files = new File(BASEDIR.toFile(), "com/foo/bar").listFiles(new ArtifactVersionDirectoryFilter());
+        List<Path> paths;
+        try (DirectoryStream<Path> ds = Files.newDirectoryStream(BASEDIR.resolve("com").resolve("foo").resolve("bar"),
+                                                                 new ArtifactVersionDirectoryFilter()))
+        {
+            paths = Lists.newArrayList(ds);
+        }
 
-        assertNotNull("Expected versions to be discovered.", files.length);
-        assertEquals("Expected three versions.", 3, files.length);
+        assertNotNull("Expected versions to be discovered.", paths.size());
+        assertEquals("Expected three versions.", 3, paths.size());
     }
 
 }

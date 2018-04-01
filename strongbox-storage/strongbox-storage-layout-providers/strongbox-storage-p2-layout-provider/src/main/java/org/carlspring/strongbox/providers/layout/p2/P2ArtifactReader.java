@@ -4,8 +4,9 @@ import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class P2ArtifactReader
         GenericParser<P2Repository> repositoryParser = new GenericParser<>(P2Repository.class);
         try
         {
-            P2Repository p2Repository = repositoryParser.parse(createFile(repositoryBaseDir));
+            P2Repository p2Repository = repositoryParser.parse(createPath(repositoryBaseDir).toUri().toURL());
             final P2ArtifactCoordinates artifactToFind = P2ArtifactCoordinates.create(bundle);
             for (P2Artifact p2Artifact : p2Repository.getArtifacts().getArtifacts())
             {
@@ -74,14 +75,14 @@ public class P2ArtifactReader
         }
     }
 
-    private static File createFile(String repositoryBaseDir)
+    private static Path createPath(String repositoryBaseDir)
     {
         final String artifactsFilename = "artifacts.xml";
         if (repositoryBaseDir == null || repositoryBaseDir.isEmpty())
         {
-            return new File(artifactsFilename);
+            return Paths.get(artifactsFilename);
         }
 
-        return new File(repositoryBaseDir, artifactsFilename);
+        return Paths.get(repositoryBaseDir).resolve(artifactsFilename);
     }
 }

@@ -10,9 +10,6 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,6 +20,8 @@ import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -59,7 +58,7 @@ public class KeyStoreManager
         Authenticator.setDefault(proxyAuthenticator);
     }
 
-    private KeyStore load(File fileName,
+    private KeyStore load(Path path,
                           char[] password)
             throws KeyStoreException,
                    IOException,
@@ -67,25 +66,20 @@ public class KeyStoreManager
                    NoSuchAlgorithmException
     {
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        if (fileName == null)
+        if (path == null)
         {
             keyStore.load(null, password);
             return keyStore;
         }
 
-        InputStream is = new FileInputStream(fileName);
-        try
+        try (InputStream is = Files.newInputStream(path))
         {
             keyStore.load(is, password);
             return keyStore;
         }
-        finally
-        {
-            ResourceCloser.close(is, logger);
-        }
     }
 
-    private KeyStore store(File fileName,
+    private KeyStore store(Path path,
                            char[] password,
                            KeyStore keyStore)
             throws IOException,
@@ -93,29 +87,24 @@ public class KeyStoreManager
                    NoSuchAlgorithmException,
                    KeyStoreException
     {
-        OutputStream os = new FileOutputStream(fileName);
-        try
+        try (OutputStream os = Files.newOutputStream(path))
         {
             keyStore.store(os, password);
             return keyStore;
         }
-        finally
-        {
-            ResourceCloser.close(os, logger);
-        }
     }
 
-    public KeyStore createNew(File fileName,
+    public KeyStore createNew(Path path,
                               char[] password)
             throws KeyStoreException,
                    CertificateException,
                    NoSuchAlgorithmException,
                    IOException
     {
-        return store(fileName, password, load(null, password));
+        return store(path, password, load(null, password));
     }
 
-    public KeyStore changePassword(File fileName,
+    public KeyStore changePassword(Path path,
                                    char[] oldPassword,
                                    char[] newPassword)
             throws KeyStoreException,
@@ -123,17 +112,17 @@ public class KeyStoreManager
                    CertificateException,
                    NoSuchAlgorithmException
     {
-        return store(fileName, newPassword, load(fileName, oldPassword));
+        return store(path, newPassword, load(path, oldPassword));
     }
 
-    public Map<String, Certificate> listCertificates(File fileName,
+    public Map<String, Certificate> listCertificates(Path path,
                                                      char[] password)
             throws KeyStoreException,
                    IOException,
                    CertificateException,
                    NoSuchAlgorithmException
     {
-        KeyStore keyStore = load(fileName, password);
+        KeyStore keyStore = load(path, password);
         Map<String, Certificate> certificates = new HashMap<>();
         Enumeration<String> aliases = keyStore.aliases();
 
@@ -146,7 +135,7 @@ public class KeyStoreManager
         return certificates;
     }
 
-    public KeyStore removeCertificates(File fileName,
+    public KeyStore removeCertificates(Path path,
                                        char[] password,
                                        InetAddress host,
                                        int port)
@@ -155,7 +144,7 @@ public class KeyStoreManager
                    CertificateException,
                    NoSuchAlgorithmException
     {
-        KeyStore keyStore = load(fileName, password);
+        KeyStore keyStore = load(path, password);
         String prefix = host.getCanonicalHostName() + ":" + Integer.toString(port);
 
         Enumeration<String> aliases = keyStore.aliases();
@@ -168,10 +157,10 @@ public class KeyStoreManager
             }
         }
 
-        return store(fileName, password, keyStore);
+        return store(path, password, keyStore);
     }
 
-    public KeyStore addCertificates(File fileName,
+    public KeyStore addCertificates(Path path,
                                     char[] password,
                                     InetAddress host,
                                     int port)
@@ -181,7 +170,7 @@ public class KeyStoreManager
                    NoSuchAlgorithmException,
                    KeyManagementException
     {
-        KeyStore keyStore = load(fileName, password);
+        KeyStore keyStore = load(path, password);
         String prefix = host.getCanonicalHostName() + ":" + Integer.toString(port);
         X509Certificate[] chain = remoteCertificateChain(host, port);
 
@@ -190,10 +179,10 @@ public class KeyStoreManager
             keyStore.setCertificateEntry(prefix + "_" + cert.getSubjectDN().getName(), cert);
         }
 
-        return store(fileName, password, keyStore);
+        return store(path, password, keyStore);
     }
 
-    public KeyStore addHttpsCertificates(File fileName,
+    public KeyStore addHttpsCertificates(Path path,
                                          char[] password,
                                          Proxy httpProxy,
                                          PasswordAuthentication credentials,
@@ -205,7 +194,7 @@ public class KeyStoreManager
                    IOException,
                    KeyManagementException
     {
-        KeyStore keyStore = load(fileName, password);
+        KeyStore keyStore = load(path, password);
         String prefix = host + ":" + Integer.toString(port);
         ChainCaptureTrustManager tm = new ChainCaptureTrustManager();
         SSLContext ctx = SSLContext.getInstance("TLS");
@@ -229,7 +218,7 @@ public class KeyStoreManager
             {
                 keyStore.setCertificateEntry(prefix + "_" + cert.getSubjectDN().getName(), cert);
             }
-            return store(fileName, password, keyStore);
+            return store(path, password, keyStore);
         }
         finally
         {
@@ -239,7 +228,7 @@ public class KeyStoreManager
 
     }
 
-    public KeyStore addSslCertificates(File fileName,
+    public KeyStore addSslCertificates(Path path,
                                        char[] password,
                                        Proxy socksProxy,
                                        PasswordAuthentication credentials,
@@ -251,7 +240,7 @@ public class KeyStoreManager
                    NoSuchAlgorithmException,
                    KeyManagementException
     {
-        KeyStore keyStore = load(fileName, password);
+        KeyStore keyStore = load(path, password);
         String prefix = host + ":" + Integer.toString(port);
         X509Certificate[] chain = remoteCertificateChain(socksProxy, credentials, host, port);
 
@@ -260,7 +249,7 @@ public class KeyStoreManager
             keyStore.setCertificateEntry(prefix + "_" + cert.getSubjectDN().getName(), cert);
         }
 
-        return store(fileName, password, keyStore);
+        return store(path, password, keyStore);
     }
 
     private X509Certificate[] remoteCertificateChain(InetAddress address,

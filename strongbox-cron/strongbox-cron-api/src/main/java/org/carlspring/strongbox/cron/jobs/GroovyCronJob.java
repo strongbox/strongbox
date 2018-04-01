@@ -2,11 +2,13 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Paths;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import groovy.lang.GroovyClassLoader;
+import groovy.lang.GroovyCodeSource;
 
 /**
  * @author carlspring
@@ -17,12 +19,14 @@ public class GroovyCronJob
 {
 
     @Override
+    @SuppressFBWarnings(value = "DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED")
     public void executeTask(CronTaskConfiguration config)
             throws Throwable
     {
         try
         {
-            Class scriptClass = new GroovyClassLoader().parseClass(new File(getScriptPath()));
+            Class scriptClass = new GroovyClassLoader().parseClass(
+                    new GroovyCodeSource(Paths.get(getScriptPath()).toUri()));
             Object scriptInstance = scriptClass.newInstance();
             //noinspection unchecked
             scriptClass.getDeclaredMethod("execute", new Class[]{}).invoke(scriptInstance);

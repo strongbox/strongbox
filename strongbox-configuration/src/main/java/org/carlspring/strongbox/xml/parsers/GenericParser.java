@@ -9,8 +9,17 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -87,19 +96,6 @@ public class GenericParser<T>
         this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
     }
 
-    public T parse(File file)
-            throws JAXBException, IOException
-    {
-        T object = null;
-
-        try (FileInputStream is = new FileInputStream(file))
-        {
-            object = parse(is);
-        }
-
-        return object;
-    }
-
     public T parse(URL url)
             throws IOException, JAXBException
     {
@@ -136,7 +132,7 @@ public class GenericParser<T>
                       String path)
             throws JAXBException, IOException
     {
-        store(object, new File(path).getAbsoluteFile());
+        store(object, Paths.get(path).toAbsolutePath());
     }
 
     public void store(T object,
@@ -147,15 +143,15 @@ public class GenericParser<T>
             logger.warn(String.format("Skip resource store [%s]", fileResource));
             return;
         }
-        store(object, fileResource.getFile());
+        store(object, Paths.get(fileResource.getURI()));
     }
     
     public void store(T object,
-                      File file)
+                      Path path)
             throws JAXBException, IOException
     {
 
-        try (FileOutputStream os = new FileOutputStream(file))
+        try (OutputStream os = Files.newOutputStream(path))
         {
             store(object, os);
         }

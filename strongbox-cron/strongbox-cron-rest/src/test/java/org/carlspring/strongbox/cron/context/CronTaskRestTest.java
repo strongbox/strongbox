@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.cron.context;
 
+import org.carlspring.strongbox.MockedRepositoryPathResolverConfig;
 import org.carlspring.strongbox.config.RestAssuredConfig;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
@@ -20,7 +21,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ContextConfiguration(classes = { RestAssuredConfig.class,
+@ContextConfiguration(classes = { MockedRepositoryPathResolverConfig.class,
+                                  RestAssuredConfig.class,
                                   CronTasksConfig.class,
                                   WebConfig.class })
 @WebAppConfiguration("classpath:")

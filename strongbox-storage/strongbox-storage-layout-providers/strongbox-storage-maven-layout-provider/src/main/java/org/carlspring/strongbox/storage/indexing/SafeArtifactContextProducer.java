@@ -13,6 +13,7 @@ import org.apache.maven.index.context.IndexingContext;
 /**
  * @author Przemyslaw Fusik
  */
+@Deprecated
 public class SafeArtifactContextProducer
         extends DefaultArtifactContextProducer
 {

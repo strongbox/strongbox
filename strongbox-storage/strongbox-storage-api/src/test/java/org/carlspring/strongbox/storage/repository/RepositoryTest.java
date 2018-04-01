@@ -111,7 +111,7 @@ public class RepositoryTest
         File file = new File(ConfigurationResourceResolver.getHomeDirectory() + "/etc/conf/strongbox.xml");
 
         GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
-        Configuration configuration = parser.parse(file);
+        Configuration configuration = parser.parse(file.toURI().toURL());
 
         Storage storage = configuration.getStorage("storage0");
 

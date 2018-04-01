@@ -3,12 +3,13 @@ package org.carlspring.strongbox.booters;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -61,25 +62,26 @@ public class ResourcesBooter
     public void copyConfigurationFilesFromClasspath(String resourcesBasedir)
             throws IOException
     {
-        final Resource[] resources = getResourcesExistingOnClasspathOnly(getConfigurationResourcesFromClasspath(resourcesBasedir));
+        final Resource[] resources = getResourcesExistingOnClasspathOnly(
+                getConfigurationResourcesFromClasspath(resourcesBasedir));
 
-        final File configDir = new File(ConfigurationResourceResolver.getHomeDirectory() + "/" + resourcesBasedir);
-        if (!configDir.exists())
+        final Path configDir = Paths.get(ConfigurationResourceResolver.getHomeDirectory(), resourcesBasedir);
+        if (!Files.exists(configDir))
         {
-            //noinspection ResultOfMethodCallIgnored
-            configDir.mkdirs();
+            Files.createDirectories(configDir);
         }
 
         for (Resource resource : resources)
         {
-            File destFile = new File(configDir, resource.getFilename());
-            
-            if (destFile.exists()) {
+            Path destFile = configDir.resolve(resource.getFilename());
+
+            if (Files.exists(destFile))
+            {
                 logger.info(String.format("Resource already exists, skip [%s].", destFile));
                 continue;
             }
-            
-            FileUtils.copyInputStreamToFile(resource.getInputStream(), destFile);
+
+            Files.copy(resource.getInputStream(), destFile);
         }
     }
 

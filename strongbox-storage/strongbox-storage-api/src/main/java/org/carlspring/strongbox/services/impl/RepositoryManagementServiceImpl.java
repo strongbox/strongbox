@@ -6,6 +6,8 @@ import org.carlspring.strongbox.event.repository.RepositoryEvent;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventTypeEnum;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
@@ -17,8 +19,8 @@ import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,9 @@ public class RepositoryManagementServiceImpl
     @Inject
     private RepositoryEventListenerRegistry repositoryEventListenerRegistry;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+
 
     @Override
     public void createRepository(String storageId,
@@ -64,11 +69,11 @@ public class RepositoryManagementServiceImpl
             logger.warn("Layout provider '" + repository.getLayout() + "' could not be resolved. " +
                         "Using generic implementation instead.");
 
-            File repositoryDir = new File(repository.getStorage().getBasedir(), repositoryId);
-            if (!repositoryDir.exists())
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+
+            if (!Files.exists(repositoryPath))
             {
-                //noinspection ResultOfMethodCallIgnored
-                repositoryDir.mkdirs();
+                Files.createDirectories(repositoryPath);
             }
         }
 

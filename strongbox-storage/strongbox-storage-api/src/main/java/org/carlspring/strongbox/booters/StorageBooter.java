@@ -2,6 +2,8 @@ package org.carlspring.strongbox.booters;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
@@ -15,7 +17,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +25,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -52,8 +54,10 @@ public class StorageBooter
     @Inject
     private GroupRepositorySetCollector groupRepositorySetCollector;
 
-    private File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
+    private Path lockFile = Paths.get(ConfigurationResourceResolver.getVaultDirectory()).resolve("storage-booter.lock");
 
     public StorageBooter()
     {
@@ -80,7 +84,7 @@ public class StorageBooter
                 }
                 catch (IOException e)
                 {
-                    throw new RuntimeException("Failed to initialize the repository '" + repository + "'.");
+                    throw new RuntimeException("Failed to initialize the repository '" + repository + "'.", e);
                 }
             }
         }
@@ -92,19 +96,20 @@ public class StorageBooter
 
     @PreDestroy
     public void removeLock()
+            throws IOException
     {
-        //noinspection ResultOfMethodCallIgnored
-        lockFile.delete();
+        Files.deleteIfExists(lockFile);
 
-        logger.debug("Removed lock file '" + lockFile.getAbsolutePath() + "'.");
+        logger.debug("Removed lock file '" + lockFile.toAbsolutePath().toString() + "'.");
     }
 
-    public void createTempDir() throws IOException
+    public void createTempDir()
+            throws IOException
     {
         String tempDirLocation = System.getProperty("java.io.tmpdir",
-                                                Paths.get(ConfigurationResourceResolver.getVaultDirectory(), "tmp")
-                                                     .toAbsolutePath()
-                                                     .toString());
+                                                    Paths.get(ConfigurationResourceResolver.getVaultDirectory(), "tmp")
+                                                         .toAbsolutePath()
+                                                         .toString());
         Path tempDirPath = Paths.get(tempDirLocation).toAbsolutePath();
         if (!Files.exists(tempDirPath))
         {
@@ -125,21 +130,20 @@ public class StorageBooter
         }
     }
 
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     private void createLockFile()
             throws IOException
     {
-        //noinspection ResultOfMethodCallIgnored
-        lockFile.getParentFile().mkdirs();
-        //noinspection ResultOfMethodCallIgnored
-        lockFile.createNewFile();
+        Files.createDirectories(lockFile.getParent());
+        Files.createFile(lockFile);
 
-        logger.debug(" -> Created lock file '" + lockFile.getAbsolutePath() + "'...");
+        logger.debug(" -> Created lock file '" + lockFile.toAbsolutePath().toString() + "'...");
     }
 
     private boolean lockExists()
             throws IOException
     {
-        if (lockFile.exists())
+        if (Files.exists(lockFile))
         {
             logger.debug(" -> Lock found: '" + ConfigurationResourceResolver.getVaultDirectory() + "'!");
 
@@ -156,7 +160,7 @@ public class StorageBooter
     /**
      * @return The base directory for the storages
      */
-    private File initializeStorages()
+    private Path initializeStorages()
             throws IOException
     {
         logger.debug("Running Strongbox storage booter...");
@@ -179,17 +183,16 @@ public class StorageBooter
             initializeStorage(stringStorageEntry.getValue());
         }
 
-        return new File(basedir).getAbsoluteFile();
+        return Paths.get(basedir).toAbsolutePath();
     }
 
-    private File initializeStorage(Storage storage)
+    private Path initializeStorage(Storage storage)
             throws IOException
     {
-        File storagesBaseDir = new File(storage.getBasedir());
-        if (!storagesBaseDir.exists())
+        Path storagesBaseDir = Paths.get(storage.getBasedir());
+        if (!Files.exists(storagesBaseDir))
         {
-            //noinspection ResultOfMethodCallIgnored
-            storagesBaseDir.mkdirs();
+            Files.createDirectories(storagesBaseDir);
         }
 
         return storagesBaseDir;
@@ -198,9 +201,9 @@ public class StorageBooter
     private void initializeRepository(Repository repository)
             throws IOException, RepositoryManagementStrategyException
     {
-        final File repositoryBasedir = new File(repository.getStorage().getBasedir(), repository.getId());
+        final RepositoryPath repositoryBasedir = repositoryPathResolver.resolve(repository);
 
-        logger.debug("  * Initializing '" + repositoryBasedir.getAbsolutePath() + "'...");
+        logger.debug("  * Initializing '" + repositoryBasedir.toAbsolutePath().toString() + "'...");
 
         repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
 

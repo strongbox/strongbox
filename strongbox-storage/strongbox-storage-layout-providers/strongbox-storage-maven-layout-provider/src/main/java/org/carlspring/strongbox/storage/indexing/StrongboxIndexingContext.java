@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.maven.index.context.DefaultIndexingContext;
 import org.apache.maven.index.context.IndexCreator;
 
+@Deprecated
 public class StrongboxIndexingContext
         extends DefaultIndexingContext
 {

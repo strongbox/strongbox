@@ -8,10 +8,10 @@ import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComp
 import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
 import org.carlspring.strongbox.storage.metadata.visitors.ArtifactVersionDirectoryVisitor;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Plugin;
@@ -47,20 +48,23 @@ public class VersionCollector
     }
 
     public VersionCollectionRequest collectVersions(Path artifactBasePath)
+            throws IOException
     {
         VersionCollectionRequest request = new VersionCollectionRequest();
         request.setArtifactBasePath(artifactBasePath);
 
         List<MetadataVersion> versions = new ArrayList<>();
 
-        List<File> versionPaths = Arrays.asList(
-                artifactBasePath.toAbsolutePath().toFile().listFiles(new ArtifactVersionDirectoryFilter()));
+        List<Path> versionPaths;
+        try (DirectoryStream<Path> ds = Files.newDirectoryStream(artifactBasePath,
+                                                                 new ArtifactVersionDirectoryFilter()))
+        {
+            versionPaths = Lists.newArrayList(ds);
+        }
 
         // Add all versions
-        for (File versionDirectory : versionPaths)
+        for (Path versionDirectoryPath : versionPaths)
         {
-            Path versionDirectoryPath = versionDirectory.toPath();
-
             try
             {
                 Path pomArtifactPath = getPomPath(artifactBasePath, versionDirectoryPath);

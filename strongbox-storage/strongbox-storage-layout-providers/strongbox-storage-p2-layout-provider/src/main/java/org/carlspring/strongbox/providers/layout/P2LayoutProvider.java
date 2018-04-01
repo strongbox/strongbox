@@ -3,6 +3,8 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
 import org.carlspring.strongbox.repository.P2RepositoryFeatures;
 import org.carlspring.strongbox.repository.P2RepositoryManagementStrategy;
@@ -37,6 +39,8 @@ public class P2LayoutProvider
     @Inject
     private P2RepositoryFeatures p2RepositoryFeatures;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     @Override
     public void register()
@@ -96,7 +100,9 @@ public class P2LayoutProvider
     {
         if (coordinates != null)
         {
-            P2ArtifactCoordinates artifact = P2ArtifactReader.getArtifact(repository.getBasedir(),
+            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+
+            P2ArtifactCoordinates artifact = P2ArtifactReader.getArtifact(repositoryPath.toString(),
                                                                           coordinates.toPath());
             return coordinates.equals(artifact);
         }

@@ -1,83 +1,60 @@
 package org.carlspring.strongbox.io.filters;
 
-import org.carlspring.commons.io.filters.DirectoryFilter;
-import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
-
-import java.io.File;
-import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * @author mtodorov
+ * @author Przemyslaw Fusik
  */
 public class ArtifactVersionDirectoryFilter
-        extends DirectoryFilter
+        implements DirectoryStream.Filter<Path>
 {
 
     private boolean excludeHiddenDirectories = true;
 
-    private FilenameFilter filter;
-
-
-    public ArtifactVersionDirectoryFilter()
+    private boolean containsMetadataFiles(Path path)
+            throws IOException
     {
-    }
+        if (Files.isDirectory(path))
+        {
+            try (DirectoryStream<Path> ds = Files.newDirectoryStream(path, PomPathnameFilter.INSTANCE))
+            {
+                return ds.iterator().hasNext();
+            }
+        }
 
-    public ArtifactVersionDirectoryFilter(FilenameFilter filter)
-    {
-        this.filter = filter;
-    }
-
-    public ArtifactVersionDirectoryFilter(boolean excludeHiddenDirectories)
-    {
-        this.excludeHiddenDirectories = excludeHiddenDirectories;
-    }
-
-    public ArtifactVersionDirectoryFilter(FilenameFilter filter,
-                                          boolean excludeHiddenDirectories)
-    {
-        this.filter = filter;
-        this.excludeHiddenDirectories = excludeHiddenDirectories;
+        return false;
     }
 
     @Override
-    public boolean accept(File file)
+    public boolean accept(final Path entry)
+            throws IOException
     {
-        return super.accept(file) && containsMetadataFiles(file);
+        return (entry != null && Files.isDirectory(entry) &&
+                (!excludeHiddenDirectories || !entry.getFileName().toString().matches(".*//*\\..*"))) &&
+               containsMetadataFiles(entry);
+
     }
 
-    private boolean containsMetadataFiles(File file)
-    {
-        if (file.isDirectory())
-        {
-            filter = filter != null ? filter : new PomFilenameFilter();
-            File[] directories = file.listFiles(filter);
-
-            return directories != null && directories.length > 0;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    public boolean excludeHiddenDirectories()
-    {
-        return excludeHiddenDirectories;
-    }
-
-    public void setExcludeHiddenDirectories(boolean excludeHiddenDirectories)
+    public void setExcludeHiddenDirectories(final boolean excludeHiddenDirectories)
     {
         this.excludeHiddenDirectories = excludeHiddenDirectories;
     }
 
-    public FilenameFilter getFilenameFilter()
+    private static class PomPathnameFilter
+            implements DirectoryStream.Filter<Path>
     {
-        return filter;
-    }
 
-    public void setFilenameFilter(FilenameFilter filter)
-    {
-        this.filter = filter;
-    }
+        private static final PomPathnameFilter INSTANCE = new PomPathnameFilter();
 
+        @Override
+        public boolean accept(final Path entry)
+                throws IOException
+        {
+            return entry.toString().endsWith(".pom");
+        }
+    }
 }

@@ -5,10 +5,16 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 
 import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -72,15 +78,17 @@ public class Storage
         }
         else if (id != null)
         {
+            Path basedir;
             if (System.getProperty("strongbox.storage.booter.basedir") != null)
             {
-                return System.getProperty("strongbox.storage.booter.basedir") + File.separatorChar + id;
+                basedir = Paths.get(System.getProperty("strongbox.storage.booter.basedir"));
             }
             else
             {
                 // Assuming this invocation is related to tests:
-                return ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + id;
+                basedir = Paths.get(ConfigurationResourceResolver.getVaultDirectory()).resolve("storages");
             }
+            return basedir.resolve(id).toString();
         }
         else
         {
@@ -125,23 +133,7 @@ public class Storage
 
     public boolean existsOnFileSystem()
     {
-        String storagesBasedir;
-        if (basedir != null)
-        {
-            storagesBasedir = basedir;
-        }
-        else if (System.getProperty("strongbox.storage.booter.storages.basedir") != null)
-        {
-            storagesBasedir = System.getProperty("strongbox.storage.booter.storages.basedir");
-        }
-        else
-        {
-            storagesBasedir = "target/storages";
-        }
-
-        File storageDirectory = new File(storagesBasedir, id);
-
-        return storageDirectory.exists();
+        return Files.exists(Paths.get(getBasedir()));
     }
 
     @Override

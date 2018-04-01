@@ -98,8 +98,8 @@ public class MavenMetadataManager
         }
         else
         {
-            throw new IOException("Artifact " + artifact.toString() + " does not exist in " +
-                                  repository.getStorage().getBasedir() + "/" + repository.getBasedir() + " !");
+            throw new IOException("Artifact " + artifact.toString() + " does not exist in repository " + repository +
+                                  " !");
         }
 
         return metadata;
@@ -410,8 +410,8 @@ public class MavenMetadataManager
         }
         else
         {
-            throw new IOException("Artifact " + artifact.toString() + " does not exist in " +
-                                  repository.getStorage().getBasedir() + "/" + repository.getBasedir() + " !");
+            throw new IOException("Artifact " + artifact.toString() + " does not exist in repository " + repository +
+                                  " !");
         }
     }
 

@@ -10,6 +10,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -65,7 +67,7 @@ public class KeyStoreManagerIntegrationTestIT
 
     public static int LDAPS_PORT;
 
-    private File f;
+    private Path f;
 
     @Inject
     KeyStoreManager keyStoreManager;
@@ -80,7 +82,7 @@ public class KeyStoreManagerIntegrationTestIT
     {
         //noinspection ResultOfMethodCallIgnored
         new File("target/test-resources").mkdirs();
-        f = new File("target/test-resources/test.jks");
+        f = Paths.get("target", "test-resources", "test.jks");
 
         PROXY_HTTP_PORT = assignedPorts.getPort("port.littleproxy");
         LDAPS_PORT = assignedPorts.getPort("port.unboundid");

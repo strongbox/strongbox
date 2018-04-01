@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.cron.context;
 
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
+import org.carlspring.strongbox.MockedRepositoryPathResolverConfig;
 import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.config.EventsConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
@@ -21,6 +22,7 @@ import org.springframework.test.context.ContextConfiguration;
 @Retention(RetentionPolicy.RUNTIME)
 @ContextConfiguration(classes = { StorageApiConfig.class,
                                   MockedRemoteRepositoriesHeartbeatConfig.class,
+                                  MockedRepositoryPathResolverConfig.class,
                                   ClientConfig.class,
                                   EventsConfig.class,
                                   CronTasksConfig.class })

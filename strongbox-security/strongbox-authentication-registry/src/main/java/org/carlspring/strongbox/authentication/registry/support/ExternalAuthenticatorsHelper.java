@@ -3,13 +3,18 @@ package org.carlspring.strongbox.authentication.registry.support;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.util.ClassLoaderFactory;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Throwables;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,12 +36,12 @@ public class ExternalAuthenticatorsHelper
 
     public static ClassLoader getExternalAuthenticatorsClassLoader(ClassLoader parent)
     {
-
-        File authenticatorsDirectory;
+        Path authenticatorsDirectory;
         try
         {
-            authenticatorsDirectory = ConfigurationResourceResolver.getConfigurationResource("authentication.lib",
-                                                                                             "webapp/WEB-INF/lib").getFile();
+            authenticatorsDirectory = Paths.get(
+                    ConfigurationResourceResolver.getConfigurationResource("authentication.lib",
+                                                                           "webapp/WEB-INF/lib").getURI());
         }
         catch (FileNotFoundException e)
         {
@@ -47,31 +52,52 @@ public class ExternalAuthenticatorsHelper
         {
             throw Throwables.propagate(e);
         }
-        if (!authenticatorsDirectory.exists())
+        if (!Files.exists(authenticatorsDirectory))
         {
             logger.debug(authenticatorsDirectory + " does not exist.");
             return parent;
         }
-        if (!authenticatorsDirectory.isDirectory())
+        if (!Files.isDirectory(authenticatorsDirectory))
         {
             logger.error(authenticatorsDirectory + " is not a directory.");
             return parent;
         }
 
-        final File[] authenticatorsJars = authenticatorsDirectory.listFiles(
-                ExternalAuthenticatorsHelper::authenticationProviderFilter);
-        if (ArrayUtils.isEmpty(authenticatorsJars))
+        final Set<Path> authenticatorsJarPaths = getAuthenticatorJarPaths(authenticatorsDirectory);
+
+        if (CollectionUtils.isEmpty(authenticatorsJarPaths))
         {
             logger.debug(authenticatorsDirectory + "contains 0 authenticators jar files.");
             return parent;
         }
 
-        return ClassLoaderFactory.urlClassLoaderFromFiles(parent, authenticatorsJars);
+        return ClassLoaderFactory.urlClassLoaderFromPaths(parent, authenticatorsJarPaths);
     }
 
-    private static boolean authenticationProviderFilter(File pathname)
+    private static Set<Path> getAuthenticatorJarPaths(final Path authenticatorsDirectory)
     {
-        return !pathname.isDirectory() && AUTHENTICAION_PROVIDER_PATTERN.matcher(pathname.getName()).matches();
+        final Set<Path> authenticatorsJarPaths = new HashSet<>();
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(authenticatorsDirectory))
+        {
+            for (Path path : directoryStream)
+            {
+                if (isAuthenticatorJarPath(path))
+                {
+                    authenticatorsJarPaths.add(path);
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            throw Throwables.propagate(e);
+        }
+        return authenticatorsJarPaths;
+    }
+
+    private static boolean isAuthenticatorJarPath(Path path)
+    {
+        return path != null && !Files.isDirectory(path) &&
+               AUTHENTICAION_PROVIDER_PATTERN.matcher(path.getFileName().toString()).matches();
     }
 
 }

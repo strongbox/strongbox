@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
+import org.carlspring.strongbox.MockedRepositoryPathResolverConfig;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.data.CacheManagerConfiguration;
@@ -26,6 +27,7 @@ import static org.mockito.Matchers.any;
           StorageApiConfig.class,
           NugetLayoutProviderConfig.class,
           MockedRemoteRepositoriesHeartbeatConfig.class,
+          MockedRepositoryPathResolverConfig.class,
           ClientConfig.class,
           CronTasksConfig.class
 })

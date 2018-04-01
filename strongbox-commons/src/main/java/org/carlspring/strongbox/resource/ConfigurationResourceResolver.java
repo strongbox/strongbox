@@ -1,15 +1,14 @@
 package org.carlspring.strongbox.resource;
 
 import org.carlspring.strongbox.data.PropertyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -52,16 +51,17 @@ public class ConfigurationResourceResolver
         {
             filename = System.getProperty(propertyKey);
             logger.info(String.format("Using provided resource path [%s]", filename));
-            return new FileSystemResource(new File(filename).getAbsoluteFile());
+            return new FileSystemResource(Paths.get(filename).toAbsolutePath().toString());
         } 
         
         logger.info(String.format("Try to fetch configuration resource path [%s]", configurationPath));
-        
+
         if (configurationPath != null &&
-            (!configurationPath.startsWith("classpath") && !(new File(configurationPath)).exists()))
+            (!configurationPath.startsWith("classpath") && !(Files.exists(Paths.get(configurationPath)))))
         {
-            logger.info(String.format("Configuration resource not exists [%s], will try to resolve with configured location [%s].",
-                                      configurationPath, propertyKey));
+            logger.info(String.format(
+                    "Configuration resource not exists [%s], will try to resolve with configured location [%s].",
+                    configurationPath, propertyKey));
             configurationPath = null;
         }
         
@@ -76,17 +76,17 @@ public class ConfigurationResourceResolver
             else
             {
                 // Load the resource from the file system
-                resource = new FileSystemResource(new File(configurationPath).getAbsoluteFile());
+                resource = new FileSystemResource(Paths.get(configurationPath).toAbsolutePath().toString());
             }
         }
         else
         {
-            if (new File(propertyDefaultValue).exists())
+            if (Files.exists(Paths.get(propertyDefaultValue)))
             {
                 filename = propertyDefaultValue;
                 logger.info(String.format("Using default resource path [%s]", filename));
-                
-                resource = new FileSystemResource(new File(filename).getAbsoluteFile());
+
+                return new FileSystemResource(Paths.get(filename).toAbsolutePath().toString());
             }
             else
             {

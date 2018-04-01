@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.io;
 
-import java.io.File;
+import org.carlspring.strongbox.storage.repository.Repository;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,10 +32,9 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.FileSystemUtils;
 
 /**
  * This is a proxy implementation which wraps target {@link FileSystemProvider}. <br>
@@ -362,12 +362,8 @@ public abstract class RepositoryFileSystemProvider
         }
         else
         {
-            File trashFile = trashPath.getTarget().toFile();
-
-            FileUtils.deleteDirectory(trashFile);
-
-            //noinspection ResultOfMethodCallIgnored
-            trashFile.mkdirs();
+            FileSystemUtils.deleteRecursively(trashPath.getTarget());
+            Files.createDirectories(trashPath);
         }
     }
 
@@ -399,7 +395,7 @@ public abstract class RepositoryFileSystemProvider
 
             Files.createDirectories(trashPath.getParent().getTarget());
         }
-        
+
         return trashPath;
     }
 
