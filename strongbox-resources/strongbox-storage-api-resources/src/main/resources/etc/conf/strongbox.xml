@@ -299,8 +299,8 @@
                     <group>
                         <repository>storage-common-proxies:group-common-proxies</repository>
                         <repository>storage-springsource-proxies:springsource-proxies</repository>
-                        <!--repository>storage-ivy-proxies:group-ivy-proxies</repository>
-                        <repository>storage-sbt-proxies:group-sbt-proxies</repository-->
+                        <repository>storage-ivy-proxies:group-ivy-proxies</repository>
+                        <repository>storage-sbt-proxies:group-sbt-proxies</repository>
                         <repository>storage-third-party:third-party</repository>
                     </group>
                 </repository>
