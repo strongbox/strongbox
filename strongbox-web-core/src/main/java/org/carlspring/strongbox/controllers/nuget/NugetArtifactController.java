@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.nuget;
 
+import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -11,6 +12,7 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.io.ReplacingInputStream;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
+import org.carlspring.strongbox.nuget.file.NuspecFile;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParserTemplate;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -28,9 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.file.Files;
@@ -41,6 +41,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -59,9 +61,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import ru.aristar.jnuget.files.NugetFormatException;
+
+
 import ru.aristar.jnuget.files.Nupkg;
-import ru.aristar.jnuget.files.TempNupkgFile;
+import ru.aristar.jnuget.files.NugetFormatException;
 import ru.aristar.jnuget.rss.*;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -645,46 +648,55 @@ public class NugetArtifactController extends BaseArtifactController
     private URI storePackage(String storageId,
                              String repositoryId,
                              InputStream is)
-        throws Exception
-    {
-        try (TempNupkgFile nupkgFile = new TempNupkgFile(is))
-        {
-            if (nupkgFile.getNuspecFile() == null)
-            {
-                return null;
-            }
+            throws Exception {
 
-            String path = String.format("%s/%s/%s.%s.nupkg",
-                                        nupkgFile.getId(),
-                                        nupkgFile.getVersion(),
-                                        nupkgFile.getId(),
-                                        nupkgFile.getVersion());
+        String path;
+        NuspecFile nuspecFile;
+        byte[] byteArray = IOUtils.toByteArray(is);
+        InputStream inputForNuspec = new ByteArrayInputStream(byteArray);
+        InputStream inputForNupkg = new ByteArrayInputStream(byteArray);
 
-            nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, nupkgFile.getStream());
 
-            Path nuspecFile = Files.createTempFile(nupkgFile.getId(), "nuspec");
-            try (OutputStream outputStream = Files.newOutputStream(nuspecFile))
-            {
-                nupkgFile.getNuspecFile().saveTo(outputStream);
-            }
-            path = String.format("%s/%s/%s.nuspec", nupkgFile.getId(), nupkgFile.getVersion(), nupkgFile.getId());
-
-            nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, Files.newInputStream(nuspecFile));
-
-            Path hashFile = Files.createTempFile(String.format("%s.%s", nupkgFile.getId(), nupkgFile.getVersion()),
-                                                "nupkg.sha512");
-            nupkgFile.getHash().saveTo(Files.newOutputStream(hashFile));
-
-            path = String.format("%s/%s/%s.%s.nupkg.sha512",
-                                 nupkgFile.getId(),
-                                 nupkgFile.getVersion(),
-                                 nupkgFile.getId(),
-                                 nupkgFile.getVersion());
-
-            nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, Files.newInputStream(hashFile));
+        nuspecFile = extractNuspecFile(inputForNuspec);
+        if (nuspecFile == null) {
+            return null;
         }
+        path = String.format("%s/%s/%s.%s.nupkg",
+                nuspecFile.getId(),
+                nuspecFile.getVersion(),
+                nuspecFile.getId(),
+                nuspecFile.getVersion());
+        nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, inputForNupkg);
+        Path nuspecFileTmp = Files.createTempFile(nuspecFile.getId(), "nuspec");
+        try (OutputStream outputStream = Files.newOutputStream(nuspecFileTmp)) {
+            nuspecFile.saveTo(outputStream);
+        }
+        path = String.format("%s/%s/%s.nuspec", nuspecFile.getId(), nuspecFile.getVersion(), nuspecFile.getId());
+
+        nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, Files.newInputStream(nuspecFileTmp));
 
         return new URI("");
+    }
+
+    private NuspecFile extractNuspecFile(InputStream is) {
+        NuspecFile nuspecFile;
+        ZipInputStream zipInputStream;
+
+        try {
+            zipInputStream = new ZipInputStream(is);
+            ZipEntry zipEntry;
+            do {
+                zipEntry = zipInputStream.getNextEntry();
+            } while (zipEntry != null && !zipEntry.getName().endsWith(".nuspec"));
+            if (zipEntry != null) {
+                nuspecFile = NuspecFile.ParseZipStream(zipInputStream);
+                return nuspecFile;
+            }
+        } catch (IOException | org.carlspring.strongbox.nuget.file.NugetFormatException e) {
+            logger.error(String.format("Failed to parse Nupkg"), e);
+        }
+
+        return null;
     }
 
     private String normaliseSearchTerm(String sourceValue)
