@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.io;
 
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.util.MessageDigestUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,25 +15,31 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.util.MessageDigestUtils;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.apache.tika.config.TikaConfig;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
+import org.apache.tika.mime.MimeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Note that this class is "abstract" and you don't need to instantiate it directly, see example below:
  * <pre>
  * ...
  * RepositoryPath repositoryPath = layoutProvider.resolve("path/to/your/artifact/file.ext");
- * ArtifactInputStream aos = (ArtifactInputStream) Files.newInputStream(repositoryPath); 
+ * ArtifactInputStream ais = (ArtifactInputStream) Files.newInputStream(repositoryPath);
  * ...
  * </pre>
- * 
+ *
  * @author mtodorov
  */
 public abstract class ArtifactInputStream
         extends FilterInputStream
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactInputStream.class);
     public static final String[] DEFAULT_ALGORITHMS = { EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm(),
                                                         };
@@ -40,22 +50,40 @@ public abstract class ArtifactInputStream
 
     private Map<String, String> hexDigests = new LinkedHashMap<>();
 
+    private String extension;
+
     public ArtifactInputStream(ArtifactCoordinates coordinates,
                                InputStream is,
                                Set<String> checkSumDigestAlgorithmSet)
-        throws NoSuchAlgorithmException
+            throws NoSuchAlgorithmException
     {
         super(is);
         this.artifactCoordinates = coordinates;
+
         for (String algorithm : checkSumDigestAlgorithmSet)
         {
             addAlgorithm(algorithm);
         }
+
+    }
+
+    private boolean isInputStreamValid()
+            throws IOException
+    {
+        if (in.available() > 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
     }
 
     public ArtifactInputStream(ArtifactCoordinates coordinates,
                                InputStream is)
-        throws NoSuchAlgorithmException
+            throws NoSuchAlgorithmException
     {
         this(coordinates, is, new HashSet<String>()
         {
@@ -93,7 +121,7 @@ public abstract class ArtifactInputStream
     {
         hexDigests.clear();
     }
-    
+
     public Map<String, String> getHexDigests()
     {
         return hexDigests;
@@ -133,6 +161,8 @@ public abstract class ArtifactInputStream
                 MessageDigest digest = (MessageDigest) entry.getValue();
                 digest.update((byte) ch);
             }
+
+
         }
 
         return ch;
@@ -151,6 +181,11 @@ public abstract class ArtifactInputStream
             {
                 MessageDigest digest = (MessageDigest) entry.getValue();
                 digest.update(bytes, off, numberOfBytesRead);
+            }
+            if (isInputStreamValid())
+            {
+                this.extension = getFileExtension(bytes);
+
             }
         }
 
@@ -176,5 +211,41 @@ public abstract class ArtifactInputStream
     {
         return in;
     }
-    
+
+    /**
+     * This method reads array of input stream bytes to find out the file extension using Apache Tika.
+     *
+     * @param bytes
+     * @return
+     */
+    public String getFileExtension(byte[] bytes)
+    {
+        String fileExtension = null;
+        try
+        {
+            TikaConfig tika = new TikaConfig();
+
+            MediaType mediaType = tika.getDetector().detect(TikaInputStream.get(bytes), new Metadata());
+            MimeType mimeType = tika.getMimeRepository().forName(mediaType.toString());
+            fileExtension = mimeType.getExtension();
+
+        }
+        catch (TikaException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        return fileExtension;
+    }
+
+    public String getExtension()
+    {
+        return extension;
+    }
+
+
 }
