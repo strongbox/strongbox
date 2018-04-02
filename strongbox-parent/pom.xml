@@ -789,7 +789,7 @@
             <dependency>
                 <groupId>org.bitbucket.b_c</groupId>
                 <artifactId>jose4j</artifactId>
-                <version>0.5.2</version>
+                <version>0.6.3</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
