@@ -16,7 +16,9 @@ import org.carlspring.strongbox.xml.configuration.repository.NugetRepositoryConf
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
@@ -26,7 +28,11 @@ import java.util.Set;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -153,10 +159,13 @@ public class NugetGroupRepositoryProviderTest
             String packageVersion = "1.0.0";
             NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
             Path packageFilePath = generatePackageFile(packageId, packageVersion);
-            artifactManagementService.validateAndStore(storageId,
-                                                       repositoryId,
-                                                       coordinates.toPath(),
-                                                       Files.newInputStream(packageFilePath));
+            try (InputStream is = new BufferedInputStream(Files.newInputStream(packageFilePath)))
+            {
+                artifactManagementService.validateAndStore(storageId,
+                                                           repositoryId,
+                                                           coordinates.toPath(),
+                                                           is);
+            }
         }
     }
 

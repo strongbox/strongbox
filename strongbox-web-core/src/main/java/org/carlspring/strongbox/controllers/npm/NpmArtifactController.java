@@ -16,6 +16,8 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -144,17 +146,22 @@ public class NpmArtifactController extends BaseArtifactController
     {
         RepositoryPath repositoryPath = npmLayoutProvider.resolve(repository, coordinates);
 
-        npmArtifactManagementService.validateAndStore(repository.getStorage().getId(), repository.getId(),
-                                                      coordinates.toPath(),
-                                                      Files.newInputStream(packageTgzTmp));
+        try (InputStream is = new BufferedInputStream(Files.newInputStream(packageTgzTmp)))
+        {
+            npmArtifactManagementService.validateAndStore(repository.getStorage().getId(), repository.getId(),
+                                                          coordinates.toPath(), is);
+        }
 
         Path packageJsonTmp = extractPackageJson(packageTgzTmp);
         String packageJsonPath = repositoryPath.resolveSibling("package.json")
                                                .relativize()
                                                .toString();
-        npmArtifactManagementService.validateAndStore(repository.getStorage().getId(), repository.getId(),
-                                                      packageJsonPath,
-                                                      Files.newInputStream(packageJsonTmp));
+
+        try (InputStream is = new BufferedInputStream(Files.newInputStream(packageTgzTmp)))
+        {
+            npmArtifactManagementService.validateAndStore(repository.getStorage().getId(), repository.getId(),
+                                                          packageJsonPath, is);
+        }
 
         String shasum = Optional.ofNullable(packageDef.getDist()).map(p -> p.getShasum()).orElse(null);
         if (shasum == null)
@@ -186,7 +193,7 @@ public class NpmArtifactController extends BaseArtifactController
         Path packageTgzPath = null;
 
         JsonFactory jfactory = new JsonFactory();
-        try (InputStream tmpIn = Files.newInputStream(packageSourceTmp))
+        try (InputStream tmpIn = new BufferedInputStream(Files.newInputStream(packageSourceTmp)))
         {
             JsonParser jp = jfactory.createParser(tmpIn);
             jp.setCodec(npmJackasonMapper);
@@ -247,8 +254,8 @@ public class NpmArtifactController extends BaseArtifactController
         throws IOException
     {
         Path packageTgzTmp = Files.createTempFile("package", "tgz");
-        try (OutputStream packageTgzOut = Files.newOutputStream(packageTgzTmp,
-                                                                StandardOpenOption.TRUNCATE_EXISTING))
+        try (OutputStream packageTgzOut = new BufferedOutputStream(Files.newOutputStream(packageTgzTmp,
+                                                                                         StandardOpenOption.TRUNCATE_EXISTING)))
         {
             jp.readBinaryValue(packageTgzOut);
         }
@@ -268,7 +275,7 @@ public class NpmArtifactController extends BaseArtifactController
         throws IOException
     {
         String packageJsonSource;
-        try (InputStream packageTgzIn = Files.newInputStream(packageTgzTmp))
+        try (InputStream packageTgzIn = new BufferedInputStream(Files.newInputStream(packageTgzTmp)))
         {
             packageJsonSource = extrectPackageJson(packageTgzIn);
         }
