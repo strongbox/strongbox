@@ -1,17 +1,20 @@
 package org.carlspring.strongbox.io;
 
-import java.io.FilterInputStream;
+import org.carlspring.strongbox.storage.repository.Repository;
+
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
 import org.apache.commons.io.input.CountingInputStream;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
-public class RepositoryInputStream extends FilterInputStream implements RepositoryStreamContext
+public class RepositoryInputStream
+        extends BufferedInputStream
+        implements RepositoryStreamContext
 {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryInputStream.class);

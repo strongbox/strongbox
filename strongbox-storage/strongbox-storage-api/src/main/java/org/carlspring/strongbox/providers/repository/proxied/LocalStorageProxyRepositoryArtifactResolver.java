@@ -26,6 +26,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
+ * This implementation of {@link ProxyRepositoryArtifactResolver} first tries to resolve the artifact
+ * from the local cache storage. If there is not artifact found, it will be fetched from proxy/remote
+ * repository and then stored in the local cache storage for subsequent requests.
+ *
  * @author Przemyslaw Fusik
  */
 @Component

@@ -1,20 +1,21 @@
 package org.carlspring.strongbox.testing;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.data.PropertyUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 
 import ru.aristar.jnuget.files.NugetFormatException;
 
@@ -44,8 +45,10 @@ public class TestCaseWithNugetPackageGeneration
             String packageVersion = String.format("1.0.%s", i);
             NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
             Path packageFilePath = generatePackageFile(packageId, packageVersion);
-            artifactManagementService.validateAndStore(storageId, repositoryId, coordinates.toPath(),
-                                                       Files.newInputStream(packageFilePath));
+            try (InputStream is = new BufferedInputStream(Files.newInputStream(packageFilePath)))
+            {
+                artifactManagementService.validateAndStore(storageId, repositoryId, coordinates.toPath(), is);
+            }
         }
     }
 

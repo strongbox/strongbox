@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.io;
 
-import java.io.FilterInputStream;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Deque;
@@ -16,7 +16,8 @@ import java.util.LinkedList;
  * @author Sergey Bespalov
  * 
  */
-public class ReplacingInputStream extends FilterInputStream
+public class ReplacingInputStream
+        extends BufferedInputStream
 {
 
     Deque<Integer> inQueue = new LinkedList<Integer>();

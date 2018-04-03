@@ -13,7 +13,7 @@ import org.springframework.util.Assert;
 
 /**
  * This class decorate {@link ArtifactOutputStream} with {@link Repository} specific logic.
- * 
+ *
  * @author Sergey Bespalov
  *
  */
@@ -21,7 +21,7 @@ public class RepositoryOutputStream extends FilterOutputStream implements Reposi
 {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryOutputStream.class);
-    
+
     protected RepositoryStreamCallback callback;
 
     private Repository repository;
@@ -45,10 +45,10 @@ public class RepositoryOutputStream extends FilterOutputStream implements Reposi
     {
         return path;
     }
-    
+
     @Override
     public void write(int b)
-        throws IOException
+            throws IOException
     {
         if (((CountingOutputStream)out).getByteCount() == 0L){
             try
@@ -66,7 +66,7 @@ public class RepositoryOutputStream extends FilterOutputStream implements Reposi
 
     @Override
     public void close()
-        throws IOException
+            throws IOException
     {
         super.close();
         try
@@ -91,7 +91,7 @@ public class RepositoryOutputStream extends FilterOutputStream implements Reposi
                                             OutputStream os)
     {
         ArtifactOutputStream source = os instanceof ArtifactOutputStream ? (ArtifactOutputStream) os
-                : StreamUtils.findSource(ArtifactOutputStream.class, os);
+                                                                         : StreamUtils.findSource(ArtifactOutputStream.class, os);
         Assert.notNull(source, String.format("Source should be [%s]", ArtifactOutputStream.class.getSimpleName()));
 
         return new RepositoryOutputStream(repository, path, os);

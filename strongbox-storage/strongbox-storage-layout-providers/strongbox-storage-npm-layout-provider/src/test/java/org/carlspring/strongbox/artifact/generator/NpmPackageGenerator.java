@@ -1,5 +1,11 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.npm.metadata.Package;
+
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -9,19 +15,13 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-import org.carlspring.commons.io.RandomInputStream;
-import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.data.PropertyUtils;
-import org.carlspring.strongbox.npm.metadata.Package;
-import org.springframework.util.Assert;
-
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
 public class NpmPackageGenerator
 {
@@ -83,7 +83,7 @@ public class NpmPackageGenerator
 
         Files.createDirectories(packagePath.getParent());
 
-        try (OutputStream out = Files.newOutputStream(packagePath, StandardOpenOption.CREATE))
+        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(packagePath, StandardOpenOption.CREATE)))
         {
             GzipCompressorOutputStream gzipOut = new GzipCompressorOutputStream(out);
             TarArchiveOutputStream tarOut = new TarArchiveOutputStream(gzipOut);
@@ -102,7 +102,7 @@ public class NpmPackageGenerator
         throws IOException
     {
         Path packageJsonPath = packagePath.getParent().resolve("package.json");
-        try (OutputStream out = Files.newOutputStream(packageJsonPath, StandardOpenOption.CREATE))
+        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(packageJsonPath, StandardOpenOption.CREATE)))
         {
             out.write(mapper.writeValueAsBytes(packageJson));
         }
@@ -120,7 +120,7 @@ public class NpmPackageGenerator
         UnsupportedEncodingException
     {
         Path indexJsPath = packagePath.getParent().resolve("index.js");
-        try (OutputStream out = Files.newOutputStream(indexJsPath, StandardOpenOption.CREATE))
+        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(indexJsPath, StandardOpenOption.CREATE)))
         {
             out.write("data = \"".getBytes("UTF-8"));
 
@@ -153,7 +153,7 @@ public class NpmPackageGenerator
             buildPackage();
         }
         Path publishJsonPath = packagePath.resolveSibling("publish.json");
-        try (OutputStream out = Files.newOutputStream(publishJsonPath, StandardOpenOption.CREATE))
+        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(publishJsonPath, StandardOpenOption.CREATE)))
         {
             JsonFactory jfactory = new JsonFactory();
             JsonGenerator jGenerator = jfactory.createGenerator(out, JsonEncoding.UTF8);
