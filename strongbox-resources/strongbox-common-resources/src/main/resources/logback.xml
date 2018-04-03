@@ -77,6 +77,8 @@
     <logger name="org.carlspring.strongbox.data.server" level="DEBUG"/>
 
     <logger name="net.sf.ehcache" level="ERROR"/>
+
+    <logger name="org.apache.commons.beanutils" level="ERROR"/>
     
     <logger name="org.quartz" level="INFO"/>
     <logger name="org.springframework.web" level="DEBUG"/>

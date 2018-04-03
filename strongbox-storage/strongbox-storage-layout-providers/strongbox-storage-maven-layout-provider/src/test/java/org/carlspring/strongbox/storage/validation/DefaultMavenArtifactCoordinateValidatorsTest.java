@@ -79,7 +79,8 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
                                                      .get("storage0")
                                                      .getRepositories()
                                                      .get("releases")
-                                                     .getArtifactCoordinateValidators();
+                                                     .getArtifactCoordinateValidators()
+                                                     .keySet();
 
         assertFalse(versionValidators.isEmpty());
         assertTrue(versionValidators.contains(RedeploymentValidator.ALIAS));

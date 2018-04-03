@@ -337,7 +337,7 @@ public class ArtifactManagementService
 
             try
             {
-                for (String validatorKey : repository.getArtifactCoordinateValidators())
+                for (String validatorKey : repository.getArtifactCoordinateValidators().keySet())
                 {
                     ArtifactCoordinatesValidator validator = artifactCoordinatesValidatorRegistry.getProvider(
                             validatorKey);

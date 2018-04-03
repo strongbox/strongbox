@@ -230,6 +230,7 @@ public class ConfigurationManagementServiceImpl
                                         .filter(repository -> repository.getType()
                                                                         .equals(RepositoryTypeEnum.GROUP.getType()))
                                         .filter(repository -> repository.getGroupRepositories()
+                                                                        .keySet()
                                                                         .contains(repositoryId))
                                         .collect(Collectors.toList()));
 

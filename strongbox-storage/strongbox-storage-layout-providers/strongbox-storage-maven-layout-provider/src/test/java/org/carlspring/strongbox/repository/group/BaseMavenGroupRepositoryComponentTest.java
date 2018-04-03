@@ -12,8 +12,12 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Random;
+import java.util.Set;
 
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -123,7 +127,7 @@ public class BaseMavenGroupRepositoryComponentTest
         Repository repository = new Repository(repositoryId);
         repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setType(RepositoryTypeEnum.GROUP.getType());
-        repository.setGroupRepositories(new HashSet<>(Arrays.asList(leafs)));
+        repository.setGroupRepositories(Sets.newLinkedHashSet(Arrays.asList(leafs)));
 
         createRepository(repository);
     }

@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.repository;
 import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.client.RestArtifactResolverFactory;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
@@ -39,13 +40,14 @@ abstract class RetryDownloadArtifactTestBase
     public void timeoutRetryFeatureRatherQuicklyForTestPurposes()
             throws Exception
     {
-        final RemoteRepositoryRetryArtifactDownloadConfiguration
-                remoteRepositoryRetryArtifactDownloadConfiguration = getConfiguration()
-                                                                             .getRemoteRepositoriesConfiguration()
-                                                                             .getRemoteRepositoryRetryArtifactDownloadConfiguration();
+        final Configuration configuration = getConfiguration();
+        final RemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration =
+                configuration.getRemoteRepositoriesConfiguration()
+                             .getRemoteRepositoryRetryArtifactDownloadConfiguration();
         remoteRepositoryRetryArtifactDownloadConfiguration.setMaxNumberOfAttempts(5);
         remoteRepositoryRetryArtifactDownloadConfiguration.setTimeoutSeconds(5);
         remoteRepositoryRetryArtifactDownloadConfiguration.setMinAttemptsIntervalSeconds(1);
+        configurationManagementService.save(configuration);
     }
 
     @Before
