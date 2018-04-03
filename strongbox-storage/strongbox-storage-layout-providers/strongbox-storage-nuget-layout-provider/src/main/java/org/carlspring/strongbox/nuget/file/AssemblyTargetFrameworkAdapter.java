@@ -46,12 +46,12 @@ public class AssemblyTargetFrameworkAdapter
         {
             String[] names = farmeworks.split(", ");
             EnumSet<Framework> result = EnumSet.noneOf(Framework.class);
-            String[] var4 = names;
-            int var5 = names.length;
 
-            for (int var6 = 0; var6 < var5; ++var6)
+            int namesCount = names.length;
+
+            for (int i = 0; i < namesCount; ++i)
             {
-                String name = var4[var6];
+                String name = names[i];
 
                 try
                 {
@@ -63,7 +63,7 @@ public class AssemblyTargetFrameworkAdapter
                 }
                 catch (Exception var9)
                 {
-                    LOG.warn(MessageFormat.format("Csn not add framework: \"{0}\"", name), var9);
+                    LOG.warn(MessageFormat.format("Can not add framework: \"{0}\"", name), var9);
                 }
             }
 

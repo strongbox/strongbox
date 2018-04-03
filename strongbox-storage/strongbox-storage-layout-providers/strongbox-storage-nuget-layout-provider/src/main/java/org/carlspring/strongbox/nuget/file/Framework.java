@@ -83,8 +83,8 @@ public enum Framework
     wp80("WindowsPhone 8", new String[]{ "wp80" }, new String[0]),
     nativeFile("Native", new String[]{ "native" }, new String[0]);
 
-    private final String[] fullCompabilyStringSet;
-    private volatile EnumSet<Framework> fullCopabilySet;
+    private final String[] fullCompabilityStringSet;
+    private volatile EnumSet<Framework> fullCompabilitySet;
     private final String fullName;
     private final String[] shortNames;
     private static final Logger logger = LoggerFactory.getLogger(Framework.class);
@@ -96,32 +96,32 @@ public enum Framework
     {
         this.shortNames = shortNames;
         this.fullName = fullName;
-        this.fullCompabilyStringSet = compabilityFrameworks;
+        this.fullCompabilityStringSet = compabilityFrameworks;
     }
 
     public EnumSet<Framework> getFullCopabilySet()
     {
-        if (this.fullCopabilySet == null)
+        if (this.fullCompabilitySet == null)
         {
             synchronized (this)
             {
-                if (this.fullCopabilySet == null)
+                if (this.fullCompabilitySet == null)
                 {
-                    this.fullCopabilySet = EnumSet.noneOf(Framework.class);
-                    this.fullCopabilySet.add(this);
-                    String[] var2 = this.fullCompabilyStringSet;
+                    this.fullCompabilitySet = EnumSet.noneOf(Framework.class);
+                    this.fullCompabilitySet.add(this);
+                    String[] var2 = this.fullCompabilityStringSet;
                     int var3 = var2.length;
 
                     for (int var4 = 0; var4 < var3; ++var4)
                     {
                         String frameworkName = var2[var4];
-                        this.fullCopabilySet.add(valueOf(frameworkName));
+                        this.fullCompabilitySet.add(valueOf(frameworkName));
                     }
                 }
             }
         }
 
-        return this.fullCopabilySet;
+        return this.fullCompabilitySet;
     }
 
     public String getFullName()
@@ -143,12 +143,11 @@ public enum Framework
             {
                 result = EnumSet.noneOf(Framework.class);
                 String[] frameworkStrings = value.split("\\||\\+");
-                String[] var3 = frameworkStrings;
-                int var4 = frameworkStrings.length;
+                int frameworkStringCount = frameworkStrings.length;
 
-                for (int var5 = 0; var5 < var4; ++var5)
+                for (int i = 0; i < frameworkStringCount; ++i)
                 {
-                    String frameworkString = var3[var5];
+                    String frameworkString = frameworkStrings[i];
                     Framework framework = getByShortName(frameworkString.toLowerCase());
                     if (framework == null)
                     {
@@ -165,10 +164,10 @@ public enum Framework
                 result = EnumSet.allOf(Framework.class);
             }
         }
-        catch (IllegalArgumentException var8)
+        catch (IllegalArgumentException e)
         {
             logger.warn(MessageFormat.format("Can not find framework for string \"{0}\" used default value", value),
-                        var8);
+                        e);
             result = EnumSet.allOf(Framework.class);
         }
 
@@ -177,12 +176,12 @@ public enum Framework
 
     public static Framework getByFullName(String fullName)
     {
-        Framework[] var1 = values();
-        int var2 = var1.length;
+        Framework[] frameworkArr = values();
+        int frameworkCount = frameworkArr.length;
 
-        for (int var3 = 0; var3 < var2; ++var3)
+        for (int i = 0; i < frameworkCount; ++i)
         {
-            Framework framework = var1[var3];
+            Framework framework = frameworkArr[i];
             if (framework.getFullName().equalsIgnoreCase(fullName))
             {
                 return framework;
@@ -194,18 +193,18 @@ public enum Framework
 
     public static Framework getByShortName(String shortName)
     {
-        Framework[] var1 = values();
-        int var2 = var1.length;
+        Framework[] frameworkArr = values();
+        int frameworkCount = frameworkArr.length;
 
-        for (int var3 = 0; var3 < var2; ++var3)
+        for (int i = 0; i < frameworkCount; ++i)
         {
-            Framework framework = var1[var3];
-            String[] var5 = framework.shortNames;
-            int var6 = var5.length;
+            Framework framework = frameworkArr[i];
+            String[] shortNameArray = framework.shortNames;
+            int shortNameCount = shortNameArray.length;
 
-            for (int var7 = 0; var7 < var6; ++var7)
+            for (int j = 0; j < shortNameCount; ++j)
             {
-                String name = var5[var7];
+                String name = shortNameArray[j];
                 if (name.equalsIgnoreCase(shortName))
                 {
                     return framework;

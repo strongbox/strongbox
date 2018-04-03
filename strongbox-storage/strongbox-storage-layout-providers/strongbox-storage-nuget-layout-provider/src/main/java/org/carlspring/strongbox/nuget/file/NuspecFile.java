@@ -58,7 +58,7 @@ public class NuspecFile
     )
     private List<NuspecFile.NugetFile> files;
 
-    public static NuspecFile Parse(InputStream inputStream)
+    public static NuspecFile parse(InputStream inputStream)
             throws NugetFormatException
     {
         try
@@ -80,13 +80,13 @@ public class NuspecFile
         }
     }
 
-    public static NuspecFile ParseZipStream(final ZipInputStream in)
+    public static NuspecFile parseZipStream(final ZipInputStream in)
             throws NugetFormatException, IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         IOUtils.copy(in, out);
         InputStream is = new ByteArrayInputStream(out.toByteArray());
-        return Parse(is);
+        return parse(is);
     }
 
     public NuspecFile()

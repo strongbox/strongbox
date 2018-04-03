@@ -44,11 +44,11 @@ public class Dependencies
         result.addAll(this.dependencies);
         if (this.groups != null)
         {
-            Iterator var2 = this.groups.iterator();
+            Iterator groupIterator = this.groups.iterator();
 
-            while (var2.hasNext())
+            while (groupIterator.hasNext())
             {
-                DependenciesGroup group = (DependenciesGroup) var2.next();
+                DependenciesGroup group = (DependenciesGroup) groupIterator.next();
                 result.addAll(group.getDependencys());
             }
         }

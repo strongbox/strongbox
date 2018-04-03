@@ -706,7 +706,7 @@ public class NugetArtifactController extends BaseArtifactController
                 zipEntry = zipInputStream.getNextEntry();
             } while (zipEntry != null && !zipEntry.getName().endsWith(".nuspec"));
             if (zipEntry != null) {
-                nuspecFile = NuspecFile.ParseZipStream(zipInputStream);
+                nuspecFile = NuspecFile.parseZipStream(zipInputStream);
                 return nuspecFile;
             }
         } catch (IOException | org.carlspring.strongbox.nuget.file.NugetFormatException e) {

@@ -27,14 +27,14 @@ public class StringListTypeAdapter
     public List<String> unmarshal(String v)
     {
         String pattern = this.trimSpaces ? "\\s*" + this.delimeter + "\\s*" : this.delimeter;
-        String[] temp = v.split(pattern);
+        String[] marshalledStringArr = v.split(pattern);
         List<String> result = new ArrayList();
-        String[] var5 = temp;
-        int var6 = temp.length;
 
-        for (int var7 = 0; var7 < var6; ++var7)
+        int marshalledStringCount = marshalledStringArr.length;
+
+        for (int i = 0; i < marshalledStringCount; ++i)
         {
-            String str = var5[var7];
+            String str = marshalledStringArr[i];
             String tag = str.trim();
             if (!tag.isEmpty())
             {
