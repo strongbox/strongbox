@@ -40,7 +40,7 @@ public class ExternalAuthenticatorsHelper
         try
         {
             authenticatorsDirectory = Paths.get(
-                    ConfigurationResourceResolver.getConfigurationResource("authentication.lib",
+                    ConfigurationResourceResolver.getConfigurationResource("strongbox.authentication.lib",
                                                                            "webapp/WEB-INF/lib").getURI());
         }
         catch (FileNotFoundException e)
