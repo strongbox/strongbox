@@ -35,7 +35,7 @@ public class AuthenticationManager
     public void load()
             throws IOException, JAXBException
     {
-        Resource resource = ConfigurationResourceResolver.getConfigurationResource("security.authentication.xml",
+        Resource resource = ConfigurationResourceResolver.getConfigurationResource("strongbox.security.authentication.xml",
                                                                                    "etc/conf/security-authentication.xml");
 
         logger.info("Loading Strongbox configuration from " + resource.toString() + "...");
@@ -47,7 +47,7 @@ public class AuthenticationManager
     public void store()
             throws IOException, JAXBException
     {
-        Resource resource = ConfigurationResourceResolver.getConfigurationResource("security.authentication.xml",
+        Resource resource = ConfigurationResourceResolver.getConfigurationResource("strongbox.security.authentication.xml",
                                                                                    "etc/conf/security-authentication.xml");
 
         parser.store(configuration, resource);

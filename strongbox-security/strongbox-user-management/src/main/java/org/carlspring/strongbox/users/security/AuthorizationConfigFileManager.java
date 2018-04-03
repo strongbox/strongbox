@@ -2,8 +2,6 @@ package org.carlspring.strongbox.users.security;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -24,7 +22,7 @@ public class AuthorizationConfigFileManager
     private Resource getConfigurationResource()
             throws IOException
     {
-        return ConfigurationResourceResolver.getConfigurationResource("authorization.config.xml",
+        return ConfigurationResourceResolver.getConfigurationResource("strongbox.authorization.config.xml",
                                                                       "etc/conf/strongbox-authorization.xml");
     }
 

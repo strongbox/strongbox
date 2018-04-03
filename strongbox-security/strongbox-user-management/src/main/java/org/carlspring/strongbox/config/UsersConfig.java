@@ -196,7 +196,7 @@ public class UsersConfig
     private Resource getUsersConfigurationResource()
             throws IOException
     {
-        return ConfigurationResourceResolver.getConfigurationResource("users.config.xml",
+        return ConfigurationResourceResolver.getConfigurationResource("strongbox.users.config.xml",
                                                                       "etc/conf/strongbox-security-users.xml");
     }
 
