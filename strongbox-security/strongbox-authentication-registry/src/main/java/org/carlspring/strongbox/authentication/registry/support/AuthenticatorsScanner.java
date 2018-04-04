@@ -13,6 +13,8 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.Resource;
 
@@ -85,6 +87,12 @@ public class AuthenticatorsScanner
     {
         return ConfigurationResourceResolver.getConfigurationResource("authentication.providers.xml",
                                                                       "etc/conf/strongbox-authentication-providers.xml");
+    }
+    
+    @EventListener({ ContextStartedEvent.class })
+    void contextRefreshedEvent()
+    {
+        scanAndReloadRegistry();
     }
 
 }

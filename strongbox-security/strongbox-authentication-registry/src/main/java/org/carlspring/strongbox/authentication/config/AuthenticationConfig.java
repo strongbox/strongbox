@@ -1,10 +1,15 @@
 package org.carlspring.strongbox.authentication.config;
 
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.context.event.EventListener;
 
 /**
  * @author Przemyslaw Fusik
@@ -22,10 +27,7 @@ public class AuthenticationConfig
     @Bean
     AuthenticatorsRegistry authenticatorsRegistry()
     {
-        final AuthenticatorsRegistry authenticatorsRegistry = new AuthenticatorsRegistry();
-        final AuthenticatorsScanner authenticatorsScanner = authenticatorsScanner(authenticatorsRegistry);
-        authenticatorsScanner.scanAndReloadRegistry();
-
-        return authenticatorsRegistry;
+        return new AuthenticatorsRegistry();
     }
+    
 }
