@@ -5,7 +5,7 @@
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.2.xsd">
                         
     <include file="v1.0.0.1__GenericEntity.xml" relativeToChangelogFile="true" />
-    <include file="v1.0.0.2__ArtefactEntry.xml" relativeToChangelogFile="true" />
+    <include file="v1.0.0.2__ArtifactEntry.xml" relativeToChangelogFile="true" />
     <include file="v1.0.0.3__AuthorizationConfig.xml" relativeToChangelogFile="true" />
     <include file="v1.0.0.4__BinaryConfiguration.xml" relativeToChangelogFile="true" />
     <include file="v1.0.0.5__CronTaskConfiguration.xml" relativeToChangelogFile="true" />
