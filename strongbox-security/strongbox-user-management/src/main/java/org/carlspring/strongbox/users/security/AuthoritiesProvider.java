@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -26,7 +27,7 @@ public class AuthoritiesProvider
     private static final Logger logger = LoggerFactory.getLogger(AuthoritiesProvider.class);
 
     @Inject
-    private TransactionTemplate transactionTemplate;
+    private PlatformTransactionManager transactionManager;
 
     @Inject
     private AuthorizationConfigFileManager authorizationConfigFileManager;
@@ -37,17 +38,14 @@ public class AuthoritiesProvider
     @PostConstruct
     public void init()
     {
-        transactionTemplate.execute((s) ->
-                                    {
-                                        doInit();
-                                        return null;
-                                    });
+        new TransactionTemplate(transactionManager).execute((s) -> doInit());
     }
 
-    private void doInit()
+    private Object doInit()
     {
         final AuthorizationConfig config = authorizationConfigFileManager.read();
         authorizationConfigProvider.save(config);
+        return null;
     }
 
     @Transactional

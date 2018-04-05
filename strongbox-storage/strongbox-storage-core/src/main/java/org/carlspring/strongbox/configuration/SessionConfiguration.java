@@ -17,7 +17,7 @@ public class SessionConfiguration
         implements Serializable
 {
     @XmlAttribute(name= "timeout-seconds")
-    private Integer timeoutSeconds = 30;
+    private Integer timeoutSeconds = 3600;
 
     public Integer getTimeoutSeconds()
     {

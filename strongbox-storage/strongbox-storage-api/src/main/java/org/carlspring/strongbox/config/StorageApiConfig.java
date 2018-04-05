@@ -17,8 +17,7 @@ import org.apache.commons.collections.MapUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
@@ -38,7 +37,7 @@ public class StorageApiConfig
     private List<ArtifactCoordinatesValidator> versionValidators;
 
     @Inject
-    private TransactionTemplate transactionTemplate;
+    private PlatformTransactionManager transactionManager;
 
     @Inject
     private ConfigurationFileManager configurationFileManager;
@@ -52,18 +51,15 @@ public class StorageApiConfig
     @PostConstruct
     public void init()
     {
-        transactionTemplate.execute((s) ->
-                                    {
-                                        doInit();
-                                        return null;
-                                    });
+        new TransactionTemplate(transactionManager).execute((s) -> doInit());
     }
 
-    private void doInit()
+    private Object doInit()
     {
         final org.carlspring.strongbox.configuration.Configuration configuration = configurationFileManager.read();
         setProxyRepositoryConnectionPoolConfigurations(configuration);
         configurationManagementService.save(configuration);
+        return null;
     }
 
     @Bean(name = "checksumCacheManager")
