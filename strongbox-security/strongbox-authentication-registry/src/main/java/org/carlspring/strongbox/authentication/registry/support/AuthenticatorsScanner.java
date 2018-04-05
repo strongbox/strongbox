@@ -13,6 +13,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.support.GenericXmlApplicationContext;
@@ -29,7 +30,7 @@ public class AuthenticatorsScanner
     private static final Logger logger = LoggerFactory.getLogger(AuthenticatorsScanner.class);
 
     private final AuthenticatorsRegistry registry;
-
+    
     @Inject
     private ApplicationContext parentApplicationContext;
 
@@ -89,9 +90,12 @@ public class AuthenticatorsScanner
                                                                       "etc/conf/strongbox-authentication-providers.xml");
     }
     
-    @EventListener({ ContextStartedEvent.class })
-    void contextRefreshedEvent()
+    @EventListener({ ContextRefreshedEvent.class })
+    void contextRefreshedEvent(ContextRefreshedEvent e)
     {
+        if (parentApplicationContext != e.getApplicationContext()) {
+            return;
+        }
         scanAndReloadRegistry();
     }
 
