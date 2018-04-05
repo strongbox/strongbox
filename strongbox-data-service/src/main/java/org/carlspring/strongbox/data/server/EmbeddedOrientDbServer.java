@@ -135,7 +135,6 @@ public class EmbeddedOrientDbServer implements OrientDbServer, Condition
         server.shutdown();
     }
 
-    @PostConstruct
     public void start()
     {
         

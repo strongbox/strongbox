@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -15,6 +17,8 @@ import org.carlspring.strongbox.data.CacheManagerConfiguration;
 import org.carlspring.strongbox.data.server.OrientDbServer;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
@@ -22,6 +26,7 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
@@ -56,59 +61,55 @@ import liquibase.integration.spring.SpringLiquibase;
 public class DataServiceConfig
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(DataServiceConfig.class);
+    
     /**
      * This must be after {@link OEntityUnproxyAspect} order.
      */
     public static final int TRANSACTIONAL_INTERCEPTOR_ORDER = 100;
+    
+    @Inject
+    private ConnectionConfig connectionConfig;
+    
+    @Inject
+    private ResourceLoader resourceLoader;
+    
+    @Inject
+    private OrientDbServer server;
 
-    //@Autowired
-    public void init(OEntityManager oEntityManager,
-                     DataSource dataSource,
-                     PlatformTransactionManager transactionManager,
-                     ResourceLoader resourceLoader)
+    @PostConstruct
+    public void init() throws ClassNotFoundException, LiquibaseException
     {
-        new TransactionTemplate(transactionManager).execute((s) -> {
-            SpringLiquibase liquibase = new SpringLiquibase();
-            liquibase.setDataSource(dataSource);
-            liquibase.setResourceLoader(resourceLoader);
-            liquibase.setBeanName("liquibase");
-            liquibase.setChangeLog("classpath:/db/changelog/db.changelog-master.xml");
-            try
-            {
-                liquibase.afterPropertiesSet();
-            }
-            catch (LiquibaseException e)
-            {
-                throw new RuntimeException("Failed to perform DB migration.", e);
-            }
+        server.start();
+        
+        SpringLiquibase liquibase = new SpringLiquibase();
+        liquibase.setDataSource(dataSource());
+        liquibase.setResourceLoader(resourceLoader);
+        liquibase.setChangeLog("classpath:/db/changelog/db.changelog-master.xml");
+        liquibase.afterPropertiesSet();
 
+        new TransactionTemplate(transactionManager()).execute((s) -> {
+            OEntityManager oEntityManager = oEntityManager();
             // register all domain entities
             Stream.concat(new Reflections("org.carlspring.strongbox").getTypesAnnotatedWith(Entity.class).stream(),
                           new Reflections("org.carlspring.strongbox").getTypesAnnotatedWith(Embeddable.class).stream())
                   .forEach(oEntityManager::registerEntityClass);
-
+            
             return null;
         });
+        
+
     }
 
     
     @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory,
-                                                         OEntityManager oEntityManager,
-                                                         DataSource dataSource,
-                                                         ResourceLoader resourceLoader)
+    public PlatformTransactionManager transactionManager()
     {
-        EntityManager em = entityManagerFactory.createEntityManager();
-        em.close();
-        
-        JpaTransactionManager transactionManager = new JpaTransactionManager(entityManagerFactory);
-        init(oEntityManager, dataSource, transactionManager, resourceLoader);
-        
-        return transactionManager;
+        return new JpaTransactionManager(entityManagerFactory());
     }
 
     @Bean
-    public EntityManagerFactory entityManagerFactory(ConnectionConfig connectionConfig)
+    public EntityManagerFactory entityManagerFactory()
     {
         Map<String, String> jpaProperties = new HashMap<>();
         jpaProperties.put("javax.persistence.jdbc.url", connectionConfig.getUrl());
@@ -121,16 +122,8 @@ public class DataServiceConfig
         return result.getObject();
     }
 
-//    @Bean
-//    public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager)
-//    {
-//        TransactionTemplate result = new TransactionTemplate();
-//        result.setTransactionManager(transactionManager);
-//        return result;
-//    }
-
     @Bean
-    public OEntityManager oEntityManager(ConnectionConfig connectionConfig)
+    public OEntityManager oEntityManager()
     {
         return OEntityManager.getEntityManagerByDatabaseURL(connectionConfig.getUrl());
     }
@@ -162,8 +155,7 @@ public class DataServiceConfig
     }
 
     @Bean
-    public DataSource dataSource(OrientDbServer orientDbServer,
-                                 ConnectionConfig connectionConfig)
+    public DataSource dataSource()
         throws ClassNotFoundException
     {
         Class.forName("com.orientechnologies.orient.jdbc.OrientJdbcDriver");
