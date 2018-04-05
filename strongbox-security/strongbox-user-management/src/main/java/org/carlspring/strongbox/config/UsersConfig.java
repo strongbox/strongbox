@@ -130,10 +130,8 @@ public class UsersConfig
         {
             AccessModel internalAccessModel = new AccessModel();
             userAccessModel.getStorages()
-                           .getStorages()
                            .forEach(storage ->
                                             storage.getRepositories()
-                                                   .getRepositories()
                                                    .forEach(repository -> processRepository(internalAccessModel,
                                                                                             storage.getStorageId(),
                                                                                             repository)));
@@ -157,7 +155,6 @@ public class UsersConfig
         String key = "/storages/" + storageId + "/" + repository.getRepositoryId();
 
         repository.getPrivileges()
-                  .getPrivileges()
                   .forEach(privilege -> defaultPrivileges.add(privilege.getName().toUpperCase()));
 
         internalAccessModel.getRepositoryPrivileges().put(key, defaultPrivileges);

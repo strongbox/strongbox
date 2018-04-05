@@ -25,12 +25,4 @@
             </privileges>
         </role>
     </roles>
-    <privileges>
-        <privilege>
-            <name>EXAMPLE_PRIVILEGE</name>
-            <description>This is an example of how you could add some custom privilege. Feel free to use it by name at
-                the REST API side to access restriction purposes.
-            </description>
-        </privilege>
-    </privileges>
 </authorization-configuration>

@@ -28,13 +28,6 @@ public class Role
     @XmlElement
     private String repository;
 
-    /**
-     * Nested roles.
-     */
- /*   @XmlElement(name = "role")
-    @XmlElementWrapper(name = "roles")
-    private List<String> roles = new ArrayList<>();*/
-
     @XmlElement(name = "privilege")
     @XmlElementWrapper(name = "privileges")
     private Set<String> privileges = new HashSet<>();

@@ -98,15 +98,13 @@ public class AuthoritiesProvider
                                                try
                                                {
                                                    config.getRoles()
-                                                         .getRoles()
                                                          .forEach(role -> role.getPrivileges()
                                                                               .forEach(
                                                                                       privilegeName -> fullAuthorities.add(
                                                                                               new SimpleGrantedAuthority(
                                                                                                                                 privilegeName.toUpperCase()))));
 
-                                                   configuredRoles.addAll(config.getRoles()
-                                                                                .getRoles());
+                                                   configuredRoles.addAll(config.getRoles());
                                                }
                                                catch (Exception e)
                                                {
