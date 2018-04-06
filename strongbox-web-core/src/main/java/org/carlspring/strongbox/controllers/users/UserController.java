@@ -39,27 +39,35 @@ import org.springframework.web.bind.annotation.*;
 public class UserController
         extends BaseController
 {
+    
     static final String SUCCESSFUL_CREATE_USER = "The user was created successfully.";
+    
     static final String FAILED_CREATE_USER = "User cannot be created because the submitted form contains errors!";
 
     static final String SUCCESSFUL_GET_USER = "User was retrieved successfully.";
-    static final String NOT_FOUND_USER = "The specified user does not exist!.";
+    
+    static final String NOT_FOUND_USER = "The specified user does not exist!";
 
     static final String SUCCESSFUL_GET_USERS = "Users were retrieved successfully.";
 
     static final String SUCCESSFUL_UPDATE_USER = "The user was updated successfully.";
+    
     static final String FAILED_UPDATE_USER = "User cannot be updated because the submitted form contains errors!";
 
     static final String SUCCESSFUL_DELETE_USER = "The user was deleted.";
+    
     static final String FAILED_DELETE_USER = "Could not delete the user.";
+    
     static final String FAILED_DELETE_SAME_USER = "Unable to delete yourself";
 
     static final String SUCCESSFUL_GENERATE_SECURITY_TOKEN = "The security token was generated.";
+    
     static final String FAILED_GENERATE_SECURITY_TOKEN = "Failed to generate SecurityToken";
 
     static final String SUCCESSFUL_GENERATE_AUTH_TOKEN = "The authentication token was generated.";
 
     static final String SUCCESSFUL_UPDATE_ACCESS_MODEL = "The custom access model was updated.";
+    
     static final String FAILED_UPDATE_ACCESS_MODEL = "Could not update the access model.";
 
     @Inject
@@ -67,7 +75,8 @@ public class UserController
 
     @Inject
     private ConversionService conversionService;
-
+    
+    
     /**
      * This method exists for testing purposes.
      */
@@ -75,8 +84,8 @@ public class UserController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
     @PreAuthorize("authenticated")
     @GetMapping(value = "/{anyString}",
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity greet(@PathVariable String anyString,
                                 @ApiParam(value = "The param name", required = true)
@@ -84,6 +93,7 @@ public class UserController
                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         logger.debug("Say hello to {}. Path variable: {}", param, anyString);
+        
         return getSuccessfulResponseEntity("hello, " + param, accept);
     }
 
@@ -245,13 +255,14 @@ public class UserController
         String securityToken = userService.generateSecurityToken(username);
         if (securityToken == null)
         {
-            String message = String.format(
-                    "Failed to generate SecurityToken, probably you should first set SecurityTokenKey for the user: %s",
-                    username);
+            String message = String.format("Failed to generate SecurityToken, probably you should first set " +
+                                           "SecurityTokenKey for the user: %s", username);
+                                           
             return getFailedResponseEntity(HttpStatus.BAD_REQUEST, message, accept);
         }
 
         Object body = getTokenEntityBody(securityToken, accept);
+        
         return ResponseEntity.ok(body);
     }
 
@@ -271,9 +282,9 @@ public class UserController
         String authToken = userService.generateAuthenticationToken(username, expireSeconds);
 
         Object body = getTokenEntityBody(authToken, accept);
+        
         return ResponseEntity.ok(body);
     }
-
 
     @ApiOperation(value = "Update custom access model for the user.", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_UPDATE_ACCESS_MODEL),
@@ -305,6 +316,7 @@ public class UserController
         userService.save(user);
 
         Object body = getUserEntityBody(user, accept);
+        
         return ResponseEntity.ok(body);
     }
 
@@ -348,4 +360,3 @@ public class UserController
     }
 
 }
-
