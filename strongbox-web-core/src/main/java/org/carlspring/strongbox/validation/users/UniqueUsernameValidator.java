@@ -11,29 +11,29 @@ import org.springframework.util.StringUtils;
 /**
  * @author Pablo Tirado
  */
-public class UniqueUserNameValidator
-        implements ConstraintValidator<UniqueUserName, String>
+public class UniqueUsernameValidator
+        implements ConstraintValidator<UniqueUsername, String>
 {
 
     private UserService userService;
 
-    public UniqueUserNameValidator(UserService userService)
+    public UniqueUsernameValidator(UserService userService)
     {
         this.userService = userService;
     }
 
     @Override
-    public void initialize(UniqueUserName constraint)
+    public void initialize(UniqueUsername constraint)
     {
         // Empty method, not used.
     }
 
     @Override
-    public boolean isValid(String userName,
+    public boolean isValid(String username,
                            ConstraintValidatorContext context)
     {
-        User user = userService.findByUserName(userName);
-        return StringUtils.isEmpty(userName) || user == null;
+        User user = userService.findByUserName(username);
+        return StringUtils.isEmpty(username) || user == null;
     }
 
 }

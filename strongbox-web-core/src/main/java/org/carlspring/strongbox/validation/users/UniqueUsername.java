@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * @author Pablo Tirado
  */
 @Documented
-@Constraint(validatedBy = UniqueUserNameValidator.class)
+@Constraint(validatedBy = UniqueUsernameValidator.class)
 @Target({ ElementType.METHOD,
           ElementType.FIELD,
           ElementType.ANNOTATION_TYPE,
@@ -16,7 +16,7 @@ import java.lang.annotation.*;
           ElementType.PARAMETER,
           ElementType.TYPE_USE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UniqueUserName
+public @interface UniqueUsername
 {
 
     String message();

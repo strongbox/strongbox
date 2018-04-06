@@ -141,10 +141,10 @@ public class UserControllerTestIT
         shouldNotBeAbleToRetrieveUserThatNoExists(MediaType.APPLICATION_JSON_VALUE);
     }
 
-    private void testCreateUser(String userName,
+    private void testCreateUser(String username,
                                 String acceptHeader)
     {
-        UserForm test = buildUser(userName, "password");
+        UserForm test = buildUser(username, "password");
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
@@ -173,9 +173,9 @@ public class UserControllerTestIT
         testCreateUser("test-create-text", MediaType.TEXT_PLAIN_VALUE);
     }
 
-    private void shouldNotBeAbleToCreateUserWithTheSameUsername(String userName, String acceptHeader)
+    private void shouldNotBeAbleToCreateUserWithTheSameUsername(String username, String acceptHeader)
     {
-        UserForm test = buildUser(userName, "password");
+        UserForm test = buildUser(username, "password");
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
@@ -201,15 +201,15 @@ public class UserControllerTestIT
     @Test
     public void shouldNotBeAbleToCreateUserWithTheSameUsernameWithTextAcceptHeader()
     {
-        String userName = "test-same-username-text";
-        shouldNotBeAbleToCreateUserWithTheSameUsername(userName, MediaType.TEXT_PLAIN_VALUE);
+        String username = "test-same-username-text";
+        shouldNotBeAbleToCreateUserWithTheSameUsername(username, MediaType.TEXT_PLAIN_VALUE);
     }
 
     @Test
     public void shouldNotBeAbleToCreateUserWithTheSameUsernameWithJsonAcceptHeader()
     {
-        String userName = "test-same-username-json";
-        shouldNotBeAbleToCreateUserWithTheSameUsername(userName, MediaType.APPLICATION_JSON_VALUE);
+        String username = "test-same-username-json";
+        shouldNotBeAbleToCreateUserWithTheSameUsername(username, MediaType.APPLICATION_JSON_VALUE);
     }
 
     @Test
@@ -626,8 +626,8 @@ public class UserControllerTestIT
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void testGenerateSecurityToken()
     {
-        String userName = "test-jwt";
-        UserForm input = buildUser(userName, "password-update");
+        String username = "test-jwt";
+        UserForm input = buildUser(username, "password-update");
 
         //1. Create user
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -666,7 +666,7 @@ public class UserControllerTestIT
         //3. Generate token
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl() + "/user/{username}/generate-security-token", userName)
+               .get(getContextBaseUrl() + "/user/{username}/generate-security-token", username)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -828,10 +828,10 @@ public class UserControllerTestIT
     @Test
     public void notValidMapsShouldNotUpdateAccessModel()
     {
-        String userName = "developer01";
+        String username = "developer01";
 
         // load user with custom access model
-        User test = getUser(userName);
+        User test = getUser(username);
         AccessModelForm accessModel = buildFromAccessModel(test.getAccessModel());
 
         assertNotNull(accessModel);
@@ -848,7 +848,7 @@ public class UserControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(accessModel)
-               .put(getContextBaseUrl() + "/user/{username}/access-model", userName)
+               .put(getContextBaseUrl() + "/user/{username}/access-model", username)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -875,11 +875,11 @@ public class UserControllerTestIT
 
         accessModel.getUrlToPrivilegesMap().put(mockUrl, Collections.singletonList(mockPrivilege));
 
-        String userName = "userNotFound";
+        String username = "userNotFound";
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(accessModel)
-               .put(getContextBaseUrl() + "/user/{username}/access-model", userName)
+               .put(getContextBaseUrl() + "/user/{username}/access-model", username)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value()) // check http status code

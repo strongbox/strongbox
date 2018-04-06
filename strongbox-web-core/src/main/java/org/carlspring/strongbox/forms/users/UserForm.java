@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.forms.users;
 
-import org.carlspring.strongbox.validation.users.UniqueUserName;
+import org.carlspring.strongbox.validation.users.UniqueUsername;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -18,7 +18,7 @@ public class UserForm
 {
 
     @NotEmpty(groups = {NewUser.class, ExistingUser.class}, message = "A username must be specified.")
-    @UniqueUserName(groups = NewUser.class, message = "A user with this username already exists. Please enter another username.")
+    @UniqueUsername(groups = NewUser.class, message = "A user with this username already exists. Please enter another username.")
     private String username;
 
     @NotEmpty(groups = {NewUser.class, ExistingUser.class}, message = "A password must be specified.")
