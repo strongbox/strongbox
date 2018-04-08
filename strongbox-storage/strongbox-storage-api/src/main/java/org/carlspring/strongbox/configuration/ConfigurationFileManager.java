@@ -4,13 +4,14 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.support.ConfigurationReadException;
 import org.carlspring.strongbox.services.support.ConfigurationSaveException;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBException;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
@@ -45,7 +46,7 @@ public class ConfigurationFileManager
 
     public Configuration read()
     {
-        try(InputStream inputStream = getConfigurationResource().getInputStream())
+        try (InputStream inputStream = new BufferedInputStream(getConfigurationResource().getInputStream()))
         {
             return parser.parse(inputStream);
         }

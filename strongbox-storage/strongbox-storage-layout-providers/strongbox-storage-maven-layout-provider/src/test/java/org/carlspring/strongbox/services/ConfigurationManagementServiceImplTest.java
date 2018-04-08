@@ -15,9 +15,15 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -27,7 +33,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -93,11 +104,11 @@ public class ConfigurationManagementServiceImplTest
 
         Repository groupRepository1 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP_1);
         groupRepository1.setType(RepositoryTypeEnum.GROUP.getType());
-        groupRepository1.getGroupRepositories().add(repository1.getId());
+        groupRepository1.getGroupRepositories().put(repository1.getId(), repository1.getId());
 
         Repository groupRepository2 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP_2);
         groupRepository2.setType(RepositoryTypeEnum.GROUP.getType());
-        groupRepository2.getGroupRepositories().add(repository1.getId());
+        groupRepository2.getGroupRepositories().put(repository1.getId(), repository1.getId());
 
         createRepository(repository1);
         createRepository(repository2);
@@ -110,6 +121,63 @@ public class ConfigurationManagementServiceImplTest
             throws IOException, JAXBException
     {
         removeRepositories(getRepositoriesToClean());
+    }
+
+    @Test
+    public void groupRepositoriesShouldBeSortedAsExpected()
+    {
+        Repository repository = configurationManagementService.getRepository("storage-common-proxies",
+                                                                             "group-common-proxies");
+
+        Iterator<String> iterator = repository.getGroupRepositories().keySet().iterator();
+        assertThat(iterator.next(), CoreMatchers.equalTo("carlspring"));
+        assertThat(iterator.next(), CoreMatchers.equalTo("maven-central"));
+        assertThat(iterator.next(), CoreMatchers.equalTo("apache-snapshots"));
+        assertThat(iterator.next(), CoreMatchers.equalTo("jboss-public-releases"));
+    }
+
+    @Test
+    public void additionOfTheSameGroupRepositoryShouldNotAffectGroupRepositoriesList()
+    {
+        Configuration configuration = configurationManagementService.getConfiguration();
+        configuration.getStorage("storage-common-proxies")
+                     .getRepository("group-common-proxies")
+                     .addRepositoryToGroup("maven-central");
+        configurationManagementService.save(configuration);
+
+        Repository repository = configurationManagementService.getRepository("storage-common-proxies",
+                                                                             "group-common-proxies");
+
+        assertThat(repository.getGroupRepositories().size(), CoreMatchers.equalTo(4));
+        Iterator<String> iterator = repository.getGroupRepositories().keySet().iterator();
+        assertThat(iterator.next(), CoreMatchers.equalTo("carlspring"));
+        assertThat(iterator.next(), CoreMatchers.equalTo("maven-central"));
+        assertThat(iterator.next(), CoreMatchers.equalTo("apache-snapshots"));
+        assertThat(iterator.next(), CoreMatchers.equalTo("jboss-public-releases"));
+    }
+
+    @Test
+    public void multipleAdditionOfTheSameRepositoryShouldNotAffectGroup()
+    {
+        Configuration configuration = configurationManagementService.getConfiguration();
+        Repository r = configuration.getStorage("storage-common-proxies")
+                     .getRepository("group-common-proxies");
+
+        r.addRepositoryToGroup("maven-central");
+        r.addRepositoryToGroup("maven-central");
+        r.addRepositoryToGroup("maven-central");
+
+        configurationManagementService.save(configuration);
+
+        Repository repository = configurationManagementService.getRepository("storage-common-proxies",
+                                                                             "group-common-proxies");
+
+        assertThat(repository.getGroupRepositories().size(), CoreMatchers.equalTo(4));
+        Iterator<String> iterator = repository.getGroupRepositories().keySet().iterator();
+        assertThat(iterator.next(), CoreMatchers.equalTo("carlspring"));
+        assertThat(iterator.next(), CoreMatchers.equalTo("maven-central"));
+        assertThat(iterator.next(), CoreMatchers.equalTo("apache-snapshots"));
+        assertThat(iterator.next(), CoreMatchers.equalTo("jboss-public-releases"));
     }
 
     @Test

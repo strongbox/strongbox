@@ -34,7 +34,7 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
     private PermanentBrokenArtifactInputStream brokenArtifactInputStream;
 
     @Before
-    public void timeoutRetryFeatureRatherQuicklyForTestPurposes()
+    public void setup()
             throws Exception
     {
         brokenArtifactInputStream = new PermanentBrokenArtifactInputStream(jarArtifact);

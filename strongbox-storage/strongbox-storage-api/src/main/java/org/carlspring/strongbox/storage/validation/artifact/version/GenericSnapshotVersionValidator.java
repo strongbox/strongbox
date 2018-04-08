@@ -57,7 +57,7 @@ public class GenericSnapshotVersionValidator
     @Override
     public boolean supports(Repository repository)
     {
-        return repository.getArtifactCoordinateValidators().contains(ALIAS);
+        return repository.getArtifactCoordinateValidators().keySet().contains(ALIAS);
     }
 
     @Override
