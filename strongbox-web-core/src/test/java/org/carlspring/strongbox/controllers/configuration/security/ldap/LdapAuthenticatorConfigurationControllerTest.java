@@ -25,16 +25,15 @@ public class LdapAuthenticatorConfigurationControllerTest
     @Inject
     private AuthenticatorsScanner scanner;
 
+
     @Before
     public void setUp()
-            throws Exception
     {
         scanner.scanAndReloadRegistry();
     }
 
     @Test
     public void shouldReturnProperRolesMapping()
-            throws Exception
     {
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
@@ -51,7 +50,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void userDnPatternsContainExpectedUserDnPattern()
-            throws Exception
     {
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
@@ -66,7 +64,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void userSearchFilterEqualsExpectedValue()
-            throws Exception
     {
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
@@ -83,7 +80,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void groupSearchFilterEqualsExpectedValue()
-            throws Exception
     {
         RestAssuredMockMvc.given()
                           .header("Accept", "application/json")
@@ -101,7 +97,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void shouldUpdateExistingMapping()
-            throws Exception
     {
         RestAssuredMockMvc.when()
                           .put("/api/configuration/ldap/rolesMapping/Developers/REPOSITORY_READER")
@@ -112,7 +107,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void shouldAddNewMapping()
-            throws Exception
     {
         RestAssuredMockMvc.when()
                           .put("/api/configuration/ldap/rolesMapping/Managers/REPOSITORY_MANAGER")
@@ -123,7 +117,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void shouldNotAllowToAddNewMappingOnExistingKey()
-            throws Exception
     {
         RestAssuredMockMvc.when()
                           .post("/api/configuration/ldap/rolesMapping/Contributors/REPOSITORY_READER")
@@ -134,7 +127,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void shouldAllowToAddNewMappingOnNotExistingKey()
-            throws Exception
     {
         RestAssuredMockMvc.when()
                           .post("/api/configuration/ldap/rolesMapping/Testers/REPOSITORY_READER")
@@ -145,7 +137,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void shouldAllowToDeleteExistingMapping()
-            throws Exception
     {
         RestAssuredMockMvc.when()
                           .delete("/api/configuration/ldap/rolesMapping/Contributors")
@@ -156,7 +147,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void shouldNotAllowToDeleteNotExistingMapping()
-            throws Exception
     {
         RestAssuredMockMvc.when()
                           .delete("/api/configuration/ldap/rolesMapping/Testers")
@@ -167,7 +157,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void userSearchFilterShouldBeUpdatable()
-            throws Exception
     {
         RestAssuredMockMvc.given()
                           .header("Accept", "application/xml")
@@ -194,7 +183,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void groupSearchFilterShouldBeUpdatable()
-            throws Exception
     {
         RestAssuredMockMvc.given()
                           // below line is a workaround URI placeholders in RestAssuredMockMvc
@@ -219,7 +207,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void userDnPatternsAreRemovable()
-            throws Exception
     {
         RestAssuredMockMvc.given()
                           // below line is a workaround URI placeholders in RestAssuredMockMvc
@@ -233,7 +220,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Test
     public void userDnPatternsAreAdditable()
-            throws Exception
     {
         RestAssuredMockMvc.given()
                           .header("Accept", "application/xml")

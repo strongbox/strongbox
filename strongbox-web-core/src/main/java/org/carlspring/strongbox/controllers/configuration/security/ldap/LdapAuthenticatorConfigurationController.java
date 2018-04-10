@@ -63,7 +63,7 @@ public class LdapAuthenticatorConfigurationController
     @ApiOperation(value = "Adds LDAP role mapping if the mapping does not exist. It doesn't override existing value.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP role mapping addition succeeded"),
                             @ApiResponse(code = 400, message = "LDAP is not enabled or LDAP role mapping already exists for given LDAP role"),
-                            @ApiResponse(code = 500, message = "Addition of LDAP role mapping failed with server error") })
+                            @ApiResponse(code = 500, message = "Failed to add LDAP role mapping") })
     @RequestMapping(value = "/rolesMapping/{externalRole}/{internalRole}", method = RequestMethod.POST)
     public ResponseEntity<String> addRoleMapping(@PathVariable String externalRole,
                                                  @PathVariable String internalRole)
@@ -86,7 +86,7 @@ public class LdapAuthenticatorConfigurationController
         }
         catch (Exception e)
         {
-            return toError("Addition of LDAP role mapping failed with server error: " + e.getLocalizedMessage());
+            return toError("Failed to add LDAP role mapping: " + e.getLocalizedMessage());
         }
 
         return ResponseEntity.ok("LDAP role mapping addition succeeded");
@@ -95,24 +95,22 @@ public class LdapAuthenticatorConfigurationController
     @ApiOperation(value = "Adds or updates LDAP role mapping")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP role mapping add or update succeeded"),
                             @ApiResponse(code = 400, message = "LDAP is not enabled"),
-                            @ApiResponse(code = 500, message = "Insert or update LDAP role mapping failed with server error") })
+                            @ApiResponse(code = 500, message = "Failed to add or update LDAP role mapping") })
     @RequestMapping(value = "/rolesMapping/{externalRole}/{internalRole}", method = RequestMethod.PUT)
     public ResponseEntity<String> setRoleMapping(@PathVariable String externalRole,
                                                  @PathVariable String internalRole)
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest()
-                                 .body(LdapMessages.NOT_CONFIGURED);
+            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
-            springSecurityLdapInternalsSupplier.getAuthoritiesMapper()
-                                               .putRoleMapping(externalRole, internalRole);
+            springSecurityLdapInternalsSupplier.getAuthoritiesMapper().putRoleMapping(externalRole, internalRole);
         }
         catch (Exception e)
         {
-            return toError("Add or update LDAP role mapping failed with server error: " + e.getLocalizedMessage());
+            return toError("Failed to add or update LDAP role mapping!");
         }
 
         return ResponseEntity.ok("LDAP role mapping add or update succeeded");
@@ -122,14 +120,13 @@ public class LdapAuthenticatorConfigurationController
     @ApiOperation(value = "Deletes LDAP role mapping")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP role mapping deletion succeeded"),
                             @ApiResponse(code = 400, message = "LDAP is not enabled or externalRole does not exist in the LDAP roles mapping"),
-                            @ApiResponse(code = 500, message = "LDAP role mapping deletion failed with server error") })
+                            @ApiResponse(code = 500, message = "Failed to delete the LDAP role mapping!") })
     @RequestMapping(value = "/rolesMapping/{externalRole}", method = RequestMethod.DELETE)
     public ResponseEntity<String> deleteRoleMapping(@PathVariable String externalRole)
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest()
-                                 .body(LdapMessages.NOT_CONFIGURED);
+            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
@@ -143,7 +140,7 @@ public class LdapAuthenticatorConfigurationController
         }
         catch (Exception e)
         {
-            return toError("LDAP role mapping deletion failed with server error: " + e.getLocalizedMessage());
+            return toError("Failed to delete the LDAP role mapping!");
         }
 
         return ResponseEntity.ok("LDAP role mapping deletion succeeded");
@@ -173,7 +170,7 @@ public class LdapAuthenticatorConfigurationController
     @ApiOperation(value = "Removes the provided user DN pattern from the userDnPatterns.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "User DN pattern removal from the userDnPatterns succeeded"),
                             @ApiResponse(code = 400, message = "LDAP is not enabled or pattern does not match any existing userDnPatterns"),
-                            @ApiResponse(code = 500, message = "User DN pattern removal from the userDnPatterns failed with server error") })
+                            @ApiResponse(code = 500, message = "Failed to remove user DN pattern!") })
     @RequestMapping(value = "/userDnPatterns/{pattern}", method = RequestMethod.DELETE)
     public ResponseEntity<String> deleteUserDnPattern(@PathVariable String pattern)
     {
@@ -189,8 +186,7 @@ public class LdapAuthenticatorConfigurationController
         }
         if (!userDnPatterns.remove(pattern))
         {
-            return ResponseEntity.badRequest()
-                                 .body("Pattern does not match any existing userDnPatterns");
+            return ResponseEntity.badRequest().body("Pattern does not match any existing userDnPatterns");
         }
         try
         {
@@ -198,7 +194,7 @@ public class LdapAuthenticatorConfigurationController
         }
         catch (Exception e)
         {
-            return toError("User DN pattern removal failed with server error: " + e.getLocalizedMessage());
+            return toError("Failed to remove user DN pattern!");
         }
 
         return ResponseEntity.ok("user DN pattern " + pattern + " removed from the userDnPatterns");
