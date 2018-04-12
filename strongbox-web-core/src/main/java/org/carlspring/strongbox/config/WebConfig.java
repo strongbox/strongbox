@@ -4,6 +4,8 @@ import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.converters.PrivilegeListFormToPrivilegeListConverter;
 import org.carlspring.strongbox.converters.RoleFormToRoleConverter;
 import org.carlspring.strongbox.converters.RoleListFormToRoleListConverter;
+import org.carlspring.strongbox.converters.users.AccessModelFormToAccessModelConverter;
+import org.carlspring.strongbox.converters.users.UserFormToUserConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.HeaderMappingFilter;
@@ -183,6 +185,8 @@ public class WebConfig
         registry.addConverter(new RoleFormToRoleConverter());
         registry.addConverter(new RoleListFormToRoleListConverter());
         registry.addConverter(new PrivilegeListFormToPrivilegeListConverter());
+        registry.addConverter(new UserFormToUserConverter());
+        registry.addConverter(new AccessModelFormToAccessModelConverter());
     }
 
     @Bean

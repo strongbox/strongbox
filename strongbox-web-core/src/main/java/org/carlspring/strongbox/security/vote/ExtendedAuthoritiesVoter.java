@@ -36,16 +36,16 @@ public class ExtendedAuthoritiesVoter extends PreInvocationAuthorizationAdviceVo
                     MethodInvocation method,
                     Collection<ConfigAttribute> attributes)
     {
-        return super.vote(new ExtendedAuthorityAuthenrication(authentication), method, attributes);
+        return super.vote(new ExtendedAuthorityAuthentication(authentication), method, attributes);
     }
 
     @SuppressWarnings("serial")
-    private class ExtendedAuthorityAuthenrication implements Authentication
+    private class ExtendedAuthorityAuthentication implements Authentication
     {
 
         private Authentication source;
 
-        public ExtendedAuthorityAuthenrication(Authentication target)
+        public ExtendedAuthorityAuthentication(Authentication target)
         {
             super();
             this.source = target;

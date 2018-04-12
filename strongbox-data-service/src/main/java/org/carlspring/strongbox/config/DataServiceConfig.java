@@ -1,36 +1,50 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.data.CacheManagerConfiguration;
-import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.persistence.Embeddable;
-import javax.persistence.Entity;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
-import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.core.sql.OCommandExecutorSQLFactory;
-import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
-import liquibase.integration.spring.SpringLiquibase;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+
+import org.carlspring.strongbox.data.CacheManagerConfiguration;
+import org.carlspring.strongbox.data.server.OrientDbServer;
+import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.core.sql.OCommandExecutorSQLFactory;
+import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
+
+import liquibase.exception.LiquibaseException;
+import liquibase.integration.spring.SpringLiquibase;
 
 /**
  * Spring configuration for data service project.
@@ -47,42 +61,51 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class DataServiceConfig
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(DataServiceConfig.class);
+    
     /**
      * This must be after {@link OEntityUnproxyAspect} order.
      */
     public static final int TRANSACTIONAL_INTERCEPTOR_ORDER = 100;
-
+    
     @Inject
     private ConnectionConfig connectionConfig;
     
     @Inject
-    protected SpringLiquibase springLiquibase;
-
+    private ResourceLoader resourceLoader;
+    
     @Inject
-    private OEntityManager oEntityManager;
+    private OrientDbServer server;
 
     @PostConstruct
-    public void init()
+    public void init() throws ClassNotFoundException, LiquibaseException
     {
-        transactionTemplate().execute((s) ->
-                                    {
-                                        doInit();
-                                        return null;
-                                    });
+        server.start();
+        
+        SpringLiquibase liquibase = new SpringLiquibase();
+        liquibase.setDataSource(dataSource());
+        liquibase.setResourceLoader(resourceLoader);
+        liquibase.setChangeLog("classpath:/db/changelog/db.changelog-master.xml");
+        liquibase.afterPropertiesSet();
+
+        new TransactionTemplate(transactionManager()).execute((s) -> {
+            OEntityManager oEntityManager = oEntityManager();
+            // register all domain entities
+            Stream.concat(new Reflections("org.carlspring.strongbox").getTypesAnnotatedWith(Entity.class).stream(),
+                          new Reflections("org.carlspring.strongbox").getTypesAnnotatedWith(Embeddable.class).stream())
+                  .forEach(oEntityManager::registerEntityClass);
+            
+            return null;
+        });
+        
+
     }
 
-    private void doInit()
-    {
-        // register all domain entities
-        Stream.concat(new Reflections("org.carlspring.strongbox").getTypesAnnotatedWith(Entity.class).stream(),
-                      new Reflections("org.carlspring.strongbox").getTypesAnnotatedWith(Embeddable.class).stream())
-              .forEach(oEntityManager::registerEntityClass);
-    }
     
     @Bean
     public PlatformTransactionManager transactionManager()
     {
-        return new JpaTransactionManager((EntityManagerFactory)entityManagerFactory());
+        return new JpaTransactionManager(entityManagerFactory());
     }
 
     @Bean
@@ -97,14 +120,6 @@ public class DataServiceConfig
         result.setJpaPropertyMap(jpaProperties);
         result.afterPropertiesSet();
         return result.getObject();
-    }
-
-    @Bean
-    public TransactionTemplate transactionTemplate()
-    {
-        TransactionTemplate result = new TransactionTemplate();
-        result.setTransactionManager(transactionManager());
-        return result;
     }
 
     @Bean
@@ -128,7 +143,7 @@ public class DataServiceConfig
         cacheManagerConfiguration.setCacheCacheManagerId("strongboxCacheManager");
         return cacheManagerConfiguration;
     }
-    
+
     @Bean
     public EhCacheManagerFactoryBean ehCacheCacheManager(CacheManagerConfiguration cacheManagerConfiguration)
     {
@@ -138,34 +153,24 @@ public class DataServiceConfig
         cmfb.setCacheManagerName(cacheManagerConfiguration.getCacheCacheManagerId());
         return cmfb;
     }
-    
-    @Bean
-    public SpringLiquibase springLiquibase(DataSource dataSource)
-    {
-        SpringLiquibase result = new SpringLiquibase();
-        result.setDataSource(dataSource);
-        result.setChangeLog("classpath:/db/changelog/db.changelog-master.xml");
-        return result;
-    }
 
     @Bean
-    @DependsOn("orientDbServer")
-    public DataSource dataSource() throws ClassNotFoundException
+    public DataSource dataSource()
+        throws ClassNotFoundException
     {
         Class.forName("com.orientechnologies.orient.jdbc.OrientJdbcDriver");
-        
+
         ServiceLoader.load(OSQLFunctionFactory.class);
         ServiceLoader.load(OCommandExecutorSQLFactory.class);
-        
-        
+
         SingleConnectionDataSource ds = new SingleConnectionDataSource();
         ds.setAutoCommit(false);
-        
+
         ds.setUsername(connectionConfig.getUsername());
         ds.setPassword(connectionConfig.getPassword());
         ds.setUrl(String.format("jdbc:orient:%s", connectionConfig.getUrl()));
-        
+
         return ds;
     }
-    
+
 }

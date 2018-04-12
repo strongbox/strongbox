@@ -4,6 +4,8 @@ import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.xml.ArtifactCoordinateValidatorsAdapter;
+import org.carlspring.strongbox.xml.RepositoryGroupsAdapter;
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 
 import javax.persistence.Embeddable;
@@ -13,15 +15,18 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.Maps;
 
 /**
  * @author mtodorov
@@ -99,13 +104,13 @@ public class Repository
     @XmlElementRef
     private CustomRepositoryConfiguration repositoryConfiguration;
 
-    @XmlElement(name = "repository")
-    @XmlElementWrapper(name = "group")
-    private Set<String> groupRepositories = new LinkedHashSet<>();
+    @XmlElement(name = "group")
+    @XmlJavaTypeAdapter(RepositoryGroupsAdapter.class)
+    private Map<String, String> groupRepositories = new LinkedHashMap<>();
 
-    @XmlElement(name = "artifact-coordinate-validator")
-    @XmlElementWrapper(name = "artifact-coordinate-validators")
-    private Set<String> artifactCoordinateValidators = new LinkedHashSet<>();
+    @XmlElement(name = "artifact-coordinate-validators")
+    @XmlJavaTypeAdapter(ArtifactCoordinateValidatorsAdapter.class)
+    private Map<String, String> artifactCoordinateValidators = new LinkedHashMap<>();
 
     @Transient
     @XmlTransient
@@ -288,19 +293,19 @@ public class Repository
         this.remoteRepository = remoteRepository;
     }
 
-    public Set<String> getGroupRepositories()
+    public Map<String, String> getGroupRepositories()
     {
         return groupRepositories;
     }
 
     public void setGroupRepositories(Set<String> groupRepositories)
     {
-        this.groupRepositories = groupRepositories;
+        this.groupRepositories = Maps.toMap(groupRepositories, x -> x);
     }
 
     public void addRepositoryToGroup(String repositoryId)
     {
-        groupRepositories.add(repositoryId);
+        groupRepositories.putIfAbsent(repositoryId, repositoryId);
     }
 
     public void removeRepositoryFromGroup(String repositoryId)
@@ -444,14 +449,14 @@ public class Repository
         this.artifactMaxSize = artifactMaxSize;
     }
 
-    public Set<String> getArtifactCoordinateValidators()
+    public Map<String, String> getArtifactCoordinateValidators()
     {
         return artifactCoordinateValidators;
     }
 
     public void setArtifactCoordinateValidators(Set<String> artifactCoordinateValidators)
     {
-        this.artifactCoordinateValidators = artifactCoordinateValidators;
+        this.artifactCoordinateValidators = Maps.toMap(artifactCoordinateValidators, x -> x);
     }
 
 }

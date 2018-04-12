@@ -38,7 +38,6 @@ public class InMemoryOrientDbServer implements OrientDbServer, Condition, ODatab
     private ORecordHook genericEntityHook = new GenericEntityHook(); 
 
     @Override
-    @PostConstruct
     public void start()
     {
         String database = connectionConfig.getDatabase();

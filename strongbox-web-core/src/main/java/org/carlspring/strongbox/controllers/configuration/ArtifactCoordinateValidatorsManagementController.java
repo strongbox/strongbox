@@ -85,6 +85,7 @@ public class ArtifactCoordinateValidatorsManagementController
         }
 
         Set<String> versionValidators = repository.getArtifactCoordinateValidators()
+                                                  .keySet()
                                                   .stream()
                                                   .map(String::toString)
                                                   .collect(Collectors.toSet());
@@ -116,7 +117,7 @@ public class ArtifactCoordinateValidatorsManagementController
             return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY_MESSAGE, acceptHeader);
         }
 
-        repository.getArtifactCoordinateValidators().add(alias);
+        repository.getArtifactCoordinateValidators().put(alias, alias);
         configurationManagementService.save(configuration);
 
         return getSuccessfulResponseEntity(SUCCESSFUL_ADD, acceptHeader);
@@ -145,7 +146,7 @@ public class ArtifactCoordinateValidatorsManagementController
             return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY_MESSAGE, acceptHeader);
         }
 
-        boolean resultOk = repository.getArtifactCoordinateValidators().remove(alias);
+        boolean resultOk = repository.getArtifactCoordinateValidators().remove(alias, alias);
         if (!resultOk)
         {
             return getNotFoundResponseEntity(NOT_FOUND_ALIAS_MESSAGE, acceptHeader);

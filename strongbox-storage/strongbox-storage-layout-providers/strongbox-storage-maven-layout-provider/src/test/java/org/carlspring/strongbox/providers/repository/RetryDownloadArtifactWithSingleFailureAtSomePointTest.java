@@ -28,7 +28,7 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
     private OneTimeBrokenArtifactInputStream brokenArtifactInputStream;
 
     @Before
-    public void timeoutRetryFeatureRatherQuicklyForTestPurposes()
+    public void setup()
             throws Exception
     {
         brokenArtifactInputStream = new OneTimeBrokenArtifactInputStream(jarArtifact);

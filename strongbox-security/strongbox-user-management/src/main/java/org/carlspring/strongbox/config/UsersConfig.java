@@ -26,6 +26,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -48,38 +49,32 @@ public class UsersConfig
     private final static GenericParser<Users> parser = new GenericParser<>(Users.class);
 
     @Inject
-    private OEntityManager oEntityManager;
-
-    @Inject
     private UserService userService;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Inject
-    private TransactionTemplate transactionTemplate;
+    private PlatformTransactionManager transactionManager;
 
-    private final Class<User> userClass = User.class;
 
     @PostConstruct
     public void init()
     {
         logger.debug("Loading users...");
 
-        transactionTemplate.execute((s) ->
-                                    {
-                                        doInit();
-                                        return null;
-                                    });
+        new TransactionTemplate(transactionManager).execute((s) -> doInit());
     }
 
-    private void doInit()
+    private Object doInit()
     {
         // remove all possible existing users (due to test executions with @Rollback(false) or another causes)
         // just to make sure
         userService.deleteAll();
 
         loadUsersFromConfigFile();
+        
+        return null;
     }
 
     @Transactional
@@ -196,7 +191,7 @@ public class UsersConfig
     private Resource getUsersConfigurationResource()
             throws IOException
     {
-        return ConfigurationResourceResolver.getConfigurationResource("users.config.xml",
+        return ConfigurationResourceResolver.getConfigurationResource("strongbox.users.config.xml",
                                                                       "etc/conf/strongbox-security-users.xml");
     }
 

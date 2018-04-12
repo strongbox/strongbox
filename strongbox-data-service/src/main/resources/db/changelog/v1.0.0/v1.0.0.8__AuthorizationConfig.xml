@@ -8,6 +8,8 @@
 
         <o:dropProperty className="AuthorizationConfig" propertyName="roles" />
 
+        <o:delete tableName="Roles"/>
+
         <o:dropClass name="Roles" />
 
         <o:createProperty name="roles" type="embeddedset" linkedType="Role" className="AuthorizationConfig" />
