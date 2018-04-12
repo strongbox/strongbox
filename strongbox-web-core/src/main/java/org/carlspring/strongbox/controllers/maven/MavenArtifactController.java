@@ -186,7 +186,10 @@ public class MavenArtifactController
                                      .body("The source path does not exist!");
             }
 
-            artifactManagementService.copy(srcStorageId, srcRepositoryId, destStorageId, destRepositoryId, path);
+            RepositoryPath srcPath = repositoryPathResolver.resolve(srcRepository, path);
+            RepositoryPath destPath = repositoryPathResolver.resolve(destRepository, path);
+            
+            artifactManagementService.copy(srcPath, destPath);
         }
         catch (ArtifactStorageException e)
         {
@@ -247,7 +250,7 @@ public class MavenArtifactController
                                      .body("The specified path does not exist!");
             }
 
-            artifactManagementService.delete(storageId, repositoryId, path, force);
+            artifactManagementService.delete(repositoryPath, force);
         }
         catch (ArtifactStorageException e)
         {

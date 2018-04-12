@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.controllers.maven;
 
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
@@ -42,7 +40,9 @@ public class MavenSearchControllerTest
     private static final String REPOSITORY_RELEASES = "sc-releases-search";
 
     private static final Path GENERATOR_BASEDIR = Paths.get(ConfigurationResourceResolver.getVaultDirectory())
-                                                       .resolve("local");
+                                                       .resolve("local")
+                                                       .resolve(STORAGE_SC_TEST)
+                                                       .resolve(REPOSITORY_RELEASES);
 
 
     public static void cleanUp()
@@ -62,17 +62,11 @@ public class MavenSearchControllerTest
         // prepare storage: create it from Java code instead of putting <storage/> in strongbox.xml
         createStorage(STORAGE_SC_TEST);
 
-        createRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), true);
+        Repository repository = createRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), true);
 
-        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
-
-        MavenArtifact a1 = generateArtifact(GENERATOR_BASEDIR.toString(), "org.carlspring.strongbox.searches:test-project:1.0.11.3");
-        MavenArtifact a2 = generateArtifact(GENERATOR_BASEDIR.toString(), "org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
-        MavenArtifact a3 = generateArtifact(GENERATOR_BASEDIR.toString(), "org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
-
-        artifactDeployer.deploy(a1, STORAGE_SC_TEST, REPOSITORY_RELEASES);
-        artifactDeployer.deploy(a2, STORAGE_SC_TEST, REPOSITORY_RELEASES);
-        artifactDeployer.deploy(a3, STORAGE_SC_TEST, REPOSITORY_RELEASES);
+        generateArtifact(repository.getBasedir(), "org.carlspring.strongbox.searches:test-project:1.0.11.3:jar");
+        generateArtifact(repository.getBasedir(), "org.carlspring.strongbox.searches:test-project:1.0.11.3.1:jar");
+        generateArtifact(repository.getBasedir(), "org.carlspring.strongbox.searches:test-project:1.0.11.3.2:jar");
 
         if (repositoryIndexManager.isPresent())
         {

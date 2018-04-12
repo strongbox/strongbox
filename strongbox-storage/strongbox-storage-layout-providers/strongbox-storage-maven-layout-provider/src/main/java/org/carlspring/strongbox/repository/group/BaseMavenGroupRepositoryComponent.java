@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.repository.group;
 
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -44,42 +45,41 @@ public abstract class BaseMavenGroupRepositoryComponent
     @Inject
     private ArtifactRoutingRulesChecker artifactRoutingRulesChecker;
 
-    public void cleanupGroupsContaining(final String storageId,
-                                        final String repositoryId,
-                                        final String artifactPath)
+    public void cleanupGroupsContaining(RepositoryPath repositoryPath)
             throws IOException
     {
-        cleanupGroupsContaining(storageId, repositoryId, artifactPath, new HashMap<>());
+        cleanupGroupsContaining(repositoryPath, new HashMap<>());
     }
 
-    private void cleanupGroupsContaining(final String storageId,
-                                         final String repositoryId,
-                                         final String artifactPath,
+    private void cleanupGroupsContaining(RepositoryPath repositoryPath,
                                          final Map<String, MutableBoolean> repositoryArtifactExistence)
             throws IOException
     {
-        final List<Repository> directParents = configurationManagementService.getGroupRepositoriesContaining(storageId,
-                                                                                                             repositoryId);
+        Repository repository = repositoryPath.getRepository();
+        final List<Repository> directParents = configurationManagementService.getGroupRepositoriesContaining(repository.getStorage().getId(),
+                                                                                                             repository.getId());
         if (CollectionUtils.isEmpty(directParents))
         {
             return;
         }
+        
+        String artifactPath = RepositoryFiles.stringValue(repositoryPath);
+        
         for (final Repository groupRepository : directParents)
         {
 
             boolean artifactExists = groupRepositoryArtifactExistenceChecker.artifactExistsInTheGroupRepositorySubTree(
                     groupRepository,
-                    artifactPath,
+                    repositoryPath,
                     repositoryArtifactExistence);
 
             if (!artifactExists)
             {
                 cleanupGroupWhenArtifactPathNoLongerExistsInSubTree(groupRepository, artifactPath);
             }
-
-            cleanupGroupsContaining(groupRepository.getStorage().getId(),
-                                    groupRepository.getId(),
-                                    artifactPath,
+            
+            LayoutProvider provider = layoutProviderRegistry.getProvider(groupRepository.getLayout());
+            cleanupGroupsContaining(provider.resolve(groupRepository).resolve(artifactPath),
                                     repositoryArtifactExistence);
         }
     }
@@ -89,13 +89,11 @@ public abstract class BaseMavenGroupRepositoryComponent
             throws IOException;
 
 
-    public void updateGroupsContaining(final String storageId,
-                                       final String repositoryId,
-                                       final String artifactPath)
+    public void updateGroupsContaining(RepositoryPath repositoryPath)
             throws IOException
     {
 
-        final UpdateCallback updateCallback = newInstance(storageId, repositoryId, artifactPath);
+        final UpdateCallback updateCallback = newInstance(repositoryPath);
         try
         {
             updateCallback.beforeUpdate();
@@ -105,37 +103,37 @@ public abstract class BaseMavenGroupRepositoryComponent
             return;
         }
 
-        final Repository repository = getRepository(storageId, repositoryId);
 
-        updateGroupsContaining(repository, artifactPath, Lists.newArrayList(repository), updateCallback);
+        Repository repository = repositoryPath.getRepository();
+        updateGroupsContaining(repositoryPath, Lists.newArrayList(repository), updateCallback);
     }
 
-    private void updateGroupsContaining(final Repository repository,
-                                        final String artifactPath,
+    private void updateGroupsContaining(RepositoryPath repositoryPath,
                                         final List<Repository> leafRoute,
                                         final UpdateCallback updateCallback)
             throws IOException
     {
+        Repository repository = repositoryPath.getRepository();
         final List<Repository> groupRepositories = configurationManagementService.getGroupRepositoriesContaining(
                 repository.getStorage().getId(), repository.getId());
         if (CollectionUtils.isEmpty(groupRepositories))
         {
             return;
         }
+        String artifactPath = RepositoryFiles.stringValue(repositoryPath);
         for (final Repository parent : groupRepositories)
         {
+            RepositoryPath parentRepositoryAbsolutePath = getRepositoryPath(parent);
+            RepositoryPath parentRepositoryArtifactAbsolutePath = parentRepositoryAbsolutePath.resolve(artifactPath);
+            
             if (!isOperationDeniedByRoutingRules(parent, leafRoute, artifactPath))
             {
-                final RepositoryPath parentRepositoryAbsolutePath = getRepositoryPath(parent);
-                final RepositoryPath parentRepositoryArtifactAbsolutePath = parentRepositoryAbsolutePath.resolve(
-                        artifactPath);
-
                 updateCallback.performUpdate(parentRepositoryArtifactAbsolutePath);
             }
 
             leafRoute.add(parent);
 
-            updateGroupsContaining(parent, artifactPath, leafRoute, updateCallback);
+            updateGroupsContaining(parentRepositoryArtifactAbsolutePath, leafRoute, updateCallback);
 
             leafRoute.remove(parent);
         }
@@ -154,11 +152,13 @@ public abstract class BaseMavenGroupRepositoryComponent
 
     protected boolean isOperationDeniedByRoutingRules(final Repository groupRepository,
                                                       final List<Repository> leafRoute,
-                                                      final String artifactPath)
+                                                      final String artifactPath) throws IOException
     {
         for (final Repository leaf : leafRoute)
         {
-            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), leaf.getId(), artifactPath))
+            LayoutProvider provider = layoutProviderRegistry.getProvider(leaf.getLayout());
+            RepositoryPath repositoryPath = provider.resolve(leaf).resolve(artifactPath);
+            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), repositoryPath))
             {
                 return true;
             }
@@ -166,9 +166,7 @@ public abstract class BaseMavenGroupRepositoryComponent
         return false;
     }
 
-    protected abstract UpdateCallback newInstance(final String storageId,
-                                                  final String repositoryId,
-                                                  final String artifactPath);
+    protected abstract UpdateCallback newInstance(RepositoryPath repositoryPath);
 
     protected Repository getRepository(final String storageId,
                                        final String repositoryId)

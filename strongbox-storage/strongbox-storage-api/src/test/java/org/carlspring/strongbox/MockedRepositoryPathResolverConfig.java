@@ -1,8 +1,10 @@
 package org.carlspring.strongbox;
 
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
@@ -11,8 +13,10 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,46 +30,49 @@ public class MockedRepositoryPathResolverConfig
 {
     @Bean
     @Primary
-    RepositoryPathResolver repositoryPathResolver(LayoutProviderRegistry layoutProviderRegistry)
+    RepositoryPathResolver repositoryPathResolver()
     {
-        return new RepositoryPathResolver()
+        return new TestRepositoryPathResolver();
+    }
+    
+    public class TestRepositoryPathResolver extends RepositoryPathResolver
+    {
+        
+        @Override
+        public RepositoryPath resolve(final Repository repository,
+                                      final String... paths)
         {
-
-            @Override
-            public RepositoryPath resolve(final Repository repository,
-                                          final String... paths)
+            final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+            if (layoutProvider != null)
             {
-                Objects.requireNonNull(repository, "Repository should be provided");
-
-                final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-                if (layoutProvider == null)
-                {
-                    FileSystem fileSystem = FileSystems.getDefault();
-                    RepositoryFileSystem repositoryFileSystem = new RepositoryFileSystem(repository,
-                                                                                         fileSystem,
-                                                                                         new RepositoryLayoutFileSystemProvider(fileSystem.provider(),
-                                                                                                                                null,
-                                                                                                                                null))
-                    {
-                        @Override
-                        public Set<String> getDigestAlgorithmSet()
-                        {
-                            throw new UnsupportedOperationException();
-                        }
-                    };
-
-                    return new RepositoryPath(Paths.get(repository.getBasedir(), paths), repositoryFileSystem);
-                }
-                RepositoryPath repositoryPath = layoutProvider.resolve(repository);
-                if (paths != null)
-                {
-                    for (final String path : paths)
-                    {
-                        repositoryPath = repositoryPath.resolve(path);
-                    }
-                }
-                return repositoryPath;
+                super.resolve(repository, paths);
             }
-        };
+            FileSystem fileSystem = FileSystems.getDefault();
+            RepositoryFileSystem repositoryFileSystem = new RepositoryFileSystem(repository,
+                                                                                 fileSystem,
+                                                                                 new RepositoryLayoutFileSystemProvider(fileSystem.provider(),
+                                                                                                                        null,
+                                                                                                                        null))
+            {
+                @Override
+                public Set<String> getDigestAlgorithmSet()
+                {
+                    return Collections.emptySet();
+                }
+            };
+            
+            RootRepositoryPath result = new RootRepositoryPath(Paths.get(repository.getBasedir()),
+                                                               repositoryFileSystem);
+            if (paths != null && paths.length == 1)
+            {
+                ArtifactEntry artifactEntry = new ArtifactEntry();
+                artifactEntry.setArtifactPath(paths[0]);
+                artifactEntry.setUuid(UUID.randomUUID().toString());
+                return result.resolve(artifactEntry);
+            }
+
+            return new RepositoryPath(Paths.get(repository.getBasedir(), paths), repositoryFileSystem);
+        }
+        
     }
 }

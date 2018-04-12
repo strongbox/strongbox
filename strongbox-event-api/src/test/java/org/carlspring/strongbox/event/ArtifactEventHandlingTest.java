@@ -1,18 +1,21 @@
 package org.carlspring.strongbox.event;
 
+import static org.junit.Assert.assertEquals;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.config.EventsConfig;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListener;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
-
-import javax.inject.Inject;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author mtodorov
@@ -38,10 +41,11 @@ public class ArtifactEventHandlingTest
 
         artifactEventListenerRegistry.addListener(listener);
 
-        ArtifactEvent artifactEvent = new ArtifactEvent("storage0",
-                                                        "releases",
-                                                        "foo/bar/1.2.3/bar-1.2.3.jar",
-                                                        ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADED.getType());
+        Path path = Paths.get("storage0",
+                              "releases",
+                              "foo/bar/1.2.3/bar-1.2.3.jar");
+        ArtifactEvent<Path> artifactEvent = new ArtifactEvent<>(path,
+                ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADED.getType());
 
         artifactEventListenerRegistry.dispatchEvent(artifactEvent);
 
@@ -49,13 +53,13 @@ public class ArtifactEventHandlingTest
     }
 
     private class DummyArtifactEventListener
-            implements ArtifactEventListener
+            implements ArtifactEventListener<Path>
     {
 
         boolean eventCaught = false;
 
         @Override
-        public void handle(ArtifactEvent event)
+        public void handle(ArtifactEvent<Path> event)
         {
             System.out.println("Caught artifact event type " + event.getType() + ".");
 

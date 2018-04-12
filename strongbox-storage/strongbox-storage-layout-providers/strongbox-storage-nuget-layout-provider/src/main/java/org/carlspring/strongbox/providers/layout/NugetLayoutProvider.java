@@ -76,7 +76,7 @@ public class NugetLayoutProvider
     @Override
     public NugetArtifactCoordinates getArtifactCoordinates(String path)
     {
-        return new NugetArtifactCoordinates(path);
+        return NugetArtifactCoordinates.parse(path);
     }
 
     @Override

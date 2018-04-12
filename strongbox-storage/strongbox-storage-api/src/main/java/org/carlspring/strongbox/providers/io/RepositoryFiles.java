@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.io;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,7 +38,13 @@ public abstract class RepositoryFiles
     {
         return (Boolean) Files.getAttribute(path, formatAttributes(RepositoryFileAttributeType.TEMP));
     }
-
+    
+    public static Boolean isIndex(RepositoryPath path)
+        throws IOException
+    {
+        return (Boolean) Files.getAttribute(path, formatAttributes(RepositoryFileAttributeType.INDEX));
+    }
+    
     public static Boolean isArtifact(RepositoryPath path)
         throws IOException
     {
@@ -116,10 +123,27 @@ public abstract class RepositoryFiles
     {
         return p.getFileSystem().provider().getTempPath(p);
     }
+    
+    public static RepositoryPath trash(RepositoryPath p)
+        throws IOException
+    {
+        return p.getFileSystem().provider().getTrashPath(p);
+    }
 
     public static String stringValue(RepositoryPath p)
         throws IOException
     {
         return relativizeUri(p).toString();
+    }
+    
+    public static URI resolveResource(RepositoryPath p)
+        throws IOException
+    {
+        if (RepositoryFiles.isArtifact(p))
+        {
+            ArtifactCoordinates c = RepositoryFiles.readCoordinates(p);
+            return c.toResource();
+        }
+        return relativizeUri(p);
     }
 }

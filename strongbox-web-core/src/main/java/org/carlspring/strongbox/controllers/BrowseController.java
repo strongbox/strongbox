@@ -2,6 +2,7 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.data.PropertyUtils;
 import org.carlspring.strongbox.domain.DirectoryListing;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
@@ -190,7 +191,7 @@ public class BrowseController extends BaseArtifactController
             }
 
             String currentUrl = StringUtils.chomp(request.getRequestURI(), "/");
-            String downloadBaseUrl = StringUtils.chomp(artifactResolutionService.resolveResource(storageId, repositoryId, rawPath).toString(), "/");
+            String downloadBaseUrl = StringUtils.chomp(artifactResolutionService.resolveResource(repositoryPath).toString(), "/");
 
             model.addAttribute("currentUrl", currentUrl);
             model.addAttribute("downloadBaseUrl", downloadBaseUrl);
@@ -217,8 +218,8 @@ public class BrowseController extends BaseArtifactController
     protected boolean isPermittedForDirectoryListing(final RepositoryPath repositoryPath)
             throws IOException
     {
-        final String relativePath = repositoryPath.relativize().toString();
-        return relativePath.startsWith(".index") || (!Files.isHidden(repositoryPath) && !relativePath.startsWith(".") && !relativePath.contains("/."));
+        return RepositoryFiles.isIndex(repositoryPath) || (!Files.isHidden(repositoryPath)
+                && !RepositoryFiles.isTrash(repositoryPath) && !RepositoryFiles.isTemp(repositoryPath));
     }
 
 }

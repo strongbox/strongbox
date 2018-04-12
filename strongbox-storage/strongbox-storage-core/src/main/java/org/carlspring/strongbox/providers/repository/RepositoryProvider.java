@@ -5,13 +5,10 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 
 /**
  * @author carlspring
@@ -21,15 +18,9 @@ public interface RepositoryProvider
 
     String getAlias();
 
-    RepositoryInputStream getInputStream(String storageId, String repositoryId, String path)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException;
-
-    RepositoryOutputStream getOutputStream(String storageId,
-                                           String repositoryId,
-                                           String path)
+    RepositoryInputStream getInputStream(Path path) throws IOException;
+    
+    RepositoryOutputStream getOutputStream(Path path)
             throws IOException, NoSuchAlgorithmException;
     
     List<Path> search(RepositorySearchRequest searchRequest, RepositoryPageRequest pageRequest);

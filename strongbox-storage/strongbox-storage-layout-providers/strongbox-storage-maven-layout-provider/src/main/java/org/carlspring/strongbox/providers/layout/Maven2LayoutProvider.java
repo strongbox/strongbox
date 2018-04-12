@@ -31,8 +31,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -123,44 +126,47 @@ public class Maven2LayoutProvider
         return mavenRepositoryFeatures.getDefaultArtifactCoordinateValidators();
     }
 
+    
+    
     @Override
-    public void delete(String storageId,
-                       String repositoryId,
-                       String path,
+    public void delete(RepositoryPath repositoryPath,
                        boolean force)
-            throws IOException, SearchException
+        throws IOException,
+        SearchException
     {
-        logger.debug("Removing " + storageId + ":" + repositoryId + ":" + path + "...");
+        logger.debug("Removing " + repositoryPath + "...");
 
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-        RepositoryPath repositoryPath = resolve(repository).resolve(path);
-
+        Repository repository = repositoryPath.getRepository();
+        Storage storage = repository.getStorage();
+        RepositoryPath repositoryPathRelative = repositoryPath.relativize();
+        
         if (!Files.isDirectory(repositoryPath))
         {
             delete(repositoryPath);
         }
         else
         {
-            String[] artifactCoordinateElements = path.split("/");
-            StringBuilder groupId = new StringBuilder();
-            for (int i = 0; i < artifactCoordinateElements.length - 2; i++)
+            List<String> artifactCoordinateElements = StreamSupport.stream(repositoryPathRelative.spliterator(), false)
+                                                                   .map(p -> p.toString())
+                                                                   .collect(Collectors.toList());
+            StringBuffer groupId = new StringBuffer();
+            for (int i = 0; i < artifactCoordinateElements.size() - 2; i++)
             {
-                String element = artifactCoordinateElements[i];
+                String element = artifactCoordinateElements.get(i);
                 groupId.append((groupId.length() == 0) ? element : "." + element);
             }
 
-            String artifactId = artifactCoordinateElements[artifactCoordinateElements.length - 2];
-            String version = artifactCoordinateElements[artifactCoordinateElements.length - 1];
+            String artifactId = artifactCoordinateElements.get(artifactCoordinateElements.size() - 2);
+            String version = artifactCoordinateElements.get(artifactCoordinateElements.size() - 1);
 
-            String pomFilePath = path + "/" + artifactId + "-" + version + ".pom";
+            Path pomFilePath = repositoryPathRelative.resolve(artifactId + "-" + version + ".pom");
 
             // If there is a pom file, read it.
             if (Files.exists(resolve(repository).resolve(pomFilePath)))
             {
                 // Run a search against the index and get a list of all the artifacts matching this exact GAV
-                SearchRequest request = new SearchRequest(storageId,
-                                                          repositoryId,
+                SearchRequest request = new SearchRequest(storage.getId(),
+                                                          repository.getId(),
                                                           "+g:" + groupId + " " +
                                                           "+a:" + artifactId + " " +
                                                           "+v:" + version,
@@ -183,10 +189,11 @@ public class Maven2LayoutProvider
             // Otherwise, this is either not an artifact directory, or not a valid Maven artifact
         }
 
-        deleteMetadata(storageId, repositoryId, path);
+        deleteMetadata(storage.getId(), repository.getId(), repositoryPathRelative.toString());
 
-        super.delete(storageId, repositoryId, path, force);
+        super.delete(repositoryPath, force);
     }
+
 
     protected void delete(RepositoryPath directory)
             throws IOException

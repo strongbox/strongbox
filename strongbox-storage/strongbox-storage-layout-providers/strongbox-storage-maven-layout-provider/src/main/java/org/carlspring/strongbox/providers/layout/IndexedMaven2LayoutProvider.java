@@ -119,24 +119,12 @@ public class IndexedMaven2LayoutProvider
     }
 
     @Override
-    public void undelete(String storageId,
-                         String repositoryId,
-                         String path)
+    public void undelete(RepositoryPath repositoryPath)
             throws IOException
     {
-        super.undelete(storageId, repositoryId, path);
+        super.undelete(repositoryPath);
 
-        artifactIndexesService.rebuildIndex(storageId, repositoryId, path);
-    }
-
-    @Override
-    public void undeleteTrash(String storageId,
-                              String repositoryId)
-            throws IOException
-    {
-        super.undeleteTrash(storageId, repositoryId);
-
-        artifactIndexesService.rebuildIndex(storageId, repositoryId, null);
+        artifactIndexesService.rebuildIndex(repositoryPath);
     }
 
     @Override

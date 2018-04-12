@@ -36,7 +36,6 @@ import static org.mockito.Matchers.any;
 @ContextConfiguration(classes = { RestAssuredConfig.class,
                                   WebConfig.class,
                                   MockedRemoteRepositoriesHeartbeatConfig.class,
-                                  MockedRepositoryPathResolverConfig.class,
                                   IntegrationTest.TestConfig.class })
 @WebAppConfiguration("classpath:")
 @WithUserDetails(value = "admin")

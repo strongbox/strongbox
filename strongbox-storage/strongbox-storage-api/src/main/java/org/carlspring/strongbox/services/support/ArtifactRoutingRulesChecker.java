@@ -2,9 +2,14 @@ package org.carlspring.strongbox.services.support;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
+
+import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -23,19 +28,18 @@ public class ArtifactRoutingRulesChecker
     private ConfigurationManager configurationManager;
 
     public boolean isDenied(String groupRepositoryId,
-                            String childRepositoryId,
-                            String artifactPath)
+                            RepositoryPath repositoryPath) throws IOException
     {
         final RuleSet denyRules = getRoutingRules().getDenyRules(groupRepositoryId);
         final RuleSet wildcardDenyRules = getRoutingRules().getWildcardDeniedRules();
         final RuleSet acceptRules = getRoutingRules().getAcceptRules(groupRepositoryId);
         final RuleSet wildcardAcceptRules = getRoutingRules().getWildcardAcceptedRules();
 
-        if (fitsRoutingRules(childRepositoryId, artifactPath, denyRules) ||
-            fitsRoutingRules(childRepositoryId, artifactPath, wildcardDenyRules))
+        if (fitsRoutingRules(repositoryPath, denyRules) ||
+            fitsRoutingRules(repositoryPath, wildcardDenyRules))
         {
-            if (!(fitsRoutingRules(childRepositoryId, artifactPath, acceptRules) ||
-                  fitsRoutingRules(childRepositoryId, artifactPath, wildcardAcceptRules)))
+            if (!(fitsRoutingRules(repositoryPath, acceptRules) ||
+                  fitsRoutingRules(repositoryPath, wildcardAcceptRules)))
             {
                 return true;
             }
@@ -46,10 +50,9 @@ public class ArtifactRoutingRulesChecker
     }
 
     public boolean isAccepted(String groupRepositoryId,
-                              String childRepositoryId,
-                              String artifactPath)
+                              RepositoryPath repositoryPath) throws IOException
     {
-        return !isDenied(groupRepositoryId, childRepositoryId, artifactPath);
+        return !isDenied(groupRepositoryId, repositoryPath);
     }
 
     private RoutingRules getRoutingRules()
@@ -62,15 +65,16 @@ public class ArtifactRoutingRulesChecker
         return configurationManager.getConfiguration();
     }
 
-    private boolean fitsRoutingRules(String repositoryId,
-                                     String artifactPath,
-                                     RuleSet denyRules)
+    private boolean fitsRoutingRules(RepositoryPath repositoryPath,
+                                     RuleSet denyRules) throws IOException
     {
+        Repository repository = repositoryPath.getRepository();
         if (denyRules != null && !denyRules.getRoutingRules().isEmpty())
         {
+            String artifactPath = RepositoryFiles.stringValue(repositoryPath);
             for (RoutingRule rule : denyRules.getRoutingRules())
             {
-                if (rule.getRepositories().contains(repositoryId) && artifactPath.matches(rule.getPattern()))
+                if (rule.getRepositories().contains(repository.getId()) && artifactPath.matches(rule.getPattern()))
                 {
                     return true;
                 }

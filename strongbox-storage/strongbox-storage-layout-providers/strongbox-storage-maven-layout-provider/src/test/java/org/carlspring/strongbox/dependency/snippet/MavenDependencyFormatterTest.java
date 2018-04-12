@@ -81,21 +81,6 @@ public class MavenDependencyFormatterTest
         generateArtifact(REPOSITORY_BASEDIR, "org.carlspring.strongbox:maven-snippet:jar:sources");
 
         reIndex(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox");
-
-        createArtifactEntry(new MavenArtifactCoordinates("org.carlspring.strongbox",
-                                                         "maven-snippet",
-                                                         "1.0",
-                                                         null,
-                                                         "jar"),
-                            STORAGE0,
-                            REPOSITORY_RELEASES);
-        createArtifactEntry(new MavenArtifactCoordinates("org.carlspring.strongbox",
-                                                         "maven-snippet",
-                                                         "2.0",
-                                                         "sources",
-                                                         "jar"),
-                            STORAGE0,
-                            REPOSITORY_RELEASES);
     }
 
     @After

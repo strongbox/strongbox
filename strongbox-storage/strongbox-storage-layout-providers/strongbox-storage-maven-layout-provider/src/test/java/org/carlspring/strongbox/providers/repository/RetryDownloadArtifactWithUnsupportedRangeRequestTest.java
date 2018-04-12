@@ -56,7 +56,7 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
         assertFalse(brokenArtifactInputStream.exceptionAlreadyThrown);
 
         //then
-        thrown.expect(ArtifactStorageException.class);
+        thrown.expect(IOException.class);
         thrown.expectMessage(containsString("does not support range requests."));
 
         // when

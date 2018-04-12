@@ -120,7 +120,7 @@ public class BaseMavenGroupRepositoryComponentTest
         createRepository(repository);
     }
 
-    protected void createGroup(String repositoryId,
+    protected Repository createGroup(String repositoryId,
                                String... leafs)
             throws Exception
     {
@@ -130,6 +130,8 @@ public class BaseMavenGroupRepositoryComponentTest
         repository.setGroupRepositories(Sets.newLinkedHashSet(Arrays.asList(leafs)));
 
         createRepository(repository);
+        
+        return repository;
     }
 
     @Before

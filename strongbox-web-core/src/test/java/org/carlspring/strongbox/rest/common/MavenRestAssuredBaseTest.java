@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.rest.common;
 
 import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenDetachedArtifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
@@ -11,6 +13,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Comparator;
@@ -52,12 +55,7 @@ public abstract class MavenRestAssuredBaseTest
     protected WebApplicationContext context;
 
     @Inject
-    private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
-
-    @Inject
     protected RestAssuredArtifactClient client;
-
-    private TestCaseWithMavenArtifactGeneration generator = new TestCaseWithMavenArtifactGeneration();
 
     private String contextBaseUrl;
     
@@ -134,7 +132,7 @@ public abstract class MavenRestAssuredBaseTest
     public String createSnapshotVersion(String baseSnapshotVersion,
                                         int buildNumber)
     {
-        return generator.createSnapshotVersion(baseSnapshotVersion, buildNumber);
+        return new TestCaseWithMavenArtifactGeneration().createSnapshotVersion(baseSnapshotVersion, buildNumber);
     }
 
     public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,
@@ -146,13 +144,29 @@ public abstract class MavenRestAssuredBaseTest
                                                            int numberOfBuilds)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        return generator.createTimestampedSnapshotArtifact(repositoryBasedir,
-                                                           groupId,
-                                                           artifactId,
-                                                           baseSnapshotVersion,
-                                                           packaging,
-                                                           classifiers,
-                                                           numberOfBuilds);
+        MavenArtifact artifact = null;
+
+        for (int i = 0; i < numberOfBuilds; i++)
+        {
+            String version = createSnapshotVersion(baseSnapshotVersion, i + 1);
+
+            artifact = new MavenDetachedArtifact(groupId, artifactId, version);
+            artifact.setPath(Paths.get(repositoryBasedir).resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
+
+            generateArtifact(repositoryBasedir, artifact, packaging);
+
+            if (classifiers != null)
+            {
+                for (String classifier : classifiers)
+                {
+                    String gavtc = groupId + ":" + artifactId + ":" + version + ":jar:" + classifier;
+                    generateArtifact(repositoryBasedir,MavenArtifactUtils.getArtifactFromGAVTC(gavtc));
+                }
+            }
+        }
+
+        // Return the main artifact
+        return artifact;
     }
 
 }

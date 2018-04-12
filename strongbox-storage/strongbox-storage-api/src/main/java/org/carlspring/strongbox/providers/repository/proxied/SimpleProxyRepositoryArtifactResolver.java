@@ -1,12 +1,9 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.support.ArtifactByteStreamsCopyStrategyDeterminator;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
@@ -20,7 +17,6 @@ import java.lang.annotation.Retention;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,22 +43,17 @@ public class SimpleProxyRepositoryArtifactResolver
 
     @Override
     protected InputStream onSuccessfulProxyRepositoryResponse(InputStream is,
-                                                              String storageId,
-                                                              String repositoryId,
-                                                              String path)
-            throws IOException, NoSuchAlgorithmException, ProviderImplementationException
+                                                              RepositoryPath repositoryPath)
+            throws IOException
     {
         final Path tempDir = Paths.get(ConfigurationResourceResolver.getTempDirectory());
         final Path tempPath = Files.createTempFile(tempDir, "strongbox", ".tmp");
 
+        Repository repository = repositoryPath.getFileSystem().getRepository();
         // buffered in ArtifactByteStreamsCopyStrategy.copy()
         try (final OutputStream tempPathOs = Files.newOutputStream(tempPath))
         {
-            final Storage storage = getConfiguration().getStorage(storageId);
-            final Repository repository = storage.getRepository(repositoryId);
-            final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-            final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-            artifactByteStreamsCopyStrategyDeterminator.determine(repository).copy(is, tempPathOs, artifactPath);
+            artifactByteStreamsCopyStrategyDeterminator.determine(repository).copy(is, tempPathOs, repositoryPath);
         }
 
         ResourceCloser.close(is, logger);

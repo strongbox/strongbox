@@ -5,6 +5,7 @@ import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -165,29 +166,35 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         createRepository(storageId, repositoryId, RepositoryPolicyEnum.RELEASE.getPolicy(), repositoryConfiguration);
     }
 
-    protected void createRepository(String storageId,
-                                    String repositoryId,
-                                    String policy,
-                                    boolean indexing)
-            throws IOException, JAXBException, RepositoryManagementStrategyException
+    protected Repository createRepository(String storageId,
+                                          String repositoryId,
+                                          String policy,
+                                          boolean indexing)
+        throws IOException,
+        JAXBException,
+        RepositoryManagementStrategyException
     {
         MavenRepositoryConfiguration repositoryConfiguration = new MavenRepositoryConfiguration();
         repositoryConfiguration.setIndexingEnabled(indexing);
 
-        createRepository(storageId, repositoryId, policy, repositoryConfiguration);
+        return createRepository(storageId, repositoryId, policy, repositoryConfiguration);
     }
 
-    protected void createRepository(String storageId,
-                                    String repositoryId,
-                                    String policy,
-                                    MavenRepositoryConfiguration repositoryConfiguration)
-            throws IOException, JAXBException, RepositoryManagementStrategyException
+    protected Repository createRepository(String storageId,
+                                          String repositoryId,
+                                          String policy,
+                                          MavenRepositoryConfiguration repositoryConfiguration)
+        throws IOException,
+        JAXBException,
+        RepositoryManagementStrategyException
     {
         Repository repository = mavenRepositoryFactory.createRepository(storageId, repositoryId);
         repository.setPolicy(policy);
         repository.setRepositoryConfiguration(repositoryConfiguration);
 
         createRepository(repository);
+        
+        return repository;
     }
 
     protected void createProxyRepository(String storageId,
@@ -409,11 +416,15 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                        final String path)
             throws Exception
     {
-        try (final InputStream is = artifactResolutionService.getInputStream(storageId, repositoryId, path))
+        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId,
+                                                                              repositoryId,
+                                                                              path);
+
+        try (final InputStream is = artifactResolutionService.getInputStream(repositoryPath))
         {
             assertNotNull("Failed to resolve " + path + "!", is);
 
-            if (ArtifactUtils.isMetadata(path))
+            if (RepositoryFiles.isMetadata(repositoryPath))
             {
                 System.out.println(ByteStreams.toByteArray(is));
             }

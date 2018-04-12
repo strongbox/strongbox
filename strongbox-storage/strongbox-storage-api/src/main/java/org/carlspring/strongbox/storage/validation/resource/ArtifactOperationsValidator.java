@@ -4,10 +4,12 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
@@ -36,14 +38,16 @@ public class ArtifactOperationsValidator
     {
     }
 
-    public void validate(String storageId,
-                         String repositoryId,
-                         String artifactPath)
+    public void validate(RepositoryPath repositoryPath)
             throws ArtifactResolutionException
     {
-        checkStorageExists(storageId);
-        checkRepositoryExists(storageId, repositoryId);
-        checkArtifactPath(artifactPath);
+        checkArtifactPath(repositoryPath);
+        
+        Repository repository = repositoryPath.getRepository();
+        Storage storage = repository.getStorage();
+        
+        checkStorageExists(storage.getId());
+        checkRepositoryExists(storage.getId(), repository.getId());
     }
 
     public void checkStorageExists(String storageId)
@@ -76,10 +80,10 @@ public class ArtifactOperationsValidator
         }
     }
 
-    public void checkArtifactPath(String artifactPath)
+    public void checkArtifactPath(RepositoryPath repositoryPath)
             throws ArtifactResolutionException
     {
-        if (artifactPath == null)
+        if (repositoryPath == null)
         {
             throw new ArtifactResolutionException("No artifact path specified.");
         }

@@ -2,13 +2,14 @@ package org.carlspring.strongbox.event.artifact;
 
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.SimpleProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -16,10 +17,8 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.function.Consumer;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -42,7 +41,7 @@ public class MavenArtifactFetchedFromRemoteEventListener
     private ProxyRepositoryArtifactResolver localStorageProxyRepositoryArtifactResolver;
 
     @Override
-    public void handle(final ArtifactEvent event)
+    public void handle(final ArtifactEvent<RepositoryPath> event)
     {
         final Repository repository = getRepository(event);
 
@@ -60,68 +59,62 @@ public class MavenArtifactFetchedFromRemoteEventListener
         updateMetadataInGroupsContainingRepository(event, path -> path.getParent().getParent());
     }
 
-    private void resolveArtifactMetadataAtArtifactIdLevel(final ArtifactEvent event)
+    private void resolveArtifactMetadataAtArtifactIdLevel(final ArtifactEvent<RepositoryPath> event)
     {
         try
         {
-            final Repository repository = getRepository(event);
-            final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-
-            final RepositoryPath repositoryAbsolutePath = layoutProvider.resolve(repository);
-            final RepositoryPath artifactAbsolutePath = repositoryAbsolutePath.resolve(event.getPath());
+            final RepositoryPath artifactAbsolutePath = event.getPath().toAbsolutePath();
             final RepositoryPath artifactBaseAbsolutePath = artifactAbsolutePath.getParent();
 
             final RepositoryPath metadataAbsolutePath = (RepositoryPath) MetadataHelper.getMetadataPath(
                     artifactBaseAbsolutePath,
                     null,
                     MetadataType.PLUGIN_GROUP_LEVEL);
-            final Path metadataRelativePath = metadataAbsolutePath.relativize();
-
             try
             {
                 mavenMetadataManager.readMetadata(artifactBaseAbsolutePath.getParent());
             }
             catch (final FileNotFoundException ex)
             {
-                downloadArtifactMetadataAtArtifactIdLevelFromRemote(event, metadataRelativePath);
+                downloadArtifactMetadataAtArtifactIdLevelFromRemote(metadataAbsolutePath);
                 return;
             }
 
-            downloadArtifactMetadataAtArtifactIdLevelFromRemoteAndMergeWithLocal(event, artifactAbsolutePath,
-                                                                                 metadataRelativePath);
+            downloadArtifactMetadataAtArtifactIdLevelFromRemoteAndMergeWithLocal(artifactAbsolutePath,
+                                                                                 metadataAbsolutePath);
         }
         catch (Exception e)
         {
             logger.error("Unable to resolve artifact metadata of file " + event.getPath() + " of repository " +
-                         event.getRepositoryId(), e);
+                         getRepository(event).getId(), e);
         }
     }
 
-    private void downloadArtifactMetadataAtArtifactIdLevelFromRemote(final ArtifactEvent event,
-                                                                     final Path metadataRelativePath)
+    private void downloadArtifactMetadataAtArtifactIdLevelFromRemote(RepositoryPath metadataRelativePath)
             throws Exception
     {
-        getMetadataInputStreamWithCallback(localStorageProxyRepositoryArtifactResolver, metadataRelativePath, event,
+        getMetadataInputStreamWithCallback(localStorageProxyRepositoryArtifactResolver, metadataRelativePath,
                                            IOUtils::closeQuietly);
     }
 
-    private void downloadArtifactMetadataAtArtifactIdLevelFromRemoteAndMergeWithLocal(final ArtifactEvent event,
-                                                                                      final Path artifactAbsolutePath,
-                                                                                      final Path metadataRelativePath)
+    private void downloadArtifactMetadataAtArtifactIdLevelFromRemoteAndMergeWithLocal(final RepositoryPath artifactAbsolutePath,
+                                                                                      final RepositoryPath metadataRelativePath)
             throws Exception
     {
 
         final MutableObject<Exception> operationException = new MutableObject<>();
-
-        getMetadataInputStreamWithCallback(simpleProxyRepositoryArtifactResolver, metadataRelativePath, event, is ->
+        final Repository repository = artifactAbsolutePath.getFileSystem().getRepository();
+        final Storage storage = repository.getStorage();
+        
+        getMetadataInputStreamWithCallback(simpleProxyRepositoryArtifactResolver, metadataRelativePath, is ->
         {
-            final MavenArtifact localArtifact = MavenArtifactUtils.convertPathToArtifact(event.getPath());
-            localArtifact.setPath(artifactAbsolutePath);
-
             try
             {
+                final MavenArtifact localArtifact = MavenArtifactUtils.convertPathToArtifact(RepositoryFiles.stringValue(artifactAbsolutePath));
+                localArtifact.setPath(artifactAbsolutePath);
+
                 final Metadata metadata = artifactMetadataService.getMetadata(is);
-                artifactMetadataService.mergeMetadata(event.getStorageId(), event.getRepositoryId(), localArtifact,
+                artifactMetadataService.mergeMetadata(storage.getId(), repository.getId(), localArtifact,
                                                       metadata);
             }
             catch (final Exception e)
@@ -141,16 +134,12 @@ public class MavenArtifactFetchedFromRemoteEventListener
     }
 
     private void getMetadataInputStreamWithCallback(final ProxyRepositoryArtifactResolver proxyRepositoryArtifactResolver,
-                                                    final Path metadataPath,
-                                                    final ArtifactEvent event,
+                                                    final RepositoryPath metadataPath,
                                                     final Consumer<InputStream> callback)
             throws Exception
     {
 
-        final InputStream metadataIs = proxyRepositoryArtifactResolver.getInputStream(event.getStorageId(),
-                                                                                      event.getRepositoryId(),
-                                                                                      FilenameUtils.separatorsToUnix(
-                                                                                              metadataPath.toString()));
+        final InputStream metadataIs = proxyRepositoryArtifactResolver.getInputStream(metadataPath);
         callback.accept(metadataIs);
     }
 }

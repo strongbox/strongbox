@@ -138,19 +138,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     }
     
     @Override
-    public URI resolveResource(Repository repository,
-                               String path) throws IOException
-    {
-        RepositoryPath repositoryPath = resolve(repository).resolve(path);
-        if (RepositoryFiles.isArtifact(repositoryPath))
-        {
-            ArtifactCoordinates c = RepositoryFiles.readCoordinates(repositoryPath);
-            return c.toResource();
-        }
-        return URI.create(path);
-    }
-
-    @Override
     public RepositoryPath resolve(Repository repository,
                                   URI resource)
     {
@@ -201,19 +188,19 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                      String path)
             throws IOException
     {
-        artifactEventListenerRegistry.dispatchArtifactCopyingEvent(srcStorageId,
-                                                                   srcRepositoryId,
-                                                                   destStorageId,
-                                                                   destRepositoryId,
-                                                                   path);
+//        artifactEventListenerRegistry.dispatchArtifactCopyingEvent(srcStorageId,
+//                                                                   srcRepositoryId,
+//                                                                   destStorageId,
+//                                                                   destRepositoryId,
+//                                                                   path);
 
         // TODO: Implement copying
 
-        artifactEventListenerRegistry.dispatchArtifactCopiedEvent(srcStorageId,
-                                                                  srcRepositoryId,
-                                                                  destStorageId,
-                                                                  destRepositoryId,
-                                                                  path);
+//        artifactEventListenerRegistry.dispatchArtifactCopiedEvent(srcStorageId,
+//                                                                  srcRepositoryId,
+//                                                                  destStorageId,
+//                                                                  destRepositoryId,
+//                                                                  path);
     }
 
     @Override
@@ -224,19 +211,19 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                      String path)
             throws IOException
     {
-        artifactEventListenerRegistry.dispatchArtifactMovingEvent(srcStorageId,
-                                                                  srcRepositoryId,
-                                                                  destStorageId,
-                                                                  destRepositoryId,
-                                                                  path);
+//        artifactEventListenerRegistry.dispatchArtifactMovingEvent(srcStorageId,
+//                                                                  srcRepositoryId,
+//                                                                  destStorageId,
+//                                                                  destRepositoryId,
+//                                                                  path);
 
         // TODO: Implement moving
 
-        artifactEventListenerRegistry.dispatchArtifactMovedEvent(srcStorageId,
-                                                                 srcRepositoryId,
-                                                                 destStorageId,
-                                                                 destRepositoryId,
-                                                                 path);
+//        artifactEventListenerRegistry.dispatchArtifactMovedEvent(srcStorageId,
+//                                                                 srcRepositoryId,
+//                                                                 destStorageId,
+//                                                                 destRepositoryId,
+//                                                                 path);
     }
 
     @Override
@@ -250,8 +237,18 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         Repository repository = storage.getRepository(repositoryId);
 
         RepositoryPath repositoryPath = resolve(repository).resolve(path);
+        delete(repositoryPath, force);
+    }
+    
+    
 
-        logger.debug("Checking in " + storageId + ":" + repositoryId + "(" + path + ")...");
+    @Override
+    public void delete(RepositoryPath repositoryPath,
+                       boolean force)
+        throws IOException,
+        SearchException
+    {
+        logger.debug("Checking in (" + repositoryPath + ")...");
         
         if (!Files.exists(repositoryPath))
         {
@@ -260,13 +257,13 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             return;
         }
 
-        RepositoryFileSystemProvider provider = getProvider(repository);
+        RepositoryFileSystemProvider provider = getProvider(repositoryPath.getRepository());
         provider.setAllowsForceDelete(force);
         provider.delete(repositoryPath);
 
-        artifactEventListenerRegistry.dispatchArtifactPathDeletedEvent(storageId, repositoryId, path);
+        artifactEventListenerRegistry.dispatchArtifactPathDeletedEvent(repositoryPath);
 
-        logger.debug("Removed /" + repositoryId + "/" + path);
+        logger.debug(String.format("Removed [%s]", repositoryPath));        
     }
 
     @Override
@@ -318,48 +315,21 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     }
 
     @Override
-    public void undelete(String storageId,
-                         String repositoryId,
-                         String path)
+    public void undelete(RepositoryPath repositoryPath)
             throws IOException
     {
-        logger.debug(String.format("Attempting to restore: storageId-[%s]; repoId-[%s]; path-[%s]; ",
-                                   storageId,
-                                   repositoryId,
-                                   path));
+        logger.debug(String.format("Attempting to restore: path-[%s]; ",
+                                   repositoryPath));
 
-        Repository repository = getRepository(storageId, repositoryId);
-        RepositoryPath artifactPath = resolve(repository).resolve(path);
+        Repository repository = repositoryPath.getFileSystem().getRepository();
+        Storage storage = repository.getStorage();
         RepositoryFileSystemProvider provider = getProvider(repository);
         
-        provider.undelete(artifactPath);
+        provider.undelete(repositoryPath);
 
-        repositoryEventListenerRegistry.dispatchUndeleteTrashEvent(storageId, repositoryId);
+        repositoryEventListenerRegistry.dispatchUndeleteTrashEvent(storage.getId(), repository.getId());
 
-        logger.debug("The trash for " + storageId + ":" + repositoryId + " has been undeleted.");
-    }
-
-    @Override
-    public void undeleteTrash(String storageId,
-                              String repositoryId)
-            throws IOException
-    {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-
-        logger.debug("Restoring all artifacts from the trash of " + storageId + ":" + repository.getId() + "...");
-
-        if (!repository.isTrashEnabled())
-        {
-            logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
-        }
-
-        RepositoryPath path = resolve(repository);
-        getProvider(repository).undelete(path);
-
-        repositoryEventListenerRegistry.dispatchUndeleteTrashEvent(storageId, repositoryId);
-
-        logger.debug("The trash for all repositories in " + storageId + " has been undeleted.");
+        logger.debug("The trash for " + storage.getId() + ":" + repository.getId() + " has been undeleted.");
     }
 
     @Override
@@ -375,7 +345,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             final Map<String, Repository> repositories = storage.getRepositories();
             for (Repository repository : repositories.values())
             {
-                undeleteTrash(storage.getId(), repository.getId());
+                LayoutProvider provider = layoutProviderRegistry.getProvider(repository.getLayout());
+                undelete(provider.resolve(repository));
 
                 trashUndeleted = true;
             }
@@ -385,18 +356,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         {
             repositoryEventListenerRegistry.dispatchUndeleteTrashForAllRepositoriesEvent();
         }
-    }
-
-    @Override
-    public boolean contains(String storageId,
-                            String repositoryId,
-                            String path)
-            throws IOException
-    {
-        Repository repository = getRepository(storageId, repositoryId);
-        RepositoryPath artifactPath = resolve(repository).resolve(path);
-        
-        return Files.exists(artifactPath);
     }
 
     @Override
@@ -431,11 +390,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                         String path)
             throws IOException
     {
-        artifactEventListenerRegistry.dispatchArtifactArchivingEvent(storageId, repositoryId, path);
-
+        //artifactEventListenerRegistry.dispatchArtifactArchivingEvent(storageId, repositoryId, path);
         // TODO: Implement archiving
-
-        artifactEventListenerRegistry.dispatchArtifactArchivedEvent(storageId, repositoryId, path);
+        //artifactEventListenerRegistry.dispatchArtifactArchivedEvent(storageId, repositoryId, path);
     }
 
     protected boolean isChecksum(String fileName)
@@ -477,15 +434,24 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                 
                 break;
             case INDEX:
-                value = repositoryPath.relativize().startsWith(RepositoryFileSystem.INDEX);
-                
+                value = repositoryPath.isAbsolute()
+                        && repositoryPath.startsWith(repositoryPath.getFileSystem()
+                                                                   .getRootDirectory()
+                                                                   .resolve(RepositoryFileSystem.INDEX));
+
                 break;
             case TEMP:
-                value = repositoryPath.relativize().startsWith(RepositoryFileSystem.TEMP);
-                
+                value = repositoryPath.isAbsolute()
+                        && repositoryPath.startsWith(repositoryPath.getFileSystem()
+                                                                   .getRootDirectory()
+                                                                   .resolve(RepositoryFileSystem.TEMP));
+
                 break;
             case TRASH:
-                value = repositoryPath.relativize().startsWith(RepositoryFileSystem.TRASH);
+                value = repositoryPath.isAbsolute()
+                        && repositoryPath.startsWith(repositoryPath.getFileSystem()
+                                                                   .getRootDirectory()
+                                                                   .resolve(RepositoryFileSystem.TRASH));
                 
                 break;
             case METADATA:

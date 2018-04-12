@@ -12,7 +12,6 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -21,7 +20,6 @@ import org.carlspring.strongbox.event.CommonEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
@@ -61,32 +59,58 @@ public class ProxyRepositoryProvider
     }
 
     @Override
-    public RepositoryInputStream getInputStream(String storageId,
-                                                String repositoryId,
-                                                String path)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
+    protected RepositoryInputStream getInputStream(RepositoryPath path)
+        throws IOException
     {
-        InputStream is = proxyRepositoryArtifactResolver.getInputStream(storageId, repositoryId, path);
-        return decorate(storageId, repositoryId, path, is);
+        return hostedRepositoryProvider.getInputStream(path);
     }
 
+
+
     @Override
-    public RepositoryOutputStream getOutputStream(String storageId,
-                                                  String repositoryId,
-                                                  String artifactPath)
-            throws IOException,
-                   NoSuchAlgorithmException
+    public RepositoryPath resolvePath(String storageId,
+                                      String repositoryId,
+                                      String artifactPath)
+        throws IOException
+    {
+        RepositoryPath targetPath = hostedRepositoryProvider.resolvePath(storageId, repositoryId, artifactPath);
+        if (targetPath != null && Files.isDirectory(targetPath))
+        {
+            return targetPath;
+        }
+        return Optional.ofNullable(targetPath)
+                       .orElse(resolvePathForceFetch(storageId, repositoryId, artifactPath));
+    }
+
+    public RepositoryPath resolvePathForceFetch(String storageId,
+                                                String repositoryId,
+                                                String artifactPath) throws IOException
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-
-        LayoutProvider layoutPtovider = getLayoutProviderRegistry().getProvider(repository.getLayout());
-        RepositoryPath repositoryPath = layoutPtovider.resolve(repository).resolve(artifactPath);
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
+        
+        try(InputStream is = proxyRepositoryArtifactResolver.getInputStream(repositoryPath);)
+        {
+            IOUtils.closeQuietly(is);
+            return repositoryPath;
+        }
+        catch (IOException e)
+        {
+            logger.error(String.format("Failed to resolve Path for proxied artifact [%s]/[%s]/[%s]", storageId,
+                                       repositoryId, artifactPath),
+                         e);
+            throw e;
+        }
+    }    
+    
+    @Override
+    protected RepositoryOutputStream getOutputStream(RepositoryPath repositoryPath)
+            throws IOException
+    {
         ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
         
-        return decorate(storageId, repositoryId, artifactPath, aos);
+        return decorate(repositoryPath, aos);
     }
     
     @Override
@@ -125,38 +149,5 @@ public class ProxyRepositoryProvider
 
         return artifactEntry;
     }
-    
-    @Override
-    public RepositoryPath resolvePath(String storageId,
-                                      String repositoryId,
-                                      String artifactPath)
-        throws IOException
-    {
-        RepositoryPath targetPath = hostedRepositoryProvider.resolvePath(storageId, repositoryId, artifactPath);
-        if (targetPath != null && Files.isDirectory(targetPath))
-        {
-            return targetPath;
-        }
-        return Optional.ofNullable(targetPath)
-                       .orElse(resolvePathForceFetch(storageId, repositoryId, artifactPath));
-    }
 
-    public RepositoryPath resolvePathForceFetch(String storageId,
-                                                String repositoryId,
-                                                String artifactPath)
-    {
-        try
-        {
-            Optional.ofNullable(proxyRepositoryArtifactResolver.getInputStream(storageId, repositoryId, artifactPath))
-                    .ifPresent(s -> IOUtils.closeQuietly(s));
-            return hostedRepositoryProvider.resolvePath(storageId, repositoryId, artifactPath);
-        }
-        catch (Exception e)
-        {
-            logger.error(String.format("Failed to resolve Path for prixied artifact [%s]/[%s]/[%s]", storageId,
-                                       repositoryId, artifactPath),
-                         e);
-            return null;
-        }
-    }
 }

@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -288,17 +289,17 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                                REPOSITORY_GROUP,
-                                                                "com/artifacts/in/releases/one/foo/1.2.3/foo-1.2.3.jar"))
+        try (InputStream is = repositoryProvider.getInputStream(repositoryProvider.resolvePath(STORAGE0,
+                                                                                               REPOSITORY_GROUP,
+                                                                                               "com/artifacts/in/releases/one/foo/1.2.3/foo-1.2.3.jar")))
         {
 
             assertNotNull(is);
         }
 
-        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                                REPOSITORY_GROUP,
-                                                                "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"))
+        try (InputStream is = repositoryProvider.getInputStream(repositoryProvider.resolvePath(STORAGE0,
+                                                                                               REPOSITORY_GROUP,
+                                                                                               "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar")))
         {
 
             assertNotNull(is);
@@ -312,9 +313,9 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                                REPOSITORY_GROUP,
-                                                                "com/artifacts/in/releases/under/group/maven-metadata.xml"))
+        Path repositoryPath = repositoryProvider.resolvePath(STORAGE0, REPOSITORY_GROUP,
+                                                             "com/artifacts/in/releases/under/group/maven-metadata.xml");
+        try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
 
             assertNotNull(is);
@@ -341,9 +342,9 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                                REPOSITORY_GROUP,
-                                                                "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"))
+        try (InputStream is = repositoryProvider.getInputStream(repositoryProvider.resolvePath(STORAGE0,
+                                                                                               REPOSITORY_GROUP,
+                                                                                               "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar")))
         {
 
             configuration = configurationManagementService.getConfiguration();
@@ -366,9 +367,9 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                                REPOSITORY_GROUP,
-                                                                "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"))
+        try (InputStream is = repositoryProvider.getInputStream(repositoryProvider.resolvePath(STORAGE0,
+                                                                                               REPOSITORY_GROUP,
+                                                                                               "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar")))
         {
             assertNotNull(is);
         }
@@ -386,9 +387,9 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                                REPOSITORY_GROUP_WITH_NESTED_GROUP_1,
-                                                                "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"))
+        try (InputStream is = repositoryProvider.getInputStream(repositoryProvider.resolvePath(STORAGE0,
+                                                                                               REPOSITORY_GROUP_WITH_NESTED_GROUP_1,
+                                                                                               "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar")))
         {
             assertNotNull(is);
         }
@@ -406,9 +407,9 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                                REPOSITORY_GROUP_WITH_NESTED_GROUP_2,
-                                                                "org/carlspring/metadata/by/juan/juancho/1.2.64/juancho-1.2.64.jar"))
+        try (InputStream is = repositoryProvider.getInputStream(repositoryProvider.resolvePath(STORAGE0,
+                                                                                               REPOSITORY_GROUP_WITH_NESTED_GROUP_2,
+                                                                                               "org/carlspring/metadata/by/juan/juancho/1.2.64/juancho-1.2.64.jar")))
         {
             assertNotNull(is);
         }
@@ -426,9 +427,9 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                                REPOSITORY_GROUP,
-                                                                "com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar"))
+        try (InputStream is = repositoryProvider.getInputStream(repositoryProvider.resolvePath(STORAGE0,
+                                                                                               REPOSITORY_GROUP,
+                                                                                               "com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar")))
         {
             assertNull(is);
         }
@@ -446,17 +447,17 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                                REPOSITORY_GROUP,
-                                                                "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar"))
+        try (InputStream is = repositoryProvider.getInputStream(repositoryProvider.resolvePath(STORAGE0,
+                                                                                               REPOSITORY_GROUP,
+                                                                                               "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar")))
         {
             assertNull(is);
         }
 
         // This one should work, as it's in a different repository
-        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                                REPOSITORY_GROUP,
-                                                                "com/artifacts/denied/by/wildcard/foo/1.2.7/foo-1.2.7.jar"))
+        try (InputStream is = repositoryProvider.getInputStream(repositoryProvider.resolvePath(STORAGE0,
+                                                                                               REPOSITORY_GROUP,
+                                                                                               "com/artifacts/denied/by/wildcard/foo/1.2.7/foo-1.2.7.jar")))
         {
             assertNotNull(is);
         }
@@ -471,9 +472,9 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        try (InputStream is = repositoryProvider.getInputStream(STORAGE0,
-                                                                REPOSITORY_GROUP,
-                                                                "org/carlspring/metadata/will/not/be/retrieved/1.2.64/retrieved-1.2.64.jar"))
+        try (InputStream is = repositoryProvider.getInputStream(repositoryProvider.resolvePath(STORAGE0,
+                                                                                               REPOSITORY_GROUP,
+                                                                                               "org/carlspring/metadata/will/not/be/retrieved/1.2.64/retrieved-1.2.64.jar")))
         {
 
             assertNull(is);

@@ -91,7 +91,7 @@ public class ArtifactManagementServiceImplTest
 
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
-
+    
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
@@ -208,7 +208,7 @@ public class ArtifactManagementServiceImplTest
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.0:jar";
 
             File repositoryDir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES);
-            is = generateArtifactInputStream(repositoryDir.getAbsolutePath(),
+            is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
                                              REPOSITORY_RELEASES_WITHOUT_DELETE,
                                              gavtc,
                                              true);
@@ -245,7 +245,7 @@ public class ArtifactManagementServiceImplTest
             File repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT);
             generateArtifact(repositoryBasedir.getAbsolutePath(), gavtc);
 
-            is = generateArtifactInputStream(repositoryBasedir.getAbsolutePath(),
+            is = generateArtifactInputStream(repositoryBasedir.toPath().getParent().toAbsolutePath().toString(),
                                              REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT,
                                              gavtc,
                                              true);
@@ -278,9 +278,8 @@ public class ArtifactManagementServiceImplTest
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.2:jar";
 
             MavenArtifact artifact = MavenArtifactUtils.getArtifactFromGAVTC(gavtc);
-            mavenArtifactManagementService.delete(STORAGE0,
-                                                  REPOSITORY_RELEASES_WITHOUT_DELETE,
-                                                  MavenArtifactUtils.convertArtifactToPath(artifact),
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DELETE, MavenArtifactUtils.convertArtifactToPath(artifact));
+            mavenArtifactManagementService.delete(repositoryPath,
                                                   false);
 
             fail("Failed to deny artifact operation for repository with disallowed deletions.");
@@ -305,7 +304,8 @@ public class ArtifactManagementServiceImplTest
         try
         {
             File repositoryDir = getRepositoryBasedir(STORAGE0, REPOSITORY_GROUP);
-            is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), REPOSITORY_GROUP, gavtc, true);
+            is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
+                                             REPOSITORY_GROUP, gavtc, true);
 
             mavenArtifactManagementService.validateAndStore(STORAGE0,
                                                             REPOSITORY_GROUP,
@@ -345,13 +345,14 @@ public class ArtifactManagementServiceImplTest
             ResourceCloser.close(is, null);
         }
 
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY_GROUP,
+                                                                       MavenArtifactUtils.convertArtifactToPath(artifact));
+
         // Delete: Case 1: No forcing
         //noinspection EmptyCatchBlock
         try
         {
-            mavenArtifactManagementService.delete(STORAGE0,
-                                                  REPOSITORY_GROUP,
-                                                  MavenArtifactUtils.convertArtifactToPath(artifact),
+            mavenArtifactManagementService.delete(repositoryPath,
                                                   false);
 
             fail("Failed to deny artifact operation for repository with disallowed deletions (non-forced test).");
@@ -369,9 +370,7 @@ public class ArtifactManagementServiceImplTest
         //noinspection EmptyCatchBlock
         try
         {
-            mavenArtifactManagementService.delete(STORAGE0,
-                                                  REPOSITORY_GROUP,
-                                                  MavenArtifactUtils.convertArtifactToPath(artifact),
+            mavenArtifactManagementService.delete(repositoryPath,
                                                   true);
 
             fail("Failed to deny artifact operation for repository with disallowed deletions (forced test).");
@@ -392,14 +391,15 @@ public class ArtifactManagementServiceImplTest
                    ArtifactTransportException,
                    ProviderImplementationException
     {
-        InputStream is = mavenArtifactManagementService.resolve(STORAGE0,
-                                                                REPOSITORY_GROUP,
-                                                                "org/carlspring/strongbox/strongbox-utils/7.3/strongbox-utils-7.3.jar");
-
-        assertFalse("Failed to resolve artifact from group repository!", is == null);
-        assertTrue("Failed to resolve artifact from group repository!", is.available() > 0);
-
-        is.close();
+        RepositoryPath path = mavenArtifactManagementService.getPath(STORAGE0,
+                                                                     REPOSITORY_GROUP,
+                                                                     "org/carlspring/strongbox/strongbox-utils/7.3/strongbox-utils-7.3.jar");
+        
+        try (InputStream is = mavenArtifactManagementService.resolve(path))
+        {
+            assertFalse("Failed to resolve artifact from group repository!", is == null);
+            assertTrue("Failed to resolve artifact from group repository!", is.available() > 0);
+        }
     }
 
     @Test
@@ -407,17 +407,19 @@ public class ArtifactManagementServiceImplTest
             throws IOException
     {
         final String artifactPath = "org/carlspring/strongbox/strongbox-utils/7.0/strongbox-utils-7.0.jar";
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY_RELEASES,
+                                                                       artifactPath);
 
-        mavenArtifactManagementService.delete(STORAGE0, REPOSITORY_RELEASES, artifactPath, true);
+        mavenArtifactManagementService.delete(repositoryPath, true);
 
         assertFalse("Failed to delete artifact during a force delete operation!",
                     new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES), artifactPath).exists());
 
         final String artifactPath2 = "org/carlspring/strongbox/strongbox-utils/7.2/strongbox-utils-7.2.jar";
-
-        mavenArtifactManagementService.delete(STORAGE0,
-                                              REPOSITORY_RELEASES_WITH_TRASH,
-                                              artifactPath2,
+        repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY_RELEASES_WITH_TRASH,
+                                                        artifactPath2);
+        
+        mavenArtifactManagementService.delete(repositoryPath,
                                               true);
 
         final File repositoryDir = new File(getStorageBasedir(STORAGE0), REPOSITORY_RELEASES_WITH_TRASH + "/.trash");

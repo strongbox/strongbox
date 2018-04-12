@@ -15,7 +15,7 @@ public class MavenArtifactUpdatedEventListener
 {
 
     @Override
-    public void handle(final ArtifactEvent event)
+    public void handle(final ArtifactEvent<RepositoryPath> event)
     {
         final Repository repository = getRepository(event);
 

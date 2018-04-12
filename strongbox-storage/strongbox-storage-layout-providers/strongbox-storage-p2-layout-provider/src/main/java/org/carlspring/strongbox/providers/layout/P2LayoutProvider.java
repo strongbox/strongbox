@@ -116,18 +116,6 @@ public class P2LayoutProvider
     }
 
     @Override
-    public boolean contains(String storageId,
-                            String repositoryId,
-                            String path)
-            throws IOException
-    {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-
-        return containsArtifact(repository, P2ArtifactCoordinates.create(path));
-    }
-
-    @Override
     public boolean containsPath(Repository repository,
                                 String path)
             throws IOException

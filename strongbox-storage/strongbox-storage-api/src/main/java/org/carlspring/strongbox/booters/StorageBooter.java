@@ -201,9 +201,18 @@ public class StorageBooter
     private void initializeRepository(Repository repository)
             throws IOException, RepositoryManagementStrategyException
     {
+        logger.debug("  * Initializing '" + repository.getId() + "'...");
+
+        if (layoutProviderRegistry.getProvider(repository.getLayout()) == null)
+        {
+            logger.error(String.format("Failed to resolve layout [%s] for repository [%s].", repository.getLayout(),
+                                       repository.getId()));
+            return;
+        }
+        
         final RepositoryPath repositoryBasedir = repositoryPathResolver.resolve(repository);
 
-        logger.debug("  * Initializing '" + repositoryBasedir.toAbsolutePath().toString() + "'...");
+        logger.debug("  * Repository path resolved '" + repositoryBasedir.toAbsolutePath().toString() + "'...");
 
         repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
 

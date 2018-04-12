@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.config;
 
+import java.nio.file.Path;
+
 import org.carlspring.strongbox.client.RestArtifactResolverFactory;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
@@ -47,9 +49,7 @@ public class MockedRestArtifactResolverTestConfig
         final ArtifactEventListenerRegistry artifactEventListenerRegistry = Mockito.mock(
                 ArtifactEventListenerRegistry.class);
         Mockito.doNothing().when(artifactEventListenerRegistry).dispatchArtifactFetchedFromRemoteEvent(
-                Matchers.any(String.class),
-                Matchers.any(String.class),
-                Matchers.any(String.class));
+                Matchers.any(Path.class));
         return artifactEventListenerRegistry;
     }
 

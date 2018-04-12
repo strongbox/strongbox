@@ -71,7 +71,9 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
                                                                                              path);
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
-        try (final InputStream ignored = proxyRepositoryProvider.getInputStream(storageId, repositoryId, path))
+        try (final InputStream ignored = proxyRepositoryProvider.getInputStream(proxyRepositoryProvider.resolvePath(storageId,
+                                                                                                                    repositoryId,
+                                                                                                                    path)))
         {
         }
 

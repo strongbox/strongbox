@@ -89,39 +89,27 @@ public class MavenIndexGroupRepositoryComponent
     }
 
     @Override
-    protected UpdateCallback newInstance(final String storageId,
-                                         final String repositoryId,
-                                         final String artifactPath)
+    protected UpdateCallback newInstance(RepositoryPath repositoryPath)
     {
-        return new IndexUpdateCallback(storageId, repositoryId, artifactPath);
+        return new IndexUpdateCallback(repositoryPath);
     }
 
     class IndexUpdateCallback
             implements UpdateCallback
     {
 
-        private final String initiatorStorageId;
+        private final RepositoryPath initiatorRepositoryPath;
 
-        private final String initiatorRepositoryId;
-
-        private final String initiatorArtifactPath;
-
-        IndexUpdateCallback(final String storageId,
-                            final String repositoryId,
-                            final String artifactPath)
+        IndexUpdateCallback(RepositoryPath repositoryPath)
         {
-            this.initiatorStorageId = storageId;
-            this.initiatorRepositoryId = repositoryId;
-            this.initiatorArtifactPath = artifactPath;
+            this.initiatorRepositoryPath = repositoryPath;
         }
 
         @Override
         public void performUpdate(final RepositoryPath parentRepositoryArtifactAbsolutePath)
                 throws IOException
         {
-            final Repository initiatorRepository = getRepository(initiatorStorageId, initiatorRepositoryId);
-            final RepositoryPath repositoryAbsolutePath = getRepositoryPath(initiatorRepository);
-            final RepositoryPath artifactAbsolutePath = repositoryAbsolutePath.resolve(initiatorArtifactPath);
+            final RepositoryPath artifactAbsolutePath = initiatorRepositoryPath.toAbsolutePath();
 
             final Repository parent = parentRepositoryArtifactAbsolutePath.getFileSystem().getRepository();
             final String contextId = IndexContextHelper.getContextId(parent.getStorage().getId(), parent.getId(),

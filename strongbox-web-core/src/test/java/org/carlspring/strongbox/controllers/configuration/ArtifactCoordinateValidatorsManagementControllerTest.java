@@ -78,9 +78,9 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
 
         createRepository(repository3);
 
-        Repository repository4 = new Repository("single-validator-only");
+        Repository repository4 = mavenRepositoryFactory.createRepository(STORAGE0,
+                                                                         "single-validator-only");
         repository4.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository4.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repository4.setArtifactCoordinateValidators(
                 new LinkedHashSet<>(Collections.singletonList(redeploymentValidator.getAlias())));
 

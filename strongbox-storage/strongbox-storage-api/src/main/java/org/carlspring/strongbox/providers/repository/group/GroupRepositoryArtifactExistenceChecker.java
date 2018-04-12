@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.providers.repository.group;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -27,14 +29,14 @@ public class GroupRepositoryArtifactExistenceChecker
     private LayoutProviderRegistry layoutProviderRegistry;
 
     public boolean artifactExistsInTheGroupRepositorySubTree(final Repository groupRepository,
-                                                             final String artifactPath)
+                                                             final RepositoryPath repositoryPath)
             throws IOException
     {
-        return artifactExistsInTheGroupRepositorySubTree(groupRepository, artifactPath, new HashMap<>());
+        return artifactExistsInTheGroupRepositorySubTree(groupRepository, repositoryPath, new HashMap<>());
     }
 
     public boolean artifactExistsInTheGroupRepositorySubTree(final Repository groupRepository,
-                                                             final String artifactPath,
+                                                             final RepositoryPath repositoryPath,
                                                              final Map<String, MutableBoolean> repositoryArtifactExistence)
             throws IOException
     {
@@ -54,7 +56,7 @@ public class GroupRepositoryArtifactExistenceChecker
             if (subRepository.isGroupRepository())
             {
                 boolean artifactExistence = artifactExistsInTheGroupRepositorySubTree(subRepository,
-                                                                                      artifactPath,
+                                                                                      repositoryPath,
                                                                                       repositoryArtifactExistence);
                 if (artifactExistence)
                 {
@@ -65,7 +67,7 @@ public class GroupRepositoryArtifactExistenceChecker
             else
             {
                 final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(subRepository.getLayout());
-                if (layoutProvider.containsPath(subRepository, artifactPath))
+                if (layoutProvider.containsPath(subRepository, RepositoryFiles.stringValue(repositoryPath)))
                 {
                     repositoryArtifactExistence.get(storageAndRepositoryId).setTrue();
                     return true;

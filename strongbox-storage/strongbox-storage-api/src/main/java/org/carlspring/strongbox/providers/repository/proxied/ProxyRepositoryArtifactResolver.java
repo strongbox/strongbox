@@ -9,6 +9,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -19,6 +20,9 @@ import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteReposi
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -48,17 +52,13 @@ public abstract class ProxyRepositoryArtifactResolver
     @Inject
     protected RestArtifactResolverFactory restArtifactResolverFactory;
 
-    public InputStream getInputStream(final String storageId,
-                                      final String repositoryId,
-                                      final String path)
-            throws IOException, ArtifactTransportException, NoSuchAlgorithmException, ProviderImplementationException
+    public InputStream getInputStream(RepositoryPath repositoryPath)
+        throws IOException
     {
-        final Storage storage = getConfiguration().getStorage(storageId);
-        final Repository repository = storage.getRepository(repositoryId);
+        Repository repository = repositoryPath.getFileSystem().getRepository();
+        getLogger().debug(String.format("Checking in [%s]...", repositoryPath));
 
-        getLogger().debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
-
-        final InputStream candidate = preProxyRepositoryAccessAttempt(repository, path);
+        final InputStream candidate = preProxyRepositoryAccessAttempt(repositoryPath);
         if (candidate != null)
         {
             return candidate;
@@ -76,19 +76,7 @@ public abstract class ProxyRepositoryArtifactResolver
                                                                                          remoteRepository.getUsername(),
                                                                                          remoteRepository.getPassword()))
         {
-            final LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-
-            URI resource;
-            try
-            {
-                resource = layoutProvider.resolveResource(repository, path);
-            }
-            catch (IllegalArgumentException e)
-            {
-                //Artifact path was invalid. Couldn't locate the requested path.
-                return null;
-            }
-
+            URI resource = RepositoryFiles.resolveResource(repositoryPath);
             try (final CloseableRestResponse closeableRestResponse = client.get(resource.toString()))
             {
                 final Response response = closeableRestResponse.getResponse();
@@ -103,15 +91,15 @@ public abstract class ProxyRepositoryArtifactResolver
                 {
                     return null;
                 }
+                is = new BufferedInputStream(is);
 
-                is = onSuccessfulProxyRepositoryResponse(is, storageId, repositoryId, path);
+                is = onSuccessfulProxyRepositoryResponse(is, repositoryPath);
 
-                RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath,
+                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(repositoryPath,
                                                                                        RepositoryFileAttributes.class);
                 if (!artifactFileAttributes.isChecksum() && !artifactFileAttributes.isMetadata())
                 {
-                    artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(storageId, repositoryId, path);
+                    artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(repositoryPath);
                 }
 
                 return is;
@@ -120,16 +108,13 @@ public abstract class ProxyRepositoryArtifactResolver
     }
 
     protected InputStream onSuccessfulProxyRepositoryResponse(final InputStream is,
-                                                              final String storageId,
-                                                              final String repositoryId,
-                                                              final String path)
-            throws IOException, NoSuchAlgorithmException, ProviderImplementationException
+                                                              final RepositoryPath repositoryPath)
+            throws IOException
     {
         return is;
     }
 
-    protected InputStream preProxyRepositoryAccessAttempt(Repository repository,
-                                                          String path)
+    protected InputStream preProxyRepositoryAccessAttempt(RepositoryPath p)
             throws IOException
     {
         return null;

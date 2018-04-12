@@ -2,9 +2,14 @@ package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.controllers.BaseController;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import javax.ws.rs.QueryParam;
@@ -39,6 +44,9 @@ public class MavenIndexController
 
     @Inject
     private ArtifactIndexesService artifactIndexesService;
+    
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
 
 
     @ApiOperation(value = "Used to rebuild the indexes in a repository or for artifact.", position = 0)
@@ -70,8 +78,12 @@ public class MavenIndexController
         {
             if (storageId != null && repositoryId != null)
             {
+                Storage storage = layoutProviderRegistry.getStorage(storageId);
+                Repository repository = storage.getRepository(repositoryId);
+                LayoutProvider provider = layoutProviderRegistry.getProvider(repository.getLayout());
+                RepositoryPath repositoryPath = provider.resolve(repository).resolve(path);
                 // Rebuild the index for a path under in a repository under a specified storage
-                artifactIndexesService.rebuildIndex(storageId, repositoryId, path);
+                artifactIndexesService.rebuildIndex(repositoryPath);
             }
             if (storageId != null && repositoryId == null)
             {

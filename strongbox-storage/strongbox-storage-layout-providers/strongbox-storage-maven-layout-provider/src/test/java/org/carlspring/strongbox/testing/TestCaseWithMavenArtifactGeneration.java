@@ -4,8 +4,14 @@ import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenDetachedArtifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.repository.HostedRepositoryProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -15,8 +21,11 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,6 +50,12 @@ public class TestCaseWithMavenArtifactGeneration
 
     @Inject
     MavenRepositoryFeatures features;
+    
+    @Inject
+    HostedRepositoryProvider hostedRepositoryProvider;
+    
+    @Inject
+    RepositoryPathResolver repositoryPathResolver;
 
     public MavenArtifact generateArtifact(String basedir, String gavtc)
             throws IOException,
@@ -69,7 +84,7 @@ public class TestCaseWithMavenArtifactGeneration
     {
         artifact.setPath(basedir.resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
 
-        MavenArtifactGenerator generator = new MavenArtifactGenerator(basedir.toAbsolutePath().toString());
+        MavenArtifactGenerator generator = createArtifactGenerator(basedir.toAbsolutePath().toString());
         generator.generate(artifact);
     }
 
@@ -80,7 +95,7 @@ public class TestCaseWithMavenArtifactGeneration
     {
         artifact.setPath(Paths.get(basedir).resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
 
-        MavenArtifactGenerator generator = new MavenArtifactGenerator(basedir);
+        MavenArtifactGenerator generator = createArtifactGenerator(basedir);
         generator.generate(artifact);
     }
 
@@ -91,17 +106,55 @@ public class TestCaseWithMavenArtifactGeneration
     {
         artifact.setPath(Paths.get(basedir).resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
 
-        MavenArtifactGenerator generator = new MavenArtifactGenerator(basedir);
+        MavenArtifactGenerator generator = createArtifactGenerator(basedir);
         generator.generate(artifact, packaging);
     }
 
-    public static void generateArtifact(String basedir, String gavtc, String... versions)
+    public void generateArtifact(String basedir, String gavtc, String... versions)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        MavenArtifactGenerator generator = new MavenArtifactGenerator(basedir);
+        MavenArtifactGenerator generator = createArtifactGenerator(basedir);
         generator.generate(gavtc, versions);
+    }
+
+    protected MavenArtifactGenerator createArtifactGenerator(String basedir)
+    {
+        return new MavenArtifactGenerator(basedir) {
+
+            @Override
+            protected OutputStream newOutputStream(File artifactFile)
+                throws IOException
+            {
+                Path basePath = Paths.get(basedir);
+                Path artifactPath = artifactFile.toPath();
+                
+                String path = basePath.relativize(artifactPath).toString();
+                
+                Path repositoryBasePath = basePath;
+                if (repositoryBasePath.endsWith(RepositoryFileSystem.TEMP) || repositoryBasePath.endsWith(RepositoryFileSystem.TEMP))
+                {
+                    repositoryBasePath = repositoryBasePath.getParent();
+                }
+                String storageId = repositoryBasePath.getParent().getFileName().toString();
+                String repositoryId = repositoryBasePath.getFileName().toString();
+                
+                RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
+                
+                if (basePath.endsWith(RepositoryFileSystem.TEMP))
+                {
+                    repositoryPath = RepositoryFiles.temporary(repositoryPath);
+                }
+                else if (basePath.endsWith(RepositoryFileSystem.TRASH))
+                {
+                    repositoryPath = RepositoryFiles.trash(repositoryPath);
+                }
+                
+                return hostedRepositoryProvider.getOutputStream(repositoryPath);
+            }
+            
+        };
     }
 
     public void generateArtifact(String basedir, String gavtc, String packaging, String... versions)
@@ -109,7 +162,7 @@ public class TestCaseWithMavenArtifactGeneration
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        MavenArtifactGenerator generator = new MavenArtifactGenerator(basedir);
+        MavenArtifactGenerator generator = createArtifactGenerator(basedir);
         generator.generate(gavtc, packaging, versions);
     }
 
@@ -118,7 +171,7 @@ public class TestCaseWithMavenArtifactGeneration
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        MavenArtifactGenerator generator = new MavenArtifactGenerator(basedir);
+        MavenArtifactGenerator generator = createArtifactGenerator(basedir);
         generator.generate(gavtc, "maven-plugin", versions);
     }
 

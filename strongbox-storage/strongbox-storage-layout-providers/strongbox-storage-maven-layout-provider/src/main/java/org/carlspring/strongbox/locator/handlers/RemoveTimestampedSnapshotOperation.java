@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
@@ -108,10 +109,9 @@ public class RemoveTimestampedSnapshotOperation
                 }
             }
             
-            RepositoryPath artifactPath = path.relativize();
             try
             {
-                mavenSnapshotManager.deleteTimestampedSnapshotArtifacts(artifactPath.getFileSystem().getRepository(), artifactPath.toString(), request,
+                mavenSnapshotManager.deleteTimestampedSnapshotArtifacts(path.getRepository(), RepositoryFiles.stringValue(path), request,
                                                                         numberToKeep, keepPeriod);
             }
             catch (IOException |
@@ -120,7 +120,7 @@ public class RemoveTimestampedSnapshotOperation
                    ParseException |
                    XmlPullParserException e)
             {
-                logger.error("Failed to delete timestamped snapshot artifacts for " + artifactPath, e);
+                logger.error("Failed to delete timestamped snapshot artifacts for " + path, e);
             }
         }
     }

@@ -7,7 +7,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -15,7 +14,6 @@ import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.data.criteria.Projection;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -31,6 +29,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 /**
  * @author carlspring
@@ -52,51 +51,39 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         return ALIAS;
     }
 
-    @Override
-    public RepositoryInputStream getInputStream(String storageId,
-                                                String repositoryId,
-                                                String path)
-            throws IOException
-    {        
-        return newInputStream(resolvePath(storageId, repositoryId, path));
-    }
-    
-    protected RepositoryInputStream newInputStream(RepositoryPath path)
+    protected RepositoryInputStream getInputStream(RepositoryPath repositoryPath)
     {
-        if (path == null)
+        if (repositoryPath == null)
         {
             return null;
         }
+        if (!Files.exists(repositoryPath))
+        {
+            logger.debug(String.format("Path not exists [%s]", repositoryPath));
+            return null;
+        }
 
-        Repository repository = path.getFileSystem().getRepository();
+        Repository repository = repositoryPath.getFileSystem().getRepository();
         try
         {
-            return decorate(repository.getStorage().getId(), repository.getId(), RepositoryFiles.stringValue(path),
-                            Files.newInputStream(path));
+            String path = RepositoryFiles.stringValue(repositoryPath);
+            return decorate(repository.getStorage().getId(), repository.getId(), path,
+                            Files.newInputStream(repositoryPath));
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to decorate InputStream for [%s]", path), e);
+            logger.error(String.format("Failed to decorate InputStream for [%s]", repositoryPath), e);
             return null;
         }
     }
 
     @Override
-    public RepositoryOutputStream getOutputStream(String storageId,
-                                                  String repositoryId,
-                                                  String path)
-            throws IOException, NoSuchAlgorithmException
+    public RepositoryOutputStream getOutputStream(RepositoryPath repositoryPath)
+            throws IOException
     {
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-
-        LayoutProvider layoutPtovider = getLayoutProviderRegistry().getProvider(repository.getLayout());
-        RepositoryPath repositoryPath = layoutPtovider.resolve(repository).resolve(path);
         ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
         
-        return decorate(storageId,
-                        repositoryId,
-                        path,
-                        aos);
+        return decorate(repositoryPath, aos);
     }
 
     @Override
@@ -157,28 +144,27 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
         if (repository == null)
         {
-            logger.warn(String.format("Trying to resolve repository which not exists [%s].", repositoryId));
+            logger.error(String.format("Tried to resolve a repository (%s) which does not exist.", repositoryId));
             return null;
         }
         
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         if (layoutProvider == null)
         {
-            logger.warn(String.format("Trying to resolve repository with unknown layout [%s].", repository.getLayout()));
+            logger.error(String.format("Trying to resolve repository with unknown layout [%s].", repository.getLayout()));
             return null;
         }
         
-        final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-
+        RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
         logger.debug(" -> Checking local cache for {} ...", artifactPath);
-        if (layoutProvider.containsPath(repository, path))
+        if (!Files.exists(artifactPath))
         {
-            logger.debug("The artifact {} was found in the local cache", artifactPath);
-            return artifactPath;
+            //TODO: we shouldn't return null here.
+            logger.debug("The artifact {} was not found in the local cache", artifactPath);
+            return null;
         }
-
-        logger.debug("The artifact {} was not found in the local cache", artifactPath);
         
-        return null;
+        logger.debug("The artifact {} was found in the local cache", artifactPath);
+        return artifactPath;
     }
 }

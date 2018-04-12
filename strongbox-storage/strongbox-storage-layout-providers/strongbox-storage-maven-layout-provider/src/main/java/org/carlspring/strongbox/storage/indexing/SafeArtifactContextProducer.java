@@ -1,8 +1,12 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.maven.index.ArtifactContext;
 import org.apache.maven.index.DefaultArtifactContextProducer;
@@ -18,6 +22,8 @@ public class SafeArtifactContextProducer
         extends DefaultArtifactContextProducer
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(SafeArtifactContextProducer.class);
+    
     private final RepositoryPath artifactPath;
 
     public SafeArtifactContextProducer(final ArtifactPackagingMapper mapper,
@@ -40,6 +46,14 @@ public class SafeArtifactContextProducer
                                  final String repositoryPath,
                                  final String artifactPath)
     {
-        return context.getGavCalculator().pathToGav(this.artifactPath.relativize().toString().replace('\\', '/'));
+        try
+        {
+            return context.getGavCalculator().pathToGav(RepositoryFiles.stringValue(this.artifactPath));
+        }
+        catch (IOException e)
+        {
+            logger.error(String.format("Failed to resolve artifact path [%s]", this.artifactPath), e);
+            return null;
+        }
     }
 }
