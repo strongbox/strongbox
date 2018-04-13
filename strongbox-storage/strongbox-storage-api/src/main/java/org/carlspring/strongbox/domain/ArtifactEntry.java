@@ -43,6 +43,8 @@ public class ArtifactEntry
     private Date lastUpdated;
 
     private Date lastUsed;
+
+    private Date created;
     
     private Integer downloadCount = Integer.valueOf(0);
 
@@ -129,6 +131,16 @@ public class ArtifactEntry
     public void setLastUsed(Date lastUsed)
     {
         this.lastUsed = lastUsed != null ? new Date(lastUsed.getTime()) : null;
+    }
+
+    public Date getCreated()
+    {
+        return created != null ? new Date(created.getTime()) : null;
+    }
+
+    public void setCreated(Date created)
+    {
+        this.created = created != null ? new Date(created.getTime()) : null;
     }
 
     public Integer getDownloadCount()
