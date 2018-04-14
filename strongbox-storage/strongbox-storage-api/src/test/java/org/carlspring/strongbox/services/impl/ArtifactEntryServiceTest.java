@@ -42,6 +42,22 @@ public class ArtifactEntryServiceTest
     @Inject
     ArtifactEntryService artifactEntryService;
 
+
+
+    @Test
+    public void saveEntityShouldWork()
+        throws Exception
+    {
+
+        ArtifactEntry artifactEntry = new ArtifactEntry();
+        artifactEntry.setStorageId(storageId);
+        artifactEntry.setRepositoryId(repositoryId);
+        artifactEntry.setArtifactCoordinates(new NullArtifactCoordinates(String.format("%s/%s/%s/%s", groupId, artifactId + "123", "1.2.3", "jar")));
+
+        ArtifactEntry savedArtifactEntry = artifactEntryService.save(artifactEntry);
+        assertThat(savedArtifactEntry.getCreated(), CoreMatchers.notNullValue());
+    }
+
     @Test
     public void cascadeUpdateShouldWork()
         throws Exception
