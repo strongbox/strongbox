@@ -27,6 +27,7 @@
             <o:property name="artifactPath" type="string" />
             <o:property name="sizeInBytes" type="long" />
             <o:property name="downloadCount" type="integer" />
+            <o:property name="created" type="date" />
             <o:property name="lastUpdated" type="date" />
             <o:property name="lastUsed" type="date" />
         </o:createClass>
