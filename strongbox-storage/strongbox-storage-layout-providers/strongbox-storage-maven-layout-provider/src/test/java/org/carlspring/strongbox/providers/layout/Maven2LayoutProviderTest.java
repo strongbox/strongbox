@@ -110,7 +110,10 @@ public class Maven2LayoutProviderTest
         assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
 
         layoutProvider.delete(STORAGE0, REPOSITORY_RELEASES, path, false);
-        ((Maven2LayoutProvider) layoutProvider).closeIndex(STORAGE0, REPOSITORY_RELEASES, path);
+        if (layoutProvider instanceof IndexedMaven2LayoutProvider)
+        {
+            ((IndexedMaven2LayoutProvider) layoutProvider).closeIndex(STORAGE0, REPOSITORY_RELEASES, path);
+        }
 
         assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
     }
@@ -131,7 +134,10 @@ public class Maven2LayoutProviderTest
         assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
 
         layoutProvider.delete(STORAGE0, REPOSITORY_RELEASES, path, false);
-        ((Maven2LayoutProvider) layoutProvider).closeIndex(STORAGE0, REPOSITORY_RELEASES, path);
+        if (layoutProvider instanceof IndexedMaven2LayoutProvider)
+        {
+            ((IndexedMaven2LayoutProvider) layoutProvider).closeIndex(STORAGE0, REPOSITORY_RELEASES, path);
+        }
 
         assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
     }

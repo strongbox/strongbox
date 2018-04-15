@@ -213,7 +213,7 @@ public class BaseMavenGroupRepositoryComponentTest
 
         for (Repository repository : repositories)
         {
-            getRepositoryIndexManager().closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
+            closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
         }
 
         removeRepositories(repositories);

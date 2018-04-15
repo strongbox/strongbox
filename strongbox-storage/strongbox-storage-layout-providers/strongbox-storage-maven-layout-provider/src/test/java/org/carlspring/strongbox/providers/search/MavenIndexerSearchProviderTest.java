@@ -10,9 +10,11 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 import javax.inject.Inject;
 import java.nio.file.Files;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -57,13 +59,19 @@ public class MavenIndexerSearchProviderTest
     private ArtifactManagementService artifactManagementService;
 
     @Inject
-    private MavenIndexerSearchProvider mavenIndexerSearchProvider;
+    private Optional<MavenIndexerSearchProvider> mavenIndexerSearchProvider;
 
     @BeforeClass
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    @Before
+    public void isIndexingEnabled()
+    {
+        Assume.assumeTrue(mavenIndexerSearchProvider.isPresent());
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -118,7 +126,7 @@ public class MavenIndexerSearchProviderTest
                                                   query,
                                                   MavenIndexerSearchProvider.ALIAS);
 
-        assertTrue(mavenIndexerSearchProvider.contains(request));
+        assertTrue(mavenIndexerSearchProvider.get().contains(request));
     }
 
 
@@ -144,7 +152,7 @@ public class MavenIndexerSearchProviderTest
                                                   query,
                                                   MavenIndexerSearchProvider.ALIAS);
 
-        assertTrue(mavenIndexerSearchProvider.contains(request));
+        assertTrue(mavenIndexerSearchProvider.get().contains(request));
     }
 
     @Test
@@ -160,7 +168,7 @@ public class MavenIndexerSearchProviderTest
                                                   "+classnames:propertiesresources",
                                                   MavenIndexerSearchProvider.ALIAS);
 
-        assertTrue(mavenIndexerSearchProvider.contains(request));
+        assertTrue(mavenIndexerSearchProvider.get().contains(request));
     }
 
     @Test
@@ -175,7 +183,7 @@ public class MavenIndexerSearchProviderTest
                                                   "+classnames:org +classnames:carlspring +classnames:ioc +classnames:propertyvalueinjector",
                                                   MavenIndexerSearchProvider.ALIAS);
 
-        assertTrue(mavenIndexerSearchProvider.contains(request));
+        assertTrue(mavenIndexerSearchProvider.get().contains(request));
     }
 
     @Test
@@ -191,7 +199,7 @@ public class MavenIndexerSearchProviderTest
                                                   "+classnames:propertiesresources",
                                                   MavenIndexerSearchProvider.ALIAS);
 
-        assertTrue(mavenIndexerSearchProvider.contains(request));
+        assertTrue(mavenIndexerSearchProvider.get().contains(request));
     }
 
     @Test
@@ -206,7 +214,7 @@ public class MavenIndexerSearchProviderTest
                                                   "+classnames:org +classnames:carlspring +classnames:ioc +classnames:propertyvalueinjector",
                                                   MavenIndexerSearchProvider.ALIAS);
 
-        assertTrue(mavenIndexerSearchProvider.contains(request));
+        assertTrue(mavenIndexerSearchProvider.get().contains(request));
     }
 
 
@@ -223,7 +231,7 @@ public class MavenIndexerSearchProviderTest
                                                   "+classnames:propertiesresources",
                                                   MavenIndexerSearchProvider.ALIAS);
 
-        assertFalse(mavenIndexerSearchProvider.contains(request));
+        assertFalse(mavenIndexerSearchProvider.get().contains(request));
     }
 
     @Test
@@ -238,7 +246,7 @@ public class MavenIndexerSearchProviderTest
                                                   "+classnames:org +classnames:carlspring +classnames:ioc +classnames:propertyvalueinjector",
                                                   MavenIndexerSearchProvider.ALIAS);
 
-        assertFalse(mavenIndexerSearchProvider.contains(request));
+        assertFalse(mavenIndexerSearchProvider.get().contains(request));
     }
 
     @Test
@@ -254,7 +262,7 @@ public class MavenIndexerSearchProviderTest
                                                   "+classnames:propertiesresources",
                                                   MavenIndexerSearchProvider.ALIAS);
 
-        assertFalse(mavenIndexerSearchProvider.contains(request));
+        assertFalse(mavenIndexerSearchProvider.get().contains(request));
     }
 
     @Test
@@ -269,7 +277,7 @@ public class MavenIndexerSearchProviderTest
                                                   "+classnames:org +classnames:carlspring +classnames:ioc +classnames:propertyvalueinjector",
                                                   MavenIndexerSearchProvider.ALIAS);
 
-        assertFalse(mavenIndexerSearchProvider.contains(request));
+        assertFalse(mavenIndexerSearchProvider.get().contains(request));
     }
 
     @After
@@ -279,7 +287,7 @@ public class MavenIndexerSearchProviderTest
         Set<Repository> repositories = getRepositoriesToClean();
         for (Repository repository : repositories)
         {
-            getRepositoryIndexManager().closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
+            closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
         }
         removeRepositories(getRepositoriesToClean());
         cleanUp();

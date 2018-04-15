@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
+
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.Map;
 import org.apache.maven.index.Indexer;
 import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Component;
  */
 @Component("indexerConfiguration")
 @Scope("singleton")
+@Conditional(MavenIndexerEnabledCondition.class)
 public class IndexerConfiguration
 {
 

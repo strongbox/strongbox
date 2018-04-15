@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
+import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.locator.handlers.MavenIndexerManagementOperation;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.Storage;
@@ -23,12 +24,14 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Kate Novik.
  */
 @Component("artifactIndexesService")
+@Conditional(MavenIndexerEnabledCondition.class)
 public class ArtifactIndexesServiceImpl
         implements ArtifactIndexesService
 {
@@ -45,7 +48,7 @@ public class ArtifactIndexesServiceImpl
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
-    private MavenRepositoryFeatures features;
+    private IndexedMavenRepositoryFeatures features;
 
     @Inject
     private MavenIndexGroupRepositoryComponent mavenIndexGroupRepositoryComponent;

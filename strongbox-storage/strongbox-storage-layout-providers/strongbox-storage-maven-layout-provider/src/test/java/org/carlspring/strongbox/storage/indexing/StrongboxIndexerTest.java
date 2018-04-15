@@ -9,6 +9,7 @@ import org.carlspring.strongbox.util.IndexContextHelper;
 import javax.inject.Inject;
 import java.nio.file.Files;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.lucene.search.Query;
@@ -20,6 +21,7 @@ import org.apache.maven.index.expr.SourcedSearchExpression;
 import org.apache.maven.index.expr.UserInputSearchExpression;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -61,7 +63,13 @@ public class StrongboxIndexerTest
     private ArtifactManagementService artifactManagementService;
 
     @Inject
-    private Indexer indexer;
+    private Optional<Indexer> indexer;
+
+    @Before
+    public void isIndexingEnabled()
+    {
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
+    }
 
     @BeforeClass
     public static void cleanUp()
@@ -95,6 +103,9 @@ public class StrongboxIndexerTest
     public void indexerShouldBeCapableToSearchByClassName()
             throws Exception
     {
+        Indexer indexer = this.indexer.get();
+        RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
+
         artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_1,
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar",
                                                    jarArtifact.getInputStream());
@@ -113,6 +124,9 @@ public class StrongboxIndexerTest
     public void indexerShouldBeCapableToSearchByFQN()
             throws Exception
     {
+        Indexer indexer = this.indexer.get();
+        RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
+
         artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_1,
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar",
                                                    jarArtifact.getInputStream());
@@ -132,6 +146,9 @@ public class StrongboxIndexerTest
     public void indexerShouldBeCapableToSearchByFullSha1Hash()
             throws Exception
     {
+        Indexer indexer = this.indexer.get();
+        RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
+
         String sha1 = Files.readAllLines(getVaultDirectoryPath()
                                                  .resolve("storages")
                                                  .resolve(STORAGE0)
@@ -157,6 +174,9 @@ public class StrongboxIndexerTest
     public void indexerShouldBeCapableToSearchByPartialSha1Hash()
             throws Exception
     {
+        Indexer indexer = this.indexer.get();
+        RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
+
         String sha1 = Files.readAllLines(getVaultDirectoryPath()
                                                  .resolve("storages")
                                                  .resolve(STORAGE0)
@@ -183,6 +203,9 @@ public class StrongboxIndexerTest
     public void indexerShouldBeCapableToSearchByClassNameFromZippedArtifact()
             throws Exception
     {
+        Indexer indexer = this.indexer.get();
+        RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
+
         artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_1,
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip",
                                                    zipArtifact.getInputStream());
@@ -201,6 +224,9 @@ public class StrongboxIndexerTest
     public void indexerShouldBeCapableToSearchByFQNFromZippedArtifact()
             throws Exception
     {
+        Indexer indexer = this.indexer.get();
+        RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
+
         artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_1,
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip",
                                                    zipArtifact.getInputStream());
@@ -220,7 +246,7 @@ public class StrongboxIndexerTest
     public void removeRepositories()
             throws Exception
     {
-        getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
         removeRepositories(getRepositoriesToClean());
         cleanUp();
     }

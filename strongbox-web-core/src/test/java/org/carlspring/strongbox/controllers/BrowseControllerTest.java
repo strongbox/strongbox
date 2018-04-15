@@ -90,7 +90,7 @@ public class BrowseControllerTest
     {
         try
         {
-            getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY);
+            closeIndexersForRepository(STORAGE0, REPOSITORY);
         }
         catch (IOException e)
         {

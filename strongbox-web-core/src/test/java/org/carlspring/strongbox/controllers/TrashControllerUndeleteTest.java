@@ -18,7 +18,6 @@ import java.util.Set;
 
 import com.google.common.base.Throwables;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpHeaders;
@@ -125,8 +124,8 @@ public class TrashControllerUndeleteTest
     {
         try
         {
-            getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_WITH_TRASH);
-            getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
+            closeIndexersForRepository(STORAGE0, REPOSITORY_WITH_TRASH);
+            closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
             removeRepositories();
         }
         catch (IOException | JAXBException e)

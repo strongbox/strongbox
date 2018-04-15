@@ -13,14 +13,23 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Optional;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author Pablo Tirado
@@ -36,12 +45,12 @@ public class StoragesConfigurationController
 
     private final RepositoryManagementService repositoryManagementService;
 
-    private final RepositoryIndexManager repositoryIndexManager;
+    private final Optional<RepositoryIndexManager> repositoryIndexManager;
 
     public StoragesConfigurationController(ConfigurationManagementService configurationManagementService,
                                            StorageManagementService storageManagementService,
                                            RepositoryManagementService repositoryManagementService,
-                                           RepositoryIndexManager repositoryIndexManager)
+                                           Optional<RepositoryIndexManager> repositoryIndexManager)
     {
         super(configurationManagementService);
         this.storageManagementService = storageManagementService;
@@ -127,7 +136,8 @@ public class StoragesConfigurationController
         {
             try
             {
-                repositoryIndexManager.closeIndexersForStorage(storageId);
+                repositoryIndexManager.ifPresent(
+                        repositoryIndexManager -> repositoryIndexManager.closeIndexersForStorage(storageId));
 
                 if (force)
                 {
@@ -260,7 +270,10 @@ public class StoragesConfigurationController
         {
             try
             {
-                repositoryIndexManager.closeIndexer(storageId + ":" + repositoryId);
+                if (repositoryIndexManager.isPresent())
+                {
+                    repositoryIndexManager.get().closeIndexer(storageId + ":" + repositoryId);
+                }
 
                 final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
                 if (!Files.exists(repositoryPath) && force)

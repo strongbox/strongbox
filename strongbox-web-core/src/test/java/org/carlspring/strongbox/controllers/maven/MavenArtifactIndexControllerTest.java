@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
@@ -17,11 +18,12 @@ import com.google.common.base.Throwables;
 import io.restassured.http.Header;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.CoreMatchers;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
@@ -64,6 +66,12 @@ public class MavenArtifactIndexControllerTest
         return repositories;
     }
 
+    @Before
+    public void isIndexingEnabled()
+    {
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
+    }
+
     @Override
     public void init()
             throws Exception
@@ -100,8 +108,8 @@ public class MavenArtifactIndexControllerTest
     {
         try
         {
-            getRepositoryIndexManager().closeIndexersForRepository(STORAGE_ID, REPOSITORY_RELEASES_1);
-            getRepositoryIndexManager().closeIndexersForRepository(STORAGE_ID, REPOSITORY_RELEASES_2);
+            closeIndexersForRepository(STORAGE_ID, REPOSITORY_RELEASES_1);
+            closeIndexersForRepository(STORAGE_ID, REPOSITORY_RELEASES_2);
         }
         catch (IOException e)
         {
@@ -227,7 +235,7 @@ public class MavenArtifactIndexControllerTest
     public void shouldDownloadPackedIndex()
             throws Exception
     {
-        features.pack(STORAGE_ID, REPOSITORY_RELEASES_1);
+        ((IndexedMavenRepositoryFeatures) features).pack(STORAGE_ID, REPOSITORY_RELEASES_1);
 
         String url = getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
                      "/.index/nexus-maven-repository-index.gz";
@@ -245,7 +253,7 @@ public class MavenArtifactIndexControllerTest
     public void shouldDownloadIndexProperties()
             throws Exception
     {
-        features.pack(STORAGE_ID, REPOSITORY_RELEASES_1);
+        ((IndexedMavenRepositoryFeatures) features).pack(STORAGE_ID, REPOSITORY_RELEASES_1);
 
         String url = getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
                      "/.index/nexus-maven-repository-index.properties";

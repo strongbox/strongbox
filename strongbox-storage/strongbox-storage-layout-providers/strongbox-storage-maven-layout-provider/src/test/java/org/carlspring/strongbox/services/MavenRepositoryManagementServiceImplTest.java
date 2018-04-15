@@ -1,31 +1,32 @@
 package org.carlspring.strongbox.services;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.xml.bind.JAXBException;
-
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
+import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+
+import javax.xml.bind.JAXBException;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -89,10 +90,10 @@ public class MavenRepositoryManagementServiceImplTest
     public void removeRepositories()
             throws IOException, JAXBException, SearchException
     {
-        getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
-        getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
-        getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_MERGE_1);
-        getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_MERGE_2);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_MERGE_1);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_MERGE_2);
         removeRepositories(getRepositoriesToClean());
     }
 
@@ -115,8 +116,7 @@ public class MavenRepositoryManagementServiceImplTest
         assertTrue("Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!",
                    repositoryDir.exists());
 
-        getRepositoryIndexManager().closeIndexer(
-                STORAGE0 + ":" + REPOSITORY_RELEASES_2 + ":" + IndexTypeEnum.LOCAL.getType());
+        closeIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES_2 + ":" + IndexTypeEnum.LOCAL.getType());
 
         getRepositoryManagementService().removeRepository(STORAGE0, REPOSITORY_RELEASES_2);
 
@@ -127,6 +127,8 @@ public class MavenRepositoryManagementServiceImplTest
     public void testMerge()
             throws Exception
     {
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
+
         // dumpIndex(STORAGE0, REPOSITORY_RELEASES_MERGE_1, IndexTypeEnum.LOCAL.getType());
 
         // 1) Check that an exists in the first repository
@@ -148,7 +150,7 @@ public class MavenRepositoryManagementServiceImplTest
 
         assertFalse(artifactSearchService.contains(request));
 
-        MavenRepositoryFeatures features = getFeatures();
+        IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
 
         // 3) Merge the second repository into the first one
         features.mergeIndexes(STORAGE0,

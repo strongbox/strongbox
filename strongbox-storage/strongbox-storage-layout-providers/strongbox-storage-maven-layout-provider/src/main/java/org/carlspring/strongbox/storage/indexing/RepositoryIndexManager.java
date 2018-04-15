@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.Storage;
@@ -13,12 +14,14 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
 @Component("repositoryIndexManager")
+@Conditional(MavenIndexerEnabledCondition.class)
 public class RepositoryIndexManager
 {
 

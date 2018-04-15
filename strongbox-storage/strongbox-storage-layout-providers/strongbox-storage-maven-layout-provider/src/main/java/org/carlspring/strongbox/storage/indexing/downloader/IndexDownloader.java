@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.indexing.downloader;
 
+import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.providers.io.RepositoryTempPathResolver;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -15,12 +16,14 @@ import org.apache.maven.index.updater.IndexUpdater;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
  */
 @Component("indexDownloader")
+@Conditional(MavenIndexerEnabledCondition.class)
 public class IndexDownloader
 {
 
@@ -48,11 +51,10 @@ public class IndexDownloader
     public void download(IndexDownloadRequest request)
             throws IOException, ComponentLookupException
     {
-        IndexingContext indexingContext = repositoryIndexManager.getRepositoryIndexer(request.getStorageId() + ":" +
-                                                                                      request.getRepositoryId() + ":" +
-                                                                                      "remote")
+        IndexingContext indexingContext = repositoryIndexManager.getRepositoryIndexer(
+                                                                             request.getStorageId() + ":" +
+                                                                             request.getRepositoryId() + ":" + "remote")
                                                                 .getIndexingContext();
-
 
         // Update the index (an incremental update will be performed,
         // if this is not the first run and the files are not deleted.

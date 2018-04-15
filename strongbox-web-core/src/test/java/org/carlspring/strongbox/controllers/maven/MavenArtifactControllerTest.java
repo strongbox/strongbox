@@ -57,6 +57,7 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.AfterClass;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -314,9 +315,9 @@ public class MavenArtifactControllerTest
     {
         try
         {
-            getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES1);
-            getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES2);
-            getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
+            closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES1);
+            closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES2);
+            closeIndexersForRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
         }
         catch (IOException e)
         {
@@ -682,11 +683,6 @@ public class MavenArtifactControllerTest
         assertTrue(".trash directory should not be browsable!",
                    trashDirectoryListing.response().getStatusCode() == 404);
 
-        assertFalse(".index directory should not be visible in directory listing!",
-                    repositoryRootContent.contains(".index"));
-        assertTrue(".index directory should be browsable!",
-                   indexDirectoryListing.response().getStatusCode() == 200);
-
         logger.debug(directoryListingContent);
 
         assertTrue(directoryListingContent.contains("org/carlspring/strongbox/browse"));
@@ -694,6 +690,13 @@ public class MavenArtifactControllerTest
         assertTrue(fileListingContent.contains("foo-bar-1.0.pom"));
 
         assertTrue(invalidPath.response().getStatusCode() == 404);
+
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
+
+        assertFalse(".index directory should not be visible in directory listing!",
+                    repositoryRootContent.contains(".index"));
+        assertTrue(".index directory should be browsable!",
+                   indexDirectoryListing.response().getStatusCode() == 200);
     }
 
     @Test
@@ -922,6 +925,8 @@ public class MavenArtifactControllerTest
     public void testUpdateMetadataOnDeleteReleaseVersionDirectory()
             throws Exception
     {
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
+
         // Given
         String groupId = "org.carlspring.strongbox.delete-metadata";
         String artifactId = "metadata-foo";

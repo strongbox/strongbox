@@ -11,11 +11,13 @@ import javax.xml.bind.JAXBException;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
+import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -77,7 +79,9 @@ public class ArtifactSearchServiceImplTest
     @Test
     public void testContains() throws Exception
     {
-        MavenRepositoryFeatures features = getFeatures();
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
+
+        IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
         final int x = features.reIndex(STORAGE0, REPOSITORYID, "org/carlspring/strongbox/strongbox-utils");
 
         assertTrue("Incorrect number of artifacts found!", x >= 3);

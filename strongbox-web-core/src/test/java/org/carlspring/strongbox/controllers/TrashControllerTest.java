@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.apache.http.HttpHeaders;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -133,7 +134,7 @@ public class TrashControllerTest
         client.delete(STORAGE0, REPOSITORY_WITH_TRASH, artifactPath, false);
 
         final Path repositoryDir = Paths.get(BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.trash");
-        final Path repositoryIndexDir = Paths.get(BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.index");
+
         final Path artifactFile = repositoryDir.resolve(artifactPath);
 
         logger.debug("Artifact file: " + artifactFile.toAbsolutePath());
@@ -142,6 +143,9 @@ public class TrashControllerTest
                    "when allowsForceDeletion is not enabled!",
                    Files.exists(artifactFile));
 
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
+
+        final Path repositoryIndexDir = Paths.get(BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.index");
         assertTrue("Should not have deleted .index directory!",
                    Files.exists(repositoryIndexDir));
     }
