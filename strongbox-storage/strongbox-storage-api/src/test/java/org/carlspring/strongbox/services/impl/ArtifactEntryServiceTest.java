@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria.Builder.anArtifactEntrySearchCriteria;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 /**
@@ -48,14 +49,21 @@ public class ArtifactEntryServiceTest
     public void saveEntityShouldWork()
         throws Exception
     {
-
         ArtifactEntry artifactEntry = new ArtifactEntry();
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
         artifactEntry.setArtifactCoordinates(new NullArtifactCoordinates(String.format("%s/%s/%s/%s", groupId, artifactId + "123", "1.2.3", "jar")));
+        assertThat(artifactEntry.getCreated(), CoreMatchers.nullValue());
 
-        ArtifactEntry savedArtifactEntry = artifactEntryService.save(artifactEntry);
-        assertThat(savedArtifactEntry.getCreated(), CoreMatchers.notNullValue());
+        artifactEntry = artifactEntryService.save(artifactEntry);
+        assertThat(artifactEntry.getCreated(), CoreMatchers.notNullValue());
+
+        Date creationDate = artifactEntry.getCreated();
+
+        //Updating artifact entry in order to ensure that creationDate is not updated
+        artifactEntry.setDownloadCount(1);
+        artifactEntry = artifactEntryService.save(artifactEntry);
+        assertEquals(artifactEntry.getCreated(), creationDate);
     }
 
     @Test
