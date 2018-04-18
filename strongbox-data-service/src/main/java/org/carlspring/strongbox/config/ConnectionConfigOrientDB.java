@@ -127,8 +127,8 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
         logger.info(String.format("Bootstrap OrientDB connection properties with profile [%s].",
                                   profile));
 
-        try (InputStream is = ConnectionConfigOrientDB.class.getResourceAsStream(String.format("/%s.properties",
-                                                                                               profile)))
+        try (InputStream is = ConnectionConfigOrientDB.class
+                                                      .getResourceAsStream(String.format("/META-INF/properties/%s.properties", profile)))
         {
             Properties properties = new Properties();
             properties.load(is);
@@ -140,8 +140,9 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
                           {
                               return;
                           }
-                          logger.info(String.format("Use default value for OrientDB connection property [%s].",
-                                                    p));
+
+                          logger.info(String.format("Use default value for OrientDB connection property [%s].", p));
+
                           System.setProperty((String) p, properties.getProperty((String) p));
                       });
         }

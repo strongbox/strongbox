@@ -12,7 +12,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.service.impl",
                  "org.carlspring.strongbox.client" })
-@PropertySource(value = { "classpath:META-INF/strongbox-client.properties" })
+@PropertySource(value = { "classpath:META-INF/properties/strongbox-client.properties" })
 public class ClientConfig
 {
 
