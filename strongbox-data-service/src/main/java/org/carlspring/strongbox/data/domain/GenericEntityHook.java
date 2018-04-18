@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.data.domain;
 
+import java.util.Date;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -36,6 +37,11 @@ public class GenericEntityHook extends ORecordHookAbstract
         }
 
         ODocument doc = (ODocument) iRecord;
+        if ("ArtifactEntry".equals(doc.getClassName()))
+        {
+            doc.field("created", new Date());
+            result = RESULT.RECORD_CHANGED;
+        }
         for (OClass oClass : doc.getSchemaClass().getAllSuperClasses())
         {
             if ("GenericEntity".equals(oClass.getName()))
@@ -52,6 +58,9 @@ public class GenericEntityHook extends ORecordHookAbstract
             {
                 ODocument artifactCoordinates = doc.field("artifactCoordinates");
                 String artifactCoordinatesPath = artifactCoordinates == null ? "" : artifactCoordinates.field("path");
+
+                doc.field("created", new Date());
+                result = RESULT.RECORD_CHANGED;
 
                 String artifactEntryPath = doc.field("artifactPath");
                 artifactEntryPath = artifactEntryPath == null ? "" : artifactEntryPath.trim();
