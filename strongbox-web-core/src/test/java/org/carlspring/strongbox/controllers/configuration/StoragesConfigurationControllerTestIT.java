@@ -192,7 +192,8 @@ public class StoragesConfigurationControllerTestIT
 
         url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration";
 
-        given().params("storageId", storageId, "repositoryId", repositoryId1)
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .params("storageId", storageId, "repositoryId", repositoryId1)
                .when()
                .get(url)
                .peek() // Use peek() to print the ouput
