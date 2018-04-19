@@ -39,9 +39,9 @@ public class GenericEntityHook extends ORecordHookAbstract
         ODocument doc = (ODocument) iRecord;
         if ("ArtifactEntry".equals(doc.getClassName()))
         {
-            doc.field("created", new Date());
-            result = RESULT.RECORD_CHANGED;
+            validateArtifactEntryCreatedProperty(doc);
         }
+
         for (OClass oClass : doc.getSchemaClass().getAllSuperClasses())
         {
             if ("GenericEntity".equals(oClass.getName()))
@@ -59,9 +59,6 @@ public class GenericEntityHook extends ORecordHookAbstract
                 ODocument artifactCoordinates = doc.field("artifactCoordinates");
                 String artifactCoordinatesPath = artifactCoordinates == null ? "" : artifactCoordinates.field("path");
 
-                doc.field("created", new Date());
-                result = RESULT.RECORD_CHANGED;
-
                 String artifactEntryPath = doc.field("artifactPath");
                 artifactEntryPath = artifactEntryPath == null ? "" : artifactEntryPath.trim();
 
@@ -77,10 +74,22 @@ public class GenericEntityHook extends ORecordHookAbstract
                             String.format("Failed to persist document [%s]. Paths [%s] and [%s] dont match.",
                                           doc.getSchemaClass(), artifactEntryPath, artifactCoordinatesPath));
                 }
+
+                validateArtifactEntryCreatedProperty(doc);
             }
         }
 
         return result;
+    }
+
+    private void validateArtifactEntryCreatedProperty(ODocument doc) {
+        Date created = doc.field("created");
+        if (created == null)
+        {
+            throw new OValidationException(
+                    String.format("Failed to persist document [%s]. 'created' can't be null.",
+                            doc.getSchemaClass()));
+        }
     }
 
 }
