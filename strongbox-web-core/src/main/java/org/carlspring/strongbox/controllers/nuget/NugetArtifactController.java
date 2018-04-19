@@ -670,11 +670,14 @@ public class NugetArtifactController extends BaseArtifactController
 
         String path;
         NuspecFile nuspecFile;
-        byte[] byteArray = IOUtils.toByteArray(is);
-        InputStream inputForNuspec = new ByteArrayInputStream(byteArray);
-        InputStream inputForNupkg = new ByteArrayInputStream(byteArray);
 
-        nuspecFile = extractNuspecFile(inputForNuspec);
+        Path packageTmp = Files.createTempFile("package", "nupkg");
+        Files.copy(is, packageTmp, StandardCopyOption.REPLACE_EXISTING);
+
+        Path nuspecTmp = Files.createTempFile("spec", "nuspec");
+        Files.copy(packageTmp, nuspecTmp, StandardCopyOption.REPLACE_EXISTING);
+
+        nuspecFile = extractNuspecFile(new BufferedInputStream(Files.newInputStream(packageTmp)));
         if (nuspecFile == null) {
             return null;
         }
@@ -683,33 +686,45 @@ public class NugetArtifactController extends BaseArtifactController
                 nuspecFile.getVersion(),
                 nuspecFile.getId(),
                 nuspecFile.getVersion());
-        nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, inputForNupkg);
-        Path nuspecFileTmp = Files.createTempFile(nuspecFile.getId(), "nuspec");
-        try (OutputStream outputStream = Files.newOutputStream(nuspecFileTmp)) {
+        try (InputStream tmpIn = new BufferedInputStream(Files.newInputStream(packageTmp)))
+        {
+            nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, tmpIn);
+        }
+        //Path nuspecFileTmp = Files.createTempFile(nuspecFile.getId(), "nuspec");
+        try (OutputStream outputStream = Files.newOutputStream(nuspecTmp)) {
             nuspecFile.saveTo(outputStream);
         }
         path = String.format("%s/%s/%s.nuspec", nuspecFile.getId(), nuspecFile.getVersion(), nuspecFile.getId());
 
-        nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, Files.newInputStream(nuspecFileTmp));
+        nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, Files.newInputStream(nuspecTmp));
 
         return new URI("");
     }
 
-    private NuspecFile extractNuspecFile(InputStream is) {
+    private NuspecFile extractNuspecFile(InputStream is)
+    {
         NuspecFile nuspecFile;
         ZipInputStream zipInputStream;
 
-        try {
+        try
+        {
             zipInputStream = new ZipInputStream(is);
             ZipEntry zipEntry;
-            do {
+
+            do
+            {
                 zipEntry = zipInputStream.getNextEntry();
-            } while (zipEntry != null && !zipEntry.getName().endsWith(".nuspec"));
-            if (zipEntry != null) {
+            }
+            while (zipEntry != null && !zipEntry.getName().endsWith(".nuspec"));
+            if (zipEntry != null)
+            {
                 nuspecFile = NuspecFile.parseZipStream(zipInputStream);
                 return nuspecFile;
             }
-        } catch (IOException | org.carlspring.strongbox.nuget.file.NugetFormatException e) {
+
+        }
+        catch (IOException | org.carlspring.strongbox.nuget.file.NugetFormatException e)
+        {
             logger.error(String.format("Failed to parse Nupkg"), e);
         }
 
