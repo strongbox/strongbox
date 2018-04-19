@@ -18,6 +18,7 @@ import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Alex Oreshkevich
  */
+@CacheConfig(cacheNames = "users")
 @Service
 @Transactional
 public class UserServiceImpl
@@ -84,7 +86,6 @@ public class UserServiceImpl
         }
 
         Optional<User> optionalUser = super.findOne(id);
-
         optionalUser.ifPresent(user -> cacheManager.getCache(CacheName.User.USERS).put(user.getUsername(), user));
 
         return optionalUser;

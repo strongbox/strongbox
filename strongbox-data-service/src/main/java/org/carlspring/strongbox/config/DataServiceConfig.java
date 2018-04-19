@@ -1,36 +1,33 @@
 package org.carlspring.strongbox.config;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.stream.Stream;
+import org.carlspring.strongbox.data.CacheManagerConfiguration;
+import org.carlspring.strongbox.data.server.OrientDbServer;
+import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.stream.Stream;
 
-import org.carlspring.strongbox.data.CacheManagerConfiguration;
-import org.carlspring.strongbox.data.server.OrientDbServer;
-import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
+import com.hazelcast.spring.cache.HazelcastCacheManager;
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.core.sql.OCommandExecutorSQLFactory;
+import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
+import liquibase.exception.LiquibaseException;
+import liquibase.integration.spring.SpringLiquibase;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.ehcache.EhCacheCacheManager;
-import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.context.annotation.*;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -38,13 +35,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.core.sql.OCommandExecutorSQLFactory;
-import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
-
-import liquibase.exception.LiquibaseException;
-import liquibase.integration.spring.SpringLiquibase;
 
 /**
  * Spring configuration for data service project.
@@ -61,8 +51,6 @@ import liquibase.integration.spring.SpringLiquibase;
 public class DataServiceConfig
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(DataServiceConfig.class);
-    
     /**
      * This must be after {@link OEntityUnproxyAspect} order.
      */
@@ -97,8 +85,6 @@ public class DataServiceConfig
             
             return null;
         });
-        
-
     }
 
     
@@ -119,6 +105,7 @@ public class DataServiceConfig
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
         result.setJpaPropertyMap(jpaProperties);
         result.afterPropertiesSet();
+
         return result.getObject();
     }
 
@@ -129,19 +116,38 @@ public class DataServiceConfig
     }
 
     @Bean
-    public CacheManager cacheManager(net.sf.ehcache.CacheManager cacheManager)
-    {
-        EhCacheCacheManager result = new EhCacheCacheManager(cacheManager);
-        result.setTransactionAware(true);
-        return result;
-    }
-
-    @Bean
     public CacheManagerConfiguration cacheManagerConfiguration()
     {
         CacheManagerConfiguration cacheManagerConfiguration = new CacheManagerConfiguration();
         cacheManagerConfiguration.setCacheCacheManagerId("strongboxCacheManager");
+
         return cacheManagerConfiguration;
+    }
+
+    @Bean
+    public HazelcastInstance hazelcastInstance()
+    {
+        Config config = new Config();
+        config.getGroupConfig().setName("strongbox");
+        config.getGroupConfig().setPassword("password");
+
+        return Hazelcast.newHazelcastInstance(config);
+    }
+
+    @Bean
+    public CacheManager cacheManager()
+    {
+        return new HazelcastCacheManager(hazelcastInstance());
+    }
+
+    /*
+    @Bean
+    public CacheManager cacheManager(net.sf.ehcache.CacheManager cacheManager)
+    {
+        EhCacheCacheManager result = new EhCacheCacheManager(cacheManager);
+        result.setTransactionAware(true);
+
+        return result;
     }
 
     @Bean
@@ -151,8 +157,10 @@ public class DataServiceConfig
         cmfb.setConfigLocation(new ClassPathResource("ehcache.xml"));
         cmfb.setShared(false);
         cmfb.setCacheManagerName(cacheManagerConfiguration.getCacheCacheManagerId());
+
         return cmfb;
     }
+    */
 
     @Bean
     public DataSource dataSource()
@@ -165,7 +173,6 @@ public class DataServiceConfig
 
         SingleConnectionDataSource ds = new SingleConnectionDataSource();
         ds.setAutoCommit(false);
-
         ds.setUsername(connectionConfig.getUsername());
         ds.setPassword(connectionConfig.getPassword());
         ds.setUrl(String.format("jdbc:orient:%s", connectionConfig.getUrl()));
