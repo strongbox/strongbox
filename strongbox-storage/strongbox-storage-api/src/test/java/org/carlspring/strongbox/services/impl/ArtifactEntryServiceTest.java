@@ -53,16 +53,18 @@ public class ArtifactEntryServiceTest
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
         artifactEntry.setArtifactCoordinates(new NullArtifactCoordinates(String.format("%s/%s/%s/%s", groupId, artifactId + "123", "1.2.3", "jar")));
+
         assertThat(artifactEntry.getCreated(), CoreMatchers.nullValue());
 
         artifactEntry = artifactEntryService.save(artifactEntry);
+
         assertThat(artifactEntry.getCreated(), CoreMatchers.notNullValue());
 
         Date creationDate = artifactEntry.getCreated();
-
         //Updating artifact entry in order to ensure that creationDate is not updated
         artifactEntry.setDownloadCount(1);
         artifactEntry = artifactEntryService.save(artifactEntry);
+
         assertEquals(artifactEntry.getCreated(), creationDate);
     }
 

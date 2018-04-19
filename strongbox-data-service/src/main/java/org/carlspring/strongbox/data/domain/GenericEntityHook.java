@@ -86,9 +86,8 @@ public class GenericEntityHook extends ORecordHookAbstract
         Date created = doc.field("created");
         if (created == null)
         {
-            throw new OValidationException(
-                    String.format("Failed to persist document [%s]. 'created' can't be null.",
-                            doc.getSchemaClass()));
+            throw new OValidationException(String.format("Failed to persist document [%s]. 'created' can't be null.",
+                                           doc.getSchemaClass()));
         }
     }
 
