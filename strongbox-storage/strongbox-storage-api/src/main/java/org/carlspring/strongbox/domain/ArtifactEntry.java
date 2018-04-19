@@ -135,12 +135,12 @@ public class ArtifactEntry
 
     public Date getCreated()
     {
-        return created != null ? new Date(created.getTime()) : null;
+        return created;
     }
 
     public void setCreated(Date created)
     {
-        this.created = created != null ? new Date(created.getTime()) : null;
+        this.created = created;
     }
 
     public Integer getDownloadCount()
@@ -165,6 +165,9 @@ public class ArtifactEntry
           .append('\'');
         sb.append(", \n\tsizeInBytes='")
           .append(sizeInBytes)
+          .append('\'');
+        sb.append(", \n\tcreated='")
+          .append(created)
           .append('\'');
         sb.append(", \n\tlastUpdated='")
           .append(lastUpdated)
