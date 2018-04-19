@@ -80,7 +80,8 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         return super.save(entity);
     }
 
-    private boolean artifactEntryIsSavedForTheFirstTime(ArtifactEntry artifactEntry) {
+    private boolean artifactEntryIsSavedForTheFirstTime(ArtifactEntry artifactEntry)
+    {
         return artifactEntry.getUuid() == null;
     }
 
