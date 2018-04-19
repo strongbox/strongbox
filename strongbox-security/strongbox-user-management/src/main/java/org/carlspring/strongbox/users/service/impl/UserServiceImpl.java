@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.users.service.impl;
 
 import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
 import org.carlspring.strongbox.data.service.CommonCrudService;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +54,7 @@ public class UserServiceImpl
 
     @Inject
     private SecurityTokenProvider tokenProvider;
-
+    
     @Override
     @Cacheable(value = CacheName.User.USERS, key = "#name")
     public User findByUserName(String name)
@@ -86,7 +88,7 @@ public class UserServiceImpl
         }
 
         Optional<User> optionalUser = super.findOne(id);
-        optionalUser.ifPresent(user -> cacheManager.getCache(CacheName.User.USERS).put(user.getUsername(), user));
+        optionalUser.ifPresent(user -> cacheManager.getCache(CacheName.User.USERS).put(user.getUsername(), detach(user)));
 
         return optionalUser;
     }
