@@ -236,26 +236,6 @@ public abstract class BaseController
         return toResponseEntityError(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    protected ResponseEntity toError(String message,
-                                     String... accept)
-    {
-        if (accept != null && MediaType.APPLICATION_JSON_VALUE.equals(accept[0]))
-        {
-            return toError(new RuntimeException(message), accept);
-        }
-
-        return toError(new RuntimeException(message));
-    }
-
-    protected ResponseEntity toError(Throwable cause,
-                                     String... accept)
-    {
-        logger.error(cause.getMessage(), cause);
-        Object bodyContent = accept != null ? getResponseEntityBody(cause.getMessage(), accept[0]) : cause.getMessage();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body(bodyContent);
-    }
-
     protected void copyToResponse(InputStream is,
                                   HttpServletResponse response)
             throws IOException
