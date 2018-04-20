@@ -1,13 +1,11 @@
 package org.carlspring.strongbox.users.service.impl;
 
 import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
 import org.carlspring.strongbox.data.service.CommonCrudService;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +18,6 @@ import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
@@ -33,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Alex Oreshkevich
  */
-@CacheConfig(cacheNames = "users")
 @Service
 @Transactional
 public class UserServiceImpl

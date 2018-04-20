@@ -19,6 +19,8 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.spring.transaction.HazelcastTransactionManager;
+import com.hazelcast.spring.transaction.ManagedTransactionalTaskContext;
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLFactory;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
@@ -30,11 +32,10 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.*;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
+import static org.springframework.transaction.support.AbstractPlatformTransactionManager.SYNCHRONIZATION_ON_ACTUAL_TRANSACTION;
 
 /**
  * Spring configuration for data service project.
@@ -87,13 +88,6 @@ public class DataServiceConfig
         });
     }
 
-    
-    @Bean
-    public PlatformTransactionManager transactionManager()
-    {
-        return new JpaTransactionManager(entityManagerFactory());
-    }
-
     @Bean
     public EntityManagerFactory entityManagerFactory()
     {
@@ -140,27 +134,20 @@ public class DataServiceConfig
         return new HazelcastCacheManager(hazelcastInstance());
     }
 
-    /*
     @Bean
-    public CacheManager cacheManager(net.sf.ehcache.CacheManager cacheManager)
+    public HazelcastTransactionManager transactionManager()
     {
-        EhCacheCacheManager result = new EhCacheCacheManager(cacheManager);
-        result.setTransactionAware(true);
+        HazelcastTransactionManager hazelcastTransactionManager = new HazelcastTransactionManager(hazelcastInstance());
+        hazelcastTransactionManager.setTransactionSynchronization(SYNCHRONIZATION_ON_ACTUAL_TRANSACTION);
 
-        return result;
+        return hazelcastTransactionManager;
     }
 
     @Bean
-    public EhCacheManagerFactoryBean ehCacheCacheManager(CacheManagerConfiguration cacheManagerConfiguration)
+    public ManagedTransactionalTaskContext transactionalContext()
     {
-        EhCacheManagerFactoryBean cmfb = new EhCacheManagerFactoryBean();
-        cmfb.setConfigLocation(new ClassPathResource("ehcache.xml"));
-        cmfb.setShared(false);
-        cmfb.setCacheManagerName(cacheManagerConfiguration.getCacheCacheManagerId());
-
-        return cmfb;
+        return new ManagedTransactionalTaskContext(transactionManager());
     }
-    */
 
     @Bean
     public DataSource dataSource()
