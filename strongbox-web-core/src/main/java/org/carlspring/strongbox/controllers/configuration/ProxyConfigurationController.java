@@ -1,22 +1,21 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.services.support.ConfigurationException;
-
-import javax.inject.Inject;
+import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import io.swagger.annotations.*;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Pablo Tirado
@@ -28,57 +27,73 @@ public class ProxyConfigurationController
         extends BaseConfigurationController
 {
 
-    public ProxyConfigurationController(ConfigurationManagementService configurationManagementService)
+    static final String SUCCESSFUL_UPDATE = "The proxy configuration was updated successfully.";
+    static final String FAILED_UPDATE_FORM_ERROR = "Proxy configuration cannot be updated because the submitted form contains errors!";
+    static final String FAILED_UPDATE = "Failed to update the proxy configuration!";
+
+    static final String NOT_FOUND_PROXY_CFG = "The proxy configuration for '${storageId}:${repositoryId}' was not found.";
+
+    private final ConversionService conversionService;
+
+    public ProxyConfigurationController(ConfigurationManagementService configurationManagementService,
+                                        ConversionService conversionService)
     {
         super(configurationManagementService);
+        this.conversionService = conversionService;
     }
 
     @ApiOperation(value = "Updates the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The proxy configuration was updated successfully."),
-                            @ApiResponse(code = 500,
-                                         message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_UPDATE),
+                            @ApiResponse(code = 400, message = FAILED_UPDATE_FORM_ERROR),
+                            @ApiResponse(code = 500, message = FAILED_UPDATE) })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_GLOBAL_PROXY_CFG')")
-    @RequestMapping(value = "",
-                    method = RequestMethod.PUT,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "",
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setProxyConfiguration(@ApiParam(value = "The storageId")
                                                 @RequestParam(value = "storageId", required = false) String storageId,
                                                 @ApiParam(value = "The repositoryId")
                                                 @RequestParam(value = "repositoryId", required = false)
                                                         String repositoryId,
                                                 @ApiParam(value = "The proxy configuration for this proxy repository", required = true)
-                                                @RequestBody ProxyConfiguration proxyConfiguration)
+                                                @RequestBody @Validated ProxyConfigurationForm proxyConfigurationForm,
+                                                BindingResult bindingResult,
+                                                @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        logger.debug("Received proxy configuration \n: {}", proxyConfiguration);
+
+        if (bindingResult.hasErrors())
+        {
+            throw new RequestBodyValidationException(FAILED_UPDATE_FORM_ERROR, bindingResult);
+        }
+
+        ProxyConfiguration proxyConfiguration = conversionService.convert(proxyConfigurationForm,
+                                                                          ProxyConfiguration.class);
+        logger.debug("Received proxy configuration\n: {}", proxyConfiguration);
 
         try
         {
             configurationManagementService.setProxyConfiguration(storageId, repositoryId, proxyConfiguration);
-            return ResponseEntity.ok("The proxy configuration was updated successfully.");
+            return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE, acceptHeader);
         }
-        catch (ConfigurationException e)
+        catch (Exception e)
         {
-            logger.error(e.getMessage(), e);
-
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_UPDATE, e, acceptHeader);
         }
     }
 
     @ApiOperation(value = "Returns the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = ""),
-                            @ApiResponse(code = 404,
-                                         message = "The proxy configuration for '${storageId}:${repositoryId}' was not found.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
+                            @ApiResponse(code = 404, message = NOT_FOUND_PROXY_CFG) })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_GLOBAL_PROXY_CFG')")
-    @RequestMapping(value = "",
-                    method = RequestMethod.GET,
-                    produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "",
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getProxyConfiguration(@ApiParam(value = "The storageId")
                                                 @RequestParam(value = "storageId", required = false) String storageId,
                                                 @ApiParam(value = "The repositoryId")
                                                 @RequestParam(value = "repositoryId", required = false)
-                                                        String repositoryId)
+                                                        String repositoryId,
+                                                @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         ProxyConfiguration proxyConfiguration;
         if (storageId == null)
@@ -94,8 +109,7 @@ public class ProxyConfigurationController
 
         if (proxyConfiguration != null)
         {
-            return ResponseEntity.status(HttpStatus.OK)
-                                 .body(proxyConfiguration);
+            return ResponseEntity.ok(proxyConfiguration);
         }
         else
         {
@@ -103,8 +117,7 @@ public class ProxyConfigurationController
                              (storageId != null ? " for " + storageId + ":" + repositoryId : "") +
                              " was not found.";
 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(message);
+            return getNotFoundResponseEntity(message, acceptHeader);
         }
     }
 }
