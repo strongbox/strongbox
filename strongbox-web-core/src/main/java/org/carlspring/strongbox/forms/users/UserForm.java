@@ -4,6 +4,7 @@ import org.carlspring.strongbox.validation.users.UniqueUsername;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 
@@ -14,7 +15,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Pablo Tirado
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserForm
+public class UserForm implements Serializable
 {
 
     @NotEmpty(groups = {NewUser.class, ExistingUser.class}, message = "A username must be specified.")
@@ -93,14 +94,15 @@ public class UserForm
         this.accessModel = accessModel;
     }
 
-    public interface NewUser
+    public interface NewUser extends Serializable
     {
         // validation group marker interface for new users.
     }
 
-    public interface ExistingUser
+    public interface ExistingUser extends Serializable
     {
         // validation group marker interface for existing users.
     }
+
 }
 
