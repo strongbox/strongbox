@@ -4,6 +4,7 @@ import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.*;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +21,17 @@ public class AccessModel
 
     private static final Logger logger = LoggerFactory.getLogger(AccessModel.class);
 
+    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
     private Map<String, Collection<String>> repositoryPrivileges;
 
     // maps URL tails including wildcards for regular expressions on set of privileges that was assigned
     // example:
     //      key:    storage0/act-releases-1/org/carlspring/strongbox/bar/.*
     //      value:  {ARTIFACTS_VIEW, ARTIFACTS_RESOLVE, ARTIFACTS_DEPLOY}
+    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
     private Map<String, Collection<String>> urlToPrivilegesMap;
 
+    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
     private Map<String, Collection<String>> wildCardPrivilegesMap;
 
     public AccessModel()
