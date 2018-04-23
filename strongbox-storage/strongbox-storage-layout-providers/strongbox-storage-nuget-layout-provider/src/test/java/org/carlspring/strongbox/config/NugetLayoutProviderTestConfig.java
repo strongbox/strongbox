@@ -4,7 +4,6 @@ import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
 import org.carlspring.strongbox.MockedRepositoryPathResolverConfig;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
-import org.carlspring.strongbox.data.CacheManagerConfiguration;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -33,15 +32,6 @@ import static org.mockito.Matchers.any;
 })
 public class NugetLayoutProviderTestConfig
 {
-
-    @Bean
-    @Primary
-    public CacheManagerConfiguration cacheManagerConfiguration()
-    {
-        CacheManagerConfiguration cacheManagerConfiguration = new CacheManagerConfiguration();
-        cacheManagerConfiguration.setCacheCacheManagerId("nugetLayoutProviderTestCacheManager");
-        return cacheManagerConfiguration;
-    }
 
     @Bean
     @Primary

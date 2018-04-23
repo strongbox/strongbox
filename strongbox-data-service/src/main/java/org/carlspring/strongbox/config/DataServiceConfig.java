@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.data.CacheManagerConfiguration;
 import org.carlspring.strongbox.data.server.OrientDbServer;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 
@@ -15,12 +14,10 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
-import com.hazelcast.spring.cache.HazelcastCacheManager;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.spring.transaction.HazelcastTransactionManager;
-import com.hazelcast.spring.transaction.ManagedTransactionalTaskContext;
+import com.hazelcast.spring.cache.HazelcastCacheManager;
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLFactory;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
@@ -29,13 +26,19 @@ import liquibase.integration.spring.SpringLiquibase;
 import org.reflections.Reflections;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
-import static org.springframework.transaction.support.AbstractPlatformTransactionManager.SYNCHRONIZATION_ON_ACTUAL_TRANSACTION;
 
 /**
  * Spring configuration for data service project.
@@ -47,7 +50,8 @@ import static org.springframework.transaction.support.AbstractPlatformTransactio
 @EnableTransactionManagement(proxyTargetClass = true, order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.data" })
-@Import(DataServicePropertiesConfig.class)
+@Import({ DataServicePropertiesConfig.class,
+          HazelcastConfiguration.class })
 @EnableCaching(order = 105)
 public class DataServiceConfig
 {
@@ -86,6 +90,14 @@ public class DataServiceConfig
             
             return null;
         });
+
+
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager()
+    {
+        return new JpaTransactionManager(entityManagerFactory());
     }
 
     @Bean
@@ -110,43 +122,9 @@ public class DataServiceConfig
     }
 
     @Bean
-    public CacheManagerConfiguration cacheManagerConfiguration()
+    public CacheManager cacheManager(HazelcastInstance hazelcastInstance)
     {
-        CacheManagerConfiguration cacheManagerConfiguration = new CacheManagerConfiguration();
-        cacheManagerConfiguration.setCacheCacheManagerId("strongboxCacheManager");
-
-        return cacheManagerConfiguration;
-    }
-
-    @Bean
-    public HazelcastInstance hazelcastInstance()
-    {
-        Config config = new Config();
-        config.getGroupConfig().setName("strongbox");
-        config.getGroupConfig().setPassword("password");
-
-        return Hazelcast.newHazelcastInstance(config);
-    }
-
-    @Bean
-    public CacheManager cacheManager()
-    {
-        return new HazelcastCacheManager(hazelcastInstance());
-    }
-
-    @Bean
-    public HazelcastTransactionManager transactionManager()
-    {
-        HazelcastTransactionManager hazelcastTransactionManager = new HazelcastTransactionManager(hazelcastInstance());
-        hazelcastTransactionManager.setTransactionSynchronization(SYNCHRONIZATION_ON_ACTUAL_TRANSACTION);
-
-        return hazelcastTransactionManager;
-    }
-
-    @Bean
-    public ManagedTransactionalTaskContext transactionalContext()
-    {
-        return new ManagedTransactionalTaskContext(transactionManager());
+        return new HazelcastTransactionSupportingCacheManager(hazelcastInstance);
     }
 
     @Bean

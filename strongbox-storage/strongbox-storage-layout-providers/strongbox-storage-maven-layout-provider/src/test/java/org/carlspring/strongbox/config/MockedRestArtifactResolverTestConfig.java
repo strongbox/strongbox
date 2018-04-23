@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.client.RestArtifactResolverFactory;
-import org.carlspring.strongbox.data.CacheManagerConfiguration;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -36,15 +35,6 @@ public class MockedRestArtifactResolverTestConfig
                 Matchers.any(String.class),
                 Matchers.any(String.class));
         return artifactEventListenerRegistry;
-    }
-
-    @Bean
-    @Primary
-    public CacheManagerConfiguration cacheManagerConfiguration()
-    {
-        CacheManagerConfiguration cacheManagerConfiguration = new CacheManagerConfiguration();
-        cacheManagerConfiguration.setCacheCacheManagerId("mockedRestArtifactResolverTestConfigCacheManager");
-        return cacheManagerConfiguration;
     }
 
 }
