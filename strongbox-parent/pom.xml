@@ -448,6 +448,16 @@
                 <groupId>com.orientechnologies</groupId>
                 <artifactId>orientdb-distributed</artifactId>
                 <version>${version.orientdb}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.hazelcast</groupId>
+                        <artifactId>hazelcast</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.hazelcast</groupId>
+                        <artifactId>hazelcast-cloud</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.orientechnologies</groupId>
