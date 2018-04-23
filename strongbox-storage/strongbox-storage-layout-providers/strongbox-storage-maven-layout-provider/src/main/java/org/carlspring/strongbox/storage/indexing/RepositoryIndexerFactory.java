@@ -83,19 +83,19 @@ public class RepositoryIndexerFactory
                                                   RepositoryPath indexDir)
             throws IOException
     {
-        return indexerConfiguration.getIndexer().createIndexingContext(
-                storageId + ":" + repositoryId + ":" + indexType,
-                repositoryId,
-                repositoryBasedir.toFile(),
-                indexDir.toFile(),
-                null,
-                null,
-                true, // if context should be searched in non-targeted mode.
-                true, // if indexDirectory is known to contain (or should contain)
-                // valid Maven Indexer lucene index, and no checks needed to be
-                // performed, or, if we want to "stomp" over existing index
-                // (unsafe to do!).
-                getRepositoryIndexCreators(storageId, repositoryId));
+        return indexerConfiguration.getIndexer()
+                                   .createIndexingContext(storageId + ":" + repositoryId + ":" + indexType,
+                                                          repositoryId,
+                                                          repositoryBasedir.toFile(),
+                                                          indexDir.toFile(),
+                                                          null,
+                                                          null,
+                                                          true, // if context should be searched in non-targeted mode.
+                                                          true, // if indexDirectory is known to contain (or should contain)
+                                                                // valid Maven Indexer lucene index, and no checks needed to be
+                                                                // performed, or, if we want to "stomp" over existing index
+                                                                // (unsafe to do!).
+                                                          getRepositoryIndexCreators(storageId, repositoryId));
     }
 
     private List<IndexCreator> getRepositoryIndexCreators(final String storageId,
