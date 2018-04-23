@@ -2,6 +2,7 @@ package org.carlspring.strongbox.config;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.hazelcast.core.DistributedObject;
@@ -28,8 +29,11 @@ public class HazelcastTransactionSupportingCacheManager
     @Override
     protected Collection<? extends Cache> loadCaches()
     {
+        bornCaches();
+
         final Set<Cache> caches = new HashSet<>();
         final Collection<DistributedObject> distributedObjects = hazelcastInstance.getDistributedObjects();
+
         for (final DistributedObject distributedObject : distributedObjects)
         {
             if (distributedObject instanceof IMap)
@@ -40,5 +44,16 @@ public class HazelcastTransactionSupportingCacheManager
             }
         }
         return caches;
+    }
+
+    private Set<IMap> bornCaches()
+    {
+        final Set<IMap> caches = new LinkedHashSet<>();
+
+        hazelcastInstance.getConfig().getMapConfigs().keySet().forEach(
+                cacheName -> caches.add(hazelcastInstance.getMap(cacheName)));
+
+        return caches;
+
     }
 }

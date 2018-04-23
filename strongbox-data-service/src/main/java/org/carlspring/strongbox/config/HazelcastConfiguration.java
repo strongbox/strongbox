@@ -9,10 +9,12 @@ import com.hazelcast.config.MaxSizeConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * @author Przemyslaw Fusik
  */
+@Configuration
 public class HazelcastConfiguration
 {
 
