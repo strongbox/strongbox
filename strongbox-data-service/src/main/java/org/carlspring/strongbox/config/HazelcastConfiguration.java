@@ -18,6 +18,14 @@ import org.springframework.context.annotation.Configuration;
 public class HazelcastConfiguration
 {
 
+    public static MapConfig newDefaultMapConfig(String name)
+    {
+        return new MapConfig()
+                       .setName(name)
+                       .setMaxSizeConfig(new MaxSizeConfig(1000, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
+                       .setEvictionPolicy(EvictionPolicy.LFU);
+    }
+
     @Bean
     public HazelcastInstance hazelcastInstance(Config config)
     {
@@ -35,13 +43,5 @@ public class HazelcastConfiguration
                                       .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
         config.getGroupConfig().setName("strongbox").setPassword("password");
         return config;
-    }
-
-    private MapConfig newDefaultMapConfig(String name)
-    {
-        return new MapConfig()
-                       .setName(name)
-                       .setMaxSizeConfig(new MaxSizeConfig(1000, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
-                       .setEvictionPolicy(EvictionPolicy.LFU);
     }
 }

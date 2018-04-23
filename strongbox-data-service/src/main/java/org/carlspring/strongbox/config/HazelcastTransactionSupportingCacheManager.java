@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.spring.cache.HazelcastCache;
@@ -29,29 +28,23 @@ public class HazelcastTransactionSupportingCacheManager
     @Override
     protected Collection<? extends Cache> loadCaches()
     {
-        bornCaches();
-
         final Set<Cache> caches = new HashSet<>();
-        final Collection<DistributedObject> distributedObjects = hazelcastInstance.getDistributedObjects();
 
-        for (final DistributedObject distributedObject : distributedObjects)
+        for (final IMap distributedCache : getDistributedCaches())
         {
-            if (distributedObject instanceof IMap)
-            {
-                final IMap<Object, Object> map = (IMap) distributedObject;
-                final Cache cache = new HazelcastCache(map);
-                caches.add(cache);
-            }
+            final Cache cache = new HazelcastCache(distributedCache);
+            caches.add(cache);
         }
         return caches;
     }
 
-    private Set<IMap> bornCaches()
+    private Set<IMap> getDistributedCaches()
     {
         final Set<IMap> caches = new LinkedHashSet<>();
 
-        hazelcastInstance.getConfig().getMapConfigs().keySet().forEach(
-                cacheName -> caches.add(hazelcastInstance.getMap(cacheName)));
+        hazelcastInstance.getConfig()
+                         .getMapConfigs()
+                         .keySet().forEach(cacheName -> caches.add(hazelcastInstance.getMap(cacheName)));
 
         return caches;
 
