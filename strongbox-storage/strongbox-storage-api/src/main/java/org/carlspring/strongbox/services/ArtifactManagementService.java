@@ -38,16 +38,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -63,26 +59,40 @@ public class ArtifactManagementService
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementService.class);
+
     @Inject
     protected ArtifactOperationsValidator artifactOperationsValidator;
+
     @Inject
     protected ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
+
     @Inject
     protected ConfigurationManager configurationManager;
+
     @Inject
     protected ArtifactEntryService artifactEntryService;
+
     @Inject
     protected LayoutProviderRegistry layoutProviderRegistry;
+
     @Inject
     protected ArtifactResolutionService artifactResolutionService;
+
     @Inject
     protected ChecksumCacheManager checksumCacheManager;
+
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
+
     @Inject
     protected ArtifactByteStreamsCopyStrategyDeterminator artifactByteStreamsCopyStrategyDeterminator;
+
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
+
+    @Inject
+    protected HazelcastInstance hazelcastInstance;
+
     private Map<URI, Lock> pathUriMap = new ConcurrentHashMap<>();
 
     @Transactional
@@ -141,12 +151,16 @@ public class ArtifactManagementService
 
     public void acquireLock(URI pathUri)
     {
-        Lock lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
+        Lock lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri,
+                                                               lock = hazelcastInstance.getLock(pathUri.toString())))
+                            .orElse(lock);
         lock.lock();
 
         while (!pathUriMap.containsKey(pathUri))
         {
-            lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
+            lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri,
+                                                              lock = hazelcastInstance.getLock(pathUri.toString())))
+                           .orElse(lock);
             lock.lock();
         }
     }
