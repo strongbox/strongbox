@@ -121,7 +121,9 @@ public class DataServiceConfig
     @Bean
     public CacheManager cacheManager(HazelcastInstance hazelcastInstance)
     {
-        return new HazelcastTransactionSupportingCacheManager(hazelcastInstance);
+        HazelcastTransactionSupportingCacheManager cacheManager = new HazelcastTransactionSupportingCacheManager(hazelcastInstance);
+        cacheManager.setTransactionAware(true);
+        return cacheManager;
     }
 
     @Bean
