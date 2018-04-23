@@ -24,12 +24,11 @@ public class MockedRestArtifactResolverTestConfig
     @Bean
     public Config hazelcastConfig()
     {
-        final Config config = new Config()
-                                      .setInstanceName("hazelcast-instance")
-                                      .addMapConfig(newDefaultMapConfig(CacheName.User.USERS))
-                                      .addMapConfig(newDefaultMapConfig(CacheName.User.USER_DETAILS))
-                                      .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
-                                      .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
+        final Config config = new Config().setInstanceName("mocked-hazelcast-instance")
+                                          .addMapConfig(newDefaultMapConfig(CacheName.User.USERS))
+                                          .addMapConfig(newDefaultMapConfig(CacheName.User.USER_DETAILS))
+                                          .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
+                                          .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
         config.getGroupConfig().setName("strongbox").setPassword("password");
         return config;
     }
