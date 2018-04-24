@@ -3,11 +3,12 @@ package org.carlspring.strongbox.forms.users;
 import org.carlspring.strongbox.validation.users.ValidAccessModelMapKey;
 import org.carlspring.strongbox.validation.users.ValidAccessModelMapValue;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AccessModelForm
+public class AccessModelForm implements Serializable
 {
 
     @ValidAccessModelMapKey(message = "The repository privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}'.")

@@ -21,4 +21,13 @@ public final class CacheName
 
     }
 
+    public static final class Repository
+    {
+
+        public static final String REMOTE_REPOSITORY_ALIVENESS = "remoteRepositoryAliveness";
+
+    }
+
+
+
 }

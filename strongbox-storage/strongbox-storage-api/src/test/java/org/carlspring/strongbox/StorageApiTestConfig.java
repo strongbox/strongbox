@@ -7,7 +7,6 @@ import org.carlspring.strongbox.config.EventsConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
-import org.carlspring.strongbox.data.CacheManagerConfiguration;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -34,15 +33,6 @@ import static org.mockito.Matchers.any;
 })
 public class StorageApiTestConfig
 {
-
-    @Bean
-    @Primary
-    public CacheManagerConfiguration cacheManagerConfiguration()
-    {
-        CacheManagerConfiguration cacheManagerConfiguration = new CacheManagerConfiguration();
-        cacheManagerConfiguration.setCacheCacheManagerId("storageApiTestTestCacheManager");
-        return cacheManagerConfiguration;
-    }
 
     @Bean
     @Primary

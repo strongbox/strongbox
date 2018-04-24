@@ -50,7 +50,7 @@ public class UserServiceImpl
 
     @Inject
     private SecurityTokenProvider tokenProvider;
-
+    
     @Override
     @Cacheable(value = CacheName.User.USERS, key = "#name")
     public User findByUserName(String name)
@@ -84,8 +84,7 @@ public class UserServiceImpl
         }
 
         Optional<User> optionalUser = super.findOne(id);
-
-        optionalUser.ifPresent(user -> cacheManager.getCache(CacheName.User.USERS).put(user.getUsername(), user));
+        optionalUser.ifPresent(user -> cacheManager.getCache(CacheName.User.USERS).put(user.getUsername(), detach(user)));
 
         return optionalUser;
     }

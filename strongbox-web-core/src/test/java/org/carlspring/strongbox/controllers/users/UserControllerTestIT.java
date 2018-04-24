@@ -723,11 +723,11 @@ public class UserControllerTestIT
     public void testDeleteUser()
     {
         // create new user
-        UserForm test = buildUser("test-delete", "password-update");
+        UserForm userForm = buildUser("test-delete", "password-update");
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
-               .body(test)
+               .body(userForm)
                .when()
                .post(getContextBaseUrl() + "/user")
                .peek() // Use peek() to print the output
@@ -736,9 +736,9 @@ public class UserControllerTestIT
                .body(containsString(SUCCESSFUL_CREATE_USER));
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .param("The name of the user", test.getUsername())
+               .param("The name of the user", userForm.getUsername())
                .when()
-               .delete(getContextBaseUrl() + "/user/{name}", test.getUsername())
+               .delete(getContextBaseUrl() + "/user/{name}", userForm.getUsername())
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code

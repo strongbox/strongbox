@@ -8,7 +8,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.CascadeType;
 import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -24,7 +23,6 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
@@ -337,6 +335,11 @@ public abstract class CommonCrudService<T extends GenericEntity>
     protected OObjectDatabaseTx getDelegate()
     {
         return (OObjectDatabaseTx) entityManager.getDelegate();
+    }
+    
+    protected T detach(T entity)
+    {
+        return getDelegate().detachAll(entity, true);
     }
 
 }
