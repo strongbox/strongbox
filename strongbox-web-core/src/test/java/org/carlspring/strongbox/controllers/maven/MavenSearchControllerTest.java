@@ -76,10 +76,10 @@ public class MavenSearchControllerTest
 
         if (repositoryIndexManager.isPresent())
         {
-            final RepositoryIndexer repositoryIndexer = repositoryIndexManager.get().getRepositoryIndexer(
-                    STORAGE_SC_TEST + ":" +
-                    REPOSITORY_RELEASES + ":" +
-                    IndexTypeEnum.LOCAL.getType());
+            final RepositoryIndexer repositoryIndexer = repositoryIndexManager.get()
+                                                                              .getRepositoryIndexer(STORAGE_SC_TEST + ":" +
+                                                                                                    REPOSITORY_RELEASES + ":" +
+                                                                                                    IndexTypeEnum.LOCAL.getType());
 
             assertNotNull(repositoryIndexer);
 
@@ -98,6 +98,7 @@ public class MavenSearchControllerTest
         {
             throw Throwables.propagate(e);
         }
+        
         super.shutdown();
     }
 
@@ -170,4 +171,5 @@ public class MavenSearchControllerTest
         // just to make sure that dump method will not produce any exceptions
         dumpIndex("foo", "bar");
     }
+    
 }
