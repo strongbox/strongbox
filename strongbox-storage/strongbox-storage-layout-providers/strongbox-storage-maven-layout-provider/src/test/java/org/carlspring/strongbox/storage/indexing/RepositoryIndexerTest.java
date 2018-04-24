@@ -80,9 +80,8 @@ public class RepositoryIndexerTest
     {
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
         RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(STORAGE0 + ":" +
-                                                                                               REPOSITORY_RELEASES + ":" +
-                                                                                               IndexTypeEnum.LOCAL
-                                                                                                            .getType());
+                                                                                          REPOSITORY_RELEASES + ":" +
+                                                                                          IndexTypeEnum.LOCAL.getType());
 
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
 
@@ -129,11 +128,11 @@ public class RepositoryIndexerTest
         {
             MavenArtifactCoordinates mavenArtifactCoordinates = (MavenArtifactCoordinates) result.getArtifactCoordinates();
             artifactInfos.add(new ArtifactInfo(result.getRepositoryId(),
-                    mavenArtifactCoordinates.getGroupId(),
-                    mavenArtifactCoordinates.getArtifactId(),
-                    mavenArtifactCoordinates.getVersion(),
-                    mavenArtifactCoordinates.getClassifier(),
-                    mavenArtifactCoordinates.getExtension()));
+                                               mavenArtifactCoordinates.getGroupId(),
+                                               mavenArtifactCoordinates.getArtifactId(),
+                                               mavenArtifactCoordinates.getVersion(),
+                                               mavenArtifactCoordinates.getClassifier(),
+                                               mavenArtifactCoordinates.getExtension()));
         }
 
         return artifactInfos;
