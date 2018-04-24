@@ -16,11 +16,11 @@ import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.event.CommonEventListener;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -36,8 +36,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
-import java.net.URI;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +75,7 @@ public class NugetRepositoryFeatures
     private ArtifactTagService artifactTagService;
 
     @Inject
-    private ArtifactManagementService artifactManagementService;
+    private RepositoryPathLock repositoryPathLock;
 
     @Inject
     private NugetLayoutProvider nugetLayoutProvider;
@@ -227,10 +231,9 @@ public class NugetRepositoryFeatures
         for (ArtifactEntry e : artifactToSaveSet)
         {
             RepositoryPath repositoryPath = nugetLayoutProvider.resolve(repository, e.getArtifactCoordinates());
-            URI artifactUri = repositoryPath.toUri();
+            repositoryPathLock.lock(repositoryPath);
             try
             {
-                artifactManagementService.acquireLock(artifactUri);
                 if (e.getTagSet().contains(lastVersionTag))
                 {
                     artifactEntryService.save(e, true);
@@ -239,9 +242,10 @@ public class NugetRepositoryFeatures
                 {
                     artifactEntryService.save(e, false);
                 }
-            } finally
+            }
+            finally
             {
-                artifactManagementService.releaseLock(artifactUri);
+                repositoryPathLock.unlock(repositoryPath);
             }
         }
     }
