@@ -20,10 +20,9 @@ public class HazelcastConfiguration
 
     public static MapConfig newDefaultMapConfig(String name)
     {
-        return new MapConfig()
-                       .setName(name)
-                       .setMaxSizeConfig(new MaxSizeConfig(1000, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
-                       .setEvictionPolicy(EvictionPolicy.LFU);
+        return new MapConfig().setName(name)
+                              .setMaxSizeConfig(new MaxSizeConfig(1000, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
+                              .setEvictionPolicy(EvictionPolicy.LFU);
     }
 
     @Bean
