@@ -5,22 +5,18 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.config.MavenIndexerDisabledCondition;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
-import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
@@ -35,22 +31,22 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.index.ArtifactInfo;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
  */
 @Component("maven2LayoutProvider")
+@Conditional(MavenIndexerDisabledCondition.class)
 public class Maven2LayoutProvider
         extends AbstractLayoutProvider<MavenArtifactCoordinates>
         implements RepositoryPathHandler
@@ -76,14 +72,7 @@ public class Maven2LayoutProvider
     private MavenRepositoryManagementStrategy mavenRepositoryManagementStrategy;
 
     @Inject
-    private RepositoryIndexManager repositoryIndexManager;
-
-    @Inject
-    private ArtifactIndexesService artifactIndexesService;
-
-    @Inject
     private MavenRepositoryFeatures mavenRepositoryFeatures;
-
 
     @PostConstruct
     @Override
@@ -149,7 +138,7 @@ public class Maven2LayoutProvider
 
         if (!Files.isDirectory(repositoryPath))
         {
-            deleteFromIndex(repositoryPath);
+            delete(repositoryPath);
         }
         else
         {
@@ -183,10 +172,7 @@ public class Maven2LayoutProvider
 
                     for (SearchResult result : results.getResults())
                     {
-                        String artifactPath = result.getArtifactCoordinates().toPath();
-
-                        logger.debug("Removing " + artifactPath + " from index...");
-                        deleteFromIndex(resolve(repository, result.getArtifactCoordinates()));
+                        delete(resolve(repository, result.getArtifactCoordinates()));
                     }
                 }
                 catch (SearchException e)
@@ -202,69 +188,11 @@ public class Maven2LayoutProvider
         super.delete(storageId, repositoryId, path, force);
     }
 
-    //TODO: move this method call into `RepositoryFileSystemProvider.delete(Path path)` 
-    public void deleteFromIndex(RepositoryPath path)
+    protected void delete(RepositoryPath directory)
             throws IOException
     {
-        Repository repository = path.getFileSystem().getRepository();
-        if (!mavenRepositoryFeatures.isIndexingEnabled(repository))
-        {
-            return;
-        }
 
-        final RepositoryIndexer indexer = getRepositoryIndexer(path);
-        if (indexer != null)
-        {
-            MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(RepositoryFiles.stringValue(path));
-            MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
 
-            indexer.delete(Collections.singletonList(new ArtifactInfo(repository.getId(),
-                                                                      coordinates.getGroupId(),
-                                                                      coordinates.getArtifactId(),
-                                                                      coordinates.getVersion(),
-                                                                      coordinates.getClassifier(),
-                                                                      coordinates.getExtension())));
-        }
-    }
-
-    public void closeIndex(String storageId,
-                           String repositoryId,
-                           String path)
-            throws IOException
-    {
-        logger.debug("Closing " + storageId + ":" + repositoryId + ":" + path + "...");
-
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-        RepositoryPath repositoryPath = resolve(repository).resolve(path);
-
-        closeIndex(repositoryPath);
-    }
-
-    public void closeIndex(RepositoryPath path)
-            throws IOException
-    {
-        final RepositoryIndexer indexer = getRepositoryIndexer(path);
-        if (indexer != null)
-        {
-            logger.debug("Closing indexer of path " + path + "...");
-
-            indexer.close();
-        }
-    }
-
-    private RepositoryIndexer getRepositoryIndexer(RepositoryPath path)
-    {
-        Repository repository = path.getFileSystem().getRepository();
-
-        if (!mavenRepositoryFeatures.isIndexingEnabled(repository))
-        {
-            return null;
-        }
-
-        return repositoryIndexManager.getRepositoryIndexer(repository.getStorage().getId() + ":" +
-                                                           repository.getId() + ":" +
-                                                           IndexTypeEnum.LOCAL.getType());
     }
 
     @Override
@@ -416,34 +344,6 @@ public class Maven2LayoutProvider
     }
 
     @Override
-    public void undelete(String storageId,
-                         String repositoryId,
-                         String path)
-            throws IOException
-    {
-        super.undelete(storageId, repositoryId, path);
-
-        artifactIndexesService.rebuildIndex(storageId, repositoryId, path);
-    }
-
-    @Override
-    public void undeleteTrash(String storageId,
-                              String repositoryId)
-            throws IOException
-    {
-        super.undeleteTrash(storageId, repositoryId);
-
-        artifactIndexesService.rebuildIndex(storageId, repositoryId, null);
-    }
-
-    @Override
-    public void postProcess(RepositoryPath repositoryPath)
-            throws IOException
-    {
-        artifactIndexesService.addArtifactToIndex(repositoryPath);
-    }
-
-    @Override
     public MavenRepositoryManagementStrategy getRepositoryManagementStrategy()
     {
         return mavenRepositoryManagementStrategy;
@@ -460,4 +360,10 @@ public class Maven2LayoutProvider
         return this;
     }
 
+    @Override
+    public void postProcess(final RepositoryPath path)
+            throws IOException
+    {
+        // do nothing
+    }
 }

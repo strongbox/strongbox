@@ -1,10 +1,8 @@
 package org.carlspring.strongbox.event.artifact;
 
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import javax.inject.Inject;
 import java.io.IOException;
 
 import com.google.common.base.Throwables;
@@ -17,10 +15,6 @@ import org.springframework.stereotype.Component;
 public class MavenArtifactDeletedEventListener
         extends BaseMavenArtifactEventListener
 {
-
-
-    @Inject
-    private MavenIndexGroupRepositoryComponent mavenIndexGroupRepositoryComponent;
 
     @Override
     public void handle(final ArtifactEvent event)
@@ -42,12 +36,6 @@ public class MavenArtifactDeletedEventListener
             mavenMetadataGroupRepositoryComponent.cleanupGroupsContaining(event.getStorageId(),
                                                                           event.getRepositoryId(),
                                                                           event.getPath());
-
-
-            mavenIndexGroupRepositoryComponent.cleanupGroupsContaining(event.getStorageId(),
-                                                                       event.getRepositoryId(),
-                                                                       event.getPath());
-
         }
         catch (IOException e)
         {

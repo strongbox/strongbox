@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.repository.group.metadata;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.layout.IndexedMaven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -21,7 +21,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Przemyslaw Fusik
@@ -83,7 +86,10 @@ public class MavenMetadataGroupRepositoryComponentTest
         assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
 
         layoutProvider.delete(STORAGE0, REPOSITORY_LEAF_L, path, false);
-        ((Maven2LayoutProvider) layoutProvider).closeIndex(STORAGE0, REPOSITORY_LEAF_L, path);
+        if (layoutProvider instanceof IndexedMaven2LayoutProvider)
+        {
+            ((IndexedMaven2LayoutProvider) layoutProvider).closeIndex(STORAGE0, REPOSITORY_LEAF_L, path);
+        }
 
         assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
 

@@ -3,11 +3,13 @@ package org.carlspring.strongbox.dependency.snippet;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
+import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -19,13 +21,16 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
@@ -47,7 +52,7 @@ public class MavenDependencyFormatterTest
     private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;
 
     @Inject
-    private MavenIndexerSearchProvider mavenIndexerSearchProvider;
+    private Optional<MavenIndexerSearchProvider> mavenIndexerSearchProvider;
 
     @Inject
     private ArtifactEntryService artifactEntryService;
@@ -97,7 +102,7 @@ public class MavenDependencyFormatterTest
     public void removeRepositories()
             throws IOException, JAXBException
     {
-        getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
 
         removeRepositories(getRepositoriesToClean());
     }
@@ -200,7 +205,9 @@ public class MavenDependencyFormatterTest
     public void testSearchExactWithDependencySnippet()
             throws IOException, SearchException
     {
-        MavenRepositoryFeatures features = getFeatures();
+        Assume.assumeTrue(mavenIndexerSearchProvider.isPresent());
+
+        IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
         final int x = features.reIndex(STORAGE0,
                                        REPOSITORY_RELEASES,
                                        "org/carlspring/strongbox/maven-snippet");
@@ -216,7 +223,7 @@ public class MavenDependencyFormatterTest
                                                                                "jar"),
                                                   MavenIndexerSearchProvider.ALIAS);
 
-        SearchResult searchResult = mavenIndexerSearchProvider.findExact(request);
+        SearchResult searchResult = mavenIndexerSearchProvider.get().findExact(request);
 
         assertFalse(searchResult.getSnippets().isEmpty());
 

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.maven;
 
+import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -8,10 +9,12 @@ import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import javax.inject.Inject;
 import javax.ws.rs.QueryParam;
 import java.io.IOException;
+import java.util.Optional;
 
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,7 @@ import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
  */
 @RestController
 @Api(value = "/api/maven/index")
+@Conditional(MavenIndexerEnabledCondition.class)
 public class MavenIndexController
         extends BaseController
 {

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.search;
 
+import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.Storage;
@@ -22,12 +23,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
  */
 @Component("mavenIndexerSearchProvider")
+@Conditional(MavenIndexerEnabledCondition.class)
 public class MavenIndexerSearchProvider
         extends AbstractSearchProvider
 {
@@ -147,16 +150,6 @@ public class MavenIndexerSearchProvider
             throws SearchException
     {
         return !search(searchRequest).getResults().isEmpty();
-    }
-
-    public RepositoryIndexManager getRepositoryIndexManager()
-    {
-        return repositoryIndexManager;
-    }
-
-    public void setRepositoryIndexManager(RepositoryIndexManager repositoryIndexManager)
-    {
-        this.repositoryIndexManager = repositoryIndexManager;
     }
 
     public Configuration getConfiguration()

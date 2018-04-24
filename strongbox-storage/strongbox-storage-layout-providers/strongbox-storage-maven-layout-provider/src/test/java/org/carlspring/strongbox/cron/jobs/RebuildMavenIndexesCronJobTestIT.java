@@ -89,6 +89,12 @@ public class RebuildMavenIndexesCronJobTestIT
     }
 
     @Before
+    public void isIndexingEnabled()
+    {
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
+    }
+
+    @Before
     public void initialize()
             throws Exception
     {
@@ -115,9 +121,9 @@ public class RebuildMavenIndexesCronJobTestIT
     public void removeRepositories()
             throws Exception
     {
-        getRepositoryIndexManager().closeIndexersForRepository(STORAGE1, REPOSITORY_RELEASES_1);
-        getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
-        getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
+        closeIndexersForRepository(STORAGE1, REPOSITORY_RELEASES_1);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
         removeRepositories(getRepositoriesToClean());
         cleanUp();
     }

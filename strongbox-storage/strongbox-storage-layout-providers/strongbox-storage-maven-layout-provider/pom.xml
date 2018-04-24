@@ -66,6 +66,7 @@
                         <strongbox.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</strongbox.config.xml>
                         <java.io.tmpdir>${dir.strongbox.vault}/tmp</java.io.tmpdir>
                         <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
+                        <maven.indexer.enabled>true</maven.indexer.enabled>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

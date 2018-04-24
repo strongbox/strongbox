@@ -19,6 +19,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.base.Throwables;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
@@ -57,14 +58,14 @@ public class MavenSearchControllerTest
         super.init();
 
         cleanUp();
-        
+
         // prepare storage: create it from Java code instead of putting <storage/> in strongbox.xml
         createStorage(STORAGE_SC_TEST);
 
         createRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), true);
 
         MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
-        
+
         MavenArtifact a1 = generateArtifact(GENERATOR_BASEDIR.toString(), "org.carlspring.strongbox.searches:test-project:1.0.11.3");
         MavenArtifact a2 = generateArtifact(GENERATOR_BASEDIR.toString(), "org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
         MavenArtifact a3 = generateArtifact(GENERATOR_BASEDIR.toString(), "org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
@@ -72,14 +73,18 @@ public class MavenSearchControllerTest
         artifactDeployer.deploy(a1, STORAGE_SC_TEST, REPOSITORY_RELEASES);
         artifactDeployer.deploy(a2, STORAGE_SC_TEST, REPOSITORY_RELEASES);
         artifactDeployer.deploy(a3, STORAGE_SC_TEST, REPOSITORY_RELEASES);
-        
-        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(STORAGE_SC_TEST + ":" +
-                                                                                                REPOSITORY_RELEASES + ":" +
-                                                                                                IndexTypeEnum.LOCAL.getType());
 
-        assertNotNull(repositoryIndexer);
+        if (repositoryIndexManager.isPresent())
+        {
+            final RepositoryIndexer repositoryIndexer = repositoryIndexManager.get()
+                                                                              .getRepositoryIndexer(STORAGE_SC_TEST + ":" +
+                                                                                                    REPOSITORY_RELEASES + ":" +
+                                                                                                    IndexTypeEnum.LOCAL.getType());
 
-        reIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES, "org/carlspring/strongbox/searches");
+            assertNotNull(repositoryIndexer);
+
+            reIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES, "org/carlspring/strongbox/searches");
+        }
     }
 
     @Override
@@ -87,12 +92,13 @@ public class MavenSearchControllerTest
     {
         try
         {
-            getRepositoryIndexManager().closeIndexersForRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES);
+            closeIndexersForRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES);
         }
         catch (IOException e)
         {
             throw Throwables.propagate(e);
         }
+        
         super.shutdown();
     }
 
@@ -108,6 +114,8 @@ public class MavenSearchControllerTest
     public void testIndexSearches()
             throws Exception
     {
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
+
         testSearches("+g:org.carlspring.strongbox.searches +a:test-project",
                      MavenIndexerSearchProvider.ALIAS);
     }
@@ -150,6 +158,7 @@ public class MavenSearchControllerTest
     public void testDumpIndex()
             throws Exception
     {
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
 
         // /storages/storage0/releases/.index/local
         // this index is present but artifacts are missing
@@ -162,4 +171,5 @@ public class MavenSearchControllerTest
         // just to make sure that dump method will not produce any exceptions
         dumpIndex("foo", "bar");
     }
+    
 }

@@ -3,7 +3,6 @@ package org.carlspring.strongbox.repository.group.index;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
@@ -17,14 +16,18 @@ import org.carlspring.strongbox.util.IndexContextHelper;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Optional;
 import java.util.Set;
 
 import org.hamcrest.Matchers;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Przemyslaw Fusik
@@ -34,21 +37,21 @@ import static org.junit.Assert.*;
 public class MavenIndexGroupRepositoryComponentTest
         extends BaseMavenGroupRepositoryComponentTest
 {
-
     private static final String REPOSITORY_GROUP = "migrc-group";
 
     @Inject
-    private ArtifactIndexesService artifactIndexesService;
+    private Optional<ArtifactIndexesService> artifactIndexesService;
 
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
-
 
     @Override
     protected void postInitializeInternally()
             throws IOException
     {
-        artifactIndexesService.rebuildIndexes();
+        Assume.assumeTrue(artifactIndexesService.isPresent());
+
+        artifactIndexesService.get().rebuildIndexes();
     }
 
     @Test
@@ -62,7 +65,7 @@ public class MavenIndexGroupRepositoryComponentTest
                                                            REPOSITORY_GROUP_F,
                                                            IndexTypeEnum.LOCAL.getType());
 
-        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+        RepositoryIndexer indexer = repositoryIndexManager.get().getRepositoryIndexer(contextId);
 
         Repository repository = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_LEAF_L);
 
@@ -92,7 +95,7 @@ public class MavenIndexGroupRepositoryComponentTest
         createGroup(REPOSITORY_GROUP, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
 
         // recoded since we scheduled a cron job now
-        artifactIndexesService.rebuildIndex(STORAGE0, REPOSITORY_GROUP, null);
+        artifactIndexesService.get().rebuildIndex(STORAGE0, REPOSITORY_GROUP, null);
 
 
         SearchRequest request = new SearchRequest(STORAGE0, REPOSITORY_GROUP,

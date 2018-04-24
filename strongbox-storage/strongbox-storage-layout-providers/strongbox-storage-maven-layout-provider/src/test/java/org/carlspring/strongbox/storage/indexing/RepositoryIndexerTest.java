@@ -14,11 +14,13 @@ import javax.xml.bind.JAXBException;
 import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,12 +36,17 @@ public class RepositoryIndexerTest
 
     private static final String REPOSITORY_RELEASES = "ri-releases";
 
-
     @BeforeClass
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    @Before
+    public void isIndexingEnabled()
+    {
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
     }
 
     @Before
@@ -71,12 +78,12 @@ public class RepositoryIndexerTest
     @Test
     public void testIndex() throws Exception
     {
-        RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer(STORAGE0 + ":" +
-                                                                                               REPOSITORY_RELEASES + ":" +
-                                                                                               IndexTypeEnum.LOCAL
-                                                                                                            .getType());
+        RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
+        RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(STORAGE0 + ":" +
+                                                                                          REPOSITORY_RELEASES + ":" +
+                                                                                          IndexTypeEnum.LOCAL.getType());
 
-        MavenRepositoryFeatures features = getFeatures();
+        IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
 
         int x = features.reIndex(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox/strongbox-commons");
 
@@ -121,11 +128,11 @@ public class RepositoryIndexerTest
         {
             MavenArtifactCoordinates mavenArtifactCoordinates = (MavenArtifactCoordinates) result.getArtifactCoordinates();
             artifactInfos.add(new ArtifactInfo(result.getRepositoryId(),
-                    mavenArtifactCoordinates.getGroupId(),
-                    mavenArtifactCoordinates.getArtifactId(),
-                    mavenArtifactCoordinates.getVersion(),
-                    mavenArtifactCoordinates.getClassifier(),
-                    mavenArtifactCoordinates.getExtension()));
+                                               mavenArtifactCoordinates.getGroupId(),
+                                               mavenArtifactCoordinates.getArtifactId(),
+                                               mavenArtifactCoordinates.getVersion(),
+                                               mavenArtifactCoordinates.getClassifier(),
+                                               mavenArtifactCoordinates.getExtension()));
         }
 
         return artifactInfos;

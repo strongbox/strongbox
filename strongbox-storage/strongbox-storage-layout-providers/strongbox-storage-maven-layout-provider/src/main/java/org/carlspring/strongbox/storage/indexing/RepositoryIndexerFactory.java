@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryInitializationException;
@@ -9,29 +10,29 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
-import org.apache.maven.index.Indexer;
-import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.creator.JarFileContentsIndexCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
 @Component("repositoryIndexerFactory")
+@Conditional(MavenIndexerEnabledCondition.class)
 public class RepositoryIndexerFactory
 {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexerFactory.class);
 
+    @Inject
     private IndexerConfiguration indexerConfiguration;
 
     @Inject
@@ -42,12 +43,6 @@ public class RepositoryIndexerFactory
 
     @Inject
     private ConfigurationManager configurationManager;
-
-    @Inject
-    public RepositoryIndexerFactory(IndexerConfiguration indexerConfiguration)
-    {
-        this.indexerConfiguration = indexerConfiguration;
-    }
 
     public RepositoryIndexer createRepositoryIndexer(String storageId,
                                                      String repositoryId,
@@ -88,18 +83,19 @@ public class RepositoryIndexerFactory
                                                   RepositoryPath indexDir)
             throws IOException
     {
-        return getIndexer().createIndexingContext(storageId + ":" + repositoryId + ":" + indexType,
-                                                  repositoryId,
-                                                  repositoryBasedir.toFile(),
-                                                  indexDir.toFile(),
-                                                  null,
-                                                  null,
-                                                  true, // if context should be searched in non-targeted mode.
-                                                  true, // if indexDirectory is known to contain (or should contain)
-                                                        // valid Maven Indexer lucene index, and no checks needed to be
-                                                        // performed, or, if we want to "stomp" over existing index
-                                                        // (unsafe to do!).
-                                                  getRepositoryIndexCreators(storageId, repositoryId));
+        return indexerConfiguration.getIndexer()
+                                   .createIndexingContext(storageId + ":" + repositoryId + ":" + indexType,
+                                                          repositoryId,
+                                                          repositoryBasedir.toFile(),
+                                                          indexDir.toFile(),
+                                                          null,
+                                                          null,
+                                                          true, // if context should be searched in non-targeted mode.
+                                                          true, // if indexDirectory is known to contain (or should contain)
+                                                                // valid Maven Indexer lucene index, and no checks needed to be
+                                                                // performed, or, if we want to "stomp" over existing index
+                                                                // (unsafe to do!).
+                                                          getRepositoryIndexCreators(storageId, repositoryId));
     }
 
     private List<IndexCreator> getRepositoryIndexCreators(final String storageId,
@@ -119,31 +115,6 @@ public class RepositoryIndexerFactory
                                          .collect(Collectors.toList());
         }
         return indexCreators;
-    }
-
-    public IndexerConfiguration getIndexerConfiguration()
-    {
-        return indexerConfiguration;
-    }
-
-    public void setIndexerConfiguration(IndexerConfiguration indexerConfiguration)
-    {
-        this.indexerConfiguration = indexerConfiguration;
-    }
-
-    public Indexer getIndexer()
-    {
-        return indexerConfiguration.getIndexer();
-    }
-
-    public Scanner getScanner()
-    {
-        return indexerConfiguration.getScanner();
-    }
-
-    public Map<String, IndexCreator> getIndexers()
-    {
-        return indexerConfiguration.getIndexers();
     }
 
 }

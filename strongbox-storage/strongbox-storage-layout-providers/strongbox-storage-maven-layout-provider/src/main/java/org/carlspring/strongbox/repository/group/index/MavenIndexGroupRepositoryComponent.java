@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.repository.group.index;
 
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
+import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.locator.handlers.MavenGroupRepositoryIndexerManagementOperation;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.IndexedMaven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponent;
@@ -19,12 +21,14 @@ import java.nio.file.Files;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Component
+@Conditional(MavenIndexerEnabledCondition.class)
 public class MavenIndexGroupRepositoryComponent
         extends BaseMavenGroupRepositoryComponent
 {
@@ -38,7 +42,7 @@ public class MavenIndexGroupRepositoryComponent
     public void rebuildIndex(final Repository groupRepository)
             throws IOException
     {
-        rebuildIndex(groupRepository,null);
+        rebuildIndex(groupRepository, null);
     }
 
     public void rebuildIndex(final Repository groupRepository,
@@ -81,7 +85,7 @@ public class MavenIndexGroupRepositoryComponent
             return;
         }
         final RepositoryPath repositoryPath = layoutProvider.resolve(groupRepository).resolve(artifactPath);
-        ((Maven2LayoutProvider) layoutProvider).deleteFromIndex(repositoryPath);
+        ((IndexedMaven2LayoutProvider) layoutProvider).deleteFromIndex(repositoryPath);
     }
 
     @Override

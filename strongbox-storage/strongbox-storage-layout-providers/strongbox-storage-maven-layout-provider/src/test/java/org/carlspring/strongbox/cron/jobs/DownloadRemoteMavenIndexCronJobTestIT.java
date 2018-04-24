@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -75,6 +76,8 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     public void initialize()
             throws Exception
     {
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
+
         createRepository(STORAGE0, REPOSITORY_RELEASES, true);
 
         createProxyRepository(STORAGE0,

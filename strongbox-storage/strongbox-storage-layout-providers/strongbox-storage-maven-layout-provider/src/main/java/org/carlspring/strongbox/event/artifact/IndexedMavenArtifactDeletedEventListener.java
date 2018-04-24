@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.event.artifact;
 
+import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -7,13 +8,16 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import java.io.IOException;
 
+import com.google.common.base.Throwables;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Component
-public class MavenArtifactStoredEventListener
+@Conditional(MavenIndexerEnabledCondition.class)
+public class IndexedMavenArtifactDeletedEventListener
         extends BaseMavenArtifactEventListener
 {
 
@@ -30,21 +34,20 @@ public class MavenArtifactStoredEventListener
             return;
         }
 
-        if (event.getType() != ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED.getType())
+        if (event.getType() != ArtifactEventTypeEnum.EVENT_ARTIFACT_PATH_DELETED.getType())
         {
             return;
         }
 
         try
         {
-            mavenIndexGroupRepositoryComponent.updateGroupsContaining(event.getStorageId(),
-                                                                      event.getRepositoryId(),
-                                                                      event.getPath());
+            mavenIndexGroupRepositoryComponent.cleanupGroupsContaining(event.getStorageId(),
+                                                                       event.getRepositoryId(),
+                                                                       event.getPath());
         }
-        catch (final IOException e)
+        catch (IOException e)
         {
-            logger.error("Unable to update parent group repositories indexes of file " + event.getPath() +
-                         " of repository " + event.getRepositoryId(), e);
+            throw Throwables.propagate(e);
         }
     }
 }

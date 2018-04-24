@@ -10,6 +10,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
+import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -38,7 +39,12 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
@@ -53,6 +59,7 @@ import org.apache.maven.index.ArtifactInfo;
 import org.apache.maven.index.context.IndexUtils;
 import org.apache.maven.index.context.IndexingContext;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.Assume;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertNotNull;
@@ -72,7 +79,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     private static final Logger logger = LoggerFactory.getLogger(TestCaseWithMavenArtifactGenerationAndIndexing.class);
 
     @Inject
-    protected RepositoryIndexManager repositoryIndexManager;
+    protected Optional<RepositoryIndexManager> repositoryIndexManager;
 
     @Inject
     protected ConfigurationManagementService configurationManagementService;
@@ -219,10 +226,17 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                                               .getStorage(storageId)
                                                               .getRepository(repositoryId);
 
-        if (features.isIndexingEnabled(repository))
+        if (!(features instanceof IndexedMavenRepositoryFeatures))
         {
-            features.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/").replaceAll("\\:", "\\/"));
-            features.pack(storageId, repositoryId);
+            return;
+        }
+
+        IndexedMavenRepositoryFeatures indexedFeatures = (IndexedMavenRepositoryFeatures) features;
+
+        if (indexedFeatures.isIndexingEnabled(repository))
+        {
+            indexedFeatures.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/").replaceAll("\\:", "\\/"));
+            indexedFeatures.pack(storageId, repositoryId);
         }
     }
 
@@ -234,9 +248,16 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                                               .getStorage(storageId)
                                                               .getRepository(repositoryId);
 
-        if (features.isIndexingEnabled(repository))
+        if (!(features instanceof IndexedMavenRepositoryFeatures))
         {
-            features.reIndex(storageId, repositoryId, path != null ? path : ".");
+            return;
+        }
+
+        IndexedMavenRepositoryFeatures indexedFeatures = (IndexedMavenRepositoryFeatures) features;
+
+        if (indexedFeatures.isIndexingEnabled(repository))
+        {
+            indexedFeatures.reIndex(storageId, repositoryId, path != null ? path : ".");
         }
     }
 
@@ -248,9 +269,16 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                                               .getStorage(storageId)
                                                               .getRepository(repositoryId);
 
-        if (features.isIndexingEnabled(repository))
+        if (!(features instanceof IndexedMavenRepositoryFeatures))
         {
-            features.pack(storageId, repositoryId);
+            return;
+        }
+
+        IndexedMavenRepositoryFeatures indexedFeatures = (IndexedMavenRepositoryFeatures) features;
+
+        if (indexedFeatures.isIndexingEnabled(repository))
+        {
+            indexedFeatures.pack(storageId, repositoryId);
         }
     }
 
@@ -299,8 +327,13 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                           String indexType)
             throws IOException
     {
+        if (!repositoryIndexManager.isPresent())
+        {
+            return;
+        }
+
         String contextId = storageId + ":" + repositoryId + ":" + indexType;
-        RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+        RepositoryIndexer repositoryIndexer = repositoryIndexManager.get().getRepositoryIndexer(contextId);
         if (repositoryIndexer == null)
         {
             logger.debug("Unable to find index for contextId " + contextId);
@@ -372,8 +405,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     }
 
     protected void assertStreamNotNull(final String storageId,
-                                     final String repositoryId,
-                                     final String path)
+                                       final String repositoryId,
+                                       final String path)
             throws Exception
     {
         try (final InputStream is = artifactResolutionService.getInputStream(storageId, repositoryId, path))
@@ -392,6 +425,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                             String query)
             throws SearchException
     {
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
+
         boolean isContained = indexContainsArtifact(storageId, repositoryId, query);
 
         assertTrue(isContained);
@@ -410,9 +445,23 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         return artifactSearchService.contains(request);
     }
 
-    public RepositoryIndexManager getRepositoryIndexManager()
+    protected void closeIndexersForRepository(String storageId,
+                                              String repositoryId)
+            throws IOException
     {
-        return repositoryIndexManager;
+        if (repositoryIndexManager.isPresent())
+        {
+            repositoryIndexManager.get().closeIndexersForRepository(storageId, repositoryId);
+        }
+    }
+
+    public void closeIndexer(String contextId)
+            throws IOException
+    {
+        if (repositoryIndexManager.isPresent())
+        {
+            repositoryIndexManager.get().closeIndexer(contextId);
+        }
     }
 
     public RepositoryManagementService getRepositoryManagementService()
