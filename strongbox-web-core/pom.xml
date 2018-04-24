@@ -948,10 +948,6 @@
                                     <name>strongbox.download.indexes</name>
                                     <value>false</value>
                                 </systemProperty>
-                                <systemProperty>
-                                    <name>maven.indexer.enabled</name>
-                                    <value>false</value>
-                                </systemProperty>
                             </systemProperties>
 
                             <!-- Restore the following for SSL/HTTPSL when the time comes:
