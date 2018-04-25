@@ -5,6 +5,8 @@ import org.carlspring.strongbox.converters.PrivilegeListFormToPrivilegeListConve
 import org.carlspring.strongbox.converters.RoleFormToRoleConverter;
 import org.carlspring.strongbox.converters.RoleListFormToRoleListConverter;
 import org.carlspring.strongbox.converters.configuration.ProxyConfigurationFormToProxyConfigurationConverter;
+import org.carlspring.strongbox.converters.storage.routing.RoutingRuleFormToRoutingRuleConverter;
+import org.carlspring.strongbox.converters.storage.routing.RuleSetFormToRuleSetConverter;
 import org.carlspring.strongbox.converters.users.AccessModelFormToAccessModelConverter;
 import org.carlspring.strongbox.converters.users.UserFormToUserConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
@@ -189,6 +191,8 @@ public class WebConfig
         registry.addConverter(new UserFormToUserConverter());
         registry.addConverter(new AccessModelFormToAccessModelConverter());
         registry.addConverter(new ProxyConfigurationFormToProxyConfigurationConverter());
+        registry.addConverter(new RuleSetFormToRuleSetConverter());
+        registry.addConverter(new RoutingRuleFormToRoutingRuleConverter());
     }
 
     @Bean

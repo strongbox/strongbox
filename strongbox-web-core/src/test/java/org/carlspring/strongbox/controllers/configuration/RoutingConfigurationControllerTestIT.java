@@ -10,8 +10,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
@@ -24,6 +26,12 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 public class RoutingConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
+
+    @Before
+    public void setUp()
+    {
+        setContextBaseUrl("/api/configuration/strongbox/routing");
+    }
 
     @Test
     public void addAcceptedRuleSet()
@@ -38,13 +46,14 @@ public class RoutingConfigurationControllerTestIT
     {
         acceptedRuleSet();
 
-        String url = getContextBaseUrl() + "/api/configuration/strongbox/routing/rules/set/accepted/group-releases-2";
+        String url = getContextBaseUrl() + "/rules/set/accepted/group-releases-2";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .delete(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value());
     }
 
     @Test
@@ -62,14 +71,15 @@ public class RoutingConfigurationControllerTestIT
         acceptedRuleSet();
         acceptedRepository();
 
-        String url = getContextBaseUrl() + "/api/configuration/strongbox/routing/rules/accepted" +
+        String url = getContextBaseUrl() + "/rules/accepted" +
                      "/group-releases-2/repositories/releases3?pattern=.*some.test";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .delete(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value());
     }
 
     @Test
@@ -79,33 +89,34 @@ public class RoutingConfigurationControllerTestIT
         acceptedRuleSet();
         acceptedRepository();
 
-        String url = getContextBaseUrl() + "/api/configuration/strongbox/routing/rules/accepted" +
+        String url = getContextBaseUrl() + "/rules/accepted" +
                      "/group-releases-2/override/repositories";
 
         RoutingRule routingRule = new RoutingRule();
         routingRule.setPattern(".*some.test");
-        Set<String> repositories = new HashSet<String>();
+        Set<String> repositories = new HashSet<>();
         repositories.add("releases22");
         repositories.add("releases32");
         routingRule.setRepositories(repositories);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(routingRule)
                .when()
                .put(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value());
     }
 
     private void acceptedRuleSet()
     {
-        String url = getContextBaseUrl() + "/api/configuration/strongbox/routing/rules/set/accepted";
+        String url = getContextBaseUrl() + "/rules/set/accepted";
 
         RuleSet ruleSet = new RuleSet();
         ruleSet.setGroupRepository("group-releases-2");
         RoutingRule routingRule = new RoutingRule();
         routingRule.setPattern(".*some.test");
-        Set<String> repositories = new HashSet<String>();
+        Set<String> repositories = new HashSet<>();
         repositories.add("releases-with-trash");
         repositories.add("releases-with-redeployment");
         routingRule.setRepositories(repositories);
@@ -115,31 +126,32 @@ public class RoutingConfigurationControllerTestIT
         ruleSet.setRoutingRules(rule);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(ruleSet)
                .when()
                .put(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value());
     }
 
     private void acceptedRepository()
     {
         String url =
-                getContextBaseUrl() +
-                "/api/configuration/strongbox/routing/rules/accepted/group-releases-2/repositories";
+                getContextBaseUrl() + "/rules/accepted/group-releases-2/repositories";
 
         RoutingRule routingRule = new RoutingRule();
         routingRule.setPattern(".*some.test");
-        Set<String> repositories = new HashSet<String>();
+        Set<String> repositories = new HashSet<>();
         repositories.add("releases2");
         repositories.add("releases3");
         routingRule.setRepositories(repositories);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(routingRule)
                .when()
                .put(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value());
     }
 }
