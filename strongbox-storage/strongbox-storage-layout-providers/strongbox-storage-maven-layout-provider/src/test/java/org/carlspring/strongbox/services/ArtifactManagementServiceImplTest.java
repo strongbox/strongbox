@@ -6,6 +6,8 @@ import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.resource.ResourceCloser;
@@ -21,23 +23,32 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -49,6 +60,13 @@ import static org.junit.Assert.fail;
 public class ArtifactManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+    private static final Resource loremIpsum1 = new ClassPathResource("artifacts/lorem-ipsum-1.txt");
+
+    private static final Resource loremIpsum2 = new ClassPathResource("artifacts/lorem-ipsum-2.txt");
+
+    private static final Resource loremIpsum3 = new ClassPathResource("artifacts/lorem-ipsum-3.txt");
+
+    private static final Resource loremIpsum4 = new ClassPathResource("artifacts/lorem-ipsum-4.txt");
 
     private static final String REPOSITORY_RELEASES = "amsi-releases";
 
@@ -61,6 +79,8 @@ public class ArtifactManagementServiceImplTest
     private static final String REPOSITORY_RELEASES_WITHOUT_DELETE = "amsi-releases-without-delete";
 
     private static final String REPOSITORY_SNAPSHOTS = "amsi-snapshots";
+
+    private static final String REPOSITORY_WITH_LOCK = "repository-with-lock";
 
     private static final String REPOSITORY_GROUP = "amsi-group";
 
@@ -78,6 +98,8 @@ public class ArtifactManagementServiceImplTest
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     @BeforeClass
     public static void cleanUp()
@@ -159,6 +181,10 @@ public class ArtifactManagementServiceImplTest
         repositorySnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
 
         createRepository(repositorySnapshots);
+
+        //
+        Repository repositoryWithLock = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_WITH_LOCK);
+        createRepository(repositoryWithLock);
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -171,6 +197,7 @@ public class ArtifactManagementServiceImplTest
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DELETE));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_WITH_LOCK));
 
         return repositories;
     }
@@ -480,6 +507,64 @@ public class ArtifactManagementServiceImplTest
 
         assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1, files.length);
         assertTrue(artifactName.endsWith("-3"));
+    }
+
+    @Test
+    public void storageContentShouldNotBeAffectedByMoreThanOneThreadAtTheSameTime()
+            throws Exception
+    {
+        // given
+        String loremIpsum1Content = String.join("", Files.readAllLines(loremIpsum1.getFile().toPath()));
+        String loremIpsum2Content = String.join("", Files.readAllLines(loremIpsum2.getFile().toPath()));
+        String loremIpsum3Content = String.join("", Files.readAllLines(loremIpsum3.getFile().toPath()));
+        String loremIpsum4Content = String.join("", Files.readAllLines(loremIpsum4.getFile().toPath()));
+
+        Repository repository = getConfiguration().getStorage(STORAGE0).getRepository(REPOSITORY_WITH_LOCK);
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(
+                "org/carlspring/strongbox/locked-artifact/12.2.0.1/locked-artifact-12.2.0.1.pom");
+
+        List<Callable<Void>> callables = Arrays.asList(
+                new InvokeStoreCallable(repositoryPath, loremIpsum1.getInputStream()),
+                new InvokeStoreCallable(repositoryPath, loremIpsum2.getInputStream()),
+                new InvokeStoreCallable(repositoryPath, loremIpsum3.getInputStream()),
+                new InvokeStoreCallable(repositoryPath, loremIpsum4.getInputStream())
+        );
+
+        // when
+        Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()).invokeAll(callables);
+        String repositoryPathContent = String.join("", Files.readAllLines(repositoryPath));
+
+        // then
+        assertThat(repositoryPathContent,
+                   Matchers.isIn(Arrays.asList(
+                           loremIpsum1Content,
+                           loremIpsum2Content,
+                           loremIpsum3Content,
+                           loremIpsum4Content)));
+    }
+
+    private class InvokeStoreCallable
+            implements Callable<Void>
+    {
+
+        private final RepositoryPath repositoryPath;
+
+        private final InputStream is;
+
+        private InvokeStoreCallable(final RepositoryPath repositoryPath,
+                                    final InputStream is)
+        {
+            this.repositoryPath = repositoryPath;
+            this.is = is;
+        }
+
+        @Override
+        public Void call()
+                throws Exception
+        {
+            mavenArtifactManagementService.store(repositoryPath, is);
+            return null;
+        }
     }
 
 }
