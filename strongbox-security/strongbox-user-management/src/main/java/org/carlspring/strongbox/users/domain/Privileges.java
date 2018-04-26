@@ -20,6 +20,8 @@ public enum Privileges
     ADMIN,
     CONFIGURATION_UPLOAD,
     CONFIGURATION_VIEW,
+    CONFIGURATION_SET_INSTANCE_NAME,
+    CONFIGURATION_VIEW_INSTANCE_NAME,
     CONFIGURATION_SET_BASE_URL,
     CONFIGURATION_VIEW_BASE_URL,
     CONFIGURATION_SET_PORT,
@@ -115,6 +117,7 @@ public enum Privileges
         Set<String> set = new HashSet<>();
         set.add(ARTIFACTS_VIEW.name());
         set.add(ARTIFACTS_RESOLVE.name());
+
         return set;
     }
 
@@ -125,6 +128,7 @@ public enum Privileges
         set.add(ARTIFACTS_DEPLOY.name());
         set.add(ARTIFACTS_DELETE.name());
         set.add(ARTIFACTS_COPY.name());
+
         return set;
     }
 

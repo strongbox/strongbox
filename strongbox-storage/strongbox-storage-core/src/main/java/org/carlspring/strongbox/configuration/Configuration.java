@@ -27,6 +27,9 @@ public class Configuration
         extends ServerConfiguration
 {
 
+    @XmlElement(name = "instance-name")
+    private String instanceName = "strongbox";
+
     @XmlElement
     private String version = "1.0";
 
@@ -66,6 +69,16 @@ public class Configuration
 
     public Configuration()
     {
+    }
+
+    public String getInstanceName()
+    {
+        return instanceName;
+    }
+
+    public void setInstanceName(String instanceName)
+    {
+        this.instanceName = instanceName;
     }
 
     public String getVersion()
@@ -186,6 +199,7 @@ public class Configuration
         if (o == null || getClass() != o.getClass()) return false;
         Configuration that = (Configuration) o;
         return port == that.port &&
+               Objects.equal(instanceName, that.instanceName) &&
                Objects.equal(version, that.version) &&
                Objects.equal(baseUrl, that.baseUrl) &&
                Objects.equal(proxyConfiguration, that.proxyConfiguration) &&
@@ -206,6 +220,7 @@ public class Configuration
     public String toString()
     {
         return MoreObjects.toStringHelper(this)
+                          .add("\n\tinstanceName", instanceName)
                           .add("\n\tversion", version)
                           .add("\n\tbaseUrl", baseUrl)
                           .add("\n\tport", port)

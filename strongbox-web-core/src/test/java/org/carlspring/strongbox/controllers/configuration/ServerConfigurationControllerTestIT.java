@@ -2,6 +2,7 @@ package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
+import org.carlspring.strongbox.controllers.support.InstanceNameEntityBody;
 import org.carlspring.strongbox.controllers.support.PortEntityBody;
 import org.carlspring.strongbox.forms.configuration.ServerSettingsForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -89,6 +90,35 @@ public class ServerConfigurationControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
                .body("port", equalTo(newPort));
+    }
+
+    @Test
+    @WithMockUser(authorities = { "CONFIGURATION_SET_INSTANCE_NAME",
+                                  "CONFIGURATION_VIEW_INSTANCE_NAME" })
+    public void testSetAndGetInstanceName()
+    {
+        String instanceName = "strongbox_" + System.currentTimeMillis();
+        InstanceNameEntityBody instanceNameEntity = new InstanceNameEntityBody(instanceName);
+
+        String url = getContextBaseUrl() + "/instanceName";
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(instanceNameEntity)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body("message", equalTo("The instance's name was updated."));
+
+        url = getContextBaseUrl() + "/instanceName";
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("instanceName", equalTo(instanceName));
     }
 
     @Test

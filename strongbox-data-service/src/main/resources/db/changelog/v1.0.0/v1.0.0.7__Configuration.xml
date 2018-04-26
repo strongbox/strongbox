@@ -115,6 +115,7 @@
         </o:createClass>
 
         <o:createClass name="Configuration" extends="GenericEntity">
+            <o:property name="instanceName" type="string" default="strongbox"/>
             <o:property name="version" type="string" default="1.0"/>
             <o:property name="revision" type="string"/>
             <o:property name="baseUrl" type="string" default="http://localhost/"/>
