@@ -77,6 +77,21 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
+    public String getInstanceName()
+    {
+        return getConfiguration().getInstanceName();
+    }
+
+    @Override
+    public void setInstanceName(String instanceName)
+    {
+        Configuration configuration = getConfiguration();
+        configuration.setInstanceName(instanceName);
+
+        save(configuration);
+    }
+
+    @Override
     public String getBaseUrl()
     {
         return getConfiguration().getBaseUrl();

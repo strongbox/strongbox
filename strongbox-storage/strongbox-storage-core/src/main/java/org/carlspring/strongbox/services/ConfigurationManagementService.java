@@ -23,6 +23,10 @@ public interface ConfigurationManagementService
 
     void save(Configuration Configuration);
 
+    String getInstanceName();
+
+    void setInstanceName(String instanceName);
+
     String getBaseUrl();
 
     void setBaseUrl(String baseUrl);
