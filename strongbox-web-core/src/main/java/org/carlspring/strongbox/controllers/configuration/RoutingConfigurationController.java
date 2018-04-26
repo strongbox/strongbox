@@ -31,22 +31,22 @@ public class RoutingConfigurationController
         extends BaseConfigurationController
 {
 
-    private static final String SUCCESSFUL_ADD_RULE_SET = "Rule set addition succeeded.";
-    private static final String FAILED_ADD_RULE_SET_FORM_ERROR = "Rule set cannot be added because the submitted form contains errors!";
-    private static final String NOT_FOUND_RULE_SET = "Rule set could not be found.";
+    static final String SUCCESSFUL_ADD_RULE_SET = "Rule set addition succeeded.";
+    static final String FAILED_ADD_RULE_SET_FORM_ERROR = "Rule set cannot be added because the submitted form contains errors!";
+    static final String NOT_FOUND_RULE_SET = "Rule set could not be found.";
 
-    private static final String SUCCESSFUL_REMOVE_RULE_SET = "Rule set deletion succeeded.";
+    static final String SUCCESSFUL_REMOVE_RULE_SET = "Rule set deletion succeeded.";
 
-    private static final String SUCCESSFUL_ADD_REPOSITORY = "Accepted repository addition succeeded.";
-    private static final String FAILED_ADD_REPOSITORY_FORM_ERROR = "Accepted repository cannot be added because the submitted form contains errors!";
-    private static final String NOT_FOUND_REPOSITORY = "Accepted repository could not be found.";
+    static final String SUCCESSFUL_ADD_REPOSITORY = "Accepted repository addition succeeded.";
+    static final String FAILED_ADD_REPOSITORY_FORM_ERROR = "Accepted repository cannot be added because the submitted form contains errors!";
+    static final String NOT_FOUND_REPOSITORY = "Accepted repository could not be found.";
 
-    private static final String SUCCESSFUL_REMOVE_REPOSITORY = "Accepted repository deletion succeeded.";
+    static final String SUCCESSFUL_REMOVE_REPOSITORY = "Accepted repository deletion succeeded.";
 
-    private static final String SUCCESSFUL_OVERRIDE_REPOSITORY = "Accepted repository override succeeded.";
-    private static final String FAILED_OVERRIDE_REPOSITORY_FORM_ERROR = "Accepted repository cannot be overridden because the submitted form contains errors!";
+    static final String SUCCESSFUL_OVERRIDE_REPOSITORY = "Accepted repository override succeeded.";
+    static final String FAILED_OVERRIDE_REPOSITORY_FORM_ERROR = "Accepted repository cannot be overridden because the submitted form contains errors!";
 
-    private static final String NOT_FOUND_ROUTING_RULE = "Routing rule is empty.";
+    static final String NOT_FOUND_ROUTING_RULE = "Routing rule is empty.";
 
     private final ConversionService conversionService;
 
@@ -72,7 +72,9 @@ public class RoutingConfigurationController
                             @ApiResponse(code = 400, message = FAILED_ADD_RULE_SET_FORM_ERROR),
                             @ApiResponse(code = 404, message = NOT_FOUND_RULE_SET) })
     @PutMapping(value = "/rules/set/accepted",
-                consumes = MediaType.APPLICATION_JSON_VALUE)
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addAcceptedRuleSet(@RequestBody @Validated RuleSetForm ruleSetForm,
                                              BindingResult bindingResult,
                                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -91,7 +93,9 @@ public class RoutingConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REMOVE_RULE_SET),
                             @ApiResponse(code = 404, message = NOT_FOUND_RULE_SET) })
     @DeleteMapping(value = "/rules/set/accepted/{groupRepository}",
-                   consumes = MediaType.APPLICATION_JSON_VALUE)
+                   consumes = MediaType.APPLICATION_JSON_VALUE,
+                   produces = { MediaType.TEXT_PLAIN_VALUE,
+                                MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity removeAcceptedRuleSet(@PathVariable String groupRepository,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
@@ -104,7 +108,9 @@ public class RoutingConfigurationController
                             @ApiResponse(code = 400, message = FAILED_ADD_REPOSITORY_FORM_ERROR),
                             @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
     @PutMapping(value = "/rules/accepted/{groupRepository}/repositories",
-                consumes = MediaType.APPLICATION_JSON_VALUE)
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addAcceptedRepository(@PathVariable String groupRepository,
                                                 @RequestBody @Validated RoutingRuleForm routingRuleForm,
                                                 BindingResult bindingResult,
@@ -130,7 +136,9 @@ public class RoutingConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REMOVE_REPOSITORY),
                             @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
     @DeleteMapping(value = "/rules/accepted/{groupRepository}/repositories/{repositoryId}",
-                   consumes = MediaType.APPLICATION_JSON_VALUE)
+                   consumes = MediaType.APPLICATION_JSON_VALUE,
+                   produces = { MediaType.TEXT_PLAIN_VALUE,
+                                MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity removeAcceptedRepository(@PathVariable String groupRepository,
                                                    @PathVariable String repositoryId,
                                                    @RequestParam("pattern") String pattern,
@@ -146,7 +154,9 @@ public class RoutingConfigurationController
                             @ApiResponse(code = 400, message = FAILED_OVERRIDE_REPOSITORY_FORM_ERROR),
                             @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
     @PutMapping(value = "/rules/accepted/{groupRepository}/override/repositories",
-                consumes = MediaType.APPLICATION_JSON_VALUE)
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity overrideAcceptedRepository(@PathVariable String groupRepository,
                                                      @RequestBody @Validated RoutingRuleForm routingRuleForm,
                                                      BindingResult bindingResult,
