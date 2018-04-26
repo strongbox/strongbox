@@ -12,6 +12,7 @@ import org.carlspring.strongbox.io.StreamUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -33,7 +34,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,9 +43,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -61,29 +58,40 @@ import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.g
 @Component
 public class ArtifactManagementService
 {
-
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementService.class);
+
     @Inject
     protected ArtifactOperationsValidator artifactOperationsValidator;
+
     @Inject
     protected ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
+
     @Inject
     protected ConfigurationManager configurationManager;
+
     @Inject
     protected ArtifactEntryService artifactEntryService;
+
     @Inject
     protected LayoutProviderRegistry layoutProviderRegistry;
+
     @Inject
     protected ArtifactResolutionService artifactResolutionService;
+
     @Inject
     protected ChecksumCacheManager checksumCacheManager;
+
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
+
     @Inject
     protected ArtifactByteStreamsCopyStrategyDeterminator artifactByteStreamsCopyStrategyDeterminator;
+
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
-    private Map<URI, Lock> pathUriMap = new ConcurrentHashMap<>();
+
+    @Inject
+    protected RepositoryPathLock repositoryPathLock;
 
     @Transactional
     public long validateAndStore(String storageId,
@@ -114,8 +122,8 @@ public class ArtifactManagementService
     {
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
-        URI pathUri = repositoryPath.toUri();
-        acquireLock(pathUri);
+
+        repositoryPathLock.lock(repositoryPath);
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(storage.getId(),
                                                                                           repository.getId(),
                                                                                           RepositoryFiles.stringValue(
@@ -129,25 +137,7 @@ public class ArtifactManagementService
         }
         finally
         {
-            releaseLock(pathUri);
-        }
-    }
-
-    public void releaseLock(URI pathUri)
-    {
-        Lock lock = pathUriMap.remove(pathUri);
-        lock.unlock();
-    }
-
-    public void acquireLock(URI pathUri)
-    {
-        Lock lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
-        lock.lock();
-
-        while (!pathUriMap.containsKey(pathUri))
-        {
-            lock = Optional.ofNullable(pathUriMap.putIfAbsent(pathUri, lock = new ReentrantLock())).orElse(lock);
-            lock.lock();
+            repositoryPathLock.unlock(repositoryPath);
         }
     }
 
