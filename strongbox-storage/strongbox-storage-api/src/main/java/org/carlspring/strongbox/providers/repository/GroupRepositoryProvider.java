@@ -102,12 +102,12 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 continue;
             }
             
-            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), repositoryPath))
+            RepositoryPath result = repositoryPathResolver.resolve(r, path);
+            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), result))
             {
                 continue;
             }
             
-            RepositoryPath result = repositoryPathResolver.resolve(r, path);
             result = resolvePathFromGroupMemberOrTraverse(result);
             if (result == null)
             {
