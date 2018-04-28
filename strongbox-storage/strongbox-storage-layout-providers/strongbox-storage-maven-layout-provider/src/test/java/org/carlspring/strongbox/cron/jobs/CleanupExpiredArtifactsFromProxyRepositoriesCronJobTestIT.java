@@ -2,6 +2,7 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -11,6 +12,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import com.google.common.base.Throwables;
@@ -39,6 +41,9 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+    
     @Rule
     public TestRule watcher = new TestWatcher()
     {
@@ -78,9 +83,9 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                                                                                              path);
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
-        try (final InputStream ignored = proxyRepositoryProvider.getInputStream(proxyRepositoryProvider.fetchPath(storageId,
-                                                                                                                    repositoryId,
-                                                                                                                    path)))
+        Path repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(storageId, repositoryId,
+                                                                                               path));
+        try (final InputStream ignored = proxyRepositoryProvider.getInputStream(repositoryPath))
         {
         }
 

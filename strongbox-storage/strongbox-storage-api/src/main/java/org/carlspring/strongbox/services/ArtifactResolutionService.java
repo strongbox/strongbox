@@ -5,10 +5,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 
 /**

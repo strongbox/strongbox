@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.services;
 
-import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;

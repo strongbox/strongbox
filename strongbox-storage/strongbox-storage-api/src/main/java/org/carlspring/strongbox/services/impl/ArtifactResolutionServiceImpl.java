@@ -7,13 +7,12 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -41,6 +40,9 @@ public class ArtifactResolutionServiceImpl
 
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
+    
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     @Override
     public RepositoryInputStream getInputStream(RepositoryPath path)
@@ -107,13 +109,12 @@ public class ArtifactResolutionServiceImpl
                                       String artifactPath) 
            throws IOException
     {        
-        final Repository repository = getStorage(storageId).getRepository(repositoryId);
-
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, artifactPath);
+        
+        Repository repository = repositoryPath.getRepository();
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-
-        RepositoryPath resolvedPath = (RepositoryPath)repositoryProvider.fetchPath(storageId, repositoryId, artifactPath);
-
-        return resolvedPath;
+        
+        return (RepositoryPath)repositoryProvider.fetchPath(repositoryPath);
     }
     
 }

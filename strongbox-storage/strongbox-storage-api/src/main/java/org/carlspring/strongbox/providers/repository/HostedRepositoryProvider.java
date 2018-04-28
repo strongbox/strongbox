@@ -3,7 +3,6 @@ package org.carlspring.strongbox.providers.repository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,7 +28,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 /**
  * @author carlspring
@@ -136,35 +134,18 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public RepositoryPath fetchPath(String storageId,
-                                      String repositoryId,
-                                      String path) 
+    protected RepositoryPath fetchPath(RepositoryPath repositoryPath) 
            throws IOException
     {
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-        if (repository == null)
-        {
-            logger.error(String.format("Tried to resolve a repository (%s) which does not exist.", repositoryId));
-            return null;
-        }
-        
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        if (layoutProvider == null)
-        {
-            logger.error(String.format("Trying to resolve repository with unknown layout [%s].", repository.getLayout()));
-            return null;
-        }
-        
-        RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-        logger.debug(" -> Checking local cache for {} ...", artifactPath);
-        if (!Files.exists(artifactPath))
+        logger.debug(" -> Checking local cache for {} ...", repositoryPath);
+        if (!Files.exists(repositoryPath))
         {
             //TODO: we shouldn't return null here.
-            logger.debug("The artifact {} was not found in the local cache", artifactPath);
+            logger.debug("The artifact {} was not found in the local cache", repositoryPath);
             return null;
         }
         
-        logger.debug("The artifact {} was found in the local cache", artifactPath);
-        return artifactPath;
+        logger.debug("The artifact {} was found in the local cache", repositoryPath);
+        return repositoryPath;
     }
 }

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,11 +20,9 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -68,37 +65,28 @@ public class ProxyRepositoryProvider
 
 
     @Override
-    public RepositoryPath fetchPath(String storageId,
-                                      String repositoryId,
-                                      String artifactPath)
+    protected RepositoryPath fetchPath(RepositoryPath repositoryPath)
         throws IOException
     {
-        RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(storageId, repositoryId, artifactPath);
+        RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(repositoryPath);
         if (targetPath != null && Files.isDirectory(targetPath))
         {
             return targetPath;
         }
         return Optional.ofNullable(targetPath)
-                       .orElse(resolvePathForceFetch(storageId, repositoryId, artifactPath));
+                       .orElse(resolvePathForceFetch(repositoryPath));
     }
 
-    public RepositoryPath resolvePathForceFetch(String storageId,
-                                                String repositoryId,
-                                                String artifactPath) throws IOException
+    public RepositoryPath resolvePathForceFetch(RepositoryPath repositoryPath) throws IOException
     {
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
-        
-        try(InputStream is = proxyRepositoryArtifactResolver.getInputStream(repositoryPath);)
+        try(InputStream is = proxyRepositoryArtifactResolver.getInputStream(repositoryPath))
         {
             IOUtils.closeQuietly(is);
             return repositoryPath;
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to resolve Path for proxied artifact [%s]/[%s]/[%s]", storageId,
-                                       repositoryId, artifactPath),
+            logger.error(String.format("Failed to resolve Path for proxied artifact [%s]", repositoryPath),
                          e);
             throw e;
         }

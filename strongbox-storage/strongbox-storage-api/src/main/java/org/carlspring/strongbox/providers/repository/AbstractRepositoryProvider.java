@@ -242,6 +242,15 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     }
     
     @Override
+    public Path fetchPath(Path repositoryPath)
+        throws IOException
+    {
+        return fetchPath((RepositoryPath)repositoryPath);
+    }
+
+    protected abstract Path fetchPath(RepositoryPath repositoryPath) throws IOException;
+    
+    @Override
     public List<Path> search(RepositorySearchRequest searchRequest,
                              RepositoryPageRequest pageRequest)
     {
