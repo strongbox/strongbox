@@ -78,7 +78,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                                                                                              path);
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
-        try (final InputStream ignored = proxyRepositoryProvider.getInputStream(proxyRepositoryProvider.resolvePath(storageId,
+        try (final InputStream ignored = proxyRepositoryProvider.getInputStream(proxyRepositoryProvider.fetchPath(storageId,
                                                                                                                     repositoryId,
                                                                                                                     path)))
         {

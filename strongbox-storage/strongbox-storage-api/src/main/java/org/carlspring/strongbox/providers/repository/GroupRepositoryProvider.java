@@ -76,7 +76,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public RepositoryPath resolvePath(String storageId,
+    public RepositoryPath fetchPath(String storageId,
                                       String repositoryId,
                                       String path)
         throws IOException
@@ -171,7 +171,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
         try
         {
-            return (RepositoryPath) provider.resolvePath(storageId, repositoryId, artifactPath);
+            return (RepositoryPath) provider.fetchPath(storageId, repositoryId, artifactPath);
         }
         catch (IOException e)
         {

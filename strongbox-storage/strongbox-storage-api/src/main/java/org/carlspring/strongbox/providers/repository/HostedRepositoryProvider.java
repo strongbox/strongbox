@@ -136,7 +136,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public RepositoryPath resolvePath(String storageId,
+    public RepositoryPath fetchPath(String storageId,
                                       String repositoryId,
                                       String path) 
            throws IOException

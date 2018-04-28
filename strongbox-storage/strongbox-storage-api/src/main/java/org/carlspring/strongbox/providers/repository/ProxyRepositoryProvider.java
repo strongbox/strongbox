@@ -68,12 +68,12 @@ public class ProxyRepositoryProvider
 
 
     @Override
-    public RepositoryPath resolvePath(String storageId,
+    public RepositoryPath fetchPath(String storageId,
                                       String repositoryId,
                                       String artifactPath)
         throws IOException
     {
-        RepositoryPath targetPath = hostedRepositoryProvider.resolvePath(storageId, repositoryId, artifactPath);
+        RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(storageId, repositoryId, artifactPath);
         if (targetPath != null && Files.isDirectory(targetPath))
         {
             return targetPath;

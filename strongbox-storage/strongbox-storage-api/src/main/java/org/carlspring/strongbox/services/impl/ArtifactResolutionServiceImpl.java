@@ -111,7 +111,7 @@ public class ArtifactResolutionServiceImpl
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        RepositoryPath resolvedPath = (RepositoryPath)repositoryProvider.resolvePath(storageId, repositoryId, artifactPath);
+        RepositoryPath resolvedPath = (RepositoryPath)repositoryProvider.fetchPath(storageId, repositoryId, artifactPath);
 
         return resolvedPath;
     }
