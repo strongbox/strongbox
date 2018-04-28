@@ -47,6 +47,7 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     @Inject
     protected RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
     
+    @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
     @Before
@@ -75,7 +76,7 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
                                                                                              path);
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
-        RepositoryPath repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(repositoryId,
+        RepositoryPath repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(storageId, repositoryId,
                                                                                                          path));
         try (final InputStream ignored = proxyRepositoryProvider.getInputStream(repositoryPath))
         {
