@@ -4,6 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.config.RawLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -126,18 +127,21 @@ public class RawLayoutProviderTest
         }
 
         // Attempt to resolve the artifact
-        InputStream is = artifactManagementService.resolve(STORAGE, REPOSITORY, path);
-        int total = 0;
-        int len;
-        final int size = 4096;
-        byte[] bytes = new byte[size];
-
-        while ((len = is.read(bytes, 0, size)) != -1)
+        RepositoryPath repositoryPath = artifactManagementService.getPath(STORAGE, REPOSITORY, path);
+        try (InputStream is = artifactManagementService.resolve(repositoryPath))
         {
-            total += len;
-        }
+            int total = 0;
+            int len;
+            final int size = 4096;
+            byte[] bytes = new byte[size];
 
-        assertTrue("Failed to resolve artifact!", total > 0);
+            while ((len = is.read(bytes, 0, size)) != -1)
+            {
+                total += len;
+            }
+
+            assertTrue("Failed to resolve artifact!", total > 0);
+        }
     }
 
     private void createRepository(String storageId, String repositoryId)

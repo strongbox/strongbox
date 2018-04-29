@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,8 +43,7 @@ public class MavenArtifactGenerator
 
     public static final String PACKAGING_JAR = "jar";
 
-    private String basedir;
-
+    protected String basedir;
 
     public MavenArtifactGenerator()
     {
@@ -116,30 +116,25 @@ public class MavenArtifactGenerator
             throws NoSuchAlgorithmException,
                    IOException
     {
-        ZipOutputStream zos = null;
+        File artifactFile = new File(basedir, ArtifactUtils.convertArtifactToPath(artifact));
 
-        File artifactFile = null;
+        // Make sure the artifact's parent directory exists before writing the model.
+        //noinspection ResultOfMethodCallIgnored
+        artifactFile.getParentFile().mkdirs();
 
-        try
+        try(ZipOutputStream zos = new ZipOutputStream(newOutputStream(artifactFile)))
         {
-            artifactFile = new File(basedir, ArtifactUtils.convertArtifactToPath(artifact));
-
-            // Make sure the artifact's parent directory exists before writing the model.
-            //noinspection ResultOfMethodCallIgnored
-            artifactFile.getParentFile().mkdirs();
-
-            zos = new ZipOutputStream(new FileOutputStream(artifactFile));
-
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
             createRandomSizeFile(zos);
         }
-        finally
-        {
-            ResourceCloser.close(zos, logger);
+        generateChecksumsForArtifact(artifactFile);
+    }
 
-            generateChecksumsForArtifact(artifactFile);
-        }
+    protected OutputStream newOutputStream(File artifactFile)
+        throws IOException
+    {
+        return new FileOutputStream(artifactFile);
     }
 
     protected void createMetadata(Metadata metadata, String metadataPath)
@@ -163,7 +158,7 @@ public class MavenArtifactGenerator
             // noinspection ResultOfMethodCallIgnored
             metadataFile.getParentFile().mkdirs();
 
-            os = new MultipleDigestOutputStream(metadataFile, new FileOutputStream(metadataFile));
+            os = new MultipleDigestOutputStream(metadataFile, newOutputStream(metadataFile));
             writer = WriterFactory.newXmlWriter(os);
             MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
             mappingWriter.write(writer, metadata);

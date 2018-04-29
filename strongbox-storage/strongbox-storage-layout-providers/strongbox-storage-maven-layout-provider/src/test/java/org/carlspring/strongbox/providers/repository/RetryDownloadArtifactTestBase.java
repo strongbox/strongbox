@@ -24,7 +24,7 @@ import org.springframework.core.io.Resource;
 /**
  * @author Przemyslaw Fusik
  */
-abstract class RetryDownloadArtifactTestBase
+public abstract class RetryDownloadArtifactTestBase
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 

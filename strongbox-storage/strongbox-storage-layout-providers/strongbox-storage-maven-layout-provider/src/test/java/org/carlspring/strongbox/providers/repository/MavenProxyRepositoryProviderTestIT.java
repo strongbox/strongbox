@@ -4,6 +4,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
@@ -229,13 +230,15 @@ public class MavenProxyRepositoryProviderTestIT
                    ArtifactTransportException,
                    IOException
     {
-        InputStream is = artifactResolutionService.getInputStream("public",
-                                                                  "public-group",
-                                                                  "org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml");
+        RepositoryPath path = artifactResolutionService.resolvePath("public",
+                                                                    "public-group",
+                                                                    "org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml");
+        try (InputStream is = artifactResolutionService.getInputStream(path))
+        {
 
-        assertNotNull("Failed to resolve org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml!", is);
-
-        System.out.println(ByteStreams.toByteArray(is));
+            assertNotNull("Failed to resolve org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml!", is);
+            System.out.println(ByteStreams.toByteArray(is));
+        }
     }
 
 }

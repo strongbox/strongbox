@@ -37,41 +37,29 @@ public class MavenMetadataGroupRepositoryComponent
     }
 
     @Override
-    protected UpdateCallback newInstance(final String storageId,
-                                         final String repositoryId,
-                                         final String artifactPath)
+    protected UpdateCallback newInstance(RepositoryPath repositoryPath)
     {
-        return new MetadataUpdateCallback(storageId, repositoryId, artifactPath);
+        return new MetadataUpdateCallback(repositoryPath);
     }
 
     class MetadataUpdateCallback
             implements UpdateCallback
     {
 
-        private final String initiatorStorageId;
-
-        private final String initiatorRepositoryId;
-
-        private final String initiatorArtifactPath;
+        private final RepositoryPath initiatorRepositoryPath;
 
         private Metadata mergeMetadata;
 
-        MetadataUpdateCallback(final String storageId,
-                               final String repositoryId,
-                               final String artifactPath)
+        MetadataUpdateCallback(RepositoryPath repositoryPath)
         {
-            this.initiatorStorageId = storageId;
-            this.initiatorRepositoryId = repositoryId;
-            this.initiatorArtifactPath = artifactPath;
+            this.initiatorRepositoryPath = repositoryPath;
         }
 
         @Override
         public void beforeUpdate()
                 throws IOException
         {
-            final Repository repository = getRepository(initiatorStorageId, initiatorRepositoryId);
-            final RepositoryPath repositoryAbsolutePath = getRepositoryPath(repository);
-            final RepositoryPath artifactAbsolutePath = repositoryAbsolutePath.resolve(initiatorArtifactPath);
+            final RepositoryPath artifactAbsolutePath = initiatorRepositoryPath.toAbsolutePath();
 
             try
             {

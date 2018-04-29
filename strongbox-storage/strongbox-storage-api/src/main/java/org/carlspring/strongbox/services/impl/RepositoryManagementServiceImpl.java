@@ -2,12 +2,15 @@ package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.event.Event;
+import org.carlspring.strongbox.event.RepositoryBasedEvent;
 import org.carlspring.strongbox.event.repository.RepositoryEvent;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventTypeEnum;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
@@ -148,26 +151,23 @@ public class RepositoryManagementServiceImpl
     }
 
     @Override
-    public void undelete(String storageId, String repositoryId, String artifactPath)
+    public void undelete(RepositoryPath repositoryPath)
             throws IOException
     {
-        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
+        artifactOperationsValidator.validate(repositoryPath);
 
-        final Storage storage = getStorage(storageId);
-        final Repository repository = storage.getRepository(repositoryId);
+        final Repository repository = repositoryPath.getRepository();
+        final Storage storage = repository.getStorage();
 
         artifactOperationsValidator.checkAllowsDeletion(repository);
 
         try
         {
-            LayoutProvider layoutProvider = getLayoutProvider(storageId, repositoryId);
-            layoutProvider.undelete(storageId, repositoryId, artifactPath);
+            LayoutProvider layoutProvider = getLayoutProvider(storage.getId(), repository.getId());
+            layoutProvider.undelete(repositoryPath);
 
             int type = RepositoryEventTypeEnum.EVENT_REPOSITORY_EMTPY_TRASH_FOR_ALL_REPOSITORIES.getType();
-            RepositoryEvent event = new RepositoryEvent(storageId,
-                                                        repositoryId,
-                                                        artifactPath,
-                                                        type);
+            Event event = new RepositoryBasedEvent<>(repositoryPath, type);
 
             repositoryEventListenerRegistry.dispatchEvent(event);
         }
@@ -192,11 +192,11 @@ public class RepositoryManagementServiceImpl
             if (repository.isTrashEnabled())
             {
                 LayoutProvider layoutProvider = getLayoutProvider(storageId, repositoryId);
-                layoutProvider.undeleteTrash(storageId, repositoryId);
+                RootRepositoryPath repositoryPath = layoutProvider.resolve(repository);
+                layoutProvider.undelete(repositoryPath);
 
                 RepositoryEvent event = new RepositoryEvent(storageId,
                                                             repositoryId,
-                                                            null,
                                                             RepositoryEventTypeEnum.EVENT_REPOSITORY_UNDELETE_TRASH
                                                                                    .getType());
 
@@ -215,7 +215,6 @@ public class RepositoryManagementServiceImpl
     {
         layoutProviderRegistry.undeleteTrash();
         RepositoryEvent event = new RepositoryEvent(null,
-                                                    null,
                                                     null,
                                                     RepositoryEventTypeEnum.EVENT_REPOSITORY_UNDELETE_TRASH_FOR_ALL_REPOSITORIES
                                                                            .getType());

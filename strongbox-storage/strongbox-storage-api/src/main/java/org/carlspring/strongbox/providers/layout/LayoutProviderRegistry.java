@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.layout;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -76,7 +77,8 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
                 {
                     if (repository.isTrashEnabled())
                     {
-                        layoutProvider.undeleteTrash(storageId, repositoryId);
+                        RootRepositoryPath repositoryPath = layoutProvider.resolve(repository);
+                        layoutProvider.undelete(repositoryPath);
                     }
                 }
                 catch (Exception e)

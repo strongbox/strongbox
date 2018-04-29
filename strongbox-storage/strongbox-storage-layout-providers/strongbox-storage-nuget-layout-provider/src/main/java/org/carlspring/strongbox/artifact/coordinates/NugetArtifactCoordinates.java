@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.semver.Version;
+import org.springframework.util.Assert;
 
 /**
  * @author Sergey Bespalov
@@ -26,35 +27,11 @@ public class NugetArtifactCoordinates
     public static final String VERSION = "version";
     public static final String EXTENSION = "extension";
     private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+).(nupkg|nuspec|nupkg\\.sha512)";
-
+    private static final Pattern NUGET_PACKAGE_REGEXP = Pattern.compile(NUGET_PACKAGE_REGEXP_PATTERN);
 
     public NugetArtifactCoordinates()
     {
         defineCoordinates(ID, VERSION, EXTENSION);
-    }
-
-    public NugetArtifactCoordinates(String path)
-    {
-        Pattern pattern = Pattern.compile(NUGET_PACKAGE_REGEXP_PATTERN);
-        Matcher matcher = pattern.matcher(path);
-        if (!matcher.matches())
-        {
-            return;
-        }
-
-        String packageId = matcher.group(1);
-        String version = matcher.group(2);
-        String packageArtifactName = matcher.group(3);
-        String packageArtifactType = matcher.group(4);
-
-        if (!String.format("%s.%s", packageId, version).startsWith(packageArtifactName))
-        {
-            return;
-        }
-
-        setId(packageId);
-        setVersion(version);
-        setType(packageArtifactType);
     }
 
     public NugetArtifactCoordinates(String id,
@@ -148,6 +125,28 @@ public class NugetArtifactCoordinates
         Map<String, String> result = getCoordinates();
         result.remove(VERSION);
         return result;
+    }
+    
+    public static NugetArtifactCoordinates parse(String path)
+    {
+        Matcher matcher = NUGET_PACKAGE_REGEXP.matcher(path);
+
+        Assert.isTrue(matcher.matches(), String.format("Illegal artifact path [%s].", path));
+        
+        String packageId = matcher.group(1);
+        String version = matcher.group(2);
+        String packageArtifactName = matcher.group(3);
+        String packageArtifactType = matcher.group(4);
+
+        Assert.isTrue(String.format("%s.%s", packageId, version).startsWith(packageArtifactName),
+                      String.format("Illegal artifact path [%s].", path));
+
+        NugetArtifactCoordinates result = new NugetArtifactCoordinates();
+        result.setId(packageId);
+        result.setVersion(version);
+        result.setType(packageArtifactType);
+        
+        return result ;
     }
     
 }

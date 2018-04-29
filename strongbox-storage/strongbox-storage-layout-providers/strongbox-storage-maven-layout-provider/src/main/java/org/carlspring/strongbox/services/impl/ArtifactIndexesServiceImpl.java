@@ -5,7 +5,9 @@ import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.locator.handlers.MavenIndexerManagementOperation;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
@@ -17,10 +19,12 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.IndexContextHelper;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,13 +90,11 @@ public class ArtifactIndexesServiceImpl
     }
 
     @Override
-    public void rebuildIndex(String storageId,
-                             String repositoryId,
-                             String artifactPath)
+    public void rebuildIndex(RepositoryPath repositoryPath)
             throws IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        Repository repository = repositoryPath.getFileSystem().getRepository();
+        Storage storage = repository.getStorage();
 
         if (!features.isIndexingEnabled(repository))
         {
@@ -100,28 +102,20 @@ public class ArtifactIndexesServiceImpl
         }
         if (repository.isGroupRepository())
         {
-            mavenIndexGroupRepositoryComponent.rebuildIndex(repository, artifactPath);
+            mavenIndexGroupRepositoryComponent.rebuildIndex(repository, RepositoryFiles.stringValue(repositoryPath));
         }
         else
         {
             MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(this);
-
-            LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-            RepositoryPath repostitoryPath = layoutProvider.resolve(repository);
-            if (artifactPath != null && artifactPath.trim().length() > 0)
-            {
-                repostitoryPath = repostitoryPath.resolve(artifactPath);
-            }
-
             //noinspection ConstantConditions
-            operation.setBasePath(repostitoryPath);
+            operation.setBasePath(repositoryPath);
 
             ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
             locator.setOperation(operation);
             locator.locateArtifactDirectories();
         }
 
-        features.pack(storageId, repositoryId);
+        features.pack(storage.getId(), repository.getId());
     }
 
     @Override
@@ -132,9 +126,18 @@ public class ArtifactIndexesServiceImpl
 
         logger.debug("Rebuilding indexes for repositories " + repositories.keySet());
 
-        for (String repository : repositories.keySet())
+        for (Entry<String, Repository> repositoryEntry : repositories.entrySet())
         {
-            rebuildIndex(storageId, repository, null);
+            Repository repository = repositoryEntry.getValue();
+            if (!(repository.getRepositoryConfiguration() instanceof MavenRepositoryConfiguration))
+            {
+                logger.debug("Skip rebuilding indexes for " + repositoryEntry.getKey());
+                continue;
+            }
+
+            LayoutProvider provider = layoutProviderRegistry.getProvider(repository.getLayout());
+            RootRepositoryPath repositoryPath = provider.resolve(repository);
+            rebuildIndex(repositoryPath);
         }
     }
 

@@ -34,9 +34,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,6 +50,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
+
+import javassist.bytecode.stackmap.BasicBlock.Catch;
+
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
@@ -116,49 +119,8 @@ public class ArtifactManagementService
     @Transactional
     public long store(RepositoryPath repositoryPath,
                       InputStream is)
-            throws IOException,
-                   ProviderImplementationException,
-                   NoSuchAlgorithmException
-    {
-        Repository repository = repositoryPath.getFileSystem().getRepository();
-        Storage storage = repository.getStorage();
-
-        repositoryPathLock.lock(repositoryPath);
-        try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(storage.getId(),
-                                                                                          repository.getId(),
-                                                                                          RepositoryFiles.stringValue(
-                                                                                                  repositoryPath)))
-        {
-            return storeArtifact(repositoryPath, is, aos);
-        }
-        catch (IOException e)
-        {
-            throw new ArtifactStorageException(e);
-        }
-        finally
-        {
-            repositoryPathLock.unlock(repositoryPath);
-        }
-    }
-
-    private long storeArtifact(RepositoryPath repositoryPath,
-                               InputStream is,
-                               OutputStream os)
             throws IOException
     {
-        ArtifactOutputStream aos = StreamUtils.findSource(ArtifactOutputStream.class, os);
-
-        Repository repository = repositoryPath.getFileSystem().getRepository();
-        Storage storage = repository.getStorage();
-
-        String repositoryId = repository.getId();
-        String storageId = storage.getId();
-
-        String artifactPathRelative = RepositoryFiles.stringValue(repositoryPath);
-        String artifactPath = storageId + "/" + repositoryId + "/" + artifactPathRelative;
-
-        Boolean checksumAttribute = RepositoryFiles.isChecksum(repositoryPath);
-
         boolean updatedMetadataFile = false;
         boolean updatedArtifactFile = false;
         boolean updatedArtifactChecksumFile = false;
@@ -169,7 +131,7 @@ public class ArtifactManagementService
             {
                 updatedMetadataFile = true;
             }
-            else if (checksumAttribute)
+            else if (RepositoryFiles.isChecksum(repositoryPath))
             {
                 updatedArtifactChecksumFile = true;
             }
@@ -178,6 +140,66 @@ public class ArtifactManagementService
                 updatedArtifactFile = true;
             }
         }
+        
+        long result;
+
+        repositoryPathLock.lock(repositoryPath);
+        
+        try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(repositoryPath))
+        {
+            result = storeArtifact(repositoryPath, is, aos);
+        }
+        catch (IOException e)
+        {
+           throw e; 
+        }
+        catch (Exception e)
+        {
+            throw new ArtifactStorageException(e);
+        }
+        finally
+        {
+            repositoryPathLock.unlock(repositoryPath);
+        }
+        
+        artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
+
+        if (updatedMetadataFile)
+        {
+            // If this is a metadata file and it has been updated:
+            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(repositoryPath);
+            artifactEventListenerRegistry.dispatchArtifactMetadataFileUploadedEvent(repositoryPath);
+        }
+        if (updatedArtifactChecksumFile)
+        {
+            // If this is a checksum file and it has been updated:
+            artifactEventListenerRegistry.dispatchArtifactChecksumFileUpdatedEvent(repositoryPath);
+        }
+        
+        if (RepositoryFiles.isChecksum(repositoryPath))
+        {
+            artifactEventListenerRegistry.dispatchArtifactChecksumUploadedEvent(repositoryPath);
+        }
+
+        if (updatedArtifactFile)
+        {
+            // If this is an artifact file and it has been updated:
+            artifactEventListenerRegistry.dispatchArtifactUploadedEvent(repositoryPath);
+        }
+        
+        return result;
+    }
+
+    private long storeArtifact(RepositoryPath repositoryPath,
+                               InputStream is,
+                               OutputStream os)
+            throws IOException
+    {
+        ArtifactOutputStream aos = StreamUtils.findSource(ArtifactOutputStream.class, os);
+
+        Repository repository = repositoryPath.getRepository();
+
+        Boolean checksumAttribute = RepositoryFiles.isChecksum(repositoryPath);
 
         // If we have no digests, then we have a checksum to store.
         if (Boolean.TRUE.equals(checksumAttribute))
@@ -187,48 +209,22 @@ public class ArtifactManagementService
 
         if (repository.isHostedRepository())
         {
-            artifactEventListenerRegistry.dispatchArtifactUploadingEvent(storageId, repositoryId, artifactPath);
+            artifactEventListenerRegistry.dispatchArtifactUploadingEvent(repositoryPath);
         }
         else
         {
-            artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storageId, repositoryId, artifactPath);
+            artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(repositoryPath);
         }
 
         long totalAmountOfBytes = artifactByteStreamsCopyStrategyDeterminator.determine(repository)
                                                                              .copy(is, os, repositoryPath);
 
-        artifactEventListenerRegistry.dispatchArtifactStoredEvent(storageId, repositoryId, artifactPath);
-
-        if (updatedMetadataFile)
-        {
-            // If this is a metadata file and it has been updated:
-            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(storageId,
-                                                                                   repositoryId,
-                                                                                   artifactPath);
-
-            artifactEventListenerRegistry.dispatchArtifactMetadataFileUploadedEvent(storageId,
-                                                                                    repositoryId,
-                                                                                    artifactPath);
-        }
-        if (updatedArtifactChecksumFile)
-        {
-            // If this is a checksum file and it has been updated:
-            artifactEventListenerRegistry.dispatchArtifactChecksumFileUpdatedEvent(storageId,
-                                                                                   repositoryId,
-                                                                                   artifactPath);
-        }
-
-        if (updatedArtifactFile)
-        {
-            // If this is an artifact file and it has been updated:
-            artifactEventListenerRegistry.dispatchArtifactUploadedEvent(storageId, repositoryId, artifactPath);
-        }
-
+        URI repositoryPathId = repositoryPath.toUri();
         Map<String, String> digestMap = aos.getDigestMap();
         if (Boolean.FALSE.equals(checksumAttribute) && !digestMap.isEmpty())
         {
             // Store artifact digests in cache if we have them.
-            addChecksumsToCacheManager(digestMap, artifactPath);
+            addChecksumsToCacheManager(digestMap, repositoryPathId);
         }
 
         if (Boolean.TRUE.equals(checksumAttribute))
@@ -236,12 +232,8 @@ public class ArtifactManagementService
             byte[] checksumValue = ((ByteArrayOutputStream) aos.getCacheOutputStream()).toByteArray();
             if (checksumValue != null && checksumValue.length > 0)
             {
-                artifactEventListenerRegistry.dispatchArtifactChecksumUploadedEvent(storageId,
-                                                                                    repositoryId,
-                                                                                    artifactPath);
-
                 // Validate checksum with artifact digest cache.
-                validateUploadedChecksumAgainstCache(checksumValue, artifactPath);
+                validateUploadedChecksumAgainstCache(checksumValue, repositoryPathId);
             }
         }
 
@@ -249,10 +241,11 @@ public class ArtifactManagementService
     }
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,
-                                                      String artifactPath)
+                                                      URI artifactPathId)
     {
         logger.debug("Received checksum: " + new String(checksum, StandardCharsets.UTF_8));
 
+        String artifactPath = artifactPathId.toString();
         String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf('.'));
         String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1, artifactPath.length());
 
@@ -302,11 +295,11 @@ public class ArtifactManagementService
     }
 
     private void addChecksumsToCacheManager(Map<String, String> digestMap,
-                                            String artifactPath)
+                                            URI artifactPath)
     {
         digestMap.entrySet()
                  .stream()
-                 .forEach(e -> checksumCacheManager.addArtifactChecksum(artifactPath, e.getKey(), e.getValue()));
+                 .forEach(e -> checksumCacheManager.addArtifactChecksum(artifactPath.toString(), e.getKey(), e.getValue()));
     }
 
     private boolean performRepositoryAcceptanceValidation(RepositoryPath path)
@@ -315,9 +308,8 @@ public class ArtifactManagementService
         logger.info(String.format("Validate artifact with path [%s]", path));
 
         Repository repository = path.getFileSystem().getRepository();
-        Storage storage = repository.getStorage();
 
-        artifactOperationsValidator.validate(storage.getId(), repository.getId(), path.relativize().toString());
+        artifactOperationsValidator.validate(path);
 
         if (!RepositoryFiles.isMetadata(path) && !RepositoryFiles.isChecksum(path))
         {
@@ -349,31 +341,29 @@ public class ArtifactManagementService
         return true;
     }
 
-    public Storage getStorage(String storageId)
+    protected Storage getStorage(String storageId)
     {
         return getConfiguration().getStorages().get(storageId);
     }
 
-    public Configuration getConfiguration()
+    protected Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
     }
 
-    public InputStream resolve(String storageId,
-                               String repositoryId,
-                               String path)
+    public InputStream resolve(RepositoryPath path)
             throws ArtifactTransportException,
                    ProviderImplementationException
     {
         try
         {
-            return artifactResolutionService.getInputStream(storageId, repositoryId, path);
+            return artifactResolutionService.getInputStream(path);
         }
-        catch (IOException | NoSuchAlgorithmException e)
+        catch (IOException e)
         {
             // This is not necessarily an error. It could simply be a check
             // whether a resource exists, before uploading/updating it.
-            logger.debug("The requested path does not exist: /" + storageId + "/" + repositoryId + "/" + path);
+            logger.debug(String.format("The requested path does not exist: [%s]", path));
         }
 
         return null;
@@ -387,29 +377,30 @@ public class ArtifactManagementService
         return artifactResolutionService.resolvePath(storageId, repositoryId, path);
     }
 
-    public void delete(String storageId,
-                       String repositoryId,
-                       String artifactPath,
+    public void delete(RepositoryPath repositoryPath,
                        boolean force)
             throws IOException
     {
-        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
+        artifactOperationsValidator.validate(repositoryPath);
 
-        final Storage storage = getStorage(storageId);
-        final Repository repository = storage.getRepository(repositoryId);
+        final Repository repository = repositoryPath.getRepository();
 
         artifactOperationsValidator.checkAllowsDeletion(repository);
 
-        Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneArtifact(storageId,
-                                                                                     repositoryId,
-                                                                                     artifactPath);
+        Optional<ArtifactEntry> artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry());
+        if (!Files.isDirectory(repositoryPath) && !artifactEntry.isPresent())
+        {
+            throw new IOException(String.format("Corresponding [%s] record not found for path [%s]",
+                                                ArtifactEntry.class.getSimpleName(), repositoryPath));
+        }
 
         try
         {
+            artifactEntry.ifPresent(entry -> artifactEntryService.delete(new ArrayList<ArtifactEntry>(
+                    Collections.singletonList(entry))));
+            
             LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-            layoutProvider.delete(storageId, repositoryId, artifactPath, force);
-            artifactEntry.ifPresent(entry -> artifactEntryService.delete(
-                    new ArrayList<ArtifactEntry>(Collections.singletonList(entry))));
+            layoutProvider.delete(repositoryPath, force);
         }
         catch (IOException | ProviderImplementationException | SearchException e)
         {
@@ -417,43 +408,10 @@ public class ArtifactManagementService
         }
     }
 
-    public boolean contains(String storageId,
-                            String repositoryId,
-                            String artifactPath)
+    public void copy(RepositoryPath srcPath, RepositoryPath destPath)
             throws IOException
     {
-        final Storage storage = getStorage(storageId);
-        final Repository repository = storage.getRepository(repositoryId);
-
-        try
-        {
-            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-
-            return layoutProvider.contains(storageId, repositoryId, artifactPath);
-        }
-        catch (IOException | ProviderImplementationException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
-
-    public void copy(String srcStorageId,
-                     String srcRepositoryId,
-                     String destStorageId,
-                     String destRepositoryId,
-                     String path)
-            throws IOException
-    {
-        artifactOperationsValidator.validate(srcStorageId, srcRepositoryId, path);
-
-        final Storage srcStorage = getStorage(srcStorageId);
-        final Repository srcRepository = srcStorage.getRepository(srcRepositoryId);
-
-        final Storage destStorage = getStorage(destStorageId);
-        final Repository destRepository = destStorage.getRepository(destRepositoryId);
-
-        final Path srcPath = repositoryPathResolver.resolve(srcRepository, path);
-        final Path destPath = repositoryPathResolver.resolve(destRepository, path);
+        artifactOperationsValidator.validate(srcPath);
 
         if (Files.isDirectory(srcPath))
         {

@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.config.MockedRestArtifactResolverTestConfig;
-import org.carlspring.strongbox.storage.ArtifactStorageException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,7 +54,7 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
         assertFalse(Files.exists(destinationPath));
 
         //then
-        thrown.expect(ArtifactStorageException.class);
+        thrown.expect(IOException.class);
         thrown.expectMessage(containsString("Connection lost."));
 
         // when

@@ -2,7 +2,9 @@ package org.carlspring.strongbox.repository.group.index;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
@@ -92,10 +94,12 @@ public class MavenIndexGroupRepositoryComponentTest
     public void whenCreatingNewGroupRepositoryItsIndexShouldContainChildrenArtifacts()
             throws Exception
     {
-        createGroup(REPOSITORY_GROUP, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
+        Repository repository = createGroup(REPOSITORY_GROUP, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
 
+        LayoutProvider provider = layoutProviderRegistry.getProvider(Maven2LayoutProvider.ALIAS);
+        RootRepositoryPath repositoryPath = provider.resolve(repository);
         // recoded since we scheduled a cron job now
-        artifactIndexesService.get().rebuildIndex(STORAGE0, REPOSITORY_GROUP, null);
+        artifactIndexesService.get().rebuildIndex(repositoryPath);
 
 
         SearchRequest request = new SearchRequest(STORAGE0, REPOSITORY_GROUP,

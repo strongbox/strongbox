@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.repository.group.metadata;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.IndexedMaven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
@@ -256,9 +257,9 @@ public class MavenMetadataGroupRepositoryComponentTest
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
 
+        RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve("com/artifacts/to/update/releases/update-group");
         // IMITATE THE EVENT
-        mavenGroupRepositoryComponent.updateGroupsContaining(STORAGE0, REPOSITORY_LEAF_D,
-                                                             "com/artifacts/to/update/releases/update-group");
+        mavenGroupRepositoryComponent.updateGroupsContaining(repositoryPath);
 
         // AFTER
         metadata = mavenMetadataManager.readMetadata(

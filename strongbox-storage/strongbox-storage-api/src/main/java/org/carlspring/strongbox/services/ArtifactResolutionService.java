@@ -5,10 +5,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 
 /**
@@ -17,24 +15,14 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 public interface ArtifactResolutionService
 {
     
-    RepositoryInputStream getInputStream(String storageId,
-                                         String repositoryId,
-                                         String artifactPath)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException;
+    RepositoryInputStream getInputStream(RepositoryPath path)
+            throws IOException;
 
-    RepositoryOutputStream getOutputStream(String storageId,
-                                           String repositoryId,
-                                           String artifactPath)
+    RepositoryOutputStream getOutputStream(RepositoryPath repositoryPath)
             throws IOException,
-                   ProviderImplementationException,
                    NoSuchAlgorithmException;
     
-    URL resolveResource(String storageId,
-                        String repositoryId,
-                        String path)
+    URL resolveResource(RepositoryPath repositoryPath)
             throws MalformedURLException, 
                    IOException;
     

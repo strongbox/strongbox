@@ -38,6 +38,7 @@ public abstract class BaseArtifactController
         return getStorage(storageId).getRepository(repositoryId);
     }
 
+    //TODO: we need to use `java.nio.file.Path` instead of `String` for `path` parameter here.
     protected boolean provideArtifactDownloadResponse(HttpServletRequest request,
                                                       HttpServletResponse response,
                                                       HttpHeaders httpHeaders,
@@ -62,7 +63,7 @@ public abstract class BaseArtifactController
             return true;
         }
 
-        InputStream is = artifactManagementService.resolve(storageId, repositoryId, path);
+        InputStream is = artifactManagementService.resolve(resolvedPath);
         if (ArtifactControllerHelper.isRangedRequest(httpHeaders))
         {
             logger.debug("Detected ranged request.");
@@ -70,9 +71,9 @@ public abstract class BaseArtifactController
             ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
         }
 
-        artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storageId, repositoryId, path);
+        artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(resolvedPath);
         copyToResponse(is, response);
-        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storageId, repositoryId, path);
+        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(resolvedPath);
 
         return true;
     }

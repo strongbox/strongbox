@@ -57,6 +57,11 @@ public class RepositoryPath
     {
         return fileSystem;
     }
+    
+    public Repository getRepository()
+    {
+        return getFileSystem().getRepository();
+    }
 
     public boolean isAbsolute()
     {
@@ -90,15 +95,15 @@ public class RepositoryPath
         return wrap(getTarget().getName(index));
     }
 
-    public Path subpath(int beginIndex,
-                        int endIndex)
+    public RepositoryPath subpath(int beginIndex,
+                                  int endIndex)
     {
-        throw new UnsupportedOperationException();
+        return wrap(getTarget().subpath(beginIndex, endIndex));
     }
 
     public boolean startsWith(Path other)
     {
-        return getTarget().startsWith(other);
+        return getTarget().startsWith(unwrap(other));
     }
 
     public boolean startsWith(String other)
@@ -196,7 +201,12 @@ public class RepositoryPath
         {
             return this;
         }
-        return getFileSystem().getRootDirectory().relativize(this);
+        RepositoryPath result = getFileSystem().getRootDirectory().relativize(this);
+        if (result.startsWith(RepositoryFileSystem.TRASH) || result.startsWith(RepositoryFileSystem.TEMP))
+        {
+            result = result.subpath(1, result.getNameCount());
+        }
+        return result;
     }
 
     public URI toUri()

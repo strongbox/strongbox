@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.controllers;
 
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryTrashPathResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -43,7 +45,7 @@ public class TrashController
     private RepositoryManagementService repositoryManagementService;
 
     @Inject
-    private RepositoryTrashPathResolver repositoryTrashPathResolver;
+    private RepositoryPathResolver repositoryPathResolver;
 
 
     @ApiOperation(value = "Used to delete the trash for a specified repository.",
@@ -150,12 +152,14 @@ public class TrashController
                                  .body(getResponseEntityBody("The specified storageId does not exist!", accept));
         }
         Repository repository = getRepository(storageId, repositoryId);
-        if (getRepository(storageId, repositoryId) == null)
+        if (repository == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body(getResponseEntityBody("The specified repositoryId does not exist!", accept));
         }
-        final RepositoryPath trashPath = repositoryTrashPathResolver.resolve(repository);
+        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
+        RepositoryPath trashPath = RepositoryFiles.trash(repositoryPath);
         if (!Files.exists(trashPath))
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -164,7 +168,7 @@ public class TrashController
 
         try
         {
-            repositoryManagementService.undelete(storageId, repositoryId, path);
+            repositoryManagementService.undelete(repositoryPath);
 
             logger.debug("Undeleted trash for path {} under repository {}:{}.", path, storageId, repositoryId);
         }

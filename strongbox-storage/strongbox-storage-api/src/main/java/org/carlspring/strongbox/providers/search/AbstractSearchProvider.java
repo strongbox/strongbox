@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.search;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.dependency.snippet.CompatibleDependencyFormatRegistry;
 import org.carlspring.strongbox.dependency.snippet.DependencySynonymFormatter;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
@@ -50,44 +52,28 @@ public abstract class AbstractSearchProvider
                                                                            searchRequest.getArtifactCoordinates().toPath())
                                                           .orElse(null);
 
-        SearchResult searchResult = null;
-        if (artifactEntry != null)
+        if (artifactEntry == null)
         {
-            URL artifactResource;
-            try
-            {
-                artifactResource = artifactResolutionService.resolveResource(artifactEntry.getStorageId(),
-                                                                             artifactEntry.getRepositoryId(),
-                                                                             artifactEntry.getArtifactPath());
-            }
-            catch (Exception e)
-            {
-                logger.error(String.format("Failed to resolve artifact resource for [%s]",
-                                           artifactEntry.getArtifactCoordinates()));
-                return searchResult;
-            }
-
-            searchResult = new SearchResult(artifactEntry.getStorageId(),
-                                            artifactEntry.getRepositoryId(),
-                                            searchRequest.getArtifactCoordinates(),
-                                            artifactResource.toString());
-
-            Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());
-            Repository repository = storage.getRepository(searchRequest.getRepositoryId());
-
-            Map<String, DependencySynonymFormatter> implementations = compatibleDependencyFormatRegistry.getProviderImplementations(repository.getLayout());
-
-            Map<String, String> snippets = new LinkedHashMap<>();
-            for (String compatibleDependencyFormat : implementations.keySet())
-            {
-                DependencySynonymFormatter formatter = implementations.get(compatibleDependencyFormat);
-
-                snippets.put(compatibleDependencyFormat,
-                             formatter.getDependencySnippet(searchRequest.getArtifactCoordinates()));
-            }
-
-            searchResult.setSnippets(snippets);
+            return null;
         }
+        
+        SearchResult searchResult = createSearchResult(artifactEntry);
+
+        Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());
+        Repository repository = storage.getRepository(searchRequest.getRepositoryId());
+
+        Map<String, DependencySynonymFormatter> implementations = compatibleDependencyFormatRegistry.getProviderImplementations(repository.getLayout());
+
+        Map<String, String> snippets = new LinkedHashMap<>();
+        for (String compatibleDependencyFormat : implementations.keySet())
+        {
+            DependencySynonymFormatter formatter = implementations.get(compatibleDependencyFormat);
+
+            snippets.put(compatibleDependencyFormat,
+                         formatter.getDependencySnippet(searchRequest.getArtifactCoordinates()));
+        }
+
+        searchResult.setSnippets(snippets);
 
         return searchResult;
     }
@@ -102,14 +88,14 @@ public abstract class AbstractSearchProvider
     protected SearchResult createSearchResult(ArtifactEntry a)
     {
         String storageId = a.getStorageId();
+        
         URL artifactResource;
         try
         {
-            artifactResource = artifactResolutionService.resolveResource(storageId,
-                                                                         a.getRepositoryId(),
-                                                                         a.getArtifactPath());
+            RepositoryPath repositoryPath = artifactResolutionService.resolvePath(a.getStorageId(), a.getRepositoryId(), a.getArtifactPath());
+            artifactResource = artifactResolutionService.resolveResource(repositoryPath);
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             logger.error(String.format("Failed to resolve artifact resource for [%s]",
                                        a.getArtifactCoordinates()), e);

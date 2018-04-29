@@ -20,21 +20,17 @@ import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
-import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.data.criteria.Projection;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
@@ -66,6 +62,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     @PersistenceContext
     private EntityManager entityManager;
     
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+    
     @Override
     public String getAlias()
     {
@@ -73,28 +72,24 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public RepositoryInputStream getInputStream(String storageId,
-                                                String repositoryId,
-                                                String artifactPath)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
+    protected RepositoryInputStream getInputStream(RepositoryPath path) throws IOException
     {
-        return Optional.ofNullable(resolvePathDirectlyFromGroupPathIfPossible(storageId,
-                                                                              repositoryId,
-                                                                              artifactPath))
-                       .map(p -> hostedRepositoryProvider.newInputStream(p))
-                       .orElseGet(() -> hostedRepositoryProvider.newInputStream(
-                               resolvePathTraversal(storageId, repositoryId, artifactPath)));
+        return hostedRepositoryProvider.getInputStream(path);
     }
 
-    protected RepositoryPath resolvePathTraversal(String storageId,
-                                                  String repositoryId,
-                                                  String artifactPath)
+    @Override
+    public RepositoryPath fetchPath(RepositoryPath repositoryPath)
+        throws IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository groupRepository = storage.getRepository(repositoryId);
+        return Optional.ofNullable(resolvePathDirectlyFromGroupPathIfPossible(repositoryPath))
+                       .orElse(resolvePathTraversal(repositoryPath));
+    }
+    
+    protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath) throws IOException
+    {
+        Repository groupRepository = repositoryPath.getRepository();
+        Storage storage = groupRepository.getStorage();
+        String path = RepositoryFiles.stringValue(repositoryPath);
         
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories().keySet())
         {
@@ -102,17 +97,18 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             String rId = getConfigurationManager().getRepositoryId(storageAndRepositoryId);
 
             Repository r = getConfiguration().getStorage(sId).getRepository(rId);
-
             if (!r.isInService())
             {
                 continue;
             }
-            if (artifactRoutingRulesChecker.isDenied(repositoryId, rId, artifactPath))
+            
+            RepositoryPath result = repositoryPathResolver.resolve(r, path);
+            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), result))
             {
                 continue;
             }
             
-            RepositoryPath result = resolvePathFromGroupMemberOrTraverse(sId, r.getId(), artifactPath);
+            result = resolvePathFromGroupMemberOrTraverse(result);
             if (result == null)
             {
                 continue;
@@ -125,15 +121,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return null;
     }
 
-    protected RepositoryPath resolvePathDirectlyFromGroupPathIfPossible(final String storageId,
-                                                                        final String repositoryId,
-                                                                        final String path)
+    private RepositoryPath resolvePathDirectlyFromGroupPathIfPossible(final RepositoryPath artifactPath)
         throws IOException
     {
-        final Storage storage = getConfiguration().getStorage(storageId);
-        final Repository repository = storage.getRepository(repositoryId);
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
         if (Files.exists(artifactPath) && RepositoryFiles.isMetadata(artifactPath))
         {
             return artifactPath;
@@ -153,33 +143,29 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
      * @throws IOException
      * @throws ArtifactTransportException
      */
-    protected RepositoryPath resolvePathFromGroupMemberOrTraverse(String storageId,
-                                                                  String repositoryId,
-                                                                  String artifactPath)
+    protected RepositoryPath resolvePathFromGroupMemberOrTraverse(RepositoryPath repositoryPath)
+        throws IOException
     {
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+        Repository repository = repositoryPath.getRepository();
         if (getAlias().equals(repository.getType()))
         {
-            return resolvePathTraversal(storageId, repository.getId(), artifactPath);
+            return resolvePathTraversal(repositoryPath);
         }
         
         RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
         try
         {
-            return (RepositoryPath) provider.resolvePath(storageId, repositoryId, artifactPath);
+            return (RepositoryPath) provider.fetchPath(repositoryPath);
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to resolve path [%s]/[%s]/[%s]", storageId, repositoryId,
-                                       artifactPath));
+            logger.error(String.format("Failed to resolve path [%s]", repositoryPath));
             return null;
         }
     }
 
     @Override
-    public RepositoryOutputStream getOutputStream(String storageId,
-                                                  String repositoryId,
-                                                  String artifactPath)
+    protected RepositoryOutputStream getOutputStream(RepositoryPath repositoryPath)
             throws IOException
     {
         // It should not be possible to write artifacts to a group repository.
@@ -309,14 +295,5 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
     }
 
-    @Override
-    public RepositoryPath resolvePath(String storageId,
-                                      String repositoryId,
-                                      String path)
-        throws IOException
-    {
-        return Optional.ofNullable(resolvePathDirectlyFromGroupPathIfPossible(storageId, repositoryId, path))
-                       .orElse(resolvePathTraversal(storageId, repositoryId, path));
-    }
     
 }

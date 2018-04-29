@@ -19,12 +19,10 @@ import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.client.RestArtifactResolverFactory;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.RemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactByteStreamsCopyStrategy;
 import org.carlspring.strongbox.services.support.ArtifactByteStreamsCopyException;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
 import org.slf4j.Logger;
@@ -49,9 +47,6 @@ public class ProxyRepositoryArtifactByteStreamsCopy
 
     @Inject
     private RestArtifactResolverFactory artifactResolverFactory;
-
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
 
     private ArtifactByteStreamsCopyStrategy simpleArtifactByteStreams = SimpleArtifactByteStreamsCopy.INSTANCE;
     
@@ -234,9 +229,7 @@ public class ProxyRepositoryArtifactByteStreamsCopy
             throws IOException
     {
         final RepositoryPath finalArtifactPath = resolveToFinalArtifactPath(artifactPath);
-        final Repository repository = finalArtifactPath.getFileSystem().getRepository();
-        final LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        final URI resource = layoutProvider.resolveResource(repository, finalArtifactPath.toString());
+        final URI resource = RepositoryFiles.resolveResource(finalArtifactPath);
         return resource.toString();
     }
 

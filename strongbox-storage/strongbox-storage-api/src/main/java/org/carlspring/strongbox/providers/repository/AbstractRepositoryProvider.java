@@ -1,10 +1,14 @@
 package org.carlspring.strongbox.providers.repository;
 
+import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -24,6 +28,8 @@ import org.carlspring.strongbox.io.RepositoryStreamCallback;
 import org.carlspring.strongbox.io.RepositoryStreamContext;
 import org.carlspring.strongbox.io.StreamUtils;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
@@ -31,6 +37,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 /**
  * @author carlspring
@@ -102,6 +109,19 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     {
         return configurationManager.getConfiguration();
     }
+    
+    @Override
+    public RepositoryInputStream getInputStream(Path path) throws IOException
+    {
+        if (path == null)
+        {
+            return null;
+        }
+        Assert.isInstanceOf(RepositoryPath.class, path);
+        return getInputStream((RepositoryPath) path);
+    }
+    
+    protected abstract RepositoryInputStream getInputStream(RepositoryPath path) throws IOException;
 
     protected RepositoryInputStream decorate(String storageId,
                                              String repositoryId,
@@ -118,19 +138,28 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         return RepositoryInputStream.of(repository, path, is).with(this);
     }
 
-    protected final RepositoryOutputStream decorate(String storageId,
-                                                    String repositoryId,
-                                                    String path,
-                                                    OutputStream os)
+    @Override
+    public RepositoryOutputStream getOutputStream(Path path)
+        throws IOException,
+        NoSuchAlgorithmException
+    {
+        Assert.isInstanceOf(RepositoryPath.class, path);
+        return getOutputStream((RepositoryPath) path);
+    }
+    
+    protected abstract RepositoryOutputStream getOutputStream(RepositoryPath repositoryPath)
+        throws IOException;
+
+    protected final RepositoryOutputStream decorate(RepositoryPath repositoryPath,
+                                                    OutputStream os) throws IOException
     {
         if (os == null || os instanceof RepositoryOutputStream)
         {
             return (RepositoryOutputStream) os;
         }
 
-        Repository repository = configurationManager.getRepository(storageId, repositoryId);
-
-        return RepositoryOutputStream.of(repository, path, os).with(this);
+        String path = RepositoryFiles.stringValue(repositoryPath);
+        return RepositoryOutputStream.of(repositoryPath.getRepository(), path, os).with(this);
     }
 
     @Override
@@ -171,6 +200,9 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
 
         ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId,
                                                             ctx.getPath());
+        Assert.notNull(artifactEntry.getUuid(),
+                       String.format("Invalid [%s] for [%s]", ArtifactEntry.class.getSimpleName(),
+                                     ctx.getPath()));
 
         CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, (OutputStream) ctx);
         artifactEntry.setSizeInBytes(cos.getByteCount());
@@ -208,6 +240,15 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
 
         return artifactEntry;
     }
+    
+    @Override
+    public Path fetchPath(Path repositoryPath)
+        throws IOException
+    {
+        return fetchPath((RepositoryPath)repositoryPath);
+    }
+
+    protected abstract Path fetchPath(RepositoryPath repositoryPath) throws IOException;
     
     @Override
     public List<Path> search(RepositorySearchRequest searchRequest,

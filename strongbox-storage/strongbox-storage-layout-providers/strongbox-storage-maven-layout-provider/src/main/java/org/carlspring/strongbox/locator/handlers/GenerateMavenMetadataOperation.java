@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.locator.handlers;
 
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
@@ -44,11 +45,9 @@ public class GenerateMavenMetadataOperation
         try
         {
             final Repository repository = artifactPath.getFileSystem().getRepository();
-            mavenMetadataManager.generateMetadata(repository, artifactPath.toString(), request);
-            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(repository.getStorage().getId(),
-                                                                                   repository.getId(),
-                                                                                   artifactPath.resolve(
-                                                                                           "maven-metadata.xml").toString());
+            String path = RepositoryFiles.stringValue(artifactPath);
+            mavenMetadataManager.generateMetadata(repository, path, request);
+            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(artifactPath.resolve("maven-metadata.xml"));
         }
         catch (Exception e)
         {

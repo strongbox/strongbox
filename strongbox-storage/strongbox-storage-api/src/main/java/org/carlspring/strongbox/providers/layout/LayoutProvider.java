@@ -35,9 +35,6 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     ArtifactOutputStream getOutputStream(RepositoryPath path) throws IOException;
     
-    URI resolveResource(Repository repository,
-                        String path) throws IOException;
-
     RepositoryPath resolve(Repository repository,
                            URI resource);
     
@@ -51,9 +48,6 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     RepositoryFileSystemProvider getProvider(Repository repository);
     
     boolean containsArtifact(Repository repository, ArtifactCoordinates coordinates)
-            throws IOException;
-
-    boolean contains(String storageId, String repositoryId, String path)
             throws IOException;
 
     boolean containsPath(Repository repository, String path)
@@ -73,7 +67,11 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
               String path)
             throws IOException;
 
+    @Deprecated
     void delete(String storageId, String repositoryId, String path, boolean force)
+            throws IOException, SearchException;
+    
+    void delete(RepositoryPath repositoryPath, boolean force)
             throws IOException, SearchException;
 
     void deleteMetadata(String storageId, String repositoryId, String metadataPath)
@@ -85,10 +83,7 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     void deleteTrash()
             throws IOException;
 
-    void undelete(String storageId, String repositoryId, String path)
-            throws IOException;
-
-    void undeleteTrash(String storageId, String repositoryId)
+    void undelete(RepositoryPath repositoryPath)
             throws IOException;
 
     void undeleteTrash()

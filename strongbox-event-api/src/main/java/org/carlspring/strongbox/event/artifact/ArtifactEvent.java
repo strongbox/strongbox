@@ -1,71 +1,39 @@
 package org.carlspring.strongbox.event.artifact;
 
+import java.nio.file.Path;
+
 import org.carlspring.strongbox.event.RepositoryBasedEvent;
 
 /**
  * @author mtodorov
  */
-public class ArtifactEvent extends RepositoryBasedEvent
+public class ArtifactEvent<T extends Path> extends RepositoryBasedEvent<T>
 {
 
-    /**
-     * The destination storage ID.
-     *
-     * Note: This should only be used for events that involve
-     * a source and destination repository such as copying, moving, etc.
-     */
-    private String destinationStorageId;
+    private T targetPath;
 
-    /**
-     * The destination repository ID.
-     *
-     * Note: This should only be used for events that involve
-     * a source and destination repository such as copying, moving, etc.
-     */
-    private String destinationRepositoryId;
-
-
-
-    public ArtifactEvent(String storageId,
-                         String repositoryId,
-                         String path,
+    public ArtifactEvent(T sourcePath,
                          int type)
     {
-        super(storageId, repositoryId, type);
-        setPath(path);
+        super(sourcePath, type);
     }
 
-    public ArtifactEvent(String srcStorageId,
-                         String srcRepositoryId,
-                         String destStorageId,
-                         String destRepositoryId,
-                         String path,
+    public ArtifactEvent(T sourcePath,
+                         T targetPath,
                          int type)
     {
-        super(srcStorageId, srcRepositoryId, type);
-        setDestinationStorageId(destStorageId);
-        setDestinationRepositoryId(destRepositoryId);
-        setPath(path);
+        super(sourcePath, type);
+        this.targetPath = targetPath;
     }
 
-    public String getDestinationStorageId()
+    public T getTargetPath()
     {
-        return destinationStorageId;
+        return targetPath;
     }
 
-    public void setDestinationStorageId(String destinationStorageId)
+    public void setTargetPath(T targetPath)
     {
-        this.destinationStorageId = destinationStorageId;
-    }
-
-    public String getDestinationRepositoryId()
-    {
-        return destinationRepositoryId;
-    }
-
-    public void setDestinationRepositoryId(String destinationRepositoryId)
-    {
-        this.destinationRepositoryId = destinationRepositoryId;
+        this.targetPath = targetPath;
     }
 
 }

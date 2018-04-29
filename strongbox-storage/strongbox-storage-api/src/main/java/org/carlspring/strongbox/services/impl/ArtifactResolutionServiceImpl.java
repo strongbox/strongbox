@@ -7,15 +7,12 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -43,52 +40,41 @@ public class ArtifactResolutionServiceImpl
 
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
-
+    
     @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
+    private RepositoryPathResolver repositoryPathResolver;
 
     @Override
-    public RepositoryInputStream getInputStream(String storageId,
-                                                String repositoryId,
-                                                String artifactPath)
-        throws IOException,
-        NoSuchAlgorithmException,
-        ArtifactTransportException,
-        ProviderImplementationException
+    public RepositoryInputStream getInputStream(RepositoryPath path)
+        throws IOException
     {
-        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
-
-        final Repository repository = getStorage(storageId).getRepository(repositoryId);
-
+        Repository repository = path.getFileSystem().getRepository();
+        artifactOperationsValidator.validate(path);
+        
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-
-        RepositoryInputStream is = repositoryProvider.getInputStream(storageId, repositoryId, artifactPath);
+        RepositoryInputStream is = repositoryProvider.getInputStream(path);
         if (is == null)
         {
-            throw new ArtifactResolutionException("Artifact " + artifactPath + " not found.");
+            throw new ArtifactResolutionException(String.format("Artifact [%s] not found.", path));
         }
 
         return is;
     }
 
     @Override
-    public RepositoryOutputStream getOutputStream(String storageId,
-                                                  String repositoryId,
-                                                  String artifactPath)
+    public RepositoryOutputStream getOutputStream(RepositoryPath repositoryPath)
         throws IOException,
-        ProviderImplementationException,
         NoSuchAlgorithmException
     {
-        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
+        artifactOperationsValidator.validate(repositoryPath);
 
-        Repository repository = getStorage(storageId).getRepository(repositoryId);
-
+        Repository repository = repositoryPath.getRepository();
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        RepositoryOutputStream os = repositoryProvider.getOutputStream(storageId, repositoryId, artifactPath);
+        RepositoryOutputStream os = repositoryProvider.getOutputStream(repositoryPath);
         if (os == null)
         {
-            throw new ArtifactStorageException("Artifact " + artifactPath + " cannot be stored.");
+            throw new ArtifactStorageException("Artifact " + repositoryPath + " cannot be stored.");
         }
 
         return os;
@@ -100,19 +86,17 @@ public class ArtifactResolutionServiceImpl
     }
 
     @Override
-    public URL resolveResource(String storageId,
-                               String repositoryId,
-                               String path)
+    public URL resolveResource(RepositoryPath repositoryPath)
             throws IOException
     {
         URI baseUri = configurationManager.getBaseUri();
 
-        Repository repository = getStorage(storageId).getRepository(repositoryId);
-        LayoutProvider<?> layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        URI artifactResource = layoutProvider.resolveResource(repository, path);
+        Repository repository = repositoryPath.getRepository();
+        Storage storage = repository.getStorage();
+        URI artifactResource = RepositoryFiles.resolveResource(repositoryPath);
 
         return UriComponentsBuilder.fromUri(baseUri)
-                                   .pathSegment("storages", storageId, repositoryId, "/")
+                                   .pathSegment("storages", storage.getId(), repository.getId(), "/")
                                    .build()
                                    .toUri()
                                    .resolve(artifactResource)
@@ -125,13 +109,12 @@ public class ArtifactResolutionServiceImpl
                                       String artifactPath) 
            throws IOException
     {        
-        final Repository repository = getStorage(storageId).getRepository(repositoryId);
-
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, artifactPath);
+        
+        Repository repository = repositoryPath.getRepository();
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-
-        RepositoryPath resolvedPath = (RepositoryPath)repositoryProvider.resolvePath(storageId, repositoryId, artifactPath);
-
-        return resolvedPath;
+        
+        return (RepositoryPath)repositoryProvider.fetchPath(repositoryPath);
     }
     
 }

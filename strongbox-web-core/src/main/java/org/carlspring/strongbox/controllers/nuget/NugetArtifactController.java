@@ -14,6 +14,7 @@ import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParserTemplate;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures.RepositorySearchEventListener;
@@ -108,6 +109,9 @@ public class NugetArtifactController extends BaseArtifactController
     @Inject
     private RepositorySearchEventListener repositorySearchEventListener;
     
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+    
     @RequestMapping(path = { "{storageId}/{repositoryId}/{packageId}/{version}" }, method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     public ResponseEntity deletePackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
@@ -118,15 +122,15 @@ public class NugetArtifactController extends BaseArtifactController
     {
         logger.info(String.format("Nuget delete request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]", storageId, repositoryId, packageId));
 
-        String path = String.format("%s/%s/%s.nuspec", packageId, version, packageId);
-        
+        RepositoryPath path = repositoryPathResolver.resolve(storageId, repositoryId, String.format("%s/%s/%s.nuspec", packageId, version, packageId));;
         try
         {
-            nugetArtifactManagementService.delete(storageId, repositoryId, path, true);
-            path = String.format("%s/%s/%s.%s.nupkg", packageId, version, packageId,version);
-            nugetArtifactManagementService.delete(storageId, repositoryId, path, true);
-            path = String.format("%s/%s/%s.%s.nupkg.sha512", packageId, version, packageId,version);
-            nugetArtifactManagementService.delete(storageId, repositoryId, path, true);
+            //TODO: we should move associated files deletion into corresponding layout providers.
+            nugetArtifactManagementService.delete(path, true);
+            path = repositoryPathResolver.resolve(storageId, repositoryId, String.format("%s/%s/%s.%s.nupkg", packageId, version, packageId,version));
+            nugetArtifactManagementService.delete(path, true);
+            path = repositoryPathResolver.resolve(storageId, repositoryId, String.format("%s/%s/%s.%s.nupkg.sha512", packageId, version, packageId,version));
+            nugetArtifactManagementService.delete(path, true);
         }
         catch (IOException e)
         {

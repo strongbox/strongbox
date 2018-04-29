@@ -1,54 +1,28 @@
 package org.carlspring.strongbox.event;
 
+import java.nio.file.Path;
+
 /**
  * @author carlspring
  */
-public class RepositoryBasedEvent extends Event
+public class RepositoryBasedEvent<T extends Path> extends Event
 {
 
-    private String storageId;
+    private T path;
 
-    private String repositoryId;
-
-    private String path;
-
-
-
-    public RepositoryBasedEvent(String storageId,
-                                String repositoryId,
+    public RepositoryBasedEvent(T path,
                                 int type)
     {
         super(type);
-        setStorageId(storageId);
-        setRepositoryId(repositoryId);
+        this.path = path;
     }
 
-    public String getStorageId()
-    {
-        return storageId;
-    }
-
-    public void setStorageId(String storageId)
-    {
-        this.storageId = storageId;
-    }
-
-    public String getRepositoryId()
-    {
-        return repositoryId;
-    }
-
-    public void setRepositoryId(String repositoryId)
-    {
-        this.repositoryId = repositoryId;
-    }
-
-    public String getPath()
+    public T getPath()
     {
         return path;
     }
 
-    public void setPath(String path)
+    public void setPath(T path)
     {
         this.path = path;
     }

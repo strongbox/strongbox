@@ -386,6 +386,11 @@ public abstract class RepositoryFileSystemProvider
     public RepositoryPath getTrashPath(RepositoryPath path)
             throws IOException
     {
+        if (RepositoryFiles.isTrash(path))
+        {
+            return path;
+        }
+        
         RepositoryPath trashBasePath = path.getFileSystem().getTrashPath();
         RepositoryPath trashPath = rebase(path, trashBasePath);
 

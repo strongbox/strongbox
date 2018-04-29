@@ -3,10 +3,12 @@ package org.carlspring.strongbox.providers.repository.proxied;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -45,6 +47,9 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
 
     @Inject
     private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
+    
+    @Inject
+    private ArtifactManagementService artifactManagementService;
 
     @Transactional(rollbackFor = Exception.class)
     public void cleanup(final Integer lastAccessedTimeInDays,
@@ -111,10 +116,9 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
             final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
             final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-
-            layoutProvider.getArtifactManagementService().delete(artifactEntry.getStorageId(),
-                                                                 artifactEntry.getRepositoryId(),
-                                                                 artifactEntry.getArtifactPath(), true);
+            RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactEntry);
+            
+            artifactManagementService.delete(repositoryPath, true);
         }
     }
 

@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryExpiredArtifactsCleaner;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
@@ -44,6 +46,9 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
 
     @Inject
     protected RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
+    
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     @Before
     @After
@@ -71,7 +76,9 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
                                                                                              path);
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
-        try (final InputStream ignored = proxyRepositoryProvider.getInputStream(storageId, repositoryId, path))
+        RepositoryPath repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(storageId, repositoryId,
+                                                                                                         path));
+        try (final InputStream ignored = proxyRepositoryProvider.getInputStream(repositoryPath))
         {
         }
 

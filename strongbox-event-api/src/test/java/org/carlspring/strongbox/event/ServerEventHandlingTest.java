@@ -1,18 +1,18 @@
 package org.carlspring.strongbox.event;
 
+import static org.junit.Assert.assertEquals;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.config.EventsConfig;
 import org.carlspring.strongbox.event.server.ServerEvent;
 import org.carlspring.strongbox.event.server.ServerEventListener;
 import org.carlspring.strongbox.event.server.ServerEventListenerRegistry;
 import org.carlspring.strongbox.event.server.ServerEventTypeEnum;
-
-import javax.inject.Inject;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author mtodorov

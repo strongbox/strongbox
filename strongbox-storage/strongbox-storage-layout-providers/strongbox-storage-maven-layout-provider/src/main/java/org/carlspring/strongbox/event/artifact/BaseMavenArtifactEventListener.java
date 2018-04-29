@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * @author Przemyslaw Fusik
  */
 abstract class BaseMavenArtifactEventListener
-        implements ArtifactEventListener
+        implements ArtifactEventListener<RepositoryPath>
 {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -39,32 +39,23 @@ abstract class BaseMavenArtifactEventListener
     @Inject
     MavenMetadataGroupRepositoryComponent mavenMetadataGroupRepositoryComponent;
 
-    Repository getRepository(final ArtifactEvent event)
+    Repository getRepository(final ArtifactEvent<RepositoryPath> event)
     {
-        return configurationManager.getConfiguration().getStorage(event.getStorageId()).getRepository(
-                event.getRepositoryId());
+        return event.getPath().getFileSystem().getRepository();
     }
 
-    void updateMetadataInGroupsContainingRepository(final ArtifactEvent event,
+    void updateMetadataInGroupsContainingRepository(final ArtifactEvent<RepositoryPath> event,
                                                     final Function<RepositoryPath, RepositoryPath> artifactBasePathCalculation)
     {
 
-        final Repository repository = getRepository(event);
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        final RepositoryPath repositoryAbsolutePath = layoutProvider.resolve(repository);
-        final RepositoryPath artifactAbsolutePath = repositoryAbsolutePath.resolve(event.getPath());
-        final RepositoryPath artifactBasePath = artifactBasePathCalculation.apply(artifactAbsolutePath);
-
+        RepositoryPath artifactBasePath = artifactBasePathCalculation.apply(event.getPath());
         try
         {
-            mavenMetadataGroupRepositoryComponent.updateGroupsContaining(event.getStorageId(),
-                                                                         event.getRepositoryId(),
-                                                                         artifactBasePath.relativize().toString());
+            mavenMetadataGroupRepositoryComponent.updateGroupsContaining(artifactBasePath);
         }
         catch (Exception e)
         {
-            logger.error("Unable to update parent group repositories metadata of file " + event.getPath() +
-                         " of repository " + event.getRepositoryId(), e);
+            logger.error("Unable to update parent group repositories metadata of file " + event.getPath(), e);
         }
     }
 
