@@ -57,7 +57,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         }
         if (!Files.exists(repositoryPath))
         {
-            logger.debug(String.format("Path not exists [%s]", repositoryPath));
+            logger.debug(String.format("The path [%s] does not exist!", repositoryPath));
             return null;
         }
 
