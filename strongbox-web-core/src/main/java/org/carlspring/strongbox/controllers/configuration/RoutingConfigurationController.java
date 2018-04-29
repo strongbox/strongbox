@@ -31,25 +31,31 @@ public class RoutingConfigurationController
         extends BaseConfigurationController
 {
 
-    static final String SUCCESSFUL_ADD_RULE_SET = "Rule set addition succeeded.";
+    static final String SUCCESSFUL_ADD_RULE_SET = "Successfully added rule set.";
+    
     static final String FAILED_ADD_RULE_SET_FORM_ERROR = "Rule set cannot be added because the submitted form contains errors!";
+    
     static final String NOT_FOUND_RULE_SET = "Rule set could not be found.";
-
-    static final String SUCCESSFUL_REMOVE_RULE_SET = "Rule set deletion succeeded.";
-
-    static final String SUCCESSFUL_ADD_REPOSITORY = "Accepted repository addition succeeded.";
+    
+    static final String SUCCESSFUL_REMOVE_RULE_SET = "Rule set deleted successfully.";
+    
+    static final String SUCCESSFUL_ADD_REPOSITORY = "Accepted repository added successfully.";
+    
     static final String FAILED_ADD_REPOSITORY_FORM_ERROR = "Accepted repository cannot be added because the submitted form contains errors!";
+    
     static final String NOT_FOUND_REPOSITORY = "Accepted repository could not be found.";
-
-    static final String SUCCESSFUL_REMOVE_REPOSITORY = "Accepted repository deletion succeeded.";
-
+    
+    static final String SUCCESSFUL_REMOVE_REPOSITORY = "Accepted repository deleted successfully.";
+    
     static final String SUCCESSFUL_OVERRIDE_REPOSITORY = "Accepted repository override succeeded.";
+    
     static final String FAILED_OVERRIDE_REPOSITORY_FORM_ERROR = "Accepted repository cannot be overridden because the submitted form contains errors!";
-
+    
     static final String NOT_FOUND_ROUTING_RULE = "Routing rule is empty.";
 
     private final ConversionService conversionService;
-
+    
+    
     public RoutingConfigurationController(ConfigurationManagementService configurationManagementService,
                                           ConversionService conversionService)
     {
@@ -86,6 +92,7 @@ public class RoutingConfigurationController
 
         RuleSet ruleSet = conversionService.convert(ruleSetForm, RuleSet.class);
         final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
+        
         return getResponse(added, SUCCESSFUL_ADD_RULE_SET, NOT_FOUND_RULE_SET, acceptHeader);
     }
 
@@ -100,6 +107,7 @@ public class RoutingConfigurationController
                                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         final boolean removed = configurationManagementService.removeAcceptedRuleSet(groupRepository);
+        
         return getResponse(removed, SUCCESSFUL_REMOVE_RULE_SET, NOT_FOUND_RULE_SET, acceptHeader);
     }
 
@@ -122,13 +130,13 @@ public class RoutingConfigurationController
         }
 
         RoutingRule routingRule = conversionService.convert(routingRuleForm, RoutingRule.class);
-        if (routingRule != null && routingRule.getPattern() == null && routingRule.getRepositories()
-                                                                                  .isEmpty())
+        if (routingRule != null && routingRule.getPattern() == null && routingRule.getRepositories().isEmpty())
         {
             return getNotFoundResponseEntity(NOT_FOUND_ROUTING_RULE, acceptHeader);
         }
 
         final boolean saved = configurationManagementService.saveAcceptedRepository(groupRepository, routingRule);
+        
         return getResponse(saved, SUCCESSFUL_ADD_REPOSITORY, NOT_FOUND_REPOSITORY, acceptHeader);
     }
 
@@ -144,8 +152,10 @@ public class RoutingConfigurationController
                                                    @RequestParam("pattern") String pattern,
                                                    @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        final boolean removed = configurationManagementService.removeAcceptedRepository(groupRepository, pattern,
+        final boolean removed = configurationManagementService.removeAcceptedRepository(groupRepository,
+                                                                                        pattern,
                                                                                         repositoryId);
+                                                                                        
         return getResponse(removed, SUCCESSFUL_REMOVE_REPOSITORY, NOT_FOUND_REPOSITORY, acceptHeader);
     }
 
