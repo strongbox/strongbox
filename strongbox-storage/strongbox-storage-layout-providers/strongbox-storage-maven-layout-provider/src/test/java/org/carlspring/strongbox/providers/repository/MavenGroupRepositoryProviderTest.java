@@ -352,7 +352,6 @@ public class MavenGroupRepositoryProviderTest
                                                                                           "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"));
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-
             configuration = configurationManagementService.getConfiguration();
             configuration.getStorage(STORAGE0).getRepository(REPOSITORY_RELEASES_2).putInService();
             configurationManagementService.save(configuration);
@@ -458,8 +457,8 @@ public class MavenGroupRepositoryProviderTest
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
         try (InputStream is = repositoryProvider.getInputStream(repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0,
-                                                                                               REPOSITORY_GROUP,
-                                                                                               "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar"))))
+                                                                                             REPOSITORY_GROUP,
+                                                                                             "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar"))))
         {
             assertNull(is);
         }
