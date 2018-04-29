@@ -43,6 +43,8 @@ public class ArtifactEntry
     private Date lastUpdated;
 
     private Date lastUsed;
+
+    private Date created;
     
     private Integer downloadCount = Integer.valueOf(0);
 
@@ -131,6 +133,16 @@ public class ArtifactEntry
         this.lastUsed = lastUsed != null ? new Date(lastUsed.getTime()) : null;
     }
 
+    public Date getCreated()
+    {
+        return created;
+    }
+
+    public void setCreated(Date created)
+    {
+        this.created = created;
+    }
+
     public Integer getDownloadCount()
     {
         return downloadCount;
@@ -153,6 +165,9 @@ public class ArtifactEntry
           .append('\'');
         sb.append(", \n\tsizeInBytes='")
           .append(sizeInBytes)
+          .append('\'');
+        sb.append(", \n\tcreated='")
+          .append(created)
           .append('\'');
         sb.append(", \n\tlastUpdated='")
           .append(lastUpdated)

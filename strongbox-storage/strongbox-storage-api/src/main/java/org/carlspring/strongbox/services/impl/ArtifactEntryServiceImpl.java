@@ -59,19 +59,30 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     {
         //this needed to update `ArtifactEntry.path` property
         entity.setArtifactCoordinates(entity.getArtifactCoordinates());
-        
+
+        if(artifactEntryIsSavedForTheFirstTime(entity))
+        {
+            entity.setCreated(new Date());
+        }
+
+
         ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
         if (coordinates == null)
         {
             return super.save(entity);
         }
-        
+
         if (updateLastVersion)
         {
             updateLastVersionTag(entity);
         }
 
         return super.save(entity);
+    }
+
+    private boolean artifactEntryIsSavedForTheFirstTime(ArtifactEntry artifactEntry)
+    {
+        return artifactEntry.getUuid() == null;
     }
 
     @Override
