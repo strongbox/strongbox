@@ -133,9 +133,11 @@ public abstract class RepositoryFiles
     public static String stringValue(RepositoryPath p)
         throws IOException
     {
-        if (p.path != null) {
+        if (p.path != null)
+        {
             return p.path;
         }
+        
         return p.path = relativizeUri(p).toString();
     }
     
@@ -145,8 +147,11 @@ public abstract class RepositoryFiles
         if (RepositoryFiles.isArtifact(p))
         {
             ArtifactCoordinates c = RepositoryFiles.readCoordinates(p);
+            
             return c.toResource();
         }
+        
         return relativizeUri(p);
     }
+    
 }
