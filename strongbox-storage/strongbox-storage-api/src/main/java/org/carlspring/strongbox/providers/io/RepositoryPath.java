@@ -30,10 +30,15 @@ public class RepositoryPath
 {
 
     private Path target;
+    
     private RepositoryFileSystem fileSystem;
+    
     protected ArtifactEntry artifactEntry;
+    
     protected Map<RepositoryFileAttributeType, Object> cachedAttributes = new HashMap<>();
+    
     protected URI uri;
+    
     protected String path;
     
     public RepositoryPath(Path target,
@@ -206,11 +211,13 @@ public class RepositoryPath
         {
             return this;
         }
+        
         RepositoryPath result = getFileSystem().getRootDirectory().relativize(this);
         if (result.startsWith(RepositoryFileSystem.TRASH) || result.startsWith(RepositoryFileSystem.TEMP))
         {
             result = result.subpath(1, result.getNameCount());
         }
+        
         return result;
     }
 
@@ -231,8 +238,10 @@ public class RepositoryPath
         URI result = null;
         try
         {
-            result = new URI(RepositoryFileSystemProvider.STRONGBOX_SCHEME, null,
-                    "/" + storage.getId() + "/" + repository.getId() + "/", null);
+            result = new URI(RepositoryFileSystemProvider.STRONGBOX_SCHEME,
+                             null,
+                             "/" + storage.getId() + "/" + repository.getId() + "/",
+                             null);
         }
         catch (URISyntaxException e)
         {
