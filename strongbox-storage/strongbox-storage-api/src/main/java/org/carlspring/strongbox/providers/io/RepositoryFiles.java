@@ -133,7 +133,10 @@ public abstract class RepositoryFiles
     public static String stringValue(RepositoryPath p)
         throws IOException
     {
-        return relativizeUri(p).toString();
+        if (p.path != null) {
+            return p.path;
+        }
+        return p.path = relativizeUri(p).toString();
     }
     
     public static URI resolveResource(RepositoryPath p)

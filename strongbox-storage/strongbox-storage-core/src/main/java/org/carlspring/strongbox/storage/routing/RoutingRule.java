@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * @author mtodorov
@@ -18,6 +19,8 @@ public class RoutingRule
 
     @XmlAttribute
     private String pattern;
+    
+    private volatile transient Pattern regex;
 
     @XmlElement(name = "repository")
     @XmlElementWrapper(name = "repositories")
@@ -31,7 +34,7 @@ public class RoutingRule
     public RoutingRule(String pattern,
                        Set<String> repositories)
     {
-        this.pattern = pattern;
+        setPattern(pattern);
         this.repositories = repositories;
     }
 
@@ -42,7 +45,13 @@ public class RoutingRule
 
     public void setPattern(String pattern)
     {
+        this.regex = Pattern.compile(pattern);
         this.pattern = pattern;
+    }
+
+    public Pattern getRegex()
+    {
+        return regex;
     }
 
     public Set<String> getRepositories()

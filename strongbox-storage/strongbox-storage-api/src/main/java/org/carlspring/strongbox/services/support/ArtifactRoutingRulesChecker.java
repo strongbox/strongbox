@@ -74,7 +74,8 @@ public class ArtifactRoutingRulesChecker
             String artifactPath = RepositoryFiles.stringValue(repositoryPath);
             for (RoutingRule rule : denyRules.getRoutingRules())
             {
-                if (rule.getRepositories().contains(repository.getId()) && artifactPath.matches(rule.getPattern()))
+                if (rule.getRepositories().contains(repository.getId())
+                        && rule.getRegex().matcher(artifactPath).matches())
                 {
                     return true;
                 }

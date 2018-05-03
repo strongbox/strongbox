@@ -45,7 +45,7 @@ public class MockedRepositoryPathResolverConfig
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             if (layoutProvider != null)
             {
-                super.resolve(repository, paths);
+                return super.resolve(repository, paths);
             }
             FileSystem fileSystem = FileSystems.getDefault();
             RepositoryFileSystem repositoryFileSystem = new RepositoryFileSystem(repository,
