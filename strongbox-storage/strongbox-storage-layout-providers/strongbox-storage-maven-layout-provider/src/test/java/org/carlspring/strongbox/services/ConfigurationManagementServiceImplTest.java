@@ -51,7 +51,7 @@ public class ConfigurationManagementServiceImplTest
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementServiceImplTest.class);
 
-    private static final String RULE_PATTERN = "*.org.test";
+    private static final String RULE_PATTERN = "\\*.org.test";
 
     private static final String REPOSITORY_RELEASES_1 = "cmsi-releases-1";
 
