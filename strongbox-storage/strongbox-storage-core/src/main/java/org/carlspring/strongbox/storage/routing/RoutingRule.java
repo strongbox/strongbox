@@ -51,6 +51,10 @@ public class RoutingRule
 
     public Pattern getRegex()
     {
+        if (regex == null)
+        {
+            this.regex = Pattern.compile(pattern);
+        }
         return regex;
     }
 
