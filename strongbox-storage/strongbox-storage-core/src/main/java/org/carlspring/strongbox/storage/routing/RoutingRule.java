@@ -4,6 +4,7 @@ import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -51,11 +52,7 @@ public class RoutingRule
 
     public Pattern getRegex()
     {
-        if (regex == null)
-        {
-            this.regex = Pattern.compile(pattern);
-        }
-        return regex;
+        return this.regex = Optional.ofNullable(regex).orElse(Pattern.compile(pattern));
     }
 
     public Set<String> getRepositories()
