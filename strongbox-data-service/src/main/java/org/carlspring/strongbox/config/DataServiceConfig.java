@@ -4,20 +4,25 @@ import org.carlspring.strongbox.data.server.OrientDbServer;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLFactory;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
+import com.orientechnologies.orient.jdbc.OrientDataSource;
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
 import org.reflections.Reflections;
@@ -30,12 +35,12 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Spring configuration for data service project.
@@ -91,6 +96,12 @@ public class DataServiceConfig
 
     }
 
+    @PreDestroy
+    public void preDestroy()
+    {
+        server.stop();
+    }
+
     @Bean
     public PlatformTransactionManager transactionManager()
     {
@@ -128,20 +139,31 @@ public class DataServiceConfig
 
     @Bean
     public DataSource dataSource()
-        throws ClassNotFoundException
+            throws ClassNotFoundException
     {
         Class.forName("com.orientechnologies.orient.jdbc.OrientJdbcDriver");
 
         ServiceLoader.load(OSQLFunctionFactory.class);
         ServiceLoader.load(OCommandExecutorSQLFactory.class);
 
-        SingleConnectionDataSource ds = new SingleConnectionDataSource();
-        ds.setAutoCommit(false);
-        ds.setUsername(connectionConfig.getUsername());
-        ds.setPassword(connectionConfig.getPassword());
-        ds.setUrl(String.format("jdbc:orient:%s", connectionConfig.getUrl()));
+        final OrientDataSource ds = new OrientDataSource(server.orientDB());
 
+        // OrientDataSource bug no1
+        Field poolField = ReflectionUtils.findField(OrientDataSource.class, "pool");
+        ReflectionUtils.makeAccessible(poolField);
+        ReflectionUtils.setField(poolField, ds, pool());
+
+        // OrientDataSource bug no2
+        Field infoField = ReflectionUtils.findField(OrientDataSource.class, "info");
+        ReflectionUtils.makeAccessible(infoField);
+        ReflectionUtils.setField(infoField, ds, new Properties());
         return ds;
+    }
+
+    private ODatabasePool pool()
+    {
+        return new ODatabasePool(server.orientDB(), connectionConfig.getDatabase(), connectionConfig.getUsername(),
+                                 connectionConfig.getPassword());
     }
 
 }

@@ -81,7 +81,7 @@
         <version.logback>1.2.3</version.logback>
         <version.maven>3.3.9</version.maven>
         <version.mockito>2.0.2-beta</version.mockito>
-        <version.orientdb>2.2.18</version.orientdb>
+        <version.orientdb>3.0.0</version.orientdb>
         <version.quartz>2.3.0</version.quartz>
         <version.servlet.api>3.1.0</version.servlet.api>
         <version.slf4j>1.7.24</version.slf4j>
@@ -92,7 +92,7 @@
         <version.hibernate.validator>6.0.7.Final</version.hibernate.validator>
         <version.glassfish.javax.el>3.0.1-b08</version.glassfish.javax.el>
         <version.antlr>4.7.1</version.antlr>
-        <version.liquibase>3.5.5</version.liquibase>
+        <version.liquibase>3.5.3</version.liquibase>
         <version.reflections>0.9.11</version.reflections>
         <!-- Version properties. -->
     </properties>

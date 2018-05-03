@@ -1,28 +1,18 @@
 package org.carlspring.strongbox.data.server;
 
-import static org.carlspring.strongbox.data.PropertyUtils.getVaultDirectory;
+import org.carlspring.strongbox.config.ConnectionConfig;
+import org.carlspring.strongbox.config.ConnectionConfigOrientDB;
+import org.carlspring.strongbox.data.domain.GenericEntityHook;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.config.ConnectionConfig;
-import org.carlspring.strongbox.config.ConnectionConfigOrientDB;
-import org.carlspring.strongbox.data.domain.GenericEntityHook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Condition;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.core.type.AnnotatedTypeMetadata;
-import org.springframework.stereotype.Component;
-
 import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
@@ -32,6 +22,15 @@ import com.orientechnologies.orient.server.config.OServerNetworkConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfiguration;
 import com.orientechnologies.orient.server.config.OServerUserConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.data.PropertyUtils.getVaultDirectory;
 
 /**
  * An embedded configuration of OrientDb server.
@@ -47,6 +46,8 @@ public class EmbeddedOrientDbServer implements OrientDbServer, Condition
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedOrientDbServer.class);
 
     private OServer server;
+
+    private OrientDB orientDB;
 
     private OServerConfiguration serverConfiguration;
 
@@ -129,7 +130,6 @@ public class EmbeddedOrientDbServer implements OrientDbServer, Condition
     }
 
     @Override
-    @PreDestroy
     public void stop()
     {
         server.shutdown();
@@ -150,6 +150,12 @@ public class EmbeddedOrientDbServer implements OrientDbServer, Condition
 
     }
 
+    @Override
+    public OrientDB orientDB()
+    {
+        return orientDB;
+    }
+
     private void activate()
         throws Exception
     {
@@ -159,13 +165,13 @@ public class EmbeddedOrientDbServer implements OrientDbServer, Condition
             server.activate();
         }
 
-        OServerAdmin serverAdmin = new OServerAdmin(connectionConfig.getUrl()).connect(connectionConfig.getUsername(),
-                                                                                       connectionConfig.getPassword());
-        if (!serverAdmin.existsDatabase())
+        orientDB = new OrientDB(connectionConfig.getUrl(), connectionConfig.getUsername(),
+                                connectionConfig.getPassword(), null);
+        if (!orientDB.exists(connectionConfig.getDatabase()))
         {
             logger.info(String.format("Creating database [%s]...", connectionConfig.getDatabase()));
 
-            serverAdmin.createDatabase(connectionConfig.getDatabase(), "document", "plocal");
+            orientDB.create(connectionConfig.getDatabase(), ODatabaseType.PLOCAL);
         }
         else
         {
