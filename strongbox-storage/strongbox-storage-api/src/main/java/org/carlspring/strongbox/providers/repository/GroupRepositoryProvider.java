@@ -124,7 +124,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     private RepositoryPath resolvePathDirectlyFromGroupPathIfPossible(final RepositoryPath artifactPath)
         throws IOException
     {
-        if (Files.exists(artifactPath) && RepositoryFiles.isMetadata(artifactPath))
+        if (Files.exists(artifactPath))
         {
             return artifactPath;
         }

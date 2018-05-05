@@ -26,8 +26,10 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -518,6 +520,9 @@ public abstract class RepositoryFileSystemProvider
         {
             return storageFileSystemProvider.readAttributes(path, attributes, options);
         }
+        
+        RepositoryPath repositoryPath = (RepositoryPath) path;
+        
         Map<String, Object> result = new HashMap<>();
         if (!attributes.startsWith(STRONGBOX_SCHEME))
         {
@@ -528,15 +533,38 @@ public abstract class RepositoryFileSystemProvider
             }
         }
 
-        RepositoryFileAttributeType[] targetRepositoryAttributes = RepositoryFiles.parseAttributes(attributes)
-                                                                                  .toArray(new RepositoryFileAttributeType[] {});
-        Map<String, Object> repositoryFileAttributes = getRepositoryFileAttributes((RepositoryPath) path,
-                                                                                   targetRepositoryAttributes).entrySet()
-                                                                                                              .stream()
-                                                                                                              .collect(Collectors.toMap(e -> e.getKey()
-                                                                                                                                              .getName(),
-                                                                                                                                        e -> e.getValue()));
-        result.putAll(repositoryFileAttributes);
+        Set<RepositoryFileAttributeType> targetRepositoryAttributes = new HashSet<>(RepositoryFiles.parseAttributes(attributes));
+        
+        final Map<RepositoryFileAttributeType, Object> repositoryFileAttributes = new HashMap<>();
+        for (Iterator<RepositoryFileAttributeType> iterator = targetRepositoryAttributes.iterator(); iterator.hasNext();)
+        {
+            RepositoryFileAttributeType repositoryFileAttributeType = iterator.next();
+            Optional.ofNullable(repositoryPath.cachedAttributes.get(repositoryFileAttributeType))
+                    .ifPresent(v -> {
+                        repositoryFileAttributes.put(repositoryFileAttributeType, v);
+                        iterator.remove();
+                    });
+
+        }
+        if (!targetRepositoryAttributes.isEmpty())
+        {
+            Map<RepositoryFileAttributeType, Object> newAttributes = getRepositoryFileAttributes(repositoryPath,
+                                                                                                 targetRepositoryAttributes.toArray(new RepositoryFileAttributeType[targetRepositoryAttributes.size()]));
+            newAttributes.entrySet()
+                         .stream()
+                         .forEach(e -> {
+                             repositoryFileAttributes.put(e.getKey(),
+                                                          e.getValue());
+                             repositoryPath.cachedAttributes.put(e.getKey(),
+                                                                 e.getValue());
+                         });
+        }
+        
+        result.putAll(repositoryFileAttributes.entrySet()
+                                              .stream()
+                                              .collect(Collectors.toMap(e -> e.getKey()
+                                                                              .getName(),
+                                                                        e -> e.getValue())));
         
         return result;
     }

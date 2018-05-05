@@ -15,7 +15,9 @@ import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
@@ -28,9 +30,17 @@ public class RepositoryPath
 {
 
     private Path target;
+    
     private RepositoryFileSystem fileSystem;
+    
     protected ArtifactEntry artifactEntry;
-
+    
+    protected Map<RepositoryFileAttributeType, Object> cachedAttributes = new HashMap<>();
+    
+    protected URI uri;
+    
+    protected String path;
+    
     public RepositoryPath(Path target,
                           RepositoryFileSystem fileSystem)
     {
@@ -201,11 +211,13 @@ public class RepositoryPath
         {
             return this;
         }
+        
         RepositoryPath result = getFileSystem().getRootDirectory().relativize(this);
         if (result.startsWith(RepositoryFileSystem.TRASH) || result.startsWith(RepositoryFileSystem.TEMP))
         {
             result = result.subpath(1, result.getNameCount());
         }
+        
         return result;
     }
 
@@ -216,13 +228,20 @@ public class RepositoryPath
             return getTarget().toUri();
         }
         
+        if (uri != null)
+        {
+            return uri;
+        }
+        
         Repository repository = getFileSystem().getRepository();
         Storage storage = repository.getStorage();
         URI result = null;
         try
         {
-            result = new URI(RepositoryFileSystemProvider.STRONGBOX_SCHEME, null,
-                    String.format("/%s/%s/", storage.getId(), repository.getId()), null);
+            result = new URI(RepositoryFileSystemProvider.STRONGBOX_SCHEME,
+                             null,
+                             "/" + storage.getId() + "/" + repository.getId() + "/",
+                             null);
         }
         catch (URISyntaxException e)
         {
@@ -231,7 +250,7 @@ public class RepositoryPath
         
         URI pathToken = getFileSystem().getRootDirectory().getTarget().toUri().relativize(getTarget().toUri()); 
         
-        return result.resolve(pathToken);
+        return uri = result.resolve(pathToken);
     }
     
     public RepositoryPath toAbsolutePath()
