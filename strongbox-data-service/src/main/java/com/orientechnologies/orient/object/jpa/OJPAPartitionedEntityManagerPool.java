@@ -6,6 +6,8 @@ import javax.persistence.metamodel.Metamodel;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
@@ -18,14 +20,15 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
     /** the log used by this class. */
     private static Logger logger = Logger.getLogger(OJPAPartitionedEntityManagerPool.class.getName());
 
-    private OPartitionedDatabasePool databasePool;
+    private final ODatabasePool databasePool;
     private final OJPAProperties properties;
 
-    public OJPAPartitionedEntityManagerPool(final OJPAProperties properties)
+
+    public OJPAPartitionedEntityManagerPool(final OJPAProperties properties,
+                                            final ODatabasePool databasePool)
     {
         this.properties = properties;
-        this.databasePool = new OPartitionedDatabasePool(properties.getURL(), properties.getUser(),
-                properties.getPassword(), 100, 100);
+        this.databasePool = databasePool;
 
         logger.fine("EntityManagerFactory created. " + toString());
     }
@@ -57,7 +60,7 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
 
     private EntityManager createEntityManager(final OJPAProperties properties)
     {
-        OObjectDatabaseTx db = new OObjectDatabaseTx(databasePool.acquire());
+        OObjectDatabaseTx db = new OObjectDatabaseTx((ODatabaseDocumentInternal) databasePool.acquire());
         Boolean automaticSchemaGeneration = Boolean.valueOf(properties.getOrDefault(OJPAObjectDatabaseTxPersistence.PROPERTY_AUTOMATIC_SCHEMA_GENERATION,
                                                                                     Boolean.FALSE.toString())
                                                                       .toString());
@@ -75,7 +78,7 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
     @Override
     public boolean isOpen()
     {
-        return !databasePool.isClosed();
+        return true;
     }
 
     @Override

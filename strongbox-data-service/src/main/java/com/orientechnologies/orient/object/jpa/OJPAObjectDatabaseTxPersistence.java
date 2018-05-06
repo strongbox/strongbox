@@ -11,6 +11,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil;
 import static com.orientechnologies.orient.core.entity.OEntityManager.getEntityManagerByDatabaseURL;
@@ -32,17 +33,11 @@ public class OJPAObjectDatabaseTxPersistence
 
     private Collection<? extends PersistenceUnitInfo> persistenceUnits = null;
 
-    public OJPAObjectDatabaseTxPersistence()
+    private final ODatabasePool pool;
+
+    public OJPAObjectDatabaseTxPersistence(final ODatabasePool pool)
     {
-        URL persistenceXml = Thread.currentThread().getContextClassLoader().getResource(PERSISTENCE_XML);
-        try
-        {
-            persistenceUnits = PersistenceXmlUtil.parse(persistenceXml);
-        }
-        catch (Exception e)
-        {
-            logger.log(Level.SEVERE, "Cannot parse '" + PERSISTENCE_XML + "' :" + e.getMessage(), e);
-        }
+        this.pool = pool;
     }
 
     @Override
@@ -83,7 +78,7 @@ public class OJPAObjectDatabaseTxPersistence
         OEntityManager entityManager = getEntityManagerByDatabaseURL(properties.getURL());
         entityManager.registerEntityClasses(info.getManagedClassNames());
 
-        return new OJPAPartitionedEntityManagerPool(properties);
+        return new OJPAPartitionedEntityManagerPool(properties, pool);
     }
 
     @Override

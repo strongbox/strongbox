@@ -11,8 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
@@ -23,6 +21,7 @@ import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLFactory;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
 import com.orientechnologies.orient.jdbc.OrientDataSource;
+import com.orientechnologies.orient.object.jpa.OrientDbJpaVendorAdapter;
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
 import org.reflections.Reflections;
@@ -36,6 +35,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -62,38 +62,33 @@ public class DataServiceConfig
      * This must be after {@link OEntityUnproxyAspect} order.
      */
     public static final int TRANSACTIONAL_INTERCEPTOR_ORDER = 100;
-    
+
     @Inject
     private ConnectionConfig connectionConfig;
-    
+
     @Inject
     private ResourceLoader resourceLoader;
-    
+
     @Inject
     private OrientDbServer server;
+
 
     @PostConstruct
     public void init() throws ClassNotFoundException, LiquibaseException
     {
-        server.start();
-        
+        //server.start();
+
         SpringLiquibase liquibase = new SpringLiquibase();
-        liquibase.setDataSource(dataSource());
+        liquibase.setDataSource(dataSource(pool()));
         liquibase.setResourceLoader(resourceLoader);
         liquibase.setChangeLog("classpath:/db/changelog/db.changelog-master.xml");
         liquibase.afterPropertiesSet();
 
-        new TransactionTemplate(transactionManager()).execute((s) -> {
-            OEntityManager oEntityManager = oEntityManager();
-            // register all domain entities
-            Stream.concat(new Reflections("org.carlspring.strongbox").getTypesAnnotatedWith(Entity.class).stream(),
-                          new Reflections("org.carlspring.strongbox").getTypesAnnotatedWith(Embeddable.class).stream())
-                  .forEach(oEntityManager::registerEntityClass);
-            
-            return null;
-        });
-
-
+        OEntityManager oEntityManager = oEntityManager();
+        // register all domain entities
+        Stream.concat(new Reflections("org.carlspring.strongbox").getTypesAnnotatedWith(Entity.class).stream(),
+                      new Reflections("org.carlspring.strongbox").getTypesAnnotatedWith(Embeddable.class).stream())
+              .forEach(oEntityManager::registerEntityClass);
     }
 
     @PreDestroy
@@ -103,24 +98,29 @@ public class DataServiceConfig
     }
 
     @Bean
-    public PlatformTransactionManager transactionManager()
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf)
     {
-        return new JpaTransactionManager(entityManagerFactory());
+        return new JpaTransactionManager(emf);
     }
 
     @Bean
-    public EntityManagerFactory entityManagerFactory()
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(ODatabasePool pool)
     {
+        /*
         Map<String, String> jpaProperties = new HashMap<>();
         jpaProperties.put("javax.persistence.jdbc.url", connectionConfig.getUrl());
         jpaProperties.put("javax.persistence.jdbc.user", connectionConfig.getUsername());
         jpaProperties.put("javax.persistence.jdbc.password", connectionConfig.getPassword());
+        */
+        LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
+        //emf.set
+        //emf.setDataSource(dataSource);
 
-        LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
-        result.setJpaPropertyMap(jpaProperties);
-        result.afterPropertiesSet();
+        JpaVendorAdapter vendorAdapter = new OrientDbJpaVendorAdapter(pool);
+        emf.setJpaVendorAdapter(vendorAdapter);
+        //emf.setJpaProperties(additionalProperties());
 
-        return result.getObject();
+        return emf;
     }
 
     @Bean
@@ -138,11 +138,8 @@ public class DataServiceConfig
     }
 
     @Bean
-    public DataSource dataSource()
-            throws ClassNotFoundException
+    public DataSource dataSource(ODatabasePool pool)
     {
-        Class.forName("com.orientechnologies.orient.jdbc.OrientJdbcDriver");
-
         ServiceLoader.load(OSQLFunctionFactory.class);
         ServiceLoader.load(OCommandExecutorSQLFactory.class);
 
@@ -151,7 +148,7 @@ public class DataServiceConfig
         // OrientDataSource bug no1
         Field poolField = ReflectionUtils.findField(OrientDataSource.class, "pool");
         ReflectionUtils.makeAccessible(poolField);
-        ReflectionUtils.setField(poolField, ds, pool());
+        ReflectionUtils.setField(poolField, ds, pool);
 
         // OrientDataSource bug no2
         Field infoField = ReflectionUtils.findField(OrientDataSource.class, "info");
@@ -160,7 +157,8 @@ public class DataServiceConfig
         return ds;
     }
 
-    private ODatabasePool pool()
+    @Bean
+    public ODatabasePool pool()
     {
         return new ODatabasePool(server.orientDB(), connectionConfig.getDatabase(), connectionConfig.getUsername(),
                                  connectionConfig.getPassword());

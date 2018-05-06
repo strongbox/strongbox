@@ -4,6 +4,7 @@ import org.carlspring.strongbox.config.ConnectionConfig;
 import org.carlspring.strongbox.config.ConnectionConfigOrientDB;
 import org.carlspring.strongbox.data.domain.GenericEntityHook;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import com.orientechnologies.orient.core.Orient;
@@ -44,6 +45,7 @@ public class InMemoryOrientDbServer
 
     private ORecordHook genericEntityHook = new GenericEntityHook();
 
+    @PostConstruct
     @Override
     public void start()
     {
