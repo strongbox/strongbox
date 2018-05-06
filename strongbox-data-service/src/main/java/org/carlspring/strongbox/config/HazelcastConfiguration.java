@@ -40,6 +40,8 @@ public class HazelcastConfiguration
                                           .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
                                           .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
         config.getGroupConfig().setName("strongbox").setPassword("password");
+        config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+        
         return config;
     }
 }
