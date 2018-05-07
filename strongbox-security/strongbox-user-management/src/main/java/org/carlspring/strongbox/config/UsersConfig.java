@@ -1,14 +1,5 @@
 package org.carlspring.strongbox.config;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.UserAccessModel;
 import org.carlspring.strongbox.security.UserPathPermissions;
@@ -19,6 +10,15 @@ import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanInstantiationException;
@@ -29,8 +29,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import com.orientechnologies.orient.core.entity.OEntityManager;
 
 /**
  * Spring configuration for all user-related code.
