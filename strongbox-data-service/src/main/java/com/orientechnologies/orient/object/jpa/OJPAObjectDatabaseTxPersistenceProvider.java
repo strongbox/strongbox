@@ -4,19 +4,16 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.ProviderUtil;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.jdbc.OrientDataSource;
-import com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil;
 import static com.orientechnologies.orient.core.entity.OEntityManager.getEntityManagerByDatabaseURL;
 
 /**
  * @author Sergey Bespalov
  * @author Przemyslaw Fusik
- *
  */
 public class OJPAObjectDatabaseTxPersistenceProvider
         implements PersistenceProvider
@@ -26,22 +23,13 @@ public class OJPAObjectDatabaseTxPersistenceProvider
 
     private static OJPAProviderUtil providerUtil = new OJPAProviderUtil();
 
-    private Collection<? extends PersistenceUnitInfo> persistenceUnits = null;
-
     @Override
     public synchronized EntityManagerFactory createEntityManagerFactory(String emName,
                                                                         Map map)
     {
-        if (emName == null)
-        {
-            throw new IllegalStateException("Name of the persistence unit should not be null");
-        }
-
-        PersistenceUnitInfo unitInfo = PersistenceXmlUtil.findPersistenceUnit(emName, persistenceUnits);
-        return createContainerEntityManagerFactory(unitInfo, map);
+        throw new UnsupportedOperationException("createEntityManagerFactory");
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public synchronized EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info,
                                                                                  Map map)
@@ -49,7 +37,7 @@ public class OJPAObjectDatabaseTxPersistenceProvider
 
         Properties sourceProperties = info.getProperties();
         OJPAProperties properties = sourceProperties instanceof OJPAProperties ? (OJPAProperties) sourceProperties
-                : new OJPAProperties();
+                                                                               : new OJPAProperties();
 
         if (sourceProperties != null && !sourceProperties.equals(properties))
         {
@@ -72,13 +60,15 @@ public class OJPAObjectDatabaseTxPersistenceProvider
     }
 
     @Override
-    public void generateSchema(PersistenceUnitInfo info, Map map)
+    public void generateSchema(PersistenceUnitInfo info,
+                               Map map)
     {
         throw new UnsupportedOperationException("generateSchema");
     }
 
     @Override
-    public boolean generateSchema(String persistenceUnitName, Map map)
+    public boolean generateSchema(String persistenceUnitName,
+                                  Map map)
     {
         throw new UnsupportedOperationException("generateSchema");
     }

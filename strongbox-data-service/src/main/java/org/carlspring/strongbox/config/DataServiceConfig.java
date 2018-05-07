@@ -5,8 +5,9 @@ import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
 import com.hazelcast.core.HazelcastInstance;
 import com.orientechnologies.orient.object.jpa.OJPAObjectDatabaseTxPersistenceProvider;
 import liquibase.integration.spring.SpringLiquibase;
@@ -70,18 +71,23 @@ public class DataServiceConfig
     @DependsOn("springLiquibase")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(ConnectionConfig connectionConfig)
     {
-        LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-        emf.setDataSource(dataSource);
-        emf.setPersistenceUnitName("strongbox-PU");
-        emf.setPackagesToScan("org.carlspring.strongbox");
-        emf.setPersistenceProvider(new OJPAObjectDatabaseTxPersistenceProvider());
-        emf.setJpaPropertyMap(ImmutableMap.of("javax.persistence.jdbc.url", connectionConfig.getUrl()));
+        Map<String, String> jpaProperties = new HashMap<>();
+        jpaProperties.put("javax.persistence.jdbc.url", connectionConfig.getUrl());
+        jpaProperties.put("javax.persistence.jdbc.user", connectionConfig.getUsername());
+        jpaProperties.put("javax.persistence.jdbc.password", connectionConfig.getPassword());
+
+        LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
+        result.setJpaPropertyMap(jpaProperties);
+        result.setDataSource(dataSource);
+        result.setPersistenceUnitName("strongbox-PU");
+        result.setPackagesToScan("org.carlspring.strongbox");
+        result.setPersistenceProvider(new OJPAObjectDatabaseTxPersistenceProvider());
 
         // @sbespalov, needed ?
         // ServiceLoader.load(OSQLFunctionFactory.class);
         // ServiceLoader.load(OCommandExecutorSQLFactory.class);
 
-        return emf;
+        return result;
     }
 
     @Bean
