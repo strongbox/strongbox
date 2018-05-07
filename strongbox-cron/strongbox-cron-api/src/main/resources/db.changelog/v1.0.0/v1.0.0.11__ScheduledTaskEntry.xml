@@ -1,0 +1,23 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:o="http://www.unbroken-dome.org/schema/liquibase-orientdb"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.2.xsd">
+
+    <changeSet id="v1.0.0.2" author="aditya.s@outlook.com">
+
+        
+        <o:createClass name="ScheduledTaskEntry" extends="GenericEntity">
+            <o:property name="taskName" type="string" />
+            <o:property name="threadName" type="string" />
+            <o:property name="startDateTime" type="datetime" />
+            <o:property name="endDateTime" type="boolean" />
+            <o:property name="status" type="string" />
+            <o:property name="exceptionMessage" type="string" />
+        </o:createClass>
+
+        <o:createIndex name="idx_artifact" on="ScheduledTaskEntry" property="uuid" type="unique" />
+
+    </changeSet>
+
+</databaseChangeLog>
