@@ -1,21 +1,19 @@
 package org.carlspring.strongbox.storage.search;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
 /**
  * @author mtodorov
  */
-@XmlRootElement(name = "artifacts")
-@XmlAccessorType(XmlAccessType.FIELD)
+@JsonRootName("artifacts")
 public class SearchResults
 {
 
-    @XmlElement(name = "artifact")
+    @JsonProperty("artifact")
     private Set<SearchResult> results = new LinkedHashSet<>();
 
 
