@@ -16,7 +16,6 @@ import java.util.Collections;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.SetUtils;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -27,13 +26,27 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.controllers.users.UserController.*;
+import static org.carlspring.strongbox.controllers.users.UserController.FAILED_CREATE_USER;
+import static org.carlspring.strongbox.controllers.users.UserController.FAILED_DELETE_SAME_USER;
+import static org.carlspring.strongbox.controllers.users.UserController.FAILED_GENERATE_SECURITY_TOKEN;
+import static org.carlspring.strongbox.controllers.users.UserController.FAILED_UPDATE_ACCESS_MODEL;
+import static org.carlspring.strongbox.controllers.users.UserController.FAILED_UPDATE_USER;
+import static org.carlspring.strongbox.controllers.users.UserController.NOT_FOUND_USER;
+import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSFUL_CREATE_USER;
+import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSFUL_DELETE_USER;
+import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSFUL_UPDATE_USER;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Pablo Tirado
@@ -60,20 +73,6 @@ public class UserControllerTestIT
     {
         super.init();
         setContextBaseUrl(getContextBaseUrl() + "/api/users");
-    }
-
-    @After
-    public void rollBackAdminUserPassword()
-    {
-        TransactionTemplate t = new TransactionTemplate();
-        t.setTransactionManager(transactionManager);
-        t.setPropagationBehavior(Propagation.REQUIRES_NEW.value());
-        t.execute(s -> {
-            User adminUser = retrieveUserByName("admin");
-            adminUser.setPassword("password");
-            userService.save(adminUser);
-            return null;
-        });
     }
 
     private void greetTest(String acceptHeader)

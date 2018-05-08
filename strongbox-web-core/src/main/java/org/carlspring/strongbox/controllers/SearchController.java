@@ -10,7 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,8 +54,7 @@ public class SearchController
     @RequestMapping(method = RequestMethod.GET,
                     consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
                                  MediaType.TEXT_PLAIN_VALUE },
-                    produces = { MediaType.APPLICATION_XML_VALUE,
-                                 MediaType.APPLICATION_JSON_VALUE,
+                    produces = { MediaType.APPLICATION_JSON_VALUE,
                                  MediaType.TEXT_PLAIN_VALUE })
     public ResponseEntity search(@ApiParam(value = "The storageId", required = false)
                                  @RequestParam(name = "storageId", required = false) final String storageId,
