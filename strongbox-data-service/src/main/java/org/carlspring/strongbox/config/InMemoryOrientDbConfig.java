@@ -6,6 +6,7 @@ import org.carlspring.strongbox.data.server.OrientDbServer;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -39,8 +40,10 @@ class InMemoryOrientDbConfig
         String database = connectionConfig.getDatabase();
         logger.info(String.format("Initialize In-Memory OrientDB server for [%s]", database));
 
-        OrientDB orientDB = new OrientDB(connectionConfig.getUrl(), connectionConfig.getUsername(),
-                                         connectionConfig.getPassword(), getOrientDBConfig());
+        OrientDB orientDB = new OrientDB(StringUtils.substringBeforeLast(connectionConfig.getUrl(), "/"),
+                                         connectionConfig.getUsername(),
+                                         connectionConfig.getPassword(),
+                                         getOrientDBConfig());
         if (!orientDB.exists(database))
         {
             logger.info(String.format("Creating database [%s]...", database));

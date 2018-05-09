@@ -5,6 +5,7 @@ import org.carlspring.strongbox.data.server.OrientDbServer;
 
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -31,8 +32,10 @@ class EmbeddedOrientDbConfig
     @DependsOn("orientDbServer")
     OrientDB orientDB()
     {
-        OrientDB orientDB = new OrientDB(connectionConfig.getUrl(), connectionConfig.getUsername(),
-                                         connectionConfig.getPassword(), getOrientDBConfig());
+        OrientDB orientDB = new OrientDB(StringUtils.substringBeforeLast(connectionConfig.getUrl(), "/"),
+                                         connectionConfig.getUsername(),
+                                         connectionConfig.getPassword(),
+                                         getOrientDBConfig());
         String database = connectionConfig.getDatabase();
 
         if (!orientDB.exists(database))
