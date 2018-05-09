@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.data.service.CommonCrudService;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
@@ -10,16 +9,12 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.commons.lang.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
  * DAO implementation for {@link User} entities.
  *
  * @author Alex Oreshkevich
+ * @author Przemyslaw Fusik
  */
 @Service
 @Transactional
@@ -46,13 +42,9 @@ public class UserServiceImpl
     private PasswordEncoder passwordEncoder;
 
     @Inject
-    private CacheManager cacheManager;
-
-    @Inject
     private SecurityTokenProvider tokenProvider;
     
     @Override
-    @Cacheable(value = CacheName.User.USERS, key = "#name")
     public User findByUserName(String name)
     {
         HashMap<String, String> params = new HashMap<>();
@@ -65,51 +57,6 @@ public class UserServiceImpl
 
         List<User> resultList = getDelegate().command(oQuery).execute(params);
         return !resultList.isEmpty() ? resultList.iterator().next() : null;
-    }
-
-    @Override
-    @CacheEvict(value = { CacheName.User.USERS,
-                          CacheName.User.USER_DETAILS }, key = "#newUser.username")
-    public <S extends User> S save(S newUser)
-    {
-        return super.save(newUser);
-    }
-
-    @Override
-    public Optional<User> findOne(String id)
-    {
-        if (id == null)
-        {
-            return Optional.empty();
-        }
-
-        Optional<User> optionalUser = super.findOne(id);
-        optionalUser.ifPresent(user -> cacheManager.getCache(CacheName.User.USERS).put(user.getUsername(), detach(user)));
-
-        return optionalUser;
-    }
-
-    @Override
-    public void delete(String objectId)
-    {
-        Optional<User> optionalUser = findOne(objectId);
-        optionalUser.ifPresent(user -> self().delete(optionalUser.get()));
-    }
-
-    @CacheEvict(value = { CacheName.User.USERS,
-                          CacheName.User.USER_DETAILS }, key = "#user.username")
-    @Override
-    public void delete(User user)
-    {
-        super.delete(user);
-    }
-
-    @CacheEvict(value = { CacheName.User.USERS,
-                          CacheName.User.USER_DETAILS }, allEntries = true)
-    @Override
-    public void deleteAll()
-    {
-        super.deleteAll();
     }
 
     @Override

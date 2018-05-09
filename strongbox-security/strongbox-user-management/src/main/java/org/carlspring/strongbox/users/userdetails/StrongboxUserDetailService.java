@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.users.userdetails;
 
-import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.service.UserService;
@@ -14,7 +13,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,9 +28,6 @@ public class StrongboxUserDetailService
 
     private static final Logger logger = LoggerFactory.getLogger(StrongboxUserDetailService.class);
 
-    // @Autowired
-    // private PasswordEncoder passwordEncoder;
-
     @Inject
     UserService userService;
 
@@ -40,7 +35,6 @@ public class StrongboxUserDetailService
     AuthoritiesProvider authoritiesProvider;
 
     @Override
-    @Cacheable(value = CacheName.User.USER_DETAILS, key = "#name")
     public synchronized UserDetails loadUserByUsername(String name)
             throws UsernameNotFoundException
     {
