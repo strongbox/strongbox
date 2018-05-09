@@ -33,7 +33,7 @@ pipeline {
         stage('Building')
         {
             steps {
-                withMaven(mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833')
+                withMaven(mavenLocalRepo: workspaceUtils.generateM2LocalRepoPath(), mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833')
                 {
                     withEnv(['PATH+MVN_CMD=$MVN_CMD']) {
                         timestamps {
@@ -45,7 +45,7 @@ pipeline {
         }
         stage('Code Analysis') {
             steps {
-                withMaven(mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833')
+                withMaven(mavenLocalRepo: workspaceUtils.generateM2LocalRepoPath(), mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833', publisherStrategy: 'EXPLICIT')
                 {
                     withEnv(['PATH+MVN_CMD=$MVN_CMD']) {
                         script {
@@ -95,7 +95,7 @@ pipeline {
             }
             steps {
                 script {
-                    withMaven(mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833')
+                    withMaven(mavenLocalRepo: workspaceUtils.generateM2LocalRepoPath(), mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833', publisherStrategy: 'EXPLICIT')
                     {
                         withEnv(['PATH+MVN_CMD=$MVN_CMD']) {
                             sh "mvn deploy" +
