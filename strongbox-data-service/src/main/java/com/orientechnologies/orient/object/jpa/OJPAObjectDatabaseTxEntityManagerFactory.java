@@ -1,31 +1,45 @@
 package com.orientechnologies.orient.object.jpa;
 
-import javax.persistence.*;
+import javax.persistence.Cache;
+import javax.persistence.EntityGraph;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.Query;
+import javax.persistence.SynchronizationType;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
+import com.google.common.base.Throwables;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.jdbc.OrientDataSource;
+import com.orientechnologies.orient.jdbc.OrientJdbcConnection;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * @author Sergey Bespalov
+ * @author Przemyslaw Fusik
  *
  */
-public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
+public class OJPAObjectDatabaseTxEntityManagerFactory
+        implements EntityManagerFactory
 {
     /** the log used by this class. */
-    private static Logger logger = Logger.getLogger(OJPAPartitionedEntityManagerPool.class.getName());
+    private static Logger logger = Logger.getLogger(OJPAObjectDatabaseTxEntityManagerFactory.class.getName());
 
-    private OPartitionedDatabasePool databasePool;
+    private final OrientDataSource dataSource;
     private final OJPAProperties properties;
 
-    public OJPAPartitionedEntityManagerPool(final OJPAProperties properties)
+
+    public OJPAObjectDatabaseTxEntityManagerFactory(final OJPAProperties properties,
+                                                    final OrientDataSource dataSource)
     {
         this.properties = properties;
-        this.databasePool = new OPartitionedDatabasePool(properties.getURL(), properties.getUser(),
-                properties.getPassword(), 100, 100);
+        this.dataSource = dataSource;
 
         logger.fine("EntityManagerFactory created. " + toString());
     }
@@ -57,9 +71,21 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
 
     private EntityManager createEntityManager(final OJPAProperties properties)
     {
-        OObjectDatabaseTx db = new OObjectDatabaseTx(databasePool.acquire());
-        Boolean automaticSchemaGeneration = Boolean.valueOf(properties.getOrDefault(OJPAObjectDatabaseTxPersistence.PROPERTY_AUTOMATIC_SCHEMA_GENERATION,
-                                                                                    Boolean.FALSE.toString())
+
+        Connection connection;
+        try
+        {
+            connection = dataSource.getConnection();
+        }
+        catch (SQLException e)
+        {
+            throw Throwables.propagate(e);
+        }
+
+        OObjectDatabaseTx db = new OObjectDatabaseTx((ODatabaseDocumentInternal) ((OrientJdbcConnection) connection).getDatabase());
+        Boolean automaticSchemaGeneration = Boolean.valueOf(properties.getOrDefault(
+                OJPAObjectDatabaseTxPersistenceProvider.PROPERTY_AUTOMATIC_SCHEMA_GENERATION,
+                Boolean.FALSE.toString())
                                                                       .toString());
         db.setAutomaticSchemaGeneration(Boolean.TRUE.equals(automaticSchemaGeneration));
         return new OJPAObjectDatabaseTxEntityManager(db, this, properties);
@@ -68,14 +94,14 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
     @Override
     public void close()
     {
-        databasePool.close();
+        dataSource.close();
         logger.fine("EntityManagerFactory closed. " + toString());
     }
 
     @Override
     public boolean isOpen()
     {
-        return !databasePool.isClosed();
+        return true;
     }
 
     @Override

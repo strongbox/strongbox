@@ -2,35 +2,34 @@ package org.carlspring.strongbox.storage.search;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
-import javax.xml.bind.annotation.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author mtodorov
  */
-@XmlRootElement(name = "artifact")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class SearchResult
 {
 
-    @XmlAnyElement
+    @JsonProperty
     private ArtifactCoordinates artifactCoordinates;
 
-    @XmlElement
+    @JsonProperty
     private String storageId;
 
-    @XmlElement
+    @JsonProperty
     private String repositoryId;
 
-    @XmlElement
+    @JsonProperty
     private String url;
 
     /**
      * K: The compatible dependency format's alias
      * V: The string representation of the snippet.
      */
-    @XmlElement
+    @JsonProperty
     private Map<String, String> snippets = new LinkedHashMap<>();
 
 

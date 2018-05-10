@@ -4,61 +4,32 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.ProviderUtil;
-import java.net.URL;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil;
+import com.orientechnologies.orient.jdbc.OrientDataSource;
 import static com.orientechnologies.orient.core.entity.OEntityManager.getEntityManagerByDatabaseURL;
-import static com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil.PERSISTENCE_XML;
 
 /**
  * @author Sergey Bespalov
- *
+ * @author Przemyslaw Fusik
  */
-public class OJPAObjectDatabaseTxPersistence
+public class OJPAObjectDatabaseTxPersistenceProvider
         implements PersistenceProvider
 {
 
     public static final String PROPERTY_AUTOMATIC_SCHEMA_GENERATION = "com.orientechnologies.orient.object.jpa.automaticSchemaGeneration";
 
-    /** the log used by this class. */
-    private static Logger logger = Logger.getLogger(OJPAObjectDatabaseTxPersistence.class.getName());
     private static OJPAProviderUtil providerUtil = new OJPAProviderUtil();
-
-    private Collection<? extends PersistenceUnitInfo> persistenceUnits = null;
-
-    public OJPAObjectDatabaseTxPersistence()
-    {
-        URL persistenceXml = Thread.currentThread().getContextClassLoader().getResource(PERSISTENCE_XML);
-        try
-        {
-            persistenceUnits = PersistenceXmlUtil.parse(persistenceXml);
-        }
-        catch (Exception e)
-        {
-            logger.log(Level.SEVERE, "Cannot parse '" + PERSISTENCE_XML + "' :" + e.getMessage(), e);
-        }
-    }
 
     @Override
     public synchronized EntityManagerFactory createEntityManagerFactory(String emName,
                                                                         Map map)
     {
-        if (emName == null)
-        {
-            throw new IllegalStateException("Name of the persistence unit should not be null");
-        }
-
-        PersistenceUnitInfo unitInfo = PersistenceXmlUtil.findPersistenceUnit(emName, persistenceUnits);
-        return createContainerEntityManagerFactory(unitInfo, map);
+        throw new UnsupportedOperationException("createEntityManagerFactory");
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public synchronized EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info,
                                                                                  Map map)
@@ -66,7 +37,7 @@ public class OJPAObjectDatabaseTxPersistence
 
         Properties sourceProperties = info.getProperties();
         OJPAProperties properties = sourceProperties instanceof OJPAProperties ? (OJPAProperties) sourceProperties
-                : new OJPAProperties();
+                                                                               : new OJPAProperties();
 
         if (sourceProperties != null && !sourceProperties.equals(properties))
         {
@@ -83,17 +54,21 @@ public class OJPAObjectDatabaseTxPersistence
         OEntityManager entityManager = getEntityManagerByDatabaseURL(properties.getURL());
         entityManager.registerEntityClasses(info.getManagedClassNames());
 
-        return new OJPAPartitionedEntityManagerPool(properties);
+        OrientDataSource dataSource = (OrientDataSource) info.getNonJtaDataSource();
+
+        return new OJPAObjectDatabaseTxEntityManagerFactory(properties, dataSource);
     }
 
     @Override
-    public void generateSchema(PersistenceUnitInfo info, Map map)
+    public void generateSchema(PersistenceUnitInfo info,
+                               Map map)
     {
         throw new UnsupportedOperationException("generateSchema");
     }
 
     @Override
-    public boolean generateSchema(String persistenceUnitName, Map map)
+    public boolean generateSchema(String persistenceUnitName,
+                                  Map map)
     {
         throw new UnsupportedOperationException("generateSchema");
     }

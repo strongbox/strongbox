@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.controllers.configuration.security.authorization;
 
 import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
 import org.carlspring.strongbox.forms.RoleListForm;
@@ -22,7 +21,11 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.cache.CacheManager;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
@@ -36,7 +39,13 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * @author Pablo Tirado
@@ -171,19 +180,7 @@ public class AuthorizationConfigController
             configProvider.save(config);
 
             // revoke role from every user that exists in the system
-            getAllUsers().forEach(user ->
-                                  {
-                                      if (user.getRoles().remove(name.toUpperCase()))
-                                      {
-                                          // evict such kind of users from cache
-                                          Objects.requireNonNull(
-                                                  cacheManager.getCache(CacheName.User.USERS)).evict(
-                                                  user.getUsername());
-                                          Objects.requireNonNull(cacheManager.getCache(
-                                                  CacheName.User.USER_DETAILS)).evict(
-                                                  user.getUsername());
-                                      }
-                                  });
+            getAllUsers().forEach(user ->user.getRoles().remove(name.toUpperCase()));
         }
         else
         {

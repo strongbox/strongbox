@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.config;
 
-import java.nio.file.Path;
-
 import org.carlspring.strongbox.client.RestArtifactResolverFactory;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+
+import java.nio.file.Path;
 
 import com.hazelcast.config.Config;
 import org.mockito.Matchers;
@@ -27,8 +27,6 @@ public class MockedRestArtifactResolverTestConfig
     public Config hazelcastConfig()
     {
         final Config config = new Config().setInstanceName("mocked-hazelcast-instance")
-                                          .addMapConfig(newDefaultMapConfig(CacheName.User.USERS))
-                                          .addMapConfig(newDefaultMapConfig(CacheName.User.USER_DETAILS))
                                           .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
                                           .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
         config.getGroupConfig().setName("strongbox").setPassword("password");
