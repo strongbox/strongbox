@@ -24,7 +24,8 @@ import org.springframework.util.Assert;
  * @author Przemyslaw Fusik
  */
 public class AuthoritiesExternalToInternalMapper
-        implements InitializingBean, GrantedAuthoritiesMapper
+        implements InitializingBean,
+                   GrantedAuthoritiesMapper
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthoritiesExternalToInternalMapper.class);
@@ -57,6 +58,7 @@ public class AuthoritiesExternalToInternalMapper
                 authorities.addAll(authoritiesProvider.getAuthoritiesByRoleName(internalRole));
             }
         }
+        
         return authorities;
     }
 
