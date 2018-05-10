@@ -44,7 +44,6 @@ public class EmbeddedOrientDbServer
     @PostConstruct
     public void start()
     {
-
         try
         {
             init();
@@ -54,13 +53,13 @@ public class EmbeddedOrientDbServer
         {
             throw new RuntimeException("Unable to start the embedded OrientDb server!", e);
         }
-
     }
 
     private void init()
             throws Exception
     {
         String database = connectionConfig.getDatabase();
+        
         logger.info(String.format("Initialize Embedded OrientDB server for [%s]", database));
 
         server = OServerMain.create();
@@ -90,6 +89,7 @@ public class EmbeddedOrientDbServer
         // add users (incl system-level root user)
         List<OServerUserConfiguration> users = new LinkedList<>();
         users.add(buildUser(connectionConfig.getUsername(), connectionConfig.getPassword(), "*"));
+        
         System.setProperty("ORIENTDB_ROOT_PASSWORD", connectionConfig.getUsername());
 
         // add other properties
@@ -102,7 +102,6 @@ public class EmbeddedOrientDbServer
         serverConfiguration.network = networkConfiguration;
         serverConfiguration.users = users.toArray(new OServerUserConfiguration[users.size()]);
         serverConfiguration.properties = properties.toArray(new OServerEntryConfiguration[properties.size()]);
-
     }
 
     private void activate()
