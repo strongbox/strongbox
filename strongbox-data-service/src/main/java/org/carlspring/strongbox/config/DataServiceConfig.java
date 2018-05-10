@@ -83,10 +83,6 @@ public class DataServiceConfig
         result.setPackagesToScan("org.carlspring.strongbox");
         result.setPersistenceProvider(new OJPAObjectDatabaseTxPersistenceProvider());
 
-        // @sbespalov, needed ?
-        // ServiceLoader.load(OSQLFunctionFactory.class);
-        // ServiceLoader.load(OCommandExecutorSQLFactory.class);
-
         return result;
     }
 
