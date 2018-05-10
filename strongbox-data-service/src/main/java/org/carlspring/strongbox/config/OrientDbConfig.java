@@ -50,9 +50,10 @@ class OrientDbConfig
     @Bean(destroyMethod = "close")
     ODatabasePool databasePool(ConnectionConfig connectionConfig)
     {
-        return new ODatabasePool(orientDB, connectionConfig.getDatabase(), connectionConfig.getUsername(),
+        return new ODatabasePool(orientDB,
+                                 connectionConfig.getDatabase(),
+                                 connectionConfig.getUsername(),
                                  connectionConfig.getPassword());
     }
-
 
 }
