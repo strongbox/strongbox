@@ -46,7 +46,7 @@ class EmbeddedOrientDbConfig
         }
         else
         {
-            logger.info("Re-using existing database " + database + ".);
+            logger.info("Re-using existing database " + database + ".");
         }
         return orientDB;
     }
