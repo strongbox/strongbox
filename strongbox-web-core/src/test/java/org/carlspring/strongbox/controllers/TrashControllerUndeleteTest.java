@@ -122,8 +122,6 @@ public class TrashControllerUndeleteTest
     {
         try
         {
-            closeIndexersForRepository(STORAGE0, REPOSITORY_WITH_TRASH);
-            closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
             removeRepositories();
         }
         catch (IOException | JAXBException e)
@@ -153,13 +151,6 @@ public class TrashControllerUndeleteTest
     public void testUndeleteArtifactFromTrashForRepository()
             throws Exception
     {
-        assertFalse(indexContainsArtifact(STORAGE0,
-                                          REPOSITORY_WITH_TRASH,
-                                          "+g:org.carlspring.strongbox.undelete " +
-                                          "+a:test-artifact-undelete " +
-                                          "+v:1.0 " +
-                                          "+p:jar"));
-
         String url = getContextBaseUrl() + "/api/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH +
                      "/org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar";
 
@@ -185,10 +176,6 @@ public class TrashControllerUndeleteTest
                     "Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!");
         assertTrue(Files.exists(artifactFileRestoredFromTrash),
                    "Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!");
-
-        assertIndexContainsArtifact(STORAGE0,
-                                    REPOSITORY_WITH_TRASH,
-                                    "+g:org.carlspring.strongbox.undelete +a:test-artifact-undelete +v:1.0 +p:jar");
     }
 
     @ParameterizedTest
@@ -197,13 +184,6 @@ public class TrashControllerUndeleteTest
     void testUndeleteArtifactsForAllRepositories(String acceptHeader)
             throws Exception
     {
-        assertFalse(indexContainsArtifact(STORAGE0,
-                                          REPOSITORY_WITH_TRASH,
-                                          "+g:org.carlspring.strongbox.undelete " +
-                                          "+a:test-artifact-undelete " +
-                                          "+v:1.1 " +
-                                          "+p:jar"));
-
         final Path artifactFileInTrash = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/.trash/" +
                                                    "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/" +
                                                    "test-artifact-undelete-1.1.jar");
@@ -232,13 +212,6 @@ public class TrashControllerUndeleteTest
         assertTrue(Files.exists(artifactFileRestoredFromTrash),
                    "Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH +
                            "' (" + artifactFileRestoredFromTrash.toAbsolutePath().toString() + " does not exist)!");
-
-        assertIndexContainsArtifact(STORAGE0,
-                                    REPOSITORY_WITH_TRASH,
-                                    "+g:org.carlspring.strongbox.undelete " +
-                                    "+a:test-artifact-undelete " +
-                                    "+v:1.1 " +
-                                    "+p:jar");
     }
 
     private void validateResponseBody(ValidatableMockMvcResponse response,

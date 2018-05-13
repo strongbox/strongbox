@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.storage.search;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,11 +16,6 @@ public class SearchRequest
     private String repositoryId;
 
     private String query;
-
-    /**
-     * The search provider implementation to use. This defaults to the database one.
-     */
-    private String implementation = OrientDbSearchProvider.ALIAS;
 
     private Map<String, String> options = new LinkedHashMap<>();
 
@@ -43,24 +37,11 @@ public class SearchRequest
 
     public SearchRequest(String storageId,
                          String repositoryId,
-                         String query,
-                         String implementation)
-    {
-        this.storageId = storageId;
-        this.repositoryId = repositoryId;
-        this.query = query;
-        this.implementation = implementation;
-    }
-
-    public SearchRequest(String storageId,
-                         String repositoryId,
-                         ArtifactCoordinates coordinates,
-                         String implementation)
+                         ArtifactCoordinates coordinates)
     {
         this.storageId = storageId;
         this.repositoryId = repositoryId;
         this.artifactCoordinates = coordinates;
-        this.implementation = implementation;
     }
 
     public String getStorageId()
@@ -91,16 +72,6 @@ public class SearchRequest
     public void setQuery(String query)
     {
         this.query = query;
-    }
-
-    public String getImplementation()
-    {
-        return implementation;
-    }
-
-    public void setImplementation(String implementation)
-    {
-        this.implementation = implementation;
     }
 
     public Map<String, String> getOptions()

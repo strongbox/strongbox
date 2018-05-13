@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.converters.configuration;
 
 import org.carlspring.strongbox.forms.configuration.RemoteRepositoryForm;
-import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryDto;
 
 import org.springframework.core.convert.converter.Converter;
 
@@ -9,15 +9,15 @@ import org.springframework.core.convert.converter.Converter;
  * @author Przemyslaw Fusik
  */
 public enum RemoteRepositoryFormConverter
-        implements Converter<RemoteRepositoryForm, MutableRemoteRepository>
+        implements Converter<RemoteRepositoryForm, RemoteRepositoryDto>
 {
 
     INSTANCE;
 
     @Override
-    public MutableRemoteRepository convert(final RemoteRepositoryForm source)
+    public RemoteRepositoryDto convert(final RemoteRepositoryForm source)
     {
-        MutableRemoteRepository result = new MutableRemoteRepository();
+        RemoteRepositoryDto result = new RemoteRepositoryDto();
         result.setUrl(source.getUrl());
         result.setDownloadRemoteIndexes(source.isDownloadRemoteIndexes());
         result.setAutoBlocking(source.isAutoBlocking());

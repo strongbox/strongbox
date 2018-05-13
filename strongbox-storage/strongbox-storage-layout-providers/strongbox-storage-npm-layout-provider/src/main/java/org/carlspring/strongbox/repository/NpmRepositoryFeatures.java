@@ -17,15 +17,15 @@ import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearc
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
-import org.carlspring.strongbox.yaml.configuration.repository.remote.NpmRemoteRepositoryConfigurationDto;
 import org.carlspring.strongbox.yaml.configuration.repository.remote.NpmRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.remote.NpmRemoteRepositoryConfigurationDto;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -36,7 +36,9 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -116,7 +118,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
+        RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (remoteRepository == null)
         {
             return;
@@ -167,7 +169,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
+        RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (remoteRepository == null)
         {
             return;
@@ -234,7 +236,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
     {
         int result = 0;
 
-        RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
+        RemoteRepository remoteRepository = repository.getRemoteRepository();
         NpmRemoteRepositoryConfiguration repositoryConfiguration = (NpmRemoteRepositoryConfiguration) remoteRepository.getCustomConfiguration();
 
         JsonFactory jfactory = new JsonFactory();
@@ -314,7 +316,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
+        RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (remoteRepository == null)
         {
             return;
@@ -389,7 +391,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
             Storage storage = getConfiguration().getStorage(storageId);
             Repository repository = storage.getRepository(repositoryId);
-            RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
+            RemoteRepository remoteRepository = repository.getRemoteRepository();
             if (remoteRepository == null)
             {
                 return;
@@ -447,7 +449,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
             Storage storage = getConfiguration().getStorage(storageId);
             Repository repository = storage.getRepository(repositoryId);
-            RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
+            RemoteRepository remoteRepository = repository.getRemoteRepository();
             if (remoteRepository == null)
             {
                 return;

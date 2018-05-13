@@ -57,8 +57,6 @@ public class SearchController
                                  @RequestParam(name = "repositoryId", required = false) final String repositoryId,
                                  @ApiParam(value = "The search query", required = true)
                                  @RequestParam(name = "q") final String query,
-                                 @ApiParam(value = "The search provider", required = false)
-                                 @RequestParam(name = "searchProvider", required = false) final String searchProvider,
                                  HttpServletRequest request)
             throws IOException, SearchException
     {
@@ -70,7 +68,7 @@ public class SearchController
 
         if (accept.equalsIgnoreCase(MediaType.TEXT_PLAIN_VALUE))
         {
-            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q, searchProvider);
+            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q);
 
             return ResponseEntity.ok(artifacts.toString());
         }
@@ -79,7 +77,7 @@ public class SearchController
             // Apparently, the JSON root tag's name is based on the name of the object
             // which the Jersey method returns, hence this is "artifacts".
             @SuppressWarnings("UnnecessaryLocalVariable")
-            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q, searchProvider);
+            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q);
 
             return ResponseEntity.ok(artifacts);
         }
@@ -87,14 +85,12 @@ public class SearchController
 
     private SearchResults getSearchResults(String storageId,
                                            String repositoryId,
-                                           String query,
-                                           String searchProvider)
+                                           String query)
             throws SearchException
     {
         return artifactSearchService.search(new SearchRequest(storageId,
                                                               repositoryId,
-                                                              query,
-                                                              searchProvider));
+                                                              query));
     }
 
 }

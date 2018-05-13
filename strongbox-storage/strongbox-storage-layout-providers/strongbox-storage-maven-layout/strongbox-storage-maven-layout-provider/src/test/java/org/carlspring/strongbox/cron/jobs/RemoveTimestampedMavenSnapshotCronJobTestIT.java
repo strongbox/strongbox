@@ -25,9 +25,7 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -65,14 +63,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
-
-    @Override
-    @BeforeEach
-    public void init(TestInfo testInfo)
-            throws Exception
-    {
-        super.init(testInfo);
-    }
 
     private void rebuildArtifactsMetadata(Repository repository)
             throws Exception

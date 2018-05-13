@@ -18,8 +18,6 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import io.restassured.response.ExtractableResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -293,20 +291,6 @@ public class RestAssuredArtifactClient
                     .peek()
                     .then()
                     .statusCode(OK);
-    }
-
-    public MockMvcResponse rebuildIndexes(String storageId,
-                                          String repositoryId,
-                                          String path)
-    {
-        String url = getContextBaseUrl() + "/api/maven/index?" + (storageId != null ? "storageId=" + storageId : "") +
-                     (repositoryId != null ? (storageId != null ? "&" : "") + "repositoryId=" + repositoryId : "") +
-                     (path != null ? (storageId != null || repositoryId != null ? "&" : "") + "path=" + path : "");
-
-        return givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-                           .when()
-                           .post(url)
-                           .peek();
     }
 
     public void removeVersionFromMetadata(String storageId,

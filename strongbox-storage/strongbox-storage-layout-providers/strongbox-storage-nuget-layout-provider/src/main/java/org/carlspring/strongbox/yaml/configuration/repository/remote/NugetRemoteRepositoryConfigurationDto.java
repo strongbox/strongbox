@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.yaml.configuration.repository.remote;
 
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
-import org.carlspring.strongbox.yaml.repository.remote.CustomRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.CustomRemoteRepositoryConfigurationData;
 import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfigurationDto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -15,7 +15,7 @@ public class NugetRemoteRepositoryConfigurationDto
 {
 
     @Override
-    public CustomRemoteRepositoryConfiguration getImmutable()
+    public CustomRemoteRepositoryConfigurationData getImmutable()
     {
         return new NugetRemoteRepositoryConfiguration();
     }

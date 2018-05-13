@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.services.support;
 
 import org.carlspring.strongbox.artifact.AsyncArtifactEntryHandler;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
@@ -22,7 +21,8 @@ import org.springframework.stereotype.Component;
  * @author Przemyslaw Fusik
  */
 @Component
-public class ArtifactStoredEventListener extends AsyncArtifactEntryHandler
+public class ArtifactStoredEventListener
+        extends AsyncArtifactEntryHandler
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactStoredEventListener.class);
@@ -30,19 +30,17 @@ public class ArtifactStoredEventListener extends AsyncArtifactEntryHandler
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
-    @Inject
-    protected ConfigurationManager configurationManager;
-
     public ArtifactStoredEventListener()
     {
         super(ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED);
     }
 
     @Override
-    protected ArtifactEntry handleEvent(RepositoryPath repositoryPath) throws IOException
+    protected ArtifactEntry handleEvent(RepositoryPath repositoryPath)
+            throws IOException
     {
         ArtifactEntry artifactEntry = repositoryPath.getArtifactEntry();
-        
+
         if (artifactEntry == null)
         {
             logger.warn(String.format("No [%s] for [%s].",
@@ -51,7 +49,7 @@ public class ArtifactStoredEventListener extends AsyncArtifactEntryHandler
 
             return null;
         }
-        
+
         final Repository repository = repositoryPath.getRepository();
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         final Set<String> archiveFilenames = layoutProvider.listArchiveFilenames(repositoryPath);

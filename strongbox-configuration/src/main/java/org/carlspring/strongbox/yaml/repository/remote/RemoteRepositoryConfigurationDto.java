@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.yaml.repository.remote;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -10,10 +8,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public abstract class RemoteRepositoryConfigurationDto
-        implements Serializable
+        implements CustomRemoteRepositoryConfiguration
 {
 
     @JsonIgnore
-    public abstract CustomRemoteRepositoryConfiguration getImmutable();
+    public abstract CustomRemoteRepositoryConfigurationData getImmutable();
 
 }

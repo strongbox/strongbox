@@ -23,7 +23,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryDto;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
@@ -144,7 +144,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         Optional.ofNullable(remoteRepository).ifPresent(r -> {
             repository.setType(RepositoryTypeEnum.PROXY.getType());
 
-            MutableRemoteRepository remoteRepositoryConfiguration = new MutableRemoteRepository();
+            RemoteRepositoryDto remoteRepositoryConfiguration = new RemoteRepositoryDto();
             remoteRepositoryConfiguration.setUrl(r.url());
             repository.setRemoteRepository(remoteRepositoryConfiguration);
         });

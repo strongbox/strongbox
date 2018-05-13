@@ -1,123 +1,35 @@
 package org.carlspring.strongbox.storage.repository.remote;
 
 import org.carlspring.strongbox.yaml.repository.remote.CustomRemoteRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfigurationDto;
 
-import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.Serializable;
 
 /**
  * @author Przemyslaw Fusik
  */
-@Immutable
-@XmlAccessorType(XmlAccessType.FIELD)
-@SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
-public class RemoteRepository
+public interface RemoteRepository
+        extends Serializable
 {
 
-    private boolean downloadRemoteIndexes;
+    String getUrl();
 
-    private boolean autoBlocking;
+    boolean isDownloadRemoteIndexes();
 
-    private boolean checksumValidation;
+    boolean isAutoBlocking();
 
-    private String username;
+    boolean isChecksumValidation();
 
-    private String password;
+    String getUsername();
 
-    private String checksumPolicy;
+    String getPassword();
 
-    private Integer checkIntervalSeconds;
+    String getChecksumPolicy();
 
-    private boolean allowsDirectoryBrowsing;
+    Integer getCheckIntervalSeconds();
 
-    private boolean autoImportRemoteSSLCertificate;
+    boolean allowsDirectoryBrowsing();
 
-    private String url;
-    
-    private CustomRemoteRepositoryConfiguration customConfiguration;
+    boolean isAutoImportRemoteSSLCertificate();
 
-    RemoteRepository()
-    {
-
-    }
-
-    public RemoteRepository(final MutableRemoteRepository other)
-    {
-        this.url = other.getUrl();
-        this.downloadRemoteIndexes = other.isDownloadRemoteIndexes();
-        this.autoBlocking = other.isAutoBlocking();
-        this.checksumValidation = other.isChecksumValidation();
-        this.username = other.getUsername();
-        this.password = other.getPassword();
-        this.checksumPolicy = other.getChecksumPolicy();
-        this.checkIntervalSeconds = other.getCheckIntervalSeconds();
-        this.allowsDirectoryBrowsing = other.allowsDirectoryBrowsing();
-        this.autoImportRemoteSSLCertificate = other.isAutoImportRemoteSSLCertificate();
-        this.customConfiguration = immuteRemoteRepositoryConfiguration(other.getCustomConfiguration());
-    }
-
-    public String getUrl()
-    {
-        return url;
-    }
-
-    public boolean isDownloadRemoteIndexes()
-    {
-        return downloadRemoteIndexes;
-    }
-
-    public boolean isAutoBlocking()
-    {
-        return autoBlocking;
-    }
-
-    public boolean isChecksumValidation()
-    {
-        return checksumValidation;
-    }
-
-    public String getUsername()
-    {
-        return username;
-    }
-
-    public String getPassword()
-    {
-        return password;
-    }
-
-    public String getChecksumPolicy()
-    {
-        return checksumPolicy;
-    }
-
-    public Integer getCheckIntervalSeconds()
-    {
-        return checkIntervalSeconds;
-    }
-
-    public boolean allowsDirectoryBrowsing()
-    {
-        return allowsDirectoryBrowsing;
-    }
-
-    public boolean isAutoImportRemoteSSLCertificate()
-    {
-        return autoImportRemoteSSLCertificate;
-    }
-
-    public CustomRemoteRepositoryConfiguration getCustomConfiguration()
-    {
-        return customConfiguration;
-    }
-
-    private CustomRemoteRepositoryConfiguration immuteRemoteRepositoryConfiguration(final RemoteRepositoryConfigurationDto source)
-    {
-        return source != null ? source.getImmutable() : null;
-    }
-
+    CustomRemoteRepositoryConfiguration getCustomConfiguration();
 }

@@ -1,15 +1,5 @@
 package org.carlspring.strongbox.providers.repository;
 
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.nio.file.Path;
-import java.util.Objects;
-
-import javax.ws.rs.core.Response;
-
 import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
@@ -21,21 +11,26 @@ import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.file.Path;
+import java.util.Objects;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.parallel.Execution;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik

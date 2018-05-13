@@ -61,7 +61,7 @@ public abstract class AbstractRepositoryManagementStrategy
 
     protected void createRepositoryInternal(Storage storage,
                                             Repository repository)
-            throws IOException, RepositoryManagementStrategyException
+            throws RepositoryManagementStrategyException
     {
         // override if needed
     }

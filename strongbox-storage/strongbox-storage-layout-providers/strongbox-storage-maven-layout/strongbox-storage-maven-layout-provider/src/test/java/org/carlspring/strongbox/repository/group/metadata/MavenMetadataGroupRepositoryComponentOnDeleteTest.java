@@ -3,7 +3,6 @@ package org.carlspring.strongbox.repository.group.metadata;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.IndexedMaven2FileSystemProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -13,10 +12,8 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group.Rule;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -135,20 +132,6 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repositoryLeafL, path);
         RepositoryFiles.delete(repositoryPath, false);
-
-        Optional.of(repositoryPath.getFileSystem().provider())
-                .filter(p -> p instanceof IndexedMaven2FileSystemProvider)
-                .map(p -> (IndexedMaven2FileSystemProvider) p)
-                .ifPresent(p -> {
-                    try
-                    {
-                        p.closeIndex(repositoryPath);
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
-                });
 
         assertFalse(Files.exists(artifactFile), "Failed to delete artifact file " + artifactFile);
 

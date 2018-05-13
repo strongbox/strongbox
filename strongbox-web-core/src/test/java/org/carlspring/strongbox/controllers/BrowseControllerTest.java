@@ -90,7 +90,6 @@ public class BrowseControllerTest
     {
         try
         {
-            closeIndexersForRepository(STORAGE0, REPOSITORY);
             removeRepositories();
             cleanUp(getRepositoriesToClean());
         }

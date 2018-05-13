@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.yaml.configuration.repository.remote;
 
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.yaml.repository.remote.CustomRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.CustomRemoteRepositoryConfigurationData;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -13,7 +13,7 @@ import org.glassfish.hk2.api.Immediate;
 @JsonTypeName(Maven2LayoutProvider.ALIAS)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MavenRemoteRepositoryConfiguration
-        extends CustomRemoteRepositoryConfiguration
+        extends CustomRemoteRepositoryConfigurationData
 {
 
     MavenRemoteRepositoryConfiguration()

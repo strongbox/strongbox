@@ -1,20 +1,17 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.fields.*;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.services.ArtifactIndexesService;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator.RepositoryIndexCreatorQualifier;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.inject.Inject;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import org.springframework.core.env.Environment;
 
 /**
  * @author Kate Novik.
@@ -27,52 +24,42 @@ public class RebuildMavenIndexesCronJob
 
     private static final String PROPERTY_REPOSITORY_ID = "repositoryId";
 
-    private static final String PROPERTY_BASE_PATH = "basePath";
-
     private static final Set<CronJobField> FIELDS = ImmutableSet.of(
             new CronJobStorageIdAutocompleteField(new CronJobStringTypeField(
                     new CronJobRequiredField(new CronJobNamedField(PROPERTY_STORAGE_ID)))),
             new CronJobRepositoryIdAutocompleteField(new CronJobStringTypeField(
-                    new CronJobRequiredField(new CronJobNamedField(PROPERTY_REPOSITORY_ID)))),
-            new CronJobStringTypeField(
-                    new CronJobOptionalField(new CronJobNamedField(PROPERTY_BASE_PATH))));
+                    new CronJobRequiredField(new CronJobNamedField(PROPERTY_REPOSITORY_ID)))));
 
     @Inject
-    private ArtifactIndexesService artifactIndexesService;
+    private ConfigurationManager configurationManager;
 
     @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
+    @RepositoryIndexCreatorQualifier(RepositoryTypeEnum.HOSTED)
+    private RepositoryIndexCreator repositoryIndexCreator;
 
     @Override
     public void executeTask(CronTaskConfigurationDto config)
             throws Throwable
     {
-        logger.debug("Executing RebuildMavenIndexesCronJob ...");
+        String storageId = config.getProperty(PROPERTY_STORAGE_ID);
+        String repositoryId = config.getProperty(PROPERTY_REPOSITORY_ID);
 
-        String storageId = config.getRequiredProperty(PROPERTY_STORAGE_ID);
-        String repositoryId = config.getRequiredProperty(PROPERTY_REPOSITORY_ID);
-        String basePath = config.getProperty(PROPERTY_BASE_PATH);
+        logger.debug(String.format(
+                "Executing RebuildMavenIndexesCronJob for storageId = [%s], repositoryId = [%s]", storageId,
+                repositoryId));
 
-        Storage storage = layoutProviderRegistry.getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, basePath);
+        Repository repository = configurationManager.getRepository(storageId, repositoryId);
 
-        artifactIndexesService.rebuildIndex(repositoryPath);
-    }
-
-    @Override
-    public boolean enabled(CronTaskConfigurationDto configuration,
-                           Environment env)
-    {
-        if (!super.enabled(configuration, env))
+        if (!repository.isHostedRepository())
         {
-            return false;
+            logger.warn(String.format(
+                    "Repository identified by storageId = [%s], repositoryId = [%s] is not a hosted repository. Exiting ...",
+                    storageId,
+                    repositoryId));
+            return;
         }
 
-        return Boolean.parseBoolean(env.getProperty(MavenIndexerEnabledCondition.MAVEN_INDEXER_ENABLED));
+        repositoryIndexCreator.apply(repository);
     }
 
     @Override
