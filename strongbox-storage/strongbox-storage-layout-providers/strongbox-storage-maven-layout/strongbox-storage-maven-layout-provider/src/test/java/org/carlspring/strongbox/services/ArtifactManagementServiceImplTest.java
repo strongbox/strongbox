@@ -69,8 +69,6 @@ public class ArtifactManagementServiceImplTest
 
     private static final int CONTENT_SIZE = 40000;
 
-    private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
-
     private static final String AMSI_RELEASES_WITHOUT_DEPLOYMENT = "amsi-releases-without-deployment";
 
     private static final String AMSI_RELEASES_WITHOUT_DELETES = "amsi-releases-without-deletes";
@@ -412,7 +410,7 @@ public class ArtifactManagementServiceImplTest
 
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -5);
-        String timestamp = formatter.format(cal.getTime());
+        String timestamp = new SimpleDateFormat("yyyyMMdd.HHmmss").format(cal.getTime());
 
         // Artifact can't be created with annotation because we need the current date minus 5 days for the timestamp.
         createTimestampedSnapshot(repositoryPath.toString(),

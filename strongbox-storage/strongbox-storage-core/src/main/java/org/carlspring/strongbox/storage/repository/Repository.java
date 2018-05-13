@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage.repository;
 import java.util.Set;
 
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
 
 public interface Repository
@@ -63,5 +64,7 @@ public interface Repository
     String getStorageIdAndRepositoryId();
 
     boolean isType(String type);
+
+    RemoteRepository getRemoteRepository();
     
 }

@@ -285,10 +285,6 @@ public class MavenProxyRepositoryProviderTestIT
         assertStreamNotNull(storageId,
                             repositoryId,
                             "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar.sha1");
-
-        assertIndexContainsArtifact(storageId,
-                                    repositoryId,
-                                    "+g:org.carlspring.maven +a:derby-maven-plugin +v:1.10");
     }
 
     @Disabled // Broken while Docker is being worked on, as there is no running instance of the Strongbox service.

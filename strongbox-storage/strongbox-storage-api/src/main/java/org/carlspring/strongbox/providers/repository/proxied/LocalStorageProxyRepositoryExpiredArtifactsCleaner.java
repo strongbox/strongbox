@@ -5,12 +5,10 @@ import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
@@ -54,7 +52,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
     @Transactional(rollbackFor = Exception.class)
     public void cleanup(final Integer lastAccessedTimeInDays,
                         final Long minSizeInBytes)
-            throws IOException, SearchException
+            throws IOException
     {
         final ArtifactEntrySearchCriteria searchCriteria = anArtifactEntrySearchCriteria()
                                                                    .withLastAccessedTimeInDays(lastAccessedTimeInDays)
@@ -90,7 +88,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
                 it.remove();
                 continue;
             }
-            final RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
+            final RemoteRepository remoteRepository = repository.getRemoteRepository();
             if (remoteRepository == null)
             {
                 logger.warn("Repository {} is not associated with remote repository", repository.getId());

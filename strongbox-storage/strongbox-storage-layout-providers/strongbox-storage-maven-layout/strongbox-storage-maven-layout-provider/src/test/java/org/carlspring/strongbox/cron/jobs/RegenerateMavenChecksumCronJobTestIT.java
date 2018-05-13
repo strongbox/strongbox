@@ -20,9 +20,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -53,14 +51,6 @@ public class RegenerateMavenChecksumCronJobTestIT
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
-
-    @Override
-    @BeforeEach
-    public void init(TestInfo testInfo)
-            throws Exception
-    {
-        super.init(testInfo);
-    }
 
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,

@@ -41,6 +41,9 @@ public enum JarArchiveListingFunction
             return false;
         }
         final String filenameString = fileName.toString();
-        return filenameString.endsWith("jar") || filenameString.endsWith("war") || filenameString.endsWith("ear");
+        return filenameString.endsWith("jar") ||
+               filenameString.endsWith("war") ||
+               filenameString.endsWith("ear") ||
+               filenameString.endsWith("zip");
     }
 }

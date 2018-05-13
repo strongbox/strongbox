@@ -1,12 +1,7 @@
 package org.carlspring.strongbox.domain;
 
 import javax.persistence.Embeddable;
-import javax.persistence.EntityManager;
-
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -30,13 +25,6 @@ public class ArtifactArchiveListing
         this.filenames = filenames;
     }
 
-    public ArtifactArchiveListing detach(EntityManager entityManager) {
-        ArtifactArchiveListing result = ((OObjectDatabaseTx)entityManager.getDelegate()).detach(this, true);
-        result.filenames = new HashSet<>(result.filenames);
-        
-        return result;
-    }
-    
     @Override
     public String toString()
     {

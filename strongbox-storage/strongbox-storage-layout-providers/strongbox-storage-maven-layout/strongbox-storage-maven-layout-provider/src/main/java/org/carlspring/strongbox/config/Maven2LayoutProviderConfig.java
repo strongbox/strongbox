@@ -5,15 +5,20 @@ import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
-import org.carlspring.strongbox.providers.layout.*;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
+import org.carlspring.strongbox.providers.layout.Maven2FileSystemProvider;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.layout.MavenFileSystem;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.nio.file.FileSystem;
 import java.nio.file.spi.FileSystemProvider;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 
 @Configuration
@@ -22,7 +27,6 @@ import org.springframework.core.env.Environment;
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
                  "org.carlspring.strongbox.storage" })
-@Import(MavenIndexerConfig.class)
 public class Maven2LayoutProviderConfig
 {
 
@@ -43,18 +47,7 @@ public class Maven2LayoutProviderConfig
     {
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-
-            LayoutFileSystemProvider result;
-            if (Boolean.parseBoolean(environment.getProperty(MavenIndexerEnabledCondition.MAVEN_INDEXER_ENABLED)))
-            {
-                result = indexedMavenFileSystemProvider(storageProvider.getFileSystemProvider());
-            }
-            else
-            {
-                result = mavenFileSystemProvider(storageProvider.getFileSystemProvider());
-            }
-
-            return result;
+            return mavenFileSystemProvider(storageProvider.getFileSystemProvider());
         };
 
     }
@@ -64,13 +57,6 @@ public class Maven2LayoutProviderConfig
     public Maven2FileSystemProvider mavenFileSystemProvider(FileSystemProvider provider)
     {
         return new Maven2FileSystemProvider(provider);
-    }
-
-    @Bean
-    @Scope("prototype")
-    public LayoutFileSystemProvider indexedMavenFileSystemProvider(FileSystemProvider provider)
-    {
-        return new IndexedMaven2FileSystemProvider(provider);
     }
 
     @Bean(FILE_SYSTEM_ALIAS)

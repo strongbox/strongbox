@@ -9,9 +9,6 @@ import org.carlspring.strongbox.storage.search.SearchResults;
  */
 public interface SearchProvider
 {
-
-    void register();
-
     String getAlias();
 
     SearchResults search(SearchRequest searchRequest)

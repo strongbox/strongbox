@@ -4,7 +4,7 @@ import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryDto;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
 
 import java.io.Serializable;
@@ -63,7 +63,7 @@ public class RepositoryDto
      */
     private MutableProxyConfiguration proxyConfiguration;
 
-    private MutableRemoteRepository remoteRepository;
+    private RemoteRepositoryDto remoteRepository;
 
     private MutableHttpConnectionPool httpConnectionPool;
 
@@ -238,12 +238,12 @@ public class RepositoryDto
         this.proxyConfiguration = proxyConfiguration;
     }
 
-    public MutableRemoteRepository getRemoteRepository()
+    public RemoteRepositoryDto getRemoteRepository()
     {
         return remoteRepository;
     }
 
-    public void setRemoteRepository(MutableRemoteRepository remoteRepository)
+    public void setRemoteRepository(RemoteRepositoryDto remoteRepository)
     {
         this.remoteRepository = remoteRepository;
     }

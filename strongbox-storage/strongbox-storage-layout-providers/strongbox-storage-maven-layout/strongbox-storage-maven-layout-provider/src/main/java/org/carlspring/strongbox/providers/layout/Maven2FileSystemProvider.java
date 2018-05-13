@@ -1,9 +1,7 @@
 package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.*;
-import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.Storage;
@@ -117,8 +115,7 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
                                                       repository.getId(),
                                                       "+g:" + groupId + " " +
                                                       "+a:" + artifactId + " " +
-                                                      "+v:" + version,
-                                                      MavenIndexerSearchProvider.ALIAS);
+                                                      "+v:" + version);
 
             try
             {
@@ -126,7 +123,7 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
 
                 for (SearchResult result : results.getResults())
                 {
-                    delete(repositoryPathResolver.resolve(repository, (MavenArtifactCoordinates) result.getArtifactCoordinates()), force);
+                    delete(repositoryPathResolver.resolve(repository, result.getArtifactCoordinates()), force);
                 }
             }
             catch (SearchException e)

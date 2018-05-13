@@ -4,8 +4,8 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
@@ -28,8 +28,8 @@ import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageEntry;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
@@ -42,14 +42,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
-
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 
 import org.slf4j.Logger;
@@ -149,12 +143,12 @@ public class NugetRepositoryFeatures
                                       NugetSearchRequest nugetSearchRequest,
                                       int skip,
                                       int top)
-        throws ArtifactTransportException, IOException
+            throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
+        RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (remoteRepository == null)
         {
             return false;
@@ -293,7 +287,7 @@ public class NugetRepositoryFeatures
             
             Storage storage = getConfiguration().getStorage(event.getStorageId());
             Repository repository = storage.getRepository(event.getRepositoryId());
-            RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
+            RemoteRepository remoteRepository = repository.getRemoteRepository();
             if (remoteRepository == null)
             {
                 return;

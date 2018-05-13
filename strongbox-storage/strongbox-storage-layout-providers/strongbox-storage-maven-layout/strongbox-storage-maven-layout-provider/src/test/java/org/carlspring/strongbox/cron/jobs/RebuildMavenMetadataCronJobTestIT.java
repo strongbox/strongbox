@@ -12,17 +12,15 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 
 import javax.inject.Inject;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
-import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -53,14 +51,6 @@ public class RebuildMavenMetadataCronJobTestIT
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
-
-    @Override
-    @BeforeEach
-    public void init(TestInfo testInfo)
-            throws Exception
-    {
-        super.init(testInfo);
-    }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test

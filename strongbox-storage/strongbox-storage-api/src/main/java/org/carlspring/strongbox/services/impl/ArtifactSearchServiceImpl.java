@@ -1,8 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.providers.search.SearchProvider;
-import org.carlspring.strongbox.providers.search.SearchProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResults;
@@ -20,16 +19,14 @@ public class ArtifactSearchServiceImpl
 {
 
     @Inject
-    private SearchProviderRegistry searchProviderRegistry;
+    private OrientDbSearchProvider orientDbSearchProvider;
 
 
     @Override
     public SearchResults search(SearchRequest searchRequest)
             throws SearchException
     {
-        SearchProvider searchProvider = searchProviderRegistry.getProvider(searchRequest.getImplementation());
-
-        return searchProvider.search(searchRequest);
+        return orientDbSearchProvider.search(searchRequest);
     }
 
     @Override

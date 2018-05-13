@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.yaml.configuration.repository.remote;
 
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
-import org.carlspring.strongbox.yaml.repository.remote.CustomRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.CustomRemoteRepositoryConfigurationData;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -12,7 +12,7 @@ import org.glassfish.hk2.api.Immediate;
 @Immediate
 @JsonTypeName(NpmLayoutProvider.ALIAS)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class NpmRemoteRepositoryConfiguration extends CustomRemoteRepositoryConfiguration
+public class NpmRemoteRepositoryConfiguration extends CustomRemoteRepositoryConfigurationData
 {
 
     private Long lastChangeId = 0L;

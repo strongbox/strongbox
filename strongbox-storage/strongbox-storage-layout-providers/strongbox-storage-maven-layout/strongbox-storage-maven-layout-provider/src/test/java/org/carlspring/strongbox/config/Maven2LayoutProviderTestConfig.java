@@ -6,8 +6,8 @@ import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.storage.indexing.downloader.MockedIndexResourceFetcher;
-import org.carlspring.strongbox.storage.indexing.downloader.ResourceFetcherFactory;
+import org.carlspring.strongbox.storage.indexing.remote.MockedIndexResourceFetcher;
+import org.carlspring.strongbox.storage.indexing.remote.ResourceFetcherFactory;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -24,7 +24,6 @@ import java.io.IOException;
  * @author Przemyslaw Fusik
  */
 @Configuration
-@PropertySource(name = "mavenTestProperties", value = "classpath:maven-test.properties")
 @Import({ CommonConfig.class,
           TestingCoreConfig.class,
           EventsConfig.class,

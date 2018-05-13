@@ -6,11 +6,7 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -23,9 +19,7 @@ import java.io.IOException;
 import java.lang.annotation.*;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -64,9 +58,6 @@ public class MavenDependencyFormatterTest
     private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;
 
     @Inject
-    private Optional<MavenIndexerSearchProvider> mavenIndexerSearchProvider;
-
-    @Inject
     private SnippetGenerator snippetGenerator;
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -81,8 +72,6 @@ public class MavenDependencyFormatterTest
                                               Path artifactPath)
             throws ProviderImplementationException, IOException
     {
-        reIndex(repository);
-
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             Maven2LayoutProvider.ALIAS);
         assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
@@ -117,8 +106,6 @@ public class MavenDependencyFormatterTest
                                                             Path artifactPath)
             throws ProviderImplementationException, IOException
     {
-        reIndex(repository);
-
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             Maven2LayoutProvider.ALIAS);
         assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
@@ -146,50 +133,6 @@ public class MavenDependencyFormatterTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testSearchExactWithDependencySnippet(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
-                                                                      setup = MavenIndexedRepositorySetup.class)
-                                                     Repository repository,
-                                                     @MavenArtifactWithClassifiers(repositoryId = REPOSITORY_RELEASES,
-                                                                                   id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                                                   versions = { VERSION_1 })
-                                                     Path artifactPath)
-            throws IOException
-    {
-
-        Assumptions.assumeTrue(mavenIndexerSearchProvider.isPresent());
-
-        reIndex(repository);
-        IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
-        final int numberOfFiles = features.reIndex(STORAGE0,
-                                                   repository.getId(),
-                                                   "org/carlspring/strongbox/maven-snippet");
-
-        assertTrue(numberOfFiles >= 3, "Incorrect number of artifacts found!");
-
-        MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) RepositoryFiles.readCoordinates(
-                (RepositoryPath) artifactPath.normalize());
-
-        SearchRequest request = new SearchRequest(STORAGE0,
-                                                  repository.getId(),
-                                                  coordinates,
-                                                  MavenIndexerSearchProvider.ALIAS);
-
-        SearchResult searchResult = mavenIndexerSearchProvider.get().findExact(request);
-
-        assertNotNull(searchResult);
-        assertFalse(searchResult.getSnippets().isEmpty());
-
-        for (CodeSnippet codeSnippet : searchResult.getSnippets())
-        {
-            System.out.println("Dependency snippet for " + codeSnippet.name + ":");
-            System.out.println("------------------------------------------------------");
-            System.out.println(codeSnippet.code);
-        }
-    }
-
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-                  ArtifactManagementTestExecutionListener.class })
-    @Test
     public void testRegisteredSynonyms(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
                                                         setup = MavenIndexedRepositorySetup.class)
                                        Repository repository,
@@ -199,8 +142,6 @@ public class MavenDependencyFormatterTest
                                        Path artifactPath)
             throws IOException
     {
-        reIndex(repository);
-
         MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) RepositoryFiles.readCoordinates(
                 (RepositoryPath) artifactPath.normalize());
 
@@ -223,13 +164,6 @@ public class MavenDependencyFormatterTest
 
             i++;
         }
-    }
-
-    private void reIndex(Repository repository)
-    {
-        IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
-
-        features.reIndex(STORAGE0, repository.getId(), "org/carlspring/strongbox");
     }
 
     @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.testing;
 
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryDto;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
 import org.carlspring.strongbox.yaml.configuration.repository.remote.NpmRemoteRepositoryConfigurationDto;
 
@@ -17,7 +17,7 @@ public class NpmReplicateUrlRepositorySetup
     @Override
     public void setup(RepositoryDto repository)
     {
-        MutableRemoteRepository remoteRepository = new MutableRemoteRepository();
+        RemoteRepositoryDto remoteRepository = new RemoteRepositoryDto();
 
         NpmRemoteRepositoryConfigurationDto remoteRepositoryConfiguration = new NpmRemoteRepositoryConfigurationDto();
         remoteRepositoryConfiguration.setReplicateUrl(REPLICATE_URL);

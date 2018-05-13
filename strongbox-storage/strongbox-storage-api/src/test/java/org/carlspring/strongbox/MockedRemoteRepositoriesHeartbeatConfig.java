@@ -23,7 +23,8 @@ public class MockedRemoteRepositoriesHeartbeatConfig
     {
         RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager = Mockito.mock(
                 RemoteRepositoryAlivenessCacheManager.class);
-        Mockito.when(remoteRepositoryAlivenessCacheManager.isAlive(any(RemoteRepository.class))).thenReturn(true);
+        Mockito.when(remoteRepositoryAlivenessCacheManager.isAlive(any(
+                RemoteRepository.class))).thenReturn(true);
         return remoteRepositoryAlivenessCacheManager;
     }
 

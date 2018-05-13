@@ -5,7 +5,6 @@ import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -34,20 +33,7 @@ public class OrientDbSearchProvider
     public static final String ALIAS = "OrientDB";
 
     @Inject
-    private SearchProviderRegistry searchProviderRegistry;
-
-    @Inject
     private ArtifactEntryService artifactEntryService;
-
-
-    @PostConstruct
-    @Override
-    public void register()
-    {
-        searchProviderRegistry.addProvider(ALIAS, this);
-
-        logger.info("Registered search provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
-    }
 
     @Override
     public String getAlias()

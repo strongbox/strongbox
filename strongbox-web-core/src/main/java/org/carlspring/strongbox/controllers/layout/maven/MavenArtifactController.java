@@ -67,7 +67,7 @@ public class MavenArtifactController
         final String repositoryId = repository.getId();
         logger.debug("Requested /{}/{}/{}.", storageId, repositoryId, artifactPath);
 
-        artifactPath = correctIndexPathIfNecessary(artifactPath);
+        artifactPath = correctIndexPathIfNecessary(repository, artifactPath);
         RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, artifactPath);
         
         provideArtifactDownloadResponse(request, response, httpHeaders, repositoryPath);
@@ -193,9 +193,10 @@ public class MavenArtifactController
         return ResponseEntity.ok("The artifact was deleted.");
     }
 
-    private String correctIndexPathIfNecessary(final String requestedPath)
+    private String correctIndexPathIfNecessary(final Repository repository,
+                                               final String requestedPath)
     {
-        return MavenIndexPathTransformer.getInstance().apply(requestedPath);
+        return new MavenRepositoryIndexPathTransformer(repository).apply(requestedPath);
     }
 
 }
