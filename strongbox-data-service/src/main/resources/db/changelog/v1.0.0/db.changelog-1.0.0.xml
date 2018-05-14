@@ -14,5 +14,6 @@
     <include file="v1.0.0.8__AuthorizationConfig.xml" relativeToChangelogFile="true" />
     <include file="v1.0.0.9__Repository.xml" relativeToChangelogFile="true" />
     <include file="v1.0.0.10__ArtifactEntry.xml" relativeToChangelogFile="true" />
+    <include file="v1.0.0.10__ScheduledTaskEntry.xml" relativeToChangelogFile="true" />
     
 </databaseChangeLog> 
