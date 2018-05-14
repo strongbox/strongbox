@@ -2,8 +2,6 @@ package org.carlspring.strongbox.providers.layout;
 
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.MavenIndexerDisabledCondition;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
@@ -95,23 +93,11 @@ public class Maven2LayoutProvider
     @Override
     public MavenArtifactCoordinates getArtifactCoordinates(String path)
     {
-        if (path == null || !ArtifactUtils.isArtifact(path))
+        if (path == null)
         {
             return null;
         }
-
-        MavenArtifactCoordinates coordinates;
-        if (isMetadata(path))
-        {
-            MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(path);
-            coordinates = new MavenArtifactCoordinates(artifact);
-        }
-        else
-        {
-            coordinates = new MavenArtifactCoordinates(path);
-        }
-
-        return coordinates;
+        return new MavenArtifactCoordinates(path);
     }
 
     @Override

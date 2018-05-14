@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.spi.FileSystemProvider;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-
-import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -34,6 +19,21 @@ import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.spi.FileSystemProvider;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -465,7 +465,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                                                               RepositoryFileAttributeType.METADATA,
                                                               RepositoryFileAttributeType.INDEX,
                                                               RepositoryFileAttributeType.CHECKSUM);
-                
+
                 boolean isMetadata = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.METADATA));
                 boolean isTrash = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.TRASH));
                 boolean isTemp = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.TEMP));
@@ -473,18 +473,23 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                 boolean isChecksum = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.CHECKSUM));
                 boolean isHidden = isTemp || isTrash || isMetadata;
                 boolean isDirectory = Files.isDirectory(repositoryPath.getTarget());
-                
+
                 value = !isChecksum && !isIndex && !isHidden && !isDirectory;
-                
+
                 break;
-            case COORDINATES:
-                attributesLocal = getRepositoryFileAttributes(repositoryPath,
-                                                              RepositoryFileAttributeType.ARTIFACT);
-                
-                boolean isArtifact = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.ARTIFACT));
-                
-                value = isArtifact ? getArtifactCoordinates(RepositoryFiles.stringValue(repositoryPath)) : null;
-                break;
+                case COORDINATES:
+                    attributesLocal = getRepositoryFileAttributes(repositoryPath,
+                                                                  RepositoryFileAttributeType.ARTIFACT,
+                                                                  RepositoryFileAttributeType.METADATA,
+                                                                  RepositoryFileAttributeType.CHECKSUM);
+
+                    isMetadata = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.METADATA));
+                    isChecksum = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.CHECKSUM));
+                    boolean isArtifact = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.ARTIFACT));
+
+                    value = (isArtifact || isMetadata || isChecksum) ?
+                            getArtifactCoordinates(RepositoryFiles.stringValue(repositoryPath)) : null;
+                    break;
 
             }
             if (value != null)

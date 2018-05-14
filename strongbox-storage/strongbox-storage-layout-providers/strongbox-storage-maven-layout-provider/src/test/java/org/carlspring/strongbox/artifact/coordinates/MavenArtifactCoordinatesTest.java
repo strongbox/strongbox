@@ -10,6 +10,12 @@ import static org.junit.Assert.assertThat;
 public class MavenArtifactCoordinatesTest
 {
 
+    private static final String GROUPID = "groupId";
+    private static final String ARTIFACTID = "artifactId";
+    private static final String VERSION = "version";
+    private static final String CLASSIFIER = "classifier";
+    private static final String EXTENSION = "extension";
+
     @Test
     public void mavenArtifactCoordinatesShouldReturnProperExtensionForZipFile()
     {
@@ -36,6 +42,15 @@ public class MavenArtifactCoordinatesTest
     {
         MavenArtifactCoordinates o = new MavenArtifactCoordinates("org/carlspring/properties-injector/1.7/properties-injector-1.7.jar.sha1");
         assertThat(o.getExtension(), CoreMatchers.equalTo("sha1"));
+        assertThat(o.getGroupId(), CoreMatchers.equalTo("org.carlspring"));
+        assertThat(o.getArtifactId(), CoreMatchers.equalTo("properties-injector"));
+        assertThat(o.getClassifier(), CoreMatchers.equalTo("jar"));
+        assertThat(o.getVersion(), CoreMatchers.equalTo("1.7"));
+        assertThat(o.getCoordinate("extension"), CoreMatchers.equalTo("sha1"));
+        assertThat(o.getCoordinate("groupId"), CoreMatchers.equalTo("org.carlspring"));
+        assertThat(o.getCoordinate("artifactId"), CoreMatchers.equalTo("properties-injector"));
+        assertThat(o.getCoordinate("classifier"), CoreMatchers.equalTo("jar"));
+        assertThat(o.getCoordinate("version"), CoreMatchers.equalTo("1.7"));
     }
 
     @Test
