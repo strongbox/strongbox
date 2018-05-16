@@ -26,6 +26,9 @@ public class ArtifactEntry
 
     private String repositoryId;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    private ArtifactGroup artifactGroup;
+
     // if you have to rename this field please update ArtifactEntryServiceImpl.findByCoordinates() implementation
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private AbstractArtifactCoordinates artifactCoordinates;
