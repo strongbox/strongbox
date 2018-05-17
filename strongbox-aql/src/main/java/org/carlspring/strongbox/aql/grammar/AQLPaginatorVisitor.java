@@ -16,9 +16,19 @@ public class AQLPaginatorVisitor extends AQLBaseVisitor<Paginator>
 
     private Paginator paginator = new Paginator();
 
+    public AQLPaginatorVisitor()
+    {
+        super();
+        paginator.setLimit(25);
+    }
+
     @Override
     public Paginator visitPageExp(PageExpContext ctx)
     {
+        if (ctx == null)
+        {
+            return paginator;
+        }
         paginator.setSkip(Integer.valueOf(ctx.NUMBER().getText()));
 
         return paginator;
@@ -27,6 +37,11 @@ public class AQLPaginatorVisitor extends AQLBaseVisitor<Paginator>
     @Override
     public Paginator visitOrderExp(OrderExpContext ctx)
     {
+        if (ctx == null)
+        {
+            return paginator;
+        }
+
         if (Order.DESC.toString().equalsIgnoreCase(ctx.orderDirection().getText()))
         {
             paginator.setOrder(Order.DESC);

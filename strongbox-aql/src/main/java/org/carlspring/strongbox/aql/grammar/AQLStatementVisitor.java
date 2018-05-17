@@ -2,6 +2,7 @@ package org.carlspring.strongbox.aql.grammar;
 
 import org.carlspring.strongbox.aql.grammar.AQLParser.QueryContext;
 import org.carlspring.strongbox.aql.grammar.AQLParser.QueryExpContext;
+import org.carlspring.strongbox.data.criteria.Expression;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
@@ -23,16 +24,19 @@ public class AQLStatementVisitor extends AQLBaseVisitor<Selector<ArtifactEntry>>
     @Override
     public Selector<ArtifactEntry> visitQuery(QueryContext ctx)
     {
-        AQLQueryVisitor queryVisitor = new AQLQueryVisitor(Predicate.empty());
+        Predicate artifactPredicate = Predicate.of(new Expression("artifactCoordinates", null)).negated(true);
+        AQLQueryVisitor queryVisitor = new AQLQueryVisitor(artifactPredicate);
+
         for (QueryExpContext queryExpContext : ctx.queryExp())
         {
-            selector.where(queryVisitor.visitQueryExp(queryExpContext));
+            artifactPredicate.and(queryVisitor.visitQueryExp(queryExpContext));
         }
+        selector.where(queryVisitor.getRoot());
 
         AQLPaginatorVisitor aqlPaginatorVisitor = new AQLPaginatorVisitor();
         Paginator paginator = aqlPaginatorVisitor.visitOrderExp(ctx.orderExp());
         paginator = aqlPaginatorVisitor.visitPageExp(ctx.pageExp());
-        
+
         selector.with(paginator);
 
         return selector;

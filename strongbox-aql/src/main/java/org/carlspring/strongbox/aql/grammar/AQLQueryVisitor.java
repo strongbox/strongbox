@@ -23,11 +23,9 @@ public class AQLQueryVisitor extends AQLBaseVisitor<Predicate>
         this.root = predicate;
     }
 
-    @Override
-    public Predicate visitQuery(QueryContext ctx)
+    public Predicate getRoot()
     {
-        Predicate p = super.visitQuery(ctx);
-        return root.and(p);
+        return root;
     }
 
     @Override

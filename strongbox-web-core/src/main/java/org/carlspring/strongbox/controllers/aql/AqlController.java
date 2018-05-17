@@ -1,23 +1,16 @@
 package org.carlspring.strongbox.controllers.aql;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.List;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.aql.grammar.AqlQueryParser;
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.QueryParserException;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
-import org.carlspring.strongbox.storage.search.SearchResult;
+import org.carlspring.strongbox.services.AqlSearchService;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,11 +35,9 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "/api/aql")
 public class AqlController extends BaseController
 {
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Inject
-    private ArtifactResolutionService artifactResolutionService;
+    private AqlSearchService aqlSearchService;
 
     @ApiOperation(value = "Used to search for artifacts.", response = SearchResults.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
@@ -56,8 +47,6 @@ public class AqlController extends BaseController
         throws IOException,
         SearchException
     {
-        SearchResults result = new SearchResults();
-
         AqlQueryParser parser = new AqlQueryParser(query);
         Selector<ArtifactEntry> selector;
         try
@@ -71,22 +60,7 @@ public class AqlController extends BaseController
             return ResponseEntity.badRequest().build();
         }
 
-        OQueryTemplate<List<ArtifactEntry>, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
-        for (ArtifactEntry artifactEntry : queryTemplate.select(selector))
-        {
-            SearchResult r = new SearchResult();
-            result.getResults().add(r);
-
-            r.setStorageId(artifactEntry.getStorageId());
-            r.setStorageId(artifactEntry.getRepositoryId());
-            r.setArtifactCoordinates(artifactEntry.getArtifactCoordinates());
-
-            RepositoryPath repositoryPath = artifactResolutionService.resolvePath(artifactEntry.getStorageId(),
-                                                                                  artifactEntry.getRepositoryId(),
-                                                                                  artifactEntry.getArtifactPath());
-            URL artifactResource = artifactResolutionService.resolveResource(repositoryPath);
-            r.setUrl(artifactResource.toString());
-        }
+        SearchResults result = aqlSearchService.search(selector);
 
         return ResponseEntity.ok(result);
     }

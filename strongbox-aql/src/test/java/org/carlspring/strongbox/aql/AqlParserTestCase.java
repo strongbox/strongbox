@@ -27,7 +27,7 @@ public class AqlParserTestCase
     public void testValidQuery()
         throws Exception
     {
-        String query = "(storage:storage0) +repository:releases OR +(groupId:'org.carlspring') AND (-(artifactId:'some strange group') || -version:'0.*') asc: age skip: 12";
+        String query = "(storage:storage-common-proxies) +repository:carlspring OR +(groupId:'org.carlspring') AND (-(artifactId:'some strange group') || -version:'0.*') asc: age skip: 12";
         AqlQueryParser aqlParser = new AqlQueryParser(query);
 
         logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
@@ -51,11 +51,11 @@ public class AqlParserTestCase
                 "AND ( NOT (artifactCoordinates.coordinates.artifactId = :artifactId_1) OR  NOT artifactCoordinates.version LIKE :version_2) " +
                 "ORDER BY lastUpdated ASC " +
                 "SKIP 12 " +
-                "LIMIT 1000", sqlQuery);
+                "LIMIT 25", sqlQuery);
 
         Map<String, Object> parameterMap = queryTemplate.exposeParameterMap(predicate);
         logger.info(String.format("Query [%s] parse parameters:\n[%s]", query, parameterMap));
-        Assert.assertEquals(ImmutableMap.of("storageId_0", "storage0", "repositoryId_1", "releases", "groupId_1",
+        Assert.assertEquals(ImmutableMap.of("storageId_0", "storage-common-proxies", "repositoryId_1", "carlspring", "groupId_1",
                                             "org.carlspring", "version_2", "0.%", "artifactId_1", "some strange group"),
                             parameterMap);
     }
