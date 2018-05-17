@@ -45,10 +45,12 @@ public class AqlParserTestCase
         Assert.assertEquals("SELECT * " +
                 "FROM " +
                 "ArtifactEntry " +
-                "WHERE (storageId = :storageId_0) " +
+                "WHERE " +
+                " NOT artifactCoordinates IS NULL  " +
+                "AND ((storageId = :storageId_0) " +
                 "AND repositoryId = :repositoryId_1 " +
                 "OR (artifactCoordinates.coordinates.groupId = :groupId_1) " +
-                "AND ( NOT (artifactCoordinates.coordinates.artifactId = :artifactId_1) OR  NOT artifactCoordinates.version LIKE :version_2) " +
+                "AND ( NOT (artifactCoordinates.coordinates.artifactId = :artifactId_1) OR  NOT artifactCoordinates.version LIKE :version_2)) " +
                 "ORDER BY lastUpdated ASC " +
                 "SKIP 12 " +
                 "LIMIT 25", sqlQuery);

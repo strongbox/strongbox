@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 
+import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +82,7 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     {
         HashMap<String, Object> result = new HashMap<>();
         Expression e = p.getExpression();
-        if (e != null)
+        if (e != null && !ExpOperator.IS_NULL.equals(e.getOperator()))
         {
             result.put(calculateParameterName(e.getProperty(), tokenCount), e.getValue());
         }
@@ -204,6 +205,9 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
             property = property.substring(property.indexOf(".") + 1);
 
             return String.format("(%s = :%s)", property, calculateParameterName(property, n));
+        case IS_NULL:
+            
+            return "";
         default:
             break;
         }
@@ -214,6 +218,10 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     private String calculateParameterName(String property,
                                           int n)
     {
+        if (property == null)
+        {
+            return "";
+        }
         property = property.replace(".toLowerCase()", "");
         return String.format("%s_%s", property.substring(property.lastIndexOf(".") + 1), n);
     }
@@ -232,6 +240,9 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
             return " LIKE ";
         case CONTAINS:
             return " CONTAINS ";
+        case IS_NULL:
+            return " IS NULL ";
+            
         }
         return null;
     }

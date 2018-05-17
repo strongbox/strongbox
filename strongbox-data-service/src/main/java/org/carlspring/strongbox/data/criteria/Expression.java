@@ -64,7 +64,7 @@ public class Expression
 
     public enum ExpOperator
     {
-        EQ, GE, LE, CONTAINS, LIKE;
+        EQ, GE, LE, CONTAINS, LIKE, IS_NULL;
 
         public Expression of(String property,
                              Object value)
@@ -72,6 +72,11 @@ public class Expression
             return new Expression(property, this, value);
         }
 
+        public Expression of(String property)
+        {
+            return new Expression(property, this, null);
+        }
+        
     }
-
+    
 }

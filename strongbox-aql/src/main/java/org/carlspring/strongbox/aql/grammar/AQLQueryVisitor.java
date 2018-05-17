@@ -39,7 +39,7 @@ public class AQLQueryVisitor extends AQLBaseVisitor<Predicate>
         }
         else if (ctx.vNesteedQueryExp != null)
         {
-            Predicate p = visitQueryExp(ctx.vNesteedQueryExp).nesteed(true);
+            Predicate p = visitQueryExp(ctx.vNesteedQueryExp).nesteed();
 
             return negatePredicateIfNeeded(ctx, p);
         }
@@ -69,7 +69,7 @@ public class AQLQueryVisitor extends AQLBaseVisitor<Predicate>
         return Optional.ofNullable(ctx.tokenPrefix())
                        .map(c -> c.getText())
                        .filter(c -> c.equals("-"))
-                       .map(c -> p.negated(true))
+                       .map(c -> p.negated())
                        .orElse(p);
     }
 

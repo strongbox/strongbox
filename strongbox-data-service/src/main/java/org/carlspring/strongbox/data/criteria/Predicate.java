@@ -91,9 +91,9 @@ public class Predicate
         return expression == null && childPredicateList.isEmpty();
     }
 
-    public Predicate nesteed(boolean b)
+    public Predicate nesteed()
     {
-        this.nesteed = b;
+        this.nesteed = true;
         return this;
     }
 
@@ -117,9 +117,9 @@ public class Predicate
         this.negated = negated;
     }
 
-    public Predicate negated(boolean negated)
+    public Predicate negated()
     {
-        setNegated(negated);
+        setNegated(true);
         return this;
     }
 
