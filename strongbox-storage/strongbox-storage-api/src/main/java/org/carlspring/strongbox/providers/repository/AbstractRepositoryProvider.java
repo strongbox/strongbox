@@ -232,6 +232,10 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId,
                                                             ctx.getPath());
 
+        Assert.notNull(artifactEntry.getUuid(),
+                       String.format("Invalid [%s] for [%s]", ArtifactEntry.class.getSimpleName(),
+                                     ctx.getPath()));        
+        
         artifactEntry.setLastUsed(new Date());
         artifactEntry.setDownloadCount(artifactEntry.getDownloadCount() + 1);
 
