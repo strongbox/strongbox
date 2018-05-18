@@ -48,9 +48,28 @@ public class RepositoryInputStream
         this.callback = callback;
         return this;
     }
+    
+    
+
+    @Override
+    public synchronized int read(byte[] b,
+                                 int off,
+                                 int len)
+        throws IOException
+    {
+        onRead();
+        return super.read(b, off, len);
+    }
 
     @Override
     public int read()
+        throws IOException
+    {
+        onRead();
+        return super.read();
+    }
+
+    private void onRead()
         throws IOException
     {
         if (getBytesCount() == 0l)
@@ -65,7 +84,6 @@ public class RepositoryInputStream
                 throw new IOException(e);
             }
         }
-        return super.read();
     }
 
     public long getBytesCount()

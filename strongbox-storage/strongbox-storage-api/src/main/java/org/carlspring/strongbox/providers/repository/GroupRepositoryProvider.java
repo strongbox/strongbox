@@ -2,6 +2,8 @@ package org.carlspring.strongbox.providers.repository;
 
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
@@ -26,8 +28,6 @@ import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.io.RepositoryInputStream;
-import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -72,7 +72,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    protected RepositoryInputStream getInputStream(RepositoryPath path) throws IOException
+    protected InputStream getInputStream(RepositoryPath path) throws IOException
     {
         return hostedRepositoryProvider.getInputStream(path);
     }
@@ -165,7 +165,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    protected RepositoryOutputStream getOutputStream(RepositoryPath repositoryPath)
+    protected OutputStream getOutputStream(RepositoryPath repositoryPath)
             throws IOException
     {
         // It should not be possible to write artifacts to a group repository.

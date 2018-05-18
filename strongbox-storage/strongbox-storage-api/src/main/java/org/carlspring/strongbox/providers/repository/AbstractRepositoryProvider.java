@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -111,17 +112,25 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     }
     
     @Override
-    public RepositoryInputStream getInputStream(Path path) throws IOException
+    public RepositoryInputStream getInputStream(Path path)
+        throws IOException
     {
         if (path == null)
         {
             return null;
         }
         Assert.isInstanceOf(RepositoryPath.class, path);
-        return getInputStream((RepositoryPath) path);
+        RepositoryPath repositoryPath = (RepositoryPath) path;
+        Repository repository = repositoryPath.getRepository();
+
+        return decorate(repository.getStorage().getId(), repository.getId(),
+                        RepositoryFiles.stringValue(repositoryPath),
+                        getInputStream(repositoryPath));
+
     }
-    
-    protected abstract RepositoryInputStream getInputStream(RepositoryPath path) throws IOException;
+
+    protected abstract InputStream getInputStream(RepositoryPath repositoryPath)
+        throws IOException;
 
     protected RepositoryInputStream decorate(String storageId,
                                              String repositoryId,
@@ -144,10 +153,12 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         NoSuchAlgorithmException
     {
         Assert.isInstanceOf(RepositoryPath.class, path);
-        return getOutputStream((RepositoryPath) path);
+        OutputStream os = getOutputStream((RepositoryPath) path);
+        
+        return decorate((RepositoryPath) path, os);
     }
     
-    protected abstract RepositoryOutputStream getOutputStream(RepositoryPath repositoryPath)
+    protected abstract OutputStream getOutputStream(RepositoryPath repositoryPath)
         throws IOException;
 
     protected final RepositoryOutputStream decorate(RepositoryPath repositoryPath,
