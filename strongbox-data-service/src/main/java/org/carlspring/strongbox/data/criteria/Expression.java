@@ -64,7 +64,7 @@ public class Expression
 
     public enum ExpOperator
     {
-        EQ, GE, LE, CONTAINS, LIKE, IS_NULL;
+        EQ, GE, LE, CONTAINS, LIKE, IS_NULL, IS_NOT_NULL;
 
         public Expression of(String property,
                              Object value)

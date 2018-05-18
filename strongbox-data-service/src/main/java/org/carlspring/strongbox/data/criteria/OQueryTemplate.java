@@ -82,7 +82,7 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     {
         HashMap<String, Object> result = new HashMap<>();
         Expression e = p.getExpression();
-        if (e != null && !ExpOperator.IS_NULL.equals(e.getOperator()))
+        if (e != null && !ExpOperator.IS_NULL.equals(e.getOperator()) && !ExpOperator.IS_NOT_NULL.equals(e.getOperator()))
         {
             result.put(calculateParameterName(e.getProperty(), tokenCount), e.getValue());
         }
@@ -206,6 +206,7 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
 
             return String.format("(%s = :%s)", property, calculateParameterName(property, n));
         case IS_NULL:
+        case IS_NOT_NULL:
             
             return "";
         default:
@@ -242,7 +243,8 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
             return " CONTAINS ";
         case IS_NULL:
             return " IS NULL ";
-            
+        case IS_NOT_NULL:
+            return " IS NOT NULL ";            
         }
         return null;
     }

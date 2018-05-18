@@ -46,7 +46,7 @@ public class AqlParserTestCase
                 "FROM " +
                 "ArtifactEntry " +
                 "WHERE " +
-                " NOT artifactCoordinates IS NULL  " +
+                "artifactCoordinates IS NOT NULL  " +
                 "AND ((storageId = :storageId_0) " +
                 "AND repositoryId = :repositoryId_1 " +
                 "OR (artifactCoordinates.coordinates.groupId = :groupId_1) " +

@@ -25,7 +25,7 @@ public class AQLStatementVisitor extends AQLBaseVisitor<Selector<ArtifactEntry>>
     @Override
     public Selector<ArtifactEntry> visitQuery(QueryContext ctx)
     {
-        Predicate artifactPredicate = Predicate.of(ExpOperator.IS_NULL.of("artifactCoordinates")).negated();
+        Predicate artifactPredicate = Predicate.of(ExpOperator.IS_NOT_NULL.of("artifactCoordinates"));
         AQLQueryVisitor queryVisitor = new AQLQueryVisitor(artifactPredicate);
 
         for (QueryExpContext queryExpContext : ctx.queryExp())
