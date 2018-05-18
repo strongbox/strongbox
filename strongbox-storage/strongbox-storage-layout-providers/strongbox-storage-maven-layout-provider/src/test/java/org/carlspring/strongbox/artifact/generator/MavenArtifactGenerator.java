@@ -7,23 +7,24 @@ import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.maven.commons.model.ModelWriter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ResourceCloser;
-import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
@@ -292,9 +293,19 @@ public class MavenArtifactGenerator
             String md5 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
             String sha1 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
-            //TODO: provide RepositoryOutputStream here
-            MessageDigestUtils.writeChecksum(artifactFile.toPath(), EncryptionAlgorithmsEnum.MD5.getExtension(), md5);
-            MessageDigestUtils.writeChecksum(artifactFile.toPath(), EncryptionAlgorithmsEnum.SHA1.getExtension(), sha1);
+            Path artifactPath = artifactFile.toPath();
+            
+            Path checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.MD5.getExtension());
+            try (OutputStream os = newOutputStream(checksumPath.toFile()))
+            {
+                IOUtils.write(md5, os, Charset.forName("UTF-8"));
+            }
+
+            checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.SHA1.getExtension());
+            try (OutputStream os = newOutputStream(checksumPath.toFile()))
+            {
+                IOUtils.write(sha1, os, Charset.forName("UTF-8"));
+            }
         }
     }
 
