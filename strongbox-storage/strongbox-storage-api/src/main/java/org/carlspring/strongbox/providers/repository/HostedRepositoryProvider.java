@@ -47,7 +47,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         return ALIAS;
     }
 
-    protected InputStream getInputStream(RepositoryPath repositoryPath)
+    protected InputStream getInputStreamInternal(RepositoryPath repositoryPath)
     {
         if (repositoryPath == null)
         {
@@ -71,7 +71,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public OutputStream getOutputStream(RepositoryPath repositoryPath)
+    public OutputStream getOutputStreamInternal(RepositoryPath repositoryPath)
             throws IOException
     {
         return Files.newOutputStream(repositoryPath);

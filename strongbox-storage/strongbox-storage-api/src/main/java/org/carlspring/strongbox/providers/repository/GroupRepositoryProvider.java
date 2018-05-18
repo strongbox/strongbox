@@ -72,9 +72,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    protected InputStream getInputStream(RepositoryPath path) throws IOException
+    protected InputStream getInputStreamInternal(RepositoryPath path) throws IOException
     {
-        return hostedRepositoryProvider.getInputStream(path);
+        return hostedRepositoryProvider.getInputStreamInternal(path);
     }
 
     @Override
@@ -165,7 +165,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    protected OutputStream getOutputStream(RepositoryPath repositoryPath)
+    protected OutputStream getOutputStreamInternal(RepositoryPath repositoryPath)
             throws IOException
     {
         // It should not be possible to write artifacts to a group repository.

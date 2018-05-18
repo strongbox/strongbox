@@ -125,11 +125,11 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
 
         return decorate(repository.getStorage().getId(), repository.getId(),
                         RepositoryFiles.stringValue(repositoryPath),
-                        getInputStream(repositoryPath));
+                        getInputStreamInternal(repositoryPath));
 
     }
 
-    protected abstract InputStream getInputStream(RepositoryPath repositoryPath)
+    protected abstract InputStream getInputStreamInternal(RepositoryPath repositoryPath)
         throws IOException;
 
     protected RepositoryInputStream decorate(String storageId,
@@ -149,16 +149,15 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
 
     @Override
     public RepositoryOutputStream getOutputStream(Path path)
-        throws IOException,
-        NoSuchAlgorithmException
+        throws IOException
     {
         Assert.isInstanceOf(RepositoryPath.class, path);
-        OutputStream os = getOutputStream((RepositoryPath) path);
+        OutputStream os = getOutputStreamInternal((RepositoryPath) path);
         
         return decorate((RepositoryPath) path, os);
     }
     
-    protected abstract OutputStream getOutputStream(RepositoryPath repositoryPath)
+    protected abstract OutputStream getOutputStreamInternal(RepositoryPath repositoryPath)
         throws IOException;
 
     protected final RepositoryOutputStream decorate(RepositoryPath repositoryPath,

@@ -54,10 +54,10 @@ public class ProxyRepositoryProvider
     }
 
     @Override
-    protected InputStream getInputStream(RepositoryPath path)
+    protected InputStream getInputStreamInternal(RepositoryPath path)
         throws IOException
     {
-        return hostedRepositoryProvider.getInputStream(path);
+        return hostedRepositoryProvider.getInputStreamInternal(path);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class ProxyRepositoryProvider
     }    
     
     @Override
-    protected OutputStream getOutputStream(RepositoryPath repositoryPath)
+    protected OutputStream getOutputStreamInternal(RepositoryPath repositoryPath)
             throws IOException
     {
         return Files.newOutputStream(repositoryPath);
