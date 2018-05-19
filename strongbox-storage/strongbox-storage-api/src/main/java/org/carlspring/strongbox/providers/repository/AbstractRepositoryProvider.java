@@ -121,9 +121,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         }
         Assert.isInstanceOf(RepositoryPath.class, path);
         RepositoryPath repositoryPath = (RepositoryPath) path;
-        Repository repository = repositoryPath.getRepository();
 
-        return decorate(repositoryPath,
+        return decorate((RepositoryPath) path,
                         getInputStreamInternal(repositoryPath));
 
     }
