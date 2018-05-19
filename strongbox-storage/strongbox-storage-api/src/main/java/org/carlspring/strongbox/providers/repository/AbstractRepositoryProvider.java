@@ -123,8 +123,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         RepositoryPath repositoryPath = (RepositoryPath) path;
         Repository repository = repositoryPath.getRepository();
 
-        return decorate(repository.getStorage().getId(), repository.getId(),
-                        RepositoryFiles.stringValue(repositoryPath),
+        return decorate(repositoryPath,
                         getInputStreamInternal(repositoryPath));
 
     }
@@ -132,9 +131,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     protected abstract InputStream getInputStreamInternal(RepositoryPath repositoryPath)
         throws IOException;
 
-    protected RepositoryInputStream decorate(String storageId,
-                                             String repositoryId,
-                                             String path,
+    protected RepositoryInputStream decorate(RepositoryPath repositoryPath,
                                              InputStream is)
     {
         if (is == null || is instanceof RepositoryInputStream)
@@ -142,9 +139,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
             return (RepositoryInputStream) is;
         }
 
-        Repository repository = configurationManager.getRepository(storageId, repositoryId);
-
-        return RepositoryInputStream.of(repository, path, is).with(this);
+        return RepositoryInputStream.of(repositoryPath, is).with(this);
     }
 
     @Override
@@ -168,25 +163,31 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
             return (RepositoryOutputStream) os;
         }
 
-        String path = RepositoryFiles.stringValue(repositoryPath);
-        return RepositoryOutputStream.of(repositoryPath.getRepository(), path, os).with(this);
+        return RepositoryOutputStream.of(repositoryPath, os).with(this);
     }
 
     @Override
-    public void onBeforeWrite(RepositoryStreamContext ctx)
+    public void onBeforeWrite(RepositoryStreamContext ctx) throws IOException
     {
-        logger.debug(String.format("Writing [%s]", ctx.getPath()));
+        RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
+        String path = RepositoryFiles.stringValue(repositoryPath);
         
-        Repository repository = ctx.getRepository();
+        logger.debug(String.format("Writing [%s]", path));
+        
+        if (!RepositoryFiles.isArtifact(repositoryPath)) {
+            return;
+        }
+        
+        Repository repository = repositoryPath.getRepository();
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
         ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId,
-                                                            ctx.getPath());
+                                                            path);
 
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
-        artifactEntry.setArtifactPath(ctx.getPath());
+        artifactEntry.setArtifactPath(path);
 
         ArtifactOutputStream aos = StreamUtils.findSource(ArtifactOutputStream.class, (OutputStream) ctx);
         ArtifactCoordinates coordinates = aos.getCoordinates();
@@ -200,16 +201,23 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     }
 
     @Override
-    public void onAfterClose(RepositoryStreamContext ctx)
+    public void onAfterClose(RepositoryStreamContext ctx) throws IOException
     {
-        logger.debug(String.format("Closing [%s]", ctx.getPath()));
+        RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
+        String path = RepositoryFiles.stringValue(repositoryPath);
+        
+        logger.debug(String.format("Closing [%s]", path));
+        
+        if (!RepositoryFiles.isArtifact(repositoryPath)) {
+            return;
+        }
 
-        Repository repository = ctx.getRepository();
+        Repository repository = repositoryPath.getRepository();
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
         ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId,
-                                                            ctx.getPath());
+                                                            path);
         Assert.notNull(artifactEntry.getUuid(),
                        String.format("Invalid [%s] for [%s]", ArtifactEntry.class.getSimpleName(),
                                      ctx.getPath()));
@@ -221,16 +229,23 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     }
 
     @Override
-    public void onBeforeRead(RepositoryStreamContext ctx)
+    public void onBeforeRead(RepositoryStreamContext ctx) throws IOException
     {
-        logger.debug(String.format("Reading [%s]", ctx.getPath()));
-
-        Repository repository = ctx.getRepository();
+        RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
+        String path = RepositoryFiles.stringValue(repositoryPath);
+        
+        logger.debug(String.format("Reading [%s]", path));
+        
+        if (!RepositoryFiles.isArtifact(repositoryPath)) {
+            return;
+        }
+        
+        Repository repository = repositoryPath.getRepository();
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
         ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId,
-                                                            ctx.getPath());
+                                                            path);
 
         Assert.notNull(artifactEntry.getUuid(),
                        String.format("Invalid [%s] for [%s]", ArtifactEntry.class.getSimpleName(),

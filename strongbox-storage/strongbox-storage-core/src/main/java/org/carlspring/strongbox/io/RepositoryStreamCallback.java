@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.io;
 
+import java.io.IOException;
+
 public interface RepositoryStreamCallback
 {
 
-    void onBeforeRead(RepositoryStreamContext ctx);
+    void onBeforeRead(RepositoryStreamContext ctx) throws IOException;
 
-    void onBeforeWrite(RepositoryStreamContext ctx);
+    void onBeforeWrite(RepositoryStreamContext ctx) throws IOException;
     
-    void onAfterClose(RepositoryStreamContext ctx);
+    void onAfterClose(RepositoryStreamContext ctx) throws IOException;
 
 }
