@@ -173,7 +173,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         
         logger.debug(String.format("Writing [%s]", path));
         
-        if (!RepositoryFiles.isArtifact(repositoryPath)) {
+        if (!RepositoryFiles.isArtifact(repositoryPath))
+        {
             return;
         }
         
@@ -181,8 +182,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId,
-                                                            path);
+        ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId, path);
 
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
@@ -207,7 +207,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         
         logger.debug(String.format("Closing [%s]", path));
         
-        if (!RepositoryFiles.isArtifact(repositoryPath)) {
+        if (!RepositoryFiles.isArtifact(repositoryPath))
+        {
             return;
         }
 
@@ -215,8 +216,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId,
-                                                            path);
+        ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId, path);
         Assert.notNull(artifactEntry.getUuid(),
                        String.format("Invalid [%s] for [%s]", ArtifactEntry.class.getSimpleName(),
                                      ctx.getPath()));
@@ -235,7 +235,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         
         logger.debug(String.format("Reading [%s]", path));
         
-        if (!RepositoryFiles.isArtifact(repositoryPath)) {
+        if (!RepositoryFiles.isArtifact(repositoryPath))
+        {
             return;
         }
         
@@ -243,8 +244,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId,
-                                                            path);
+        ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId, path);
 
         Assert.notNull(artifactEntry.getUuid(),
                        String.format("Invalid [%s] for [%s]", ArtifactEntry.class.getSimpleName(),
