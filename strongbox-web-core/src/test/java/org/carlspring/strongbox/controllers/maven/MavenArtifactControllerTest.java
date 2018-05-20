@@ -8,9 +8,12 @@ import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -42,6 +45,8 @@ import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -106,8 +111,11 @@ public class MavenArtifactControllerTest
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
 
+    @Inject
+    private ArtifactEntryService artifactEntryService;
+    
     private MavenArtifactDeployer defaultMavenArtifactDeployer;
-
+    
     @BeforeClass
     public static void cleanUp()
             throws Exception
@@ -1102,10 +1110,10 @@ public class MavenArtifactControllerTest
             return;
         }
 
-        String url = getContextBaseUrl() +
-                     "/storages/storage-common-proxies/carlspring/org/carlspring/commons/commons-http/" +
-                     commonsHttpSnapshot.version +
-                     "/commons-http-" + commonsHttpSnapshot.timestampedVersion + ".jar";
+        String path = String.format("org/carlspring/commons/commons-http/%s/commons-http-%s.jar",
+                                    commonsHttpSnapshot.version, commonsHttpSnapshot.timestampedVersion);
+        
+        String url = String.format("%s/storages/storage-common-proxies/carlspring/%s", getContextBaseUrl(), path);
 
         given().header("user-agent", "Maven/*")
                .contentType(MediaType.TEXT_PLAIN_VALUE)
@@ -1114,6 +1122,14 @@ public class MavenArtifactControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
+        
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact("storage-common-proxies", "carlspring", path)
+                                                          .get();
+        assertNotNull(artifactEntry);
+        assertNotNull(artifactEntry.getArtifactCoordinates());
+        
+        assertTrue(artifactEntry instanceof RemoteArtifactEntry);
+        assertTrue(((RemoteArtifactEntry) artifactEntry).getIsCached());
     }
 
     private ArtifactSnapshotVersion getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote()

@@ -1,12 +1,10 @@
 package org.carlspring.strongbox.io;
 
-import org.carlspring.strongbox.storage.repository.Repository;
+import java.nio.file.Path;
 
 public interface RepositoryStreamContext
 {
 
-    Repository getRepository();
-    
-    String getPath();
+    Path getPath();
     
 }

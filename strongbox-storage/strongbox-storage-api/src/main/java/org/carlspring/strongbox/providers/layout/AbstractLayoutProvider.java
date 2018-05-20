@@ -460,21 +460,16 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                 break;
             case ARTIFACT:
                 attributesLocal = getRepositoryFileAttributes(repositoryPath,
-                                                              RepositoryFileAttributeType.TEMP,
-                                                              RepositoryFileAttributeType.TRASH,
                                                               RepositoryFileAttributeType.METADATA,
                                                               RepositoryFileAttributeType.INDEX,
                                                               RepositoryFileAttributeType.CHECKSUM);
                 
                 boolean isMetadata = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.METADATA));
-                boolean isTrash = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.TRASH));
-                boolean isTemp = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.TEMP));
                 boolean isIndex = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.INDEX));
                 boolean isChecksum = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.CHECKSUM));
-                boolean isHidden = isTemp || isTrash || isMetadata;
                 boolean isDirectory = Files.isDirectory(repositoryPath.getTarget());
                 
-                value = !isChecksum && !isIndex && !isHidden && !isDirectory;
+                value = !isChecksum && !isIndex && !isMetadata && !isDirectory;
                 
                 break;
             case COORDINATES:

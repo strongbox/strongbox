@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -16,9 +17,6 @@ import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.event.CommonEventListenerRegistry;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.RepositoryInputStream;
-import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
@@ -56,13 +54,11 @@ public class ProxyRepositoryProvider
     }
 
     @Override
-    protected RepositoryInputStream getInputStream(RepositoryPath path)
+    protected InputStream getInputStreamInternal(RepositoryPath path)
         throws IOException
     {
-        return hostedRepositoryProvider.getInputStream(path);
+        return hostedRepositoryProvider.getInputStreamInternal(path);
     }
-
-
 
     @Override
     protected RepositoryPath fetchPath(RepositoryPath repositoryPath)
@@ -93,12 +89,10 @@ public class ProxyRepositoryProvider
     }    
     
     @Override
-    protected RepositoryOutputStream getOutputStream(RepositoryPath repositoryPath)
+    protected OutputStream getOutputStreamInternal(RepositoryPath repositoryPath)
             throws IOException
     {
-        ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
-        
-        return decorate(repositoryPath, aos);
+        return Files.newOutputStream(repositoryPath);
     }
     
     @Override

@@ -1,11 +1,10 @@
 package org.carlspring.strongbox.io;
 
-import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
+import java.nio.file.Path;
 
 import org.apache.commons.io.input.CountingInputStream;
 import org.slf4j.Logger;
@@ -19,26 +18,18 @@ public class RepositoryInputStream
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryInputStream.class);
 
-    protected RepositoryStreamCallback callback;
+    protected RepositoryStreamCallback callback = new EmptyRepositoryStreamCallback();
 
-    private Repository repository;
-    private String path;
+    private Path path;
 
-    protected RepositoryInputStream(Repository repository,
-                                    String path,
+    protected RepositoryInputStream(Path path,
                                     InputStream in)
     {
         super(new CountingInputStream(in));
-        this.repository = repository;
         this.path = path;
     }
 
-    public Repository getRepository()
-    {
-        return repository;
-    }
-
-    public String getPath()
+    public Path getPath()
     {
         return path;
     }
@@ -48,16 +39,35 @@ public class RepositoryInputStream
         this.callback = callback;
         return this;
     }
+    
+    
+
+    @Override
+    public synchronized int read(byte[] b,
+                                 int off,
+                                 int len)
+        throws IOException
+    {
+        onRead();
+        return super.read(b, off, len);
+    }
 
     @Override
     public int read()
+        throws IOException
+    {
+        onRead();
+        return super.read();
+    }
+
+    private void onRead()
         throws IOException
     {
         if (getBytesCount() == 0l)
         {
             try
             {
-                Optional.ofNullable(callback).ifPresent(c -> c.onBeforeRead(this));
+                callback.onBeforeRead(this);
             }
             catch (Exception e)
             {
@@ -65,7 +75,6 @@ public class RepositoryInputStream
                 throw new IOException(e);
             }
         }
-        return super.read();
     }
 
     public long getBytesCount()
@@ -73,15 +82,14 @@ public class RepositoryInputStream
         return ((CountingInputStream) this.in).getByteCount();
     }
 
-    public static RepositoryInputStream of(Repository repository,
-                                           String path,
+    public static RepositoryInputStream of(Path path,
                                            InputStream is)
     {
         ArtifactInputStream source = is instanceof ArtifactInputStream ? (ArtifactInputStream) is
                 : StreamUtils.findSource(ArtifactInputStream.class, is);
         Assert.notNull(source, String.format("Source should be [%s]", ArtifactInputStream.class.getSimpleName()));
 
-        return new RepositoryInputStream(repository, path, is);
+        return new RepositoryInputStream(path, is);
     }
 
 }

@@ -57,6 +57,13 @@ public class GenericEntityHook extends ORecordHookAbstract
             else if ("ArtifactEntry".equals(oClass.getName()))
             {
                 ODocument artifactCoordinates = doc.field("artifactCoordinates");
+                if (artifactCoordinates == null)
+                {
+                    throw new OValidationException(
+                            String.format("Failed to persist document [%s]. 'artifactCoordinates' can't be null.",
+                                          doc.getSchemaClass()));
+                }
+                
                 String artifactCoordinatesPath = artifactCoordinates == null ? "" : artifactCoordinates.field("path");
 
                 String artifactEntryPath = doc.field("artifactPath");

@@ -113,16 +113,6 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                                                                                                            path);
                 assertThat(optionalArtifactEntryFromDb, CoreMatchers.equalTo(Optional.empty()));
 
-                Optional<ArtifactEntry> artifactMetadataOptional = artifactEntryService.findOneArtifact(storageId,
-                                                                                                        repositoryId,
-                                                                                                        StringUtils.replace(
-                                                                                                                path,
-                                                                                                                "1.6/properties-injector-1.6.jar",
-                                                                                                                "maven-metadata.xml"));
-
-                // we haven't touched the last used of the maven-metadata ;)
-                assertThat(artifactMetadataOptional, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
-
                 final Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());
                 final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
                 final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());

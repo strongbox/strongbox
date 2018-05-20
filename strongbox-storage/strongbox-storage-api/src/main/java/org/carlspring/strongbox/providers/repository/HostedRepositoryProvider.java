@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.providers.repository;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
@@ -16,10 +18,6 @@ import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.RepositoryInputStream;
-import org.carlspring.strongbox.io.RepositoryOutputStream;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -49,7 +47,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         return ALIAS;
     }
 
-    protected RepositoryInputStream getInputStream(RepositoryPath repositoryPath)
+    protected InputStream getInputStreamInternal(RepositoryPath repositoryPath)
     {
         if (repositoryPath == null)
         {
@@ -61,12 +59,9 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
             return null;
         }
 
-        Repository repository = repositoryPath.getFileSystem().getRepository();
         try
         {
-            String path = RepositoryFiles.stringValue(repositoryPath);
-            return decorate(repository.getStorage().getId(), repository.getId(), path,
-                            Files.newInputStream(repositoryPath));
+            return Files.newInputStream(repositoryPath);
         }
         catch (IOException e)
         {
@@ -76,12 +71,10 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public RepositoryOutputStream getOutputStream(RepositoryPath repositoryPath)
+    public OutputStream getOutputStreamInternal(RepositoryPath repositoryPath)
             throws IOException
     {
-        ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
-        
-        return decorate(repositoryPath, aos);
+        return Files.newOutputStream(repositoryPath);
     }
 
     @Override

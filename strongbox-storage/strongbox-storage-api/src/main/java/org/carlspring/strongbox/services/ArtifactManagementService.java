@@ -388,7 +388,7 @@ public class ArtifactManagementService
         artifactOperationsValidator.checkAllowsDeletion(repository);
 
         Optional<ArtifactEntry> artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry());
-        if (!Files.isDirectory(repositoryPath) && !artifactEntry.isPresent())
+        if (!Files.isDirectory(repositoryPath) && RepositoryFiles.isArtifact(repositoryPath) && !artifactEntry.isPresent())
         {
             throw new IOException(String.format("Corresponding [%s] record not found for path [%s]",
                                                 ArtifactEntry.class.getSimpleName(), repositoryPath));

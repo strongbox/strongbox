@@ -3,7 +3,7 @@ package org.carlspring.strongbox.io;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Optional;
+import java.nio.file.Path;
 
 import org.apache.commons.io.output.CountingOutputStream;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -22,26 +22,18 @@ public class RepositoryOutputStream extends FilterOutputStream implements Reposi
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryOutputStream.class);
 
-    protected RepositoryStreamCallback callback;
+    protected RepositoryStreamCallback callback = new EmptyRepositoryStreamCallback();
 
-    private Repository repository;
-    private String path;
+    private Path path;
 
-    protected RepositoryOutputStream(Repository repository,
-                                     String path,
+    protected RepositoryOutputStream(Path path,
                                      OutputStream out)
     {
         super(new CountingOutputStream(out));
-        this.repository = repository;
         this.path = path;
     }
 
-    public Repository getRepository()
-    {
-        return repository;
-    }
-
-    public String getPath()
+    public Path getPath()
     {
         return path;
     }
@@ -53,7 +45,7 @@ public class RepositoryOutputStream extends FilterOutputStream implements Reposi
         if (((CountingOutputStream)out).getByteCount() == 0L){
             try
             {
-                Optional.ofNullable(callback).ifPresent(c -> c.onBeforeWrite(this));
+                callback.onBeforeWrite(this);
             }
             catch (Exception e)
             {
@@ -71,7 +63,7 @@ public class RepositoryOutputStream extends FilterOutputStream implements Reposi
         super.close();
         try
         {
-            Optional.ofNullable(callback).ifPresent(c -> c.onAfterClose(this));
+            callback.onAfterClose(this);
         }
         catch (Exception e)
         {
@@ -86,15 +78,14 @@ public class RepositoryOutputStream extends FilterOutputStream implements Reposi
         return this;
     }
 
-    public static RepositoryOutputStream of(Repository repository,
-                                            String path,
+    public static RepositoryOutputStream of(Path path,
                                             OutputStream os)
     {
         ArtifactOutputStream source = os instanceof ArtifactOutputStream ? (ArtifactOutputStream) os
                                                                          : StreamUtils.findSource(ArtifactOutputStream.class, os);
         Assert.notNull(source, String.format("Source should be [%s]", ArtifactOutputStream.class.getSimpleName()));
 
-        return new RepositoryOutputStream(repository, path, os);
+        return new RepositoryOutputStream(path, os);
     }
 
 }
