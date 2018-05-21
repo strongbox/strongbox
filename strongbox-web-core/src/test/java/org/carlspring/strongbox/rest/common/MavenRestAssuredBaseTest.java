@@ -5,7 +5,7 @@ import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenDetachedArtifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
+import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.users.domain.Roles;
 
@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
@@ -41,10 +40,6 @@ import static org.junit.Assert.assertTrue;
 public abstract class MavenRestAssuredBaseTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
-
-    public final static int DEFAULT_PORT = 48080;
-
-    public final static String DEFAULT_HOST = "localhost";
 
     /**
      * Share logger instance across all tests.
@@ -132,7 +127,7 @@ public abstract class MavenRestAssuredBaseTest
     public String createSnapshotVersion(String baseSnapshotVersion,
                                         int buildNumber)
     {
-        return new TestCaseWithMavenArtifactGeneration().createSnapshotVersion(baseSnapshotVersion, buildNumber);
+        return new MavenTestCaseWithArtifactGeneration().createSnapshotVersion(baseSnapshotVersion, buildNumber);
     }
 
     public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,

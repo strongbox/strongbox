@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.testing;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
@@ -70,7 +69,7 @@ import static org.junit.Assert.assertTrue;
  * @author carlspring
  */
 public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
-        extends TestCaseWithMavenArtifactGeneration
+        extends MavenTestCaseWithArtifactGeneration
 {
 
     public static final int ROUTING_RULE_TYPE_DENIED = 0;
@@ -197,10 +196,13 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         return repository;
     }
 
-    protected void createProxyRepository(String storageId,
-                                         String repositoryId,
-                                         String remoteRepositoryUrl)
-            throws IOException, JAXBException, RepositoryManagementStrategyException
+    @Override
+    public void createProxyRepository(String storageId,
+                                      String repositoryId,
+                                      String remoteRepositoryUrl)
+            throws IOException,
+                   JAXBException,
+                   RepositoryManagementStrategyException
     {
         MavenRepositoryConfiguration repositoryConfiguration = new MavenRepositoryConfiguration();
         repositoryConfiguration.setIndexingEnabled(true);
@@ -294,7 +296,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                      String[] repositoryIds,
                                      String rulePattern,
                                      int type)
-            throws IOException, JAXBException
     {
         Set<String> repositories = new LinkedHashSet<>();
         repositories.addAll(Arrays.asList(repositoryIds));

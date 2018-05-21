@@ -66,10 +66,12 @@ public class RoutingRule
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "RoutingRule{" +
                 ", \n\tpattern='" + pattern + '\'' +
                 ", \n\trepositories=" + repositories +
                 '}';
     }
+
 }

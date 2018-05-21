@@ -14,18 +14,17 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.repository.HostedRepositoryProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
+import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.xml.bind.JAXBException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,7 +40,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 /**
  * @author mtodorov
  */
-public class TestCaseWithMavenArtifactGeneration
+public class MavenTestCaseWithArtifactGeneration
         extends TestCaseWithRepositoryManagement
 {
 
@@ -56,6 +55,10 @@ public class TestCaseWithMavenArtifactGeneration
     
     @Inject
     RepositoryPathResolver repositoryPathResolver;
+
+    @Inject
+    MavenRepositoryFactory mavenRepositoryFactory;
+
 
     public MavenArtifact generateArtifact(String basedir, String gavtc)
             throws IOException,
@@ -434,6 +437,25 @@ public class TestCaseWithMavenArtifactGeneration
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
         return layoutProvider.getRepositoryManagementStrategy();
+    }
+
+    @Override
+    public void createProxyRepository(String storageId,
+                                      String repositoryId,
+                                      String remoteRepositoryUrl)
+            throws IOException,
+                   JAXBException,
+                   RepositoryManagementStrategyException
+    {
+        RemoteRepository remoteRepository = new RemoteRepository();
+        remoteRepository.setUrl(remoteRepositoryUrl);
+
+        Repository repository = mavenRepositoryFactory.createRepository(storageId, repositoryId);
+        repository.setRemoteRepository(remoteRepository);
+        repository.setLayout(Maven2LayoutProvider.ALIAS);
+        repository.setType(RepositoryTypeEnum.PROXY.getType());
+
+        createRepository(repository);
     }
 
 }

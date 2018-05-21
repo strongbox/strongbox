@@ -405,7 +405,6 @@ public class MavenArtifactControllerTest
         assertEquals("SHA-1 checksums did not match!", sha1Local, sha1Remote);
     }
 
-
     @Test
     public void testHeadersFetch()
             throws Exception

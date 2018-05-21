@@ -46,6 +46,7 @@ public class MavenArtifactGenerator
 
     protected String basedir;
 
+
     public MavenArtifactGenerator()
     {
     }
@@ -150,7 +151,8 @@ public class MavenArtifactGenerator
         {
             metadataFile = new File(basedir, metadataPath);
             
-            if (metadataFile.exists()) {
+            if (metadataFile.exists())
+            {
                 metadataFile.delete();
             }
 
