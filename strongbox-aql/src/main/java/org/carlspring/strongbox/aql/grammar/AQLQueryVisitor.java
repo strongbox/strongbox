@@ -2,7 +2,6 @@ package org.carlspring.strongbox.aql.grammar;
 
 import java.util.Optional;
 
-import org.carlspring.strongbox.aql.grammar.AQLParser.QueryContext;
 import org.carlspring.strongbox.aql.grammar.AQLParser.QueryExpContext;
 import org.carlspring.strongbox.aql.grammar.AQLParser.TokenExpContext;
 import org.carlspring.strongbox.data.criteria.Predicate;

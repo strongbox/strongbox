@@ -21,7 +21,9 @@ public class DefaultExpressionDialect implements ExpressionDialect
     @Override
     public String parseValue(String value)
     {
-        return StringUtils.unwrap(value, '\'');
+        String result = StringUtils.unwrap(value, "'");
+        result = StringUtils.unwrap(result, '"');
+        return result;
     }
 
 }
