@@ -48,17 +48,7 @@ public class AqlController extends BaseController
         SearchException
     {
         AqlQueryParser parser = new AqlQueryParser(query);
-        Selector<ArtifactEntry> selector;
-        try
-        {
-            selector = parser.parseQuery();
-        }
-        catch (QueryParserException e)
-        {
-            // TODO: provide response error message
-
-            return ResponseEntity.badRequest().build();
-        }
+        Selector<ArtifactEntry> selector = parser.parseQuery();
 
         SearchResults result = aqlSearchService.search(selector);
 

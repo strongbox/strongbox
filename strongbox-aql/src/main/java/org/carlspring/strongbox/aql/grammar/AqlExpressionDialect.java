@@ -6,6 +6,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.criteria.DefaultExpressionDialect;
 import org.carlspring.strongbox.data.criteria.Expression;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
+import org.carlspring.strongbox.data.criteria.QueryParserException;
 import org.springframework.util.Assert;
 
 /**
@@ -53,8 +54,8 @@ public class AqlExpressionDialect extends DefaultExpressionDialect
                                                             .equals(this.value))
                                               .map(e -> e.getValue())
                                               .findFirst()
-                                              .orElseThrow(() -> new RuntimeException(
-                                                      String.format("Failed to locate [%s] class for [%s] layout.",
+                                              .orElseThrow(() -> new QueryParserException(
+                                                      String.format("Unknown layout [%s].",
                                                                     ArtifactCoordinates.class,
                                                                     value)))
                                               .getSimpleName();
