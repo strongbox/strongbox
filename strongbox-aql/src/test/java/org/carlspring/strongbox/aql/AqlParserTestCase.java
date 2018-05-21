@@ -27,7 +27,7 @@ public class AqlParserTestCase
     public void testValidQuery()
         throws Exception
     {
-        String query = "(storage:storage-common-proxies) +repository:carlspring OR +(groupId:'org.carlspring') AND (-(artifactId:'some strange group') || -version:\"0.*\") asc: age skip: 12";
+        String query = "(storage:storage-common-proxies) +repository:carlspring OR +(groupId:'org.carlspring') AND (-(artifactId:'some strange group') || -version:!0.*!) asc: age skip: 12";
         AqlQueryParser aqlParser = new AqlQueryParser(query);
 
         logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));

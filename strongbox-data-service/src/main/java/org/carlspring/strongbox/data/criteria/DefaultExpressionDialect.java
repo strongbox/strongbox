@@ -23,6 +23,8 @@ public class DefaultExpressionDialect implements ExpressionDialect
     {
         String result = StringUtils.unwrap(value, "'");
         result = StringUtils.unwrap(result, '"');
+        result = StringUtils.unwrap(result, '`');
+        result = StringUtils.unwrap(result, '!');
         return result;
     }
 
