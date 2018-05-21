@@ -414,7 +414,7 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
     @Override
     public void close()
     {
-        database.close();
+        //database.close();
         if (logger.isLoggable(Level.INFO))
         {
             logger.fine("EntityManager closed. " + toString());

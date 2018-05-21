@@ -22,9 +22,11 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
+/*
 @Aspect
 @Component
 @Order(OEntityUnproxyAspect.ORDER)
+*/
 public class OEntityUnproxyAspect
 {
     public static final int ORDER = 110;

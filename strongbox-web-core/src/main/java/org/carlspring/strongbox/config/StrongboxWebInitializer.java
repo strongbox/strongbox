@@ -62,9 +62,11 @@ public class StrongboxWebInitializer
         
         registerFilter(servletContext, true, CommonsRequestLoggingFilter.class.getSimpleName(),
                        new DelegatingFilterProxy("commonsRequestLoggingFilter"));
-        
+
+        /*
         registerFilter(servletContext, false, DirectoryTraversalFilter.class.getSimpleName(),
                        new DirectoryTraversalFilter());
+        */
 
         DelegatingFilterProxy headerMappingFilterDelegate = new DelegatingFilterProxy("headerMappingFilter");
         registerFilter(servletContext, false, HeaderMappingFilter.class.getSimpleName(), headerMappingFilterDelegate);
