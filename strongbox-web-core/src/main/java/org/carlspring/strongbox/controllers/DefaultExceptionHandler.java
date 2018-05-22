@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,11 +29,11 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
         return provideDefaultErrorResponse(ex, request, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(Exception.class)
-    protected ResponseEntity<?> handleUnknownError(Exception ex,
-                                                   WebRequest request)
+    @ExceptionHandler(AccessDeniedException.class)
+    protected ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex,
+                                                            WebRequest request)
     {
-        return provideDefaultErrorResponse(ex, request, HttpStatus.INTERNAL_SERVER_ERROR);
+        return provideDefaultErrorResponse(ex, request, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(RequestBodyValidationException.class)
@@ -47,6 +48,13 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
         {
             return provideValidationErrorResponse(ex, request);
         }
+    }
+    
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<?> handleUnknownError(Exception ex,
+                                                   WebRequest request)
+    {
+        return provideDefaultErrorResponse(ex, request, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<?> provideValidationErrorResponse(final RequestBodyValidationException ex,
