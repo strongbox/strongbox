@@ -3,9 +3,11 @@ package org.carlspring.strongbox.controllers.raw;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.rest.common.RawRestAssuredBaseTest;
+import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,6 +39,9 @@ public class RawArtifactControllerTest
 
     private static final String REPOSITORY_RELEASES = "ract-raw-releases";
 
+    @Inject
+    RawRepositoryFactory rawRepositoryFactory;
+
 
     @BeforeClass
     public static void cleanUp()
@@ -59,10 +64,8 @@ public class RawArtifactControllerTest
     {
         super.init();
 
-        Repository repository = new Repository(REPOSITORY_RELEASES);
+        Repository repository = rawRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES);
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository.setStorage(getConfiguration().getStorage(STORAGE0));
-        repository.setLayout(RawLayoutProvider.ALIAS);
 
         createRepositoryWithFile(repository, "org/foo/bar/blah.zip");
 
