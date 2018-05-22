@@ -1,19 +1,5 @@
 package org.carlspring.strongbox.providers.repository;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
-import org.apache.commons.io.output.CountingOutputStream;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -22,12 +8,7 @@ import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.RepositoryInputStream;
-import org.carlspring.strongbox.io.RepositoryOutputStream;
-import org.carlspring.strongbox.io.RepositoryStreamCallback;
-import org.carlspring.strongbox.io.RepositoryStreamContext;
-import org.carlspring.strongbox.io.StreamUtils;
+import org.carlspring.strongbox.io.*;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -35,6 +16,16 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.io.output.CountingOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -233,7 +224,9 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
         String path = RepositoryFiles.stringValue(repositoryPath);
         
-        logger.debug(String.format("Reading [%s]", path));
+        logger.debug(String.format("Reading /" + repositoryPath.getRepository().getStorage().getId() + "/" +
+                                   repositoryPath.getRepository().getId() +
+                                   "/%s", path));
         
         if (!RepositoryFiles.isArtifact(repositoryPath))
         {
@@ -246,10 +239,18 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
 
         ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId, path);
 
+        /*
+        // TODO: @sbespalov:
+        // TODO: This is breaking the raw layout provider.
+        // TODO: Any advice on how to fix it?
+        // TODO: Can we remove this check permanently?
+
         Assert.notNull(artifactEntry.getUuid(),
-                       String.format("Invalid [%s] for [%s]", ArtifactEntry.class.getSimpleName(),
-                                     ctx.getPath()));        
-        
+                       String.format("Invalid [%s] for [%s]",
+                                     ArtifactEntry.class.getSimpleName(),
+                                     ctx.getPath()));
+        */
+
         artifactEntry.setLastUsed(new Date());
         artifactEntry.setDownloadCount(artifactEntry.getDownloadCount() + 1);
 
