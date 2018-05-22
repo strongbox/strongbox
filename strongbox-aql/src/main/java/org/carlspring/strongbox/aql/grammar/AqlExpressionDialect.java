@@ -56,7 +56,6 @@ public class AqlExpressionDialect extends DefaultExpressionDialect
                                               .findFirst()
                                               .orElseThrow(() -> new QueryParserException(
                                                       String.format("Unknown layout [%s].",
-                                                                    ArtifactCoordinates.class,
                                                                     value)))
                                               .getSimpleName();
 
