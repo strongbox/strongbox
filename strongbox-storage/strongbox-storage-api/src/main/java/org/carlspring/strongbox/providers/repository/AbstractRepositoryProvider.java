@@ -237,10 +237,6 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        // TODO: @sbespalov:
-        // TODO: This is breaking the raw layout provider.
-        // TODO: Any advice on how to fix it?
-        // TODO: Can we remove this check permanently?
         ArtifactEntry artifactEntry = provideArtifactEntry(storageId, repositoryId, path);
 
         Assert.notNull(artifactEntry.getUuid(),
