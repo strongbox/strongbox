@@ -125,11 +125,11 @@ public class ProxyRepositoryProvider
         return hostedRepositoryProvider.count(storageId, repositoryId, predicate);
     }
 
-    protected ArtifactEntry provideArtirfactEntry(String storageId,
-                                                  String repositoryId,
-                                                  String path)
+    protected ArtifactEntry provideArtifactEntry(String storageId,
+                                                 String repositoryId,
+                                                 String path)
     {
-        RemoteArtifactEntry artifactEntry = Optional.of(super.provideArtirfactEntry(storageId, repositoryId, path))
+        RemoteArtifactEntry artifactEntry = Optional.of(super.provideArtifactEntry(storageId, repositoryId, path))
                                                     .map(e -> e.getObjectId() == null ? new RemoteArtifactEntry()
                                                             : (RemoteArtifactEntry) e)
                                                     .get();

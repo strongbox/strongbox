@@ -77,14 +77,14 @@ public class RawArtifactControllerTestIT
         createProxyRepository(STORAGE0,
                               REPOSITORY_PROXY,
                               "http://www-eu.apache.org/dist");
-        // Required for http://www-eu.apache.org/dist/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.tar.gz.sha1
+        // Required for http://www-eu.apache.org/dist/maven/pom/apache-19-source-release.zip
 
         Repository repository2 = rawRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP);
         repository2.setType(RepositoryTypeEnum.GROUP.getType());
         repository2.setGroupRepositories(Sets.newHashSet(STORAGE0 + ":" + REPOSITORY_PROXY));
 
         createRepository(repository2);
-        // Required for uapache-maven-3.5.3-bin.tar.gz.sha1
+        // Required for apache-19-source-release.zip
     }
 
     @After
@@ -104,7 +104,7 @@ public class RawArtifactControllerTestIT
             throws Exception
     {
         String artifactPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_PROXY +
-                              "/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.tar.gz.sha1";
+                              "/maven/pom/apache-19-source-release.zip";
 
         resolveArtifact(artifactPath);
     }
@@ -119,7 +119,7 @@ public class RawArtifactControllerTestIT
             throws Exception
     {
         String artifactPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_GROUP +
-                              "/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.tar.gz.asc";
+                              "/maven/pom/maven-parent-31-source-release.zip";
 
         resolveArtifact(artifactPath);
     }

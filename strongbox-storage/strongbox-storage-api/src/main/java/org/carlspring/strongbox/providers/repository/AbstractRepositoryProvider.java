@@ -173,7 +173,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId, path);
+        ArtifactEntry artifactEntry = provideArtifactEntry(storageId, repositoryId, path);
 
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
@@ -207,7 +207,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId, path);
+        ArtifactEntry artifactEntry = provideArtifactEntry(storageId, repositoryId, path);
         Assert.notNull(artifactEntry.getUuid(),
                        String.format("Invalid [%s] for [%s]", ArtifactEntry.class.getSimpleName(),
                                      ctx.getPath()));
@@ -237,19 +237,16 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        ArtifactEntry artifactEntry = provideArtirfactEntry(storageId, repositoryId, path);
-
-        /*
         // TODO: @sbespalov:
         // TODO: This is breaking the raw layout provider.
         // TODO: Any advice on how to fix it?
         // TODO: Can we remove this check permanently?
+        ArtifactEntry artifactEntry = provideArtifactEntry(storageId, repositoryId, path);
 
         Assert.notNull(artifactEntry.getUuid(),
                        String.format("Invalid [%s] for [%s]",
                                      ArtifactEntry.class.getSimpleName(),
                                      ctx.getPath()));
-        */
 
         artifactEntry.setLastUsed(new Date());
         artifactEntry.setDownloadCount(artifactEntry.getDownloadCount() + 1);
@@ -257,9 +254,9 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         artifactEntryService.save(artifactEntry);
     }
 
-    protected ArtifactEntry provideArtirfactEntry(String storageId,
-                                                  String repositoryId,
-                                                  String path)
+    protected ArtifactEntry provideArtifactEntry(String storageId,
+                                                 String repositoryId,
+                                                 String path)
     {
         ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
                                                                            repositoryId,
