@@ -24,7 +24,7 @@ public class ConfigurationFileManager
     
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationFileManager.class);
 
-    private final GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
+    private final GenericParser<MutableConfiguration> parser = new GenericParser<>(MutableConfiguration.class);
 
     public Resource getConfigurationResource()
             throws IOException
@@ -32,7 +32,7 @@ public class ConfigurationFileManager
         return ConfigurationResourceResolver.getConfigurationResource("strongbox.config.xml", "etc/conf/strongbox.xml");
     }
 
-    public void store(final Configuration configuration)
+    public void store(final MutableConfiguration configuration)
     {
         try
         {
@@ -44,7 +44,7 @@ public class ConfigurationFileManager
         }
     }
 
-    public Configuration read()
+    public MutableConfiguration read()
     {
         try (InputStream inputStream = new BufferedInputStream(getConfigurationResource().getInputStream()))
         {

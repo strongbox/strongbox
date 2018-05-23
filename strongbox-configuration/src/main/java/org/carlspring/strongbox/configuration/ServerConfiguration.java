@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import java.io.Serializable;
@@ -11,7 +9,6 @@ import java.io.Serializable;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class ServerConfiguration
-        extends GenericEntity
         implements Serializable
 {
 

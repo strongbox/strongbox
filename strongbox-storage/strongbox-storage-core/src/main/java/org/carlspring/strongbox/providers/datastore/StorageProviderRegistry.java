@@ -1,9 +1,7 @@
 package org.carlspring.strongbox.providers.datastore;
 
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.Storage;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -66,16 +64,6 @@ public class StorageProviderRegistry extends AbstractMappedProviderRegistry<Stor
     public void removeProvider(String alias)
     {
         super.removeProvider(alias);
-    }
-
-    public Storage getStorage(String storageId)
-    {
-        return getConfiguration().getStorages().get(storageId);
-    }
-
-    public Configuration getConfiguration()
-    {
-        return configurationManagementService.getConfiguration();
     }
 
 }

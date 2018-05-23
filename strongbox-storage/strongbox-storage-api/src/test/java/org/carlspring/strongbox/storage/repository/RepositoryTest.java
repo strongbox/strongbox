@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.storage.repository;
 
-import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.aws.AwsConfiguration;
-import org.carlspring.strongbox.storage.repository.gcs.GoogleCloudConfiguration;
+import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.repository.aws.MutableAwsConfiguration;
+import org.carlspring.strongbox.storage.repository.gcs.MutableGoogleCloudConfiguration;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
@@ -28,15 +28,15 @@ public class RepositoryTest
     public void testAddRepositoryWithCustomConfiguration()
             throws JAXBException
     {
-        Repository repository = createTestRepositoryWithCustomConfig();
+        MutableRepository repository = createTestRepositoryWithCustomConfig();
 
-        Storage storage = new Storage("storage0");
+        MutableStorage storage = new MutableStorage("storage0");
         storage.addRepository(repository);
 
-        Configuration configuration = new Configuration();
+        MutableConfiguration configuration = new MutableConfiguration();
         configuration.addStorage(storage);
 
-        GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
+        GenericParser<MutableConfiguration> parser = new GenericParser<>(MutableConfiguration.class);
 
         String serialized = parser.serialize(configuration);
 
@@ -50,17 +50,17 @@ public class RepositoryTest
     public void testMarshallAndUnmarshallSimpleConfiguration()
             throws JAXBException
     {
-        Storage storage = new Storage("storage0");
+        MutableStorage storage = new MutableStorage("storage0");
 
-        Repository repository = new Repository("test-repository");
+        MutableRepository repository = new MutableRepository("test-repository");
         repository.setStorage(storage);
 
         storage.addRepository(repository);
 
-        Configuration configuration = new Configuration();
+        MutableConfiguration configuration = new MutableConfiguration();
         configuration.addStorage(storage);
 
-        GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
+        GenericParser<MutableConfiguration> parser = new GenericParser<>(MutableConfiguration.class);
 
         String serialized = parser.serialize(configuration);
 
@@ -69,7 +69,7 @@ public class RepositoryTest
         assertFalse(serialized.contains("<aws-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
         assertFalse(serialized.contains("<google-cloud-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
 
-        Configuration unmarshalledConfiguration = parser.parse(new ByteArrayInputStream(serialized.getBytes()));
+        MutableConfiguration unmarshalledConfiguration = parser.parse(new ByteArrayInputStream(serialized.getBytes()));
 
         assertNotNull(unmarshalledConfiguration.getStorage("storage0"));
     }
@@ -78,19 +78,19 @@ public class RepositoryTest
     public void testMarshallAndUnmarshallSimpleConfigurationWithoutServiceLoader()
             throws JAXBException
     {
-        Storage storage = new Storage("storage0");
+        MutableStorage storage = new MutableStorage("storage0");
 
-        Repository repository = new Repository("test-repository");
+        MutableRepository repository = new MutableRepository("test-repository");
         repository.setStorage(storage);
 
         storage.addRepository(repository);
 
-        Configuration configuration = new Configuration();
+        MutableConfiguration configuration = new MutableConfiguration();
         configuration.addStorage(storage);
 
-        GenericParser<Configuration> parser = new GenericParser<>(false,
-                                                                  Configuration.class,
-                                                                  CustomConfiguration.class);
+        GenericParser<MutableConfiguration> parser = new GenericParser<>(false,
+                                                                         MutableConfiguration.class,
+                                                                         MutableCustomConfiguration.class);
 
         String serialized = parser.serialize(configuration);
 
@@ -99,7 +99,7 @@ public class RepositoryTest
         assertFalse(serialized.contains("<aws-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
         assertFalse(serialized.contains("<google-cloud-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
 
-        Configuration unmarshalledConfiguration = parser.parse(new ByteArrayInputStream(serialized.getBytes()));
+        MutableConfiguration unmarshalledConfiguration = parser.parse(new ByteArrayInputStream(serialized.getBytes()));
 
         assertNotNull(unmarshalledConfiguration.getStorage("storage0"));
     }
@@ -110,29 +110,29 @@ public class RepositoryTest
     {
         File file = new File(ConfigurationResourceResolver.getHomeDirectory() + "/etc/conf/strongbox.xml");
 
-        GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
-        Configuration configuration = parser.parse(file.toURI().toURL());
+        GenericParser<MutableConfiguration> parser = new GenericParser<>(MutableConfiguration.class);
+        MutableConfiguration configuration = parser.parse(file.toURI().toURL());
 
-        Storage storage = configuration.getStorage("storage0");
+        MutableStorage storage = configuration.getStorage("storage0");
 
         assertNotNull(storage);
     }
 
-    private Repository createTestRepositoryWithCustomConfig()
+    private MutableRepository createTestRepositoryWithCustomConfig()
     {
-        Storage storage = new Storage("storage0");
-        Repository repository = new Repository("test-repository");
+        MutableStorage storage = new MutableStorage("storage0");
+        MutableRepository repository = new MutableRepository("test-repository");
         repository.setStorage(storage);
 
-        AwsConfiguration awsConfiguration = new AwsConfiguration();
+        MutableAwsConfiguration awsConfiguration = new MutableAwsConfiguration();
         awsConfiguration.setBucket("test-bucket");
         awsConfiguration.setKey("test-key");
 
-        GoogleCloudConfiguration googleCloudConfiguration = new GoogleCloudConfiguration();
+        MutableGoogleCloudConfiguration googleCloudConfiguration = new MutableGoogleCloudConfiguration();
         googleCloudConfiguration.setBucket("test-bucket");
         googleCloudConfiguration.setKey("test-key");
 
-        List<CustomConfiguration> customConfigurations = new ArrayList<>();
+        List<MutableCustomConfiguration> customConfigurations = new ArrayList<>();
         customConfigurations.add(awsConfiguration);
         customConfigurations.add(googleCloudConfiguration);
 

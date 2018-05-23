@@ -176,7 +176,7 @@ public class BrowseController extends BaseArtifactController
                 return getServiceUnavailableResponseEntity("Repository is not in service...", acceptHeader);
             }
 
-            if (!repository.allowsDirectoryBrowsing() || !probeForDirectoryListing(repositoryPath))
+            if (!repository.isAllowsDirectoryBrowsing() || !probeForDirectoryListing(repositoryPath))
             {
                 return getNotFoundResponseEntity("Requested repository doesn't allow browsing.", acceptHeader);
             }

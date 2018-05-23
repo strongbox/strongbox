@@ -3,9 +3,9 @@ package org.carlspring.strongbox.controllers.configuration;
 import org.carlspring.strongbox.forms.storage.routing.RoutingRuleForm;
 import org.carlspring.strongbox.forms.storage.routing.RuleSetForm;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.routing.RoutingRule;
-import org.carlspring.strongbox.storage.routing.RoutingRules;
-import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
+import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import io.swagger.annotations.Api;
@@ -69,7 +69,8 @@ public class RoutingConfigurationController
                 produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRoutingRules()
     {
-        RoutingRules body = configurationManagementService.getRoutingRules();
+        MutableRoutingRules body = configurationManagementService.getMutableConfigurationClone()
+                                                                 .getRoutingRules();
         return ResponseEntity.ok(body);
     }
 
@@ -90,7 +91,7 @@ public class RoutingConfigurationController
             throw new RequestBodyValidationException(FAILED_ADD_RULE_SET_FORM_ERROR, bindingResult);
         }
 
-        RuleSet ruleSet = conversionService.convert(ruleSetForm, RuleSet.class);
+        MutableRuleSet ruleSet = conversionService.convert(ruleSetForm, MutableRuleSet.class);
         final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
         
         return getResponse(added, SUCCESSFUL_ADD_RULE_SET, NOT_FOUND_RULE_SET, acceptHeader);
@@ -129,7 +130,7 @@ public class RoutingConfigurationController
             throw new RequestBodyValidationException(FAILED_ADD_REPOSITORY_FORM_ERROR, bindingResult);
         }
 
-        RoutingRule routingRule = conversionService.convert(routingRuleForm, RoutingRule.class);
+        MutableRoutingRule routingRule = conversionService.convert(routingRuleForm, MutableRoutingRule.class);
         if (routingRule != null && routingRule.getPattern() == null && routingRule.getRepositories().isEmpty())
         {
             return getNotFoundResponseEntity(NOT_FOUND_ROUTING_RULE, acceptHeader);
@@ -177,7 +178,7 @@ public class RoutingConfigurationController
             throw new RequestBodyValidationException(FAILED_OVERRIDE_REPOSITORY_FORM_ERROR, bindingResult);
         }
 
-        RoutingRule routingRule = conversionService.convert(routingRuleForm, RoutingRule.class);
+        MutableRoutingRule routingRule = conversionService.convert(routingRuleForm, MutableRoutingRule.class);
         if (routingRule != null && routingRule.getPattern() == null && routingRule.getRepositories().isEmpty())
         {
             return getNotFoundResponseEntity(NOT_FOUND_ROUTING_RULE, acceptHeader);

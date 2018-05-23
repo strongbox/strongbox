@@ -56,8 +56,9 @@ public abstract class BaseMavenGroupRepositoryComponent
             throws IOException
     {
         Repository repository = repositoryPath.getRepository();
-        final List<Repository> directParents = configurationManagementService.getGroupRepositoriesContaining(repository.getStorage().getId(),
-                                                                                                             repository.getId());
+        final List<Repository> directParents = configurationManagementService.getConfiguration()
+                                                                             .getGroupRepositoriesContaining(repository.getStorage().getId(),
+                                                                                                                      repository.getId());
         if (CollectionUtils.isEmpty(directParents))
         {
             return;
@@ -114,8 +115,9 @@ public abstract class BaseMavenGroupRepositoryComponent
             throws IOException
     {
         Repository repository = repositoryPath.getRepository();
-        final List<Repository> groupRepositories = configurationManagementService.getGroupRepositoriesContaining(
-                repository.getStorage().getId(), repository.getId());
+        final List<Repository> groupRepositories = configurationManagementService.getConfiguration()
+                                                                                 .getGroupRepositoriesContaining(repository.getStorage().getId(),
+                                                                                                                 repository.getId());
         if (CollectionUtils.isEmpty(groupRepositories))
         {
             return;

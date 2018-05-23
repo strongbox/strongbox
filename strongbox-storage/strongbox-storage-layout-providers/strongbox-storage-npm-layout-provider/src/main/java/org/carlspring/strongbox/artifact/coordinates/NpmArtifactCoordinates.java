@@ -21,6 +21,11 @@ import org.springframework.util.Assert;
  * @author sbespalov
  *
  */
+import org.apache.maven.artifact.versioning.ComparableVersion;
+
+/**
+ * @author carlspring
+ */
 @Embeddable
 @SuppressWarnings("serial")
 @XmlRootElement(name = "npmArtifactCoordinates")

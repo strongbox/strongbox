@@ -12,6 +12,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
@@ -47,9 +48,9 @@ public class ArtifactOutputStreamTest
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
     
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
 
         return repositories;

@@ -1,155 +1,68 @@
 package org.carlspring.strongbox.storage.repository.remote;
 
-import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
-
-import static org.carlspring.strongbox.configuration.RemoteRepositoriesConfiguration.DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
+import javax.annotation.concurrent.Immutable;
 
 /**
- * @author mtodorov
+ * @author Przemyslaw Fusik
  */
-@Embeddable
-@XmlRootElement(name = "remote-repository")
-@XmlAccessorType(XmlAccessType.FIELD)
+@Immutable
 public class RemoteRepository
-        implements Serializable
 {
 
-    @XmlAttribute
-    private String url;
+    private final MutableRemoteRepository delegate;
 
-    @XmlAttribute(name = "download-remote-indexes")
-    private boolean downloadRemoteIndexes;
-
-    @XmlAttribute(name = "auto-blocking")
-    private boolean autoBlocking;
-
-    @XmlAttribute(name = "checksum-validation")
-    private boolean checksumValidation;
-
-    @XmlAttribute
-    private String username;
-
-    @XmlAttribute
-    private String password;
-
-    @XmlAttribute(name = "checksum-policy")
-    private String checksumPolicy;
-
-    @XmlAttribute(name = "check-interval-seconds")
-    private Integer checkIntervalSeconds = DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
-
-    @XmlAttribute(name = "allows-directory-browsing")
-    private boolean allowsDirectoryBrowsing = true;
-
-    @XmlAttribute(name = "auto-import-remote-ssl-certificate")
-    private boolean autoImportRemoteSSLCertificate;
-
-    public RemoteRepository()
+    public RemoteRepository(final MutableRemoteRepository delegate)
     {
+        this.delegate = delegate;
     }
 
     public String getUrl()
     {
-        return url;
-    }
-
-    public void setUrl(String url)
-    {
-        this.url = url;
+        return delegate.getUrl();
     }
 
     public boolean isDownloadRemoteIndexes()
     {
-        return downloadRemoteIndexes;
-    }
-
-    public void setDownloadRemoteIndexes(boolean downloadRemoteIndexes)
-    {
-        this.downloadRemoteIndexes = downloadRemoteIndexes;
+        return delegate.isDownloadRemoteIndexes();
     }
 
     public boolean isAutoBlocking()
     {
-        return autoBlocking;
-    }
-
-    public void setAutoBlocking(boolean autoBlocking)
-    {
-        this.autoBlocking = autoBlocking;
+        return delegate.isAutoBlocking();
     }
 
     public boolean isChecksumValidation()
     {
-        return checksumValidation;
-    }
-
-    public void setChecksumValidation(boolean checksumValidation)
-    {
-        this.checksumValidation = checksumValidation;
+        return delegate.isChecksumValidation();
     }
 
     public String getUsername()
     {
-        return username;
-    }
-
-    public void setUsername(String username)
-    {
-        this.username = username;
+        return delegate.getUsername();
     }
 
     public String getPassword()
     {
-        return password;
-    }
-
-    public void setPassword(String password)
-    {
-        this.password = password;
+        return delegate.getPassword();
     }
 
     public String getChecksumPolicy()
     {
-        return checksumPolicy;
-    }
-
-    public void setChecksumPolicy(String checksumPolicy)
-    {
-        this.checksumPolicy = checksumPolicy;
+        return delegate.getChecksumPolicy();
     }
 
     public Integer getCheckIntervalSeconds()
     {
-        return checkIntervalSeconds;
-    }
-
-    public void setCheckIntervalSeconds(Integer checkIntervalSeconds)
-    {
-        this.checkIntervalSeconds = checkIntervalSeconds;
+        return delegate.getCheckIntervalSeconds();
     }
 
     public boolean isAllowsDirectoryBrowsing()
     {
-        return allowsDirectoryBrowsing;
-    }
-
-    public void setAllowsDirectoryBrowsing(boolean allowsDirectoryBrowsing)
-    {
-        this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
+        return delegate.isAllowsDirectoryBrowsing();
     }
 
     public boolean isAutoImportRemoteSSLCertificate()
     {
-        return autoImportRemoteSSLCertificate;
-    }
-
-    public void setAutoImportRemoteSSLCertificate(boolean autoImportRemoteSSLCertificate)
-    {
-        this.autoImportRemoteSSLCertificate = autoImportRemoteSSLCertificate;
+        return delegate.isAutoImportRemoteSSLCertificate();
     }
 }

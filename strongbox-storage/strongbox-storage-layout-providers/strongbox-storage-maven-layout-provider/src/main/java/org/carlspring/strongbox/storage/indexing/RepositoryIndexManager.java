@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 

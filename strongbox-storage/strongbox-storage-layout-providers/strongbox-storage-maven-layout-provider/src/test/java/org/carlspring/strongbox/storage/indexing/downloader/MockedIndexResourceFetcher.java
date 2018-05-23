@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.storage.indexing.downloader;
 
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 
 import javax.inject.Inject;
 import java.io.File;

@@ -1,15 +1,15 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.services.support.ConfigurationException;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -69,7 +69,7 @@ public class StoragesConfigurationController
                     consumes = { MediaType.APPLICATION_XML_VALUE,
                                  MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity saveStorage(@ApiParam(value = "The storage object", required = true)
-                                      @RequestBody Storage storage)
+                                      @RequestBody MutableStorage storage)
     {
         try
         {
@@ -102,7 +102,7 @@ public class StoragesConfigurationController
     public ResponseEntity getStorage(@ApiParam(value = "The storageId", required = true)
                                      @PathVariable final String storageId)
     {
-        final Storage storage = configurationManagementService.getStorage(storageId);
+        final MutableStorage storage = configurationManagementService.getMutableConfigurationClone().getStorage(storageId);
 
         if (storage != null)
         {
@@ -132,7 +132,7 @@ public class StoragesConfigurationController
                                         @ApiParam(value = "Whether to force delete and remove the storage from the file system")
                                         @RequestParam(name = "force", defaultValue = "false") final boolean force)
     {
-        if (configurationManagementService.getStorage(storageId) != null)
+        if (configurationManagementService.getConfiguration().getStorage(storageId) != null)
         {
             try
             {
@@ -180,16 +180,15 @@ public class StoragesConfigurationController
                                                 @ApiParam(value = "The repositoryId", required = true)
                                                 @PathVariable String repositoryId,
                                                 @ApiParam(value = "The repository object", required = true)
-                                                @RequestBody Repository repository)
+                                                @RequestBody MutableRepository repository)
     {
         try
         {
             logger.debug("Creating repository " + storageId + ":" + repositoryId + "...");
 
-            repository.setStorage(configurationManagementService.getStorage(storageId));
             configurationManagementService.saveRepository(storageId, repository);
 
-            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
             if (!Files.exists(repositoryPath))
             {
                 repositoryManagementService.createRepository(storageId, repository.getId());
@@ -208,7 +207,7 @@ public class StoragesConfigurationController
     @ApiOperation(value = "Returns the configuration of a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "The repository was updated successfully.",
-                                         response = Repository.class),
+                                         response = MutableRepository.class),
                             @ApiResponse(code = 404,
                                          message = "Repository ${storageId}:${repositoryId} was not found!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
@@ -223,7 +222,8 @@ public class StoragesConfigurationController
 
         try
         {
-            Repository repository = configurationManagementService.getStorage(storageId)
+            Repository repository = configurationManagementService.getConfiguration()
+                                                                  .getStorage(storageId)
                                                                   .getRepository(repositoryId);
 
             if (repository != null)
@@ -264,7 +264,8 @@ public class StoragesConfigurationController
                                            @ApiParam(value = "Whether to force delete the repository from the file system")
                                            @RequestParam(name = "force", defaultValue = "false") final boolean force)
     {
-        final Repository repository = configurationManagementService.getStorage(storageId)
+        final Repository repository = configurationManagementService.getConfiguration()
+                                                                    .getStorage(storageId)
                                                                     .getRepository(repositoryId);
         if (repository != null)
         {
@@ -281,11 +282,7 @@ public class StoragesConfigurationController
                     repositoryManagementService.removeRepository(storageId, repository.getId());
                 }
 
-                Configuration configuration = getConfiguration();
-                Storage storage = configuration.getStorage(storageId);
-                storage.removeRepository(repositoryId);
-
-                configurationManagementService.saveStorage(storage);
+                configurationManagementService.removeRepository(storageId, repositoryId);
 
                 logger.debug("Removed repository " + storageId + ":" + repositoryId + ".");
 

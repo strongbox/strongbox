@@ -3,12 +3,10 @@ package org.carlspring.strongbox.controllers.layout.npm;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NpmPackageGenerator;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.NpmRepositoryTestCase;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
@@ -49,9 +47,9 @@ public class NpmArtifactControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
 
         return repositories;
@@ -63,10 +61,10 @@ public class NpmArtifactControllerTest
     {
         super.init();
 
-        Repository repository = npmRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES);
+        MutableRepository repository = npmRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repository);
+        createRepository(repository, STORAGE0);
     }
 
     @Test

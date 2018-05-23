@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.repository;
 
 import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
@@ -169,11 +168,6 @@ public class IndexedMavenRepositoryManagementStrategy
         {
             Files.createDirectories(indexRepositoryPath);
         }
-    }
-
-    public Configuration getConfiguration()
-    {
-        return configurationManager.getConfiguration();
     }
 
     public static boolean shouldDownloadAllRemoteRepositoryIndexes()

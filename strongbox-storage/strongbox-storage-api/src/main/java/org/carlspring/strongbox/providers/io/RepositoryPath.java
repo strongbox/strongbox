@@ -232,7 +232,7 @@ public class RepositoryPath
         {
             return uri;
         }
-        
+
         Repository repository = getFileSystem().getRepository();
         Storage storage = repository.getStorage();
         URI result = null;

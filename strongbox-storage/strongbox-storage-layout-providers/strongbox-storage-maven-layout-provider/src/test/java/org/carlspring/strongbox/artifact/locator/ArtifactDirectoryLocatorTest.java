@@ -174,7 +174,7 @@ public class ArtifactDirectoryLocatorTest
     public void testLocateDirectories()
             throws IOException
     {
-        Storage storage = storageProviderRegistry.getStorage(STORAGE0);
+        Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
         Repository repository = storage.getRepository("releases");
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath repositoryPath = layoutProvider.resolve(repository);
@@ -202,7 +202,7 @@ public class ArtifactDirectoryLocatorTest
     public void testLocateDirectoriesWithBasePath()
             throws IOException
     {
-        Storage storage = storageProviderRegistry.getStorage(STORAGE0);
+        Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
         Repository repository = storage.getRepository("releases");
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath repositoryPath = layoutProvider.resolve(repository);

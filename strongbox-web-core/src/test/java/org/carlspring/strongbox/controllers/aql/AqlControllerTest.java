@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -45,8 +45,8 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
 
         createStorage(STORAGE_SC_TEST);
 
-        Repository repository = createRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES,
-                                                 RepositoryPolicyEnum.RELEASE.getPolicy(), true);
+        MutableRepository repository = createRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES,
+                                                        RepositoryPolicyEnum.RELEASE.getPolicy(), true);
 
         generateArtifact(repository.getBasedir(), "org.carlspring.strongbox.searches:test-project:1.0.11.3:jar");
         generateArtifact(repository.getBasedir(), "org.carlspring.strongbox.searches:test-project:1.0.11.3.1:jar");
@@ -54,9 +54,9 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
 
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE_SC_TEST, REPOSITORY_RELEASES));
 
         return repositories;

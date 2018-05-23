@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
@@ -169,7 +169,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         {
             return;
         }
-        
+
         Repository repository = repositoryPath.getRepository();
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
@@ -233,7 +233,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         {
             return;
         }
-        
+
         Repository repository = repositoryPath.getRepository();
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();

@@ -4,10 +4,11 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -61,14 +62,14 @@ public class Maven2LayoutProviderTest
     public void initialize()
             throws Exception
     {
-        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
+        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(true);
 
-        Repository repository = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES);
+        MutableRepository repository = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repository.setAllowsForceDeletion(true);
         repository.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repository);
+        createRepository(repository, STORAGE0);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-foo",
@@ -85,9 +86,9 @@ public class Maven2LayoutProviderTest
         removeRepositories(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
 
         return repositories;

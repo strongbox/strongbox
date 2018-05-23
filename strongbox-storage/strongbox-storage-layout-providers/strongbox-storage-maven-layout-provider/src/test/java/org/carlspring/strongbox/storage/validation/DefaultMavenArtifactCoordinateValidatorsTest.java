@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.storage.validation;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
@@ -73,7 +73,7 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
                                 .get("storage0")
                                 .getRepositories()
                                 .get("releases")
-                                .allowsDirectoryBrowsing());
+                                .isAllowsDirectoryBrowsing());
 
         Set<String> versionValidators = configuration.getStorages()
                                                      .get("storage0")

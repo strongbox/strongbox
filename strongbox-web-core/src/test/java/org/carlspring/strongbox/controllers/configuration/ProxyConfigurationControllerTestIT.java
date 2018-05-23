@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import java.util.List;
@@ -37,9 +37,9 @@ public class ProxyConfigurationControllerTestIT
         setContextBaseUrl("/api/configuration/strongbox/proxy-configuration");
     }
 
-    static ProxyConfiguration createProxyConfiguration()
+    static MutableProxyConfiguration createProxyConfiguration()
     {
-        ProxyConfiguration proxyConfiguration = new ProxyConfiguration();
+        MutableProxyConfiguration proxyConfiguration = new MutableProxyConfiguration();
         proxyConfiguration.setHost("localhost");
         proxyConfiguration.setPort(8080);
         proxyConfiguration.setUsername("user1");
@@ -53,9 +53,9 @@ public class ProxyConfigurationControllerTestIT
         return proxyConfiguration;
     }
 
-    private static ProxyConfiguration createWrongProxyConfiguration()
+    private static MutableProxyConfiguration createWrongProxyConfiguration()
     {
-        ProxyConfiguration proxyConfiguration = new ProxyConfiguration();
+        MutableProxyConfiguration proxyConfiguration = new MutableProxyConfiguration();
         proxyConfiguration.setHost("");
         proxyConfiguration.setPort(0);
         proxyConfiguration.setUsername("user1");
@@ -71,7 +71,7 @@ public class ProxyConfigurationControllerTestIT
 
     private void testSetAndGetGlobalProxyConfiguration(String acceptHeader)
     {
-        ProxyConfiguration proxyConfiguration = createProxyConfiguration();
+        MutableProxyConfiguration proxyConfiguration = createProxyConfiguration();
 
         String url = getContextBaseUrl();
 
@@ -86,11 +86,11 @@ public class ProxyConfigurationControllerTestIT
 
         logger.debug("Current proxy host: " + proxyConfiguration.getHost());
 
-        ProxyConfiguration pc = given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                                       .accept(MediaType.APPLICATION_JSON_VALUE)
-                                       .when()
-                                       .get(url)
-                                       .as(ProxyConfiguration.class);
+        MutableProxyConfiguration pc = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                                              .accept(MediaType.APPLICATION_JSON_VALUE)
+                                              .when()
+                                              .get(url)
+                                              .as(MutableProxyConfiguration.class);
 
         assertNotNull("Failed to get proxy configuration!", pc);
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getHost(), pc.getHost());
@@ -118,7 +118,7 @@ public class ProxyConfigurationControllerTestIT
 
     private void testSetGlobalProxyConfigurationNotFound(String acceptHeader)
     {
-        ProxyConfiguration proxyConfiguration = createProxyConfiguration();
+        MutableProxyConfiguration proxyConfiguration = createProxyConfiguration();
 
         String url = getContextBaseUrl();
         String storageId = "storage-not-found";
@@ -153,7 +153,7 @@ public class ProxyConfigurationControllerTestIT
 
     private void testSetGlobalProxyConfigurationBadRequest(String acceptHeader)
     {
-        ProxyConfiguration proxyConfiguration = createWrongProxyConfiguration();
+        MutableProxyConfiguration proxyConfiguration = createWrongProxyConfiguration();
 
         String url = getContextBaseUrl();
 

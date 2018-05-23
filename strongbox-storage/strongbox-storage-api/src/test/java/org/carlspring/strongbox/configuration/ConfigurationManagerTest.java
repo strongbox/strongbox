@@ -3,11 +3,11 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.routing.RoutingRule;
-import org.carlspring.strongbox.storage.routing.RoutingRules;
-import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
+import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.inject.Inject;
@@ -39,7 +39,7 @@ public class ConfigurationManagerTest
 
     public static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.xml";
 
-    private GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
+    private GenericParser<MutableConfiguration> parser = new GenericParser<>(MutableConfiguration.class);
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -91,14 +91,14 @@ public class ConfigurationManagerTest
                                 .get("storage0")
                                 .getRepositories()
                                 .get("releases")
-                                .allowsDirectoryBrowsing());
+                                .isAllowsDirectoryBrowsing());
     }
 
     @Test
     public void testStoreConfiguration()
             throws IOException, JAXBException
     {
-        ProxyConfiguration proxyConfigurationGlobal = new ProxyConfiguration();
+        MutableProxyConfiguration proxyConfigurationGlobal = new MutableProxyConfiguration();
         proxyConfigurationGlobal.setUsername("maven");
         proxyConfigurationGlobal.setPassword("password");
         proxyConfigurationGlobal.setHost("192.168.100.1");
@@ -106,7 +106,7 @@ public class ConfigurationManagerTest
         proxyConfigurationGlobal.addNonProxyHost("192.168.100.1");
         proxyConfigurationGlobal.addNonProxyHost("192.168.100.2");
 
-        ProxyConfiguration proxyConfigurationRepository1 = new ProxyConfiguration();
+        MutableProxyConfiguration proxyConfigurationRepository1 = new MutableProxyConfiguration();
         proxyConfigurationRepository1.setUsername("maven");
         proxyConfigurationRepository1.setPassword("password");
         proxyConfigurationRepository1.setHost("192.168.100.5");
@@ -114,19 +114,19 @@ public class ConfigurationManagerTest
         proxyConfigurationRepository1.addNonProxyHost("192.168.100.10");
         proxyConfigurationRepository1.addNonProxyHost("192.168.100.11");
 
-        Repository repository1 = new Repository("snapshots");
+        MutableRepository repository1 = new MutableRepository("snapshots");
         repository1.setProxyConfiguration(proxyConfigurationRepository1);
 
-        Repository repository2 = new Repository("releases");
+        MutableRepository repository2 = new MutableRepository("releases");
 
-        Storage storage = new Storage();
+        MutableStorage storage = new MutableStorage();
         storage.setId("myStorageId");
         storage.setBasedir(new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages" + STORAGE0)
                                    .getAbsolutePath());
         storage.addRepository(repository1);
         storage.addRepository(repository2);
 
-        Configuration configuration = new Configuration();
+        MutableConfiguration configuration = new MutableConfiguration();
         configuration.addStorage(storage);
         configuration.setProxyConfiguration(proxyConfigurationGlobal);
 
@@ -141,20 +141,20 @@ public class ConfigurationManagerTest
     public void testGroupRepositories()
             throws IOException, JAXBException
     {
-        Repository repository1 = new Repository("snapshots");
-        Repository repository2 = new Repository("ext-snapshots");
-        Repository repository3 = new Repository("grp-snapshots");
+        MutableRepository repository1 = new MutableRepository("snapshots");
+        MutableRepository repository2 = new MutableRepository("ext-snapshots");
+        MutableRepository repository3 = new MutableRepository("grp-snapshots");
         repository3.addRepositoryToGroup(repository1.getId());
         repository3.addRepositoryToGroup(repository2.getId());
 
-        Storage storage = new Storage("storage0");
+        MutableStorage storage = new MutableStorage("storage0");
         storage.setBasedir(new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages" + STORAGE0)
                                    .getAbsolutePath());
         storage.addRepository(repository1);
         storage.addRepository(repository2);
         storage.addRepository(repository3);
 
-        Configuration configuration = new Configuration();
+        MutableConfiguration configuration = new MutableConfiguration();
         configuration.addStorage(storage);
 
         File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
@@ -163,7 +163,7 @@ public class ConfigurationManagerTest
 
         assertTrue("Failed to store the produced XML!", outputFile.length() > 0);
 
-        Configuration c = parser.parse(outputFile.toURI().toURL());
+        MutableConfiguration c = parser.parse(outputFile.toURI().toURL());
 
         assertEquals("Failed to read repository groups!",
                      2,
@@ -181,21 +181,21 @@ public class ConfigurationManagerTest
         Set<String> repositories = new LinkedHashSet<>();
         repositories.addAll(Arrays.asList("int-releases", "int-snapshots"));
 
-        RoutingRule routingRule = new RoutingRule(".*(com|org)/artifacts.denied.in.memory.*", repositories);
+        MutableRoutingRule routingRule = new MutableRoutingRule(".*(com|org)/artifacts.denied.in.memory.*", repositories);
 
-        List<RoutingRule> routingRulesList = new ArrayList<>();
+        List<MutableRoutingRule> routingRulesList = new ArrayList<>();
         routingRulesList.add(routingRule);
 
-        RuleSet ruleSet = new RuleSet();
+        MutableRuleSet ruleSet = new MutableRuleSet();
         ruleSet.setGroupRepository("group-internal");
         ruleSet.setRoutingRules(routingRulesList);
 
-        RoutingRules routingRules = new RoutingRules();
+        MutableRoutingRules routingRules = new MutableRoutingRules();
         routingRules.addAcceptRule("group-internal", ruleSet);
 
-        GenericParser<RoutingRules> parser = new GenericParser<>(RoutingRule.class,
-                                                                 RoutingRules.class,
-                                                                 RuleSet.class);
+        GenericParser<MutableRoutingRules> parser = new GenericParser<>(MutableRoutingRule.class,
+                                                                        MutableRoutingRules.class,
+                                                                        MutableRuleSet.class);
 
         parser.store(routingRules, new ByteArrayOutputStream());
         // parser.store(routingRules, System.out);

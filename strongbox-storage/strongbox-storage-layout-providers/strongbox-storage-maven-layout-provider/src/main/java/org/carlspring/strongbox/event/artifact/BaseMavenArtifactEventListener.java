@@ -2,7 +2,6 @@ package org.carlspring.strongbox.event.artifact;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.group.metadata.MavenMetadataGroupRepositoryComponent;
 import org.carlspring.strongbox.services.ArtifactMetadataService;

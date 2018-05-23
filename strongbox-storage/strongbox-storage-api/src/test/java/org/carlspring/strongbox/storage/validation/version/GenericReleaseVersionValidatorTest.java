@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage.validation.version;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
@@ -23,8 +24,10 @@ public class GenericReleaseVersionValidatorTest
     @Before
     public void setUp()
     {
-        repository = new Repository("test-repository-for-nuget-release-validation");
+        MutableRepository repository = new MutableRepository("test-repository-for-nuget-release-validation");
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.toString());
+        repository.setBasedir("");
+        this.repository = new Repository(repository);
     }
 
     @Test

@@ -17,6 +17,11 @@ import org.springframework.util.Assert;
  * @author Sergey Bespalov
  *
  */
+import org.apache.maven.artifact.versioning.ComparableVersion;
+
+/**
+ * @author carlspring
+ */
 @Embeddable
 @XmlRootElement(name = "nugetArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)

@@ -1,15 +1,13 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.routing.RoutingRule;
-import org.carlspring.strongbox.storage.routing.RoutingRules;
-import org.carlspring.strongbox.storage.routing.RuleSet;
-
-import java.util.List;
+import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
+import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
+import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 
 /**
  * @author mtodorov
@@ -17,47 +15,28 @@ import java.util.List;
 public interface ConfigurationManagementService
 {
 
+    MutableConfiguration getMutableConfigurationClone();
+
     Configuration getConfiguration();
 
-    void setConfiguration(Configuration configuration);
-
-    void save(Configuration Configuration);
-
-    String getInstanceName();
+    void setConfiguration(MutableConfiguration configuration);
 
     void setInstanceName(String instanceName);
 
-    String getBaseUrl();
-
     void setBaseUrl(String baseUrl);
-
-    int getPort();
 
     void setPort(int port);
 
     void setProxyConfiguration(String storageId,
                                String repositoryId,
-                               ProxyConfiguration proxyConfiguration);
+                               MutableProxyConfiguration proxyConfiguration);
 
-    void saveStorage(Storage storage);
-
-    Storage getStorage(String storageId);
+    void saveStorage(MutableStorage storage);
 
     void removeStorage(String storageId);
 
     void saveRepository(String storageId,
-                        Repository repository);
-
-    Repository getRepository(String storageId,
-                             String repositoryId);
-
-    List<Repository> getRepositoriesWithLayout(String storageId,
-                                               String layout);
-
-    List<Repository> getGroupRepositories();
-
-    List<Repository> getGroupRepositoriesContaining(String storageId,
-                                                    String repositoryId);
+                        MutableRepository repository);
 
     void removeRepositoryFromAssociatedGroups(String storageId,
                                               String repositoryId);
@@ -65,30 +44,49 @@ public interface ConfigurationManagementService
     void removeRepository(String storageId,
                           String repositoryId);
 
-    ProxyConfiguration getProxyConfiguration();
-
     void setProxyRepositoryMaxConnections(String storageId,
                                           String repositoryId,
                                           int numberOfConnections);
 
-    HttpConnectionPool getHttpConnectionPoolConfiguration(String storageId,
-                                                          String repositoryId);
+    boolean saveAcceptedRuleSet(MutableRuleSet ruleSet);
 
-    boolean saveAcceptedRuleSet(RuleSet ruleSet);
-
-    boolean saveDeniedRuleSet(RuleSet ruleSet);
+    boolean saveDeniedRuleSet(MutableRuleSet ruleSet);
 
     boolean removeAcceptedRuleSet(String groupRepository);
 
     boolean saveAcceptedRepository(String groupRepository,
-                                   RoutingRule routingRule);
+                                   MutableRoutingRule routingRule);
 
     boolean removeAcceptedRepository(String groupRepository,
                                      String pattern,
                                      String repositoryId);
 
     boolean overrideAcceptedRepositories(String groupRepository,
-                                         RoutingRule routingRule);
+                                         MutableRoutingRule routingRule);
 
-    RoutingRules getRoutingRules();
+    void addRepositoryToGroup(String storageId,
+                              String repositoryId,
+                              String repositoryGroupMemberId);
+
+    void setRepositoryArtifactCoordinateValidators();
+
+    void putInService(String storageId,
+                      String repositoryId);
+
+    void putOutOfService(String storageId,
+                         String repositoryId);
+
+    void setArtifactMaxSize(String storageId,
+                            String repositoryId,
+                            long value);
+
+    void set(MutableRemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration);
+
+    void addRepositoryArtifactCoordinateValidator(String storageId,
+                                                  String repositoryId,
+                                                  String alias);
+
+    boolean removeRepositoryArtifactCoordinateValidator(String storageId,
+                                                     String repositoryId,
+                                                     String alias);
 }

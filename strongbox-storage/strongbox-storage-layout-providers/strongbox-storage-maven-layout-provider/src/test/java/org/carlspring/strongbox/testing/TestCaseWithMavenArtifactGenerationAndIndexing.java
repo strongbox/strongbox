@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.testing;
 
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -15,22 +14,22 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategyException
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
-import org.carlspring.strongbox.storage.routing.RoutingRule;
-import org.carlspring.strongbox.storage.routing.RoutingRules;
-import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
+import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -82,12 +81,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     protected Optional<RepositoryIndexManager> repositoryIndexManager;
 
     @Inject
-    protected ConfigurationManagementService configurationManagementService;
-
-    @Inject
-    protected ConfigurationManager configurationManager;
-
-    @Inject
     protected RepositoryManagementService repositoryManagementService;
 
     @Inject
@@ -109,7 +102,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     private MavenRepositoryFactory mavenRepositoryFactory;
 
 
-    protected void createRepositoryWithArtifacts(Repository repository,
+    protected void createRepositoryWithArtifacts(String storageId,
+                                                 MutableRepository repository,
                                                  String ga,
                                                  String... versions)
             throws IOException,
@@ -118,7 +112,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                    XmlPullParserException,
                    RepositoryManagementStrategyException
     {
-        createRepository(repository);
+        createRepository(repository, storageId);
         generateArtifactsReIndexAndPack(repository.getStorage().getId(), repository.getId(), ga, versions);
     }
 
@@ -129,7 +123,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                                  String... versions)
             throws Exception
     {
-        MavenRepositoryConfiguration repositoryConfiguration = new MavenRepositoryConfiguration();
+        MutableMavenRepositoryConfiguration repositoryConfiguration = new MutableMavenRepositoryConfiguration();
         repositoryConfiguration.setIndexingEnabled(indexing);
 
         createRepositoryWithArtifacts(storageId, repositoryId, repositoryConfiguration, ga, versions);
@@ -137,7 +131,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
 
     protected void createRepositoryWithArtifacts(String storageId,
                                                  String repositoryId,
-                                                 MavenRepositoryConfiguration repositoryConfiguration,
+                                                 MutableMavenRepositoryConfiguration repositoryConfiguration,
                                                  String ga,
                                                  String... versions)
             throws Exception
@@ -151,7 +145,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                     boolean indexing)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
-        MavenRepositoryConfiguration repositoryConfiguration = new MavenRepositoryConfiguration();
+        MutableMavenRepositoryConfiguration repositoryConfiguration = new MutableMavenRepositoryConfiguration();
         repositoryConfiguration.setIndexingEnabled(indexing);
 
         createRepository(storageId, repositoryId, RepositoryPolicyEnum.RELEASE.getPolicy(), repositoryConfiguration);
@@ -159,39 +153,39 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
 
     protected void createRepository(String storageId,
                                     String repositoryId,
-                                    MavenRepositoryConfiguration repositoryConfiguration)
+                                    MutableMavenRepositoryConfiguration repositoryConfiguration)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
         createRepository(storageId, repositoryId, RepositoryPolicyEnum.RELEASE.getPolicy(), repositoryConfiguration);
     }
 
-    protected Repository createRepository(String storageId,
-                                          String repositoryId,
-                                          String policy,
-                                          boolean indexing)
+    protected MutableRepository createRepository(String storageId,
+                                                 String repositoryId,
+                                                 String policy,
+                                                 boolean indexing)
         throws IOException,
         JAXBException,
         RepositoryManagementStrategyException
     {
-        MavenRepositoryConfiguration repositoryConfiguration = new MavenRepositoryConfiguration();
+        MutableMavenRepositoryConfiguration repositoryConfiguration = new MutableMavenRepositoryConfiguration();
         repositoryConfiguration.setIndexingEnabled(indexing);
 
         return createRepository(storageId, repositoryId, policy, repositoryConfiguration);
     }
 
-    protected Repository createRepository(String storageId,
-                                          String repositoryId,
-                                          String policy,
-                                          MavenRepositoryConfiguration repositoryConfiguration)
+    protected MutableRepository createRepository(String storageId,
+                                                 String repositoryId,
+                                                 String policy,
+                                                 MutableMavenRepositoryConfiguration repositoryConfiguration)
         throws IOException,
         JAXBException,
         RepositoryManagementStrategyException
     {
-        Repository repository = mavenRepositoryFactory.createRepository(storageId, repositoryId);
+        MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
         repository.setPolicy(policy);
         repository.setRepositoryConfiguration(repositoryConfiguration);
 
-        createRepository(repository);
+        createRepository(repository, storageId);
         
         return repository;
     }
@@ -204,17 +198,17 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                    JAXBException,
                    RepositoryManagementStrategyException
     {
-        MavenRepositoryConfiguration repositoryConfiguration = new MavenRepositoryConfiguration();
+        MutableMavenRepositoryConfiguration repositoryConfiguration = new MutableMavenRepositoryConfiguration();
         repositoryConfiguration.setIndexingEnabled(true);
 
-        RemoteRepository remoteRepository = new RemoteRepository();
+        MutableRemoteRepository remoteRepository = new MutableRemoteRepository();
         remoteRepository.setUrl(remoteRepositoryUrl);
 
-        Repository repository = mavenRepositoryFactory.createRepository(storageId, repositoryId);
+        MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
         repository.setRemoteRepository(remoteRepository);
         repository.setRepositoryConfiguration(repositoryConfiguration);
 
-        createRepository(repository);
+        createRepository(repository, storageId);
     }
 
     private void generateArtifactsReIndexAndPack(String storageId,
@@ -300,16 +294,16 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         Set<String> repositories = new LinkedHashSet<>();
         repositories.addAll(Arrays.asList(repositoryIds));
 
-        RoutingRule routingRule = new RoutingRule(rulePattern, repositories);
+        MutableRoutingRule routingRule = new MutableRoutingRule(rulePattern, repositories);
 
-        List<RoutingRule> routingRulesList = new ArrayList<>();
+        List<MutableRoutingRule> routingRulesList = new ArrayList<>();
         routingRulesList.add(routingRule);
 
-        RuleSet ruleSet = new RuleSet();
+        MutableRuleSet ruleSet = new MutableRuleSet();
         ruleSet.setGroupRepository(groupRepositoryId);
         ruleSet.setRoutingRules(routingRulesList);
 
-        RoutingRules routingRules = new RoutingRules();
+        MutableRoutingRules routingRules = new MutableRoutingRules();
 
         if (type == ROUTING_RULE_TYPE_ACCEPTED)
         {

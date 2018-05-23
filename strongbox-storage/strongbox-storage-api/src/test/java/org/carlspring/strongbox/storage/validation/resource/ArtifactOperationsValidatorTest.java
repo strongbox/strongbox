@@ -2,11 +2,9 @@ package org.carlspring.strongbox.storage.validation.resource;
 
 import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.StorageApiTestConfig;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -78,9 +76,7 @@ public class ArtifactOperationsValidatorTest
     public void tearDown()
             throws Exception
     {
-        Repository repository = getConfiguration().getStorage(STORAGE_ID)
-                                                  .getRepository(REPOSITORY_ID);
-        repository.setArtifactMaxSize(0L);
+        configurationManagementService.setArtifactMaxSize(STORAGE_ID, REPOSITORY_ID, 0L);
     }
 
     @Test
@@ -89,14 +85,7 @@ public class ArtifactOperationsValidatorTest
     {
         long size = multipartFile.getSize();
 
-        Configuration configuration = getConfiguration();
-
-        Repository repository = configuration.getStorage(STORAGE_ID).getRepository(REPOSITORY_ID);
-        repository.setArtifactMaxSize(size + 1000L);
-        saveConfiguration(configuration);
-
-        logger.debug("Size of repository is " + repository.getArtifactMaxSize());
-        logger.debug("Size of uploaded file is " + size);
+        configurationManagementService.setArtifactMaxSize(STORAGE_ID, REPOSITORY_ID, size + 1000L);
 
         try
         {
@@ -107,13 +96,7 @@ public class ArtifactOperationsValidatorTest
 
         }
 
-        configuration = getConfiguration();
-        repository = configuration.getStorage(STORAGE_ID).getRepository(REPOSITORY_ID);
-        repository.setArtifactMaxSize(size - 10L);
-        saveConfiguration(configuration);
-
-        logger.debug("Size of repository is " + repository.getArtifactMaxSize());
-        logger.debug("Size of uploaded file is " + size);
+        configurationManagementService.setArtifactMaxSize(STORAGE_ID, REPOSITORY_ID, size - 10L);
 
         try
         {
@@ -126,13 +109,7 @@ public class ArtifactOperationsValidatorTest
             assertTrue(true);
         }
 
-        configuration = getConfiguration();
-        repository = configuration.getStorage(STORAGE_ID).getRepository(REPOSITORY_ID);
-        repository.setArtifactMaxSize(0L);
-        saveConfiguration(configuration);
-
-        logger.debug("Size of repository is " + repository.getArtifactMaxSize());
-        logger.debug("Size of uploaded file is " + size);
+        configurationManagementService.setArtifactMaxSize(STORAGE_ID, REPOSITORY_ID, 0L);
 
         try
         {
@@ -157,9 +134,6 @@ public class ArtifactOperationsValidatorTest
 
         size = emptyFile.getSize();
 
-        logger.debug("Size of repository is " + repository.getArtifactMaxSize());
-        logger.debug("Size of uploaded file is " + size);
-
         try
         {
             artifactOperationsValidator.checkArtifactSize(STORAGE_ID, REPOSITORY_ID, emptyFile);
@@ -172,15 +146,5 @@ public class ArtifactOperationsValidatorTest
         }
     }
 
-    public Configuration getConfiguration()
-    {
-        return configurationManagementService.getConfiguration();
-    }
-
-    public void saveConfiguration(Configuration configuration)
-            throws JAXBException
-    {
-        configurationManagementService.save(configuration);
-    }
 
 }

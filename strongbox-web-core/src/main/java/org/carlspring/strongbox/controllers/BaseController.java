@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.controllers.support.ListEntityBody;
 import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -37,6 +39,9 @@ public abstract class BaseController
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Inject
+    protected ConfigurationManagementService configurationManagementService;
+
+    @Inject
     protected ConfigurationManager configurationManager;
 
     @Inject
@@ -44,7 +49,12 @@ public abstract class BaseController
 
     protected Configuration getConfiguration()
     {
-        return configurationManager.getConfiguration();
+        return configurationManagementService.getConfiguration();
+    }
+
+    protected MutableConfiguration getMutableConfigurationClone()
+    {
+        return configurationManagementService.getMutableConfigurationClone();
     }
 
     /**

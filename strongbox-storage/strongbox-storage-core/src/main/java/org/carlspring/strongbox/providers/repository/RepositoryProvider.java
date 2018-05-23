@@ -11,12 +11,11 @@ import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.eclipse.aether.RepositoryException;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 
 /**
  * This interface provide functionality to operate with artifact Paths.
- * Implementation depends of {@link Repository} type which can be: Hosted, Group
+ * Implementation depends of {@link MutableRepository} type which can be: Hosted, Group
  * or Proxy.
  * 
  * @author carlspring
@@ -25,7 +24,7 @@ public interface RepositoryProvider
 {
 
     /**
-     * Return {@link Repository} type alias.
+     * Return {@link MutableRepository} type alias.
      * 
      * @return
      */

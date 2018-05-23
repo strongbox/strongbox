@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.event.Event;
 import org.carlspring.strongbox.event.RepositoryBasedEvent;
 import org.carlspring.strongbox.event.repository.RepositoryEvent;
@@ -14,11 +14,11 @@ import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 
 import javax.inject.Inject;
@@ -41,6 +41,9 @@ public class RepositoryManagementServiceImpl
 
     @Inject
     private ConfigurationManager configurationManager;
+
+    @Inject
+    private ConfigurationManagementService configurationManagementService;
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
@@ -225,31 +228,14 @@ public class RepositoryManagementServiceImpl
     public void putInService(String storageId,
                              String repositoryId)
     {
-        getConfiguration().getStorage(storageId)
-                          .getRepository(repositoryId)
-                          .setStatus(RepositoryStatusEnum.IN_SERVICE.getStatus());
-
-        RepositoryEvent event = new RepositoryEvent(storageId,
-                                                    repositoryId,
-                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_PUT_IN_SERVICE.getType());
-
-        repositoryEventListenerRegistry.dispatchEvent(event);
+        configurationManagementService.putInService(storageId, repositoryId);
     }
 
     @Override
     public void putOutOfService(String storageId,
                                 String repositoryId)
     {
-        getConfiguration().getStorage(storageId)
-                          .getRepository(repositoryId)
-                          .setStatus(RepositoryStatusEnum.OUT_OF_SERVICE.getStatus());
-
-        RepositoryEvent event = new RepositoryEvent(storageId,
-                                                    repositoryId,
-                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_PUT_OUT_OF_SERVICE
-                                                                           .getType());
-
-        repositoryEventListenerRegistry.dispatchEvent(event);
+        configurationManagementService.putOutOfService(storageId, repositoryId);
     }
 
     private LayoutProvider getLayoutProvider(String storageId,

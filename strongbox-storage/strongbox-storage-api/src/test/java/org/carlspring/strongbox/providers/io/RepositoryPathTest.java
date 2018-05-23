@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -22,17 +23,17 @@ public class RepositoryPathTest
     private static final Path REPOSITORY_BASEDIR = Paths.get(ConfigurationResourceResolver.getVaultDirectory(),
                                                              "storages", "storage0", "releases");
 
-    private Repository repository;
+    private MutableRepository repository;
 
     private RepositoryFileSystem repositoryFileSystem;
 
     @Before
     public void setup()
     {
-        repository = new Repository();
+        repository = new MutableRepository();
         repository.setBasedir(REPOSITORY_BASEDIR.toAbsolutePath().toString());
 
-        repositoryFileSystem = new RepositoryFileSystem(repository, FileSystems.getDefault(), null)
+        repositoryFileSystem = new RepositoryFileSystem(new Repository(repository), FileSystems.getDefault(), null)
         {
             @Override
             public Set<String> getDigestAlgorithmSet()

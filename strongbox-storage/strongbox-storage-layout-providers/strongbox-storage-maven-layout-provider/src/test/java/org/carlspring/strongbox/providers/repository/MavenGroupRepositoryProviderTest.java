@@ -2,16 +2,16 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -108,10 +108,10 @@ public class MavenGroupRepositoryProviderTest
                                       "com.artifacts.in.releases.under:group",
                                       "1.2.4");
 
-        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
+        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        Repository repositoryGroup = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP);
+        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
@@ -120,9 +120,9 @@ public class MavenGroupRepositoryProviderTest
         repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_1);
         repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_2);
 
-        createRepository(repositoryGroup);
+        createRepository(repositoryGroup, STORAGE0);
 
-        Repository repositoryWithNestedGroupLevel1 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
+        MutableRepository repositoryWithNestedGroupLevel1 = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
         repositoryWithNestedGroupLevel1.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryWithNestedGroupLevel1.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel1.setAllowsDelete(false);
@@ -130,9 +130,9 @@ public class MavenGroupRepositoryProviderTest
         repositoryWithNestedGroupLevel1.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repositoryWithNestedGroupLevel1.addRepositoryToGroup(REPOSITORY_GROUP);
 
-        createRepository(repositoryWithNestedGroupLevel1);
+        createRepository(repositoryWithNestedGroupLevel1, STORAGE0);
 
-        Repository repositoryWithNestedGroupLevel2 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
+        MutableRepository repositoryWithNestedGroupLevel2 = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
         repositoryWithNestedGroupLevel2.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryWithNestedGroupLevel2.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel2.setAllowsDelete(false);
@@ -140,7 +140,7 @@ public class MavenGroupRepositoryProviderTest
         repositoryWithNestedGroupLevel2.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repositoryWithNestedGroupLevel2.addRepositoryToGroup(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
 
-        createRepository(repositoryWithNestedGroupLevel2);
+        createRepository(repositoryWithNestedGroupLevel2, STORAGE0);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_2).getAbsolutePath(),
                          "org.carlspring.metadata.by.juan:juancho:1.2.64");
@@ -258,9 +258,9 @@ public class MavenGroupRepositoryProviderTest
                              ROUTING_RULE_TYPE_DENIED);
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_1));
@@ -277,7 +277,7 @@ public class MavenGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_RELEASES_1);
         if (!repository.isInService())
         {
-            repository.putInService();
+            configurationManagementService.putInService(STORAGE0, REPOSITORY_RELEASES_1);
         }
     }
 
@@ -340,9 +340,7 @@ public class MavenGroupRepositoryProviderTest
     {
         System.out.println("# Testing group includes with out of service repository...");
 
-        Configuration configuration = configurationManagementService.getConfiguration();
-        configuration.getStorage(STORAGE0).getRepository(REPOSITORY_RELEASES_2).putOutOfService();
-        configurationManagementService.save(configuration);
+        configurationManagementService.putOutOfService(STORAGE0, REPOSITORY_RELEASES_2);
 
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
@@ -352,9 +350,7 @@ public class MavenGroupRepositoryProviderTest
                                                                                           "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"));
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-            configuration = configurationManagementService.getConfiguration();
-            configuration.getStorage(STORAGE0).getRepository(REPOSITORY_RELEASES_2).putInService();
-            configurationManagementService.save(configuration);
+            configurationManagementService.putInService(STORAGE0, REPOSITORY_RELEASES_2);
 
             assertNull(is);
         }

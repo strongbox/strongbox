@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
@@ -67,8 +67,8 @@ public class ProxyConfigurationController
             throw new RequestBodyValidationException(FAILED_UPDATE_FORM_ERROR, bindingResult);
         }
 
-        ProxyConfiguration proxyConfiguration = conversionService.convert(proxyConfigurationForm,
-                                                                          ProxyConfiguration.class);
+        MutableProxyConfiguration proxyConfiguration = conversionService.convert(proxyConfigurationForm,
+                                                                                 MutableProxyConfiguration.class);
         logger.debug("Received proxy configuration\n: {}", proxyConfiguration);
 
         try
@@ -95,14 +95,16 @@ public class ProxyConfigurationController
                                                         String repositoryId,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        ProxyConfiguration proxyConfiguration;
+        MutableProxyConfiguration proxyConfiguration;
         if (storageId == null)
         {
-            proxyConfiguration = configurationManagementService.getProxyConfiguration();
+            proxyConfiguration = configurationManagementService.getMutableConfigurationClone()
+                                                               .getProxyConfiguration();
         }
         else
         {
-            proxyConfiguration = configurationManagementService.getStorage(storageId)
+            proxyConfiguration = configurationManagementService.getMutableConfigurationClone()
+                                                               .getStorage(storageId)
                                                                .getRepository(repositoryId)
                                                                .getProxyConfiguration();
         }

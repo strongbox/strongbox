@@ -4,6 +4,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
@@ -33,7 +34,7 @@ public class StorageManagementServiceImpl implements StorageManagementService
 
 
     @Override
-    public void createStorage(Storage storage)
+    public void createStorage(MutableStorage storage)
             throws IOException
     {
         Path storageBaseDir = Paths.get(storage.getBasedir());

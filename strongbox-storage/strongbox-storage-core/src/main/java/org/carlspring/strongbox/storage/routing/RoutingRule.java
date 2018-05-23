@@ -1,42 +1,35 @@
 package org.carlspring.strongbox.storage.routing;
 
-import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.*;
-import java.io.Serializable;
-import java.util.LinkedHashSet;
-import java.util.Optional;
+import javax.annotation.concurrent.Immutable;
+import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
- * @author mtodorov
+ * @author Przemyslaw Fusik
  */
-@Embeddable
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "rule")
+@Immutable
 public class RoutingRule
-        implements Serializable
 {
 
-    @XmlAttribute
-    private String pattern;
-    
-    private volatile transient Pattern regex;
+    private final String pattern;
 
-    @XmlElement(name = "repository")
-    @XmlElementWrapper(name = "repositories")
-    private Set<String> repositories = new LinkedHashSet<>();
+    private final Pattern regex;
 
+    private final Set<String> repositories;
 
-    public RoutingRule()
+    public RoutingRule(final MutableRoutingRule delegate)
     {
+        this.pattern = delegate.getPattern();
+        this.regex = delegate.getRegex();
+        this.repositories = immuteRepositories(delegate.getRepositories());
     }
 
-    public RoutingRule(String pattern,
-                       Set<String> repositories)
+    private Set<String> immuteRepositories(Set<String> source)
     {
-        setPattern(pattern);
-        this.repositories = repositories;
+        return source != null ? ImmutableSet.copyOf(source) : Collections.emptySet();
     }
 
     public String getPattern()
@@ -44,19 +37,8 @@ public class RoutingRule
         return pattern;
     }
 
-    public void setPattern(String pattern)
-    {
-        this.regex = Pattern.compile(pattern);
-        this.pattern = pattern;
-    }
-
     public Pattern getRegex()
     {
-        if (regex == null)
-        {
-            regex = Pattern.compile(pattern);
-        }
-        
         return regex;
     }
 
@@ -64,19 +46,4 @@ public class RoutingRule
     {
         return repositories;
     }
-
-    public void setRepositories(Set<String> repositories)
-    {
-        this.repositories = repositories;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "RoutingRule{" +
-                ", \n\tpattern='" + pattern + '\'' +
-                ", \n\trepositories=" + repositories +
-                '}';
-    }
-
 }

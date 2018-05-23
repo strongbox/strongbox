@@ -4,7 +4,7 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
@@ -52,9 +52,9 @@ public class NpmArtifactControllerTestIT
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, NpmLayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXY, NpmLayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP, NpmLayoutProvider.ALIAS));
@@ -68,10 +68,10 @@ public class NpmArtifactControllerTestIT
     {
         super.init();
 
-        Repository repository1 = npmRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES);
+        MutableRepository repository1 = npmRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repository1);
+        createRepository(repository1, STORAGE0);
 
         //noinspection ResultOfMethodCallIgnored
         Files.createDirectories(Paths.get(TEST_RESOURCES));
@@ -82,11 +82,11 @@ public class NpmArtifactControllerTestIT
                               REPOSITORY_PROXY,
                               "https://registry.npmjs.org/");
 
-        Repository repository2 = npmRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP);
+        MutableRepository repository2 = npmRepositoryFactory.createRepository(REPOSITORY_GROUP);
         repository2.setType(RepositoryTypeEnum.GROUP.getType());
         repository2.setGroupRepositories(Sets.newHashSet(STORAGE0 + ":" + REPOSITORY_PROXY));
 
-        createRepository(repository2);
+        createRepository(repository2, STORAGE0);
     }
 
     @After

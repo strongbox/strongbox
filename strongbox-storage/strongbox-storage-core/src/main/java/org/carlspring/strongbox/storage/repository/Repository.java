@@ -1,129 +1,153 @@
 package org.carlspring.strongbox.storage.repository;
 
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
+import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
-import org.carlspring.strongbox.xml.ArtifactCoordinateValidatorsAdapter;
-import org.carlspring.strongbox.xml.RepositoryGroupsAdapter;
+import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
+import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 
-import javax.persistence.Embeddable;
-import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.io.Serializable;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import javax.annotation.concurrent.Immutable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 /**
- * @author mtodorov
+ * @author Przemyslaw Fusik
  */
-@Embeddable
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "repository")
+@Immutable
 public class Repository
-        implements Serializable
 {
 
-    @XmlAttribute(required = true)
-    private String id;
+    private final String id;
 
-    @XmlAttribute
-    private String basedir;
+    private final String basedir;
 
-    @XmlAttribute
-    private String policy = RepositoryPolicyEnum.MIXED.getPolicy();
+    private final String policy;
 
-    @XmlAttribute
-    private String implementation = FileSystemStorageProvider.ALIAS;
+    private final String implementation;
 
-    @XmlAttribute
-    private String layout;
+    private final String layout;
 
-    @XmlAttribute
-    private String type = RepositoryTypeEnum.HOSTED.getType();
+    private final String type;
 
-    @XmlAttribute
-    private boolean secured;
+    private final boolean secured;
 
-    @XmlAttribute
-    private String status = RepositoryStatusEnum.IN_SERVICE.getStatus();
+    private final String status;
 
-    @XmlAttribute(name = "artifact-max-size")
-    private long artifactMaxSize;
+    private final long artifactMaxSize;
 
-    @XmlAttribute(name = "trash-enabled")
-    private boolean trashEnabled;
+    private final boolean trashEnabled;
 
-    @XmlAttribute(name = "allows-force-deletion")
-    private boolean allowsForceDeletion;
+    private final boolean allowsForceDeletion;
 
-    @XmlAttribute(name = "allows-deployment")
-    private boolean allowsDeployment = true;
+    private final boolean allowsDeployment;
 
-    @XmlAttribute(name = "allows-redeployment")
-    private boolean allowsRedeployment;
+    private final boolean allowsRedeployment;
 
-    @XmlAttribute(name = "allows-delete")
-    private boolean allowsDelete = true;
+    private final boolean allowsDelete;
 
-    @XmlAttribute(name = "allows-directory-browsing")
-    private boolean allowsDirectoryBrowsing = true;
+    private final boolean allowsDirectoryBrowsing;
 
-    @XmlAttribute(name = "checksum-headers-enabled")
-    private boolean checksumHeadersEnabled;
+    private final boolean checksumHeadersEnabled;
 
-    /**
-     * The per-repository proxy settings that override the overall global proxy settings.
-     */
-    @XmlElement(name = "proxy-configuration")
-    private ProxyConfiguration proxyConfiguration;
+    private final ProxyConfiguration proxyConfiguration;
 
-    @XmlElement(name = "remote-repository")
-    private RemoteRepository remoteRepository;
+    private final RemoteRepository remoteRepository;
 
-    @XmlElement(name = "http-connection-pool")
-    private HttpConnectionPool httpConnectionPool;
+    private final HttpConnectionPool httpConnectionPool;
 
-    @XmlElementRef
-    private List<CustomConfiguration> customConfigurations = new ArrayList<>();
+    private final List<CustomConfiguration> customConfigurations;
 
-    @XmlElementRef
-    private CustomRepositoryConfiguration repositoryConfiguration;
+    private final CustomRepositoryConfiguration repositoryConfiguration;
 
-    @XmlElement(name = "group")
-    @XmlJavaTypeAdapter(RepositoryGroupsAdapter.class)
-    private Map<String, String> groupRepositories = new LinkedHashMap<>();
+    private final Map<String, String> groupRepositories;
 
-    @XmlElement(name = "artifact-coordinate-validators")
-    @XmlJavaTypeAdapter(ArtifactCoordinateValidatorsAdapter.class)
-    private Map<String, String> artifactCoordinateValidators = new LinkedHashMap<>();
+    private final Map<String, String> artifactCoordinateValidators;
 
-    @Transient
-    @XmlTransient
-    private Storage storage;
+    private final Storage storage;
 
-
-    public Repository()
+    public Repository(final MutableRepository delegate)
     {
+        this(delegate, null);
     }
 
-    public Repository(String id)
+    public Repository(final MutableRepository delegate,
+                      final Storage storage)
     {
-        this.id = id;
+        this.id = delegate.getId();
+        this.policy = delegate.getPolicy();
+        this.implementation = delegate.getImplementation();
+        this.layout = delegate.getLayout();
+        this.type = delegate.getType();
+        this.secured = delegate.isSecured();
+        this.status = delegate.getStatus();
+        this.artifactMaxSize = delegate.getArtifactMaxSize();
+        this.trashEnabled = delegate.isTrashEnabled();
+        this.allowsForceDeletion = delegate.isAllowsForceDeletion();
+        this.allowsDeployment = delegate.isAllowsDeployment();
+        this.allowsRedeployment = delegate.isAllowsRedeployment();
+        this.allowsDelete = delegate.isAllowsDelete();
+        this.allowsDirectoryBrowsing = delegate.isAllowsDirectoryBrowsing();
+        this.checksumHeadersEnabled = delegate.isChecksumHeadersEnabled();
+        this.proxyConfiguration = immuteProxyConfiguration(delegate.getProxyConfiguration());
+        this.remoteRepository = immuteRemoteRepository(delegate.getRemoteRepository());
+        this.httpConnectionPool = immuteHttpConnectionPool(delegate.getHttpConnectionPool());
+        this.customConfigurations = immuteCustomConfigurations(delegate.getCustomConfigurations());
+        this.repositoryConfiguration = immuteCustomRepositoryConfiguration(delegate.getRepositoryConfiguration());
+        this.groupRepositories = immuteGroupRepositories(delegate.getGroupRepositories());
+        this.artifactCoordinateValidators = immuteArtifactCoordinateValidators(
+                delegate.getArtifactCoordinateValidators());
+        this.storage = storage != null ? storage : immuteStorage(delegate.getStorage());
+        this.basedir = delegate.getBasedir();
+    }
+
+    private ProxyConfiguration immuteProxyConfiguration(final MutableProxyConfiguration source)
+    {
+        return source != null ? new ProxyConfiguration(source) : null;
+    }
+
+    private RemoteRepository immuteRemoteRepository(final MutableRemoteRepository source)
+    {
+        return source != null ? new RemoteRepository(source) : null;
+    }
+
+    private Map<String, String> immuteGroupRepositories(final Map<String, String> source)
+    {
+        return source != null ? ImmutableMap.copyOf(source) : Collections.emptyMap();
+    }
+
+    private Storage immuteStorage(final MutableStorage source)
+    {
+        return source != null ? new Storage(source) : null;
+    }
+
+    private HttpConnectionPool immuteHttpConnectionPool(final MutableHttpConnectionPool source)
+    {
+        return source != null ? new HttpConnectionPool(source) : null;
+    }
+
+    private List<CustomConfiguration> immuteCustomConfigurations(final List<MutableCustomConfiguration> source)
+    {
+        return source != null ? ImmutableList.copyOf(source.stream().map(MutableCustomConfiguration::getImmutable).collect(
+                Collectors.toList())) : Collections.emptyList();
+    }
+
+    private CustomRepositoryConfiguration immuteCustomRepositoryConfiguration(final MutableCustomRepositoryConfiguration source)
+    {
+        return source != null ? source.getImmutable() : null;
+    }
+
+
+    private Map<String, String> immuteArtifactCoordinateValidators(final Map<String, String> source)
+    {
+        return source != null ? ImmutableMap.copyOf(source) : Collections.emptyMap();
     }
 
     public String getId()
@@ -131,26 +155,9 @@ public class Repository
         return id;
     }
 
-    public void setId(String id)
-    {
-        this.id = id;
-    }
-
     public String getBasedir()
     {
-        if (basedir != null)
-        {
-            return basedir;
-        }
-        else
-        {
-            return Paths.get(storage.getBasedir()).resolve(id).toString();
-        }
-    }
-
-    public void setBasedir(String basedir)
-    {
-        this.basedir = basedir;
+        return basedir;
     }
 
     public String getPolicy()
@@ -158,19 +165,9 @@ public class Repository
         return policy;
     }
 
-    public void setPolicy(String policy)
-    {
-        this.policy = policy;
-    }
-
     public String getImplementation()
     {
         return implementation;
-    }
-
-    public void setImplementation(String implementation)
-    {
-        this.implementation = implementation;
     }
 
     public String getLayout()
@@ -178,19 +175,9 @@ public class Repository
         return layout;
     }
 
-    public void setLayout(String layout)
-    {
-        this.layout = layout;
-    }
-
     public String getType()
     {
         return type;
-    }
-
-    public void setType(String type)
-    {
-        this.type = type;
     }
 
     public boolean isSecured()
@@ -198,34 +185,14 @@ public class Repository
         return secured;
     }
 
-    public void setSecured(boolean secured)
-    {
-        this.secured = secured;
-    }
-
     public String getStatus()
     {
         return status;
     }
 
-    public void setStatus(String status)
+    public long getArtifactMaxSize()
     {
-        this.status = status;
-    }
-
-    public boolean isInService()
-    {
-        return RepositoryStatusEnum.IN_SERVICE.getStatus().equalsIgnoreCase(getStatus());
-    }
-
-    public void putInService()
-    {
-        status = RepositoryStatusEnum.IN_SERVICE.getStatus();
-    }
-
-    public void putOutOfService()
-    {
-        status = RepositoryStatusEnum.OUT_OF_SERVICE.getStatus();
+        return artifactMaxSize;
     }
 
     public boolean isTrashEnabled()
@@ -233,32 +200,27 @@ public class Repository
         return trashEnabled;
     }
 
-    public void setTrashEnabled(boolean trashEnabled)
-    {
-        this.trashEnabled = trashEnabled;
-    }
-
-    public boolean allowsDeletion()
-    {
-        return allowsDelete;
-    }
-
-    public boolean allowsForceDeletion()
+    public boolean isAllowsForceDeletion()
     {
         return allowsForceDeletion;
     }
 
-    public boolean allowsDeployment()
+    public boolean isAllowsDeployment()
     {
         return allowsDeployment;
     }
 
-    public boolean allowsRedeployment()
+    public boolean isAllowsRedeployment()
     {
         return allowsRedeployment;
     }
 
-    public boolean allowsDirectoryBrowsing()
+    public boolean isAllowsDelete()
+    {
+        return allowsDelete;
+    }
+
+    public boolean isAllowsDirectoryBrowsing()
     {
         return allowsDirectoryBrowsing;
     }
@@ -268,19 +230,9 @@ public class Repository
         return checksumHeadersEnabled;
     }
 
-    public void setChecksumHeadersEnabled(boolean checksumHeadersEnabled)
-    {
-        this.checksumHeadersEnabled = checksumHeadersEnabled;
-    }
-
     public ProxyConfiguration getProxyConfiguration()
     {
         return proxyConfiguration;
-    }
-
-    public void setProxyConfiguration(ProxyConfiguration proxyConfiguration)
-    {
-        this.proxyConfiguration = proxyConfiguration;
     }
 
     public RemoteRepository getRemoteRepository()
@@ -288,9 +240,19 @@ public class Repository
         return remoteRepository;
     }
 
-    public void setRemoteRepository(RemoteRepository remoteRepository)
+    public HttpConnectionPool getHttpConnectionPool()
     {
-        this.remoteRepository = remoteRepository;
+        return httpConnectionPool;
+    }
+
+    public List<CustomConfiguration> getCustomConfigurations()
+    {
+        return customConfigurations;
+    }
+
+    public CustomRepositoryConfiguration getRepositoryConfiguration()
+    {
+        return repositoryConfiguration;
     }
 
     public Map<String, String> getGroupRepositories()
@@ -298,19 +260,34 @@ public class Repository
         return groupRepositories;
     }
 
-    public void setGroupRepositories(Set<String> groupRepositories)
+    public Map<String, String> getArtifactCoordinateValidators()
     {
-        this.groupRepositories = Maps.toMap(groupRepositories, x -> x);
+        return artifactCoordinateValidators;
     }
 
-    public void addRepositoryToGroup(String repositoryId)
+    public Storage getStorage()
     {
-        groupRepositories.putIfAbsent(repositoryId, repositoryId);
+        return storage;
     }
 
-    public void removeRepositoryFromGroup(String repositoryId)
+    public boolean isHostedRepository()
     {
-        groupRepositories.remove(repositoryId);
+        return RepositoryTypeEnum.HOSTED.getType().equals(type);
+    }
+
+    public boolean isProxyRepository()
+    {
+        return RepositoryTypeEnum.PROXY.getType().equals(type);
+    }
+
+    public boolean isGroupRepository()
+    {
+        return RepositoryTypeEnum.GROUP.getType().equals(type);
+    }
+
+    public boolean isInService()
+    {
+        return RepositoryStatusEnum.IN_SERVICE.getStatus().equalsIgnoreCase(getStatus());
     }
 
     public boolean acceptsSnapshots()
@@ -322,141 +299,4 @@ public class Repository
     {
         return RepositoryPolicyEnum.ofPolicy(getPolicy()).acceptsReleases();
     }
-
-    public Storage getStorage()
-    {
-        return storage;
-    }
-
-    public void setStorage(Storage storage)
-    {
-        this.storage = storage;
-    }
-
-    @Override
-    public String toString()
-    {
-        return id;
-    }
-
-    public HttpConnectionPool getHttpConnectionPool()
-    {
-        return httpConnectionPool;
-    }
-
-    public void setHttpConnectionPool(HttpConnectionPool httpConnectionPool)
-    {
-        this.httpConnectionPool = httpConnectionPool;
-    }
-
-    public List<CustomConfiguration> getCustomConfigurations()
-    {
-        return customConfigurations;
-    }
-
-    public void setCustomConfigurations(List<CustomConfiguration> customConfigurations)
-    {
-        this.customConfigurations = customConfigurations;
-    }
-
-    public CustomRepositoryConfiguration getRepositoryConfiguration()
-    {
-        return repositoryConfiguration;
-    }
-
-    public void setRepositoryConfiguration(CustomRepositoryConfiguration repositoryConfiguration)
-    {
-        this.repositoryConfiguration = repositoryConfiguration;
-    }
-
-    public boolean isAllowsForceDeletion()
-    {
-        return allowsForceDeletion;
-    }
-
-    public void setAllowsForceDeletion(boolean allowsForceDeletion)
-    {
-        this.allowsForceDeletion = allowsForceDeletion;
-    }
-
-    public boolean isAllowsDeployment()
-    {
-        return allowsDeployment;
-    }
-
-    public void setAllowsDeployment(boolean allowsDeployment)
-    {
-        this.allowsDeployment = allowsDeployment;
-    }
-
-    public boolean isAllowsRedeployment()
-    {
-        return allowsRedeployment;
-    }
-
-    public void setAllowsRedeployment(boolean allowsRedeployment)
-    {
-        this.allowsRedeployment = allowsRedeployment;
-    }
-
-    public boolean isAllowsDelete()
-    {
-        return allowsDelete;
-    }
-
-    public void setAllowsDelete(boolean allowsDelete)
-    {
-        this.allowsDelete = allowsDelete;
-    }
-
-    public boolean isAllowsDirectoryBrowsing()
-    {
-        return allowsDirectoryBrowsing;
-    }
-
-    public void setAllowsDirectoryBrowsing(boolean allowsDirectoryBrowsing)
-    {
-        this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
-    }
-
-    public boolean isHostedRepository()
-    {
-        return RepositoryTypeEnum.HOSTED.getType().equals(getType());
-    }
-
-    public boolean isProxyRepository()
-    {
-        return RepositoryTypeEnum.PROXY.getType().equals(getType());
-    }
-
-    public boolean isGroupRepository()
-    {
-        return RepositoryTypeEnum.GROUP.getType().equals(getType());
-    }
-
-    public boolean isVirtualRepository()
-    {
-        return RepositoryTypeEnum.VIRTUAL.getType().equals(getType());
-    }
-
-    public long getArtifactMaxSize()
-    {
-        return artifactMaxSize;
-    }
-
-    public void setArtifactMaxSize(long artifactMaxSize)
-    {
-        this.artifactMaxSize = artifactMaxSize;
-    }
-
-    public Map<String, String> getArtifactCoordinateValidators()
-    {
-        return artifactCoordinateValidators;
-    }
-
-    public void setArtifactCoordinateValidators(Set<String> artifactCoordinateValidators)
-    {
-        this.artifactCoordinateValidators = Maps.toMap(artifactCoordinateValidators, x -> x);
-    }
-
 }

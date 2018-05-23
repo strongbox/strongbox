@@ -3,7 +3,7 @@ package org.carlspring.strongbox.controllers.configuration;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 
@@ -42,9 +42,9 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     @Inject
     private RedeploymentValidator redeploymentValidator;
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, "releases-with-single-validator"));
         repositories.add(createRepositoryMock(STORAGE0, "releases-with-default-validators"));
         repositories.add(createRepositoryMock(STORAGE0, "another-releases-with-default-validators"));
@@ -59,32 +59,29 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     {
         super.init();
 
-        Repository repository1 = mavenRepositoryFactory.createRepository(STORAGE0, "releases-with-single-validator");
+        MutableRepository repository1 = mavenRepositoryFactory.createRepository("releases-with-single-validator");
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repository1.setArtifactCoordinateValidators(
                 new LinkedHashSet<>(Collections.singletonList(redeploymentValidator.getAlias())));
 
-        createRepository(repository1);
+        createRepository(repository1, STORAGE0);
 
-        Repository repository2 = mavenRepositoryFactory.createRepository(STORAGE0, "releases-with-default-validators");
+        MutableRepository repository2 = mavenRepositoryFactory.createRepository("releases-with-default-validators");
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repository2);
+        createRepository(repository2, STORAGE0);
 
-        Repository repository3 = mavenRepositoryFactory.createRepository(STORAGE0,
-                                                                         "another-releases-with-default-validators");
+        MutableRepository repository3 = mavenRepositoryFactory.createRepository("another-releases-with-default-validators");
         repository3.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repository3);
+        createRepository(repository3, STORAGE0);
 
-        Repository repository4 = mavenRepositoryFactory.createRepository(STORAGE0,
-                                                                         "single-validator-only");
+        MutableRepository repository4 = mavenRepositoryFactory.createRepository("single-validator-only");
         repository4.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository4.setArtifactCoordinateValidators(
                 new LinkedHashSet<>(Collections.singletonList(redeploymentValidator.getAlias())));
 
-        createRepository(repository4);
+        createRepository(repository4, STORAGE0);
 
         setContextBaseUrl(getContextBaseUrl() + "/api/configuration/artifact-coordinate-validators");
     }

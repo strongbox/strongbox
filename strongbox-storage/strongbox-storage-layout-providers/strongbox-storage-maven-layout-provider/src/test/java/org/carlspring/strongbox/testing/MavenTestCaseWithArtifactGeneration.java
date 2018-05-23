@@ -4,6 +4,7 @@ import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenDetachedArtifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -16,15 +17,22 @@ import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -59,6 +67,21 @@ public class MavenTestCaseWithArtifactGeneration
     @Inject
     MavenRepositoryFactory mavenRepositoryFactory;
 
+    @Inject
+    protected ConfigurationManagementService configurationManagementService;
+
+    @Inject
+    protected ConfigurationManager configurationManager;
+
+    protected MutableStorage getStorage(String storageId)
+    {
+        final Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        final MutableStorage result = new MutableStorage();
+        result.setBasedir(storage.getBasedir());
+        result.setId(storage.getId());
+
+        return result;
+    }
 
     public MavenArtifact generateArtifact(String basedir, String gavtc)
             throws IOException,
@@ -447,15 +470,15 @@ public class MavenTestCaseWithArtifactGeneration
                    JAXBException,
                    RepositoryManagementStrategyException
     {
-        RemoteRepository remoteRepository = new RemoteRepository();
+        MutableRemoteRepository remoteRepository = new MutableRemoteRepository();
         remoteRepository.setUrl(remoteRepositoryUrl);
 
-        Repository repository = mavenRepositoryFactory.createRepository(storageId, repositoryId);
+        MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
         repository.setRemoteRepository(remoteRepository);
         repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setType(RepositoryTypeEnum.PROXY.getType());
 
-        createRepository(repository);
+        createRepository(repository, storageId);
     }
 
 }

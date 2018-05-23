@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.MutableStorage;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,9 +24,9 @@ public class StrongboxConfigurationControllerTestIT
     @Test
     public void testGetAndSetConfiguration()
     {
-        Configuration configuration = getConfigurationFromRemote();
+        MutableConfiguration configuration = getConfigurationFromRemote();
 
-        Storage storage = new Storage("storage3");
+        MutableStorage storage = new MutableStorage("storage3");
 
         configuration.addStorage(storage);
 
@@ -39,19 +39,19 @@ public class StrongboxConfigurationControllerTestIT
                .then()
                .statusCode(200);
 
-        final Configuration c = getConfigurationFromRemote();
+        final MutableConfiguration c = getConfigurationFromRemote();
 
         assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
     }
 
-    public Configuration getConfigurationFromRemote()
+    public MutableConfiguration getConfigurationFromRemote()
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/xml";
 
         return given().contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url)
-                      .as(Configuration.class);
+                      .as(MutableConfiguration.class);
     }
 
 }

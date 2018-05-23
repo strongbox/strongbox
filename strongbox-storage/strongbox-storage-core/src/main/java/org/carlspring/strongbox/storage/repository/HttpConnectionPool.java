@@ -1,33 +1,24 @@
 package org.carlspring.strongbox.storage.repository;
 
-import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
+import javax.annotation.concurrent.Immutable;
 
 /**
- * @author korest
+ * @author Przemyslaw Fusik
  */
-@Embeddable
-@XmlRootElement(name = "http-connection-pool")
-@XmlAccessorType(XmlAccessType.FIELD)
+@Immutable
 public class HttpConnectionPool
-        implements Serializable
 {
 
-    @XmlAttribute(name = "allocated-connections")
-    private int allocatedConnections;
+    private final int allocatedConnections;
+
+
+    public HttpConnectionPool(final MutableHttpConnectionPool delegate)
+    {
+        allocatedConnections = delegate.getAllocatedConnections();
+    }
 
     public int getAllocatedConnections()
     {
         return allocatedConnections;
     }
-
-    public void setAllocatedConnections(int allocatedConnections)
-    {
-        this.allocatedConnections = allocatedConnections;
-    }
-
 }

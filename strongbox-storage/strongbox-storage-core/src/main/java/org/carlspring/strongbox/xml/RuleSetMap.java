@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.xml;
 
-import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.util.ArrayList;
@@ -13,15 +13,15 @@ public class RuleSetMap
 {
 
     @XmlElement(name = "rule-set")
-    private List<RuleSet> entries = new ArrayList<>();
+    private List<MutableRuleSet> entries = new ArrayList<>();
 
 
-    public List<RuleSet> getEntries()
+    public List<MutableRuleSet> getEntries()
     {
         return entries;
     }
 
-    public void add(RuleSet routingRule)
+    public void add(MutableRuleSet routingRule)
     {
         entries.add(routingRule);
     }

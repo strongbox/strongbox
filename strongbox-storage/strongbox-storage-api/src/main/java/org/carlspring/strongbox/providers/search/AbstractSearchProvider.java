@@ -1,16 +1,7 @@
 package org.carlspring.strongbox.providers.search;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.dependency.snippet.CompatibleDependencyFormatRegistry;
-import org.carlspring.strongbox.dependency.snippet.DependencySynonymFormatter;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.dependency.snippet.SnippetGenerator;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -20,6 +11,12 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

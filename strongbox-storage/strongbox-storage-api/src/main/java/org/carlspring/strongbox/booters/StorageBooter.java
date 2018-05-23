@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.booters;
 
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -72,9 +72,11 @@ public class StorageBooter
             createLockFile();
             createTempDir();
 
-            initializeStorages();
+            final Configuration configuration = configurationManager.getConfiguration();
 
-            Collection<Repository> repositories = getRepositoriesHierarchy();
+            initializeStorages(configuration.getStorages());
+
+            Collection<Repository> repositories = getRepositoriesHierarchy(configuration.getStorages());
 
             for (Repository repository : repositories)
             {
@@ -157,10 +159,7 @@ public class StorageBooter
         }
     }
 
-    /**
-     * @return The base directory for the storages
-     */
-    private Path initializeStorages()
+    private Path initializeStorages(final Map<String, Storage> storages)
             throws IOException
     {
         logger.debug("Running Strongbox storage booter...");
@@ -177,8 +176,7 @@ public class StorageBooter
             basedir = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
         }
 
-        final Map<String, Storage> storageEntry = configurationManager.getConfiguration().getStorages();
-        for (Map.Entry<String, Storage> stringStorageEntry : storageEntry.entrySet())
+        for (Map.Entry<String, Storage> stringStorageEntry : storages.entrySet())
         {
             initializeStorage(stringStorageEntry.getValue());
         }
@@ -209,7 +207,7 @@ public class StorageBooter
                                        repository.getId()));
             return;
         }
-        
+
         final RepositoryPath repositoryBasedir = repositoryPathResolver.resolve(repository);
 
         logger.debug("  * Repository path resolved '" + repositoryBasedir.toAbsolutePath().toString() + "'...");
@@ -222,11 +220,10 @@ public class StorageBooter
         }
     }
 
-    private Collection<Repository> getRepositoriesHierarchy()
+    private Collection<Repository> getRepositoriesHierarchy(final Map<String, Storage> storages)
     {
         final Map<String, Repository> repositoriesHierarchy = new LinkedHashMap<>();
-        final Configuration configuration = configurationManager.getConfiguration();
-        for (final Storage storage : configuration.getStorages().values())
+        for (final Storage storage : storages.values())
         {
             for (final Repository repository : storage.getRepositories().values())
             {
@@ -257,11 +254,6 @@ public class StorageBooter
     public void setRepositoryManagementService(RepositoryManagementService repositoryManagementService)
     {
         this.repositoryManagementService = repositoryManagementService;
-    }
-
-    public Configuration getConfiguration()
-    {
-        return configurationManager.getConfiguration();
     }
 
 }

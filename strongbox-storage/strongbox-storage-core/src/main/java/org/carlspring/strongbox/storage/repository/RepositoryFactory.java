@@ -6,6 +6,6 @@ package org.carlspring.strongbox.storage.repository;
 public interface RepositoryFactory
 {
 
-    Repository createRepository(String storageId, String repositoryId);
+    MutableRepository createRepository(String repositoryId);
 
 }

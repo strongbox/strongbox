@@ -9,9 +9,9 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
 
@@ -132,9 +132,9 @@ public class RegenerateNugetChecksumCronJobTestIT
         removeRepositories(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES));
         repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_ALPHA));
         repositories.add(createRepositoryMock(STORAGE2, REPOSITORY_RELEASES));
@@ -345,42 +345,42 @@ public class RegenerateNugetChecksumCronJobTestIT
                    JAXBException,
                    RepositoryManagementStrategyException
     {
-        Repository repository = nugetRepositoryFactory.createRepository(storageId, repositoryId);
+        MutableRepository repository = nugetRepositoryFactory.createRepository(repositoryId);
         repository.setPolicy(policy);
 
-        createRepository(repository);
+        createRepository(storageId, repository);
     }
 
-    private void createRepository(Repository repository)
+    private void createRepository(String storageId, MutableRepository repository)
             throws IOException,
                    JAXBException,
                    RepositoryManagementStrategyException
     {
-        configurationManagementService.saveRepository(repository.getStorage().getId(), repository);
+        configurationManagementService.saveRepository(storageId, repository);
 
         // Create the repository
-        repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
+        repositoryManagementService.createRepository(storageId, repository.getId());
     }
 
     private void createStorage(String storageId)
             throws IOException, JAXBException
     {
-        createStorage(new Storage(storageId));
+        createStorage(new MutableStorage(storageId));
     }
 
-    private void createStorage(Storage storage)
+    private void createStorage(MutableStorage storage)
             throws IOException, JAXBException
     {
         configurationManagementService.saveStorage(storage);
         storageManagementService.createStorage(storage);
     }
 
-    public static void cleanUp(Set<Repository> repositoriesToClean)
+    public static void cleanUp(Set<MutableRepository> repositoriesToClean)
             throws Exception
     {
         if (repositoriesToClean != null)
         {
-            for (Repository repository : repositoriesToClean)
+            for (MutableRepository repository : repositoriesToClean)
             {
                 removeRepositoryDirectory(repository.getStorage().getId(), repository.getId());
             }
@@ -400,24 +400,24 @@ public class RegenerateNugetChecksumCronJobTestIT
         }
     }
 
-    public void removeRepositories(Set<Repository> repositoriesToClean)
+    public void removeRepositories(Set<MutableRepository> repositoriesToClean)
             throws IOException, JAXBException
     {
-        for (Repository repository : repositoriesToClean)
+        for (MutableRepository repository : repositoriesToClean)
         {
             configurationManagementService.removeRepository(repository.getStorage()
                                                                       .getId(), repository.getId());
         }
     }
 
-    public static Repository createRepositoryMock(String storageId,
-                                                  String repositoryId)
+    public static MutableRepository createRepositoryMock(String storageId,
+                                                         String repositoryId)
     {
         // This is no the real storage, but has a matching ID.
         // We're mocking it, as the configurationManager is not available at the the static methods are invoked.
-        Storage storage = new Storage(storageId);
+        MutableStorage storage = new MutableStorage(storageId);
 
-        Repository repository = new Repository(repositoryId);
+        MutableRepository repository = new MutableRepository(repositoryId);
         repository.setStorage(storage);
 
         return repository;
