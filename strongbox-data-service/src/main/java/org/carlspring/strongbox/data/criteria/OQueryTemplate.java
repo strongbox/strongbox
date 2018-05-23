@@ -163,7 +163,7 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
 
         if (p.isNegated())
         {
-            sb.insert(0, " NOT ");
+            sb.insert(0, " NOT (").append(")");
         }
 
         return sb.toString();
