@@ -47,6 +47,7 @@ public class ProxyRepositoryProvider
     @Inject
     private CommonEventListenerRegistry commonEventListenerRegistry;
 
+
     @Override
     public String getAlias()
     {
@@ -69,6 +70,7 @@ public class ProxyRepositoryProvider
         {
             return targetPath;
         }
+
         return Optional.ofNullable(targetPath)
                        .orElse(resolvePathForceFetch(repositoryPath));
     }
@@ -78,12 +80,14 @@ public class ProxyRepositoryProvider
         try(InputStream is = proxyRepositoryArtifactResolver.getInputStream(repositoryPath))
         {
             IOUtils.closeQuietly(is);
+
             return repositoryPath;
         }
         catch (IOException e)
         {
             logger.error(String.format("Failed to resolve Path for proxied artifact [%s]", repositoryPath),
                          e);
+
             throw e;
         }
     }    
@@ -101,8 +105,10 @@ public class ProxyRepositoryProvider
                              Predicate predicate,
                              Paginator paginator)
     {
-        RemoteRepositorySearchEvent event = new RemoteRepositorySearchEvent(storageId, repositoryId, predicate,
-                paginator);
+        RemoteRepositorySearchEvent event = new RemoteRepositorySearchEvent(storageId,
+                                                                            repositoryId,
+                                                                            predicate,
+                                                                            paginator);
         commonEventListenerRegistry.dispatchEvent(event);
 
         return hostedRepositoryProvider.search(storageId, repositoryId, predicate, paginator);
@@ -119,11 +125,11 @@ public class ProxyRepositoryProvider
         return hostedRepositoryProvider.count(storageId, repositoryId, predicate);
     }
 
-    protected ArtifactEntry provideArtirfactEntry(String storageId,
-                                                  String repositoryId,
-                                                  String path)
+    protected ArtifactEntry provideArtifactEntry(String storageId,
+                                                 String repositoryId,
+                                                 String path)
     {
-        RemoteArtifactEntry artifactEntry = Optional.of(super.provideArtirfactEntry(storageId, repositoryId, path))
+        RemoteArtifactEntry artifactEntry = Optional.of(super.provideArtifactEntry(storageId, repositoryId, path))
                                                     .map(e -> e.getObjectId() == null ? new RemoteArtifactEntry()
                                                             : (RemoteArtifactEntry) e)
                                                     .get();

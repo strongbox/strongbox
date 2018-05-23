@@ -3,7 +3,7 @@ package org.carlspring.strongbox.artifact.generation;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
+import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.File;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
  */
 @Ignore
 public class MavenArtifactGeneratorTest
-        extends TestCaseWithMavenArtifactGeneration
+        extends MavenTestCaseWithArtifactGeneration
 {
 
     private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +

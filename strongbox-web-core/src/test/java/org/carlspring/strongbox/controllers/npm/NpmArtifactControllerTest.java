@@ -1,23 +1,20 @@
 package org.carlspring.strongbox.controllers.npm;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.CoreMatchers.equalTo;
+import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.artifact.generator.NpmPackageGenerator;
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
+import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.testing.NpmRepositoryTestCase;
 
+import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.artifact.generator.NpmPackageGenerator;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithRepositoryManagement;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,13 +22,16 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class NpmArtifactControllerTest extends TestCaseWithRepositoryManagement
+public class NpmArtifactControllerTest extends NpmRepositoryTestCase
 {
 
     private static final String STORAGE_ID = "storage-common-npm";
+
     private static final String REPOSITORY_RELEASES_1 = "npm-releases-test";
 
     @Inject
@@ -40,6 +40,7 @@ public class NpmArtifactControllerTest extends TestCaseWithRepositoryManagement
     @Inject
     @Qualifier("contextBaseUrl")
     private String contextBaseUrl;
+
 
     @BeforeClass
     public static void cleanUp()
@@ -62,10 +63,11 @@ public class NpmArtifactControllerTest extends TestCaseWithRepositoryManagement
     {
         createStorage(STORAGE_ID);
 
-        Repository repository1 = npmRepositoryFactory.createRepository(STORAGE_ID, REPOSITORY_RELEASES_1);
-        repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+        Repository repository = npmRepositoryFactory.createRepository(STORAGE_ID, REPOSITORY_RELEASES_1);
+        repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+        repository.setLayout(NpmLayoutProvider.ALIAS);
 
-        createRepository(repository1);
+        createRepository(repository);
     }
 
     @Test
@@ -83,8 +85,8 @@ public class NpmArtifactControllerTest extends TestCaseWithRepositoryManagement
                .header("Content-Type", "application/json")
                .body(publishJsonContent)
                .when()
-               .put(contextBaseUrl + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/"
-                       + coordinates.getId())
+               .put(contextBaseUrl + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
+                    coordinates.getId())
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
@@ -92,8 +94,8 @@ public class NpmArtifactControllerTest extends TestCaseWithRepositoryManagement
         given().header("User-Agent", "npm/*")
                .header("Content-Type", "application/json")
                .when()
-               .get(contextBaseUrl + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/"
-                       + coordinates.toResource())
+               .get(contextBaseUrl + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
+                    coordinates.toResource())
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())

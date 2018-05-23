@@ -3,9 +3,12 @@ package org.carlspring.strongbox.controllers.raw;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.rest.common.RawRestAssuredBaseTest;
+import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +37,10 @@ public class RawArtifactControllerTest
 
     private static final String TEST_RESOURCES = "target/test-resources";
 
-    private static final String REPOSITORY_RELEASES1 = "ract-raw-releases";
+    private static final String REPOSITORY_RELEASES = "ract-raw-releases";
+
+    @Inject
+    RawRepositoryFactory rawRepositoryFactory;
 
 
     @BeforeClass
@@ -46,7 +53,7 @@ public class RawArtifactControllerTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, RawLayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -57,15 +64,20 @@ public class RawArtifactControllerTest
     {
         super.init();
 
-        Repository repository1 = new Repository(REPOSITORY_RELEASES1);
-        repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository1.setStorage(getConfiguration().getStorage(STORAGE0));
-        repository1.setLayout(RawLayoutProvider.ALIAS);
+        Repository repository = rawRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES);
+        repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repository1);
+        createRepositoryWithFile(repository, "org/foo/bar/blah.zip");
 
         //noinspection ResultOfMethodCallIgnored
         Files.createDirectories(Paths.get(TEST_RESOURCES));
+    }
+
+    @After
+    public void removeRepositories()
+            throws IOException, JAXBException
+    {
+        removeRepositories(getRepositoriesToClean());
     }
 
     @Test
@@ -76,7 +88,7 @@ public class RawArtifactControllerTest
         byte[] content = "This is a test file\n".getBytes();
 
         // Push
-        String artfactUrl = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES1 + "/" + path;
+        String artfactUrl = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" + path;
 
         given().header("user-agent", "Raw/*")
                .header("Content-Type", "multipart/form-data")
@@ -105,6 +117,15 @@ public class RawArtifactControllerTest
         assertEquals("Deployed content mismatch!", new String(content), new String(baos.toByteArray()));
 
         System.out.println("Read '" + new String(baos.toByteArray()) + "'.");
+    }
+
+    @Test
+    public void testResolveViaHostedRepository()
+            throws Exception
+    {
+        String artifactPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/org/foo/bar/blah.zip";
+
+        resolveArtifact(artifactPath);
     }
 
 }

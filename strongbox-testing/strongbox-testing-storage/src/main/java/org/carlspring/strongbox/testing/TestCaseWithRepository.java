@@ -77,12 +77,24 @@ public class TestCaseWithRepository
     public static Repository createRepositoryMock(String storageId,
                                                   String repositoryId)
     {
+        return createRepositoryMock(storageId, repositoryId, null);
+    }
+
+    public static Repository createRepositoryMock(String storageId,
+                                                  String repositoryId,
+                                                  String layout)
+    {
         // This is not the real storage, but has a matching ID.
         // We're mocking it, as the configurationManager is not available at the the static methods are invoked.
         Storage storage = new Storage(storageId);
 
         Repository repository = new Repository(repositoryId);
         repository.setStorage(storage);
+
+        if (layout != null)
+        {
+            repository.setLayout(layout);
+        }
 
         return repository;
     }

@@ -39,7 +39,8 @@ import static org.mockito.Matchers.any;
                                   IntegrationTest.TestConfig.class })
 @WebAppConfiguration("classpath:")
 @WithUserDetails(value = "admin")
-@TestExecutionListeners(listeners = RestAssuredTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = RestAssuredTestExecutionListener.class,
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Rollback
 public @interface IntegrationTest
 {
@@ -65,12 +66,12 @@ public @interface IntegrationTest
         @Bean
         @Primary
         ConfigurationFileManager configurationFileManager()
-                throws IOException, JAXBException
         {
             final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager());
 
-            Mockito.doNothing().when(configurationFileManager).store(
-                    any(org.carlspring.strongbox.configuration.Configuration.class));
+            Mockito.doNothing()
+                   .when(configurationFileManager)
+                   .store(any(org.carlspring.strongbox.configuration.Configuration.class));
 
             return configurationFileManager;
         }
