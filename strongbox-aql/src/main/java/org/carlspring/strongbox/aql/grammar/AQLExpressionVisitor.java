@@ -2,7 +2,6 @@ package org.carlspring.strongbox.aql.grammar;
 
 import org.carlspring.strongbox.aql.grammar.AQLParser.TokenKeyContext;
 import org.carlspring.strongbox.aql.grammar.AQLParser.TokenValueContext;
-import org.carlspring.strongbox.data.criteria.Expression;
 import org.carlspring.strongbox.domain.ArtifactEntryExpressionBuilder;
 
 /**

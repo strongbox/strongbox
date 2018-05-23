@@ -52,7 +52,7 @@ tokenExp
 tokenPrefix
 :
     PLUS
-    | MINUS
+    | NEGATION
 ;
 
 tokenKey
@@ -63,8 +63,9 @@ tokenKey
 
 tokenValue
 :
-    STRING
-    | IDENTIFIER
+    IDENTIFIER
+    | VALUE
+    | STRING
 ;
 
 tokenKeyword
@@ -171,7 +172,6 @@ AND
     | 'AND'
 ;
 
-
 PIPE
 :
     '|'
@@ -193,9 +193,10 @@ PLUS
     '+'
 ;
 
-MINUS
+NEGATION
 :
-    '-'
+    '!'
+    | '~'
 ;
 
 COLON
@@ -220,12 +221,17 @@ NUMBER
 
 IDENTIFIER
 :
-    [a-zA-Z][-_a-zA-Z0-9]+
+    [a-zA-Z] [-_a-zA-Z0-9]+
+;
+
+VALUE
+:
+    [-_a-zA-Z0-9\\*\\.]+
 ;
 
 STRING
 :
-    [!`\\"\\']~[!\\"\\'\r\n]*[!`\\"\\']
+    [\\"\\'] ~[\\"\\'\r\n]* [\\"\\']
 ;
 
 WHITESPACE
