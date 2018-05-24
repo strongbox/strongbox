@@ -67,7 +67,7 @@ public class AQLQueryVisitor extends AQLBaseVisitor<Predicate>
     {
         return Optional.ofNullable(ctx.tokenPrefix())
                        .map(c -> c.getText())
-                       .filter(c -> c.equals("!"))
+                       .filter(c -> c.endsWith("!"))
                        .map(c -> p.negated())
                        .orElse(p);
     }

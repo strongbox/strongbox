@@ -6,7 +6,6 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.aql.grammar.AqlQueryParser;
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.data.criteria.QueryParserException;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.search.SearchException;

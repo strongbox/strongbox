@@ -6,7 +6,7 @@ grammar AQL;
 
 query
 :
-    queryExp+ orderExp? pageExp?
+    queryExp+ orderExp? pageExp? EOF
 ;
 
 pageExp
@@ -53,6 +53,7 @@ tokenPrefix
 :
     PLUS
     | NEGATION
+    | PLUS NEGATION
 ;
 
 tokenKey
@@ -226,7 +227,7 @@ IDENTIFIER
 
 VALUE
 :
-    [-_a-zA-Z0-9\\*\\.]+
+    [-_a-zA-Z0-9*.]+
 ;
 
 STRING

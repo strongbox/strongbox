@@ -6,11 +6,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.junit.Assume;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -44,8 +43,6 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
 
         cleanUp();
 
-        // prepare storage: create it from Java code instead of putting
-        // <storage/> in strongbox.xml
         createStorage(STORAGE_SC_TEST);
 
         Repository repository = createRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES,
@@ -66,17 +63,33 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
     }
 
     @Test
-    public void testCommonSearch()
+    public void testSearchExcludeVersion()
         throws Exception
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query",
-                           String.format("storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches",
+                           String.format("storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches+!version:1.0.11.3.1",
                                          STORAGE_SC_TEST, REPOSITORY_RELEASES))
                .when()
                .get(getContextBaseUrl() + "/api/aql")
                .then()
-               .statusCode(HttpStatus.OK.value());
+               .statusCode(HttpStatus.OK.value())
+               .body("artifact", Matchers.hasSize(2));
+    }
+
+    @Test
+    public void testBadAqlSyntaxRequest()
+        throws Exception
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .queryParam("query",
+                           String.format("storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches-version:1.0.11.3.1",
+                                         STORAGE_SC_TEST, REPOSITORY_RELEASES))
+               .when()
+               .get(getContextBaseUrl() + "/api/aql")
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .body("error", Matchers.containsString("[1:103]"));
     }
 
 }

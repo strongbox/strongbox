@@ -66,7 +66,7 @@ public class AqlParserTestCase
     public void testInvalidQuery()
         throws Exception
     {
-        String query = "[storage:storage0] ++repository0:releases ||| & groupId:'org.carlspring')";
+        String query = "[storage:storage0] ++repository0:releases ||| & groupId:org.carlspring-version:1.2.3)";
 
         AqlQueryParser aqlParser = new AqlQueryParser(query);
         Map<Pair<Integer, Integer>, String> errorMap = null;
@@ -82,7 +82,7 @@ public class AqlParserTestCase
 
         Assert.assertTrue(aqlParser.hasErrors());
         Assert.assertNotNull(errorMap);
-        Assert.assertEquals(5, errorMap.size());
+        Assert.assertEquals(6, errorMap.size());
 
         List<Pair<Integer, Integer>> errorPositionList = new ArrayList<>(errorMap.keySet());
         Assert.assertEquals(Pair.with(1, 0), errorPositionList.get(0));
@@ -90,6 +90,7 @@ public class AqlParserTestCase
         Assert.assertEquals(Pair.with(1, 20), errorPositionList.get(2));
         Assert.assertEquals(Pair.with(1, 44), errorPositionList.get(3));
         Assert.assertEquals(Pair.with(1, 46), errorPositionList.get(4));
+        Assert.assertEquals(Pair.with(1, 78), errorPositionList.get(5));
     }
 
 }

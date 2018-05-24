@@ -67,7 +67,7 @@ public abstract class QueryParser<T extends ParseTree, E extends GenericEntity, 
     {
         T queryContext = parseQueryTree(parser);
         ParseTreeWalker.DEFAULT.walk(this, queryContext);
-
+        
         if (hasErrors())
         {
             throw new QueryParserException(getMessage());
