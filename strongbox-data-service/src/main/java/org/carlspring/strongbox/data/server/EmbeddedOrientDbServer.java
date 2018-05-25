@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.data.server;
 
 import org.carlspring.strongbox.config.ConnectionConfig;
+import org.carlspring.strongbox.config.ConnectionConfigOrientDB;
 import org.carlspring.strongbox.data.domain.GenericEntityHook;
 
 import javax.annotation.PostConstruct;
@@ -82,9 +83,26 @@ public class EmbeddedOrientDbServer
     
     private void prepareStudio() throws IOException
     {
-        File studioClasspathLocation = getStudioClasspathLocation();
+        if (Boolean.valueOf(System.getProperty(ConnectionConfigOrientDB.PROPERTY_STUDIO_ENABLED,
+                                               Boolean.FALSE.toString())))
+        {
+            logger.info(String.format("OrientDB Studio disabled with [%], skip initialization.",
+                                      ConnectionConfigOrientDB.PROPERTY_STUDIO_ENABLED));
+            
+            return;
+        }
         
+        File studioClasspathLocation = getStudioClasspathLocation();
+
         Path studioPath = Paths.get(getStudioPath()).resolve("studio");
+        if (Files.exists(studioPath))
+        {
+            logger.info(String.format("OrientDB Studio already available at [%s], skip initialization.\\If you want to force initialize Studio please remove its folder above.",
+                                      studioPath.toAbsolutePath().toString()));
+            return;
+        }
+
+        logger.info(String.format("Initialize OrientDB Studio at [%s].", studioPath.toAbsolutePath().toString()));
         Files.createDirectories(studioPath);
         
         try (JarFile jar = new JarFile(studioClasspathLocation))
@@ -98,12 +116,14 @@ public class EmbeddedOrientDbServer
                     continue;
                 }
                 
-                File f = new File(studioPath + java.io.File.separator
-                        + file.getName().replace("META-INF/resources/webjars/orientdb-studio/2.2.0/", ""));
-                if (file.isDirectory())
+                File f = studioPath.resolve(file.getName().replace("META-INF/resources/webjars/orientdb-studio/2.2.0/",
+                                                                   ""))
+                                   .toFile();
+                if (file.isDirectory() && !f.mkdir())
                 {
-                    f.mkdir();
-                    continue;
+                    logger.error(String.format("Failed to initialize OrientDB Studio at [%s]",
+                                               studioPath.toAbsolutePath().toString()));
+                    return;
                 }
                 try (InputStream is = jar.getInputStream(file))
                 {
