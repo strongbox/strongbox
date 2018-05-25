@@ -63,8 +63,8 @@ public class EmbeddedOrientDbServer
     {
         try
         {
-            prepareStudio();
             init();
+            prepareStudio();
             activate();
         }
         catch (Exception e)
@@ -92,67 +92,7 @@ public class EmbeddedOrientDbServer
             return;
         }
         
-        File studioClasspathLocation = getStudioClasspathLocation();
-
-        Path studioPath = Paths.get(getStudioPath()).resolve("studio");
-        if (Files.exists(studioPath))
-        {
-            logger.info(String.format("OrientDB Studio already available at [%s], skip initialization.%nIf you want to force initialize Studio please remove its folder above.",
-                                      studioPath.toAbsolutePath().toString()));
-            return;
-        }
-
-        logger.info(String.format("Initialize OrientDB Studio at [%s].", studioPath.toAbsolutePath().toString()));
-        Files.createDirectories(studioPath);
         
-        try (JarFile jar = new JarFile(studioClasspathLocation))
-        {
-            Enumeration<JarEntry> enumEntries = jar.entries();
-            while (enumEntries.hasMoreElements())
-            {
-                JarEntry file = enumEntries.nextElement();
-                if (!file.getName().startsWith("META-INF/resources/webjars/orientdb-studio/2.2.0/"))
-                {
-                    continue;
-                }
-                
-                File f = studioPath.resolve(file.getName().replace("META-INF/resources/webjars/orientdb-studio/2.2.0/",
-                                                                   ""))
-                                   .toFile();
-                if (file.isDirectory() && !f.mkdir())
-                {
-                    logger.error(String.format("Failed to initialize OrientDB Studio at [%s]",
-                                               studioPath.toAbsolutePath().toString()));
-                    return;
-                }
-                try (InputStream is = jar.getInputStream(file))
-                {
-                    try (FileOutputStream fos = new java.io.FileOutputStream(f))
-                    {
-                        while (is.available() > 0)
-                        {
-                            fos.write(is.read());
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void init()
-        throws Exception
-    {
-        String database = connectionConfig.getDatabase();
-
-        logger.info(String.format("Initialize Embedded OrientDB server for [%s]", database));
-
-        server = OServerMain.create();
-        serverConfiguration = new OServerConfiguration();
-
-        OServerHookConfiguration hookConfiguration = new OServerHookConfiguration();
-        serverConfiguration.hooks = Arrays.asList(new OServerHookConfiguration[] { hookConfiguration });
-        hookConfiguration.clazz = GenericEntityHook.class.getName();
-
         OServerNetworkListenerConfiguration httpListener = new OServerNetworkListenerConfiguration();
         httpListener.ipAddress = connectionConfig.getHost();
         httpListener.portRange = "2480";
@@ -178,6 +118,74 @@ public class EmbeddedOrientDbServer
         httpListener.parameters = new OServerParameterConfiguration[] { new OServerParameterConfiguration("utf-8",
                 "network.http.charset") };
 
+        serverConfiguration.network.listeners.add(httpListener);
+        
+        OServerNetworkProtocolConfiguration httpProtocol = new OServerNetworkProtocolConfiguration();
+        httpProtocol.name = "http";
+        httpProtocol.implementation = "com.orientechnologies.orient.server.network.protocol.http.ONetworkProtocolHttpDb";
+
+        serverConfiguration.network.protocols.add(httpProtocol);
+        
+        File studioClasspathLocation = getStudioClasspathLocation();
+
+        Path studioPath = Paths.get(getStudioPath()).resolve("studio");
+        if (Files.exists(studioPath))
+        {
+            logger.info(String.format("OrientDB Studio already available at [%s], skip initialization.%nIf you want to force initialize Studio please remove its folder above.",
+                                      studioPath.toAbsolutePath().toString()));
+            return;
+        }
+
+        logger.info(String.format("Initialize OrientDB Studio at [%s].", studioPath.toAbsolutePath().toString()));
+        Files.createDirectories(studioPath);
+        
+        try (JarFile jar = new JarFile(studioClasspathLocation))
+        {
+            Enumeration<JarEntry> enumEntries = jar.entries();
+            while (enumEntries.hasMoreElements())
+            {
+                JarEntry file = enumEntries.nextElement();
+                if (!file.getName().startsWith("META-INF/resources/webjars/orientdb-studio/2.2.0/"))
+                {
+                    continue;
+                }
+                
+                Path filePath = studioPath.resolve(file.getName()
+                                                       .replace("META-INF/resources/webjars/orientdb-studio/2.2.0/",
+                                                                ""));
+                if (file.isDirectory()) {
+                    Files.createDirectories(filePath);
+                    continue;
+                }
+                
+                try (InputStream is = jar.getInputStream(file))
+                {
+                    try (FileOutputStream fos = new java.io.FileOutputStream(filePath.toFile()))
+                    {
+                        while (is.available() > 0)
+                        {
+                            fos.write(is.read());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void init()
+        throws Exception
+    {
+        String database = connectionConfig.getDatabase();
+
+        logger.info(String.format("Initialize Embedded OrientDB server for [%s]", database));
+
+        server = OServerMain.create();
+        serverConfiguration = new OServerConfiguration();
+
+        OServerHookConfiguration hookConfiguration = new OServerHookConfiguration();
+        serverConfiguration.hooks = Arrays.asList(new OServerHookConfiguration[] { hookConfiguration });
+        hookConfiguration.clazz = GenericEntityHook.class.getName();
+
         OServerNetworkListenerConfiguration binaryListener = new OServerNetworkListenerConfiguration();
         binaryListener.ipAddress = connectionConfig.getHost();
         binaryListener.portRange = connectionConfig.getPort().toString();
@@ -188,20 +196,14 @@ public class EmbeddedOrientDbServer
         binaryProtocol.name = "binary";
         binaryProtocol.implementation = "com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary";
 
-        OServerNetworkProtocolConfiguration httpProtocol = new OServerNetworkProtocolConfiguration();
-        httpProtocol.name = "http";
-        httpProtocol.implementation = "com.orientechnologies.orient.server.network.protocol.http.ONetworkProtocolHttpDb";
-
         // prepare network configuration
         OServerNetworkConfiguration networkConfiguration = new OServerNetworkConfiguration();
 
         networkConfiguration.protocols = new LinkedList<>();
         networkConfiguration.protocols.add(binaryProtocol);
-        networkConfiguration.protocols.add(httpProtocol);
 
         networkConfiguration.listeners = new LinkedList<>();
         networkConfiguration.listeners.add(binaryListener);
-        networkConfiguration.listeners.add(httpListener);
 
         // add users (incl system-level root user)
         List<OServerUserConfiguration> users = new LinkedList<>();
