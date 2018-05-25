@@ -97,7 +97,7 @@ public class EmbeddedOrientDbServer
         Path studioPath = Paths.get(getStudioPath()).resolve("studio");
         if (Files.exists(studioPath))
         {
-            logger.info(String.format("OrientDB Studio already available at [%s], skip initialization.\nIf you want to force initialize Studio please remove its folder above.",
+            logger.info(String.format("OrientDB Studio already available at [%s], skip initialization.%nIf you want to force initialize Studio please remove its folder above.",
                                       studioPath.toAbsolutePath().toString()));
             return;
         }
