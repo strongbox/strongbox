@@ -86,7 +86,7 @@ public class EmbeddedOrientDbServer
         String studioEnabled = System.getProperty(ConnectionConfigOrientDB.PROPERTY_STUDIO_ENABLED);
         if (studioEnabled != null && Boolean.FALSE.equals(studioEnabled))
         {
-            logger.info(String.format("OrientDB Studio disabled with [%], skip initialization.",
+            logger.info(String.format("OrientDB Studio disabled with [%s], skip initialization.",
                                       ConnectionConfigOrientDB.PROPERTY_STUDIO_ENABLED));
             
             return;
