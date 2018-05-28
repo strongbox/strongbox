@@ -156,7 +156,7 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
             sb.append(predicateToken(predicate, tokenCount++));
         }
 
-        if (p.isNesteed())
+        if (p.isNested())
         {
             sb.insert(0, "(").append(")");
         }

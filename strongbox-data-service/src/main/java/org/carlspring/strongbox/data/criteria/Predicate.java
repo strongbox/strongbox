@@ -23,7 +23,7 @@ public class Predicate
 
     private List<Predicate> childPredicateList = new ArrayList<>();
 
-    private boolean nesteed;
+    private boolean nested;
 
     private boolean negated;
 
@@ -93,18 +93,18 @@ public class Predicate
 
     public Predicate nesteed()
     {
-        this.nesteed = true;
+        this.nested = true;
         return this;
     }
 
-    public boolean isNesteed()
+    public boolean isNested()
     {
-        return nesteed;
+        return nested;
     }
 
-    public void setNesteed(boolean nesteed)
+    public void setNested(boolean nesteed)
     {
-        this.nesteed = nesteed;
+        this.nested = nesteed;
     }
 
     public boolean isNegated()
