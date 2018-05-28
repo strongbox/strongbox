@@ -51,6 +51,8 @@ public class EmbeddedOrientDbServer
 
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedOrientDbServer.class);
 
+    public static final String ORIENTDB_STUDO_VERSION = "2.2.0";
+    
     private OServer server;
 
     private OServerConfiguration serverConfiguration;
@@ -78,7 +80,10 @@ public class EmbeddedOrientDbServer
         return new File(OServer.class.getProtectionDomain()
                                      .getCodeSource()
                                      .getLocation()
-                                     .getPath()).toPath().resolveSibling("orientdb-studio-2.2.0.jar").toFile();
+                                     .getPath()).toPath()
+                                                .resolveSibling(String.format("orientdb-studio-%s.jar",
+                                                                              ORIENTDB_STUDO_VERSION))
+                                                .toFile();
     }
     
     private void prepareStudio() throws IOException
@@ -139,21 +144,22 @@ public class EmbeddedOrientDbServer
         logger.info(String.format("Initialize OrientDB Studio at [%s].", studioPath.toAbsolutePath().toString()));
         Files.createDirectories(studioPath);
         
+        String root = String.format("META-INF/resources/webjars/orientdb-studio/%s/", ORIENTDB_STUDO_VERSION);
+        
         try (JarFile jar = new JarFile(studioClasspathLocation))
         {
             Enumeration<JarEntry> enumEntries = jar.entries();
             while (enumEntries.hasMoreElements())
             {
                 JarEntry file = enumEntries.nextElement();
-                if (!file.getName().startsWith("META-INF/resources/webjars/orientdb-studio/2.2.0/"))
+                if (!file.getName().startsWith(root))
                 {
                     continue;
                 }
                 
-                Path filePath = studioPath.resolve(file.getName()
-                                                       .replace("META-INF/resources/webjars/orientdb-studio/2.2.0/",
-                                                                ""));
-                if (file.isDirectory()) {
+                Path filePath = studioPath.resolve(file.getName().replace(root, ""));
+                if (file.isDirectory())
+                {
                     Files.createDirectories(filePath);
                     continue;
                 }
@@ -215,8 +221,7 @@ public class EmbeddedOrientDbServer
         List<OServerEntryConfiguration> properties = new LinkedList<>();
         properties.add(buildProperty("server.database.path", getDatabasePath()));
         properties.add(buildProperty("plugin.dynamic", "false"));
-        properties.add(buildProperty("log.console.level", "linfo"));
-        //properties.add(buildProperty("log.file.level", "fine"));
+        properties.add(buildProperty("log.console.level", "info"));
         properties.add(buildProperty("orientdb.www.path", getStudioPath()));
 
         serverConfiguration.network = networkConfiguration;
