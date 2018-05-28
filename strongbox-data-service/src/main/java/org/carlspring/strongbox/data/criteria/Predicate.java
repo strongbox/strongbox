@@ -3,8 +3,6 @@ package org.carlspring.strongbox.data.criteria;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.util.Assert;
-
 /**
  * This class is part of Criteria API which is needed to have platform
  * independent query representation.
