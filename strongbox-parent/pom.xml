@@ -465,6 +465,12 @@
                 <version>${version.orientdb}</version>
             </dependency>
             
+            <dependency>            
+                <groupId>org.webjars</groupId>
+                <artifactId>orientdb-studio</artifactId>
+                <version>2.2.0</version>
+            </dependency>
+            
             <!-- End of OrientDB dependencies -->
             <dependency>	
                 <groupId>org.jtwig</groupId>	
