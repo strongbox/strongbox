@@ -1,16 +1,15 @@
 package org.carlspring.strongbox.providers.io;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 public abstract class RepositoryFiles
 {
@@ -131,13 +130,17 @@ public abstract class RepositoryFiles
     }
 
     public static String stringValue(RepositoryPath p)
-        throws IOException
+            throws IOException
     {
         if (p.path != null)
         {
             return p.path;
         }
-        
+        if (!p.isAbsolute())
+        {
+            return p.path = p.toString();
+        }
+
         return p.path = relativizeUri(p).toString();
     }
     
