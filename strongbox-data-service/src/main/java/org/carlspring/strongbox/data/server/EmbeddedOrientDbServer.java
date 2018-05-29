@@ -268,7 +268,7 @@ public class EmbeddedOrientDbServer
 
     private String getStudioPath()
     {
-        return getVaultDirectory() + "/www";
+        return Paths.get(getVaultDirectory() + "/www").toAbsolutePath().normalize().toString();
     }
 
     
