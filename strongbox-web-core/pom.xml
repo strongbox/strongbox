@@ -938,7 +938,11 @@
                                 </systemProperty>
                                 <systemProperty>
                                     <name>strongbox.orientdb.profile</name>
-                                    <value>orientdb_MEMORY</value>
+                                    <value>orientdb_EMBEDDED</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>strongbox.orientdb.studio.enabled</name>
+                                    <value>true</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <name>strongbox.nuget.download.feed</name>

@@ -8,10 +8,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.JarURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,7 +52,7 @@ public class EmbeddedOrientDbServer
 
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedOrientDbServer.class);
 
-    public static final String ORIENTDB_STUDO_VERSION = "2.2.0";
+    public static final String ORIENTDB_STUDIO_VERSION = "2.2.0";
     
     private OServer server;
 
@@ -75,15 +76,12 @@ public class EmbeddedOrientDbServer
         }
     }
 
-    public File getStudioClasspathLocation()
+    public JarFile getStudioClasspathLocation() throws IOException
     {
-        return new File(OServer.class.getProtectionDomain()
-                                     .getCodeSource()
-                                     .getLocation()
-                                     .getPath()).toPath()
-                                                .resolveSibling(String.format("orientdb-studio-%s.jar",
-                                                                              ORIENTDB_STUDO_VERSION))
-                                                .toFile();
+        URL systemResource = OServer.class.getResource(String.format("/META-INF/resources/webjars/orientdb-studio/%s", ORIENTDB_STUDIO_VERSION));
+        JarURLConnection connection = (JarURLConnection) systemResource.openConnection();
+
+        return connection.getJarFile();
     }
     
     private void prepareStudio() throws IOException
@@ -131,8 +129,6 @@ public class EmbeddedOrientDbServer
 
         serverConfiguration.network.protocols.add(httpProtocol);
         
-        File studioClasspathLocation = getStudioClasspathLocation();
-
         Path studioPath = Paths.get(getStudioPath()).resolve("studio");
         if (Files.exists(studioPath))
         {
@@ -144,9 +140,9 @@ public class EmbeddedOrientDbServer
         logger.info(String.format("Initialize OrientDB Studio at [%s].", studioPath.toAbsolutePath().toString()));
         Files.createDirectories(studioPath);
         
-        String root = String.format("META-INF/resources/webjars/orientdb-studio/%s/", ORIENTDB_STUDO_VERSION);
+        String root = String.format("META-INF/resources/webjars/orientdb-studio/%s/", ORIENTDB_STUDIO_VERSION);
         
-        try (JarFile jar = new JarFile(studioClasspathLocation))
+        try (JarFile jar = getStudioClasspathLocation())
         {
             Enumeration<JarEntry> enumEntries = jar.entries();
             while (enumEntries.hasMoreElements())
@@ -268,7 +264,7 @@ public class EmbeddedOrientDbServer
 
     private String getStudioPath()
     {
-        return getVaultDirectory() + "/www";
+        return Paths.get(getVaultDirectory() + "/www").toAbsolutePath().normalize().toString();
     }
 
     
