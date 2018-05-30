@@ -45,7 +45,7 @@ public class ArtifactResolverIntegrationTest
     public void setUp()
     {
         artifactResolver = new RestArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getRestClient(),
-                                                    repositoryUrl);
+                                                    repositoryUrl, RemoteRepositoryRetryArtifactDownloadConfiguration.DEFAULT);
     }
 
     @Test

@@ -24,21 +24,34 @@ public class RestArtifactResolver
     private final String repositoryBaseUrl;
     private final Client client;
     private Feature authentication;
-
+    private RemoteRepositoryRetryArtifactDownloadConfiguration configuration;
 
     public RestArtifactResolver(Client client,
-                                String repositoryBaseUrl)
+                                String repositoryBaseUrl,
+                                RemoteRepositoryRetryArtifactDownloadConfiguration configuration)
     {
         this.client = client;
         this.repositoryBaseUrl = normalize(repositoryBaseUrl);
+        this.configuration = configuration;
     }
 
     public RestArtifactResolver(Client client,
                                 String repositoryBaseUrl,
+                                RemoteRepositoryRetryArtifactDownloadConfiguration configuration,
                                 Feature authentication)
     {
-        this(client, repositoryBaseUrl);
+        this(client, repositoryBaseUrl, configuration);
         this.authentication = authentication;
+    }
+    
+    public RemoteRepositoryRetryArtifactDownloadConfiguration getConfiguration()
+    {
+        return configuration;
+    }
+    
+    public boolean isAlive()
+    {
+        return true;
     }
 
     @Override

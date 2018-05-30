@@ -52,7 +52,12 @@ public class RoutingRule
 
     public Pattern getRegex()
     {
-        return this.regex = Optional.ofNullable(regex).orElse(Pattern.compile(pattern));
+        if (regex == null)
+        {
+            regex = Pattern.compile(pattern);
+        }
+        
+        return regex;
     }
 
     public Set<String> getRepositories()

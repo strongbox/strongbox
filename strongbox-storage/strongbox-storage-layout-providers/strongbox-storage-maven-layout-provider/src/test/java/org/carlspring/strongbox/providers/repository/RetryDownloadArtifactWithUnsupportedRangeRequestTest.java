@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.config.MockedRestArtifactResolverTestConfig;
-import org.carlspring.strongbox.storage.ArtifactStorageException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,7 +14,6 @@ import org.junit.runner.RunWith;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.carlspring.strongbox.services.ArtifactByteStreamsCopyStrategy.BUF_SIZE;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertFalse;
 
@@ -31,6 +29,8 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    private boolean exceptionAlreadyThrown;
+    
     private OneTimeBrokenArtifactInputStream brokenArtifactInputStream;
 
     @Before
@@ -53,7 +53,7 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
 
         // given
         assertFalse(Files.exists(destinationPath));
-        assertFalse(brokenArtifactInputStream.exceptionAlreadyThrown);
+        assertFalse(exceptionAlreadyThrown);
 
         //then
         thrown.expect(IOException.class);
@@ -64,13 +64,11 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
 
     }
 
-    static class OneTimeBrokenArtifactInputStream
+    private class OneTimeBrokenArtifactInputStream
             extends RetryDownloadArtifactTestBase.BrokenArtifactInputStream
     {
 
         private int currentReadSize;
-
-        private boolean exceptionAlreadyThrown;
 
         public OneTimeBrokenArtifactInputStream(final Resource jarArtifact)
         {

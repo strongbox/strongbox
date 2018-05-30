@@ -2,25 +2,30 @@ package org.carlspring.strongbox.event.artifact;
 
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.client.RestArtifactResolver;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
-import org.carlspring.strongbox.providers.repository.proxied.SimpleProxyRepositoryArtifactResolver;
-import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryInputStream;
+import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import javax.inject.Inject;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.function.Consumer;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.mutable.MutableObject;
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.springframework.stereotype.Component;
 
@@ -33,13 +38,14 @@ public class MavenArtifactFetchedFromRemoteEventListener
 {
 
     @Inject
-    @SimpleProxyRepositoryArtifactResolver.SimpleProxyRepositoryArtifactResolverQualifier
-    private ProxyRepositoryArtifactResolver simpleProxyRepositoryArtifactResolver;
+    private ProxyRepositoryArtifactResolver proxyRepositoryArtifactResolver;
 
     @Inject
-    @LocalStorageProxyRepositoryArtifactResolver.LocalStorageProxyRepositoryArtifactResolverQualifier
-    private ProxyRepositoryArtifactResolver localStorageProxyRepositoryArtifactResolver;
-
+    protected RepositoryPathLock repositoryPathLock;
+    
+    @Inject
+    protected RestArtifactResolverFactory restArtifactResolverFactory;
+    
     @Override
     public void handle(final ArtifactEvent<RepositoryPath> event)
     {
@@ -93,53 +99,46 @@ public class MavenArtifactFetchedFromRemoteEventListener
     private void downloadArtifactMetadataAtArtifactIdLevelFromRemote(RepositoryPath metadataRelativePath)
             throws Exception
     {
-        getMetadataInputStreamWithCallback(localStorageProxyRepositoryArtifactResolver, metadataRelativePath,
-                                           IOUtils::closeQuietly);
+        proxyRepositoryArtifactResolver.fetchRemoteResource(metadataRelativePath);
     }
 
     private void downloadArtifactMetadataAtArtifactIdLevelFromRemoteAndMergeWithLocal(final RepositoryPath artifactAbsolutePath,
-                                                                                      final RepositoryPath metadataRelativePath)
+                                                                                      final RepositoryPath metadataPath)
             throws Exception
     {
+        Repository repository = metadataPath.getRepository();
+        RemoteRepository remoteRepository = repository.getRemoteRepository();
+        RestArtifactResolver client = restArtifactResolverFactory.newInstance(remoteRepository);
+        
+        repositoryPathLock.lock(metadataPath);
+        try (InputStream is = new BufferedInputStream(new ProxyRepositoryInputStream(client, metadataPath)))
+        {
+            mergeMetadata(artifactAbsolutePath, is);
+        } 
+        finally
+        {
+            repositoryPathLock.unlock(metadataPath);
+        }
+        
+    }
 
-        final MutableObject<Exception> operationException = new MutableObject<>();
+    private void mergeMetadata(RepositoryPath artifactAbsolutePath,
+                               InputStream remoteMetadataIs)
+        throws IOException,
+        NoSuchAlgorithmException,
+        XmlPullParserException,
+        ProviderImplementationException
+    {
         final Repository repository = artifactAbsolutePath.getFileSystem().getRepository();
         final Storage storage = repository.getStorage();
         
-        getMetadataInputStreamWithCallback(simpleProxyRepositoryArtifactResolver, metadataRelativePath, is ->
-        {
-            try
-            {
-                final MavenArtifact localArtifact = MavenArtifactUtils.convertPathToArtifact(RepositoryFiles.stringValue(artifactAbsolutePath));
-                localArtifact.setPath(artifactAbsolutePath);
+        MavenArtifact localArtifact = MavenArtifactUtils.convertPathToArtifact(RepositoryFiles.stringValue(artifactAbsolutePath));
+        localArtifact.setPath(artifactAbsolutePath);
 
-                final Metadata metadata = artifactMetadataService.getMetadata(is);
-                artifactMetadataService.mergeMetadata(storage.getId(), repository.getId(), localArtifact,
-                                                      metadata);
-            }
-            catch (final Exception e)
-            {
-                operationException.setValue(e);
-            }
-            finally
-            {
-                ResourceCloser.close(is, logger);
-            }
-        });
+        Metadata metadata = artifactMetadataService.getMetadata(remoteMetadataIs);
+        artifactMetadataService.mergeMetadata(storage.getId(), repository.getId(), localArtifact,
+                                              metadata);
 
-        if (operationException.getValue() != null)
-        {
-            throw operationException.getValue();
-        }
     }
 
-    private void getMetadataInputStreamWithCallback(final ProxyRepositoryArtifactResolver proxyRepositoryArtifactResolver,
-                                                    final RepositoryPath metadataPath,
-                                                    final Consumer<InputStream> callback)
-            throws Exception
-    {
-
-        final InputStream metadataIs = proxyRepositoryArtifactResolver.getInputStream(metadataPath);
-        callback.accept(metadataIs);
-    }
 }

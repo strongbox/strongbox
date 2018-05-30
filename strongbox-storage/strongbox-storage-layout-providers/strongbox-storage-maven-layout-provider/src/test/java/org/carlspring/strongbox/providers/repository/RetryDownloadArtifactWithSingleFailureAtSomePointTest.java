@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.carlspring.strongbox.services.ArtifactByteStreamsCopyStrategy.BUF_SIZE;
 import static org.junit.Assert.*;
 
 /**
@@ -27,6 +26,8 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
 
     private OneTimeBrokenArtifactInputStream brokenArtifactInputStream;
 
+    private boolean exceptionAlreadyThrown;
+    
     @Before
     public void setup()
             throws Exception
@@ -47,7 +48,7 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
 
         // given
         assertFalse(Files.exists(destinationPath));
-        assertFalse(brokenArtifactInputStream.exceptionAlreadyThrown);
+        assertFalse(exceptionAlreadyThrown);
 
         // when
         assertStreamNotNull(storageId, repositoryId, path);
@@ -55,17 +56,15 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
         // then
         assertTrue(Files.exists(destinationPath));
         assertThat(Files.size(destinationPath), CoreMatchers.equalTo(Files.size(jarArtifact.getFile().toPath())));
-        assertTrue(brokenArtifactInputStream.exceptionAlreadyThrown);
+        assertTrue(exceptionAlreadyThrown);
 
     }
 
-    static class OneTimeBrokenArtifactInputStream
+    private class OneTimeBrokenArtifactInputStream
             extends RetryDownloadArtifactTestBase.BrokenArtifactInputStream
     {
 
         private int currentReadSize;
-
-        private boolean exceptionAlreadyThrown;
 
         public OneTimeBrokenArtifactInputStream(final Resource jarArtifact)
         {

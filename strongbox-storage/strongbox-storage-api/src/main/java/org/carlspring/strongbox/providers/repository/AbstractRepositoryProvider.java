@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
@@ -198,7 +199,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         
         logger.debug(String.format("Closing [%s]", path));
         
-        if (!RepositoryFiles.isArtifact(repositoryPath))
+        if (!RepositoryFiles.isArtifact(repositoryPath) || !Files.exists(repositoryPath))
         {
             return;
         }
@@ -264,13 +265,13 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     }
     
     @Override
-    public Path fetchPath(Path repositoryPath)
+    public RepositoryPath fetchPath(Path repositoryPath)
         throws IOException
     {
         return fetchPath((RepositoryPath)repositoryPath);
     }
 
-    protected abstract Path fetchPath(RepositoryPath repositoryPath) throws IOException;
+    protected abstract RepositoryPath fetchPath(RepositoryPath repositoryPath) throws IOException;
     
     @Override
     public List<Path> search(RepositorySearchRequest searchRequest,

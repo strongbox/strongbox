@@ -18,6 +18,7 @@ import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -47,25 +48,22 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         return ALIAS;
     }
 
-    protected InputStream getInputStreamInternal(RepositoryPath repositoryPath)
+    protected InputStream getInputStreamInternal(RepositoryPath repositoryPath) throws IOException
     {
-        if (repositoryPath == null)
-        {
-            return null;
-        }
-        if (!Files.exists(repositoryPath))
+        if (artifactNotExists(repositoryPath))
         {
             logger.debug(String.format("The path [%s] does not exist!", repositoryPath));
+
             return null;
         }
-
+                
         try
         {
             return Files.newInputStream(repositoryPath);
         }
-        catch (IOException e)
+        catch (IOException ex)
         {
-            logger.error(String.format("Failed to decorate InputStream for [%s]", repositoryPath), e);
+            logger.error(String.format("Failed to decorate InputStream for [%s]", repositoryPath), ex);
             return null;
         }
     }
@@ -131,14 +129,20 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
            throws IOException
     {
         logger.debug(" -> Checking local cache for {} ...", repositoryPath);
-        if (!Files.exists(repositoryPath))
+        if (artifactNotExists(repositoryPath))
         {
-            //TODO: we shouldn't return null here.
             logger.debug("The artifact {} was not found in the local cache", repositoryPath);
+
             return null;
         }
         
         logger.debug("The artifact {} was found in the local cache", repositoryPath);
         return repositoryPath;
     }
+
+    private boolean artifactNotExists(RepositoryPath repositoryPath) throws IOException
+    {
+        return RepositoryFiles.artifactNotExists(repositoryPath);
+    }
+
 }

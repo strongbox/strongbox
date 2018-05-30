@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -10,6 +8,10 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 
 public abstract class RepositoryFiles
 {
@@ -156,5 +158,25 @@ public abstract class RepositoryFiles
         
         return relativizeUri(p);
     }
+
+    public static boolean artifactExists(RepositoryPath repositoryPath)
+        throws IOException
+    {
+        return !artifactNotExists(repositoryPath);
+    }
     
+    public static boolean artifactNotExists(RepositoryPath repositoryPath)
+        throws IOException
+    {
+        ArtifactEntry e = repositoryPath.getArtifactEntry();
+        if (RepositoryFiles.isArtifact(repositoryPath))
+        {
+            return e == null || e instanceof RemoteArtifactEntry && !((RemoteArtifactEntry) e).getIsCached();
+        }
+        else
+        {
+            return !Files.exists(repositoryPath);
+        }
+    }
+
 }

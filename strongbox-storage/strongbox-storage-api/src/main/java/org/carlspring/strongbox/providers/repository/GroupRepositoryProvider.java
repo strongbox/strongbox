@@ -81,8 +81,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     public RepositoryPath fetchPath(RepositoryPath repositoryPath)
         throws IOException
     {
-        return Optional.ofNullable(resolvePathDirectlyFromGroupPathIfPossible(repositoryPath))
-                       .orElse(resolvePathTraversal(repositoryPath));
+        RepositoryPath result = resolvePathDirectlyFromGroupPathIfPossible(repositoryPath);
+        if (result != null)
+        {
+            return result;
+        }
+        
+        return resolvePathTraversal(repositoryPath);
     }
     
     protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath) throws IOException

@@ -1,41 +1,39 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.client.CloseableRestResponse;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+
+import javax.inject.Inject;
+
+import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.client.RestArtifactResolver;
-import org.carlspring.strongbox.client.RestArtifactResolverFactory;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.io.RepositoryPathLock;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.providers.repository.HostedRepositoryProvider;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
-import java.io.BufferedInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Przemyslaw Fusik
  */
-public abstract class ProxyRepositoryArtifactResolver
+@Component
+public class ProxyRepositoryArtifactResolver
 {
+    private static final Logger logger = LoggerFactory.getLogger(ProxyRepositoryArtifactResolver.class);
 
     @Inject
     protected ConfigurationManager configurationManager;
@@ -51,14 +49,26 @@ public abstract class ProxyRepositoryArtifactResolver
 
     @Inject
     protected RestArtifactResolverFactory restArtifactResolverFactory;
+    
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
+    
+    @Inject
+    protected RepositoryPathLock repositoryPathLock;
+    
+    @Inject
+    private HostedRepositoryProvider hostedRepositoryProvider;
 
-    public InputStream getInputStream(RepositoryPath repositoryPath)
+    @Inject
+    private ArtifactManagementService artifactManagementService;
+
+    public RepositoryPath fetchRemoteResource(RepositoryPath repositoryPath)
         throws IOException
     {
         Repository repository = repositoryPath.getFileSystem().getRepository();
-        getLogger().debug(String.format("Checking in [%s]...", repositoryPath));
+        logger.debug(String.format("Checking in [%s]...", repositoryPath));
 
-        final InputStream candidate = preProxyRepositoryAccessAttempt(repositoryPath);
+        final RepositoryPath candidate = preProxyRepositoryAccessAttempt(repositoryPath);
         if (candidate != null)
         {
             return candidate;
@@ -67,60 +77,100 @@ public abstract class ProxyRepositoryArtifactResolver
         final RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (!remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository))
         {
-            getLogger().debug("Remote repository '" + remoteRepository.getUrl() + "' is down.");
+            logger.debug("Remote repository '" + remoteRepository.getUrl() + "' is down.");
 
             return null;
         }
 
-        try (final RestArtifactResolver client = restArtifactResolverFactory.newInstance(remoteRepository.getUrl(),
-                                                                                         remoteRepository.getUsername(),
-                                                                                         remoteRepository.getPassword()))
+        RestArtifactResolver client = restArtifactResolverFactory.newInstance(remoteRepository);
+        
+        repositoryPathLock.lock(repositoryPath);        
+        try (InputStream is = new BufferedInputStream(new ProxyRepositoryInputStream(client, repositoryPath)))
         {
-            URI resource = RepositoryFiles.resolveResource(repositoryPath);
-            try (final CloseableRestResponse closeableRestResponse = client.get(resource.toString()))
+            repositoryPath = repositoryPathResolver.resolve(repository, RepositoryFiles.stringValue(repositoryPath));
+            if (RepositoryFiles.artifactExists(repositoryPath))
             {
-                final Response response = closeableRestResponse.getResponse();
-
-                if (response.getStatus() != 200 || response.getEntity() == null)
-                {
-                    return null;
-                }
-
-                InputStream is = response.readEntity(InputStream.class);
-                if (is == null)
-                {
-                    return null;
-                }
-                is = new BufferedInputStream(is);
-
-                is = onSuccessfulProxyRepositoryResponse(is, repositoryPath);
-
-                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(repositoryPath,
-                                                                                       RepositoryFileAttributes.class);
-                if (!artifactFileAttributes.isChecksum() && !artifactFileAttributes.isMetadata())
-                {
-                    artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(repositoryPath);
-                }
-
-                return is;
+                return repositoryPath;
             }
+            
+            return doFetch(repositoryPath, is);
+        } 
+        finally
+        {
+            repositoryPathLock.unlock(repositoryPath);
         }
     }
 
-    protected InputStream onSuccessfulProxyRepositoryResponse(final InputStream is,
-                                                              final RepositoryPath repositoryPath)
-            throws IOException
+    private RepositoryPath doFetch(RepositoryPath repositoryPath,
+                                   InputStream is)
+        throws IOException
     {
-        return is;
+        Repository repository = repositoryPath.getRepository();
+        
+        //We need this to force initialize lazy connection to remote repository.
+        int available = is.available();
+        logger.debug(String.format("Got [%s] avaliable bytes for [%s].", available, repositoryPath));
+        
+        
+        RepositoryPath result = onSuccessfulProxyRepositoryResponse(is, repositoryPath);
+        
+        RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(repositoryPath,
+                                                                               RepositoryFileAttributes.class);
+        if (!artifactFileAttributes.isArtifact())
+        {
+            return result;
+        }
+        
+        // We need to force resolve new Path here to have underlying
+        // ArtifactEntry
+        result = repositoryPathResolver.resolve(repository, RepositoryFiles.stringValue(repositoryPath));
+        artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(result);
+        
+        return result;
     }
 
-    protected InputStream preProxyRepositoryAccessAttempt(RepositoryPath p)
+    protected RepositoryPath preProxyRepositoryAccessAttempt(RepositoryPath repositoryPath)
             throws IOException
     {
-        return null;
+        return hostedRepositoryProvider.fetchPath(repositoryPath);
     }
 
-    protected abstract Logger getLogger();
+    protected RepositoryPath onSuccessfulProxyRepositoryResponse(InputStream is,
+                                                                 RepositoryPath repositoryPath)
+            throws IOException
+    {
+        final RepositoryPath tempArtifact = RepositoryFiles.temporary(repositoryPath);
+        
+        try (// Wrap the InputStream, so we could have checksums to compare
+                final InputStream remoteIs = new MultipleDigestInputStream(is))
+        {
+            artifactManagementService.store(tempArtifact, remoteIs);
+            RepositoryFiles.permanent(repositoryPath);
+        }
+        catch (IOException e)
+        {
+            throw e;
+        }
+        catch (Exception e)
+        {
+            throw new IOException(e);
+        } 
+        finally
+        {
+            //TODO: we should do it with `java.io.Closeable`
+            if (Files.exists(tempArtifact))
+            {
+                Files.delete(tempArtifact);
+            }
+        }
+        
+        // TODO: Add a policy for validating the checksums of downloaded artifacts
+        // TODO: Validate the local checksum against the remote's checksums
+        // sbespalov: we have checksum validation within ArtifactManagementService.store() method, but it's not strict for now (see SB-949)
+        
+        // Serve the downloaded artifact
+        return repositoryPath;
+    }
 
     protected Configuration getConfiguration()
     {

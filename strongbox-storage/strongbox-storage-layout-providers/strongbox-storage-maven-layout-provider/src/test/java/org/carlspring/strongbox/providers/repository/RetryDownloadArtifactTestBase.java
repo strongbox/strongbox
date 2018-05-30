@@ -1,11 +1,12 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.client.CloseableRestResponse;
+import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RestArtifactResolver;
-import org.carlspring.strongbox.client.RestArtifactResolverFactory;
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.RemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
@@ -30,6 +31,8 @@ public abstract class RetryDownloadArtifactTestBase
 
     static final Resource jarArtifact = new ClassPathResource("artifacts/properties-injector-1.7.jar");
 
+    protected static int BUF_SIZE = 8192;
+    
     @Inject
     RestArtifactResolverFactory artifactResolverFactory;
 
@@ -45,7 +48,7 @@ public abstract class RetryDownloadArtifactTestBase
                 configuration.getRemoteRepositoriesConfiguration()
                              .getRemoteRepositoryRetryArtifactDownloadConfiguration();
         remoteRepositoryRetryArtifactDownloadConfiguration.setMaxNumberOfAttempts(5);
-        remoteRepositoryRetryArtifactDownloadConfiguration.setTimeoutSeconds(5);
+        remoteRepositoryRetryArtifactDownloadConfiguration.setTimeoutSeconds(30);
         remoteRepositoryRetryArtifactDownloadConfiguration.setMinAttemptsIntervalSeconds(1);
         configurationManagementService.save(configuration);
     }
@@ -63,6 +66,10 @@ public abstract class RetryDownloadArtifactTestBase
     void prepareArtifactResolverContext(final BrokenArtifactInputStream brokenArtifactInputStream,
                                         final boolean rangeRquestSupported)
     {
+        
+        RemoteRepositoryRetryArtifactDownloadConfiguration configuration = configurationManager.getConfiguration()
+                                                                                               .getRemoteRepositoriesConfiguration()
+                                                                                               .getRemoteRepositoryRetryArtifactDownloadConfiguration();
 
         final Response response = Mockito.mock(Response.class);
         Mockito.when(response.getEntity()).thenReturn(brokenArtifactInputStream);
@@ -78,9 +85,10 @@ public abstract class RetryDownloadArtifactTestBase
         Mockito.when(artifactResolver.get(Matchers.any(String.class), Matchers.any(Long.class))).thenReturn(
                 restResponse);
         Mockito.when(artifactResolver.head(Matchers.any(String.class))).thenReturn(restResponse);
+        Mockito.when(artifactResolver.getConfiguration()).thenReturn(configuration);
+        Mockito.when(artifactResolver.isAlive()).thenReturn(true);
 
-        Mockito.when(artifactResolverFactory.newInstance(Matchers.any(String.class), Matchers.any(String.class),
-                                                         Matchers.any(String.class))).thenReturn(artifactResolver);
+        Mockito.when(artifactResolverFactory.newInstance(Matchers.any(RemoteRepository.class))).thenReturn(artifactResolver);
     }
 
     abstract static class BrokenArtifactInputStream

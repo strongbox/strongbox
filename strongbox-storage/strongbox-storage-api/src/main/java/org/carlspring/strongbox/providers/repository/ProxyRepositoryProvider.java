@@ -11,7 +11,6 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -19,7 +18,6 @@ import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.event.CommonEventListenerRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
-import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +36,6 @@ public class ProxyRepositoryProvider
     private static final String ALIAS = "proxy";
 
     @Inject
-    @LocalStorageProxyRepositoryArtifactResolver.LocalStorageProxyRepositoryArtifactResolverQualifier
     private ProxyRepositoryArtifactResolver proxyRepositoryArtifactResolver;
 
     @Inject
@@ -66,22 +63,20 @@ public class ProxyRepositoryProvider
         throws IOException
     {
         RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(repositoryPath);
-        if (targetPath != null && Files.isDirectory(targetPath))
+        if (targetPath == null)
         {
-            return targetPath;
+            targetPath = resolvePathForceFetch(repositoryPath);
         }
-
-        return Optional.ofNullable(targetPath)
-                       .orElse(resolvePathForceFetch(repositoryPath));
+        
+        return targetPath;
     }
 
-    public RepositoryPath resolvePathForceFetch(RepositoryPath repositoryPath) throws IOException
+    public RepositoryPath resolvePathForceFetch(RepositoryPath repositoryPath)
+        throws IOException
     {
-        try(InputStream is = proxyRepositoryArtifactResolver.getInputStream(repositoryPath))
+        try
         {
-            IOUtils.closeQuietly(is);
-
-            return repositoryPath;
+            return (RepositoryPath) proxyRepositoryArtifactResolver.fetchRemoteResource(repositoryPath);
         }
         catch (IOException e)
         {
@@ -90,7 +85,7 @@ public class ProxyRepositoryProvider
 
             throw e;
         }
-    }    
+    }
     
     @Override
     protected OutputStream getOutputStreamInternal(RepositoryPath repositoryPath)
