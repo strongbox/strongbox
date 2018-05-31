@@ -11,6 +11,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.dependency.snippet.CompatibleDependencyFormatRegistry;
 import org.carlspring.strongbox.dependency.snippet.DependencySynonymFormatter;
+import org.carlspring.strongbox.dependency.snippet.SnippetGenerator;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -38,7 +39,7 @@ public abstract class AbstractSearchProvider
     private ConfigurationManager configurationManager;
 
     @Inject
-    private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;
+    private SnippetGenerator snippetGenerator;
     
     @Inject
     private ArtifactResolutionService artifactResolutionService;
@@ -62,17 +63,8 @@ public abstract class AbstractSearchProvider
         Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());
         Repository repository = storage.getRepository(searchRequest.getRepositoryId());
 
-        Map<String, DependencySynonymFormatter> implementations = compatibleDependencyFormatRegistry.getProviderImplementations(repository.getLayout());
-
-        Map<String, String> snippets = new LinkedHashMap<>();
-        for (String compatibleDependencyFormat : implementations.keySet())
-        {
-            DependencySynonymFormatter formatter = implementations.get(compatibleDependencyFormat);
-
-            snippets.put(compatibleDependencyFormat,
-                         formatter.getDependencySnippet(searchRequest.getArtifactCoordinates()));
-        }
-
+        Map<String, String> snippets = snippetGenerator.generateSnippets(repository.getLayout(),
+                                                                         artifactEntry.getArtifactCoordinates());
         searchResult.setSnippets(snippets);
 
         return searchResult;

@@ -194,7 +194,7 @@ public class SpringSecurityTest
                .put("/api/users/user")
                .peek()
                .then()
-               .body("error", CoreMatchers.equalTo("unauthorized"))
+               .body("error", CoreMatchers.equalTo("Access is denied"))
                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 }

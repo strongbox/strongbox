@@ -10,6 +10,7 @@ import java.util.Map;
  * Proper path for this coordinates is in the format of: {id}/{version}/{classifier}
  * Example: strongbox.p2/1.0.0/osgi.bundle
  */
+@ArtifactLayout("p2")
 public class P2ArtifactCoordinates
         extends AbstractArtifactCoordinates<P2ArtifactCoordinates, P2ArtifactCoordinates>
 {

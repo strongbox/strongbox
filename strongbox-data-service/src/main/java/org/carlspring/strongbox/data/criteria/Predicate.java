@@ -3,8 +3,6 @@ package org.carlspring.strongbox.data.criteria;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.util.Assert;
-
 /**
  * This class is part of Criteria API which is needed to have platform
  * independent query representation.
@@ -22,6 +20,10 @@ public class Predicate
     private BooleanOperator operator;
 
     private List<Predicate> childPredicateList = new ArrayList<>();
+
+    private boolean nested;
+
+    private boolean negated;
 
     public Predicate()
     {
@@ -45,7 +47,12 @@ public class Predicate
 
     public Predicate or(Predicate p)
     {
-        Assert.state(!BooleanOperator.AND.equals(this.operator), "Only disjunction allowed.");
+        if (BooleanOperator.AND.equals(this.operator))
+        {
+            Predicate nesteedPredicate = Predicate.empty().or(p);
+            add(nesteedPredicate);
+            return nesteedPredicate;
+        }
 
         this.operator = BooleanOperator.OR;
         add(p);
@@ -55,7 +62,12 @@ public class Predicate
 
     public Predicate and(Predicate p)
     {
-        Assert.state(!BooleanOperator.OR.equals(this.operator), "Only conjunction allowed.");
+        if (BooleanOperator.OR.equals(this.operator))
+        {
+            Predicate nesteedPredicate = Predicate.empty().and(p);
+            add(nesteedPredicate);
+            return nesteedPredicate;
+        }
 
         this.operator = BooleanOperator.AND;
         add(p);
@@ -77,6 +89,38 @@ public class Predicate
         return expression == null && childPredicateList.isEmpty();
     }
 
+    public Predicate nesteed()
+    {
+        this.nested = true;
+        return this;
+    }
+
+    public boolean isNested()
+    {
+        return nested;
+    }
+
+    public void setNested(boolean nesteed)
+    {
+        this.nested = nesteed;
+    }
+
+    public boolean isNegated()
+    {
+        return negated;
+    }
+
+    public void setNegated(boolean negated)
+    {
+        this.negated = negated;
+    }
+
+    public Predicate negated()
+    {
+        setNegated(true);
+        return this;
+    }
+
     public static Predicate empty()
     {
         return new Predicate();
@@ -91,7 +135,20 @@ public class Predicate
 
     public static enum BooleanOperator
     {
-        AND, OR
+        AND, OR;
+
+        public static BooleanOperator of(String v)
+        {
+            if ("||".equals(v) || "|".equals(v))
+            {
+                return BooleanOperator.OR;
+            }
+            else if ("&&".equals(v) || "&".equals(v))
+            {
+                return BooleanOperator.AND;
+            }
+            return BooleanOperator.valueOf(v);
+        }
     }
 
 }

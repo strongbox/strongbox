@@ -8,8 +8,19 @@ public class Expression
 {
 
     private String property;
-    private ExpOperator operator;
+    private ExpOperator operator = ExpOperator.EQ;
     private Object value;
+
+    Expression()
+    {
+
+    }
+
+    public Expression(String property,
+                      Object value)
+    {
+        this(property, ExpOperator.EQ, value);
+    }
 
     public Expression(String property,
                       ExpOperator operator,
@@ -53,7 +64,7 @@ public class Expression
 
     public enum ExpOperator
     {
-        EQ, CONTAINS, LIKE;
+        EQ, GE, LE, CONTAINS, LIKE, IS_NULL, IS_NOT_NULL;
 
         public Expression of(String property,
                              Object value)
@@ -61,6 +72,11 @@ public class Expression
             return new Expression(property, this, value);
         }
 
+        public Expression of(String property)
+        {
+            return new Expression(property, this, null);
+        }
+        
     }
-
+    
 }

@@ -93,8 +93,9 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGene
 
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
 
-        NugetODataFilterParserTemplate t = new NugetODataFilterParserTemplate(Predicate.empty());
-        Predicate predicate = t.parseFilterExpression("tolower(Id) eq 'org.carlspring.strongbox.nuget.test.nfpt' and IsLatestVersion and Version eq '1.0.8'F");
+        NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
+                "tolower(Id) eq 'org.carlspring.strongbox.nuget.test.nfpt' and IsLatestVersion and Version eq '1.0.8'F");
+        Predicate predicate = t.parseQuery().getPredicate();
 
         selector.where(predicate)
                 .and(Predicate.of(ExpOperator.EQ.of("storageId", STORAGE0)))

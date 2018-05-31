@@ -11,7 +11,7 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.io.ReplacingInputStream;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
-import org.carlspring.strongbox.nuget.filter.NugetODataFilterParserTemplate;
+import org.carlspring.strongbox.nuget.filter.NugetODataFilterQueryParser;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -322,7 +322,7 @@ public class NugetArtifactController extends BaseArtifactController
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
 
         Paginator paginator = new Paginator();
-        paginator.setOrderBy("artifactCoordinates.coordinates.version");
+        paginator.setProperty("artifactCoordinates.coordinates.version");
 
         Predicate predicate = Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.id", normalisedPackageId));
 
@@ -356,7 +356,7 @@ public class NugetArtifactController extends BaseArtifactController
         Paginator paginator = new Paginator();
         paginator.setSkip(skip);
         paginator.setLimit(top);
-        paginator.setOrderBy(orderBy);
+        paginator.setProperty(orderBy);
         
         Predicate rootPredicate = createSearchPredicate(filter, searchTerm);
         
@@ -392,8 +392,8 @@ public class NugetArtifactController extends BaseArtifactController
 
         if (filter != null && !filter.trim().isEmpty())
         {
-           NugetODataFilterParserTemplate t = new NugetODataFilterParserTemplate(rootPredicate);
-           rootPredicate = t.parseFilterExpression(filter);
+           NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(filter);
+           rootPredicate = t.parseQuery().getPredicate();
         }
         
         if (searchTerm != null && !searchTerm.trim().isEmpty()) 

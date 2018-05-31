@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.services;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 
@@ -23,8 +22,7 @@ public interface ArtifactResolutionService
                    NoSuchAlgorithmException;
     
     URL resolveResource(RepositoryPath repositoryPath)
-            throws MalformedURLException, 
-                   IOException;
+            throws IOException;
     
     RepositoryPath resolvePath(String storageId,
                                String repositoryId,

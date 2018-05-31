@@ -32,10 +32,9 @@ public class DetachQueryTemplate<R, T extends GenericEntity> implements QueryTem
     }
 
     @Override
-    public R select(Selector<T> s,
-                    Paginator p)
+    public R select(Selector<T> s)
     {
-        return (R) unproxy(target.select(s, p));
+        return (R) unproxy(target.select(s));
     }
 
     public Object unproxy(Object result)
