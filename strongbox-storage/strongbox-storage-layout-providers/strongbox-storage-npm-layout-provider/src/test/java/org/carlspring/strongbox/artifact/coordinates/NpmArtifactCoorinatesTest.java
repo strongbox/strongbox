@@ -15,6 +15,22 @@ public class NpmArtifactCoorinatesTest
 {
 
     @Test
+    public void testUriToCoordinatesConversion()
+    {
+        NpmArtifactCoordinates c = NpmArtifactCoordinates.of(URI.create("@types/node/-/node-8.0.51.tgz"));
+
+        assertEquals("@types", c.getScope());
+        assertEquals("node", c.getName());
+        assertEquals("8.0.51", c.getVersion());
+
+        c = NpmArtifactCoordinates.of(URI.create("react-redux/-/react-redux-5.0.6.tgz"));
+
+        assertNull(c.getScope());
+        assertEquals("react-redux", c.getName());
+        assertEquals("5.0.6", c.getVersion());
+    }
+
+    @Test
     public void testArtifactPathToCoordinatesConversion()
     {
         NpmArtifactCoordinates c = NpmArtifactCoordinates.parse("react-redux/react-redux/5.0.6/react-redux-5.0.6.tgz");
@@ -49,5 +65,6 @@ public class NpmArtifactCoorinatesTest
 
         assertEquals("@carlspring", c.getScope());
         assertEquals("npm-test-release", c.getName());
-        assertEquals("1.0.0", c.getVersion());    }
+        assertEquals("1.0.0", c.getVersion());
+    }
 }

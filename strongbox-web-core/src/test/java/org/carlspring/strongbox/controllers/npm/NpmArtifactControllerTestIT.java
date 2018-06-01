@@ -80,7 +80,7 @@ public class NpmArtifactControllerTestIT
 
         createProxyRepository(STORAGE0,
                               REPOSITORY_PROXY,
-                              "http://npmjs.org/");
+                              "https://registry.npmjs.org/");
 
         Repository repository2 = npmRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP);
         repository2.setType(RepositoryTypeEnum.GROUP.getType());
@@ -97,7 +97,7 @@ public class NpmArtifactControllerTestIT
     }
 
     /**
-     * Note: This test requires an internet connection.
+     * Note: This test requires an Internet connection.
      *
      * @throws Exception
      */
@@ -113,7 +113,7 @@ public class NpmArtifactControllerTestIT
     }
 
     /**
-     * Note: This test requires an internet connection.
+     * Note: This test requires an Internet connection.
      *
      * @throws Exception
      */
