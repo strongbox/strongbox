@@ -84,7 +84,7 @@ public class ProxyRepositoryArtifactResolver
 
         RestArtifactResolver client = restArtifactResolverFactory.newInstance(remoteRepository);
         
-        repositoryPathLock.lock(repositoryPath);        
+        repositoryPathLock.lock(repositoryPath);
         try (InputStream is = new BufferedInputStream(new ProxyRepositoryInputStream(client, repositoryPath)))
         {
             repositoryPath = repositoryPathResolver.resolve(repository, RepositoryFiles.stringValue(repositoryPath));

@@ -63,7 +63,7 @@ public abstract class RetryDownloadArtifactTestBase
         artifactEntryService.deleteAll();
     }
 
-    void prepareArtifactResolverContext(final BrokenArtifactInputStream brokenArtifactInputStream,
+    void prepareArtifactResolverContext(final InputStream brokenArtifactInputStream,
                                         final boolean rangeRquestSupported)
     {
         
