@@ -33,9 +33,9 @@ public class NpmArtifactControllerTestIT
 
     private static final String REPOSITORY_RELEASES = "nactit-releases";
 
-    private static final String REPOSITORY_PROXY = "nactit-raw-proxy";
+    private static final String REPOSITORY_PROXY = "nactit-npm-proxy";
 
-    private static final String REPOSITORY_GROUP = "nactit-raw-group";
+    private static final String REPOSITORY_GROUP = "nactit-npm-group";
 
     @Inject
     private NpmRepositoryFactory npmRepositoryFactory;
