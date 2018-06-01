@@ -4,6 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NpmPackageGenerator;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
+import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -27,12 +28,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class NpmArtifactControllerTest extends NpmRepositoryTestCase
+public class NpmArtifactControllerTest
+        extends NpmRestAssuredBaseTest
 {
 
-    private static final String STORAGE_ID = "storage-common-npm";
-
-    private static final String REPOSITORY_RELEASES_1 = "npm-releases-test";
+    private static final String REPOSITORY_RELEASES = "npm-releases-test";
 
     @Inject
     private NpmRepositoryFactory npmRepositoryFactory;
@@ -52,7 +52,7 @@ public class NpmArtifactControllerTest extends NpmRepositoryTestCase
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
 
         return repositories;
     }
@@ -61,11 +61,10 @@ public class NpmArtifactControllerTest extends NpmRepositoryTestCase
     public void init()
         throws Exception
     {
-        createStorage(STORAGE_ID);
+        super.init();
 
-        Repository repository = npmRepositoryFactory.createRepository(STORAGE_ID, REPOSITORY_RELEASES_1);
+        Repository repository = npmRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES);
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository.setLayout(NpmLayoutProvider.ALIAS);
 
         createRepository(repository);
     }
@@ -85,7 +84,7 @@ public class NpmArtifactControllerTest extends NpmRepositoryTestCase
                .header("Content-Type", "application/json")
                .body(publishJsonContent)
                .when()
-               .put(contextBaseUrl + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
+               .put(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
                     coordinates.getId())
                .peek()
                .then()
@@ -94,7 +93,7 @@ public class NpmArtifactControllerTest extends NpmRepositoryTestCase
         given().header("User-Agent", "npm/*")
                .header("Content-Type", "application/json")
                .when()
-               .get(contextBaseUrl + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
+               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
                     coordinates.toResource())
                .peek()
                .then()
