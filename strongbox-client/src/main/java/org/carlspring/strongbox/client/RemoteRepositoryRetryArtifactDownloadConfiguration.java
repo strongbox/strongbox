@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.configuration;
+package org.carlspring.strongbox.client;
 
 import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;

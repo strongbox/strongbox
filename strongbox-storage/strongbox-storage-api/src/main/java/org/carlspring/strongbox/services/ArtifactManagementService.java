@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services;
 
+import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -17,7 +18,6 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.services.support.ArtifactByteStreamsCopyStrategyDeterminator;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
@@ -50,8 +50,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
-
-import javassist.bytecode.stackmap.BasicBlock.Catch;
 
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
@@ -86,9 +84,6 @@ public class ArtifactManagementService
 
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
-
-    @Inject
-    protected ArtifactByteStreamsCopyStrategyDeterminator artifactByteStreamsCopyStrategyDeterminator;
 
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
@@ -216,8 +211,8 @@ public class ArtifactManagementService
             artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(repositoryPath);
         }
 
-        long totalAmountOfBytes = artifactByteStreamsCopyStrategyDeterminator.determine(repository)
-                                                                             .copy(is, os, repositoryPath);
+        
+        long totalAmountOfBytes = IOUtils.copy(is, os);
 
         URI repositoryPathId = repositoryPath.toUri();
         Map<String, String> digestMap = aos.getDigestMap();

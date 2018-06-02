@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.client.RestArtifactResolverFactory;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
 
 import java.nio.file.Path;
 

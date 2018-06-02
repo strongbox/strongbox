@@ -2,6 +2,9 @@ package org.carlspring.strongbox.configuration;
 
 import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.*;
+
+import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
+
 import java.io.Serializable;
 
 /**

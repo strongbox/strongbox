@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers;
 
+import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -49,7 +50,15 @@ public abstract class BaseArtifactController
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
         
-        RepositoryPath resolvedPath = artifactManagementService.getPath(storageId, repositoryId, path);
+        RepositoryPath resolvedPath;
+        try
+        {
+            resolvedPath = artifactManagementService.getPath(storageId, repositoryId, path);
+        }
+        catch (ArtifactNotFoundException e)
+        {
+            resolvedPath = null;
+        }
 
         logger.debug("Resolved path: " + resolvedPath);
         

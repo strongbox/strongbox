@@ -14,7 +14,6 @@ import org.junit.runner.RunWith;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.carlspring.strongbox.services.ArtifactByteStreamsCopyStrategy.BUF_SIZE;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertFalse;
 
