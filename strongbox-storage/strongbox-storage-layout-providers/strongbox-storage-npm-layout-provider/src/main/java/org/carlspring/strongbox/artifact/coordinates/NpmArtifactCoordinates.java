@@ -13,8 +13,10 @@ import org.semver.Version;
 import org.springframework.util.Assert;
 
 /**
- * This class is an {@link ArtifactCoordinates} implementation for npm artifacts. <br>
- * See <a href="https://docs.npmjs.com/files/package.json">Official npm package specification</a>.
+ * This class is an {@link ArtifactCoordinates} implementation for npm
+ * artifacts. <br>
+ * See <a href="https://docs.npmjs.com/files/package.json">Official npm package
+ * specification</a>.
  * 
  * @author sbespalov
  *
@@ -160,7 +162,7 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         result.remove(VERSION);
         return result;
     }
-    
+
     public static NpmArtifactCoordinates parse(String path)
     {
         Matcher matcher = NPM_PATH_PATTERN.matcher(path);
@@ -200,7 +202,16 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
 
     public static NpmArtifactCoordinates of(URI resource)
     {
-        return parse(resource.toString());
+        String resourcePath = resource.toString();
+        if (resourcePath.startsWith("@"))
+        {
+            return parse(resourcePath);
+        }
+
+        String packageName = resourcePath.substring(0, resourcePath.indexOf("/"));
+        resourcePath = resourcePath.replace("/-/", String.format("/%s/-/", packageName));
+
+        return parse(resourcePath);
     }
-    
+
 }
