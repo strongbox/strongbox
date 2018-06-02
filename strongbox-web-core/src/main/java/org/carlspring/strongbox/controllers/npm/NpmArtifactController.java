@@ -96,11 +96,6 @@ public class NpmArtifactController extends BaseArtifactController
                          HttpServletResponse response)
         throws Exception
     {
-        // TODO: If the resource path contains "*/-/*"
-        // TODO: a) If the repository is a proxy, resolve it from the remote
-        // TODO: b) If the repository is a hosted one, strip the "*/-/" part and resolve the artifact
-        // TODO: 
-
         Repository repository = getRepository(storageId, repositoryId);
         RepositoryPath path = npmLayoutProvider.resolve(repository, URI.create(resource));
         
