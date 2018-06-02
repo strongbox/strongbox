@@ -34,7 +34,7 @@ import static org.junit.Assert.fail;
 /**
  * @author carlspring
  */
-public class NpmRestAssuredBaseTest
+public abstract class NpmRestAssuredBaseTest
         extends NpmRepositoryTestCase
 {
 
