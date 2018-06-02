@@ -162,10 +162,10 @@ public abstract class RepositoryFiles
     public static boolean artifactExists(RepositoryPath repositoryPath)
         throws IOException
     {
-        return !artifactNotExists(repositoryPath);
+        return !artifactDoesNotExist(repositoryPath);
     }
     
-    public static boolean artifactNotExists(RepositoryPath repositoryPath)
+    public static boolean artifactDoesNotExist(RepositoryPath repositoryPath)
         throws IOException
     {
         ArtifactEntry e = repositoryPath.getArtifactEntry();
