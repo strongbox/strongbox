@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.raw;
+package org.carlspring.strongbox.controllers.layout.raw;
 
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.services.ArtifactManagementService;

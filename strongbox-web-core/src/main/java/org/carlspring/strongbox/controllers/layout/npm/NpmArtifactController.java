@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.npm;
+package org.carlspring.strongbox.controllers.layout.npm;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.controllers.BaseArtifactController;

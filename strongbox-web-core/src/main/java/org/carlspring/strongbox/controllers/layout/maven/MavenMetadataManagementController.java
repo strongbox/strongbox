@@ -1,8 +1,7 @@
-package org.carlspring.strongbox.controllers.maven;
+package org.carlspring.strongbox.controllers.layout.maven;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.security.exceptions.AuthenticationException;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.metadata.MetadataType;

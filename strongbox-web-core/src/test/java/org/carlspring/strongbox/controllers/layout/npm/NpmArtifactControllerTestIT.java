@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.npm;
+package org.carlspring.strongbox.controllers.layout.npm;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;

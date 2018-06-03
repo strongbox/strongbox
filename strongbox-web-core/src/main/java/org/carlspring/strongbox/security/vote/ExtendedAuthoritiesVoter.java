@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
+import org.carlspring.strongbox.controllers.layout.maven.MavenArtifactController;
 import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.utils.UrlUtils;

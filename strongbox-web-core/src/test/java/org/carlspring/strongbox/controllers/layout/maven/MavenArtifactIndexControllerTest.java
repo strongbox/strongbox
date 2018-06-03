@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.maven;
+package org.carlspring.strongbox.controllers.layout.maven;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;

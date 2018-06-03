@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.nuget;
+package org.carlspring.strongbox.controllers.layout.nuget;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.config.IntegrationTest;
