@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.maven;
+package org.carlspring.strongbox.controllers.layout.maven;
 
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.providers.io.RepositoryPath;

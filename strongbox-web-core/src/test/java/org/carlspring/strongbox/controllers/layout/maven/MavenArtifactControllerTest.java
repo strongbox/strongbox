@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.maven;
+package org.carlspring.strongbox.controllers.layout.maven;
 
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
@@ -45,8 +45,6 @@ import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;

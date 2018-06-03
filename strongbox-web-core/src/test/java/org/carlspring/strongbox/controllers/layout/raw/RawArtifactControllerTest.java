@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.raw;
+package org.carlspring.strongbox.controllers.layout.raw;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;

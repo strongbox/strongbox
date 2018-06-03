@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.maven;
+package org.carlspring.strongbox.controllers.layout.maven;
 
 import java.util.function.Function;
 import java.util.regex.Pattern;

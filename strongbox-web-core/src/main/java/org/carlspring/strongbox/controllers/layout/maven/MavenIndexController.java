@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.maven;
+package org.carlspring.strongbox.controllers.layout.maven;
 
 import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.controllers.BaseController;
@@ -14,7 +14,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import javax.ws.rs.QueryParam;
 import java.io.IOException;
-import java.util.Optional;
 
 import io.swagger.annotations.*;
 import org.slf4j.Logger;

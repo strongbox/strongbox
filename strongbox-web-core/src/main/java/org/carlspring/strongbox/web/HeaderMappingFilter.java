@@ -34,8 +34,8 @@ import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
-import org.carlspring.strongbox.controllers.nuget.NugetArtifactController;
+import org.carlspring.strongbox.controllers.layout.maven.MavenArtifactController;
+import org.carlspring.strongbox.controllers.layout.nuget.NugetArtifactController;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
