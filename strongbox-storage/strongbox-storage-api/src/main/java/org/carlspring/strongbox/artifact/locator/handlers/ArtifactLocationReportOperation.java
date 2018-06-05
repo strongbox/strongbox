@@ -39,7 +39,7 @@ public class ArtifactLocationReportOperation
                                                                     .sorted()
                                                                     .collect(Collectors.toList());
         
-        RepositoryPath parentPath = path.getParent().toAbsolutePath();
+        RepositoryPath parentPath = path;
 
         if (filePathList.isEmpty())
         {
@@ -74,7 +74,7 @@ public class ArtifactLocationReportOperation
         {
             getVisitedRootPaths().put(parentPath, versionDirectories);
 
-            System.out.println(path.getParent());
+            System.out.println(parentPath);
         }
     }
 

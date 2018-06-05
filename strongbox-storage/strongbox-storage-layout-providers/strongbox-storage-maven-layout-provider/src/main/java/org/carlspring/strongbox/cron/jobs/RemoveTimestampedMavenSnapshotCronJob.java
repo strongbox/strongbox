@@ -2,7 +2,6 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -27,10 +26,6 @@ public class RemoveTimestampedMavenSnapshotCronJob
 
     @Inject
     private ConfigurationManager configurationManager;
-
-    @Inject
-    private JobManager manager;
-
 
     @Override
     public void executeTask(CronTaskConfiguration config)

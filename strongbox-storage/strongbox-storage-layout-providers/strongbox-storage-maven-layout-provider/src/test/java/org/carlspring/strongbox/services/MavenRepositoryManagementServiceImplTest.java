@@ -1,6 +1,17 @@
 package org.carlspring.strongbox.services;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import javax.xml.bind.JAXBException;
+
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
@@ -9,13 +20,6 @@ import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-
-import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -24,8 +28,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -56,10 +58,10 @@ public class MavenRepositoryManagementServiceImplTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_MERGE_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_MERGE_2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_MERGE_1, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_MERGE_2, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }

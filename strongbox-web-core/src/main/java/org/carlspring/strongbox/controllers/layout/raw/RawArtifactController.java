@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.controllers.layout.raw;
 
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -38,6 +40,9 @@ public class RawArtifactController
 
     @Inject
     private ArtifactManagementService artifactManagementService;
+    
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     @ApiOperation(value = "Used to deploy an artifact", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
@@ -53,7 +58,8 @@ public class RawArtifactController
     {
         try
         {
-            artifactManagementService.validateAndStore(storageId, repositoryId, path, request.getInputStream());
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
+            artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
         }
@@ -111,7 +117,8 @@ public class RawArtifactController
             return;
         }
 
-        provideArtifactDownloadResponse(request, response, httpHeaders, repository, path);
+        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, path);
+        provideArtifactDownloadResponse(request, response, httpHeaders, repositoryPath);
     }
 
 }

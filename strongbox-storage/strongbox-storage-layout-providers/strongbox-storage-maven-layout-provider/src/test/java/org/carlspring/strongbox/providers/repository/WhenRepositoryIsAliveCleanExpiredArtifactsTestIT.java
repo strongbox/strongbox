@@ -40,9 +40,10 @@ public class WhenRepositoryIsAliveCleanExpiredArtifactsTestIT
         final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
-        assertFalse(layoutProvider.containsPath(repository, path));
-        assertTrue(layoutProvider.containsPath(repository, StringUtils.replace(path, "1.6/properties-injector-1.6.jar",
-                                                                               "maven-metadata.xml")));
+        assertFalse(layoutProvider.containsPath(repositoryPathResolver.resolve(repository, path)));
+        assertTrue(layoutProvider.containsPath(repositoryPathResolver.resolve(repository, StringUtils.replace(path,
+                                                                                                              "1.6/properties-injector-1.6.jar",
+                                                                                                              "maven-metadata.xml"))));
     }
 
 }

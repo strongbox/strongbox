@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers.layout.nuget;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
@@ -64,7 +65,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -275,6 +276,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
+               .log().body().and()
                .assertThat()
                .body(equalTo("1"));
 
@@ -435,7 +437,9 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     @Test
     public void testRemoteLastVersion()
     {
-        PackageFeed feed = given().header("User-Agent", "NuGet/*")
+        PackageFeed feed = given().log()
+                                  .all()
+                                  .header("User-Agent", "NuGet/*")
                                   .when()
                                   .get(getContextBaseUrl()
                                           + "/storages/public/nuget-group/FindPackagesById()?id=NHibernate&$orderby=Version")

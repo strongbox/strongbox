@@ -27,7 +27,7 @@ import org.apache.commons.codec.digest.MessageDigestAlgorithms;
  * 
  * @author mtodorov
  */
-public abstract class ArtifactInputStream
+public class ArtifactInputStream
         extends BufferedInputStream
 {
 

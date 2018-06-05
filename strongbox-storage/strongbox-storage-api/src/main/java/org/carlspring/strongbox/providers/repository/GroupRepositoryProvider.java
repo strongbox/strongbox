@@ -27,6 +27,7 @@ import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -94,7 +95,6 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     {
         Repository groupRepository = repositoryPath.getRepository();
         Storage storage = groupRepository.getStorage();
-        String path = RepositoryFiles.stringValue(repositoryPath);
         
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories().keySet())
         {
@@ -107,7 +107,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 continue;
             }
             
-            RepositoryPath result = repositoryPathResolver.resolve(r, path);
+            RepositoryPath result = repositoryPathResolver.resolve(r, repositoryPath);
             if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), result))
             {
                 continue;
@@ -212,8 +212,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         {
             Paginator paginatorLocal = new Paginator();
             paginatorLocal.setLimit(groupLimit);
-            //paginatorLocal.setOrderBy(pageRequest.getOrderBy());
             paginatorLocal.setSkip(groupSkip);
+            paginatorLocal.setProperty(paginator.getProperty());
+            paginatorLocal.setOrder(paginator.getOrder());
 
             groupLimit = 0;
 

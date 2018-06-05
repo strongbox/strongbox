@@ -1,18 +1,9 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -21,6 +12,20 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
@@ -29,9 +34,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Kate Novik.
@@ -115,8 +117,8 @@ public class MavenChecksumServiceTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -137,8 +139,8 @@ public class MavenChecksumServiceTest
         assertFalse("The checksum file for artifact exist!",
                     new File(artifactPath, "1.0/strongbox-checksum-1.0.jar.md5").exists());
 
-        getLayoutProvider(REPOSITORY_RELEASES).rebuildMetadata(STORAGE0, REPOSITORY_RELEASES,
-                                                               "org/carlspring/strongbox/checksum/maven/strongbox-checksum");
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES,
+                                                "org/carlspring/strongbox/checksum/maven/strongbox-checksum");
 
         checksumService.regenerateChecksum(STORAGE0,
                                            REPOSITORY_RELEASES,
@@ -189,8 +191,8 @@ public class MavenChecksumServiceTest
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/checksum";
 
-        getLayoutProvider(REPOSITORY_SNAPSHOTS).rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
-                                                                "org/carlspring/strongbox/checksum");
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
+                                                "org/carlspring/strongbox/checksum");
 
         assertFalse("The checksum file for artifact exist!",
                     new File(snapshotArtifact.getPath().toString() + ".jar.md5").exists());
@@ -235,7 +237,7 @@ public class MavenChecksumServiceTest
     {
         String artifactPath = REPOSITORY_RELEASES_BASEDIR + "/org/carlspring/strongbox/checksum/maven/checksum-rewrite";
 
-        getLayoutProvider(REPOSITORY_RELEASES).rebuildMetadata(STORAGE0, REPOSITORY_RELEASES,
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES,
                                                                "org/carlspring/strongbox/checksum");
 
         File md5File = new File(artifactPath, "1.0/checksum-rewrite-1.0.jar.md5");

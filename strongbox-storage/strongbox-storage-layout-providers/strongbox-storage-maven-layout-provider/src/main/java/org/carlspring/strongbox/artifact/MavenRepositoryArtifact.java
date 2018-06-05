@@ -1,9 +1,12 @@
 package org.carlspring.strongbox.artifact;
 
 import org.carlspring.maven.commons.DetachedArtifact;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+
+import com.google.common.io.Files;
 
 import java.io.File;
-import java.nio.file.Path;
+import java.util.Optional;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.VersionRange;
@@ -11,20 +14,25 @@ import org.apache.maven.artifact.versioning.VersionRange;
 /**
  * @author Przemyslaw Fusik
  */
-public class MavenDetachedArtifact
+public class MavenRepositoryArtifact
         extends DetachedArtifact
         implements MavenArtifact
 {
 
-    private Path path;
+    private RepositoryPath path;
 
-    public MavenDetachedArtifact(Artifact artifact)
+    public MavenRepositoryArtifact(Artifact artifact, RepositoryPath path) {
+        this(artifact);
+        this.path = path;
+    }
+    
+    public MavenRepositoryArtifact(Artifact artifact)
     {
         this(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getType(),
              artifact.getClassifier());
     }
 
-    public MavenDetachedArtifact(final String groupId,
+    public MavenRepositoryArtifact(final String groupId,
                                  final String artifactId,
                                  final VersionRange version,
                                  final String type,
@@ -33,7 +41,7 @@ public class MavenDetachedArtifact
         super(groupId, artifactId, version, type, classifier);
     }
 
-    public MavenDetachedArtifact(final String groupId,
+    public MavenRepositoryArtifact(final String groupId,
                                  final String artifactId,
                                  final String version,
                                  final String type,
@@ -42,7 +50,7 @@ public class MavenDetachedArtifact
         super(groupId, artifactId, version, type, classifier);
     }
 
-    public MavenDetachedArtifact(final String groupId,
+    public MavenRepositoryArtifact(final String groupId,
                                  final String artifactId,
                                  final String version,
                                  final String type)
@@ -50,14 +58,14 @@ public class MavenDetachedArtifact
         super(groupId, artifactId, version, type);
     }
 
-    public MavenDetachedArtifact(final String groupId,
+    public MavenRepositoryArtifact(final String groupId,
                                  final String artifactId,
                                  final String version)
     {
         super(groupId, artifactId, version);
     }
 
-    public MavenDetachedArtifact(final String groupId,
+    public MavenRepositoryArtifact(final String groupId,
                                  final String artifactId)
     {
         super(groupId, artifactId);
@@ -76,14 +84,30 @@ public class MavenDetachedArtifact
     }
 
     @Override
-    public Path getPath()
+    public RepositoryPath getPath()
     {
         return path;
     }
 
     @Override
-    public void setPath(final Path path)
+    public void setPath(final RepositoryPath path)
     {
         this.path = path;
     }
+
+    @Override
+    public String getType()
+    {
+        String type = super.getType();
+        if (type != null && type.trim().length() > 0) {
+            return type;
+        }
+        
+        String fileName = path.getFileName().toString();
+        return Optional.of(fileName.lastIndexOf('.'))
+                       .map(i -> (i == -1) ? "" : fileName.substring(i + 1))
+                       .get();
+    }
+    
+    
 }

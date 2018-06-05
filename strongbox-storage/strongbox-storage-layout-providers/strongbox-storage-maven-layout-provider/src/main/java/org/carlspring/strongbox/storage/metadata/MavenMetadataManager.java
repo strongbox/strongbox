@@ -6,6 +6,7 @@ import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -25,7 +26,6 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
@@ -36,12 +36,14 @@ import com.google.common.base.Throwables;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Plugin;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -71,38 +73,31 @@ public class MavenMetadataManager
     {
     }
 
-    public Metadata readMetadata(Repository repository,
-                                 MavenArtifact artifact)
+    public Metadata readMetadata(MavenArtifact artifact)
             throws IOException,
                    XmlPullParserException,
                    ProviderImplementationException
     {
-        Metadata metadata;
-
+        RepositoryPath repositoryPath = artifact.getPath();
+        Repository repository = repositoryPath.getRepository();
+        
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(
-                MavenArtifactUtils.convertArtifactToPath(artifact));
-
-        if (layoutProvider.containsArtifact(repository, coordinates))
-        {
-            Path artifactPath = layoutProvider.resolve(repository, coordinates);
-            Path artifactBasePath = artifactPath;
-            if (artifact.getVersion() != null)
-            {
-                artifactBasePath = artifactPath.getParent().getParent();
-            }
-
-            logger.debug("Getting metadata for " + artifactBasePath);
-
-            metadata = readMetadata(artifactBasePath);
-        }
-        else
+        if (!layoutProvider.containsPath(repositoryPath))
         {
             throw new IOException("Artifact " + artifact.toString() + " does not exist in repository " + repository +
-                                  " !");
+                    " !");
+
+        }
+        
+        Path artifactBasePath = repositoryPath;
+        if (artifact.getVersion() != null)
+        {
+            artifactBasePath = repositoryPath.getParent().getParent();
         }
 
-        return metadata;
+        logger.debug("Getting metadata for " + artifactBasePath);
+
+        return readMetadata(artifactBasePath);
     }
 
     public Metadata readMetadata(Path artifactBasePath)
@@ -151,10 +146,6 @@ public class MavenMetadataManager
                          Path metadataPath = MetadataHelper.getMetadataPath(metadataBasePath, version, metadataType);
                          Files.deleteIfExists(metadataPath);
 
-                         // disable decorating RepositoryPath output stream
-                         metadataPath = metadataPath instanceof RepositoryPath ? ((RepositoryPath) metadataPath).getTarget() :
-                                        metadataPath;
-
                          try (OutputStream os = new MultipleDigestOutputStream(metadataPath,
                                                                                Files.newOutputStream(metadataPath));
                               Writer writer = WriterFactory.newXmlWriter(os))
@@ -177,130 +168,133 @@ public class MavenMetadataManager
     /**
      * Generate a metadata file for an artifact.
      */
-    public void generateMetadata(Repository repository,
-                                 String path,
+    public void generateMetadata(RepositoryPath artifactGroupDirectoryPath,
                                  VersionCollectionRequest request)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException,
                    UnknownRepositoryTypeException
     {
+        Repository repository = artifactGroupDirectoryPath.getRepository();
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        if (layoutProvider.containsPath(repository, path))
+        if (!layoutProvider.containsPath(artifactGroupDirectoryPath))
         {
-            logger.debug("Artifact metadata generation triggered for " + path +
-                         " in '" + repository.getStorage().getId() + ":" + repository.getId() + "'" +
-                         " [policy: " + repository.getPolicy() + "].");
+            logger.error("Artifact metadata generation failed: " + artifactGroupDirectoryPath + ").");
+            
+            return;
+        }
+        
+        logger.debug("Artifact metadata generation triggered for " + artifactGroupDirectoryPath +
+                     " in '" + repository.getStorage().getId() + ":" + repository.getId() + "'" +
+                     " [policy: " + repository.getPolicy() + "].");
 
-            MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(path);
+        Pair<String, String> artifactGroup = MavenArtifactUtils.getArtifactGroupId(artifactGroupDirectoryPath);
+        String artifactGroupId = artifactGroup.getValue0();
+        String artifactId = artifactGroup.getValue1();
+        
+        Metadata metadata = new Metadata();
+        metadata.setGroupId(artifactGroupId);
+        metadata.setArtifactId(artifactId);
+        
 
-            Metadata metadata = new Metadata();
-            metadata.setArtifactId(artifact.getArtifactId());
-            metadata.setGroupId(artifact.getGroupId());
+        List<MetadataVersion> baseVersioning = request.getMetadataVersions();
+        Versioning versioning = request.getVersioning();
 
-            List<MetadataVersion> baseVersioning = request.getMetadataVersions();
-            Versioning versioning = request.getVersioning();
+        // Set lastUpdated tag for main maven-metadata
+        MetadataHelper.setLastUpdated(versioning);
 
-            // Set lastUpdated tag for main maven-metadata
+        /**
+         * In a release repository we only need to generate maven-metadata.xml in the artifactBasePath
+         * (i.e. org/foo/bar/maven-metadata.xml)
+         */
+        if (repository.getPolicy().equals(RepositoryPolicyEnum.RELEASE.getPolicy()))
+        {
+            // Don't write empty <versioning/> tags when no versions are available.
+            if (!versioning.getVersions().isEmpty())
+            {
+                String latestVersion = baseVersioning.get(baseVersioning.size() - 1).getVersion();
+
+                metadata.setVersioning(request.getVersioning());
+                versioning.setRelease(latestVersion);
+
+                // Set <latest> by figuring out the most recent upload
+                Collections.sort(baseVersioning);
+                versioning.setLatest(latestVersion);
+            }
+
+            // Touch the lastUpdated field
             MetadataHelper.setLastUpdated(versioning);
 
-            /**
-             * In a release repository we only need to generate maven-metadata.xml in the artifactBasePath
-             * (i.e. org/foo/bar/maven-metadata.xml)
-             */
-            if (repository.getPolicy().equals(RepositoryPolicyEnum.RELEASE.getPolicy()))
+            // Write basic metadata
+            storeMetadata(artifactGroupDirectoryPath, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+
+            logger.debug("Generated Maven metadata for " +
+                         artifactGroupId + ":" +
+                         artifactId + ".");
+        }
+        /**
+         * In a snapshot repository we need to generate maven-metadata.xml in the artifactBasePath and
+         * generate additional maven-metadata.xml files for each snapshot directory containing information about
+         * all available artifacts.
+         */
+        else if (repository.getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
+        {
+            // Don't write empty <versioning/> tags when no versions are available.
+            if (!versioning.getVersions().isEmpty())
             {
-                // Don't write empty <versioning/> tags when no versions are available.
-                if (!versioning.getVersions().isEmpty())
+                // Set <latest>
+                String latestVersion = versioning.getVersions().get(versioning.getVersions().size() - 1);
+                versioning.setLatest(latestVersion);
+
+                metadata.setVersioning(versioning);
+
+                // Generate and write additional snapshot metadata.
+                for (String version : metadata.getVersioning().getVersions())
                 {
-                    String latestVersion = baseVersioning.get(baseVersioning.size() - 1).getVersion();
+                    RepositoryPath snapshotBasePath = artifactGroupDirectoryPath.toAbsolutePath()
+                                                                                .resolve(MavenArtifactUtils.getSnapshotBaseVersion(version));
 
-                    metadata.setVersioning(request.getVersioning());
-                    versioning.setRelease(latestVersion);
-
-                    // Set <latest> by figuring out the most recent upload
-                    Collections.sort(baseVersioning);
-                    versioning.setLatest(latestVersion);
+                    generateSnapshotVersioningMetadata(artifactGroupId, artifactId, snapshotBasePath,
+                                                       version, true);
                 }
-
-                // Touch the lastUpdated field
-                MetadataHelper.setLastUpdated(versioning);
-
-                // Write basic metadata
-                storeMetadata(request.getArtifactBasePath(), null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
-
-                logger.debug("Generated Maven metadata for " +
-                             artifact.getGroupId() + ":" +
-                             artifact.getArtifactId() + ".");
-            }
-            /**
-             * In a snapshot repository we need to generate maven-metadata.xml in the artifactBasePath and
-             * generate additional maven-metadata.xml files for each snapshot directory containing information about
-             * all available artifacts.
-             */
-            else if (repository.getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
-            {
-                // Don't write empty <versioning/> tags when no versions are available.
-                if (!versioning.getVersions().isEmpty())
-                {
-                    // Set <latest>
-                    String latestVersion = versioning.getVersions().get(versioning.getVersions().size() - 1);
-                    versioning.setLatest(latestVersion);
-
-                    metadata.setVersioning(versioning);
-
-                    // Generate and write additional snapshot metadata.
-                    for (String version : metadata.getVersioning().getVersions())
-                    {
-                        Path snapshotBasePath = Paths.get(request.getArtifactBasePath().toAbsolutePath() + "/" +
-                                                          MavenArtifactUtils.getSnapshotBaseVersion(version));
-
-                        generateSnapshotVersioningMetadata(snapshotBasePath, artifact, version, true);
-                    }
-                }
-
-                // Write artifact metadata
-                storeMetadata(request.getArtifactBasePath(), null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
-
-                logger.debug("Generated Maven metadata for " + artifact.getGroupId() + ":" +
-                             artifact.getArtifactId() + ".");
-            }
-            else if (repository.getPolicy().equals(RepositoryPolicyEnum.MIXED.getPolicy()))
-            {
-                // TODO: Implement merging.
-            }
-            else
-            {
-                throw new UnknownRepositoryTypeException("Repository policy type unknown: " + repository.getId());
             }
 
-            // If this is a plugin, we need to add an additional metadata to the groupId.artifactId path.
-            if (!request.getPlugins().isEmpty())
-            {
-                generateMavenPluginMetadata(request, artifact);
-            }
+            // Write artifact metadata
+            storeMetadata(artifactGroupDirectoryPath, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+
+            logger.debug("Generated Maven metadata for " + artifactGroupId + ":" +
+                         artifactId + ".");
+        }
+        else if (repository.getPolicy().equals(RepositoryPolicyEnum.MIXED.getPolicy()))
+        {
+            // TODO: Implement merging.
         }
         else
         {
-            logger.error("Artifact metadata generation failed: " + path + ").");
+            throw new UnknownRepositoryTypeException("Repository policy type unknown: " + repository.getId());
+        }
+
+        // If this is a plugin, we need to add an additional metadata to the groupId.artifactId path.
+        if (!request.getPlugins().isEmpty())
+        {
+            generateMavenPluginMetadata(artifactGroupId, artifactId, artifactGroupDirectoryPath.getParent(),
+                                        request.getPlugins());
         }
     }
 
-    private void generateMavenPluginMetadata(VersionCollectionRequest request,
-                                             MavenArtifact artifact)
+    private void generateMavenPluginMetadata(String groupId, String aritfactId, RepositoryPath pluginMetadataPath, List<Plugin> plugins)
             throws IOException, NoSuchAlgorithmException
     {
         Metadata pluginMetadata = new Metadata();
-        pluginMetadata.setPlugins(request.getPlugins());
-
-        Path pluginMetadataPath = request.getArtifactBasePath().getParent();
+        pluginMetadata.setPlugins(plugins);
 
         storeMetadata(pluginMetadataPath, null, pluginMetadata, MetadataType.PLUGIN_GROUP_LEVEL);
 
-        logger.debug("Generated Maven plugin metadata for " + artifact.getGroupId() + ":" +
-                     artifact.getArtifactId() + ".");
+        logger.debug("Generated Maven plugin metadata for " + groupId + ":" +
+                     aritfactId + ".");
     }
 
-    public Metadata generateSnapshotVersioningMetadata(Path snapshotBasePath,
-                                                       MavenArtifact artifact,
+    public Metadata generateSnapshotVersioningMetadata(String groupId,
+                                                       String aritfactId,
+                                                       RepositoryPath snapshotBasePath,
                                                        String version,
                                                        boolean store)
             throws IOException, NoSuchAlgorithmException
@@ -317,8 +311,8 @@ public class MavenMetadataManager
 
         // Write snapshot metadata version information for each snapshot.
         Metadata snapshotMetadata = new Metadata();
-        snapshotMetadata.setGroupId(artifact.getGroupId());
-        snapshotMetadata.setArtifactId(artifact.getArtifactId());
+        snapshotMetadata.setGroupId(groupId);
+        snapshotMetadata.setArtifactId(aritfactId);
         snapshotMetadata.setVersion(version);
         snapshotMetadata.setVersioning(snapshotVersioning);
 
@@ -369,49 +363,37 @@ public class MavenMetadataManager
         });
     }
 
-    public void mergeAndStore(Repository repository,
-                              MavenArtifact artifact,
+    public void mergeAndStore(MavenArtifact artifact,
                               Metadata mergeMetadata)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException,
                    ProviderImplementationException
     {
+        RepositoryPath repositoryPath = artifact.getPath();
+        Repository repository = repositoryPath.getRepository();
+        
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(
-                MavenArtifactUtils.convertArtifactToPath(artifact));
-
-        if (layoutProvider.containsArtifact(repository, coordinates))
-        {
-            Path artifactBasePath;
-            if (artifact.getPath() != null && !Files.isDirectory(artifact.getPath()))
-            {
-                artifactBasePath = artifact.getPath().getParent().getParent();
-            }
-            else
-            {
-                artifactBasePath = artifact.getPath();
-            }
-
-            logger.debug("Artifact merge metadata triggered for " + artifact.toString() +
-                         "(" + artifactBasePath + "). " + repository.getType());
-
-            try
-            {
-                Metadata metadata = readMetadata(repository, artifact);
-                mergeAndStore(artifactBasePath, metadata, mergeMetadata);
-            }
-            catch (FileNotFoundException e)
-            {
-                logger.error(e.getMessage(), e);
-                throw new IOException("Artifact " + artifact.toString() + " doesn't contain any metadata," +
-                                      " therefore we can't merge the metadata!");
-            }
-        }
-        else
+        if (!layoutProvider.containsPath(repositoryPath))
         {
             throw new IOException("Artifact " + artifact.toString() + " does not exist in repository " + repository +
-                                  " !");
+                    " !");
+        }
+        
+        RepositoryPath artifactBasePath = repositoryPath.getParent().getParent();
+        logger.debug("Artifact merge metadata triggered for " + artifact.toString() + "(" + artifactBasePath + "). "
+                + repository.getType());
+
+        try
+        {
+            Metadata metadata = readMetadata(artifact);
+            mergeAndStore(artifactBasePath, metadata, mergeMetadata);
+        }
+        catch (FileNotFoundException e)
+        {
+            logger.error(e.getMessage(), e);
+            throw new IOException("Artifact " + artifact.toString() + " doesn't contain any metadata," +
+                                  " therefore we can't merge the metadata!");
         }
     }
 

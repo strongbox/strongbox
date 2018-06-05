@@ -476,20 +476,37 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                      String repositoryId,
                                      String path)
     {
-        String sQuery = String.format("SELECT FROM INDEX:idx_artifact WHERE key = [:storageId, :repositoryId, :path]");
+        String sQuery = String.format("SELECT FROM INDEX:idx_artifact_coordinates WHERE key = :path");
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("path", path);
 
         OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);
 
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("storageId", storageId);
-        params.put("repositoryId", repositoryId);
-        params.put("path", path);
-
         List<ODocument> resultList = getDelegate().command(oQuery).execute(params);
         ODocument result = resultList.isEmpty() ? null : resultList.iterator().next();
 
-        return result == null ? null : ((ODocument)result.field("rid")).getIdentity();
+        ORID artifactCoordinatesId = result == null ? null : ((ODocument) result.field("rid")).getIdentity();
+        if (artifactCoordinatesId == null)
+        {
+            return null;
+        }
+
+        sQuery = String.format("SELECT FROM INDEX:idx_artifact WHERE key = [:storageId, :repositoryId, :artifactCoordinatesId]");
+
+        oQuery = new OSQLSynchQuery<>(sQuery);
+        oQuery.setLimit(1);
+
+        params = new HashMap<>();
+        params.put("storageId", storageId);
+        params.put("repositoryId", repositoryId);
+        params.put("artifactCoordinatesId", artifactCoordinatesId);
+
+        resultList = getDelegate().command(oQuery).execute(params);
+        result = resultList.isEmpty() ? null : resultList.iterator().next();
+
+        return result == null ? null : ((ODocument) result.field("rid")).getIdentity();
     }
 
     @Override

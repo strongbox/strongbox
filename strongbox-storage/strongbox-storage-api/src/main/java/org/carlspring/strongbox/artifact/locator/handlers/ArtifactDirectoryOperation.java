@@ -13,7 +13,13 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 public interface ArtifactDirectoryOperation
 {
 
-    void execute(RepositoryPath path) throws IOException;
+    /**
+     * Operation logic which need to be performed on provided directory.
+     * 
+     * @param directoryPath
+     * @throws IOException
+     */
+    void execute(RepositoryPath directoryPath) throws IOException;
 
     LinkedHashMap<RepositoryPath, List<RepositoryPath>> getVisitedRootPaths();
 

@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.storage.repository.Repository;
 
 public class RepositoryFileAttributes implements BasicFileAttributes
 {
@@ -102,15 +101,6 @@ public class RepositoryFileAttributes implements BasicFileAttributes
         return Boolean.TRUE.equals(attributes.get(TEMP));
     }
 
-    public boolean isIndex()
-    {
-        return Boolean.TRUE.equals(attributes.get(INDEX));
-    }
-
-    // TODO: we should determine real platform specific metadata files as
-    // artifacts too, so files like `pom`|`nuspec`|`package.json` should be
-    // treated as artifacts and they should have an ArtifactCoodrinates (for now they have no coordinates)
-    // also we need special attribute for files like maven-metadata.xml, it can be called as `other`
     public boolean isArtifact()
     {
         return Boolean.TRUE.equals(attributes.get(ARTIFACT));
@@ -161,14 +151,9 @@ public class RepositoryFileAttributes implements BasicFileAttributes
         attributes.put(TEMP, isTemp);
     }
 
-    protected void setIndex(boolean isIndex)
+    protected void setArtifact(boolean isArtifact)
     {
-        attributes.put(INDEX, isIndex);
-    }
-
-    protected void setArtifact(String path)
-    {
-        attributes.put(RepositoryFileAttributeType.ARTIFACT_PATH, path);
+        attributes.put(RepositoryFileAttributeType.ARTIFACT, isArtifact);
     }
     
     protected void setResourceUrl(URL url)

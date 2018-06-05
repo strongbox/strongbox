@@ -41,12 +41,6 @@ public abstract class RepositoryFiles
         return (Boolean) Files.getAttribute(path, formatAttributes(RepositoryFileAttributeType.TEMP));
     }
     
-    public static Boolean isIndex(RepositoryPath path)
-        throws IOException
-    {
-        return (Boolean) Files.getAttribute(path, formatAttributes(RepositoryFileAttributeType.INDEX));
-    }
-    
     public static Boolean isArtifact(RepositoryPath path)
         throws IOException
     {
@@ -77,7 +71,7 @@ public abstract class RepositoryFiles
         {
             sj.add(repositoryFileAttributeType.getName());
         }
-        return String.format("strongbox:%s", sj.toString());
+        return String.format("%s:%s", RepositoryFileSystemProvider.STRONGBOX_SCHEME, sj.toString());
     }
 
     public static Set<RepositoryFileAttributeType> parseAttributes(String attributes)
@@ -86,7 +80,8 @@ public abstract class RepositoryFiles
         {
             return Collections.emptySet();
         }
-        String attributesLocal = attributes.replace("strongbox:", "").trim();
+        String schemePrefix = String.format("%s:", RepositoryFileSystemProvider.STRONGBOX_SCHEME);
+        String attributesLocal = attributes.replace(schemePrefix, "").trim();
         if (attributesLocal.equals("*"))
         {
             return Arrays.stream(RepositoryFileAttributeType.values())
@@ -120,16 +115,10 @@ public abstract class RepositoryFiles
         p.getFileSystem().provider().undelete(p);
     }
 
-    public static void permanent(RepositoryPath p)
+    public static TempRepositoryPath temporary(RepositoryPath p)
         throws IOException
     {
-        p.getFileSystem().provider().moveFromTemporaryDirectory(p);
-    }
-
-    public static RepositoryPath temporary(RepositoryPath p)
-        throws IOException
-    {
-        return p.getFileSystem().provider().getTempPath(p);
+        return TempRepositoryPath.of(p);
     }
     
     public static RepositoryPath trash(RepositoryPath p)
@@ -138,16 +127,12 @@ public abstract class RepositoryFiles
         return p.getFileSystem().provider().getTrashPath(p);
     }
 
-    public static String stringValue(RepositoryPath p)
+    public static String relativizePath(RepositoryPath p)
             throws IOException
     {
         if (p.path != null)
         {
             return p.path;
-        }
-        if (!p.isAbsolute())
-        {
-            return p.path = p.toString();
         }
 
         return p.path = relativizeUri(p).toString();
@@ -186,4 +171,24 @@ public abstract class RepositoryFiles
         }
     }
 
+    public static void deleteTrash(RepositoryPath repositoryPath) throws IOException {
+        repositoryPath.getFileSystem().provider().deleteTrash(repositoryPath);
+    }
+    
+    public static void undeleteTrash(RepositoryPath repositoryPath) throws IOException {
+        repositoryPath.getFileSystem().provider().undelete(repositoryPath);
+    }
+    
+    public static void delete(RepositoryPath path,
+                              boolean force)
+        throws IOException
+    {
+        path.getFileSystem().provider().delete(path, force);
+    }
+    
+    public static void delete(RepositoryPath path)
+        throws IOException
+    {
+        Files.delete(path);
+    }
 }

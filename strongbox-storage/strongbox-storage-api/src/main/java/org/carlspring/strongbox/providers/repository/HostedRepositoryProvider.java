@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -18,10 +19,11 @@ import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -42,6 +44,9 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
 
     @PersistenceContext
     private EntityManager entityManager;
+    
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
     
     @Override
     public String getAlias()
@@ -86,7 +91,6 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
 
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         
         Selector<ArtifactEntry> selector = createSelector(storageId, repositoryId, predicate).with(paginator).fetch();
         
@@ -98,7 +102,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
             
             try
             {
-                RootRepositoryPath rootRepositoryPath = layoutProvider.resolve(repository);
+                RootRepositoryPath rootRepositoryPath = repositoryPathResolver.resolve(repository);
                 result.add(rootRepositoryPath.resolve(artifactEntry));
             }
             catch (Exception e)

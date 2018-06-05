@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -45,10 +46,10 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, "releases-with-single-validator"));
-        repositories.add(createRepositoryMock(STORAGE0, "releases-with-default-validators"));
-        repositories.add(createRepositoryMock(STORAGE0, "another-releases-with-default-validators"));
-        repositories.add(createRepositoryMock(STORAGE0, "single-validator-only"));
+        repositories.add(createRepositoryMock(STORAGE0, "releases-with-single-validator", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "releases-with-default-validators", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "another-releases-with-default-validators", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "single-validator-only", Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }

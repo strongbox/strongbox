@@ -1,20 +1,9 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -22,15 +11,35 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
-import com.carmatechnologies.commons.testing.logging.api.LogLevel;
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 import org.hamcrest.CoreMatchers;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+
+import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
+import com.carmatechnologies.commons.testing.logging.api.LogLevel;
 
 /**
  * @author mtodorov
@@ -261,11 +270,11 @@ public class MavenGroupRepositoryProviderTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_1, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }

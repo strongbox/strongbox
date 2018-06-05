@@ -1,5 +1,18 @@
 package org.carlspring.strongbox.dependency.snippet;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -22,7 +35,6 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
 
 /**
  * @author carlspring
@@ -114,7 +126,7 @@ public class MavenDependencyFormatterTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }

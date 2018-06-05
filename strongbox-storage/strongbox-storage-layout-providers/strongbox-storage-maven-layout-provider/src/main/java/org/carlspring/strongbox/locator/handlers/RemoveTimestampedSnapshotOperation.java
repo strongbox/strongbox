@@ -1,20 +1,20 @@
 package org.carlspring.strongbox.locator.handlers;
 
+import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
+import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
+import org.carlspring.strongbox.storage.metadata.VersionCollector;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
-import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
-import org.carlspring.strongbox.storage.metadata.VersionCollector;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,27 +47,25 @@ public class RemoveTimestampedSnapshotOperation
         this.mavenSnapshotManager = mavenSnapshotManager;
     }
 
-    public void execute(RepositoryPath path) throws IOException
+    public void execute(RepositoryPath basePath) throws IOException
     {
-        List<Path> filePathList = Files.walk(path)
-                .filter(p -> !p.getFileName().startsWith(".pom"))
-                .sorted()
-                .collect(Collectors.toList());
-        
-        RepositoryPath parentPath = path.getParent()
-                                .toAbsolutePath();
+        boolean containsMetadata;
+        try (Stream<Path> pathStream = Files.walk(basePath))
+        {
+            containsMetadata = pathStream.anyMatch(p -> !p.getFileName().startsWith(".pom"));
+        }
 
-        if (filePathList.isEmpty())
+        if (!containsMetadata)
         {
             return;
         }
         
         // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
-        if (!getVisitedRootPaths().isEmpty() && getVisitedRootPaths().containsKey(parentPath))
+        if (getVisitedRootPaths().containsKey(basePath))
         {
-            List<RepositoryPath> visitedVersionPaths = getVisitedRootPaths().get(parentPath);
+            List<RepositoryPath> visitedVersionPaths = getVisitedRootPaths().get(basePath);
 
-            if (visitedVersionPaths.contains(path))
+            if (visitedVersionPaths.contains(basePath))
             {
                 return;
             }
@@ -76,52 +74,53 @@ public class RemoveTimestampedSnapshotOperation
         if (logger.isDebugEnabled())
         {
             // We're using System.out.println() here for clarity and due to the length of the lines
-            System.out.println(parentPath);
+            System.out.println(basePath);
         }
 
         // The current directory is out of the tree
-        if (previousPath != null && !parentPath.startsWith(previousPath))
+        if (previousPath != null && !basePath.startsWith(previousPath))
         {
             getVisitedRootPaths().remove(previousPath);
-            previousPath = parentPath;
+            previousPath = basePath;
         }
 
         if (previousPath == null)
         {
-            previousPath = parentPath;
+            previousPath = basePath;
         }
 
-        List<RepositoryPath> versionDirectories = getVersionDirectories(parentPath);
-        if (versionDirectories != null)
+        List<RepositoryPath> versionDirectories = getVersionDirectories(basePath);
+        if (versionDirectories == null)
         {
-            getVisitedRootPaths().put(parentPath, versionDirectories);
+            return;
+        }
+        
+        getVisitedRootPaths().put(basePath, versionDirectories);
 
-            VersionCollector versionCollector = new VersionCollector();
-            VersionCollectionRequest request = versionCollector.collectVersions(path.getParent()
-                                                                                    .toAbsolutePath());
+        VersionCollector versionCollector = new VersionCollector();
+        VersionCollectionRequest request = versionCollector.collectVersions(basePath);
 
-            if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled())
+        {
+            for (RepositoryPath directory : versionDirectories)
             {
-                for (RepositoryPath directory : versionDirectories)
-                {
-                    // We're using System.out.println() here for clarity and due to the length of the lines
-                    System.out.println(" " + directory.toAbsolutePath());
-                }
+                // We're using System.out.println() here for clarity and due to the length of the lines
+                System.out.println(" " + directory.toAbsolutePath());
             }
-            
-            try
-            {
-                mavenSnapshotManager.deleteTimestampedSnapshotArtifacts(path.getRepository(), RepositoryFiles.stringValue(path), request,
-                                                                        numberToKeep, keepPeriod);
-            }
-            catch (IOException |
-                   ProviderImplementationException |
-                   NoSuchAlgorithmException |
-                   ParseException |
-                   XmlPullParserException e)
-            {
-                logger.error("Failed to delete timestamped snapshot artifacts for " + path, e);
-            }
+        }
+        
+        try
+        {
+            mavenSnapshotManager.deleteTimestampedSnapshotArtifacts(basePath, request.getVersioning(),
+                                                                    numberToKeep, keepPeriod);
+        }
+        catch (IOException |
+               ProviderImplementationException |
+               NoSuchAlgorithmException |
+               ParseException |
+               XmlPullParserException e)
+        {
+            logger.error("Failed to delete timestamped snapshot artifacts for " + basePath, e);
         }
     }
 

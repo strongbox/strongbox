@@ -1,36 +1,37 @@
 package org.carlspring.strongbox.repository.group.index;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.util.IndexContextHelper;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Optional;
-import java.util.Set;
-
 import org.hamcrest.Matchers;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Przemyslaw Fusik
@@ -73,8 +74,7 @@ public class MavenIndexGroupRepositoryComponentTest
         MutableRepository repository = mavenRepositoryFactory.createRepository(REPOSITORY_LEAF_L);
         repository.setStorage(configurationManagementService.getMutableConfigurationClone().getStorage(STORAGE0));
 
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath artifactFile = layoutProvider.resolve(new Repository(repository)).resolve(artifactPath);
+        RepositoryPath artifactFile = repositoryPathResolver.resolve(new Repository(repository), artifactPath);
 
         indexer.addArtifactToIndex(artifactFile);
 
@@ -85,7 +85,7 @@ public class MavenIndexGroupRepositoryComponentTest
 
         assertTrue(artifactSearchService.contains(request));
 
-        layoutProvider.delete(STORAGE0, REPOSITORY_LEAF_L, artifactPath, false);
+        RepositoryFiles.delete(artifactFile, false);
 
         assertFalse("Failed to delete artifact file " + artifactFile.toAbsolutePath(), Files.exists(artifactFile));
 
@@ -98,8 +98,7 @@ public class MavenIndexGroupRepositoryComponentTest
     {
         MutableRepository repository = createGroup(REPOSITORY_GROUP, STORAGE0, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
 
-        LayoutProvider provider = layoutProviderRegistry.getProvider(Maven2LayoutProvider.ALIAS);
-        RootRepositoryPath repositoryPath = provider.resolve(new Repository(repository));
+        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
         // recoded since we scheduled a cron job now
         artifactIndexesService.get().rebuildIndex(repositoryPath);
 
@@ -124,7 +123,7 @@ public class MavenIndexGroupRepositoryComponentTest
     @Override
     protected void addRepositoriesToClean(final Set<MutableRepository> repositories)
     {
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP, Maven2LayoutProvider.ALIAS));
     }
 
 }

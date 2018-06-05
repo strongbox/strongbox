@@ -1,6 +1,11 @@
 package org.carlspring.strongbox.artifact;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.javatuples.Pair;
+
+import java.io.IOException;
 
 import org.apache.maven.artifact.Artifact;
 
@@ -15,21 +20,23 @@ public class MavenArtifactUtils
         return ArtifactUtils.convertArtifactToPath(artifact);
     }
 
-    public static MavenArtifact getArtifactFromGAVTC(String gavtc)
-    {
-        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-        return new MavenDetachedArtifact(artifact);
-    }
-
     public static String getArtifactFileName(MavenArtifact artifact)
     {
         return ArtifactUtils.getArtifactFileName(artifact);
     }
 
-    public static MavenArtifact convertPathToArtifact(String path)
+    public static Pair<String, String> getArtifactGroupId(RepositoryPath repositoryPath) throws IOException{
+        MavenArtifact tmpArtifact = MavenArtifactUtils.convertPathToArtifact(repositoryPath);
+
+        return Pair.with(tmpArtifact.getGroupId(), tmpArtifact.getArtifactId());
+    }
+    
+    public static MavenArtifact convertPathToArtifact(RepositoryPath repositoryPath) throws IOException
     {
+        String path = RepositoryFiles.relativizePath(repositoryPath);
         Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-        return new MavenDetachedArtifact(artifact);
+        
+        return new MavenRepositoryArtifact(artifact, repositoryPath);
     }
 
     public static String getSnapshotBaseVersion(String version)
@@ -48,16 +55,10 @@ public class MavenArtifactUtils
         return ArtifactUtils.getArtifactLevelMetadataPath(artifact);
     }
 
-    public static MavenArtifact getPOMArtifactFromGAV(String gav)
-    {
-        Artifact artifact = ArtifactUtils.getPOMArtifactFromGAV(gav);
-        return new MavenDetachedArtifact(artifact);
-    }
-
     public static MavenArtifact getPOMArtifact(MavenArtifact source)
     {
         Artifact artifact = ArtifactUtils.getPOMArtifact(source);
-        return new MavenDetachedArtifact(artifact);
+        return new MavenRepositoryArtifact(artifact, source.getPath());
     }
 
     public static boolean isSnapshot(String version)

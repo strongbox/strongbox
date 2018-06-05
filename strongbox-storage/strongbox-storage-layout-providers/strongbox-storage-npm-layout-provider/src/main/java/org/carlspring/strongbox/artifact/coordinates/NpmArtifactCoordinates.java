@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -21,37 +21,42 @@ import org.springframework.util.Assert;
  * @author sbespalov
  *
  */
-@Embeddable
+@Entity
 @SuppressWarnings("serial")
 @XmlRootElement(name = "npmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactLayout("npm")
 public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtifactCoordinates, Version>
 {
+    public static final String NPM_VERSION_REGEX = "(\\d+)\\.(\\d+)(?:\\.)?(\\d*)(\\.|-|\\+)?([0-9A-Za-z-.]*)?";
     public static final String NPM_NAME_REGEX = "[a-z0-9][\\w-.]*";
-    public static final String NPM_EXTENSION_REGEX = "\\.tgz";
-    public static final String NPM_PACKAGE_PATH_REGEX = "(@?" + NPM_NAME_REGEX + ")/(" + NPM_NAME_REGEX + ")/(.+)/"
-            + NPM_NAME_REGEX + "-(.+?(?=" + NPM_EXTENSION_REGEX + "))" + NPM_EXTENSION_REGEX;
+    public static final String NPM_EXTENSION_REGEX = "(tgz|json)";
+    public static final String NPM_PACKAGE_PATH_REGEX = "(@?" + NPM_NAME_REGEX + ")/(" + NPM_NAME_REGEX + ")/("
+            + NPM_VERSION_REGEX + ")/" + NPM_NAME_REGEX + "(-(" + NPM_VERSION_REGEX + "))?\\." + NPM_EXTENSION_REGEX;
 
     private static final Pattern NPM_NAME_PATTERN = Pattern.compile(NPM_NAME_REGEX);
     private static final Pattern NPM_PATH_PATTERN = Pattern.compile(NPM_PACKAGE_PATH_REGEX);
+    private static final Pattern NPM_EXTENSION_PATTERN = Pattern.compile(NPM_EXTENSION_REGEX);
 
     private static final String SCOPE = "scope";
     private static final String NAME = "name";
     private static final String VERSION = "version";
+    private static final String EXTENSION = "extension";
 
     public NpmArtifactCoordinates()
     {
-        defineCoordinates(SCOPE, NAME, VERSION);
+        resetCoordinates(SCOPE, NAME, VERSION, EXTENSION);
     }
 
     public NpmArtifactCoordinates(String scope,
                                   String name,
-                                  String version)
+                                  String version,
+                                  String extension)
     {
         setScope(scope);
         setName(name);
         setVersion(version);
+        setExtension(extension);
     }
 
     public String getScope()
@@ -112,6 +117,18 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         setCoordinate(VERSION, version);
     }
 
+    public void setExtension(String extension)
+    {
+        Matcher matcher = NPM_EXTENSION_PATTERN.matcher(extension);
+        Assert.isTrue(matcher.matches(), "Invalid artifact extension");
+        
+        setCoordinate(EXTENSION, extension);
+    }
+
+    public String getExtension() {
+        return getCoordinate(EXTENSION);
+    }
+    
     @Override
     public String toPath()
     {
@@ -134,7 +151,11 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
 
     public String getArtifactFileName()
     {
-        return String.format("%s-%s.tgz", getName(), getVersion());
+        if ("json".equals(getExtension()))
+        {
+            return "package.json"; 
+        }
+        return String.format("%s-%s.%s", getName(), getVersion(), getExtension());
     }
 
     @Override
@@ -173,13 +194,14 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
 
         String group = matcher.group(1);
         String name = matcher.group(2);
-        String version = matcher.group(4);
+        String version = matcher.group(3);
+        String extension = matcher.group(16);
 
         if (group.startsWith("@"))
         {
-            return new NpmArtifactCoordinates(group, name, version);
+            return new NpmArtifactCoordinates(group, name, version, extension);
         }
-        return new NpmArtifactCoordinates(null, name, version);
+        return new NpmArtifactCoordinates(null, name, version, extension);
     }
 
     public static NpmArtifactCoordinates of(String name,
@@ -188,30 +210,9 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         if (name.contains("/"))
         {
             String[] nameSplit = name.split("/");
-            return new NpmArtifactCoordinates(nameSplit[0], nameSplit[1], version);
+            return new NpmArtifactCoordinates(nameSplit[0], nameSplit[1], version, "tgz");
         }
-        return new NpmArtifactCoordinates(null, name, version);
-    }
-
-    public static NpmArtifactCoordinates of(String scope,
-                                            String name,
-                                            String version)
-    {
-        return new NpmArtifactCoordinates(scope, name, version);
-    }
-
-    public static NpmArtifactCoordinates of(URI resource)
-    {
-        String resourcePath = resource.toString();
-        if (resourcePath.startsWith("@"))
-        {
-            return parse(resourcePath);
-        }
-
-        String packageName = resourcePath.substring(0, resourcePath.indexOf("/"));
-        resourcePath = resourcePath.replace("/-/", String.format("/%s/-/", packageName));
-
-        return parse(resourcePath);
+        return new NpmArtifactCoordinates(null, name, version, "tgz");
     }
 
 }

@@ -119,10 +119,11 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
                 try
                 {
-                    assertFalse(layoutProvider.containsPath(repository, path));
-                    assertTrue(layoutProvider.containsPath(repository,
-                                                           StringUtils.replace(path, "1.6/properties-injector-1.6.jar",
-                                                                               "maven-metadata.xml")));
+                    assertFalse(layoutProvider.containsPath(repositoryPathResolver.resolve(repository, path)));
+                    assertTrue(layoutProvider.containsPath(repositoryPathResolver.resolve(repository,
+                                                                                          StringUtils.replace(path,
+                                                                                                              "1.6/properties-injector-1.6.jar",
+                                                                                                              "maven-metadata.xml"))));
                 }
                 catch (IOException e)
                 {

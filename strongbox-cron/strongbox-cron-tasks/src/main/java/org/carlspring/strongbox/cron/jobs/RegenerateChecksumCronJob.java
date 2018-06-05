@@ -75,9 +75,9 @@ public class RegenerateChecksumCronJob
     {
         Map<String, Repository> repositories = getRepositories(storageId);
 
-        for (String repository : repositories.keySet())
+        for (String repositoryId : repositories.keySet())
         {
-            checksumService.regenerateChecksum(storageId, repository, null, forceRegeneration);
+            checksumService.regenerateChecksum(storageId, repositoryId, null, forceRegeneration);
         }
     }
 

@@ -2,9 +2,9 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryTrashPathResolver;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
@@ -30,6 +30,7 @@ import java.util.Set;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -87,10 +88,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
-    private RepositoryTrashPathResolver repositoryTrashPathResolver;
-
-    @Inject
-    private ConfigurationManager configurationManager;
+    private RepositoryPathResolver repositoryPathResolver;
 
 
     @BeforeClass
@@ -103,9 +101,9 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -150,6 +148,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
                          "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
     }
 
+    @After
     public void removeRepositories()
     {
         try
@@ -171,9 +170,8 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         assertTrue("There is no path to the repository trash!", dirs != null);
         assertEquals("The repository trash isn't empty!", 0, dirs.length);
 
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository1.getLayout());
-        String path = "org/carlspring/strongbox/clear/strongbox-test-one/1.0";
-        layoutProvider.delete(STORAGE0, REPOSITORY_RELEASES_1, path, false);
+        RepositoryPath path = repositoryPathResolver.resolve(new Repository(repository1), "org/carlspring/strongbox/clear/strongbox-test-one/1.0");
+        RepositoryFiles.delete(path, false);
 
         dirs = getDirs();
 
@@ -200,9 +198,17 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         assertTrue("Failed to execute task!", expectEvent());
     }
 
-    private File[] getDirs()
+    private File[] getDirs() 
     {
-        final RepositoryPath trashPath = repositoryTrashPathResolver.resolve(new Repository(repository1));
+        RepositoryPath trashPath = null;
+        try
+        {
+            trashPath = RepositoryFiles.trash(repositoryPathResolver.resolve(new Repository(repository1)));
+        }
+        catch (IOException e1)
+        {
+            e1.printStackTrace();
+        }
         final List<File> files = new ArrayList<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(trashPath))
         {
@@ -231,25 +237,24 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         {
             removeNotMavenRepositories(currentConfiguration);
 
-            final File basedirTrash1 = repositoryTrashPathResolver.resolve(new Repository(repository2)).toFile();
+            final File basedirTrash1 = RepositoryFiles.trash(repositoryPathResolver.resolve(new Repository(repository2))).toFile();
             File[] dirs1 = basedirTrash1.listFiles();
 
             assertTrue("There is no path to the repository trash!", dirs1 != null);
             assertEquals("The repository trash isn't empty!", 0, dirs1.length);
 
             LayoutProvider layoutProvider1 = layoutProviderRegistry.getProvider(repository2.getLayout());
-            String path1 = "org/carlspring/strongbox/clear/strongbox-test-two/1.0";
-            layoutProvider1.delete(STORAGE0, REPOSITORY_RELEASES_2, path1, false);
+            RepositoryPath path1 = repositoryPathResolver.resolve(new Repository(repository2), "org/carlspring/strongbox/clear/strongbox-test-two/1.0");
+            RepositoryFiles.delete(path1, false);
 
-            final File basedirTrash2 = repositoryTrashPathResolver.resolve(new Repository(repository3)).toFile();
+            final File basedirTrash2 = RepositoryFiles.trash(repositoryPathResolver.resolve(new Repository(repository3))).toFile();
             File[] dirs2 = basedirTrash2.listFiles();
 
             assertTrue("There is no path to the repository trash!", dirs2 != null);
             assertEquals("The repository trash isn't empty!", 0, dirs2.length);
 
-            LayoutProvider layoutProvider2 = layoutProviderRegistry.getProvider(repository3.getLayout());
-            String path2 = "org/carlspring/strongbox/clear/strongbox-test-one/1.0";
-            layoutProvider2.delete(STORAGE1, REPOSITORY_RELEASES_1, path2, false);
+            RepositoryPath path2 = repositoryPathResolver.resolve(new Repository(repository3), "org/carlspring/strongbox/clear/strongbox-test-one/1.0");
+            RepositoryFiles.delete(path2, false);
 
             dirs1 = basedirTrash1.listFiles();
             dirs2 = basedirTrash1.listFiles();

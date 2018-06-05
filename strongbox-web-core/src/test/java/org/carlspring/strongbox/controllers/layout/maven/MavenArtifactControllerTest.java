@@ -1,36 +1,12 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.io.MultipleDigestOutputStream;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
-import org.carlspring.strongbox.client.ArtifactOperationException;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.carlspring.strongbox.storage.search.SearchResult;
-import org.carlspring.strongbox.storage.search.SearchResults;
-import org.carlspring.strongbox.util.MessageDigestUtils;
-import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import javax.inject.Inject;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,15 +25,42 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.google.common.base.Throwables;
-import io.restassured.http.Header;
-import io.restassured.http.Headers;
-import io.restassured.response.ExtractableResponse;
+import javax.inject.Inject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.io.MultipleDigestOutputStream;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
+import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
+import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.storage.search.SearchResult;
+import org.carlspring.strongbox.storage.search.SearchResults;
+import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.AfterClass;
 import org.junit.Assume;
@@ -74,13 +77,12 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.artifact.MavenArtifactUtils.getArtifactFromGAVTC;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
+import com.google.common.base.Throwables;
+
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.response.ExtractableResponse;
 
 /**
  * Test cases for {@link MavenArtifactController}.
@@ -230,9 +232,9 @@ public class MavenArtifactControllerTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES2));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES1, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES2, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -714,17 +716,17 @@ public class MavenArtifactControllerTest
     {
         String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
-        MavenArtifact artifact1 = getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
 
         String snapshotVersion1 = createSnapshotVersion("3.1", 1);
         String snapshotVersion2 = createSnapshotVersion("3.1", 2);
         String snapshotVersion3 = createSnapshotVersion("3.1", 3);
         String snapshotVersion4 = createSnapshotVersion("3.1", 4);
 
-        MavenArtifact artifact1WithTimestamp1 = getArtifactFromGAVTC(ga + ":" + snapshotVersion1);
-        MavenArtifact artifact1WithTimestamp2 = getArtifactFromGAVTC(ga + ":" + snapshotVersion2);
-        MavenArtifact artifact1WithTimestamp3 = getArtifactFromGAVTC(ga + ":" + snapshotVersion3);
-        MavenArtifact artifact1WithTimestamp4 = getArtifactFromGAVTC(ga + ":" + snapshotVersion4);
+        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion1);
+        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion2);
+        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion3);
+        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion4);
 
         MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
 
@@ -766,23 +768,20 @@ public class MavenArtifactControllerTest
     }
 
     @Spy
-    MavenArtifact artifact1 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" +
-                                              "metadata-foo-maven-plugin" + ":" +
-                                              "3.1");
+    Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" +
+                                                            "metadata-foo-maven-plugin" + ":" +
+                                                            "3.1");
     @Spy
-    MavenArtifact artifact2 = getArtifactFromGAVTC(
-            "org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.1");
+    Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.1");
     @Spy
-    MavenArtifact artifact3 = getArtifactFromGAVTC(
-            "org.carlspring.strongbox.metadata" + ":" + "metadata-foo-maven-plugin" + ":" + "3.2");
+    Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo-maven-plugin" + ":" + "3.2");
     @Spy
-    MavenArtifact artifact4 = getArtifactFromGAVTC(
-            "org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.2");
+    Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.2");
     @Spy
-    MavenArtifact artifact5 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.1");
+    Artifact artifact5 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.1");
 
     @Spy
-    MavenArtifact artifact6 = getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.2");
+    Artifact artifact6 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.2");
 
     @Test
     public void testMetadataAtGroupAndArtifactIdLevel()
@@ -938,9 +937,9 @@ public class MavenArtifactControllerTest
         String version1 = "1.2.1";
         String version2 = "1.2.2";
 
-        Artifact artifact1 = getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version1);
-        Artifact artifact2 = getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2);
-        Artifact artifact3 = getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2 + ":jar:javadoc");
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version1);
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2);
+        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2 + ":jar:javadoc");
 
         MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
 
@@ -1006,11 +1005,11 @@ public class MavenArtifactControllerTest
         // Given
         String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
-        Artifact artifact1 = getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
-        Artifact artifact1WithTimestamp1 = getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 1));
-        Artifact artifact1WithTimestamp2 = getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 2));
-        Artifact artifact1WithTimestamp3 = getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 3));
-        Artifact artifact1WithTimestamp4 = getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 4));
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
+        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 1));
+        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 2));
+        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 3));
+        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 4));
 
         MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
 

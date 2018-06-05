@@ -23,7 +23,7 @@ public abstract class RepositoryFileSystem
     public static final String INDEX = ".index";
     
     private Repository repository;
-    private RepositoryFileSystemProvider fileSystemProvider;
+    private RepositoryFileSystemProvider provider;
 
     public RepositoryFileSystem(Repository repository,
                                 FileSystem storageFileSystem,
@@ -31,7 +31,7 @@ public abstract class RepositoryFileSystem
     {
         super(storageFileSystem);
         this.repository = repository;
-        this.fileSystemProvider = provider;
+        this.provider = provider;
     }
 
     public Repository getRepository()
@@ -39,9 +39,8 @@ public abstract class RepositoryFileSystem
         return repository;
     }
 
-    public RepositoryFileSystemProvider provider()
-    {
-        return fileSystemProvider;
+    public RepositoryFileSystemProvider provider() {
+        return provider;
     }
 
     public RootRepositoryPath getRootDirectory()
@@ -54,7 +53,7 @@ public abstract class RepositoryFileSystem
         return getRootDirectory().resolve(TRASH).toAbsolutePath();
     }
 
-    public RepositoryPath getTempPath()
+    protected RepositoryPath getTempPath()
     {
         return getRootDirectory().resolve(TEMP).toAbsolutePath();
     }

@@ -1,16 +1,8 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -18,15 +10,28 @@ import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.*;
+import javax.inject.Inject;
+
+import org.apache.maven.artifact.Artifact;
+import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Kate Novik.
@@ -70,9 +75,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     @Inject
-    private CronTaskConfigurationService cronTaskConfigurationService;
-
-    @Inject
     private ArtifactMetadataService artifactMetadataService;
 
     @BeforeClass
@@ -85,9 +87,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS_2));
-        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_SNAPSHOTS_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS_1, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS_2, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_SNAPSHOTS_1, Maven2LayoutProvider.ALIAS));
         return repositories;
     }
 
@@ -349,7 +351,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     private String getSnapshotArtifactVersion(File artifactFile)
     {
         File[] files = artifactFile.listFiles(new JarFilenameFilter());
-        MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(files[0].getPath());
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
 
         return artifact.getVersion();
     }

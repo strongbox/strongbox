@@ -2,9 +2,9 @@ package org.carlspring.strongbox.artifact.coordinates;
 
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenDetachedArtifact;
+import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 
-import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 
 /**
@@ -22,7 +23,7 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 /**
  * @author carlspring
  */
-@Embeddable
+@Entity
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactLayout("maven")
@@ -53,12 +54,7 @@ public class MavenArtifactCoordinates
 
     public MavenArtifactCoordinates()
     {
-        defineCoordinates(GROUPID, ARTIFACTID, VERSION, CLASSIFIER, EXTENSION);
-    }
-
-    public MavenArtifactCoordinates(String path)
-    {
-        this(MavenArtifactUtils.convertPathToArtifact(path));
+        resetCoordinates(GROUPID, ARTIFACTID, VERSION, CLASSIFIER, EXTENSION);
     }
 
     public MavenArtifactCoordinates(String... coordinateValues)
@@ -101,48 +97,33 @@ public class MavenArtifactCoordinates
 
     }
 
-    public MavenArtifactCoordinates(MavenArtifact artifact)
-    {
-        this();
-
+    public MavenArtifactCoordinates(Artifact artifact) {
         setGroupId(artifact.getGroupId());
         setArtifactId(artifact.getArtifactId());
         setVersion(artifact.getVersion());
         setClassifier(artifact.getClassifier());
-        if (artifact.getPath() != null)
+        
+        String type = artifact.getType();
+        if (StringUtils.isNotBlank(type))
         {
-            String extension = artifact.getFile().getAbsolutePath();
-            extension = extension.substring(extension.lastIndexOf('.'), extension.length());
-
-            setExtension(extension);
-        }
-        else if (StringUtils.isNotBlank(artifact.getType()))
-        {
-            setExtension(artifact.getType());
+            setExtension(type);
         }
         else
         {
             setExtension("jar");
         }
+        
     }
 
     @Override
     public String toPath()
     {
-        try
-        {
-            return MavenArtifactUtils.convertArtifactToPath(toArtifact());
-        }
-        catch (Exception e)
-        {
-            //e.printStackTrace();
-            return getCoordinates().toString();
-        }
+        return MavenArtifactUtils.convertArtifactToPath(toArtifact());
     }
 
     public MavenArtifact toArtifact()
     {
-        return new MavenDetachedArtifact(getGroupId(), getArtifactId(), getVersion(), getExtension(), getClassifier());
+        return new MavenRepositoryArtifact(getGroupId(), getArtifactId(), getVersion(), getExtension(), getClassifier());
     }
 
     @XmlAttribute(name = "groupId")

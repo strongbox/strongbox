@@ -13,12 +13,12 @@ public interface ChecksumService
      *
      * @param storageId         String
      * @param repositoryId      String
-     * @param artifactPath      String
+     * @param basePath      String
      * @param forceRegeneration boolean
      */
     void regenerateChecksum(String storageId,
                             String repositoryId,
-                            String artifactPath,
+                            String basePath,
                             boolean forceRegeneration)
             throws IOException;
 

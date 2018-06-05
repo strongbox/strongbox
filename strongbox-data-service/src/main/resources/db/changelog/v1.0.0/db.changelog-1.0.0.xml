@@ -16,5 +16,6 @@
     <include file="v1.0.0.10__ArtifactEntry.xml" relativeToChangelogFile="true" />
     <include file="v1.0.0.11__ArtifactEntry_cleanup.xml" relativeToChangelogFile="true"/>
     <include file="v1.0.0.12__Configuration_cleanup.xml" relativeToChangelogFile="true"/>
+    <include file="v1.0.0.13__ArtifactEntry_path.xml" relativeToChangelogFile="true"/>
     
 </databaseChangeLog> 

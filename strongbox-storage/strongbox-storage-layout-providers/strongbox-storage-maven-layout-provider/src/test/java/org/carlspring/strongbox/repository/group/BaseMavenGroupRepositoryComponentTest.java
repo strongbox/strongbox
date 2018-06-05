@@ -77,17 +77,17 @@ public class BaseMavenGroupRepositoryComponentTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_E));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_L));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_Z));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_D));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_G));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_K));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_C));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_F));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_E, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_L, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_Z, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_D, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_G, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_K, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_C, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_F, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }

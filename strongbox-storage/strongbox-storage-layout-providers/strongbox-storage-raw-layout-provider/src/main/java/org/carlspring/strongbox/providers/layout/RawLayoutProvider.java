@@ -1,20 +1,17 @@
 package org.carlspring.strongbox.providers.layout;
 
 
-import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
-import org.carlspring.strongbox.repository.RawRepositoryFeatures;
-import org.carlspring.strongbox.repository.RawRepositoryManagementStrategy;
-import org.carlspring.strongbox.services.ArtifactManagementService;
+import java.io.IOException;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Set;
 
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repository.RawRepositoryFeatures;
+import org.carlspring.strongbox.repository.RawRepositoryManagementStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -25,16 +22,12 @@ import org.springframework.stereotype.Component;
 @Component("rawLayoutProvider")
 public class RawLayoutProvider
         extends AbstractLayoutProvider<NullArtifactCoordinates>
-        implements RepositoryPathHandler
 {
 
     public static final String ALIAS = "Raw";
 
     private static final Logger logger = LoggerFactory.getLogger(RawLayoutProvider.class);
     
-    @Inject
-    private ArtifactManagementService artifactManagementService;
-
     @Inject
     private RawRepositoryManagementStrategy rawRepositoryManagementStrategy;
 
@@ -43,7 +36,6 @@ public class RawLayoutProvider
 
 
     @PostConstruct
-    @Override
     public void register()
     {
         layoutProviderRegistry.addProvider(ALIAS, this);
@@ -51,60 +43,21 @@ public class RawLayoutProvider
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
-    @Override
-    public String getAlias()
+    protected NullArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException
     {
-        return ALIAS;
+        return new NullArtifactCoordinates(RepositoryFiles.relativizePath(path));
     }
 
-    @Override
-    public NullArtifactCoordinates getArtifactCoordinates(String path)
+    public boolean isArtifactMetadata(RepositoryPath path)
     {
-        return new NullArtifactCoordinates(path);
-    }
-
-    @Override
-    public void deleteMetadata(String storageId,
-                               String repositoryId,
-                               String metadataPath)
-            throws IOException
-    {
-        // Note: There's no known metadata for this format, hence no action is taken here
-    }
-
-    @Override
-    public void rebuildMetadata(String storageId,
-                                String repositoryId,
-                                String basePath)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   XmlPullParserException
-    {
-        // Note: There's no known metadata for this format, hence no action is taken here
-    }
-
-    @Override
-    public void rebuildIndexes(String storageId,
-                               String repositoryId,
-                               String basePath,
-                               boolean forceRegeneration)
-            throws IOException
-    {
-        // Note: Artifacts aren't being added to an index of any form for this format, hence no action is taken here
-    }
-
-    @Override
-    public boolean isMetadata(String path)
-    {
-        // Note: There's no known metadata for this format, hence no action is taken here
-        // TODO: Implement
         return false;
     }
 
     @Override
-    public void postProcess(RepositoryPath repositoryPath)
+    public void deleteMetadata(RepositoryPath repositoryPath)
             throws IOException
     {
+        // Note: There's no known metadata for this format, hence no action is taken here
     }
 
     @Override
@@ -114,20 +67,9 @@ public class RawLayoutProvider
     }
 
     @Override
-    public ArtifactManagementService getArtifactManagementService()
-    {
-        return artifactManagementService;
-    }
-
-    @Override
     public Set<String> getDefaultArtifactCoordinateValidators()
     {
         return rawRepositoryFeatures.getDefaultArtifactCoordinateValidators();
-    }
-
-    protected RepositoryPathHandler getRepositoryPathHandler()
-    {
-        return this;
     }
 
 }

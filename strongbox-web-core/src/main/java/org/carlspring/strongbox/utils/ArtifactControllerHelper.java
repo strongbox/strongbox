@@ -192,15 +192,15 @@ public class ArtifactControllerHelper
                 ZonedDateTime.ofInstant(fileAttributes.lastModifiedTime().toInstant(), ZoneId.systemDefault())));
 
         // TODO: This is far from optimal and will need to have a content type approach at some point:
-        if (RepositoryFiles.isChecksum(path) || (path.toString().endsWith(".properties")))
+        if (RepositoryFiles.isChecksum(path) || (path.getFileName().toString().endsWith(".properties")))
         {
             response.setContentType(MediaType.TEXT_PLAIN_VALUE);
         }
-        else if (RepositoryFiles.isMetadata(path))
+        else if (path.getFileName().toString().endsWith("xml"))
         {
             response.setContentType(MediaType.APPLICATION_XML_VALUE);
         }
-        else if (path.toString().endsWith(".gz"))
+        else if (path.getFileName().toString().endsWith(".gz"))
         {
             response.setContentType(com.google.common.net.MediaType.GZIP.toString());
         }

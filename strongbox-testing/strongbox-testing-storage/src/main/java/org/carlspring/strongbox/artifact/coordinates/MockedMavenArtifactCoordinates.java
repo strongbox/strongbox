@@ -46,7 +46,7 @@ public class MockedMavenArtifactCoordinates
 
     public MockedMavenArtifactCoordinates()
     {
-        defineCoordinates(GROUPID, ARTIFACTID, VERSION, CLASSIFIER, EXTENSION);
+        resetCoordinates(GROUPID, ARTIFACTID, VERSION, CLASSIFIER, EXTENSION);
     }
 
     public MockedMavenArtifactCoordinates(String path)

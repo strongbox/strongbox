@@ -54,7 +54,7 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGene
     public void setUp()
         throws Exception
     {
-        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1),
+        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS),
                          NugetLayoutProvider.ALIAS);
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, "Org.Carlspring.Strongbox.Nuget.Test.Nfpt", 9);
 
@@ -80,7 +80,7 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGene
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS));
 
         return repositories;
     }

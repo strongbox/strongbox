@@ -35,42 +35,37 @@ public class MockedRepositoryPathResolverConfig
     
     public class TestRepositoryPathResolver extends RepositoryPathResolver
     {
-        
+
         @Override
         public RepositoryPath resolve(final Repository repository,
-                                      final String... paths)
+                                      final String path)
         {
-            final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-            if (layoutProvider != null)
-            {
-                return super.resolve(repository, paths);
-            }
-            FileSystem fileSystem = FileSystems.getDefault();
-            RepositoryFileSystem repositoryFileSystem = new RepositoryFileSystem(repository,
-                                                                                 fileSystem,
-                                                                                 new RepositoryLayoutFileSystemProvider(fileSystem.provider(),
-                                                                                                                        null,
-                                                                                                                        null))
-            {
-                @Override
-                public Set<String> getDigestAlgorithmSet()
-                {
-                    return Collections.emptySet();
-                }
-            };
-            
-            RootRepositoryPath result = new RootRepositoryPath(Paths.get(repository.getBasedir()),
-                                                               repositoryFileSystem);
-            if (paths != null && paths.length == 1)
-            {
-                ArtifactEntry artifactEntry = new ArtifactEntry();
-                artifactEntry.setArtifactPath(paths[0]);
-                artifactEntry.setUuid(UUID.randomUUID().toString());
-                return result.resolve(artifactEntry);
-            }
-
-            return new RepositoryPath(Paths.get(repository.getBasedir(), paths), repositoryFileSystem);
+//            final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+//            if (layoutProvider != null)
+//            {
+//                return super.resolve(repository, path);
+//            }
+//            FileSystem fileSystem = FileSystems.getDefault();
+//            RepositoryFileSystem repositoryFileSystem = new RepositoryFileSystem(repository,
+//                    fileSystem,
+//                    new RepositoryLayoutFileSystemProvider(fileSystem.provider(),
+//                            null,
+//                            null))
+//            {
+//                @Override
+//                public Set<String> getDigestAlgorithmSet()
+//                {
+//                    return Collections.emptySet();
+//                }
+//            };
+//
+//            RootRepositoryPath result = new RootRepositoryPath(Paths.get(repository.getBasedir()),
+//                    repositoryFileSystem);
+//
+//            ArtifactEntry artifactEntry = new ArtifactEntry();
+//            artifactEntry.setUuid(UUID.randomUUID().toString());
+//            return result.resolve(artifactEntry);
+            return super.resolve(repository, path);
         }
-        
     }
 }

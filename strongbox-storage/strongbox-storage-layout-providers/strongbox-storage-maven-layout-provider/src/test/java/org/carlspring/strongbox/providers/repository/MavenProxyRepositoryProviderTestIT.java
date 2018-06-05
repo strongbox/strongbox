@@ -123,7 +123,7 @@ public class MavenProxyRepositoryProviderTestIT
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
-        assertTrue(layoutProvider.containsPath(repository, "org/carlspring/properties-injector/maven-metadata.xml"));
+        assertTrue(layoutProvider.containsPath(repositoryPathResolver.resolve(repository, "org/carlspring/properties-injector/maven-metadata.xml")));
     }
 
     @Test
@@ -140,19 +140,19 @@ public class MavenProxyRepositoryProviderTestIT
         // 2. resolve downloaded artifact base path
         Repository repository = storage.getRepository(repositoryId);
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        final Path mavenCentralArtifactBaseBath = layoutProvider.resolve(repository).resolve("javax/media/jai_core");
+        final Path mavenCentralArtifactBaseBath = repositoryPathResolver.resolve(repository, "javax/media/jai_core");
 
         // 3. copy the content to carlspring repository
         repositoryId = "carlspring";
         repository = storage.getRepository(repositoryId);
-        final Path carlspringArtifactBaseBath = layoutProvider.resolve(repository).resolve("javax/media/jai_core");
+        final Path carlspringArtifactBaseBath = repositoryPathResolver.resolve(repository).resolve("javax/media/jai_core");
         FileUtils.copyDirectory(mavenCentralArtifactBaseBath.toFile(), carlspringArtifactBaseBath.toFile());
 
         // 4. confirm maven-metadata.xml lies in the carlspring repository
-        assertTrue(layoutProvider.containsPath(repository, "javax/media/jai_core/maven-metadata.xml"));
+        assertTrue(layoutProvider.containsPath(repositoryPathResolver.resolve(repository).resolve("javax/media/jai_core/maven-metadata.xml")));
 
         // 5. confirm some pre-merge state
-        Path artifactBasePath = layoutProvider.resolve(repository).resolve("javax/media/jai_core/");
+        Path artifactBasePath = repositoryPathResolver.resolve(repository).resolve("javax/media/jai_core/");
         Metadata metadata = mavenMetadataManager.readMetadata(artifactBasePath);
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.1.2_01"));

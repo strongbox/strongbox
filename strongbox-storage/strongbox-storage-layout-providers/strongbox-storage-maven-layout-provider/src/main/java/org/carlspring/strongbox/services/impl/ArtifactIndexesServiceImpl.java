@@ -7,9 +7,8 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.locator.handlers.MavenIndexerManagementOperation;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
@@ -49,7 +48,7 @@ public class ArtifactIndexesServiceImpl
     private RepositoryIndexManager repositoryIndexManager;
 
     @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
+    private RepositoryPathResolver repositoryPathResolver;
 
     @Inject
     private IndexedMavenRepositoryFeatures features;
@@ -102,7 +101,7 @@ public class ArtifactIndexesServiceImpl
         }
         if (repository.isGroupRepository())
         {
-            mavenIndexGroupRepositoryComponent.rebuildIndex(repository, RepositoryFiles.stringValue(repositoryPath));
+            mavenIndexGroupRepositoryComponent.rebuildIndex(repository, RepositoryFiles.relativizePath(repositoryPath));
         }
         else
         {
@@ -135,8 +134,7 @@ public class ArtifactIndexesServiceImpl
                 continue;
             }
 
-            LayoutProvider provider = layoutProviderRegistry.getProvider(repository.getLayout());
-            RootRepositoryPath repositoryPath = provider.resolve(repository);
+            RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
             rebuildIndex(repositoryPath);
         }
     }

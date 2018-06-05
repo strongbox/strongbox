@@ -4,7 +4,7 @@ import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.locator.handlers.MavenGroupRepositoryIndexerManagementOperation;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.IndexedMaven2LayoutProvider;
+import org.carlspring.strongbox.providers.layout.IndexedMaven2FileSystemProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponent;
@@ -76,7 +76,7 @@ public class MavenIndexGroupRepositoryComponent
                                                                        String artifactPath)
             throws IOException
     {
-        final LayoutProvider layoutProvider = getRepositoryProvider(groupRepository);
+        LayoutProvider layoutProvider = getRepositoryProvider(groupRepository);
         if (!(layoutProvider instanceof Maven2LayoutProvider))
         {
             logger.error(
@@ -84,8 +84,11 @@ public class MavenIndexGroupRepositoryComponent
                     groupRepository.getId(), layoutProvider, artifactPath);
             return;
         }
-        final RepositoryPath repositoryPath = layoutProvider.resolve(groupRepository).resolve(artifactPath);
-        ((IndexedMaven2LayoutProvider) layoutProvider).deleteFromIndex(repositoryPath);
+        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(groupRepository).resolve(artifactPath);
+        IndexedMaven2FileSystemProvider provider = (IndexedMaven2FileSystemProvider) repositoryPath.getFileSystem().provider();
+        
+        provider.deleteFromIndex(repositoryPath);
     }
 
     @Override

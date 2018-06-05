@@ -4,8 +4,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -40,7 +39,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
     private ConfigurationManager configurationManager;
 
     @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
+    private RepositoryPathResolver repositoryPathResolver;
 
     @Inject
     private ArtifactEntryService artifactEntryService;
@@ -71,7 +70,6 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
         }
 
         logger.debug("Cleaning artifacts {}", artifactEntries);
-        deleteFromDatabase(artifactEntries);
         deleteFromStorage(artifactEntries);
     }
 
@@ -115,21 +113,10 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
         {
             final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
             final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
-            final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-            RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactEntry);
+            
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(artifactEntry);
 
             artifactManagementService.delete(repositoryPath, true);
-        }
-    }
-
-    private void deleteFromDatabase(final List<ArtifactEntry> artifactEntries)
-    {
-        final int deletedCount = artifactEntryService.delete(artifactEntries);
-        if (deletedCount != artifactEntries.size())
-        {
-            logger.warn(
-                    "Unexpected differences on deleting artifact entries. Deleted count {}, artifact entries size {}",
-                    deletedCount, artifactEntries.size());
         }
     }
 

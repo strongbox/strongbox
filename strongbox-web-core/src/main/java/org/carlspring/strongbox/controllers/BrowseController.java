@@ -227,8 +227,9 @@ public class BrowseController extends BaseArtifactController
     protected boolean isPermittedForDirectoryListing(final RepositoryPath repositoryPath)
             throws IOException
     {
-        return RepositoryFiles.isIndex(repositoryPath) || (!Files.isHidden(repositoryPath)
-                && !RepositoryFiles.isTrash(repositoryPath) && !RepositoryFiles.isTemp(repositoryPath));
+        //TODO: RepositoryFiles.isIndex(repositoryPath) || (
+        return !Files.isHidden(repositoryPath) && !RepositoryFiles.isTrash(repositoryPath)
+                && !RepositoryFiles.isTemp(repositoryPath);
     }
 
 }

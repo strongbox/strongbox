@@ -2,6 +2,7 @@ package org.carlspring.strongbox.repository.group;
 
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.group.GroupRepositoryArtifactExistenceChecker;
@@ -44,6 +45,9 @@ public abstract class BaseMavenGroupRepositoryComponent
 
     @Inject
     private ArtifactRoutingRulesChecker artifactRoutingRulesChecker;
+    
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
 
     public void cleanupGroupsContaining(RepositoryPath repositoryPath)
             throws IOException
@@ -64,23 +68,21 @@ public abstract class BaseMavenGroupRepositoryComponent
             return;
         }
         
-        String artifactPath = RepositoryFiles.stringValue(repositoryPath);
+        String artifactPath = RepositoryFiles.relativizePath(repositoryPath);
         
         for (final Repository groupRepository : directParents)
         {
 
-            boolean artifactExists = groupRepositoryArtifactExistenceChecker.artifactExistsInTheGroupRepositorySubTree(
-                    groupRepository,
-                    repositoryPath,
-                    repositoryArtifactExistence);
+            boolean artifactExists = groupRepositoryArtifactExistenceChecker.artifactExistsInTheGroupRepositorySubTree(groupRepository,
+                                                                                                                       repositoryPath,
+                                                                                                                       repositoryArtifactExistence);
 
             if (!artifactExists)
             {
                 cleanupGroupWhenArtifactPathNoLongerExistsInSubTree(groupRepository, artifactPath);
             }
             
-            LayoutProvider provider = layoutProviderRegistry.getProvider(groupRepository.getLayout());
-            cleanupGroupsContaining(provider.resolve(groupRepository).resolve(artifactPath),
+            cleanupGroupsContaining(repositoryPathResolver.resolve(groupRepository, repositoryPath),
                                     repositoryArtifactExistence);
         }
     }
@@ -122,11 +124,10 @@ public abstract class BaseMavenGroupRepositoryComponent
         {
             return;
         }
-        String artifactPath = RepositoryFiles.stringValue(repositoryPath);
+        String artifactPath = RepositoryFiles.relativizePath(repositoryPath);
         for (final Repository parent : groupRepositories)
         {
-            RepositoryPath parentRepositoryAbsolutePath = getRepositoryPath(parent);
-            RepositoryPath parentRepositoryArtifactAbsolutePath = parentRepositoryAbsolutePath.resolve(artifactPath);
+            RepositoryPath parentRepositoryArtifactAbsolutePath = repositoryPathResolver.resolve(parent, repositoryPath);
             
             if (!isOperationDeniedByRoutingRules(parent, leafRoute, artifactPath))
             {
@@ -143,8 +144,7 @@ public abstract class BaseMavenGroupRepositoryComponent
 
     protected RepositoryPath getRepositoryPath(final Repository repository)
     {
-        final LayoutProvider layoutProvider = getRepositoryProvider(repository);
-        return layoutProvider.resolve(repository);
+        return repositoryPathResolver.resolve(repository);
     }
 
     protected LayoutProvider getRepositoryProvider(final Repository repository)
@@ -158,8 +158,7 @@ public abstract class BaseMavenGroupRepositoryComponent
     {
         for (final Repository leaf : leafRoute)
         {
-            LayoutProvider provider = layoutProviderRegistry.getProvider(leaf.getLayout());
-            RepositoryPath repositoryPath = provider.resolve(leaf).resolve(artifactPath);
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(leaf).resolve(artifactPath);
             if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), repositoryPath))
             {
                 return true;

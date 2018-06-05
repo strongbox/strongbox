@@ -4,9 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.npm.metadata.Package;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
@@ -46,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
@@ -80,14 +79,12 @@ public class NpmArtifactController extends BaseArtifactController
     private ArtifactManagementService npmArtifactManagementService;
 
     @Inject
-    private NpmLayoutProvider npmLayoutProvider;
-
-    @Inject
     @Qualifier("npmJackasonMapper")
     private ObjectMapper npmJackasonMapper;
 
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{resource:.+}", method = {RequestMethod.GET, RequestMethod.HEAD})
+    @RequestMapping(path = "{storageId}/{repositoryId}/{resource:.+}", method = { RequestMethod.GET,
+                                                                                  RequestMethod.HEAD })
     public void download(@PathVariable(name = "storageId") String storageId,
                          @PathVariable(name = "repositoryId") String repositoryId,
                          @PathVariable(name = "resource") String resource,
@@ -96,10 +93,36 @@ public class NpmArtifactController extends BaseArtifactController
                          HttpServletResponse response)
         throws Exception
     {
-        Repository repository = getRepository(storageId, repositoryId);
-        RepositoryPath path = npmLayoutProvider.resolve(repository, URI.create(resource));
-        
-        provideArtifactDownloadResponse(request, response, httpHeaders, repository, RepositoryFiles.stringValue(path));
+        if (!resource.contains("/-/"))
+        {
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            return;
+        }
+
+        String[] resourceParts = resource.split("/-/");
+        if (!resourceParts[1].contains("-") || !resourceParts[1].endsWith(".tgz"))
+        {
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            return;
+        }
+
+        String name = resourceParts[0];
+        String version = resourceParts[1].substring(resourceParts[1].lastIndexOf("-") + 1).replace(".tgz", "");
+
+        NpmArtifactCoordinates coordinates;
+        try
+        {
+            coordinates = NpmArtifactCoordinates.of(name, version);
+        }
+        catch (IllegalArgumentException e)
+        {
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            response.getWriter().write(e.getMessage());
+            return;
+        }
+
+        RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.toPath());
+        provideArtifactDownloadResponse(request, response, httpHeaders, path);
     }
 
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
@@ -139,28 +162,22 @@ public class NpmArtifactController extends BaseArtifactController
                                  NpmArtifactCoordinates coordinates,
                                  Package packageDef,
                                  Path packageTgzTmp)
-            throws IOException,
-                   ProviderImplementationException,
-                   NoSuchAlgorithmException,
-                   ArtifactCoordinatesValidationException
+        throws IOException,
+        ProviderImplementationException,
+        NoSuchAlgorithmException,
+        ArtifactCoordinatesValidationException
     {
-        RepositoryPath repositoryPath = npmLayoutProvider.resolve(repository, coordinates);
-
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, coordinates);
         try (InputStream is = new BufferedInputStream(Files.newInputStream(packageTgzTmp)))
         {
-            npmArtifactManagementService.validateAndStore(repository.getStorage().getId(), repository.getId(),
-                                                          coordinates.toPath(), is);
+            npmArtifactManagementService.validateAndStore(repositoryPath, is);
         }
 
         Path packageJsonTmp = extractPackageJson(packageTgzTmp);
-        String packageJsonPath = repositoryPath.resolveSibling("package.json")
-                                               .relativize()
-                                               .toString();
-
+        RepositoryPath packageJsonPath = repositoryPathResolver.resolve(repository, repositoryPath.resolveSibling("package.json"));
         try (InputStream is = new BufferedInputStream(Files.newInputStream(packageTgzTmp)))
         {
-            npmArtifactManagementService.validateAndStore(repository.getStorage().getId(), repository.getId(),
-                                                          packageJsonPath, is);
+            npmArtifactManagementService.validateAndStore(packageJsonPath, is);
         }
 
         String shasum = Optional.ofNullable(packageDef.getDist()).map(p -> p.getShasum()).orElse(null);
@@ -172,8 +189,7 @@ public class NpmArtifactController extends BaseArtifactController
 
         String packageFileName = repositoryPath.getFileName().toString();
         RepositoryPath checksumPath = repositoryPath.resolveSibling(packageFileName + ".sha1");
-        npmArtifactManagementService.validateAndStore(repository.getStorage().getId(), repository.getId(),
-                                                      checksumPath.relativize().toString(),
+        npmArtifactManagementService.validateAndStore(checksumPath,
                                                       new ByteArrayInputStream(shasum.getBytes("UTF-8")));
 
         Files.delete(packageTgzTmp);
@@ -210,31 +226,31 @@ public class NpmArtifactController extends BaseArtifactController
                 }
                 switch (fieldname)
                 {
-                    case FIELD_NAME_VERSION:
-                        jp.nextValue();
-                        JsonNode node = jp.readValueAsTree();
-                        Assert.isTrue(node.size() == 1, "npm package source should contain only one version.");
+                case FIELD_NAME_VERSION:
+                    jp.nextValue();
+                    JsonNode node = jp.readValueAsTree();
+                    Assert.isTrue(node.size() == 1, "npm package source should contain only one version.");
 
-                        JsonNode packageJsonNode = node.iterator().next();
-                        packageJson = extractPackageJson(packageName, packageJsonNode.toString());
+                    JsonNode packageJsonNode = node.iterator().next();
+                    packageJson = extractPackageJson(packageName, packageJsonNode.toString());
 
-                        break;
-                    case FIELD_NAME_ATTACHMENTS:
-                        Assert.isTrue(jp.nextToken() == JsonToken.START_OBJECT,
-                                      String.format(
-                                              "Failed to parse npm package source for illegal type [%s] of attachment.",
-                                              jp.currentToken().name()));
+                    break;
+                case FIELD_NAME_ATTACHMENTS:
+                    Assert.isTrue(jp.nextToken() == JsonToken.START_OBJECT,
+                                  String.format(
+                                                "Failed to parse npm package source for illegal type [%s] of attachment.",
+                                                jp.currentToken().name()));
 
-                        String packageAttachmentName = jp.nextFieldName();
-                        logger.info(String.format("Found npm package attachment [%s]", packageAttachmentName));
+                    String packageAttachmentName = jp.nextFieldName();
+                    logger.info(String.format("Found npm package attachment [%s]", packageAttachmentName));
 
-                        moveToAttachment(jp, packageAttachmentName);
-                        packageTgzPath = extractPackage(jp);
+                    moveToAttachment(jp, packageAttachmentName);
+                    packageTgzPath = extractPackage(jp);
 
-                        jp.nextToken();
-                        jp.nextToken();
+                    jp.nextToken();
+                    jp.nextToken();
 
-                        break;
+                    break;
                 }
             }
         }

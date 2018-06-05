@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.MavenDetachedArtifact;
+import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -286,7 +286,7 @@ public class RepositoryIndexer
         Set<SearchResult> results = new LinkedHashSet<>(artifactInfos.size());
         for (ArtifactInfo artifactInfo : artifactInfos)
         {
-            MavenArtifact artifact = new MavenDetachedArtifact(artifactInfo.getGroupId(),
+            MavenArtifact artifact = new MavenRepositoryArtifact(artifactInfo.getGroupId(),
                                                                artifactInfo.getArtifactId(),
                                                                artifactInfo.getVersion(),
                                                                artifactInfo.getFileExtension(),

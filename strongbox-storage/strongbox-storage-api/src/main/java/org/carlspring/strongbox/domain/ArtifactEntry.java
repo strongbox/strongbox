@@ -9,6 +9,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
@@ -33,11 +35,6 @@ public class ArtifactEntry
     @ManyToMany(targetEntity = ArtifactTagEntry.class)
     private Set<ArtifactTag> tagSet;
     
-    /**
-     * This field is used as part of [storageId, repositoryId, artifactPath] unique index.
-     */
-    private String artifactPath;
-
     private Long sizeInBytes;
 
     private Date lastUpdated;
@@ -80,7 +77,6 @@ public class ArtifactEntry
     public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
         this.artifactCoordinates = (AbstractArtifactCoordinates) artifactCoordinates;
-        getArtifactPath();
     }
 
     public Set<ArtifactTag> getTagSet()
@@ -91,16 +87,6 @@ public class ArtifactEntry
     protected void setTagSet(Set<ArtifactTag> tagSet)
     {
         this.tagSet = tagSet;
-    }
-
-    public final String getArtifactPath()
-    {
-        return artifactCoordinates == null ? artifactPath : (artifactPath = artifactCoordinates.toPath());
-    }
-
-    public void setArtifactPath(String artifactPath)
-    {
-        this.artifactPath = artifactCoordinates != null ? artifactCoordinates.toPath() : artifactPath;
     }
 
     public Long getSizeInBytes()
@@ -153,6 +139,15 @@ public class ArtifactEntry
         this.downloadCount = downloadCount;
     }
 
+    @Transient
+    public String getArtifactPath()
+    {
+        return Optional.of(getArtifactCoordinates())
+                       .map(c -> c.toPath())
+                       .orElseThrow(() -> new IllegalStateException("ArtifactCoordinates required to be set."));
+    }
+
+    
     @Override
     public String toString()
     {
@@ -180,4 +175,5 @@ public class ArtifactEntry
         sb.append('}');
         return sb.toString();
     }
+
 }

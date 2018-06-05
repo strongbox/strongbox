@@ -7,6 +7,7 @@ import org.carlspring.strongbox.data.PropertyUtils;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
@@ -60,6 +61,9 @@ public class RawLayoutProviderTest
 
     @Inject
     ArtifactManagementService artifactManagementService;
+    
+    @Inject
+    ArtifactResolutionService artifactResolutionService;
 
     @BeforeClass
     public static void cleanUp()
@@ -71,7 +75,7 @@ public class RawLayoutProviderTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE, REPOSITORY));
+        repositories.add(createRepositoryMock(STORAGE, REPOSITORY, RawLayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -155,8 +159,8 @@ public class RawLayoutProviderTest
         }
 
         // Attempt to resolve the artifact
-        RepositoryPath repositoryPath = artifactManagementService.getPath(STORAGE, REPOSITORY, path);
-        try (InputStream is = artifactManagementService.resolve(repositoryPath))
+        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(STORAGE, REPOSITORY, path);
+        try (InputStream is = artifactResolutionService.getInputStream(repositoryPath))
         {
             int total = 0;
             int len;

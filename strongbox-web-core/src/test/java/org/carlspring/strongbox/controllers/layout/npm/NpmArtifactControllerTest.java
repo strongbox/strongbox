@@ -1,19 +1,23 @@
 package org.carlspring.strongbox.controllers.layout.npm;
 
-import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.artifact.generator.NpmPackageGenerator;
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 
-import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.artifact.generator.NpmPackageGenerator;
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
+import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,8 +25,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.CoreMatchers.equalTo;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -50,7 +52,7 @@ public class NpmArtifactControllerTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, NpmLayoutProvider.ALIAS));
 
         return repositories;
     }

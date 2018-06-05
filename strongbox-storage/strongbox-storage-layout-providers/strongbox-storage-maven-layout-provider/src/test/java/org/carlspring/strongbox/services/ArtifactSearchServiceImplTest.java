@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -64,13 +65,14 @@ public class ArtifactSearchServiceImplTest
     public void removeRepositories()
             throws IOException, JAXBException
     {
+        closeIndexersForRepository(STORAGE0, REPOSITORYID);
         removeRepositories(getRepositoriesToClean());
     }
 
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORYID));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORYID, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }

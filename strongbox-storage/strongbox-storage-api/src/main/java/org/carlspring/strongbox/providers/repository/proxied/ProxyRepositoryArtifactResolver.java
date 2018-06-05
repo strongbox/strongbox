@@ -17,6 +17,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.io.TempRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.HostedRepositoryProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -87,7 +88,7 @@ public class ProxyRepositoryArtifactResolver
         repositoryPathLock.lock(repositoryPath);
         try (InputStream is = new BufferedInputStream(new ProxyRepositoryInputStream(client, repositoryPath)))
         {
-            repositoryPath = repositoryPathResolver.resolve(repository, RepositoryFiles.stringValue(repositoryPath));
+            repositoryPath = repositoryPathResolver.resolve(repository, repositoryPath);
             if (RepositoryFiles.artifactExists(repositoryPath))
             {
                 return repositoryPath;
@@ -105,8 +106,6 @@ public class ProxyRepositoryArtifactResolver
                                    InputStream is)
         throws IOException
     {
-        Repository repository = repositoryPath.getRepository();
-        
         //We need this to force initialize lazy connection to remote repository.
         int available = is.available();
         logger.debug(String.format("Got [%s] avaliable bytes for [%s].", available, repositoryPath));
@@ -121,9 +120,6 @@ public class ProxyRepositoryArtifactResolver
             return result;
         }
         
-        // We need to force resolve new Path here to have underlying
-        // ArtifactEntry
-        result = repositoryPathResolver.resolve(repository, RepositoryFiles.stringValue(repositoryPath));
         artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(result);
         
         return result;
@@ -139,31 +135,8 @@ public class ProxyRepositoryArtifactResolver
                                                                  RepositoryPath repositoryPath)
             throws IOException
     {
-        final RepositoryPath tempArtifact = RepositoryFiles.temporary(repositoryPath);
-        
-        try (// Wrap the InputStream, so we could have checksums to compare
-                final InputStream remoteIs = new MultipleDigestInputStream(is))
-        {
-            artifactManagementService.store(tempArtifact, remoteIs);
-            RepositoryFiles.permanent(repositoryPath);
-        }
-        catch (IOException e)
-        {
-            throw e;
-        }
-        catch (Exception e)
-        {
-            throw new IOException(e);
-        } 
-        finally
-        {
-            //TODO: we should do it with `java.io.Closeable`
-            if (Files.exists(tempArtifact))
-            {
-                Files.delete(tempArtifact);
-            }
-        }
-        
+         artifactManagementService.store(repositoryPath, is);
+         
         // TODO: Add a policy for validating the checksums of downloaded artifacts
         // TODO: Validate the local checksum against the remote's checksums
         // sbespalov: we have checksum validation within ArtifactManagementService.store() method, but it's not strict for now (see SB-949)

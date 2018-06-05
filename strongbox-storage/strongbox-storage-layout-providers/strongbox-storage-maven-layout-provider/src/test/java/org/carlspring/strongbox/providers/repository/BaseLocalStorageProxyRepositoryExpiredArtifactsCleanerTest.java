@@ -48,7 +48,7 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     protected RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
     
     @Inject
-    private RepositoryPathResolver repositoryPathResolver;
+    protected RepositoryPathResolver repositoryPathResolver;
 
     @Before
     @After

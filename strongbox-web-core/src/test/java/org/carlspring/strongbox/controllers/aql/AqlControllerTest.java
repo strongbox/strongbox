@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -57,7 +58,7 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE_SC_TEST, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE_SC_TEST, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -74,7 +75,8 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
                .get(getContextBaseUrl() + "/api/aql")
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body("artifact", Matchers.hasSize(2));
+               // we should have 4 results: 2xjar + 2xpom
+               .body("artifact", Matchers.hasSize(4));
     }
 
     @Test

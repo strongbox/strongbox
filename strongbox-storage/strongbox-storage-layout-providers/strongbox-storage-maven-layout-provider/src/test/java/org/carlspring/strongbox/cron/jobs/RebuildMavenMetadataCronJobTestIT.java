@@ -3,6 +3,7 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -99,9 +100,9 @@ public class RebuildMavenMetadataCronJobTestIT
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
-        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -145,8 +146,10 @@ public class RebuildMavenMetadataCronJobTestIT
     public void removeRepositories()
             throws IOException, JAXBException
     {
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
+        closeIndexersForRepository(STORAGE1, REPOSITORY_RELEASES);
         removeRepositories(getRepositoriesToClean());
-
     }
 
     @Test

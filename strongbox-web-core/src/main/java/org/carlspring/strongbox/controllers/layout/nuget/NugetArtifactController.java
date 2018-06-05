@@ -396,6 +396,8 @@ public class NugetArtifactController extends BaseArtifactController
            rootPredicate = t.parseQuery().getPredicate();
         }
         
+        rootPredicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.extension", "nupkg")));
+        
         if (searchTerm != null && !searchTerm.trim().isEmpty()) 
         {
             rootPredicate.and(Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.id",
@@ -573,7 +575,8 @@ public class NugetArtifactController extends BaseArtifactController
         String fileName = String.format("%s.%s.nupkg", packageId, packageVersion);
         String path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
 
-        if (provideArtifactDownloadResponse(request, response, httpHeaders, repository, path))
+        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, path);
+        if (provideArtifactDownloadResponse(request, response, httpHeaders, repositoryPath))
         {
             response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
         }
@@ -680,7 +683,8 @@ public class NugetArtifactController extends BaseArtifactController
                                         nupkgFile.getId(),
                                         nupkgFile.getVersion());
 
-            nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, nupkgFile.getStream());
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
+            nugetArtifactManagementService.validateAndStore(repositoryPath, nupkgFile.getStream());
 
             Path nuspecFile = Files.createTempFile(nupkgFile.getId(), "nuspec");
             try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(nuspecFile)))
@@ -688,10 +692,10 @@ public class NugetArtifactController extends BaseArtifactController
                 nupkgFile.getNuspecFile().saveTo(outputStream);
             }
             path = String.format("%s/%s/%s.nuspec", nupkgFile.getId(), nupkgFile.getVersion(), nupkgFile.getId());
-
+            repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
             try (InputStream bis = new BufferedInputStream(Files.newInputStream(nuspecFile)))
             {
-                nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, bis);
+                nugetArtifactManagementService.validateAndStore(repositoryPath, bis);
             }
 
             Path hashFile = Files.createTempFile(String.format("%s.%s", nupkgFile.getId(), nupkgFile.getVersion()),
@@ -707,10 +711,10 @@ public class NugetArtifactController extends BaseArtifactController
                                  nupkgFile.getVersion(),
                                  nupkgFile.getId(),
                                  nupkgFile.getVersion());
-
+            repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
             try (InputStream bis = new BufferedInputStream(Files.newInputStream(hashFile)))
             {
-                nugetArtifactManagementService.validateAndStore(storageId, repositoryId, path, bis);
+                nugetArtifactManagementService.validateAndStore(repositoryPath, bis);
             }
         }
 

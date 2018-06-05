@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.artifact;
 
 import java.io.File;
-import java.nio.file.Path;
 
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 
 /**
  * @author Przemyslaw Fusik
@@ -26,7 +26,8 @@ public interface MavenArtifact
         throw new UnsupportedOperationException("Use setPath instead");
     }
 
-    Path getPath();
+    RepositoryPath getPath();
 
-    void setPath(Path destination);
+    void setPath(RepositoryPath destination);
+    
 }

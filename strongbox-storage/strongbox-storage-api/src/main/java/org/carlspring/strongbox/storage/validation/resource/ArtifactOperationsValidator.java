@@ -5,6 +5,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
@@ -33,6 +34,8 @@ public class ArtifactOperationsValidator
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     public ArtifactOperationsValidator()
     {
@@ -117,7 +120,9 @@ public class ArtifactOperationsValidator
                    ProviderImplementationException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        if (layoutProvider.containsArtifact(repository, coordinates) && !repository.allowsRedeployment())
+        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, coordinates);
+        if (layoutProvider.containsPath(repositoryPath) && !repository.allowsRedeployment())
         {
             throw new ArtifactStorageException("Re-deployment of artifacts to " +
                                                repository.getStorage().getId() + ":" + repository.getId() +

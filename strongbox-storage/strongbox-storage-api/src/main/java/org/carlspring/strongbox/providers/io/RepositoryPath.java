@@ -48,12 +48,7 @@ public class RepositoryPath
         this.fileSystem = fileSystem;
     }
 
-    /**
-     * Only for internal usage. Don't use this method if you not strongly sure that you need it.
-     * 
-     * @return
-     */
-    public Path getTarget()
+    protected Path getTarget()
     {
         return target;
     }
@@ -80,9 +75,7 @@ public class RepositoryPath
 
     public RepositoryPath getRoot()
     {
-        return (RepositoryPath) fileSystem.getRootDirectories()
-                                          .iterator()
-                                          .next();
+        return getFileSystem().getRootDirectory();
     }
 
     public Path getFileName()
@@ -92,7 +85,11 @@ public class RepositoryPath
 
     public RepositoryPath getParent()
     {
-        return wrap(getTarget().getParent());
+        RepositoryPath parent = wrap(getTarget().getParent());
+        
+        validateParent(parent);
+        
+        return parent;
     }
 
     public int getNameCount()
@@ -223,19 +220,20 @@ public class RepositoryPath
 
     public URI toUri()
     {
-        if (!isAbsolute())
-        {
-            return getTarget().toUri();
-        }
-        
         if (uri != null)
         {
             return uri;
         }
 
+        RepositoryPath thisPath = this;
+        if (!isAbsolute())
+        {
+            thisPath = thisPath.toAbsolutePath();
+        }
+
         Repository repository = getFileSystem().getRepository();
         Storage storage = repository.getStorage();
-        URI result = null;
+        URI result;
         try
         {
             result = new URI(RepositoryFileSystemProvider.STRONGBOX_SCHEME,
@@ -248,20 +246,28 @@ public class RepositoryPath
             return null;
         }
         
-        URI pathToken = getFileSystem().getRootDirectory().getTarget().toUri().relativize(getTarget().toUri()); 
+        RootRepositoryPath root = getFileSystem().getRootDirectory();
+        URI pathToken = root.getTarget().toUri().relativize(thisPath.getTarget().toUri()); 
         
         return uri = result.resolve(pathToken);
     }
     
     public RepositoryPath toAbsolutePath()
     {
-        return wrap(getTarget().toAbsolutePath());
+        if (!isAbsolute()) {
+            RepositoryPath result = getFileSystem().getRootDirectory().resolve(this);
+            result.artifactEntry = this.artifactEntry;
+            
+            return result;
+        }
+        
+        return this;
     }
 
-    public Path toRealPath(LinkOption... options)
+    public RepositoryPath toRealPath(LinkOption... options)
             throws IOException
     {
-        return getTarget().toRealPath(options);
+        return wrap(getTarget().toRealPath(options));
     }
 
     @Deprecated
@@ -275,14 +281,14 @@ public class RepositoryPath
                              Modifier... modifiers)
             throws IOException
     {
-        return getTarget().register(watcher, events, modifiers);
+        throw new UnsupportedOperationException();
     }
 
     public WatchKey register(WatchService watcher,
                              Kind<?>... events)
             throws IOException
     {
-        return getTarget().register(watcher, events);
+        throw new UnsupportedOperationException();
     }
 
     public Iterator<Path> iterator()
@@ -302,7 +308,7 @@ public class RepositoryPath
     
     public String toString()
     {
-        return target.toString();
+        return getTarget().toString();
     }
 
     @Override
@@ -333,11 +339,20 @@ public class RepositoryPath
         }
     }
 
+    private void validateParent(final Path parent)
+    {
+        RootRepositoryPath root = getFileSystem().getRootDirectory();
+        if (parent.isAbsolute() && !parent.startsWith(root))
+        {
+            throw new RepositoryRelativePathConstructionException();
+        }
+    }
+    
     private void validateSibling(final Path result)
     {
         final Path sibling = result;
         final String repositoryRootPath = getRoot().toString(); // String, intentionally
-        if (!sibling.startsWith(repositoryRootPath))
+        if (sibling.isAbsolute() && !sibling.startsWith(repositoryRootPath))
         {
             throw new PathExceededRootRepositoryPathException();
         }

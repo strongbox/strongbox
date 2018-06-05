@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
@@ -9,7 +8,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -31,31 +29,29 @@ public class ArtifactLocationGenerateChecksumOperation
     public void execute(RepositoryPath path)
             throws IOException
     {
-        List<Path> filePaths;
         try (Stream<Path> pathStream = Files.list(path))
         {
-            filePaths = pathStream.filter(p ->
-                                          {
-                                              try
-                                              {
-                                                  return RepositoryFiles.isMetadata((RepositoryPath) p);
-                                              }
-                                              catch (IOException e)
-                                              {
-                                                  logger.error(String.format("Failed to read attributes for [%s]", p),
-                                                               e);
-                                              }
-                                              return false;
-                                          }).collect(Collectors.toList());
+            boolean containsMetadata = pathStream.anyMatch(p -> {
+                try
+                {
+                    return RepositoryFiles.isMetadata((RepositoryPath) p);
+                }
+                catch (IOException e)
+                {
+                    logger.error(String.format("Failed to read attributes for [%s]", p),
+                                 e);
+                }
+                return false;
+            });
+            if (!containsMetadata) {
+                logger.debug(String.format("Target path [%s] does not contains any metadata, so we don't need to execute any operations.",
+                                           path));
+                return;
+            }
         }
 
-        RepositoryPath parentPath = path.getParent()
-                                        .toAbsolutePath();
+        RepositoryPath parentPath = path;
 
-        if (filePaths.isEmpty())
-        {
-            return;
-        }
         // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
         if (!getVisitedRootPaths().isEmpty() && getVisitedRootPaths().containsKey(parentPath))
         {
@@ -85,23 +81,7 @@ public class ArtifactLocationGenerateChecksumOperation
             previousPath = parentPath;
         }
 
-        List<RepositoryPath> versionDirectories = getVersionDirectories(parentPath);
-        if (versionDirectories == null || versionDirectories.isEmpty())
-        {
-            return;
-        }
-
-        getVisitedRootPaths().put(parentPath, versionDirectories);
-        if (logger.isDebugEnabled())
-        {
-            for (Path directory : versionDirectories)
-            {
-                // We're using System.out.println() here for clarity and due to the length of the lines
-                System.out.println(" " + directory.toAbsolutePath().toString());
-            }
-        }
-
-        RepositoryPath basePath = versionDirectories.get(0).getParent();
+        RepositoryPath basePath = parentPath;
         RepositoryLayoutFileSystemProvider provider = (RepositoryLayoutFileSystemProvider) basePath.getFileSystem()
                                                                                                    .provider();
         provider.storeChecksum(basePath, forceRegeneration);

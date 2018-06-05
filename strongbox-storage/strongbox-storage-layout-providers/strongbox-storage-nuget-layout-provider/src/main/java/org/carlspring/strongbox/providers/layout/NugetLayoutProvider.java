@@ -1,17 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
-import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -22,7 +10,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
+import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -52,13 +52,9 @@ public class NugetLayoutProvider
     private NugetRepositoryManagementStrategy nugetRepositoryManagementStrategy;
 
     @Inject
-    private ArtifactManagementService nugetArtifactManagementService;
-
-    @Inject
     private NugetRepositoryFeatures nugetRepositoryFeatures;
 
 
-    @Override
     @PostConstruct
     public void register()
     {
@@ -67,32 +63,22 @@ public class NugetLayoutProvider
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
-    @Override
-    public String getAlias()
+    protected NugetArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException
     {
-        return ALIAS;
+        return NugetArtifactCoordinates.parse(RepositoryFiles.relativizePath(path));
+    }
+
+    protected boolean isArtifactMetadata(RepositoryPath path)
+    {
+        return path.getFileName().toString().endsWith(".nuspec");
     }
 
     @Override
-    public NugetArtifactCoordinates getArtifactCoordinates(String path)
-    {
-        return NugetArtifactCoordinates.parse(path);
-    }
-
-    @Override
-    public boolean isMetadata(String path)
-    {
-        return path.endsWith(".nuspec");
-    }
-
-    @Override
-    public void deleteMetadata(String storageId,
-                               String repositoryId,
-                               String metadataPath)
+    public void deleteMetadata(RepositoryPath repositoryPath)
     {
     }
 
-    private String toBase64(byte[] digest)
+    protected String toBase64(byte[] digest)
     {
         byte[] encoded = Base64.getEncoder()
                                .encode(digest);
@@ -106,70 +92,16 @@ public class NugetLayoutProvider
     }
 
     @Override
-    public Set<String> getDigestAlgorithmSet()
+    protected Set<String> getDigestAlgorithmSet()
     {
         return Stream.of(MessageDigestAlgorithms.SHA_512)
                      .collect(Collectors.toSet());
     }
 
     @Override
-    public void rebuildMetadata(String storageId,
-                                String repositoryId,
-                                String basePath)
-    {
-        throw new UnsupportedOperationException("Not yet implemented!");
-    }
-
-    @Override
-    public void rebuildIndexes(String storageId,
-                               String repositoryId,
-                               String basePath,
-                               boolean forceRegeneration)
-    {
-        throw new UnsupportedOperationException("Not yet implemented!");
-    }
-
-    @Override
     public NugetRepositoryManagementStrategy getRepositoryManagementStrategy()
     {
         return nugetRepositoryManagementStrategy;
-    }
-
-    @Override
-    public RepositoryFileSystemProvider getProvider(Repository repository)
-    {
-        FileSystemProvider storageFileSystemProvider = getStorageProvider(repository).getFileSystemProvider();
-        RepositoryLayoutFileSystemProvider repositoryFileSystemProvider = new NugetRepositoryLayoutFileSystemProvider(
-                storageFileSystemProvider);
-        return repositoryFileSystemProvider;
-    }
-
-    public class NugetRepositoryLayoutFileSystemProvider extends RepositoryLayoutFileSystemProvider
-    {
-
-        public NugetRepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
-        {
-            super(storageFileSystemProvider, null, NugetLayoutProvider.this);
-        }
-
-        @Override
-        protected ArtifactOutputStream decorateStream(RepositoryPath path,
-                                                      OutputStream os,
-                                                      ArtifactCoordinates artifactCoordinates)
-            throws NoSuchAlgorithmException,
-            IOException
-        {
-            ArtifactOutputStream result = super.decorateStream(path, os, artifactCoordinates);
-            result.setDigestStringifier(NugetLayoutProvider.this::toBase64);
-            return result;
-        }
-
-    }
-
-    @Override
-    public ArtifactManagementService getArtifactManagementService()
-    {
-        return nugetArtifactManagementService;
     }
 
 }

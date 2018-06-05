@@ -39,8 +39,6 @@ public class RepositoryInputStream
         this.callback = callback;
         return this;
     }
-    
-    
 
     @Override
     public synchronized int read(byte[] b,

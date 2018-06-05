@@ -16,6 +16,7 @@ import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.event.CommonEventListenerRegistry;
+import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
@@ -120,11 +121,9 @@ public class ProxyRepositoryProvider
         return hostedRepositoryProvider.count(storageId, repositoryId, predicate);
     }
 
-    protected ArtifactEntry provideArtifactEntry(String storageId,
-                                                 String repositoryId,
-                                                 String path)
+    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath)
     {
-        RemoteArtifactEntry artifactEntry = Optional.of(super.provideArtifactEntry(storageId, repositoryId, path))
+        RemoteArtifactEntry artifactEntry = Optional.of(super.provideArtifactEntry(repositoryPath))
                                                     .map(e -> e.getObjectId() == null ? new RemoteArtifactEntry()
                                                             : (RemoteArtifactEntry) e)
                                                     .get();

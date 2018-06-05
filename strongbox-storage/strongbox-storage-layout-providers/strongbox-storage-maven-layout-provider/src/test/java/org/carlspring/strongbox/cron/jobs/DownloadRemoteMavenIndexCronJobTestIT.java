@@ -1,18 +1,21 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
-
-import javax.inject.Inject;
-import java.io.File;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,7 +27,6 @@ import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Martin Todorov
@@ -66,8 +68,8 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXIED_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXIED_RELEASES, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }

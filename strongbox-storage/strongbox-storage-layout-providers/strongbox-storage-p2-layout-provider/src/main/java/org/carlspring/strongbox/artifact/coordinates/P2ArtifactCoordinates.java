@@ -4,12 +4,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.Entity;
+
 /**
  * Represents {@link ArtifactCoordinates} for P2 repository
  * <p>
  * Proper path for this coordinates is in the format of: {id}/{version}/{classifier}
  * Example: strongbox.p2/1.0.0/osgi.bundle
  */
+@Entity
 @ArtifactLayout("p2")
 public class P2ArtifactCoordinates
         extends AbstractArtifactCoordinates<P2ArtifactCoordinates, P2ArtifactCoordinates>

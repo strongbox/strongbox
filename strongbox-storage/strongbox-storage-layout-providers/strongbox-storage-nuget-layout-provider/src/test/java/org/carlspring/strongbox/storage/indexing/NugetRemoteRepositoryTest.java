@@ -7,6 +7,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -71,7 +72,7 @@ public class NugetRemoteRepositoryTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(NUGET_COMMON_STORAGE, REPOSITORY_PROXY));
+        repositories.add(createRepositoryMock(NUGET_COMMON_STORAGE, REPOSITORY_PROXY, NugetLayoutProvider.ALIAS));
 
         return repositories;
     }

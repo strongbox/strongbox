@@ -2,10 +2,16 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.providers.io.*;
+import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.FileNotFoundException;
@@ -18,26 +24,34 @@ import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+
+import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProvider
+public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProvider
 {
     private static final Logger logger = LoggerFactory.getLogger(RepositoryLayoutFileSystemProvider.class);
 
-    private AbstractLayoutProvider layoutProvider;
-
-
-    public RepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider,
-                                              RepositoryPathHandler repositoryPathHandler,
-                                              AbstractLayoutProvider layoutProvider)
+    @Inject
+    private ArtifactEventListenerRegistry artifactEventListenerRegistry;
+    
+    @Inject
+    private RepositoryEventListenerRegistry repositoryEventListenerRegistry;
+    
+    @Inject
+    private ArtifactEntryService artifactEntryService;
+    
+    public RepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
     {
-        super(storageFileSystemProvider, repositoryPathHandler);
-        this.layoutProvider = layoutProvider;
+        super(storageFileSystemProvider);
     }
 
+    protected abstract AbstractLayoutProvider getLayoutProvider();
+    
     @Override
     public ArtifactInputStream newInputStream(Path path,
                                               OpenOption... options)
@@ -83,34 +97,32 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
             throws NoSuchAlgorithmException, IOException
     {
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
-        ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is, digestAlgorithmSet)
-        {
-
-        };
+        ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is, digestAlgorithmSet);
+        
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (Boolean.TRUE.equals(RepositoryFiles.isChecksum(path)))
         {
             return result;
         }
-        digestAlgorithmSet.stream()
-                               .forEach(a ->
-                                        {
-                                            String checksum = null;
-                                            try
-                                            {
-                                                checksum = getChecksum(path, result, a);
-                                            }
-                                            catch (IOException e)
-                                            {
-                                                logger.error(String.format("Failed to get checksum for [%s]", path), e);
-                                            }
-                                            if (checksum == null)
-                                            {
-                                                return;
-                                            }
+        
+        digestAlgorithmSet.stream().forEach(a -> {
+            String checksum = null;
+            try
+            {
+                checksum = getChecksum(path, result, a);
+            }
+            catch (IOException e)
+            {
+                logger.error(String.format("Failed to get checksum for [%s]", path), e);
+            }
+            if (checksum == null)
+            {
+                return;
+            }
 
-                                            result.getHexDigests().put(a, checksum);
-                                        });
+            result.getHexDigests().put(a, checksum);
+        });
+        
         return result;
     }
 
@@ -123,7 +135,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
         String checksum = null;
         if (Files.exists(checksumPath) && Files.size(checksumPath) != 0)
         {
-            checksum = MessageDigestUtils.readChecksumFile(Files.newInputStream(checksumPath.getTarget()));
+            checksum = MessageDigestUtils.readChecksumFile(Files.newInputStream(checksumPath));
         }
         else
         {
@@ -172,22 +184,8 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
             throws NoSuchAlgorithmException, IOException
     {
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
-        ArtifactOutputStream result = new ArtifactOutputStream(os, artifactCoordinates)
-        {
-
-            @Override
-            public void close()
-                throws IOException
-            {
-                super.close();
-                RepositoryPathHandler pathHandler = getPathHandler();
-                if (pathHandler != null)
-                {
-                    pathHandler.postProcess(path);
-                }
-            }
-            
-        };
+        ArtifactOutputStream result = new ArtifactOutputStream(os, artifactCoordinates);
+        
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (Boolean.TRUE.equals(RepositoryFiles.isChecksum(path)))
         {
@@ -255,7 +253,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
                                            }
                                            try
                                            {
-                                               Files.write(checksumPath.getTarget(), checksum.getBytes());
+                                               Files.write(checksumPath, checksum.getBytes());
                                            }
                                            catch (IOException e)
                                            {
@@ -265,13 +263,103 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
                                        });
         }
     }
+
+    @Override
+    public void delete(Path path,
+                       boolean force)
+        throws IOException
+    {
+        logger.debug("Deleting in (" + path + ")...");
+        
+        if (!Files.exists(path))
+        {
+            logger.warn(String.format("Path not found: path-[%s]", path));
+            
+            return;
+        }
+
+        super.delete(path, force);
+
+        artifactEventListenerRegistry.dispatchArtifactPathDeletedEvent(path);
+
+        logger.debug(String.format("Removed [%s]", path));
+    }
     
+    @Override
+    protected void doDeletePath(RepositoryPath repositoryPath,
+                                boolean force)
+        throws IOException
+    {
+        ArtifactEntry artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry())
+                                              .orElseGet(() -> fetchArtifactEntry(repositoryPath));
+        if (artifactEntry != null)
+        {
+            artifactEntryService.delete(artifactEntry);
+        }
+        
+        super.doDeletePath(repositoryPath, force);
+    }
+
+    private ArtifactEntry fetchArtifactEntry(RepositoryPath repositoryPath)
+    {
+        Repository repository = repositoryPath.getRepository();
+        String path;
+        try
+        {
+            path = RepositoryFiles.relativizePath(repositoryPath);
+        }
+        catch (IOException e)
+        {
+            logger.error(String.format("Failed to fetch ArtifactEntry for [%s]", repositoryPath), e);
+            return null;
+        }
+
+        return artifactEntryService.findOneArtifact(repository.getStorage().getId(),
+                                                    repository.getId(),
+                                                    path)
+                                   .orElse(null);
+    }
+
+    @Override
+    public void deleteTrash(RepositoryPath path)
+        throws IOException
+    {
+        Repository repository = path.getRepository();
+        Storage storage = repository.getStorage();
+
+        logger.debug("Emptying trash for " + storage.getId() + ":" + repository.getId() + "...");
+
+        super.deleteTrash(path);
+
+        repositoryEventListenerRegistry.dispatchEmptyTrashEvent(storage.getId(), repository.getId());
+
+        logger.debug("Trash for " + storage.getId() + ":" + repository.getId() + " removed.");
+    }
+
+    
+    
+    @Override
+    public void undelete(RepositoryPath path)
+        throws IOException
+    {
+        Repository repository = path.getRepository();
+        Storage storage = repository.getStorage();
+
+        logger.debug(String.format("Attempting to restore: path-[%s]; ", path));
+        
+        super.undelete(path);
+
+        repositoryEventListenerRegistry.dispatchUndeleteTrashEvent(storage.getId(), repository.getId());
+
+        logger.debug("The trash for " + storage.getId() + ":" + repository.getId() + " has been undeleted.");
+    }
+
     @Override
     protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath,
                                                                                    RepositoryFileAttributeType... attributeTypes)
         throws IOException
     {
-        return layoutProvider.getRepositoryFileAttributes(repositoryRelativePath, attributeTypes);
+        return getLayoutProvider().getRepositoryFileAttributes(repositoryRelativePath, attributeTypes);
     }
     
 }
