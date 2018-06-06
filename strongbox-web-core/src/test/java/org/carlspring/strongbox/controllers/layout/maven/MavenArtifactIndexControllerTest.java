@@ -222,7 +222,7 @@ public class MavenArtifactIndexControllerTest
     @Test
     public void shouldReturnNotFoundWhenIndexingIsNotEnabled()
     {
-        String url = getContextBaseUrl() + "/storages/public/public-group/.index/nexus-maven-repository-index.gz";
+        String url = getContextBaseUrl() + "/storages/public/maven-group/.index/nexus-maven-repository-index.gz";
 
         given().header(new Header("User-Agent", "Maven/*"))
                .get(url)

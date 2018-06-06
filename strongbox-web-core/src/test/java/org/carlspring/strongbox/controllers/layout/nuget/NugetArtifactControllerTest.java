@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.controllers.layout.nuget;
 
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
@@ -10,6 +8,7 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+
 import javax.inject.Inject;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -27,7 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import ru.aristar.jnuget.rss.PackageFeed;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -395,7 +393,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     {
         given().header("User-Agent", "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate")
+               .get(getContextBaseUrl() + "/storages/public/nuget-group/FindPackagesById()?id=NHibernate")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -421,7 +419,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         {
             given().header("User-Agent", "NuGet/*")
                    .when()
-                   .get(getContextBaseUrl() + "/storages/public/nuget-public/package/NHibernate/4.1.1.4000")
+                   .get(getContextBaseUrl() + "/storages/public/nuget-group/package/NHibernate/4.1.1.4000")
                    .peek()
                    .then()
                    .statusCode(HttpStatus.OK.value())
@@ -440,7 +438,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         PackageFeed feed = given().header("User-Agent", "NuGet/*")
                                   .when()
                                   .get(getContextBaseUrl()
-                                          + "/storages/public/nuget-public/FindPackagesById()?id=NHibernate&$orderby=Version")
+                                          + "/storages/public/nuget-group/FindPackagesById()?id=NHibernate&$orderby=Version")
                                   .body()
                                   .as(PackageFeed.class);
 
