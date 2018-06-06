@@ -231,7 +231,7 @@ public class MavenProxyRepositoryProviderTestIT
                    IOException
     {
         RepositoryPath path = artifactResolutionService.resolvePath("public",
-                                                                    "public-group",
+                                                                    "maven-group",
                                                                     "org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml");
         try (InputStream is = artifactResolutionService.getInputStream(path))
         {

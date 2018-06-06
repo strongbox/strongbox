@@ -112,11 +112,11 @@
                         <repository>jboss-public-releases</repository>
                     </group>
                 </repository>
-                
-                <repository id="nuget.org" 
-                            policy="release" 
+
+                <repository id="nuget.org"
+                            policy="release"
                             data-store="file-system"
-                            layout="NuGet" 
+                            layout="NuGet"
                             type="proxy">
                     <remote-repository url="https://www.nuget.org/api/v2"/>
                     <nuget-repository-configuration remote-feed-page-size="1000"/>
@@ -233,26 +233,26 @@
         </storage>
         <storage id="storage-third-party">
             <repositories>
-                <repository id="third-party" 
-                            policy="release" 
-                            data-store="file-system"
-                            layout="Maven 2" 
-                            type="hosted" 
-                            allows-force-deletion="true" 
-                            checksum-headers-enabled="true" />
-            
-                <repository id="nuget-third-party" 
+                <repository id="third-party"
                             policy="release"
                             data-store="file-system"
-                            layout="NuGet" 
+                            layout="Maven 2"
                             type="hosted"
-                            allows-force-deletion="true" 
-                            checksum-headers-enabled="true" />            
+                            allows-force-deletion="true"
+                            checksum-headers-enabled="true" />
+
+                <repository id="nuget-third-party"
+                            policy="release"
+                            data-store="file-system"
+                            layout="NuGet"
+                            type="hosted"
+                            allows-force-deletion="true"
+                            checksum-headers-enabled="true" />
             </repositories>
 
         </storage>
 
-        <storage id="storage-common-npm">
+        <storage id="storage-npm">
             <repositories>
                 <repository id="npm-releases"
                             policy="release"
@@ -261,6 +261,14 @@
                             type="hosted"
                             allows-force-deletion="true"
                             checksum-headers-enabled="true"/>
+
+                <repository id="npmjs"
+                            policy="release"
+                            data-store="file-system"
+                            layout="npm"
+                            type="proxy">
+                    <remote-repository url="https://registry.npmjs.org/"/>
+                </repository>
             </repositories>
         </storage>
 
@@ -291,7 +299,7 @@
 
         <storage id="public">
             <repositories>
-                <repository id="public-group"
+                <repository id="maven-group"
                             policy="mixed"
                             data-store="file-system"
                             layout="Maven 2"
@@ -305,8 +313,8 @@
                         <repository>storage-third-party:third-party</repository>
                     </group>
                 </repository>
-                
-                <repository id="nuget-public"
+
+                <repository id="nuget-group"
                             policy="mixed"
                             data-store="file-system"
                             layout="NuGet"
@@ -315,6 +323,17 @@
                     <group>
                         <repository>storage-common-proxies:nuget.org</repository>
                         <repository>storage-third-party:nuget-third-party</repository>
+                    </group>
+                </repository>
+
+                <repository id="npm-group"
+                            policy="mixed"
+                            data-store="file-system"
+                            layout="npm"
+                            type="group"
+                            secured="true">
+                    <group>
+                        <repository>storage-npm:npmjs</repository>
                     </group>
                 </repository>
             </repositories>

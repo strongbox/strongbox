@@ -1083,7 +1083,7 @@ public class MavenArtifactControllerTest
         }
 
         String url = getContextBaseUrl() +
-                     "/storages/public/public-group/org/carlspring/commons/commons-http/" +
+                     "/storages/public/maven-group/org/carlspring/commons/commons-http/" +
                      commonsHttpSnapshot.version + "/commons-http-" + commonsHttpSnapshot.timestampedVersion + ".jar";
 
         given().header("user-agent", "Maven/*")
