@@ -16,7 +16,7 @@ abstract class CommonOrientDbConfig
 
     private OrientDBConfig orientDBConfig = OrientDBConfig.builder()
                                                           .addConfig(OGlobalConfiguration.DB_POOL_MIN, 1L)
-                                                          .addConfig(OGlobalConfiguration.DB_POOL_MAX, 100L)
+                                                          .addConfig(OGlobalConfiguration.DB_POOL_MAX, 1000L)
                                                           .build();
 
     OrientDBConfig getOrientDBConfig()

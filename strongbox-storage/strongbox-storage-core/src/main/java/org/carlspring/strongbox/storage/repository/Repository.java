@@ -459,4 +459,9 @@ public class Repository
         this.artifactCoordinateValidators = Maps.toMap(artifactCoordinateValidators, x -> x);
     }
 
+    public void setArtifactCoordinateValidators(Map<String, String> artifactCoordinateValidators)
+    {
+        this.artifactCoordinateValidators = artifactCoordinateValidators;
+    }
+
 }

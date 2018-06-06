@@ -13,9 +13,19 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PersistenceContext;
-
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -49,7 +59,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
     {
         identifyEntity(entity);
         
-        ReflectionUtils.doWithFields(entity.getClass(), (field) -> {
+        ReflectionUtils.doWithFields(this.getEntityClass(), (field) -> {
             ReflectionUtils.makeAccessible(field);
 
             Set<CascadeType> cascadeTypeSet = Arrays.stream(field.getAnnotations())
@@ -134,7 +144,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
         }
 
         GenericEntity entity = (GenericEntity) entityCandidate;
-        CommonCrudService<GenericEntity> entityService = (CommonCrudService<GenericEntity>) entityServiceRegistry.getEntityService(entity.getClass());
+        CommonCrudService<GenericEntity> entityService = (CommonCrudService<GenericEntity>) entityServiceRegistry.getEntityService(this.getEntityClass());
         return entityService.cascadeEntitySave(entity);
     }
     
@@ -151,7 +161,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
         }
         
         String sQuery = String.format("SELECT @rid AS objectId FROM %s WHERE uuid = :uuid",
-                                      entity.getClass().getSimpleName());
+                                      this.getEntityClass().getSimpleName());
 
         OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);
