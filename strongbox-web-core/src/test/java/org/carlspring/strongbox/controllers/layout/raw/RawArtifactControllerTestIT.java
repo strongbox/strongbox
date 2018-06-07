@@ -77,7 +77,7 @@ public class RawArtifactControllerTestIT
 
         createProxyRepository(STORAGE0,
                               REPOSITORY_PROXY,
-                              "http://www-eu.apache.org/dist");
+                              "http://apache.cbox.biz");
         // Required for http://www-eu.apache.org/dist/maven/pom/apache-19-source-release.zip
 
         MutableRepository repository2 = rawRepositoryFactory.createRepository(REPOSITORY_GROUP);

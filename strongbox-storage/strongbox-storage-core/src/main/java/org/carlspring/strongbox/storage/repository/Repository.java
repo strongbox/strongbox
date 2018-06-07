@@ -200,27 +200,27 @@ public class Repository
         return trashEnabled;
     }
 
-    public boolean isAllowsForceDeletion()
+    public boolean allowsForceDeletion()
     {
         return allowsForceDeletion;
     }
 
-    public boolean isAllowsDeployment()
+    public boolean allowsDeployment()
     {
         return allowsDeployment;
     }
 
-    public boolean isAllowsRedeployment()
+    public boolean allowsRedeployment()
     {
         return allowsRedeployment;
     }
 
-    public boolean isAllowsDelete()
+    public boolean allowsDelete()
     {
         return allowsDelete;
     }
 
-    public boolean isAllowsDirectoryBrowsing()
+    public boolean allowsDirectoryBrowsing()
     {
         return allowsDirectoryBrowsing;
     }

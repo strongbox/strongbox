@@ -92,7 +92,7 @@ public class ArtifactOperationsValidator
     public void checkAllowsDeployment(Repository repository)
             throws ArtifactStorageException
     {
-        if (!repository.isAllowsDeployment() ||
+        if (!repository.allowsDeployment() ||
             RepositoryTypeEnum.GROUP.getType().equals(repository.getType()) ||
             RepositoryTypeEnum.PROXY.getType().equals(repository.getType()))
         {
@@ -117,7 +117,7 @@ public class ArtifactOperationsValidator
                    ProviderImplementationException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        if (layoutProvider.containsArtifact(repository, coordinates) && !repository.isAllowsRedeployment())
+        if (layoutProvider.containsArtifact(repository, coordinates) && !repository.allowsRedeployment())
         {
             throw new ArtifactStorageException("Re-deployment of artifacts to " +
                                                repository.getStorage().getId() + ":" + repository.getId() +
@@ -128,7 +128,7 @@ public class ArtifactOperationsValidator
     public void checkAllowsDeletion(Repository repository)
             throws ArtifactStorageException
     {
-        if (!repository.isAllowsDelete())
+        if (!repository.allowsDelete())
         {
             throw new ArtifactStorageException("Deleting artifacts from " + repository.getType() +
                                                " repository is not allowed!");

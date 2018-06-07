@@ -290,7 +290,7 @@ public abstract class RepositoryFileSystemProvider
                    trashPath.getTarget(),
                    StandardCopyOption.REPLACE_EXISTING);
         
-        if (force && repository.isAllowsDelete())
+        if (force && repository.allowsForceDeletion())
         {
             deleteTrash(repositoryPath);
         }

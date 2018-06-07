@@ -73,7 +73,7 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
                                 .get("storage0")
                                 .getRepositories()
                                 .get("releases")
-                                .isAllowsDirectoryBrowsing());
+                                .allowsDirectoryBrowsing());
 
         Set<String> versionValidators = configuration.getStorages()
                                                      .get("storage0")

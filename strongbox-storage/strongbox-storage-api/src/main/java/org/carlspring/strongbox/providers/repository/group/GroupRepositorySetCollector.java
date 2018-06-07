@@ -35,7 +35,7 @@ public class GroupRepositorySetCollector
                                                 .keySet()
                                                 .stream()
                                                 .map(groupRepoId -> getRepository(groupRepository.getStorage(),
-                                                                                           groupRepoId))
+                                                                                  groupRepoId))
                                                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         if (!traverse)

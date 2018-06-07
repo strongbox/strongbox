@@ -47,7 +47,7 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
             final Map<String, Repository> repositories = storage.getRepositories();
             for (Repository repository : repositories.values())
             {
-                if (repository.isAllowsDelete())
+                if (repository.allowsDelete())
                 {
                     logger.debug("Emptying trash for repository " + repository.getId() + "...");
 

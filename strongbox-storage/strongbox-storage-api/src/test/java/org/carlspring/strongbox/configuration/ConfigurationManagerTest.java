@@ -91,7 +91,7 @@ public class ConfigurationManagerTest
                                 .get("storage0")
                                 .getRepositories()
                                 .get("releases")
-                                .isAllowsDirectoryBrowsing());
+                                .allowsDirectoryBrowsing());
     }
 
     @Test

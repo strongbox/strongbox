@@ -84,8 +84,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
         for (final Iterator<ArtifactEntry> it = artifactEntries.iterator(); it.hasNext(); )
         {
             final ArtifactEntry artifactEntry = it.next();
-            final Storage storage = configurationManager.getConfiguration().getStorage(
-                    artifactEntry.getStorageId());
+            final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
             final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
             if (!repository.isProxyRepository())
             {
@@ -114,8 +113,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
     {
         for (final ArtifactEntry artifactEntry : artifactEntries)
         {
-            final Storage storage = configurationManager.getConfiguration().getStorage(
-                    artifactEntry.getStorageId());
+            final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
             final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactEntry);
