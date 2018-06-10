@@ -128,7 +128,7 @@ public class ArtifactOperationsValidator
     public void checkAllowsDeletion(Repository repository)
             throws ArtifactStorageException
     {
-        if (!repository.allowsDelete())
+        if (!repository.allowsDeletion())
         {
             throw new ArtifactStorageException("Deleting artifacts from " + repository.getType() +
                                                " repository is not allowed!");

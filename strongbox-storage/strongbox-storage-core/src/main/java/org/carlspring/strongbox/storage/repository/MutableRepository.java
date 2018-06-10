@@ -70,7 +70,7 @@ public class MutableRepository
     private boolean allowsDeployment = true;
 
     @XmlAttribute(name = "allows-redeployment")
-    private boolean allowsRedeployment;
+    private boolean allowsRedeployment = true;
 
     @XmlAttribute(name = "allows-delete")
     private boolean allowsDelete = true;
@@ -367,19 +367,9 @@ public class MutableRepository
         this.repositoryConfiguration = repositoryConfiguration;
     }
 
-    public boolean isAllowsForceDeletion()
-    {
-        return allowsForceDeletion;
-    }
-
     public void setAllowsForceDeletion(boolean allowsForceDeletion)
     {
         this.allowsForceDeletion = allowsForceDeletion;
-    }
-
-    public boolean isAllowsDeployment()
-    {
-        return allowsDeployment;
     }
 
     public void setAllowsDeployment(boolean allowsDeployment)
@@ -387,29 +377,14 @@ public class MutableRepository
         this.allowsDeployment = allowsDeployment;
     }
 
-    public boolean isAllowsRedeployment()
-    {
-        return allowsRedeployment;
-    }
-
     public void setAllowsRedeployment(boolean allowsRedeployment)
     {
         this.allowsRedeployment = allowsRedeployment;
     }
 
-    public boolean isAllowsDelete()
-    {
-        return allowsDelete;
-    }
-
     public void setAllowsDelete(boolean allowsDelete)
     {
         this.allowsDelete = allowsDelete;
-    }
-
-    public boolean isAllowsDirectoryBrowsing()
-    {
-        return allowsDirectoryBrowsing;
     }
 
     public void setAllowsDirectoryBrowsing(boolean allowsDirectoryBrowsing)

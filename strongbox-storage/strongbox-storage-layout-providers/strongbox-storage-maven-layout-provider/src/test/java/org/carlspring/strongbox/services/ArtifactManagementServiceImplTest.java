@@ -12,9 +12,9 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
@@ -196,6 +196,15 @@ public class ArtifactManagementServiceImplTest
         //
         MutableRepository repositoryWithLock = mavenRepositoryFactory.createRepository(REPOSITORY_WITH_LOCK);
         createRepository(repositoryWithLock, STORAGE0);
+
+
+        //
+        MutableRepository releasesWithoutDeployment = mavenRepositoryFactory.createRepository(
+                REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT);
+        releasesWithoutDeployment.setAllowsDeployment(false);
+        releasesWithoutDeployment.setLayout(Maven2LayoutProvider.ALIAS);
+
+        createRepository(releasesWithoutDeployment, STORAGE0);
     }
 
     @Test
@@ -209,15 +218,15 @@ public class ArtifactManagementServiceImplTest
         {
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.0:jar";
 
-            File repositoryDir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES);
+            File repositoryDir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT);
             is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
-                                             REPOSITORY_RELEASES_WITHOUT_DELETE,
+                                             REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT,
                                              gavtc,
                                              true);
 
             MavenArtifact artifact = MavenArtifactUtils.getArtifactFromGAVTC(gavtc);
             mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            REPOSITORY_RELEASES_WITHOUT_DELETE,
+                                                            REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT,
                                                             MavenArtifactUtils.convertArtifactToPath(artifact),
                                                             is);
 

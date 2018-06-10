@@ -90,11 +90,11 @@ public class Repository
         this.status = delegate.getStatus();
         this.artifactMaxSize = delegate.getArtifactMaxSize();
         this.trashEnabled = delegate.isTrashEnabled();
-        this.allowsForceDeletion = delegate.isAllowsForceDeletion();
-        this.allowsDeployment = delegate.isAllowsDeployment();
-        this.allowsRedeployment = delegate.isAllowsRedeployment();
-        this.allowsDelete = delegate.isAllowsDelete();
-        this.allowsDirectoryBrowsing = delegate.isAllowsDirectoryBrowsing();
+        this.allowsForceDeletion = delegate.allowsForceDeletion();
+        this.allowsDeployment = delegate.allowsDeployment();
+        this.allowsRedeployment = delegate.allowsRedeployment();
+        this.allowsDelete = delegate.allowsDeletion();
+        this.allowsDirectoryBrowsing = delegate.allowsDirectoryBrowsing();
         this.checksumHeadersEnabled = delegate.isChecksumHeadersEnabled();
         this.proxyConfiguration = immuteProxyConfiguration(delegate.getProxyConfiguration());
         this.remoteRepository = immuteRemoteRepository(delegate.getRemoteRepository());
@@ -215,7 +215,7 @@ public class Repository
         return allowsRedeployment;
     }
 
-    public boolean allowsDelete()
+    public boolean allowsDeletion()
     {
         return allowsDelete;
     }

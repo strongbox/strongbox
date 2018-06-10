@@ -131,11 +131,6 @@ public class MutableRemoteRepository
         this.checkIntervalSeconds = checkIntervalSeconds;
     }
 
-    public boolean isAllowsDirectoryBrowsing()
-    {
-        return allowsDirectoryBrowsing;
-    }
-
     public void setAllowsDirectoryBrowsing(boolean allowsDirectoryBrowsing)
     {
         this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
@@ -149,5 +144,10 @@ public class MutableRemoteRepository
     public void setAutoImportRemoteSSLCertificate(boolean autoImportRemoteSSLCertificate)
     {
         this.autoImportRemoteSSLCertificate = autoImportRemoteSSLCertificate;
+    }
+
+    public boolean allowsDirectoryBrowsing()
+    {
+        return allowsDirectoryBrowsing;
     }
 }
