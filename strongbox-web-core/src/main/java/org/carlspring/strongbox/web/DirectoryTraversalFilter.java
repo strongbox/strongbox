@@ -5,8 +5,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
@@ -22,9 +25,19 @@ public class DirectoryTraversalFilter
                                     FilterChain filterChain)
             throws ServletException, IOException
     {
-        String requestedUrl = request.getRequestURL().toString();
-        String normalizedUrl = StringUtils.cleanPath(requestedUrl);
-        if (!requestedUrl.equals(normalizedUrl))
+        final String decodedRequestURI = URLDecoder.decode(request.getRequestURI(), StandardCharsets.UTF_8.name());
+        URI requestURI;
+        try
+        {
+            requestURI = new URI(decodedRequestURI);
+        }
+        catch (URISyntaxException e)
+        {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid URI path provided.");
+            return;
+        }
+        final URI normalizedURI = requestURI.normalize();
+        if (!requestURI.equals(normalizedURI))
         {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST,
                                "Invalid path provided. Please make sure there are no sequences like \"path/..\" in your request url.");
