@@ -16,8 +16,6 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.artifact",
@@ -36,27 +34,16 @@ public class StorageApiConfig
     private List<ArtifactCoordinatesValidator> versionValidators;
 
     @Inject
-    private PlatformTransactionManager transactionManager;
-
-    @Inject
     private ConfigurationFileManager configurationFileManager;
 
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
-
-
     @PostConstruct
     public void init()
     {
-        new TransactionTemplate(transactionManager).execute((s) -> doInit());
-    }
-
-    private Object doInit()
-    {
         final MutableConfiguration configuration = configurationFileManager.read();
         configurationManagementService.setConfiguration(configuration);
-        return null;
     }
 
     @Bean(name = "checksumCacheManager")

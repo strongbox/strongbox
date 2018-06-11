@@ -119,6 +119,7 @@ public class WebConfig
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
         marshaller.setPackagesToScan("com.carlspring.strongbox.controllers",
                                      "org.carlspring.strongbox.artifact.coordinates",
+                                     "org.carlspring.strongbox.authorization.dto",
                                      "org.carlspring.strongbox.authentication.registry",
                                      "org.carlspring.strongbox.authentication.support",
                                      "org.carlspring.strongbox.cron.domain",
@@ -132,7 +133,7 @@ public class WebConfig
                                      "org.carlspring.strongbox.storage.repository.aws",
                                      "org.carlspring.strongbox.storage.repository.gcs",
                                      "org.carlspring.strongbox.storage.routing",
-                                     "org.carlspring.strongbox.users.security",
+                                     "org.carlspring.strongbox.users.dto",
                                      "org.carlspring.strongbox.xml",
                                      "org.carlspring.strongbox.forms");
         Map<String, Object> props = new HashMap<>();

@@ -4,19 +4,21 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.PrivilegeForm;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
-import org.carlspring.strongbox.forms.RoleListForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.security.Role;
+import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.users.security.AuthorizationConfig;
-import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
+import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
+import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
-import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +26,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.*;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_ADD_ROLE;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_ASSIGN_PRIVILEGES;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_DELETE_ROLE;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_ADD_ROLE;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_ASSIGN_PRIVILEGES;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_DELETE_ROLE;
 import static org.hamcrest.CoreMatchers.containsString;
 
 /**
@@ -37,32 +44,20 @@ public class AuthorizationConfigControllerTestIT
 {
 
     @Inject
-    private AuthorizationConfigProvider configProvider;
+    private AuthorizationConfigService authorizationConfigService;
 
-    private Set<Role> originalRoles;
+    private AuthorizationConfigDto config;
 
     @Before
     public void beforeEveryTest()
     {
-        Optional<AuthorizationConfig> configOptional = configProvider.get();
-        // Saves original roles list.
-        configOptional.ifPresent(authorizationConfig ->
-                                         originalRoles = Sets.newHashSet(authorizationConfig.getRoles()));
-        configOptional.orElseThrow(() -> new RuntimeException("Unable to load config"));
+        config = authorizationConfigService.getDto();
     }
 
     @After
     public void afterEveryTest()
     {
-        Optional<AuthorizationConfig> configOptional = configProvider.get();
-        // Retrieve original roles list and updates the config.
-        configOptional.ifPresent(authorizationConfig ->
-                                 {
-                                     authorizationConfig.setRoles(originalRoles);
-                                     configProvider.save(authorizationConfig);
-                                 }
-        );
-        configOptional.orElseThrow(() -> new RuntimeException("Unable to load config"));
+        authorizationConfigService.setAuthorizationConfig(config);
     }
 
     private void roleShouldBeAdded(String acceptHeader,
@@ -107,7 +102,7 @@ public class AuthorizationConfigControllerTestIT
                                       String roleName)
     {
         // prepare new role
-        final Role customRole = new Role();
+        final RoleDto customRole = new RoleDto();
         customRole.setName(roleName);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -124,14 +119,14 @@ public class AuthorizationConfigControllerTestIT
     @Test
     public void testExistingRoleShouldNotBeAddedWithResponseInJson()
     {
-        String existingRoleName = originalRoles.iterator().next().getName();
+        String existingRoleName = config.getRoles().iterator().next().getName();
         roleShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, existingRoleName);
     }
 
     @Test
     public void testExistingRoleShouldNotBeAddedWithResponseInText()
     {
-        String existingRoleName = originalRoles.iterator().next().getName();
+        String existingRoleName = config.getRoles().iterator().next().getName();
         roleShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, existingRoleName);
     }
 
@@ -189,14 +184,14 @@ public class AuthorizationConfigControllerTestIT
     @Test
     public void testRoleShouldBeDeletedWithResponseInJson()
     {
-        String roleName = originalRoles.iterator().next().getName();
+        String roleName = config.getRoles().iterator().next().getName();
         roleShouldBeDeleted(MediaType.APPLICATION_JSON_VALUE, roleName);
     }
 
     @Test
     public void testRoleShouldBeDeletedWithResponseInText()
     {
-        String roleName = originalRoles.iterator().next().getName();
+        String roleName = config.getRoles().iterator().next().getName();
         roleShouldBeDeleted(MediaType.TEXT_PLAIN_VALUE, roleName);
     }
 
@@ -296,82 +291,6 @@ public class AuthorizationConfigControllerTestIT
     {
         String privilegeName = "";
         privilegesToAnonymousShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, privilegeName);
-    }
-
-    private void rolesToAnonymousShouldBeAdded(String acceptHeader,
-                                               String roleName)
-    {
-        // assign roles to anonymous user
-        RoleListForm roleListForm = new RoleListForm();
-        List<RoleForm> roleForms = new ArrayList<>();
-        final RoleForm roleForm = new RoleForm();
-        roleForm.setName(roleName);
-        roleForm.setPrivileges(new HashSet<>(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
-                                                           Privileges.ARTIFACTS_DEPLOY.name())));
-        roleForms.add(roleForm);
-        roleListForm.setRoles(roleForms);
-
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, acceptHeader)
-               .body(roleListForm)
-               .when()
-               .post("/api/configuration/authorization/anonymous/roles")
-               .peek() // Use peek() to print the output
-               .then()
-               .statusCode(HttpStatus.OK.value()) // check http status code
-               .body(containsString(SUCCESSFUL_ASSIGN_ROLES));
-    }
-
-    @Test
-    public void testRolesToAnonymousShouldBeAddedWithResponseInJson()
-    {
-        String roleName = "TEST_ROLE";
-        rolesToAnonymousShouldBeAdded(MediaType.APPLICATION_JSON_VALUE, roleName);
-    }
-
-    @Test
-    public void testRolesToAnonymousShouldBeAddedWithResponseInText()
-    {
-        String roleName = "TEST_ROLE";
-        rolesToAnonymousShouldBeAdded(MediaType.TEXT_PLAIN_VALUE, roleName);
-    }
-
-    private void rolesToAnonymousShouldNotBeAdded(String acceptHeader,
-                                                  String roleName)
-    {
-        // assign roles to anonymous user
-        RoleListForm roleListForm = new RoleListForm();
-        List<RoleForm> roleForms = new ArrayList<>();
-        final RoleForm roleForm = new RoleForm();
-        roleForm.setName(roleName);
-        roleForm.setPrivileges(new HashSet<>(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
-                                                           Privileges.ARTIFACTS_DEPLOY.name())));
-        roleForms.add(roleForm);
-        roleListForm.setRoles(roleForms);
-
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, acceptHeader)
-               .body(roleListForm)
-               .when()
-               .post("/api/configuration/authorization/anonymous/roles")
-               .peek() // Use peek() to print the output
-               .then()
-               .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
-               .body(containsString(FAILED_ASSIGN_ROLES));
-    }
-
-    @Test
-    public void testEmptyRoleNameToAnonymousShouldNotBeAddedWithResponseInJson()
-    {
-        String roleName = "";
-        rolesToAnonymousShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, roleName);
-    }
-
-    @Test
-    public void testEmptyRoleNameToAnonymousShouldNotBeAddedWithResponseInText()
-    {
-        String roleName = "";
-        rolesToAnonymousShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, roleName);
     }
 
 }

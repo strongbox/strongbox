@@ -1,76 +1,48 @@
 package org.carlspring.strongbox.users.domain;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
-import java.util.HashSet;
+import javax.annotation.concurrent.Immutable;
+import java.util.Collections;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableSet;
 
 /**
- * An application user
+ * @author Przemyslaw Fusik
  */
-@Entity
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@Immutable
 public class User
-        extends GenericEntity
 {
 
-    private String username;
+    private final String username;
 
-    private String password;
+    private final String password;
 
-    private boolean enabled;
+    private final boolean enabled;
 
-    private Set<String> roles;
+    private final Set<String> roles;
 
-    private String securityTokenKey;
+    private final String securityTokenKey;
 
-    @Embedded
-    private AccessModel accessModel;
+    private final AccessModel accessModel;
 
-    public User()
+    public User(final MutableUser other)
     {
-        roles = new HashSet<>();
+        this.username = other.getUsername();
+        this.password = other.getPassword();
+        this.enabled = other.isEnabled();
+        this.roles = immuteRoles(other.getRoles());
+        this.securityTokenKey = other.getSecurityTokenKey();
+        this.accessModel = immuteAccessModel(other.getAccessModel());
     }
 
-    public User(String id,
-                String username,
-                String password,
-                boolean enabled,
-                Set<String> roles)
+    private Set<String> immuteRoles(final Set<String> source)
     {
-        this.objectId = id;
-        this.username = username;
-        this.password = password;
-        this.enabled = enabled;
-        this.roles = roles;
+        return source != null ? ImmutableSet.copyOf(source) : Collections.emptySet();
     }
 
-    @Override
-    public boolean equals(Object o)
+    private AccessModel immuteAccessModel(final MutableAccessModel source)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return enabled == user.enabled &&
-               Objects.equal(username, user.username) &&
-               Objects.equal(password, user.password) &&
-               Objects.equal(roles, user.roles) &&
-               Objects.equal(securityTokenKey, user.securityTokenKey) &&
-               Objects.equal(accessModel, user.accessModel);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hashCode(username, password, enabled, roles, securityTokenKey, accessModel);
+        return source != null ? new AccessModel(source) : null;
     }
 
     public String getUsername()
@@ -78,19 +50,9 @@ public class User
         return username;
     }
 
-    public void setUsername(final String username)
-    {
-        this.username = username;
-    }
-
     public String getPassword()
     {
         return password;
-    }
-
-    public void setPassword(final String password)
-    {
-        this.password = password;
     }
 
     public boolean isEnabled()
@@ -98,19 +60,9 @@ public class User
         return enabled;
     }
 
-    public void setEnabled(final boolean enabled)
-    {
-        this.enabled = enabled;
-    }
-
     public Set<String> getRoles()
     {
         return roles;
-    }
-
-    public void setRoles(final Set<String> roles)
-    {
-        this.roles = roles;
     }
 
     public String getSecurityTokenKey()
@@ -118,39 +70,8 @@ public class User
         return securityTokenKey;
     }
 
-    public void setSecurityTokenKey(String securityTokenKey)
-    {
-        this.securityTokenKey = securityTokenKey;
-    }
-
     public AccessModel getAccessModel()
     {
         return accessModel;
-    }
-
-    public void setAccessModel(AccessModel accessModel)
-    {
-        this.accessModel = accessModel;
-    }
-
-
-    @Override
-    public String toString()
-    {
-        final StringBuilder sb = new StringBuilder("User{");
-        sb.append("username='")
-          .append(username)
-          .append('\'');
-        sb.append(", enabled=")
-          .append(enabled);
-        sb.append(", roles=")
-          .append(roles);
-        sb.append(", securityTokenKey='")
-          .append(securityTokenKey)
-          .append('\'');
-        sb.append(", accessModel=")
-          .append(accessModel);
-        sb.append('}');
-        return sb.toString();
     }
 }

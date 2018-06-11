@@ -3,18 +3,22 @@ package org.carlspring.strongbox.controllers.users;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
-import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.users.domain.MutableAccessModel;
 import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.MutableUser;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.springframework.core.convert.ConversionService;
@@ -28,7 +32,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author Pablo Tirado
@@ -115,8 +128,8 @@ public class UserController
             throw new RequestBodyValidationException(FAILED_CREATE_USER, bindingResult);
         }
 
-        User user = conversionService.convert(userForm, User.class);
-        userService.save(user);
+        MutableUser user = conversionService.convert(userForm, MutableUser.class);
+        userService.add(user);
 
         return getSuccessfulResponseEntity(SUCCESSFUL_CREATE_USER, accept);
     }
@@ -152,7 +165,7 @@ public class UserController
     public ResponseEntity getUsers()
     {
         List<UserOutput> users = userService.findAll()
-                                            .orElse(Collections.emptyList())
+                                            .getUsers()
                                             .stream()
                                             .map(UserOutput::fromUser).collect(Collectors.toList());
 
@@ -184,7 +197,7 @@ public class UserController
             return getFailedResponseEntity(HttpStatus.BAD_REQUEST, message, accept);
         }
 
-        User user = conversionService.convert(userToUpdate, User.class);
+        MutableUser user = conversionService.convert(userToUpdate, MutableUser.class);
         final SpringSecurityUser loggedUser = (SpringSecurityUser) authentication.getPrincipal();
         if (StringUtils.equals(loggedUser.getUsername(), user.getUsername()))
         {
@@ -224,12 +237,12 @@ public class UserController
         }
 
         User user = userService.findByUserName(name);
-        if (user == null || user.getObjectId() == null)
+        if (user == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);
         }
 
-        userService.delete(user.getObjectId());
+        userService.delete(user.getUsername());
 
         return getSuccessfulResponseEntity(SUCCESSFUL_DELETE_USER, accept);
     }
@@ -247,7 +260,7 @@ public class UserController
             throws JoseException
     {
         User user = userService.findByUserName(username);
-        if (user == null || user.getObjectId() == null)
+        if (user == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);
         }
@@ -306,18 +319,15 @@ public class UserController
         }
 
         User user = userService.findByUserName(username);
-        if (user == null || user.getObjectId() == null)
+        if (user == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);
         }
 
-        AccessModel accessModel = conversionService.convert(accessModelForm, AccessModel.class);
-        user.setAccessModel(accessModel);
-        userService.save(user);
+        MutableAccessModel accessModel = conversionService.convert(accessModelForm, MutableAccessModel.class);
+        userService.updateAccessModel(username, accessModel);
 
-        Object body = getUserEntityBody(user, accept);
-        
-        return ResponseEntity.ok(body);
+        return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE_USER, accept);
     }
 
     private Object getUserOutputEntityBody(UserOutput userOutput,
@@ -333,7 +343,7 @@ public class UserController
         }
     }
 
-    private Object getUserEntityBody(User user,
+    private Object getUserEntityBody(MutableUser user,
                                      String accept)
     {
         if (MediaType.APPLICATION_JSON_VALUE.equals(accept))

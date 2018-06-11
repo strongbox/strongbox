@@ -1,79 +1,40 @@
 package org.carlspring.strongbox.users.domain;
 
-import javax.persistence.Embeddable;
-import java.io.Serializable;
-import java.util.*;
+import javax.annotation.concurrent.Immutable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.base.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import static java.util.stream.Collectors.toMap;
 
 /**
- * Additional user settings (for example, per-repository access settings).
- *
- * @author Alex Oreshkevich
+ * @author Przemyslaw Fusik
  */
-@Embeddable
+@Immutable
 public class AccessModel
-        implements Serializable
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccessModel.class);
+    private final Map<String, Collection<String>> repositoryPrivileges;
 
-    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-    private Map<String, Collection<String>> repositoryPrivileges;
+    private final Map<String, Collection<String>> urlToPrivilegesMap;
 
-    // maps URL tails including wildcards for regular expressions on set of privileges that was assigned
-    // example:
-    //      key:    storage0/act-releases-1/org/carlspring/strongbox/bar/.*
-    //      value:  {ARTIFACTS_VIEW, ARTIFACTS_RESOLVE, ARTIFACTS_DEPLOY}
-    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-    private Map<String, Collection<String>> urlToPrivilegesMap;
+    private final Map<String, Collection<String>> wildCardPrivilegesMap;
 
-    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-    private Map<String, Collection<String>> wildCardPrivilegesMap;
-
-    public AccessModel()
+    public AccessModel(final MutableAccessModel other)
     {
-        repositoryPrivileges = new HashMap<>();
-        urlToPrivilegesMap = new HashMap<>();
-        wildCardPrivilegesMap = new HashMap<>();
+        this.repositoryPrivileges = immutePrivilegesMap(other.getRepositoryPrivileges());
+        this.urlToPrivilegesMap = immutePrivilegesMap(other.getUrlToPrivilegesMap());
+        this.wildCardPrivilegesMap = immutePrivilegesMap(other.getWildCardPrivilegesMap());
     }
 
-    @Override
-    public boolean equals(Object o)
+    private Map<String, Collection<String>> immutePrivilegesMap(final Map<String, Collection<String>> source)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AccessModel that = (AccessModel) o;
-        return Objects.equal(urlToPrivilegesMap, that.urlToPrivilegesMap);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hashCode(urlToPrivilegesMap);
-    }
-
-    public Map<String, Collection<String>> getUrlToPrivilegesMap()
-    {
-        return urlToPrivilegesMap;
-    }
-
-    public void setUrlToPrivilegesMap(Map<String, Collection<String>> urlToPrivilegesMap)
-    {
-        this.urlToPrivilegesMap = urlToPrivilegesMap;
-    }
-
-    public Map<String, Collection<String>> getWildCardPrivilegesMap()
-    {
-        return wildCardPrivilegesMap;
-    }
-
-    public void setWildCardPrivilegesMap(Map<String, Collection<String>> wildCardPrivilegesMap)
-    {
-        this.wildCardPrivilegesMap = wildCardPrivilegesMap;
+        return source != null ? ImmutableMap.copyOf(source.entrySet().stream().collect(
+                toMap(Map.Entry::getKey, e -> ImmutableList.copyOf(e.getValue())))) : Collections.emptyMap();
     }
 
     public Map<String, Collection<String>> getRepositoryPrivileges()
@@ -81,33 +42,14 @@ public class AccessModel
         return repositoryPrivileges;
     }
 
-    public void setRepositoryPrivileges(Map<String, Collection<String>> repositoryPrivileges)
+    public Map<String, Collection<String>> getUrlToPrivilegesMap()
     {
-        this.repositoryPrivileges = repositoryPrivileges;
+        return urlToPrivilegesMap;
     }
 
-    public void obtainPrivileges()
+    public Map<String, Collection<String>> getWildCardPrivilegesMap()
     {
-        if (urlToPrivilegesMap != null && !urlToPrivilegesMap.isEmpty())
-        {
-            final List<String> keysToRemove = new LinkedList<>();
-            urlToPrivilegesMap.entrySet()
-                              .stream()
-                              .filter(entry -> entry.getKey()
-                                                    .endsWith(".*") || entry.getKey()
-                                                                            .endsWith("**"))
-                              .forEach(entry ->
-                                       {
-                                           String newUrl = entry.getKey()
-                                                                .substring(0, entry.getKey()
-                                                                                   .length() - 3);
-                                           List<String> newPrivileges = new ArrayList<>(entry.getValue());
-                                           wildCardPrivilegesMap.put(newUrl, newPrivileges);
-                                           keysToRemove.add(entry.getKey());
-                                       });
-            keysToRemove.forEach(key -> urlToPrivilegesMap.remove(key));
-            keysToRemove.clear();
-        }
+        return wildCardPrivilegesMap;
     }
 
     public Collection<String> getPathPrivileges(String url)
@@ -140,38 +82,6 @@ public class AccessModel
                                                     privileges.addAll(entry.getValue()));
         }
 
-        logger.debug("Calculated privileges for \n\t" + url + "\n\t" + privileges);
         return privileges;
-    }
-
-    @Override
-    public String toString()
-    {
-        final StringBuilder sb = new StringBuilder("\nAccessModel {");
-        prettyPrintMap(sb, "urlToPrivilegesMap", urlToPrivilegesMap);
-        prettyPrintMap(sb, "repositoryPrivileges", repositoryPrivileges);
-        prettyPrintMap(sb, "wildCardPrivilegesMap", wildCardPrivilegesMap);
-        sb.append("\n}");
-        return sb.toString();
-    }
-
-    private void prettyPrintMap(StringBuilder sb,
-                                String name,
-                                Map<?, ?> map)
-    {
-        if (map != null && !map.isEmpty())
-        {
-            sb.append("\n\t")
-              .append(name)
-              .append(" = {");
-
-            map.entrySet()
-               .forEach(entry ->
-                                sb.append("\n\t\t")
-                                  .append(entry.getKey())
-                                  .append("\t\t-> ")
-                                  .append(entry.getValue()));
-            sb.append("\n\t}");
-        }
     }
 }

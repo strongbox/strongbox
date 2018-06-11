@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.users;
 
+import org.carlspring.strongbox.users.domain.MutableAccessModel;
 import org.carlspring.strongbox.users.domain.User;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -20,7 +21,7 @@ public class UserOutput
         output.setEnabled(user.isEnabled());
         output.setRoles(user.getRoles());
         output.setUsername(user.getUsername());
-        output.setAccessModel(user.getAccessModel());
+        output.setAccessModel(new MutableAccessModel(user.getAccessModel()));
         output.setSecurityTokenKey(user.getSecurityTokenKey());
         return output;
     }

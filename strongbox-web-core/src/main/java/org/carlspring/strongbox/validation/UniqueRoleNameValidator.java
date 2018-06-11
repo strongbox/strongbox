@@ -1,12 +1,11 @@
 package org.carlspring.strongbox.validation;
 
-import org.carlspring.strongbox.security.Role;
-import org.carlspring.strongbox.users.security.AuthorizationConfig;
-import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
+import org.carlspring.strongbox.authorization.domain.Role;
+import org.carlspring.strongbox.authorization.dto.RoleDto;
+import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Optional;
 
 import org.springframework.util.StringUtils;
 
@@ -17,28 +16,26 @@ public class UniqueRoleNameValidator
         implements ConstraintValidator<UniqueRoleName, String>
 {
 
-    private AuthorizationConfigProvider configProvider;
+    private AuthorizationConfigService authorizationConfigService;
 
-    private AuthorizationConfig config;
-
-    public UniqueRoleNameValidator(AuthorizationConfigProvider configProvider)
+    public UniqueRoleNameValidator(AuthorizationConfigService authorizationConfigService)
     {
-        this.configProvider = configProvider;
+        this.authorizationConfigService = authorizationConfigService;
     }
 
     @Override
     public void initialize(UniqueRoleName constraint)
     {
-        Optional<AuthorizationConfig> configOptional = configProvider.get();
-        configOptional.ifPresent(authorizationConfig -> config = authorizationConfig);
+        // empty by design
     }
 
     @Override
     public boolean isValid(String roleName,
                            ConstraintValidatorContext context)
     {
-        Role role = new Role(roleName, "");
-        return StringUtils.isEmpty(roleName) || !config.getRoles().contains(role);
+        RoleDto role = new RoleDto(roleName, "");
+        return StringUtils.isEmpty(roleName) ||
+               !authorizationConfigService.get().getRoles().contains(new Role(role));
     }
 
 }

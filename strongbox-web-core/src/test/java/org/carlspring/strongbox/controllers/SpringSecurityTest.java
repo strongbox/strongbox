@@ -3,7 +3,7 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.MutableUser;
 
 import javax.inject.Inject;
 
@@ -185,7 +185,7 @@ public class SpringSecurityTest
     @WithUserDetails("deployer")
     public void testThatNewUserCreationIsForbiddenForCertainUser()
     {
-        User user = new User();
+        MutableUser user = new MutableUser();
         user.setUsername("someNewUserName");
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)

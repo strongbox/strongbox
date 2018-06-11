@@ -1,135 +1,225 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import org.carlspring.strongbox.data.service.CommonCrudService;
+import org.carlspring.strongbox.users.UsersFileManager;
+import org.carlspring.strongbox.users.UsersMapper;
+import org.carlspring.strongbox.users.domain.MutableAccessModel;
 import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.Users;
+import org.carlspring.strongbox.users.domain.MutableUser;
+import org.carlspring.strongbox.users.domain.MutableUsers;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.commons.lang.StringUtils;
 import org.jose4j.lang.JoseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
- * DAO implementation for {@link User} entities.
- *
  * @author Alex Oreshkevich
  * @author Przemyslaw Fusik
  */
 @Service
-@Transactional
 public class UserServiceImpl
-        extends CommonCrudService<User>
         implements UserService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-
-    @Inject
-    private ApplicationContext applicationContext;
+    private final ReadWriteLock usersLock = new ReentrantReadWriteLock();
 
     @Inject
     private PasswordEncoder passwordEncoder;
 
     @Inject
     private SecurityTokenProvider tokenProvider;
-    
+
+    @Inject
+    private UsersFileManager usersFileManager;
+
+    /**
+     * Yes, this is a state object.
+     * It is protected by the {@link #usersLock} here
+     * and should not be exposed to the world.
+     */
+    private MutableUsers users;
+
     @Override
-    public User findByUserName(String name)
+    public Users findAll()
     {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("username", name);
+        final Lock readLock = usersLock.readLock();
+        readLock.lock();
 
-        String sQuery = buildQuery(params);
-
-        OSQLSynchQuery<Long> oQuery = new OSQLSynchQuery<>(sQuery);
-        oQuery.setLimit(1);
-
-        List<User> resultList = getDelegate().command(oQuery).execute(params);
-        return !resultList.isEmpty() ? resultList.iterator().next() : null;
+        try
+        {
+            return new Users(users);
+        }
+        finally
+        {
+            readLock.unlock();
+        }
     }
 
     @Override
-    public String generateSecurityToken(String username)
+    public User findByUserName(final String username)
+    {
+        final Lock readLock = usersLock.readLock();
+        readLock.lock();
+
+        try
+        {
+            final Optional<MutableUser> user = users.findByUserName(username);
+            return user.map(User::new).orElse(null);
+        }
+        finally
+        {
+            readLock.unlock();
+        }
+    }
+
+    @Override
+    public String generateSecurityToken(final String username)
             throws JoseException
     {
-        User user = findByUserName(username);
+        final User user = findByUserName(username);
 
         if (StringUtils.isEmpty(user.getSecurityTokenKey()))
         {
             return null;
         }
 
-        Map<String, String> claimMap = new HashMap<>();
+        final Map<String, String> claimMap = new HashMap<>();
         claimMap.put("security-token-key", user.getSecurityTokenKey());
 
         return tokenProvider.getToken(username, claimMap, null);
     }
 
     @Override
-    public String generateAuthenticationToken(String username,
-                                              Integer expireMinutes)
+    public String generateAuthenticationToken(final String username,
+                                              final Integer expireMinutes)
             throws JoseException
     {
-        User user = findByUserName(username);
+        final User user = findByUserName(username);
 
-        Map<String, String> claimMap = new HashMap<>();
+        final Map<String, String> claimMap = new HashMap<>();
         claimMap.put("credentials", user.getPassword());
 
         return tokenProvider.getToken(username, claimMap, expireMinutes);
     }
 
     @Override
-    public void verifySecurityToken(String username,
-                                    String apiKey)
+    public void verifySecurityToken(final String username,
+                                    final String apiKey)
     {
-        User user = findByUserName(username);
+        final User user = findByUserName(username);
 
-        Map<String, String> claimMap = new HashMap<>();
+        final Map<String, String> claimMap = new HashMap<>();
         claimMap.put("security-token-key", user.getSecurityTokenKey());
 
         tokenProvider.verifyToken(apiKey, username, claimMap);
     }
 
     @Override
-    public User updatePassword(User userToUpdate)
+    public void revokeEveryone(final String roleToRevoke)
     {
-        final UserService self = self();
-        User user = self.findByUserName(userToUpdate.getUsername());
-        updatePassword(user, userToUpdate.getPassword());
-        return self.save(user);
+        modifyInLock(users ->
+                     {
+                         users.getUsers().forEach(user -> user.getRoles().remove(roleToRevoke));
+                     });
     }
 
     @Override
-    public User updateByUsername(User userToUpdate)
+    public void add(final MutableUser user)
     {
-        final UserService self = self();
-        User user = self.findByUserName(userToUpdate.getUsername());
-        updatePassword(user, userToUpdate.getPassword());
-        user.setEnabled(userToUpdate.isEnabled());
-        user.setRoles(userToUpdate.getRoles());
-        user.setSecurityTokenKey(userToUpdate.getSecurityTokenKey());
-        user.setAccessModel(userToUpdate.getAccessModel());
-        return self.save(user);
+        modifyInLock(users ->
+                     {
+                         final Set<MutableUser> currentUsers = users.getUsers();
+                         if (!currentUsers.stream().filter(
+                                 u -> u.getUsername().equals(user.getUsername())).findFirst().isPresent())
+                         {
+                             currentUsers.add(user);
+                         }
+                     });
     }
 
-    private UserService self()
+    @Override
+    public void delete(final String username)
     {
-        return applicationContext.getBean(UserService.class);
+        modifyInLock(users ->
+                     {
+                         final Set<MutableUser> currentUsers = users.getUsers();
+                         currentUsers.stream().filter(u -> u.getUsername().equals(username)).findFirst().ifPresent(
+                                 u -> currentUsers.remove(u));
+                     });
     }
 
-    private void updatePassword(User user,
-                                String rawPassword)
+    @Override
+    public void updateAccessModel(final String username,
+                                  final MutableAccessModel accessModel)
+    {
+        modifyInLock(users ->
+                     {
+                         final Set<MutableUser> currentUsers = users.getUsers();
+                         currentUsers.stream().filter(u -> u.getUsername().equals(username)).findFirst().ifPresent(
+                                 u -> u.setAccessModel(accessModel));
+                     });
+    }
+
+    @Override
+    public void updatePassword(final MutableUser userToUpdate)
+    {
+        modifyInLock(users ->
+                     {
+                         users.getUsers().stream().filter(
+                                 user -> user.getUsername().equals(userToUpdate.getUsername())).findFirst().ifPresent(
+                                 user ->
+                                 {
+                                     updatePassword(user, userToUpdate.getPassword());
+                                 }
+                         );
+                     });
+    }
+
+    @Override
+    public void updateByUsername(final MutableUser userToUpdate)
+    {
+        modifyInLock(users ->
+                     {
+                         users.getUsers().stream().filter(
+                                 user -> user.getUsername().equals(userToUpdate.getUsername())).findFirst().ifPresent(
+                                 user ->
+                                 {
+                                     updatePassword(user, userToUpdate.getPassword());
+                                     user.setEnabled(userToUpdate.isEnabled());
+                                     user.setRoles(userToUpdate.getRoles());
+                                     user.setSecurityTokenKey(userToUpdate.getSecurityTokenKey());
+                                     user.setAccessModel(userToUpdate.getAccessModel());
+                                 }
+                         );
+                     });
+    }
+
+    @Override
+    public void setUsers(final MutableUsers newUsers)
+    {
+        modifyInLock(users ->
+                     {
+                         UserServiceImpl.this.users = newUsers;
+                     },
+                     false);
+    }
+
+
+    private void updatePassword(final MutableUser user,
+                                final String rawPassword)
     {
         if (StringUtils.isNotEmpty(rawPassword))
         {
@@ -137,10 +227,30 @@ public class UserServiceImpl
         }
     }
 
-    @Override
-    public Class<User> getEntityClass()
+    private void modifyInLock(final Consumer<MutableUsers> operation)
     {
-        return User.class;
+        modifyInLock(operation, true);
+    }
+
+    private void modifyInLock(final Consumer<MutableUsers> operation,
+                              final boolean storeInFile)
+    {
+        final Lock writeLock = usersLock.writeLock();
+        writeLock.lock();
+
+        try
+        {
+            operation.accept(users);
+
+            if (storeInFile)
+            {
+                usersFileManager.store(UsersMapper.managementToSecurity(users));
+            }
+        }
+        finally
+        {
+            writeLock.unlock();
+        }
     }
 
 }

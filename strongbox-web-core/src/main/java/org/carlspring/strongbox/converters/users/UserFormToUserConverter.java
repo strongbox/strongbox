@@ -2,8 +2,8 @@ package org.carlspring.strongbox.converters.users;
 
 import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
-import org.carlspring.strongbox.users.domain.AccessModel;
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.MutableAccessModel;
+import org.carlspring.strongbox.users.domain.MutableUser;
 
 import org.springframework.core.convert.converter.Converter;
 
@@ -11,13 +11,13 @@ import org.springframework.core.convert.converter.Converter;
  * @author Pablo Tirado
  */
 public class UserFormToUserConverter
-        implements Converter<UserForm, User>
+        implements Converter<UserForm, MutableUser>
 {
 
     @Override
-    public User convert(UserForm userForm)
+    public MutableUser convert(UserForm userForm)
     {
-        User user = new User();
+        MutableUser user = new MutableUser();
         user.setUsername(userForm.getUsername());
         user.setPassword(userForm.getPassword());
         user.setEnabled(userForm.isEnabled());
@@ -27,12 +27,12 @@ public class UserFormToUserConverter
         return user;
     }
 
-    private AccessModel convertAccessModel(AccessModelForm accessModelForm)
+    private MutableAccessModel convertAccessModel(AccessModelForm accessModelForm)
     {
-        AccessModel accessModel = null;
+        MutableAccessModel accessModel = null;
         if (accessModelForm != null)
         {
-            accessModel = new AccessModel();
+            accessModel = new MutableAccessModel();
             accessModel.setRepositoryPrivileges(accessModelForm.getRepositoryPrivileges());
             accessModel.setUrlToPrivilegesMap(accessModelForm.getUrlToPrivilegesMap());
             accessModel.setWildCardPrivilegesMap(accessModelForm.getWildCardPrivilegesMap());

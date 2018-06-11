@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.users;
 
-import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.users.domain.MutableAccessModel;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -23,7 +23,7 @@ abstract class BaseUserDto
 
     protected String securityTokenKey;
 
-    protected AccessModel accessModel;
+    protected MutableAccessModel accessModel;
 
     public String getUsername()
     {
@@ -65,12 +65,12 @@ abstract class BaseUserDto
         this.securityTokenKey = securityTokenKey;
     }
 
-    public AccessModel getAccessModel()
+    public MutableAccessModel getAccessModel()
     {
         return accessModel;
     }
 
-    public void setAccessModel(AccessModel accessModel)
+    public void setAccessModel(MutableAccessModel accessModel)
     {
         this.accessModel = accessModel;
     }

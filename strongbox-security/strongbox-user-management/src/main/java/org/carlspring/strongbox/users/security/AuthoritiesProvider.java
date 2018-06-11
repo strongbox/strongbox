@@ -1,6 +1,10 @@
 package org.carlspring.strongbox.users.security;
 
-import org.carlspring.strongbox.security.Role;
+import org.carlspring.strongbox.authorization.AuthorizationConfigFileManager;
+import org.carlspring.strongbox.authorization.domain.AuthorizationConfig;
+import org.carlspring.strongbox.authorization.domain.Role;
+import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
+import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.annotation.PostConstruct;
@@ -13,9 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * @author Przemyslaw Fusik
@@ -27,28 +28,18 @@ public class AuthoritiesProvider
     private static final Logger logger = LoggerFactory.getLogger(AuthoritiesProvider.class);
 
     @Inject
-    private PlatformTransactionManager transactionManager;
+    private AuthorizationConfigService authorizationConfigService;
 
     @Inject
     private AuthorizationConfigFileManager authorizationConfigFileManager;
 
-    @Inject
-    private AuthorizationConfigProvider authorizationConfigProvider;
-
     @PostConstruct
-    public void init()
+    void init()
     {
-        new TransactionTemplate(transactionManager).execute((s) -> doInit());
+        final AuthorizationConfigDto config = authorizationConfigFileManager.read();
+        authorizationConfigService.setAuthorizationConfig(config);
     }
 
-    private Object doInit()
-    {
-        final AuthorizationConfig config = authorizationConfigFileManager.read();
-        authorizationConfigProvider.save(config);
-        return null;
-    }
-
-    @Transactional
     public Set<GrantedAuthority> getAuthoritiesByRoleName(final String roleName)
     {
         Set<GrantedAuthority> fullAuthorities = new HashSet<>();
@@ -91,26 +82,15 @@ public class AuthoritiesProvider
     private void populate(Set<GrantedAuthority> fullAuthorities,
                           Set<Role> configuredRoles)
     {
-        authorizationConfigProvider.get()
-                                   .ifPresent(
-                                           config ->
-                                           {
-                                               try
-                                               {
-                                                   config.getRoles()
-                                                         .forEach(role -> role.getPrivileges()
-                                                                              .forEach(
-                                                                                      privilegeName -> fullAuthorities.add(
-                                                                                              new SimpleGrantedAuthority(
-                                                                                                                                privilegeName.toUpperCase()))));
+        AuthorizationConfig authorizationConfig = authorizationConfigService.get();
 
-                                                   configuredRoles.addAll(config.getRoles());
-                                               }
-                                               catch (Exception e)
-                                               {
-                                                   logger.error("Unable to process authorization config",
-                                                                e);
-                                               }
-                                           });
+        authorizationConfig.getRoles()
+                           .forEach(role -> role.getPrivileges()
+                                                .forEach(
+                                                        privilegeName -> fullAuthorities.add(
+                                                                new SimpleGrantedAuthority(
+                                                                                                  privilegeName.toUpperCase()))));
+
+        configuredRoles.addAll(authorizationConfig.getRoles());
     }
 }

@@ -7,7 +7,7 @@ import java.util.Set;
 
 /**
  * Predefined set of privileges which are not modifiable but assignable
- * to any {@link org.carlspring.strongbox.users.domain.User} entity.
+ * to any {@link MutableUser} entity.
  *
  * @author Alex Oreshkevich
  * @see {@linkplain https://dev.carlspring.org/youtrack/issue/SB-122}

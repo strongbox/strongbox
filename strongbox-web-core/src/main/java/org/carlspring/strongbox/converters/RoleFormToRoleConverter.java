@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.converters;
 
 import org.carlspring.strongbox.forms.RoleForm;
-import org.carlspring.strongbox.security.Role;
+import org.carlspring.strongbox.authorization.dto.RoleDto;
 
 import org.springframework.core.convert.converter.Converter;
 
@@ -9,13 +9,13 @@ import org.springframework.core.convert.converter.Converter;
  * @author Pablo Tirado
  */
 public class RoleFormToRoleConverter
-        implements Converter<RoleForm, Role>
+        implements Converter<RoleForm, RoleDto>
 {
 
     @Override
-    public Role convert(RoleForm roleForm)
+    public RoleDto convert(RoleForm roleForm)
     {
-        Role role = new Role(roleForm.getName(), roleForm.getDescription());
+        RoleDto role = new RoleDto(roleForm.getName(), roleForm.getDescription());
         role.setRepository(roleForm.getRepository());
         role.setPrivileges(roleForm.getPrivileges());
         return role;

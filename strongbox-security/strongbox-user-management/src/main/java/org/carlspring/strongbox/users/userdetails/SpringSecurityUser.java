@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.users.userdetails;
 
 import org.carlspring.strongbox.users.domain.AccessModel;
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.MutableUser;
 
 import java.util.Collection;
 
@@ -10,7 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- * A wrapper of {@link User} that is used by Spring Security
+ * A wrapper of {@link MutableUser} that is used by Spring Security
  */
 public class SpringSecurityUser
         implements UserDetails

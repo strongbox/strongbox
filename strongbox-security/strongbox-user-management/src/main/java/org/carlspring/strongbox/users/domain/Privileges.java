@@ -70,7 +70,11 @@ public enum Privileges
     UI_LOGIN,
     UI_BROWSE;
 
-    public final static String DEFAULT = "rw";
+    public final static String READ = "r";
+
+    public final static String READ_WRITE = "rw";
+
+    public final static String DEFAULT = READ_WRITE;
 
     /**
      * Helper method for accessing all roles.

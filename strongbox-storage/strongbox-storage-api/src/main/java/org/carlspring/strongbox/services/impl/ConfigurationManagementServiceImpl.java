@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
-import org.carlspring.strongbox.configuration.MutableConfiguration;
-import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationFileManager;
+import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.event.repository.RepositoryEvent;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
@@ -14,8 +14,8 @@ import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurati
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableHttpConnectionPool;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
@@ -115,7 +115,7 @@ public class ConfigurationManagementServiceImpl
                          setProxyRepositoryConnectionPoolConfigurations();
                          setRepositoryStorageRelationships();
                          setAllows();
-                     }, false);
+                     });
     }
 
     @Override
@@ -385,7 +385,7 @@ public class ConfigurationManagementServiceImpl
                                  }
                              }
                          }
-                     });
+                     }, false);
     }
 
     /**
@@ -411,7 +411,7 @@ public class ConfigurationManagementServiceImpl
                                  }
                              }
                          }
-                     });
+                     }, false);
     }
 
     @Override
@@ -559,7 +559,7 @@ public class ConfigurationManagementServiceImpl
                                               repository -> proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
                                                       repository.getRemoteRepository().getUrl(),
                                                       repository.getHttpConnectionPool().getAllocatedConnections()));
-                     });
+                     }, false);
     }
 
     private void modifyInLock(final Consumer<MutableConfiguration> operation)
