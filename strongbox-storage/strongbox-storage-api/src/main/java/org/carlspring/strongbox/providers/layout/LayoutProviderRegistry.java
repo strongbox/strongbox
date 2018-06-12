@@ -148,8 +148,7 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
 
     public Storage getStorage(String storageId)
     {
-        return configurationManager.getConfiguration()
-                                             .getStorage(storageId);
+        return configurationManager.getConfiguration().getStorage(storageId);
     }
 
 }
