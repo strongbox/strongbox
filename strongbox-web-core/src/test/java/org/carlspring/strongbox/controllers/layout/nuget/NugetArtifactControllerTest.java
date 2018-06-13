@@ -84,7 +84,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         MutableRepository repository1 = nugetRepositoryFactory.createRepository(REPOSITORY_RELEASES_1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repository1, STORAGE_ID);
+        createRepository(STORAGE_ID, repository1);
     }
 
     @Test

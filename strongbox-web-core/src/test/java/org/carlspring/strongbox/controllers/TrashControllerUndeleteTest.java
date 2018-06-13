@@ -79,7 +79,7 @@ public class TrashControllerUndeleteTest
         repositoryWithTrash.setTrashEnabled(true);
         repositoryWithTrash.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repositoryWithTrash, STORAGE0);
+        createRepository(STORAGE0, repositoryWithTrash);
 
         // Notes:
         // - Used by testForceDeleteArtifactAllowed()
@@ -88,7 +88,7 @@ public class TrashControllerUndeleteTest
         repositoryReleases.setAllowsForceDeletion(false);
         repositoryReleases.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repositoryReleases, STORAGE0);
+        createRepository(STORAGE0, repositoryReleases);
 
         setUp();
     }

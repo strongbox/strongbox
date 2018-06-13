@@ -111,10 +111,10 @@ public class ConfigurationManagementServiceImplTest
         groupRepository2.setType(RepositoryTypeEnum.GROUP.getType());
         groupRepository2.getGroupRepositories().put(repository1.getId(), repository1.getId());
 
-        createRepository(repository1, STORAGE0);
-        createRepository(repository2, STORAGE0);
-        createRepository(groupRepository1, STORAGE0);
-        createRepository(groupRepository2, STORAGE0);
+        createRepository(STORAGE0, repository1);
+        createRepository(STORAGE0, repository2);
+        createRepository(STORAGE0, groupRepository1);
+        createRepository(STORAGE0, groupRepository2);
     }
 
     @After

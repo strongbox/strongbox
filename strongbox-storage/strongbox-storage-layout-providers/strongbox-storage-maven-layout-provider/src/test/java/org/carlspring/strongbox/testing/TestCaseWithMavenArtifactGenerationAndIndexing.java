@@ -112,7 +112,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                    XmlPullParserException,
                    RepositoryManagementStrategyException
     {
-        createRepository(repository, storageId);
+        createRepository(storageId, repository);
         generateArtifactsReIndexAndPack(repository.getStorage().getId(), repository.getId(), ga, versions);
     }
 
@@ -185,7 +185,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         repository.setPolicy(policy);
         repository.setRepositoryConfiguration(repositoryConfiguration);
 
-        createRepository(repository, storageId);
+        createRepository(storageId, repository);
         
         return repository;
     }
@@ -208,7 +208,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         repository.setRemoteRepository(remoteRepository);
         repository.setRepositoryConfiguration(repositoryConfiguration);
 
-        createRepository(repository, storageId);
+        createRepository(storageId, repository);
     }
 
     private void generateArtifactsReIndexAndPack(String storageId,

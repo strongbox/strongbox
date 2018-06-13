@@ -133,7 +133,7 @@ public class ServerConfigurationController
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getBaseUrl(@RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        String baseUrl = configurationManagementService.getMutableConfigurationClone().getBaseUrl();
+        String baseUrl = configurationManagementService.getConfiguration().getBaseUrl();
         if (baseUrl != null)
         {
             return ResponseEntity.ok(getBaseUrlEntityBody(baseUrl, accept));

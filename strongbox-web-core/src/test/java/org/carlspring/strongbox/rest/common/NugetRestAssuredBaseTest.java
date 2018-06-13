@@ -131,7 +131,8 @@ public abstract class NugetRestAssuredBaseTest
         storageManagementService.createStorage(storage);
     }
 
-    public void createRepository(MutableRepository repository, String storageId)
+    public void createRepository(String storageId,
+                                 MutableRepository repository)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
         configurationManagementService.saveRepository(storageId, repository);

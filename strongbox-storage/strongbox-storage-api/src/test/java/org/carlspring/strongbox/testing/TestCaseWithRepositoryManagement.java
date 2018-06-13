@@ -48,7 +48,8 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
         storageManagementService.createStorage(storage);
     }
 
-    public void createRepository(MutableRepository repository, String storageId)
+    public void createRepository(String storageId,
+                                 MutableRepository repository)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
         configurationManagementService.saveRepository(storageId, repository);
@@ -62,7 +63,7 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
                                          String path)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
-        createRepository(repository, storageId);
+        createRepository(storageId, repository);
         createFile(new Repository(repository), path);
     }
     

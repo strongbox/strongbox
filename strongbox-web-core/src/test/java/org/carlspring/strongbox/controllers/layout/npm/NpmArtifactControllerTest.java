@@ -64,7 +64,7 @@ public class NpmArtifactControllerTest
         MutableRepository repository = npmRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repository, STORAGE0);
+        createRepository(STORAGE0, repository);
     }
 
     @Test
