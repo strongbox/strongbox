@@ -31,6 +31,45 @@ public class DirectoryTraversalFilterTest
     }
 
     @Test
+    public void shouldDisallowTraversalPathsWithEncodedDots()
+            throws Exception
+    {
+        MockHttpServletRequest request = new MockHttpServletRequest("get",
+                                                                    "http://localhost:48080/storages/storage-common-proxies/maven-central/%2e%2e/storage-common-proxies/maven-central");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        filter.doFilterInternal(request, response, chain);
+
+        assertThat(response.getStatus(), CoreMatchers.equalTo(HttpServletResponse.SC_BAD_REQUEST));
+    }
+
+    @Test
+    public void shouldDisallowTraversalPathsWithEncodedDotsAndSlash()
+            throws Exception
+    {
+        MockHttpServletRequest request = new MockHttpServletRequest("get",
+                                                                    "http://localhost:48080/storages/storage-common-proxies/maven-central/%2e%2e%2fstorage-common-proxies/maven-central");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        filter.doFilterInternal(request, response, chain);
+
+        assertThat(response.getStatus(), CoreMatchers.equalTo(HttpServletResponse.SC_BAD_REQUEST));
+    }
+
+    @Test
+    public void shouldDisallowTraversalPathsWithEncodedSlash()
+            throws Exception
+    {
+        MockHttpServletRequest request = new MockHttpServletRequest("get",
+                                                                    "http://localhost:48080/storages/storage-common-proxies/maven-central/..%2fstorage-common-proxies/maven-central");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        filter.doFilterInternal(request, response, chain);
+
+        assertThat(response.getStatus(), CoreMatchers.equalTo(HttpServletResponse.SC_BAD_REQUEST));
+    }
+
+    @Test
     public void shouldAllowNormalizedPath()
             throws Exception
     {
