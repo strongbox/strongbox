@@ -122,7 +122,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         repository1.setTrashEnabled(true);
         repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repository1, STORAGE0);
+        createRepository(STORAGE0, repository1);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
                          "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
@@ -132,7 +132,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         repository2.setTrashEnabled(true);
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
-        createRepository(repository2, STORAGE0);
+        createRepository(STORAGE0, repository2);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(),
                          "org.carlspring.strongbox.clear:strongbox-test-two:1.0:jar");
@@ -144,7 +144,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         repository3.setTrashEnabled(true);
         repository3.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repository3, STORAGE1);
+        createRepository(STORAGE1, repository3);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_3.getAbsolutePath(),
                          "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");

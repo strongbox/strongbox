@@ -89,7 +89,7 @@ public class TrashControllerTest
         repositoryWithTrash.setTrashEnabled(true);
         repositoryWithTrash.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repositoryWithTrash, STORAGE0);
+        createRepository(STORAGE0, repositoryWithTrash);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath(),
                          "org.carlspring.strongbox:test-artifact-to-trash:1.0");
@@ -101,7 +101,7 @@ public class TrashControllerTest
         repositoryWithForceDeletions.setAllowsForceDeletion(false);
         repositoryWithForceDeletions.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repositoryWithForceDeletions, STORAGE0);
+        createRepository(STORAGE0, repositoryWithForceDeletions);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_FORCE_DELETE).getAbsolutePath(),
                          "org.carlspring.strongbox:test-artifact-to-trash:1.1");

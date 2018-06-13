@@ -120,7 +120,7 @@ public class MavenGroupRepositoryProviderTest
         repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_1);
         repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_2);
 
-        createRepository(repositoryGroup, STORAGE0);
+        createRepository(STORAGE0, repositoryGroup);
 
         MutableRepository repositoryWithNestedGroupLevel1 = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
         repositoryWithNestedGroupLevel1.setType(RepositoryTypeEnum.GROUP.getType());
@@ -130,7 +130,7 @@ public class MavenGroupRepositoryProviderTest
         repositoryWithNestedGroupLevel1.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repositoryWithNestedGroupLevel1.addRepositoryToGroup(REPOSITORY_GROUP);
 
-        createRepository(repositoryWithNestedGroupLevel1, STORAGE0);
+        createRepository(STORAGE0, repositoryWithNestedGroupLevel1);
 
         MutableRepository repositoryWithNestedGroupLevel2 = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
         repositoryWithNestedGroupLevel2.setType(RepositoryTypeEnum.GROUP.getType());
@@ -140,7 +140,7 @@ public class MavenGroupRepositoryProviderTest
         repositoryWithNestedGroupLevel2.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repositoryWithNestedGroupLevel2.addRepositoryToGroup(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
 
-        createRepository(repositoryWithNestedGroupLevel2, STORAGE0);
+        createRepository(STORAGE0, repositoryWithNestedGroupLevel2);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_2).getAbsolutePath(),
                          "org.carlspring.metadata.by.juan:juancho:1.2.64");

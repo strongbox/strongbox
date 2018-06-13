@@ -71,7 +71,7 @@ public class NpmArtifactControllerTestIT
         MutableRepository repository1 = npmRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repository1, STORAGE0);
+        createRepository(STORAGE0, repository1);
 
         //noinspection ResultOfMethodCallIgnored
         Files.createDirectories(Paths.get(TEST_RESOURCES));
@@ -86,7 +86,7 @@ public class NpmArtifactControllerTestIT
         repository2.setType(RepositoryTypeEnum.GROUP.getType());
         repository2.setGroupRepositories(Sets.newHashSet(STORAGE0 + ":" + REPOSITORY_PROXY));
 
-        createRepository(repository2, STORAGE0);
+        createRepository(STORAGE0, repository2);
     }
 
     @After

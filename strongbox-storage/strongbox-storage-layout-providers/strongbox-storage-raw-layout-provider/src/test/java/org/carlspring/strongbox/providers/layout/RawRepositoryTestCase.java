@@ -45,7 +45,7 @@ public class RawRepositoryTestCase
         repository.setLayout(RawLayoutProvider.ALIAS);
         repository.setType(RepositoryTypeEnum.PROXY.getType());
 
-        createRepository(repository, storageId);
+        createRepository(storageId, repository);
     }
 
 }

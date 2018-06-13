@@ -71,12 +71,12 @@ public class MavenMetadataManagementControllerTest
         MutableRepository repositoryReleases = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repositoryReleases.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repositoryReleases, STORAGE0);
+        createRepository(STORAGE0, repositoryReleases);
 
         MutableRepository repositorySnapshots = mavenRepositoryFactory.createRepository(REPOSITORY_SNAPSHOTS);
         repositorySnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
 
-        createRepository(repositorySnapshots, STORAGE0);
+        createRepository(STORAGE0, repositorySnapshots);
 
         // Generate artifacts
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),

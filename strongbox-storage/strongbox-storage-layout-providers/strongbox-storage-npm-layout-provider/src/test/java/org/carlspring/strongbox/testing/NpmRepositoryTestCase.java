@@ -42,7 +42,7 @@ public class NpmRepositoryTestCase
         repository.setLayout(NpmLayoutProvider.ALIAS);
         repository.setType(RepositoryTypeEnum.PROXY.getType());
 
-        createRepository(repository, storageId);
+        createRepository(storageId, repository);
     }
 
 }

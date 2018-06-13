@@ -64,24 +64,24 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
         repository1.setArtifactCoordinateValidators(
                 new LinkedHashSet<>(Collections.singletonList(redeploymentValidator.getAlias())));
 
-        createRepository(repository1, STORAGE0);
+        createRepository(STORAGE0, repository1);
 
         MutableRepository repository2 = mavenRepositoryFactory.createRepository("releases-with-default-validators");
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repository2, STORAGE0);
+        createRepository(STORAGE0, repository2);
 
         MutableRepository repository3 = mavenRepositoryFactory.createRepository("another-releases-with-default-validators");
         repository3.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repository3, STORAGE0);
+        createRepository(STORAGE0, repository3);
 
         MutableRepository repository4 = mavenRepositoryFactory.createRepository("single-validator-only");
         repository4.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository4.setArtifactCoordinateValidators(
                 new LinkedHashSet<>(Collections.singletonList(redeploymentValidator.getAlias())));
 
-        createRepository(repository4, STORAGE0);
+        createRepository(STORAGE0, repository4);
 
         setContextBaseUrl(getContextBaseUrl() + "/api/configuration/artifact-coordinate-validators");
     }

@@ -191,11 +191,11 @@ public class ArtifactManagementServiceImplTest
         MutableRepository repositorySnapshots = mavenRepositoryFactory.createRepository(REPOSITORY_SNAPSHOTS);
         repositorySnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
 
-        createRepository(repositorySnapshots, STORAGE0);
+        createRepository(STORAGE0, repositorySnapshots);
 
         //
         MutableRepository repositoryWithLock = mavenRepositoryFactory.createRepository(REPOSITORY_WITH_LOCK);
-        createRepository(repositoryWithLock, STORAGE0);
+        createRepository(STORAGE0, repositoryWithLock);
 
 
         //
@@ -204,7 +204,7 @@ public class ArtifactManagementServiceImplTest
         releasesWithoutDeployment.setAllowsDeployment(false);
         releasesWithoutDeployment.setLayout(Maven2LayoutProvider.ALIAS);
 
-        createRepository(releasesWithoutDeployment, STORAGE0);
+        createRepository(STORAGE0, releasesWithoutDeployment);
     }
 
     @Test

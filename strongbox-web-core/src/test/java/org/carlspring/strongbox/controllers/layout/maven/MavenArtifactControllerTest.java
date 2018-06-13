@@ -252,7 +252,7 @@ public class MavenArtifactControllerTest
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repository1, STORAGE0);
+        createRepository(STORAGE0, repository1);
 
         // Generate releases
         // Used by testPartialFetch():
@@ -305,12 +305,12 @@ public class MavenArtifactControllerTest
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repository2.setAllowsRedeployment(true);
 
-        createRepository(repository2, STORAGE0);
+        createRepository(STORAGE0, repository2);
 
         MutableRepository repository3 = mavenRepositoryFactory.createRepository(REPOSITORY_SNAPSHOTS);
         repository3.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
 
-        createRepository(repository3, STORAGE0);
+        createRepository(STORAGE0, repository3);
 
         //noinspection ResultOfMethodCallIgnored
         new File(TEST_RESOURCES).mkdirs();

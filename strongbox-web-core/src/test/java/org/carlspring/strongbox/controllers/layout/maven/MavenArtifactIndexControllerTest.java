@@ -93,14 +93,14 @@ public class MavenArtifactIndexControllerTest
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repository1, STORAGE_ID);
+        createRepository(STORAGE_ID, repository1);
 
         // Used by testRebuildIndexesInStorage()
         MutableRepository repository2 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_2);
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repository2, STORAGE_ID);
+        createRepository(STORAGE_ID, repository2);
     }
 
     @Override

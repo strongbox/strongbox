@@ -93,7 +93,8 @@ public class BaseMavenGroupRepositoryComponentTest
     }
 
     @Override
-    public void createRepository(final MutableRepository repository, final String storageId)
+    public void createRepository(final String storageId,
+                                 final MutableRepository repository)
             throws RepositoryManagementStrategyException, JAXBException, IOException
     {
         MutableMavenRepositoryConfiguration configuration = new MutableMavenRepositoryConfiguration();
@@ -104,11 +105,11 @@ public class BaseMavenGroupRepositoryComponentTest
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository.setRepositoryConfiguration(configuration);
 
-        super.createRepository(repository, storageId);
+        super.createRepository(storageId, repository);
     }
 
-    protected void createLeaf(String repositoryId,
-                              String storageId)
+    protected void createLeaf(String storageId,
+                              String repositoryId)
             throws Exception
     {
         MutableRepository repository = new MutableRepository(repositoryId);
@@ -117,7 +118,7 @@ public class BaseMavenGroupRepositoryComponentTest
                            RepositoryTypeEnum.HOSTED.getType() :
                            RepositoryTypeEnum.PROXY.getType());
 
-        createRepository(repository, storageId);
+        createRepository(storageId, repository);
     }
 
     protected MutableRepository createGroup(String repositoryId,
@@ -130,7 +131,7 @@ public class BaseMavenGroupRepositoryComponentTest
         repository.setType(RepositoryTypeEnum.GROUP.getType());
         repository.setGroupRepositories(Sets.newLinkedHashSet(Arrays.asList(leafs)));
 
-        createRepository(repository, storageId);
+        createRepository(storageId, repository);
 
         return repository;
     }
@@ -139,12 +140,12 @@ public class BaseMavenGroupRepositoryComponentTest
     public void initialize()
             throws Exception
     {
-        createLeaf(REPOSITORY_LEAF_E, STORAGE0);
-        createLeaf(REPOSITORY_LEAF_L, STORAGE0);
-        createLeaf(REPOSITORY_LEAF_Z, STORAGE0);
-        createLeaf(REPOSITORY_LEAF_D, STORAGE0);
-        createLeaf(REPOSITORY_LEAF_G, STORAGE0);
-        createLeaf(REPOSITORY_LEAF_K, STORAGE0);
+        createLeaf(STORAGE0, REPOSITORY_LEAF_E);
+        createLeaf(STORAGE0, REPOSITORY_LEAF_L);
+        createLeaf(STORAGE0, REPOSITORY_LEAF_Z);
+        createLeaf(STORAGE0, REPOSITORY_LEAF_D);
+        createLeaf(STORAGE0, REPOSITORY_LEAF_G);
+        createLeaf(STORAGE0, REPOSITORY_LEAF_K);
 
         createGroup(REPOSITORY_GROUP_C, STORAGE0, REPOSITORY_LEAF_E, REPOSITORY_LEAF_Z);
         createGroup(REPOSITORY_GROUP_B, STORAGE0, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);

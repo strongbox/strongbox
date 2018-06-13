@@ -69,7 +69,7 @@ public class Maven2LayoutProviderTest
         repository.setAllowsForceDeletion(true);
         repository.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repository, STORAGE0);
+        createRepository(STORAGE0, repository);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-foo",

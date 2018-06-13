@@ -75,7 +75,7 @@ public class BrowseControllerTest
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repository, STORAGE0);
+        createRepository(STORAGE0, repository);
         
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY).getAbsolutePath(),
                          "org.carlspring.strongbox.browsing:test-browsing",
