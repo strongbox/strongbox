@@ -110,7 +110,7 @@ public class ArtifactResolutionServiceImpl
            throws IOException
     {        
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, artifactPath);
-        
+
         Repository repository = repositoryPath.getRepository();
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
         

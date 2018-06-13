@@ -1,74 +1,100 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
-import org.carlspring.strongbox.xml.StorageMapAdapter;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.LinkedHashMap;
+import javax.annotation.concurrent.Immutable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
+import static java.util.stream.Collectors.toMap;
 
 /**
- * @author mtodorov
+ * @author Przemyslaw Fusik
  */
-@Entity
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
+@Immutable
 public class Configuration
-        extends ServerConfiguration
 {
 
-    @XmlElement(name = "instance-name")
-    private String instanceName = "strongbox";
+    private final String id;
 
-    @XmlElement
-    private String version = "1.0";
+    private final String instanceName;
 
-    @XmlElement
-    private String revision;
+    private final String version;
 
-    @XmlElement
-    private String baseUrl = "http://localhost/";
+    private final String revision;
 
-    @XmlElement
-    private int port = 48080;
+    private final String baseUrl;
 
-    /**
-     * The global proxy settings to use when no per-repository proxy settings have been defined.
-     */
-    @XmlElement(name = "proxy-configuration")
-    private ProxyConfiguration proxyConfiguration;
+    private final int port;
 
-    @XmlElement(name = "session-configuration")
-    private SessionConfiguration sessionConfiguration;
+    private final ProxyConfiguration proxyConfiguration;
 
-    @XmlElement(name = "remote-repositories-configuration")
-    private RemoteRepositoriesConfiguration remoteRepositoriesConfiguration = RemoteRepositoriesConfiguration.DEFAULT;
+    private final SessionConfiguration sessionConfiguration;
 
-    /**
-     * K: storageId
-     * V: storage
-     */
-    @XmlElement(name = "storages")
-    @XmlJavaTypeAdapter(StorageMapAdapter.class)
-    @Embedded
-    private Map<String, Storage> storages = new LinkedHashMap<>();
+    private final RemoteRepositoriesConfiguration remoteRepositoriesConfiguration;
 
-    @XmlElement(name = "routing-rules")
-    private RoutingRules routingRules = new RoutingRules();
+    private final Map<String, Storage> storages;
 
+    private final RoutingRules routingRules;
 
-    public Configuration()
+    public Configuration(final MutableConfiguration delegate)
     {
+
+        id = delegate.getId();
+        instanceName = delegate.getInstanceName();
+        version = delegate.getVersion();
+        revision = delegate.getRevision();
+        baseUrl = delegate.getBaseUrl();
+        port = delegate.getPort();
+        proxyConfiguration = immuteProxyConfiguration(delegate.getProxyConfiguration());
+        sessionConfiguration = immuteSessionConfiguration(delegate.getSessionConfiguration());
+        remoteRepositoriesConfiguration = immuteRemoteRepositoriesConfiguration(
+                delegate.getRemoteRepositoriesConfiguration());
+        storages = immuteStorages(delegate.getStorages());
+        routingRules = immuteRoutingRules(delegate.getRoutingRules());
+    }
+
+
+    private ProxyConfiguration immuteProxyConfiguration(final MutableProxyConfiguration source)
+    {
+        return source != null ? new ProxyConfiguration(source) : null;
+    }
+
+    private SessionConfiguration immuteSessionConfiguration(final MutableSessionConfiguration source)
+    {
+        return source != null ? new SessionConfiguration(source) : null;
+    }
+
+    private Map<String, Storage> immuteStorages(final Map<String, MutableStorage> source)
+    {
+        return source != null ? ImmutableMap.copyOf(source.entrySet().stream().collect(
+                toMap(Map.Entry::getKey, e -> new Storage(e.getValue())))) : Collections.emptyMap();
+    }
+
+    private RemoteRepositoriesConfiguration immuteRemoteRepositoriesConfiguration(final MutableRemoteRepositoriesConfiguration source)
+    {
+        return source != null ? new RemoteRepositoriesConfiguration(source) : null;
+    }
+
+    private RoutingRules immuteRoutingRules(final MutableRoutingRules source)
+    {
+        return source != null ? new RoutingRules(source) : null;
+    }
+
+    public String getId()
+    {
+        return id;
     }
 
     public String getInstanceName()
@@ -76,19 +102,9 @@ public class Configuration
         return instanceName;
     }
 
-    public void setInstanceName(String instanceName)
-    {
-        this.instanceName = instanceName;
-    }
-
     public String getVersion()
     {
         return version;
-    }
-
-    public void setVersion(String version)
-    {
-        this.version = version;
     }
 
     public String getRevision()
@@ -96,19 +112,9 @@ public class Configuration
         return revision;
     }
 
-    public void setRevision(String revision)
-    {
-        this.revision = revision;
-    }
-
     public String getBaseUrl()
     {
         return baseUrl;
-    }
-
-    public void setBaseUrl(String baseUrl)
-    {
-        this.baseUrl = baseUrl;
     }
 
     public int getPort()
@@ -116,19 +122,9 @@ public class Configuration
         return port;
     }
 
-    public void setPort(int port)
-    {
-        this.port = port;
-    }
-
     public ProxyConfiguration getProxyConfiguration()
     {
         return proxyConfiguration;
-    }
-
-    public void setProxyConfiguration(ProxyConfiguration proxyConfiguration)
-    {
-        this.proxyConfiguration = proxyConfiguration;
     }
 
     public SessionConfiguration getSessionConfiguration()
@@ -136,9 +132,9 @@ public class Configuration
         return sessionConfiguration;
     }
 
-    public void setSessionConfiguration(SessionConfiguration sessionConfiguration)
+    public RemoteRepositoriesConfiguration getRemoteRepositoriesConfiguration()
     {
-        this.sessionConfiguration = sessionConfiguration;
+        return remoteRepositoriesConfiguration;
     }
 
     public Map<String, Storage> getStorages()
@@ -146,30 +142,9 @@ public class Configuration
         return storages;
     }
 
-    public void setStorages(Map<String, Storage> storages)
-    {
-        this.storages = storages;
-    }
-
-    public void addStorage(Storage storage)
-    {
-        String key = storage.getId();
-        if (key == null || key.isEmpty())
-        {
-            throw new IllegalArgumentException("Null keys are not supported!");
-        }
-
-        storages.put(key, storage);
-    }
-
-    public Storage getStorage(String storageId)
+    public Storage getStorage(final String storageId)
     {
         return storages.get(storageId);
-    }
-
-    public void removeStorage(Storage storage)
-    {
-        storages.remove(storage.getBasedir());
     }
 
     public RoutingRules getRoutingRules()
@@ -177,59 +152,79 @@ public class Configuration
         return routingRules;
     }
 
-    public void setRoutingRules(RoutingRules routingRules)
+    public List<Repository> getRepositoriesWithLayout(String storageId,
+                                                      String layout)
     {
-        this.routingRules = routingRules;
+        Stream<Repository> repositories;
+        if (storageId != null)
+        {
+            Storage storage = getStorage(storageId);
+            if (storage != null)
+            {
+                repositories = storage.getRepositories().values().stream();
+            }
+            else
+            {
+                return Collections.emptyList();
+            }
+        }
+        else
+        {
+            repositories = getStorages().values().stream().flatMap(
+                    storage -> storage.getRepositories().values().stream());
+        }
+
+        return repositories.filter(repository -> repository.getLayout().equals(layout))
+                           .collect(Collectors.toList());
     }
 
-    public RemoteRepositoriesConfiguration getRemoteRepositoriesConfiguration()
+    public List<Repository> getGroupRepositories()
     {
-        return remoteRepositoriesConfiguration;
+        List<Repository> groupRepositories = new ArrayList<>();
+
+        for (Storage storage : getStorages().values())
+        {
+            groupRepositories.addAll(storage.getRepositories()
+                                            .values()
+                                            .stream()
+                                            .filter(repository -> repository.getType()
+                                                                            .equals(RepositoryTypeEnum.GROUP.getType()))
+                                            .collect(Collectors.toList()));
+        }
+
+        return groupRepositories;
     }
 
-    public void setRemoteRepositoriesConfiguration(RemoteRepositoriesConfiguration remoteRepositoriesConfiguration)
+    public Repository getRepository(String storageId,
+                                    String repositoryId)
     {
-        this.remoteRepositoriesConfiguration = remoteRepositoriesConfiguration;
+        return getStorage(storageId).getRepository(repositoryId);
     }
 
-    @Override
-    public boolean equals(Object o)
+    public List<Repository> getGroupRepositoriesContaining(String storageId,
+                                                           String repositoryId)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Configuration that = (Configuration) o;
-        return port == that.port &&
-               Objects.equal(instanceName, that.instanceName) &&
-               Objects.equal(version, that.version) &&
-               Objects.equal(baseUrl, that.baseUrl) &&
-               Objects.equal(proxyConfiguration, that.proxyConfiguration) &&
-               Objects.equal(sessionConfiguration, that.sessionConfiguration) &&
-               Objects.equal(storages, that.storages) &&
-               Objects.equal(routingRules, that.routingRules) &&
-               Objects.equal(remoteRepositoriesConfiguration, that.remoteRepositoriesConfiguration);
+        List<Repository> groupRepositories = new ArrayList<>();
+
+        Storage storage = getStorage(storageId);
+
+        groupRepositories.addAll(storage.getRepositories()
+                                        .values()
+                                        .stream()
+                                        .filter(repository -> repository.getType()
+                                                                        .equals(RepositoryTypeEnum.GROUP.getType()))
+                                        .filter(repository -> repository.getGroupRepositories()
+                                                                        .keySet()
+                                                                        .contains(repositoryId))
+                                        .collect(Collectors.toList()));
+
+        return groupRepositories;
     }
 
-    @Override
-    public int hashCode()
+    public HttpConnectionPool getHttpConnectionPoolConfiguration(String storageId,
+                                                                 String repositoryId)
     {
-        return Objects.hashCode(version, baseUrl, port, proxyConfiguration, sessionConfiguration, storages,
-                                routingRules, remoteRepositoriesConfiguration);
-    }
-
-    @Override
-    public String toString()
-    {
-        return MoreObjects.toStringHelper(this)
-                          .add("\n\tinstanceName", instanceName)
-                          .add("\n\tversion", version)
-                          .add("\n\tbaseUrl", baseUrl)
-                          .add("\n\tport", port)
-                          .add("\n\tproxyConfiguration", proxyConfiguration)
-                          .add("\n\tsessionConfiguration", sessionConfiguration)
-                          .add("\n\tstorages", storages)
-                          .add("\n\troutingRules", routingRules)
-                          .add("\n\tremoteRepositoriesConfiguration", remoteRepositoriesConfiguration)
-                          .toString();
+        return getStorage(storageId).getRepository(repositoryId).getHttpConnectionPool();
     }
 
 }

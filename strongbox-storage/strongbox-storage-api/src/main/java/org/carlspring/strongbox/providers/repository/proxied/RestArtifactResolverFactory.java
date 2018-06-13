@@ -4,12 +4,9 @@ import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConf
 import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.Objects;
 

@@ -2,24 +2,20 @@ package org.carlspring.strongbox.xml.configuration.repository;
 
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 
-import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.annotation.concurrent.Immutable;
 
 /**
- * @author carlspring
+ * @author Przemyslaw Fusik
  */
-@Embeddable
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "raw-repository-configuration")
+@Immutable
 public class RawRepositoryConfiguration
         extends CustomRepositoryConfiguration
 {
 
 
-    public RawRepositoryConfiguration()
+    public RawRepositoryConfiguration(final MutableRawRepositoryConfiguration delegate)
     {
+        // maybe one day I'll have some implementation here :)
     }
 
 }

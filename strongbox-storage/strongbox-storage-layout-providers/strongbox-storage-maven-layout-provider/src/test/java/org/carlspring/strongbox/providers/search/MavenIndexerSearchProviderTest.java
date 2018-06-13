@@ -2,10 +2,10 @@ package org.carlspring.strongbox.providers.search;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
@@ -74,9 +74,9 @@ public class MavenIndexerSearchProviderTest
         Assume.assumeTrue(mavenIndexerSearchProvider.isPresent());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED));
 
@@ -93,7 +93,7 @@ public class MavenIndexerSearchProviderTest
                                       "org.carlspring:properties-injector",
                                       "1.8");
 
-        MavenRepositoryConfiguration repositoryConfiguration = new MavenRepositoryConfiguration();
+        MutableMavenRepositoryConfiguration repositoryConfiguration = new MutableMavenRepositoryConfiguration();
         repositoryConfiguration.setIndexingEnabled(true);
         repositoryConfiguration.setIndexingClassNamesEnabled(false);
 
@@ -284,8 +284,8 @@ public class MavenIndexerSearchProviderTest
     public void removeRepositories()
             throws Exception
     {
-        Set<Repository> repositories = getRepositoriesToClean();
-        for (Repository repository : repositories)
+        Set<MutableRepository> repositories = getRepositoriesToClean();
+        for (MutableRepository repository : repositories)
         {
             closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
         }

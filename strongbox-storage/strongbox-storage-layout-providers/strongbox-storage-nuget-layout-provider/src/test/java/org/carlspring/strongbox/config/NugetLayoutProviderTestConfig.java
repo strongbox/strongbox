@@ -3,6 +3,7 @@ package org.carlspring.strongbox.config;
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
 import org.carlspring.strongbox.MockedRepositoryPathResolverConfig;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
+import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 
 import javax.xml.bind.JAXBException;
@@ -41,7 +42,7 @@ public class NugetLayoutProviderTestConfig
         final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager());
 
         Mockito.doNothing().when(configurationFileManager).store(
-                any(org.carlspring.strongbox.configuration.Configuration.class));
+                any(MutableConfiguration.class));
 
         return configurationFileManager;
     }

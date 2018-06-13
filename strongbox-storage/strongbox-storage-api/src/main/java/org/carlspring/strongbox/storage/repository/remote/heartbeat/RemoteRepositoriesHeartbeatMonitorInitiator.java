@@ -88,8 +88,7 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
 
     private RemoteRepositoryHeartbeatMonitorStrategy determineMonitorStrategy(final RemoteRepository remoteRepository)
     {
-        return remoteRepositoryHeartbeatMonitorStrategyRegistry.of(
-                remoteRepository.isAllowsDirectoryBrowsing());
+        return remoteRepositoryHeartbeatMonitorStrategyRegistry.of(remoteRepository.allowsDirectoryBrowsing());
     }
 
 

@@ -5,8 +5,8 @@ import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
 import org.carlspring.strongbox.users.domain.Roles;
 
@@ -121,23 +121,23 @@ public abstract class NugetRestAssuredBaseTest
     public void createStorage(String storageId)
             throws IOException, JAXBException
     {
-        createStorage(new Storage(storageId));
+        createStorage(new MutableStorage(storageId));
     }
 
-    public void createStorage(Storage storage)
+    public void createStorage(MutableStorage storage)
             throws IOException, JAXBException
     {
         configurationManagementService.saveStorage(storage);
         storageManagementService.createStorage(storage);
     }
 
-    public void createRepository(Repository repository)
+    public void createRepository(MutableRepository repository, String storageId)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
-        configurationManagementService.saveRepository(repository.getStorage().getId(), repository);
+        configurationManagementService.saveRepository(storageId, repository);
 
         // Create the repository
-        repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
+        repositoryManagementService.createRepository(storageId, repository.getId());
     }
     
     public byte[] readPackageContent(Path packageFilePath)

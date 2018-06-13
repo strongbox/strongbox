@@ -1,56 +1,46 @@
 package org.carlspring.strongbox.storage.repository.remote;
 
-import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
-
-import static org.carlspring.strongbox.configuration.RemoteRepositoriesConfiguration.DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
+import javax.annotation.concurrent.Immutable;
 
 /**
- * @author mtodorov
+ * @author Przemyslaw Fusik
  */
-@Embeddable
-@XmlRootElement(name = "remote-repository")
-@XmlAccessorType(XmlAccessType.FIELD)
+@Immutable
 public class RemoteRepository
-        implements Serializable
 {
 
-    @XmlAttribute
+    private final boolean downloadRemoteIndexes;
+
+    private final boolean autoBlocking;
+
+    private final boolean checksumValidation;
+
+    private final String username;
+
+    private final String password;
+
+    private final String checksumPolicy;
+
+    private final Integer checkIntervalSeconds;
+
+    private final boolean allowsDirectoryBrowsing;
+
+    private final boolean autoImportRemoteSSLCertificate;
+    
     private String url;
 
-    @XmlAttribute(name = "download-remote-indexes")
-    private boolean downloadRemoteIndexes;
-
-    @XmlAttribute(name = "auto-blocking")
-    private boolean autoBlocking;
-
-    @XmlAttribute(name = "checksum-validation")
-    private boolean checksumValidation;
-
-    @XmlAttribute
-    private String username;
-
-    @XmlAttribute
-    private String password;
-
-    @XmlAttribute(name = "checksum-policy")
-    private String checksumPolicy;
-
-    @XmlAttribute(name = "check-interval-seconds")
-    private Integer checkIntervalSeconds = DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
-
-    @XmlAttribute(name = "allows-directory-browsing")
-    private boolean allowsDirectoryBrowsing = true;
-
-    @XmlAttribute(name = "auto-import-remote-ssl-certificate")
-    private boolean autoImportRemoteSSLCertificate;
-
-    public RemoteRepository()
+    public RemoteRepository(final MutableRemoteRepository other)
     {
+        this.url = other.getUrl();
+        this.downloadRemoteIndexes = other.isDownloadRemoteIndexes();
+        this.autoBlocking = other.isAutoBlocking();
+        this.checksumValidation = other.isChecksumValidation();
+        this.username = other.getUsername();
+        this.password = other.getPassword();
+        this.checksumPolicy = other.getChecksumPolicy();
+        this.checkIntervalSeconds = other.getCheckIntervalSeconds();
+        this.allowsDirectoryBrowsing = other.allowsDirectoryBrowsing();
+        this.autoImportRemoteSSLCertificate = other.isAutoImportRemoteSSLCertificate();
     }
 
     public String getUrl()
@@ -58,19 +48,9 @@ public class RemoteRepository
         return url;
     }
 
-    public void setUrl(String url)
-    {
-        this.url = url;
-    }
-
     public boolean isDownloadRemoteIndexes()
     {
         return downloadRemoteIndexes;
-    }
-
-    public void setDownloadRemoteIndexes(boolean downloadRemoteIndexes)
-    {
-        this.downloadRemoteIndexes = downloadRemoteIndexes;
     }
 
     public boolean isAutoBlocking()
@@ -78,19 +58,9 @@ public class RemoteRepository
         return autoBlocking;
     }
 
-    public void setAutoBlocking(boolean autoBlocking)
-    {
-        this.autoBlocking = autoBlocking;
-    }
-
     public boolean isChecksumValidation()
     {
         return checksumValidation;
-    }
-
-    public void setChecksumValidation(boolean checksumValidation)
-    {
-        this.checksumValidation = checksumValidation;
     }
 
     public String getUsername()
@@ -98,19 +68,9 @@ public class RemoteRepository
         return username;
     }
 
-    public void setUsername(String username)
-    {
-        this.username = username;
-    }
-
     public String getPassword()
     {
         return password;
-    }
-
-    public void setPassword(String password)
-    {
-        this.password = password;
     }
 
     public String getChecksumPolicy()
@@ -118,38 +78,18 @@ public class RemoteRepository
         return checksumPolicy;
     }
 
-    public void setChecksumPolicy(String checksumPolicy)
-    {
-        this.checksumPolicy = checksumPolicy;
-    }
-
     public Integer getCheckIntervalSeconds()
     {
         return checkIntervalSeconds;
     }
 
-    public void setCheckIntervalSeconds(Integer checkIntervalSeconds)
-    {
-        this.checkIntervalSeconds = checkIntervalSeconds;
-    }
-
-    public boolean isAllowsDirectoryBrowsing()
+    public boolean allowsDirectoryBrowsing()
     {
         return allowsDirectoryBrowsing;
-    }
-
-    public void setAllowsDirectoryBrowsing(boolean allowsDirectoryBrowsing)
-    {
-        this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
     }
 
     public boolean isAutoImportRemoteSSLCertificate()
     {
         return autoImportRemoteSSLCertificate;
-    }
-
-    public void setAutoImportRemoteSSLCertificate(boolean autoImportRemoteSSLCertificate)
-    {
-        this.autoImportRemoteSSLCertificate = autoImportRemoteSSLCertificate;
     }
 }

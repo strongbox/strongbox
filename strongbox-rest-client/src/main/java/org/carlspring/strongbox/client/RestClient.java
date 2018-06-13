@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.client;
 
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.configuration.MutableConfiguration;
+import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.configuration.ServerConfiguration;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.ws.rs.ServerErrorException;
@@ -70,16 +70,16 @@ public class RestClient
         logger.error(response.toString());
     }
 
-    public int setConfiguration(Configuration configuration)
+    public int setConfiguration(MutableConfiguration configuration)
             throws IOException, JAXBException
     {
-        return setServerConfiguration(configuration, "/api/configuration/strongbox/xml", Configuration.class);
+        return setServerConfiguration(configuration, "/api/configuration/strongbox/xml", MutableConfiguration.class);
     }
 
-    public Configuration getConfiguration()
+    public MutableConfiguration getConfiguration()
             throws JAXBException
     {
-        return (Configuration) getServerConfiguration("/api/configuration/strongbox/xml", Configuration.class);
+        return (MutableConfiguration) getServerConfiguration("/api/configuration/strongbox/xml", MutableConfiguration.class);
     }
 
     public int setServerConfiguration(ServerConfiguration configuration,
@@ -195,7 +195,7 @@ public class RestClient
         return resource.request(MediaType.TEXT_PLAIN).get(String.class);
     }
 
-    public int setProxyConfiguration(ProxyConfiguration proxyConfiguration)
+    public int setProxyConfiguration(MutableProxyConfiguration proxyConfiguration)
             throws IOException, JAXBException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration";
@@ -205,7 +205,7 @@ public class RestClient
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
+        GenericParser<MutableProxyConfiguration> parser = new GenericParser<>(MutableProxyConfiguration.class);
         parser.store(proxyConfiguration, baos);
 
         Response response = resource.request(MediaType.APPLICATION_XML)
@@ -214,8 +214,8 @@ public class RestClient
         return response.getStatus();
     }
 
-    public ProxyConfiguration getProxyConfiguration(String storageId,
-                                                    String repositoryId)
+    public MutableProxyConfiguration getProxyConfiguration(String storageId,
+                                                           String repositoryId)
             throws JAXBException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration" +
@@ -228,19 +228,19 @@ public class RestClient
         final Response response = resource.request(MediaType.APPLICATION_XML).get();
 
         @SuppressWarnings("UnnecessaryLocalVariable")
-        ProxyConfiguration proxyConfiguration;
+        MutableProxyConfiguration proxyConfiguration;
         if (response.getStatus() == 200)
         {
             final String xml = response.readEntity(String.class);
             final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
+            GenericParser<MutableProxyConfiguration> parser = new GenericParser<>(MutableProxyConfiguration.class);
 
             proxyConfiguration = parser.parse(bais);
         }
         else
         {
-            proxyConfiguration = new ProxyConfiguration();
+            proxyConfiguration = new MutableProxyConfiguration();
         }
 
         return proxyConfiguration;
@@ -253,7 +253,7 @@ public class RestClient
      * @return The response code.
      * @throws IOException
      */
-    public int addStorage(Storage storage)
+    public int addStorage(MutableStorage storage)
             throws IOException, JAXBException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages";
@@ -263,7 +263,7 @@ public class RestClient
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        GenericParser<Storage> parser = new GenericParser<>(Storage.class);
+        GenericParser<MutableStorage> parser = new GenericParser<>(MutableStorage.class);
         parser.store(storage, baos);
 
         Response response = resource.request(MediaType.TEXT_PLAIN)
@@ -279,7 +279,7 @@ public class RestClient
      * @return
      * @throws IOException
      */
-    public Storage getStorage(String storageId)
+    public MutableStorage getStorage(String storageId)
             throws JAXBException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId;
@@ -289,14 +289,14 @@ public class RestClient
 
         final Response response = resource.request(MediaType.APPLICATION_XML).get();
 
-        Storage storage = null;
+        MutableStorage storage = null;
         if (response.getStatus() == 200)
         {
             final String xml = response.readEntity(String.class);
 
             final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            GenericParser<Storage> parser = new GenericParser<>(Storage.class);
+            GenericParser<MutableStorage> parser = new GenericParser<>(MutableStorage.class);
 
             storage = parser.parse(bais);
         }
@@ -328,7 +328,7 @@ public class RestClient
         return response.getStatus();
     }
 
-    public int addRepository(Repository repository)
+    public int addRepository(MutableRepository repository)
     {
         if (repository == null)
         {
@@ -375,8 +375,8 @@ public class RestClient
      * @return
      * @throws java.io.IOException
      */
-    public Repository getRepository(String storageId,
-                                    String repositoryId)
+    public MutableRepository getRepository(String storageId,
+                                           String repositoryId)
             throws JAXBException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
@@ -386,14 +386,14 @@ public class RestClient
 
         final Response response = resource.request(MediaType.APPLICATION_XML).get();
 
-        Repository repository = null;
+        MutableRepository repository = null;
         if (response.getStatus() == 200)
         {
             final String xml = response.readEntity(String.class);
 
             final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            GenericParser<Repository> parser = new GenericParser<>(Repository.class);
+            GenericParser<MutableRepository> parser = new GenericParser<>(MutableRepository.class);
 
             repository = parser.parse(bais);
         }

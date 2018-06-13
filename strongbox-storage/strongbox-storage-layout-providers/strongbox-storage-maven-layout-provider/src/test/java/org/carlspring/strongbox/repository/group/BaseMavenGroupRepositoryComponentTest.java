@@ -3,11 +3,11 @@ package org.carlspring.strongbox.repository.group;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -74,9 +74,9 @@ public class BaseMavenGroupRepositoryComponentTest
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_E));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_L));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_Z));
@@ -93,44 +93,45 @@ public class BaseMavenGroupRepositoryComponentTest
     }
 
     @Override
-    public void createRepository(final Repository repository)
+    public void createRepository(final MutableRepository repository, final String storageId)
             throws RepositoryManagementStrategyException, JAXBException, IOException
     {
-        MavenRepositoryConfiguration configuration = new MavenRepositoryConfiguration();
+        MutableMavenRepositoryConfiguration configuration = new MutableMavenRepositoryConfiguration();
         configuration.setIndexingEnabled(true);
 
-        repository.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setAllowsForceDeletion(true);
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository.setRepositoryConfiguration(configuration);
 
-        super.createRepository(repository);
+        super.createRepository(repository, storageId);
     }
 
-    protected void createLeaf(String repositoryId)
+    protected void createLeaf(String repositoryId,
+                              String storageId)
             throws Exception
     {
-        Repository repository = new Repository(repositoryId);
+        MutableRepository repository = new MutableRepository(repositoryId);
         repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setType(new Random().nextInt(2) % 2 == 0 ?
                            RepositoryTypeEnum.HOSTED.getType() :
                            RepositoryTypeEnum.PROXY.getType());
 
-        createRepository(repository);
+        createRepository(repository, storageId);
     }
 
-    protected Repository createGroup(String repositoryId,
-                               String... leafs)
+    protected MutableRepository createGroup(String repositoryId,
+                                            String storageId,
+                                            String... leafs)
             throws Exception
     {
-        Repository repository = new Repository(repositoryId);
+        MutableRepository repository = new MutableRepository(repositoryId);
         repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setType(RepositoryTypeEnum.GROUP.getType());
         repository.setGroupRepositories(Sets.newLinkedHashSet(Arrays.asList(leafs)));
 
-        createRepository(repository);
-        
+        createRepository(repository, storageId);
+
         return repository;
     }
 
@@ -138,18 +139,18 @@ public class BaseMavenGroupRepositoryComponentTest
     public void initialize()
             throws Exception
     {
-        createLeaf(REPOSITORY_LEAF_E);
-        createLeaf(REPOSITORY_LEAF_L);
-        createLeaf(REPOSITORY_LEAF_Z);
-        createLeaf(REPOSITORY_LEAF_D);
-        createLeaf(REPOSITORY_LEAF_G);
-        createLeaf(REPOSITORY_LEAF_K);
+        createLeaf(REPOSITORY_LEAF_E, STORAGE0);
+        createLeaf(REPOSITORY_LEAF_L, STORAGE0);
+        createLeaf(REPOSITORY_LEAF_Z, STORAGE0);
+        createLeaf(REPOSITORY_LEAF_D, STORAGE0);
+        createLeaf(REPOSITORY_LEAF_G, STORAGE0);
+        createLeaf(REPOSITORY_LEAF_K, STORAGE0);
 
-        createGroup(REPOSITORY_GROUP_C, REPOSITORY_LEAF_E, REPOSITORY_LEAF_Z);
-        createGroup(REPOSITORY_GROUP_B, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
-        createGroup(REPOSITORY_GROUP_A, REPOSITORY_LEAF_G, REPOSITORY_GROUP_B);
-        createGroup(REPOSITORY_GROUP_F, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
-        createGroup(REPOSITORY_GROUP_H, REPOSITORY_GROUP_F, REPOSITORY_LEAF_K);
+        createGroup(REPOSITORY_GROUP_C, STORAGE0, REPOSITORY_LEAF_E, REPOSITORY_LEAF_Z);
+        createGroup(REPOSITORY_GROUP_B, STORAGE0, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
+        createGroup(REPOSITORY_GROUP_A, STORAGE0, REPOSITORY_LEAF_G, REPOSITORY_GROUP_B);
+        createGroup(REPOSITORY_GROUP_F, STORAGE0, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
+        createGroup(REPOSITORY_GROUP_H, STORAGE0, REPOSITORY_GROUP_F, REPOSITORY_LEAF_K);
 
         // whenAnArtifactWasDeletedAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible
         generateArtifact(REPOSITORY_LEAF_L_BASEDIR.getAbsolutePath(),
@@ -210,10 +211,10 @@ public class BaseMavenGroupRepositoryComponentTest
     public void removeRepositories()
             throws IOException, JAXBException
     {
-        Set<Repository> repositories = getRepositoriesToClean();
+        Set<MutableRepository> repositories = getRepositoriesToClean();
         addRepositoriesToClean(repositories);
 
-        for (Repository repository : repositories)
+        for (MutableRepository repository : repositories)
         {
             closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
         }
@@ -221,7 +222,7 @@ public class BaseMavenGroupRepositoryComponentTest
         removeRepositories(repositories);
     }
 
-    protected void addRepositoriesToClean(final Set<Repository> repositories)
+    protected void addRepositoriesToClean(final Set<MutableRepository> repositories)
     {
     }
 

@@ -104,8 +104,7 @@ public class ArtifactCoordinateValidatorsManagementController
                               @PathVariable String alias,
                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        Configuration configuration = configurationManager.getConfiguration();
-        Storage storage = configuration.getStorage(storageId);
+        Storage storage = getConfiguration().getStorage(storageId);
         if (storage == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_STORAGE_MESSAGE, acceptHeader);
@@ -117,8 +116,7 @@ public class ArtifactCoordinateValidatorsManagementController
             return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY_MESSAGE, acceptHeader);
         }
 
-        repository.getArtifactCoordinateValidators().put(alias, alias);
-        configurationManagementService.save(configuration);
+        configurationManagementService.addRepositoryArtifactCoordinateValidator(storageId, repositoryId, alias);
 
         return getSuccessfulResponseEntity(SUCCESSFUL_ADD, acceptHeader);
     }
@@ -146,13 +144,14 @@ public class ArtifactCoordinateValidatorsManagementController
             return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY_MESSAGE, acceptHeader);
         }
 
-        boolean resultOk = repository.getArtifactCoordinateValidators().remove(alias, alias);
+        boolean resultOk = configurationManagementService.removeRepositoryArtifactCoordinateValidator(storageId,
+                                                                                                      repositoryId,
+                                                                                                      alias);
         if (!resultOk)
         {
             return getNotFoundResponseEntity(NOT_FOUND_ALIAS_MESSAGE, acceptHeader);
         }
 
-        configurationManagementService.save(configuration);
         return getSuccessfulResponseEntity(SUCCESSFUL_DELETE, acceptHeader);
     }
 

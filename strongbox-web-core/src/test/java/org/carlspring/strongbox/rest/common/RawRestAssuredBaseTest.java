@@ -4,9 +4,9 @@ import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithRepositoryManagement;
 import org.carlspring.strongbox.users.domain.Roles;
 
@@ -111,14 +111,14 @@ public class RawRestAssuredBaseTest
                    JAXBException,
                    RepositoryManagementStrategyException
     {
-        RemoteRepository remoteRepository = new RemoteRepository();
+        MutableRemoteRepository remoteRepository = new MutableRemoteRepository();
         remoteRepository.setUrl(remoteRepositoryUrl);
 
-        Repository repository = rawRepositoryFactory.createRepository(storageId, repositoryId);
+        MutableRepository repository = rawRepositoryFactory.createRepository(repositoryId);
         repository.setType(RepositoryTypeEnum.PROXY.getType());
         repository.setRemoteRepository(remoteRepository);
 
-        createRepository(repository);
+        createRepository(repository, storageId);
     }
 
     protected void resolveArtifact(String artifactPath)

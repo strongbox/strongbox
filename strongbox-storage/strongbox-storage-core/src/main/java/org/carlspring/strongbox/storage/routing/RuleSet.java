@@ -1,30 +1,33 @@
 package org.carlspring.strongbox.storage.routing;
 
-import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.*;
-import java.io.Serializable;
-import java.util.ArrayList;
+import javax.annotation.concurrent.Immutable;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.ImmutableList;
 
 /**
- * @author mtodorov
+ * @author Przemyslaw Fusik
  */
-@Embeddable
-@XmlRootElement(name = "rule-set")
-@XmlAccessorType(XmlAccessType.FIELD)
+@Immutable
 public class RuleSet
-        implements Serializable
 {
 
-    @XmlAttribute(name = "group-repository")
-    private String groupRepository;
+    private final String groupRepository;
 
-    @XmlElement(name = "rule")
-    private List<RoutingRule> routingRules = new ArrayList<>();
+    private final List<RoutingRule> routingRules;
 
-
-    public RuleSet()
+    public RuleSet(final MutableRuleSet delegate)
     {
+        this.groupRepository = delegate.getGroupRepository();
+        this.routingRules = immuteRoutingRules(delegate.getRoutingRules());
+    }
+
+    private List<RoutingRule> immuteRoutingRules(final List<MutableRoutingRule> source)
+    {
+        return source != null ? ImmutableList.copyOf(source.stream().map(RoutingRule::new).collect(
+                Collectors.toList())) : Collections.emptyList();
     }
 
     public String getGroupRepository()
@@ -32,24 +35,8 @@ public class RuleSet
         return groupRepository;
     }
 
-    public void setGroupRepository(String groupRepository)
-    {
-        this.groupRepository = groupRepository;
-    }
-
     public List<RoutingRule> getRoutingRules()
     {
         return routingRules;
-    }
-
-    public void setRoutingRules(List<RoutingRule> routingRules)
-    {
-        this.routingRules = routingRules;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "RuleSet{" + "groupRepository='" + groupRepository + '\'' + ", routingRules=" + routingRules + '}';
     }
 }

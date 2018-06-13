@@ -1,48 +1,44 @@
 package org.carlspring.strongbox.configuration;
 
-import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.*;
-import java.io.Serializable;
-import java.util.ArrayList;
+import javax.annotation.concurrent.Immutable;
+import java.util.Collections;
 import java.util.List;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import jersey.repackaged.com.google.common.collect.ImmutableList;
 
 /**
- * @author mtodorov
+ * @author Przemyslaw Fusik
+ * @see MutableProxyConfiguration
  */
-@Embeddable
-@XmlRootElement(name = "proxy-configuration")
-@XmlAccessorType(XmlAccessType.FIELD)
+@Immutable
 public class ProxyConfiguration
-        implements Serializable
 {
 
-    @XmlAttribute
-    private String host;
+    private final String host;
 
-    @XmlAttribute
-    private int port;
+    private final int port;
 
-    @XmlAttribute
-    private String username;
+    private final String username;
 
-    @XmlAttribute
-    private String password;
+    private final String password;
 
-    /**
-     * Proxy type (HTTP, SOCKS5, etc)
-     */
-    @XmlAttribute
-    private String type;
-    
-    @XmlElementWrapper(name = "non-proxy-hosts")
-    private List<String> nonProxyHosts = new ArrayList<>();
+    private final String type;
 
+    private final List<String> nonProxyHosts;
 
-    public ProxyConfiguration()
+    public ProxyConfiguration(final MutableProxyConfiguration delegate)
     {
+        this.host = delegate.getHost();
+        this.port = delegate.getPort();
+        this.username = delegate.getUsername();
+        this.password = delegate.getPassword();
+        this.type = delegate.getType();
+        this.nonProxyHosts = immuteNonProxyHosts(delegate.getNonProxyHosts());
+    }
+
+    private List<String> immuteNonProxyHosts(final List<String> source)
+    {
+        return source != null ? ImmutableList.copyOf(source) : Collections.emptyList();
     }
 
     public String getHost()
@@ -50,19 +46,9 @@ public class ProxyConfiguration
         return host;
     }
 
-    public void setHost(String host)
-    {
-        this.host = host;
-    }
-
     public int getPort()
     {
         return port;
-    }
-
-    public void setPort(int port)
-    {
-        this.port = port;
     }
 
     public String getUsername()
@@ -70,19 +56,9 @@ public class ProxyConfiguration
         return username;
     }
 
-    public void setUsername(String username)
-    {
-        this.username = username;
-    }
-
     public String getPassword()
     {
         return password;
-    }
-
-    public void setPassword(String password)
-    {
-        this.password = password;
     }
 
     public String getType()
@@ -90,57 +66,8 @@ public class ProxyConfiguration
         return type;
     }
 
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
     public List<String> getNonProxyHosts()
     {
         return nonProxyHosts;
     }
-
-    public void setNonProxyHosts(List<String> nonProxyHosts)
-    {
-        this.nonProxyHosts = nonProxyHosts;
-    }
-
-    public void addNonProxyHost(String host)
-    {
-        nonProxyHosts.add(host);
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ProxyConfiguration that = (ProxyConfiguration) o;
-        return port == that.port &&
-               Objects.equal(host, that.host) &&
-               Objects.equal(username, that.username) &&
-               Objects.equal(password, that.password) &&
-               Objects.equal(type, that.type) &&
-               Objects.equal(nonProxyHosts, that.nonProxyHosts);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hashCode(host, port, username, password, type, nonProxyHosts);
-    }
-
-    @Override
-    public String toString()
-    {
-        return MoreObjects.toStringHelper(this)
-                          .add("host", host)
-                          .add("port", port)
-                          .add("username", username)
-                          .add("password", password)
-                          .add("type", type)
-                          .add("nonProxyHosts", nonProxyHosts)
-                          .toString();
-    }
-
 }

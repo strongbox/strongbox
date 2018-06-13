@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryTrashPathResolver;
@@ -9,10 +9,11 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -68,9 +69,9 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     private static final File REPOSITORY_RELEASES_BASEDIR_3 = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                        "/storages/" + STORAGE1 + "/" +
                                                                        REPOSITORY_RELEASES_1);
-    private static Repository repository1;
-    private static Repository repository2;
-    private static Repository repository3;
+    private static MutableRepository repository1;
+    private static MutableRepository repository2;
+    private static MutableRepository repository3;
     @Rule
     public TestRule watcher = new TestWatcher()
     {
@@ -99,9 +100,9 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
         repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
@@ -113,37 +114,37 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     public void initialize()
             throws Exception
     {
-        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
+        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        repository1 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES_1);
+        repository1 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_1);
         repository1.setAllowsForceDeletion(false);
         repository1.setTrashEnabled(true);
         repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repository1);
+        createRepository(repository1, STORAGE0);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
                          "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
 
-        repository2 = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES_2);
+        repository2 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_2);
         repository2.setAllowsForceDeletion(false);
         repository2.setTrashEnabled(true);
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
-        createRepository(repository2);
+        createRepository(repository2, STORAGE0);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(),
                          "org.carlspring.strongbox.clear:strongbox-test-two:1.0:jar");
 
-        createStorage(new Storage(STORAGE1));
+        createStorage(new MutableStorage(STORAGE1));
 
-        repository3 = mavenRepositoryFactory.createRepository(STORAGE1, REPOSITORY_RELEASES_1);
+        repository3 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_1);
         repository3.setAllowsForceDeletion(false);
         repository3.setTrashEnabled(true);
         repository3.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repository3);
+        createRepository(repository3, STORAGE1);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_3.getAbsolutePath(),
                          "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
@@ -201,7 +202,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
     private File[] getDirs()
     {
-        final RepositoryPath trashPath = repositoryTrashPathResolver.resolve(repository1);
+        final RepositoryPath trashPath = repositoryTrashPathResolver.resolve(new Repository(repository1));
         final List<File> files = new ArrayList<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(trashPath))
         {
@@ -222,14 +223,15 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             throws Exception
     {
 
-        Configuration currentConfiguration = getConfiguration();
-        Configuration configurationBackup = getConfiguration();
+
+        MutableConfiguration currentConfiguration = configurationManagementService.getMutableConfigurationClone();
+        MutableConfiguration configurationBackup = configurationManagementService.getMutableConfigurationClone();
 
         try
         {
             removeNotMavenRepositories(currentConfiguration);
 
-            final File basedirTrash1 = repositoryTrashPathResolver.resolve(repository2).toFile();
+            final File basedirTrash1 = repositoryTrashPathResolver.resolve(new Repository(repository2)).toFile();
             File[] dirs1 = basedirTrash1.listFiles();
 
             assertTrue("There is no path to the repository trash!", dirs1 != null);
@@ -239,7 +241,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             String path1 = "org/carlspring/strongbox/clear/strongbox-test-two/1.0";
             layoutProvider1.delete(STORAGE0, REPOSITORY_RELEASES_2, path1, false);
 
-            final File basedirTrash2 = repositoryTrashPathResolver.resolve(repository3).toFile();
+            final File basedirTrash2 = repositoryTrashPathResolver.resolve(new Repository(repository3)).toFile();
             File[] dirs2 = basedirTrash2.listFiles();
 
             assertTrue("There is no path to the repository trash!", dirs2 != null);
@@ -278,18 +280,16 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         }
         finally
         {
-            configurationBackup.setUuid(null);
-            configurationBackup.setObjectId(null);
-            configurationManagementService.save(configurationBackup);
+            configurationManagementService.setConfiguration(configurationBackup);
         }
     }
 
-    private void removeNotMavenRepositories(final Configuration currentConfiguration)
+    private void removeNotMavenRepositories(final MutableConfiguration currentConfiguration)
     {
-        for (Storage storage : currentConfiguration.getStorages().values())
+        for (MutableStorage storage : currentConfiguration.getStorages().values())
         {
-            Collection<Repository> repositories = Lists.newArrayList(storage.getRepositories().values());
-            for (Repository repository : repositories)
+            Collection<MutableRepository> repositories = Lists.newArrayList(storage.getRepositories().values());
+            for (MutableRepository repository : repositories)
             {
                 if (Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
                 {
@@ -298,7 +298,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
                 storage.removeRepository(repository.getId());
             }
         }
-        configurationManagementService.save(currentConfiguration);
+        configurationManagementService.setConfiguration(currentConfiguration);
     }
 
 }

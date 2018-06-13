@@ -7,12 +7,13 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
-import org.carlspring.strongbox.xml.configuration.repository.NugetRepositoryConfiguration;
+import org.carlspring.strongbox.xml.configuration.repository.MutableNugetRepositoryConfiguration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -94,23 +95,23 @@ public class NugetGroupRepositoryProviderTest
     public void setUp()
         throws Exception
     {
-        NugetRepositoryConfiguration nugetRepositoryConfiguration = new NugetRepositoryConfiguration();
+        MutableNugetRepositoryConfiguration nugetRepositoryConfiguration = new MutableNugetRepositoryConfiguration();
 
         //REPOSITORY_RELEASES_1
-        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1), NugetLayoutProvider.ALIAS);
+        createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1), NugetLayoutProvider.ALIAS);
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, "grpt.search.package", 9);
 
         //REPOSITORY_RELEASES_2
-        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2),
+        createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2),
                          NugetLayoutProvider.ALIAS);
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_2, "grpt.search.package", 12);
         
         //REPOSITORY_RELEASES_3
-        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3),
+        createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3),
                          NugetLayoutProvider.ALIAS);
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_3, "grpt.search.package", 8);
 
-        Repository repositoryGroup = nugetRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP);
+        MutableRepository repositoryGroup = nugetRepositoryFactory.createRepository(REPOSITORY_GROUP);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
@@ -120,10 +121,9 @@ public class NugetGroupRepositoryProviderTest
         repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_2);
         repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_3);
 
-        createRepository(repositoryGroup);
+        createRepository(STORAGE0, repositoryGroup);
 
-        Repository repositoryWithNestedGroupLevel1 = nugetRepositoryFactory.createRepository(STORAGE0,
-                                                                                             REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
+        MutableRepository repositoryWithNestedGroupLevel1 = nugetRepositoryFactory.createRepository(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
         repositoryWithNestedGroupLevel1.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryWithNestedGroupLevel1.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel1.setAllowsDelete(false);
@@ -131,10 +131,9 @@ public class NugetGroupRepositoryProviderTest
         repositoryWithNestedGroupLevel1.setRepositoryConfiguration(nugetRepositoryConfiguration);
         repositoryWithNestedGroupLevel1.addRepositoryToGroup(REPOSITORY_GROUP);
 
-        createRepository(repositoryWithNestedGroupLevel1);
+        createRepository(STORAGE0, repositoryWithNestedGroupLevel1);
 
-        Repository repositoryWithNestedGroupLevel2 = nugetRepositoryFactory.createRepository(STORAGE0,
-                                                                                             REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
+        MutableRepository repositoryWithNestedGroupLevel2 = nugetRepositoryFactory.createRepository(REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
         repositoryWithNestedGroupLevel2.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryWithNestedGroupLevel2.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel2.setAllowsDelete(false);
@@ -142,7 +141,7 @@ public class NugetGroupRepositoryProviderTest
         repositoryWithNestedGroupLevel2.setRepositoryConfiguration(nugetRepositoryConfiguration);
         repositoryWithNestedGroupLevel2.addRepositoryToGroup(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
 
-        createRepository(repositoryWithNestedGroupLevel2);
+        createRepository(STORAGE0, repositoryWithNestedGroupLevel2);
     }
 
     private void generateRepositoryPackages(String storageId, String repositoryId, int count)
@@ -169,17 +168,17 @@ public class NugetGroupRepositoryProviderTest
         }
     }
 
-    private void createRepository(Repository repository)
+    private void createRepository(String storageId, MutableRepository repository)
         throws Exception
     {
-        createRepository(repository, repository.getLayout());
+        createRepository(storageId, repository, repository.getLayout());
     }
     
-    private void createRepository(Repository repository, String layout) throws Exception
+    private void createRepository(String storageId, MutableRepository repository, String layout) throws Exception
     {
         repository.setLayout(layout);
-        configurationManagementService.saveRepository(repository.getStorage().getId(), repository);
-        repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());        
+        configurationManagementService.saveRepository(storageId, repository);
+        repositoryManagementService.createRepository(storageId, repository.getId());
     }
 
     @After
@@ -189,9 +188,9 @@ public class NugetGroupRepositoryProviderTest
         removeRepositories(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3));

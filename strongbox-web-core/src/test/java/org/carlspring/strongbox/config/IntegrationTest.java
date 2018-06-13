@@ -1,14 +1,12 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
-import org.carlspring.strongbox.MockedRepositoryPathResolverConfig;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
+import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.rest.common.RestAssuredTestExecutionListener;
 
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -71,7 +69,7 @@ public @interface IntegrationTest
 
             Mockito.doNothing()
                    .when(configurationFileManager)
-                   .store(any(org.carlspring.strongbox.configuration.Configuration.class));
+                   .store(any(MutableConfiguration.class));
 
             return configurationFileManager;
         }

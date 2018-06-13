@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.storage.validation.resource;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -117,7 +117,7 @@ public class ArtifactOperationsValidator
                    ProviderImplementationException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        if (layoutProvider.containsArtifact(repository, coordinates) && !repository.allowsDeployment())
+        if (layoutProvider.containsArtifact(repository, coordinates) && !repository.allowsRedeployment())
         {
             throw new ArtifactStorageException("Re-deployment of artifacts to " +
                                                repository.getStorage().getId() + ":" + repository.getId() +
@@ -145,8 +145,7 @@ public class ArtifactOperationsValidator
             throw new ArtifactResolutionException("Uploaded file is empty.");
         }
 
-        Repository repository = getConfiguration().getStorage(storageId)
-                                                  .getRepository(repositoryId);
+        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
         long artifactMaxSize = repository.getArtifactMaxSize();
 
         if (artifactMaxSize > 0 && uploadedFile.getSize() > artifactMaxSize)

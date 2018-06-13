@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 
 /**
  * @author mtodorov
@@ -13,7 +13,7 @@ public enum IndexingRequest
 
     private int type;
 
-    private Repository repository;
+    private MutableRepository repository;
 
     private String artifactPath;
 
@@ -24,7 +24,7 @@ public enum IndexingRequest
     }
 
     IndexingRequest(int type,
-                    Repository repository,
+                    MutableRepository repository,
                     String artifactPath)
     {
         this.type = type;
@@ -42,12 +42,12 @@ public enum IndexingRequest
         this.type = type;
     }
 
-    public Repository getRepository()
+    public MutableRepository getRepository()
     {
         return repository;
     }
 
-    public void setRepository(Repository repository)
+    public void setRepository(MutableRepository repository)
     {
         this.repository = repository;
     }

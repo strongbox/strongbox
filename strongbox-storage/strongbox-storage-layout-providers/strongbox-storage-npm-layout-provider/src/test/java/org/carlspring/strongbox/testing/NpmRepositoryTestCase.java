@@ -3,9 +3,9 @@ package org.carlspring.strongbox.testing;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -34,15 +34,15 @@ public class NpmRepositoryTestCase
                    JAXBException,
                    RepositoryManagementStrategyException
     {
-        RemoteRepository remoteRepository = new RemoteRepository();
+        MutableRemoteRepository remoteRepository = new MutableRemoteRepository();
         remoteRepository.setUrl(remoteRepositoryUrl);
 
-        Repository repository = npmRepositoryFactory.createRepository(storageId, repositoryId);
+        MutableRepository repository = npmRepositoryFactory.createRepository(repositoryId);
         repository.setRemoteRepository(remoteRepository);
         repository.setLayout(NpmLayoutProvider.ALIAS);
         repository.setType(RepositoryTypeEnum.PROXY.getType());
 
-        createRepository(repository);
+        createRepository(repository, storageId);
     }
 
 }

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.xml;
 
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.MutableStorage;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.util.ArrayList;
@@ -13,15 +13,15 @@ public class StorageMap
 {
 
     @XmlElement(name = "storage")
-    private List<Storage> entries = new ArrayList<>();
+    private List<MutableStorage> entries = new ArrayList<>();
 
 
-    public List<Storage> getEntries()
+    public List<MutableStorage> getEntries()
     {
         return entries;
     }
 
-    public void add(Storage storage)
+    public void add(MutableStorage storage)
     {
         entries.add(storage);
     }

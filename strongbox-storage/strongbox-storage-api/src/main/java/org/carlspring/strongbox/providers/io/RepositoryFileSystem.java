@@ -6,10 +6,11 @@ import java.util.Set;
 
 import org.carlspring.strongbox.io.FileSystemWrapper;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 
 /**
  * {@link RepositoryFileSystem} is a wrapper under concrete Storage {@link FileSystem}. <br>
- * The {@link RepositoryFileSystem} root is the {@link Repository}'s base directory.
+ * The {@link RepositoryFileSystem} root is the {@link MutableRepository}'s base directory.
  *
  * @author Sergey Bespalov
  */

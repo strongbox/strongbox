@@ -1,23 +1,8 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.spi.FileSystemProvider;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-
-import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
@@ -33,7 +18,24 @@ import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.spi.FileSystemProvider;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -292,10 +294,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
         for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
-            Storage storage = (Storage) entry.getValue();
+            MutableStorage storage = (MutableStorage) entry.getValue();
 
-            final Map<String, Repository> repositories = storage.getRepositories();
-            for (Repository repository : repositories.values())
+            final Map<String, MutableRepository> repositories = storage.getRepositories();
+            for (MutableRepository repository : repositories.values())
             {
                 if (!repository.allowsDeletion())
                 {
@@ -338,9 +340,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     {
         boolean trashUndeleted = false;
 
-        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        for (Map.Entry<String, Storage> entry : getConfiguration().getStorages().entrySet())
         {
-            Storage storage = (Storage) entry.getValue();
+            Storage storage = entry.getValue();
 
             final Map<String, Repository> repositories = storage.getRepositories();
             for (Repository repository : repositories.values())

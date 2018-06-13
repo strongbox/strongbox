@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.xml;
 
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.util.ArrayList;
@@ -13,15 +13,15 @@ public class RepositoryMap
 {
 
     @XmlElement(name = "repository")
-    private List<Repository> entries = new ArrayList<>();
+    private List<MutableRepository> entries = new ArrayList<>();
 
 
-    public List<Repository> getEntries()
+    public List<MutableRepository> getEntries()
     {
         return entries;
     }
 
-    public void add(Repository repository)
+    public void add(MutableRepository repository)
     {
         entries.add(repository);
     }

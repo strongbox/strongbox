@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
-import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;

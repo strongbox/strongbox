@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.converters.configuration;
 
-import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 
 import org.springframework.core.convert.converter.Converter;
@@ -9,13 +9,13 @@ import org.springframework.core.convert.converter.Converter;
  * @author Pablo Tirado
  */
 public class ProxyConfigurationFormToProxyConfigurationConverter
-        implements Converter<ProxyConfigurationForm, ProxyConfiguration>
+        implements Converter<ProxyConfigurationForm, MutableProxyConfiguration>
 {
 
     @Override
-    public ProxyConfiguration convert(ProxyConfigurationForm proxyConfigurationForm)
+    public MutableProxyConfiguration convert(ProxyConfigurationForm proxyConfigurationForm)
     {
-        ProxyConfiguration proxyConfiguration = new ProxyConfiguration();
+        MutableProxyConfiguration proxyConfiguration = new MutableProxyConfiguration();
         proxyConfiguration.setHost(proxyConfigurationForm.getHost());
         proxyConfiguration.setPort(proxyConfigurationForm.getPort());
         proxyConfiguration.setType(proxyConfigurationForm.getType());

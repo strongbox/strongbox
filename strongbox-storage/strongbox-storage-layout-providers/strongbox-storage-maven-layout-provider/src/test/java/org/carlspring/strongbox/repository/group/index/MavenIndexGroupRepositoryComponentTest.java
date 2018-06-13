@@ -10,8 +10,9 @@ import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryCompone
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.util.IndexContextHelper;
 
@@ -69,10 +70,11 @@ public class MavenIndexGroupRepositoryComponentTest
 
         RepositoryIndexer indexer = repositoryIndexManager.get().getRepositoryIndexer(contextId);
 
-        Repository repository = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_LEAF_L);
+        MutableRepository repository = mavenRepositoryFactory.createRepository(REPOSITORY_LEAF_L);
+        repository.setStorage(configurationManagementService.getMutableConfigurationClone().getStorage(STORAGE0));
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath artifactFile = layoutProvider.resolve(repository).resolve(artifactPath);
+        RepositoryPath artifactFile = layoutProvider.resolve(new Repository(repository)).resolve(artifactPath);
 
         indexer.addArtifactToIndex(artifactFile);
 
@@ -94,10 +96,10 @@ public class MavenIndexGroupRepositoryComponentTest
     public void whenCreatingNewGroupRepositoryItsIndexShouldContainChildrenArtifacts()
             throws Exception
     {
-        Repository repository = createGroup(REPOSITORY_GROUP, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
+        MutableRepository repository = createGroup(REPOSITORY_GROUP, STORAGE0, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
 
         LayoutProvider provider = layoutProviderRegistry.getProvider(Maven2LayoutProvider.ALIAS);
-        RootRepositoryPath repositoryPath = provider.resolve(repository);
+        RootRepositoryPath repositoryPath = provider.resolve(new Repository(repository));
         // recoded since we scheduled a cron job now
         artifactIndexesService.get().rebuildIndex(repositoryPath);
 
@@ -120,7 +122,7 @@ public class MavenIndexGroupRepositoryComponentTest
     }
 
     @Override
-    protected void addRepositoriesToClean(final Set<Repository> repositories)
+    protected void addRepositoriesToClean(final Set<MutableRepository> repositories)
     {
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP));
     }

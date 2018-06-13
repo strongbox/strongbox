@@ -9,8 +9,8 @@ import javax.inject.Inject;
 
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.client.RestArtifactResolver;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;

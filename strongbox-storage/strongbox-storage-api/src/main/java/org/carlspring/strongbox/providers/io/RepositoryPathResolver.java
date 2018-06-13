@@ -1,16 +1,14 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -25,7 +23,7 @@ public class RepositoryPathResolver
     protected LayoutProviderRegistry layoutProviderRegistry;
     
     @Inject
-    protected ConfigurationManagementService configurationManagementService;
+    protected ConfigurationManager configurationManager;
     
     @Inject
     protected ArtifactEntryService artifactEntryService;
@@ -34,7 +32,7 @@ public class RepositoryPathResolver
                                   String repositoryId,
                                   String... paths)
     {
-        Storage storage = configurationManagementService.getConfiguration().getStorage(storageId);
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Objects.requireNonNull(storage, String.format("Storage [%s] not found", storageId));
         
         return resolve(storage.getRepository(repositoryId), paths);

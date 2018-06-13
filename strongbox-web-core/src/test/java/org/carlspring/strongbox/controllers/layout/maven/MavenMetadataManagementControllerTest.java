@@ -7,7 +7,7 @@ import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
@@ -68,15 +68,15 @@ public class MavenMetadataManagementControllerTest
             throws Exception
     {
         // Create repositories
-        Repository repositoryReleases = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES);
+        MutableRepository repositoryReleases = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repositoryReleases.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repositoryReleases);
+        createRepository(repositoryReleases, STORAGE0);
 
-        Repository repositorySnapshots = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
+        MutableRepository repositorySnapshots = mavenRepositoryFactory.createRepository(REPOSITORY_SNAPSHOTS);
         repositorySnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
 
-        createRepository(repositorySnapshots);
+        createRepository(repositorySnapshots, STORAGE0);
 
         // Generate artifacts
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
@@ -121,9 +121,9 @@ public class MavenMetadataManagementControllerTest
         removeRepositories(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
 

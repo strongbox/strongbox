@@ -13,6 +13,7 @@ import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
@@ -102,9 +103,9 @@ public class ArtifactManagementServiceImplTest
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT));
@@ -129,21 +130,21 @@ public class ArtifactManagementServiceImplTest
             throws Exception
     {
         // Used by testDeploymentToRepositoryWithForbiddenDeployments()
-        Repository repositoryWithoutDelete = mavenRepositoryFactory.createRepository(STORAGE0,
-                                                                                     REPOSITORY_RELEASES_WITHOUT_DELETE);
+        MutableRepository repositoryWithoutDelete = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_WITHOUT_DELETE);
         repositoryWithoutDelete.setAllowsDelete(false);
         repositoryWithoutDelete.setLayout(Maven2LayoutProvider.ALIAS);
 
-        createRepositoryWithArtifacts(repositoryWithoutDelete,
+        createRepositoryWithArtifacts(STORAGE0,
+                                      repositoryWithoutDelete,
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "8.0");
 
         // Used by testRedeploymentToRepositoryWithForbiddenRedeployments()
-        Repository repositoryWithoutRedeployments = mavenRepositoryFactory.createRepository(STORAGE0,
-                                                                                            REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT);
+        MutableRepository repositoryWithoutRedeployments = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT);
         repositoryWithoutRedeployments.setAllowsRedeployment(false);
 
-        createRepositoryWithArtifacts(repositoryWithoutRedeployments,
+        createRepositoryWithArtifacts(STORAGE0,
+                                      repositoryWithoutRedeployments,
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "8.1");
 
@@ -164,36 +165,46 @@ public class ArtifactManagementServiceImplTest
                                       "7.3"  // Used by testArtifactResolutionFromGroup()
         );
 
-        Repository repositoryGroup = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP);
+        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
         repositoryGroup.setAllowsForceDeletion(false);
         repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES);
 
-        createRepositoryWithArtifacts(repositoryGroup,
+        createRepositoryWithArtifacts(STORAGE0,
+                                      repositoryGroup,
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "8.2" // Used by testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
         );
 
         // Used by testForceDelete()
-        Repository repositoryWithTrash = mavenRepositoryFactory.createRepository(STORAGE0,
-                                                                                 REPOSITORY_RELEASES_WITH_TRASH);
+        MutableRepository repositoryWithTrash = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_WITH_TRASH);
         repositoryWithTrash.setTrashEnabled(true);
 
-        createRepositoryWithArtifacts(repositoryWithTrash,
+        createRepositoryWithArtifacts(STORAGE0,
+                                      repositoryWithTrash,
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "7.2");
 
         // Used by testRemoveTimestampedSnapshots()
-        Repository repositorySnapshots = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
+        MutableRepository repositorySnapshots = mavenRepositoryFactory.createRepository(REPOSITORY_SNAPSHOTS);
         repositorySnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
 
-        createRepository(repositorySnapshots);
+        createRepository(repositorySnapshots, STORAGE0);
 
         //
-        Repository repositoryWithLock = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_WITH_LOCK);
-        createRepository(repositoryWithLock);
+        MutableRepository repositoryWithLock = mavenRepositoryFactory.createRepository(REPOSITORY_WITH_LOCK);
+        createRepository(repositoryWithLock, STORAGE0);
+
+
+        //
+        MutableRepository releasesWithoutDeployment = mavenRepositoryFactory.createRepository(
+                REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT);
+        releasesWithoutDeployment.setAllowsDeployment(false);
+        releasesWithoutDeployment.setLayout(Maven2LayoutProvider.ALIAS);
+
+        createRepository(releasesWithoutDeployment, STORAGE0);
     }
 
     @Test
@@ -207,15 +218,15 @@ public class ArtifactManagementServiceImplTest
         {
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.0:jar";
 
-            File repositoryDir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES);
+            File repositoryDir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT);
             is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
-                                             REPOSITORY_RELEASES_WITHOUT_DELETE,
+                                             REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT,
                                              gavtc,
                                              true);
 
             MavenArtifact artifact = MavenArtifactUtils.getArtifactFromGAVTC(gavtc);
             mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            REPOSITORY_RELEASES_WITHOUT_DELETE,
+                                                            REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT,
                                                             MavenArtifactUtils.convertArtifactToPath(artifact),
                                                             is);
 

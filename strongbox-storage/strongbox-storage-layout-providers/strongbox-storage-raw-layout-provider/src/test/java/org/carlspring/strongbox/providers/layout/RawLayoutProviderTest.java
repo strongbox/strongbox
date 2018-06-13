@@ -10,8 +10,9 @@ import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.testing.TestCaseWithRepository;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -21,10 +22,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -37,6 +42,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = RawLayoutProviderTestConfig.class)
 public class RawLayoutProviderTest
+        extends TestCaseWithRepository
 {
 
     public static final String STORAGE = "storage-raw";
@@ -55,6 +61,21 @@ public class RawLayoutProviderTest
     @Inject
     ArtifactManagementService artifactManagementService;
 
+    @BeforeClass
+    public static void cleanUp()
+            throws Exception
+    {
+        cleanUp(getRepositoriesToClean());
+    }
+
+    public static Set<MutableRepository> getRepositoriesToClean()
+    {
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE, REPOSITORY));
+
+        return repositories;
+    }
+
 
     @Before
     public void setUp()
@@ -71,6 +92,13 @@ public class RawLayoutProviderTest
         {
             createRepository(STORAGE, REPOSITORY);
         }
+    }
+
+    @After
+    public void removeRepositories()
+            throws IOException, JAXBException
+    {
+        removeRepositories(getRepositoriesToClean());
     }
 
     @Test
@@ -147,8 +175,8 @@ public class RawLayoutProviderTest
     private void createRepository(String storageId, String repositoryId)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
-        Repository repository = new Repository(repositoryId);
-        repository.setStorage(configurationManagementService.getConfiguration().getStorage(storageId));
+        MutableRepository repository = new MutableRepository(repositoryId);
+        repository.setAllowsRedeployment(true);
         repository.setLayout(RawLayoutProvider.ALIAS);
         repository.setArtifactCoordinateValidators(Collections.emptySet());
 
@@ -161,7 +189,7 @@ public class RawLayoutProviderTest
     private void createStorage(String storageId)
             throws IOException, JAXBException
     {
-        Storage storage = new Storage(storageId);
+        MutableStorage storage = new MutableStorage(storageId);
 
         configurationManagementService.saveStorage(storage);
         storageManagementService.createStorage(storage);

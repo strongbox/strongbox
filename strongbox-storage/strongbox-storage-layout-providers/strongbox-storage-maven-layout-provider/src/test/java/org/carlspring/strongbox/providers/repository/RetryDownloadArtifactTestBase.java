@@ -2,8 +2,8 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RestArtifactResolver;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
@@ -43,14 +43,12 @@ public abstract class RetryDownloadArtifactTestBase
     public void timeoutRetryFeatureRatherQuicklyForTestPurposes()
             throws Exception
     {
-        final Configuration configuration = getConfiguration();
-        final RemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration =
-                configuration.getRemoteRepositoriesConfiguration()
-                             .getRemoteRepositoryRetryArtifactDownloadConfiguration();
+        final MutableRemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration =
+                new MutableRemoteRepositoryRetryArtifactDownloadConfiguration();
         remoteRepositoryRetryArtifactDownloadConfiguration.setMaxNumberOfAttempts(5);
         remoteRepositoryRetryArtifactDownloadConfiguration.setTimeoutSeconds(30);
         remoteRepositoryRetryArtifactDownloadConfiguration.setMinAttemptsIntervalSeconds(1);
-        configurationManagementService.save(configuration);
+        configurationManagementService.set(remoteRepositoryRetryArtifactDownloadConfiguration);
     }
 
     @Before
@@ -88,7 +86,8 @@ public abstract class RetryDownloadArtifactTestBase
         Mockito.when(artifactResolver.getConfiguration()).thenReturn(configuration);
         Mockito.when(artifactResolver.isAlive()).thenReturn(true);
 
-        Mockito.when(artifactResolverFactory.newInstance(Matchers.any(RemoteRepository.class))).thenReturn(artifactResolver);
+        Mockito.when(artifactResolverFactory.newInstance(Matchers.any(RemoteRepository.class)))
+               .thenReturn(artifactResolver);
     }
 
     abstract static class BrokenArtifactInputStream

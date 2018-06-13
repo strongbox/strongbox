@@ -3,8 +3,8 @@ package org.carlspring.strongbox.controllers.configuration;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +33,7 @@ public class StoragesConfigurationControllerTestIT
     {
         String storageId = "storage1";
 
-        Storage storage1 = new Storage("storage1");
+        MutableStorage storage1 = new MutableStorage("storage1");
 
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages";
 
@@ -48,13 +48,13 @@ public class StoragesConfigurationControllerTestIT
                .then()
                .statusCode(200);
 
-        Repository r1 = new Repository("repository0");
+        MutableRepository r1 = new MutableRepository("repository0");
         r1.setAllowsRedeployment(true);
         r1.setSecured(true);
         r1.setStorage(storage1);
         r1.setLayout(Maven2LayoutProvider.ALIAS);
 
-        Repository r2 = new Repository("repository1");
+        MutableRepository r2 = new MutableRepository("repository1");
         r2.setAllowsForceDeletion(true);
         r2.setTrashEnabled(true);
         r2.setStorage(storage1);
@@ -64,7 +64,7 @@ public class StoragesConfigurationControllerTestIT
         addRepository(r1);
         addRepository(r2);
 
-        Storage storage = getStorage(storageId);
+        MutableStorage storage = getStorage(storageId);
 
         assertNotNull("Failed to get storage (" + storageId + ")!", storage);
         assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());
@@ -87,17 +87,17 @@ public class StoragesConfigurationControllerTestIT
         deleteRepository(storageId, "repository1");
     }
 
-    private Storage getStorage(String storageId)
+    private MutableStorage getStorage(String storageId)
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId;
 
         return given().contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url)
-                      .as(Storage.class);
+                      .as(MutableStorage.class);
     }
 
-    private int addRepository(Repository repository)
+    private int addRepository(MutableRepository repository)
     {
         String url;
         if (repository == null)
@@ -162,7 +162,7 @@ public class StoragesConfigurationControllerTestIT
         final String repositoryId1 = "repository0";
         final String repositoryId2 = "repository1";
 
-        Storage storage2 = new Storage(storageId);
+        MutableStorage storage2 = new MutableStorage(storageId);
 
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages";
 
@@ -174,14 +174,14 @@ public class StoragesConfigurationControllerTestIT
                .then()
                .statusCode(200);
 
-        Repository r1 = new Repository(repositoryId1);
+        MutableRepository r1 = new MutableRepository(repositoryId1);
         r1.setAllowsRedeployment(true);
         r1.setSecured(true);
         r1.setStorage(storage2);
         r1.setProxyConfiguration(createProxyConfiguration());
         r1.setLayout(Maven2LayoutProvider.ALIAS);
 
-        Repository r2 = new Repository(repositoryId2);
+        MutableRepository r2 = new MutableRepository(repositoryId2);
         r2.setAllowsRedeployment(true);
         r2.setSecured(true);
         r2.setStorage(storage2);
@@ -201,7 +201,7 @@ public class StoragesConfigurationControllerTestIT
                .statusCode(200)
                .extract();
 
-        Storage storage = getStorage(storageId);
+        MutableStorage storage = getStorage(storageId);
 
         assertNotNull("Failed to get storage (" + storageId + ")!", storage);
         assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.xml;
 
-import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.LinkedHashMap;
@@ -11,15 +11,15 @@ import java.util.Map;
  * @author mtodorov
  */
 public class RuleSetMapAdapter
-        extends XmlAdapter<RuleSetMap, Map<String, RuleSet>>
+        extends XmlAdapter<RuleSetMap, Map<String, MutableRuleSet>>
 {
 
     @Override
-    public RuleSetMap marshal(Map<String, RuleSet> map)
+    public RuleSetMap marshal(Map<String, MutableRuleSet> map)
             throws Exception
     {
         RuleSetMap ruleSetMap = new RuleSetMap();
-        for (Map.Entry<String, RuleSet> entry : map.entrySet())
+        for (Map.Entry<String, MutableRuleSet> entry : map.entrySet())
         {
             ruleSetMap.getEntries().add(entry.getValue());
         }
@@ -28,13 +28,13 @@ public class RuleSetMapAdapter
     }
 
     @Override
-    public Map<String, RuleSet> unmarshal(RuleSetMap ruleSetMap)
+    public Map<String, MutableRuleSet> unmarshal(RuleSetMap ruleSetMap)
             throws Exception
     {
-        List<RuleSet> entries = ruleSetMap.getEntries();
+        List<MutableRuleSet> entries = ruleSetMap.getEntries();
 
-        Map<String, RuleSet> map = new LinkedHashMap<>(entries.size());
-        for (RuleSet routingRule : entries)
+        Map<String, MutableRuleSet> map = new LinkedHashMap<>(entries.size());
+        for (MutableRuleSet routingRule : entries)
         {
             map.put(routingRule.getGroupRepository(), routingRule);
         }

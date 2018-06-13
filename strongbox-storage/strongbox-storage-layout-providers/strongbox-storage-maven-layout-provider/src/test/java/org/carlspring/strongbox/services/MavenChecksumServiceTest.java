@@ -7,6 +7,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
@@ -80,9 +81,8 @@ public class MavenChecksumServiceTest
             throws Exception
     {
 
-        Repository repository = new Repository(REPOSITORY_RELEASES);
-        repository.setStorage(configurationManager.getConfiguration()
-                                                  .getStorage(STORAGE0));
+        MutableRepository repository = new MutableRepository(REPOSITORY_RELEASES);
+        repository.setStorage(getStorage(STORAGE0));
         repository.setAllowsForceDeletion(true);
 
         createRepository(STORAGE0, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
@@ -112,9 +112,9 @@ public class MavenChecksumServiceTest
         removeRepositories(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
 

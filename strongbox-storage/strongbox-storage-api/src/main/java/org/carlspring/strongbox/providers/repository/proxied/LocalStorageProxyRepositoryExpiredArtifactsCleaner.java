@@ -47,7 +47,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
 
     @Inject
     private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
-    
+
     @Inject
     private ArtifactManagementService artifactManagementService;
 
@@ -117,7 +117,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
             final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
             final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactEntry);
-            
+
             artifactManagementService.delete(repositoryPath, true);
         }
     }

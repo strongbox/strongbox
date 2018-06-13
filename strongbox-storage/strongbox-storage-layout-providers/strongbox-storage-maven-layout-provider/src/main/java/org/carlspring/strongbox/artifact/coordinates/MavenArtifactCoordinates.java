@@ -17,6 +17,11 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 /**
  * @author carlspring
  */
+import org.apache.maven.artifact.versioning.ComparableVersion;
+
+/**
+ * @author carlspring
+ */
 @Embeddable
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)

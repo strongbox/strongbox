@@ -3,8 +3,9 @@ package org.carlspring.strongbox.controllers.layout.raw;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.rest.common.RawRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
@@ -49,9 +50,9 @@ public class RawArtifactControllerTestIT
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, RawLayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXY, RawLayoutProvider.ALIAS));
 
@@ -64,26 +65,26 @@ public class RawArtifactControllerTestIT
     {
         super.init();
 
-        Repository repository1 = rawRepositoryFactory.createRepository(STORAGE0, REPOSITORY_RELEASES);
+        MutableRepository repository1 = rawRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
-        createRepository(repository1);
+        createRepository(repository1, STORAGE0);
 
         //noinspection ResultOfMethodCallIgnored
         Files.createDirectories(Paths.get(TEST_RESOURCES));
 
-        createFile(repository1, "org/foo/bar/blah.zip");
+        createFile(new Repository(repository1), "org/foo/bar/blah.zip");
 
         createProxyRepository(STORAGE0,
                               REPOSITORY_PROXY,
-                              "http://www-eu.apache.org/dist");
+                              "http://apache.cbox.biz");
         // Required for http://www-eu.apache.org/dist/maven/pom/apache-19-source-release.zip
 
-        Repository repository2 = rawRepositoryFactory.createRepository(STORAGE0, REPOSITORY_GROUP);
+        MutableRepository repository2 = rawRepositoryFactory.createRepository(REPOSITORY_GROUP);
         repository2.setType(RepositoryTypeEnum.GROUP.getType());
         repository2.setGroupRepositories(Sets.newHashSet(STORAGE0 + ":" + REPOSITORY_PROXY));
 
-        createRepository(repository2);
+        createRepository(repository2, STORAGE0);
         // Required for apache-19-source-release.zip
     }
 

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.support.ConfigurationException;
 
@@ -40,7 +40,7 @@ public class StrongboxConfigurationController
                     produces = MediaType.TEXT_PLAIN_VALUE,
                     consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity setConfigurationXML(@ApiParam(value = "The strongbox.xml configuration file", required = true)
-                                              @RequestBody Configuration configuration)
+                                              @RequestBody MutableConfiguration configuration)
     {
         try
         {
@@ -73,6 +73,6 @@ public class StrongboxConfigurationController
         logger.debug("Retrieved strongbox.xml configuration file.");
 
         return ResponseEntity.status(HttpStatus.OK)
-                             .body(getConfiguration());
+                             .body(getMutableConfigurationClone());
     }
 }

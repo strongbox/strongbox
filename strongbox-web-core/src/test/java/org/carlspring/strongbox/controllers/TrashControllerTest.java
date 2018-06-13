@@ -5,8 +5,8 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -81,15 +81,15 @@ public class TrashControllerTest
         // - Used by testForceDeleteArtifactNotAllowed()
         // - Forced deletions are not allowed
         // - Has enabled trash
-        MavenRepositoryConfiguration mavenRepositoryConfiguration = new MavenRepositoryConfiguration();
+        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        Repository repositoryWithTrash = mavenRepositoryFactory.createRepository(STORAGE0, REPOSITORY_WITH_TRASH);
+        MutableRepository repositoryWithTrash = mavenRepositoryFactory.createRepository(REPOSITORY_WITH_TRASH);
         repositoryWithTrash.setAllowsForceDeletion(false);
         repositoryWithTrash.setTrashEnabled(true);
         repositoryWithTrash.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repositoryWithTrash);
+        createRepository(repositoryWithTrash, STORAGE0);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath(),
                          "org.carlspring.strongbox:test-artifact-to-trash:1.0");
@@ -97,12 +97,11 @@ public class TrashControllerTest
         // Notes:
         // - Used by testForceDeleteArtifactAllowed()
         // - Forced deletions are allowed
-        Repository repositoryWithForceDeletions = mavenRepositoryFactory.createRepository(STORAGE0,
-                                                                                          REPOSITORY_WITH_FORCE_DELETE);
+        MutableRepository repositoryWithForceDeletions = mavenRepositoryFactory.createRepository(REPOSITORY_WITH_FORCE_DELETE);
         repositoryWithForceDeletions.setAllowsForceDeletion(false);
         repositoryWithForceDeletions.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
-        createRepository(repositoryWithForceDeletions);
+        createRepository(repositoryWithForceDeletions, STORAGE0);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_FORCE_DELETE).getAbsolutePath(),
                          "org.carlspring.strongbox:test-artifact-to-trash:1.1");
@@ -115,9 +114,9 @@ public class TrashControllerTest
         removeRepositories(getRepositoriesToClean());
     }
 
-    public static Set<Repository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
-        Set<Repository> repositories = new LinkedHashSet<>();
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_WITH_TRASH));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_WITH_FORCE_DELETE));
 

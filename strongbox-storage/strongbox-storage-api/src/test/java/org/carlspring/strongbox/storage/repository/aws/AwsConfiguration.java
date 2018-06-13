@@ -1,44 +1,34 @@
 package org.carlspring.strongbox.storage.repository.aws;
 
 import org.carlspring.strongbox.storage.repository.CustomConfiguration;
-import org.carlspring.strongbox.xml.CustomTag;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.annotation.concurrent.Immutable;
 
 /**
- * @author carlspring
+ * @author Przemyslaw Fusik
  */
-@XmlRootElement(name = "aws-configuration")
-public class AwsConfiguration extends CustomConfiguration
-        implements CustomTag
+@Immutable
+public class AwsConfiguration
+        extends CustomConfiguration
 {
 
-    @XmlAttribute
-    private String bucket;
+    private final String bucket;
 
-    @XmlAttribute
-    private String key;
+    private final String key;
 
+    public AwsConfiguration(final MutableAwsConfiguration delegate)
+    {
+        this.bucket = delegate.getBucket();
+        this.key = delegate.getKey();
+    }
 
     public String getBucket()
     {
         return bucket;
     }
 
-    public void setBucket(String bucket)
-    {
-        this.bucket = bucket;
-    }
-
     public String getKey()
     {
         return key;
     }
-
-    public void setKey(String key)
-    {
-        this.key = key;
-    }
-
 }

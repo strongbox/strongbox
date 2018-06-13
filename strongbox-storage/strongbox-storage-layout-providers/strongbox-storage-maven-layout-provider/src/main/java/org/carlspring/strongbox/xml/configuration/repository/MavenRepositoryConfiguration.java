@@ -2,31 +2,24 @@ package org.carlspring.strongbox.xml.configuration.repository;
 
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 
-import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.annotation.concurrent.Immutable;
 
 /**
- * @author carlspring
+ * @author Przemyslaw Fusik
  */
-@Embeddable
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "maven-repository-configuration")
+@Immutable
 public class MavenRepositoryConfiguration
         extends CustomRepositoryConfiguration
 {
 
-    @XmlAttribute(name = "indexing-enabled")
-    private boolean indexingEnabled = false;
+    private final boolean indexingEnabled;
 
-    @XmlAttribute(name = "indexing-class-names-enabled")
-    private boolean indexingClassNamesEnabled = true;
+    private final boolean indexingClassNamesEnabled;
 
-
-    public MavenRepositoryConfiguration()
+    public MavenRepositoryConfiguration(final MutableMavenRepositoryConfiguration delegate)
     {
+        this.indexingEnabled = delegate.isIndexingEnabled();
+        this.indexingClassNamesEnabled = delegate.isIndexingClassNamesEnabled();
     }
 
     public boolean isIndexingEnabled()
@@ -34,18 +27,9 @@ public class MavenRepositoryConfiguration
         return indexingEnabled;
     }
 
-    public void setIndexingEnabled(boolean indexingEnabled)
-    {
-        this.indexingEnabled = indexingEnabled;
-    }
-
     public boolean isIndexingClassNamesEnabled()
     {
         return indexingClassNamesEnabled;
     }
-
-    public void setIndexingClassNamesEnabled(final boolean indexingClassNamesEnabled)
-    {
-        this.indexingClassNamesEnabled = indexingClassNamesEnabled;
-    }
 }
+

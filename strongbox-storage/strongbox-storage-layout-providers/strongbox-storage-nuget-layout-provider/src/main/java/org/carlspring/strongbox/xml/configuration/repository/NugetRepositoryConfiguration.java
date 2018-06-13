@@ -2,31 +2,25 @@ package org.carlspring.strongbox.xml.configuration.repository;
 
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 
-import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.annotation.concurrent.Immutable;
 
 /**
- * @author carlspring
+ * @author Przemyslaw Fusik
  */
-@Embeddable
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "nuget-repository-configuration")
+@Immutable
 public class NugetRepositoryConfiguration
         extends CustomRepositoryConfiguration
 {
 
-    @XmlAttribute(name = "feed-version")
-    private String feedVersion = "2.0";
-    
-    @XmlAttribute(name = "remote-feed-page-size")
-    private Integer remoteFeedPageSize;
+    private final String feedVersion;
+
+    private final Integer remoteFeedPageSize;
 
 
-    public NugetRepositoryConfiguration()
+    public NugetRepositoryConfiguration(final MutableNugetRepositoryConfiguration delegate)
     {
+        this.feedVersion = delegate.getFeedVersion();
+        this.remoteFeedPageSize = delegate.getRemoteFeedPageSize();
     }
 
     public String getFeedVersion()
@@ -34,19 +28,8 @@ public class NugetRepositoryConfiguration
         return feedVersion;
     }
 
-    public void setFeedVersion(String feedVersion)
-    {
-        this.feedVersion = feedVersion;
-    }
-
     public Integer getRemoteFeedPageSize()
     {
         return remoteFeedPageSize;
     }
-
-    public void setRemoteFeedPageSize(Integer remoteFeedPageSize)
-    {
-        this.remoteFeedPageSize = remoteFeedPageSize;
-    }
-    
 }

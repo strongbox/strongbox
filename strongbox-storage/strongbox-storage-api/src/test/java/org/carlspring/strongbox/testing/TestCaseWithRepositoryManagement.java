@@ -7,8 +7,9 @@ import org.carlspring.strongbox.providers.repository.HostedRepositoryProvider;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -37,30 +38,32 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
     public void createStorage(String storageId)
             throws IOException
     {
-        createStorage(new Storage(storageId));
+        createStorage(new MutableStorage(storageId));
     }
 
-    public void createStorage(Storage storage)
+    public void createStorage(MutableStorage storage)
             throws IOException
     {
         configurationManagementService.saveStorage(storage);
         storageManagementService.createStorage(storage);
     }
 
-    public void createRepository(Repository repository)
+    public void createRepository(MutableRepository repository, String storageId)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
-        configurationManagementService.saveRepository(repository.getStorage().getId(), repository);
+        configurationManagementService.saveRepository(storageId, repository);
 
         // Create the repository
-        repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
+        repositoryManagementService.createRepository(storageId, repository.getId());
     }
 
-    public void createRepositoryWithFile(Repository repository, String path)
+    public void createRepositoryWithFile(MutableRepository repository,
+                                         String storageId,
+                                         String path)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
-        createRepository(repository);
-        createFile(repository, path);
+        createRepository(repository, storageId);
+        createFile(new Repository(repository), path);
     }
     
     public abstract void createProxyRepository(String storageId,
@@ -75,7 +78,7 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
                            String path)
             throws IOException
     {
-        Repository repository = configurationManagementService.getRepository(storageId, repositoryId);
+        Repository repository = configurationManagementService.getConfiguration().getRepository(storageId, repositoryId);
 
         createFile(repository, path);
     }

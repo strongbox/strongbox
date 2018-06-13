@@ -7,6 +7,7 @@ import org.carlspring.strongbox.config.EventsConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
+import org.carlspring.strongbox.configuration.MutableConfiguration;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class StorageApiTestConfig
         final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager());
 
         Mockito.doNothing().when(configurationFileManager).store(
-                any(org.carlspring.strongbox.configuration.Configuration.class));
+                any(MutableConfiguration.class));
 
         return configurationFileManager;
     }

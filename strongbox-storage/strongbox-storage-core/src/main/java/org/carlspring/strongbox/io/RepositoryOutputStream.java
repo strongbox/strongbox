@@ -6,13 +6,13 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 
 import org.apache.commons.io.output.CountingOutputStream;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 /**
- * This class decorate {@link ArtifactOutputStream} with {@link Repository} specific logic.
+ * This class decorate {@link ArtifactOutputStream} with {@link MutableRepository} specific logic.
  *
  * @author Sergey Bespalov
  *
