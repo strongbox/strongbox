@@ -95,7 +95,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
-                                    <includes>logback.xml</includes>
+                                    <includes>logback*xml</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -137,7 +137,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
-                                    <includes>logback.xml</includes>
+                                    <includes>logback*xml</includes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>

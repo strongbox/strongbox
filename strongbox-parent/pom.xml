@@ -173,7 +173,7 @@
                             <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
                             <strongbox.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</strongbox.config.xml>
                             <logging.dir>${strongbox.vault}/logs</logging.dir>
-                            <logging.config.file>${project.build.directory}/strongbox/etc/logback.xml</logging.config.file>
+                            <logging.config.file>${project.build.directory}/strongbox/etc/logback-debug.xml</logging.config.file>
                             <java.io.tmpdir>${strongbox.vault}/tmp</java.io.tmpdir>
                             <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                         </systemPropertyVariables>
@@ -192,7 +192,7 @@
                             <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
                             <strongbox.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</strongbox.config.xml>
                             <logging.dir>${strongbox.vault}/logs</logging.dir>
-                            <logging.config.file>${project.build.directory}/strongbox/etc/logback.xml</logging.config.file>
+                            <logging.config.file>${project.build.directory}/strongbox/etc/logback-debug.xml</logging.config.file>
                             <java.io.tmpdir>${strongbox.vault}/tmp</java.io.tmpdir>
                             <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                         </systemPropertyVariables>
