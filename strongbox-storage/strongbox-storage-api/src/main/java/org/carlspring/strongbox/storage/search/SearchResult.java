@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.storage.search;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.dependency.snippet.CodeSnippet;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author mtodorov
@@ -30,7 +30,7 @@ public class SearchResult
      * V: The string representation of the snippet.
      */
     @JsonProperty
-    private Map<String, String> snippets = new LinkedHashMap<>();
+    private List<CodeSnippet> snippets = new ArrayList<>();
 
 
     public SearchResult()
@@ -93,12 +93,12 @@ public class SearchResult
         this.url = url;
     }
 
-    public Map<String, String> getSnippets()
+    public List<CodeSnippet> getSnippets()
     {
         return snippets;
     }
 
-    public void setSnippets(Map<String, String> snippets)
+    public void setSnippets(List<CodeSnippet> snippets)
     {
         this.snippets = snippets;
     }

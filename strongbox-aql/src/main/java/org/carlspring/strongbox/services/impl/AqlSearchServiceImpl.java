@@ -1,19 +1,10 @@
 package org.carlspring.strongbox.services.impl;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
-
 import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
+import org.carlspring.strongbox.dependency.snippet.CodeSnippet;
 import org.carlspring.strongbox.dependency.snippet.SnippetGenerator;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -23,6 +14,14 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
 
 @Component
 @Transactional
@@ -63,7 +62,7 @@ public class AqlSearchServiceImpl implements AqlSearchService
             URL artifactResource = artifactResolutionService.resolveResource(repositoryPath);
             r.setUrl(artifactResource.toString());
 
-            Map<String, String> snippets = snippetGenerator.generateSnippets(repository.getLayout(),
+            List<CodeSnippet> snippets = snippetGenerator.generateSnippets(repository.getLayout(),
                                                                              artifactEntry.getArtifactCoordinates());
             r.setSnippets(snippets);
         }
