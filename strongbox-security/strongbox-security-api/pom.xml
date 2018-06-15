@@ -69,7 +69,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${strongbox.home}/etc</outputDirectory>
-                                    <includes>logback.xml</includes>
+                                    <includes>logback*xml</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

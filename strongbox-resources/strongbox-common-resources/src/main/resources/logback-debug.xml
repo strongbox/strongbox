@@ -50,14 +50,22 @@
         https://logback.qos.ch/manual/configuration.html
     -->
 
+    <!-- ApacheDS: Used for testing -->
+    <logger name="org.apache.directory" level="ERROR"/>
+    <logger name="org.apache.mina" level="ERROR"/>
+    <logger name="JdbmTable" level="ERROR"/>
+    <logger name="JdbmIndex" level="ERROR"/>
+    <logger name="LOG_CHANGES" level="ERROR"/>
+    <!-- ApacheDS -->
+
     <!-- Strongbox packages -->
-    <logger name="org.carlspring.strongbox" level="INFO"/>
-    <logger name="org.carlspring.strongbox.security.authentication" level="INFO"/>
-    <logger name="org.carlspring.strongbox.security.vote" level="INFO"/>
+    <logger name="org.carlspring.strongbox" level="DEBUG"/>
+    <logger name="org.carlspring.strongbox.security.authentication" level="DEBUG"/>
+    <logger name="org.carlspring.strongbox.security.vote" level="DEBUG"/>
     <logger name="org.carlspring.strongbox.data" level="WARN"/>
     <logger name="org.carlspring.strongbox.data.tx" level="WARN"/>
-    <logger name="org.carlspring.strongbox.data.criteria" level="INFO"/>
-    <logger name="org.carlspring.strongbox.data.server" level="INFO"/>
+    <logger name="org.carlspring.strongbox.data.criteria" level="DEBUG"/>
+    <logger name="org.carlspring.strongbox.data.server" level="DEBUG"/>
     <!-- Strongbox packages -->
 
     <!-- Third-party packages -->
@@ -75,10 +83,10 @@
     <logger name="org.reflections" level="ERROR"/>
 
     <logger name="org.springframework" level="ERROR"/>
-    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework.web" level="DEBUG"/>
     <!-- Third-party packages -->
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </root>

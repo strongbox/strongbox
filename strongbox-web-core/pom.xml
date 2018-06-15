@@ -83,7 +83,7 @@
                         <strongbox.host>${strongbox.host}</strongbox.host>
                         <strongbox.port>${strongbox.port}</strongbox.port>
                         <logging.dir>${project.build.directory}/strongbox-vault/logs</logging.dir>
-                        <logging.config.file>${project.build.directory}/strongbox/etc/logback.xml</logging.config.file>
+                        <logging.config.file>${project.build.directory}/strongbox/etc/logback-debug.xml</logging.config.file>
                         <java.io.tmpdir>${dir.strongbox.vault}/tmp</java.io.tmpdir>
                         <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                         <strongbox.nuget.download.feed>false</strongbox.nuget.download.feed>
@@ -159,7 +159,7 @@
                         </systemProperty>
                         <systemProperty>
                             <name>logging.config.file</name>
-                            <value>${dir.strongbox.home}/etc/logback.xml</value>
+                            <value>${dir.strongbox.home}/etc/logback-debug.xml</value>
                         </systemProperty>
                         <systemProperty>
                             <name>java.io.tmpdir</name>
@@ -199,7 +199,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
-                                    <includes>logback.xml</includes>
+                                    <includes>logback*xml</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -241,7 +241,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
-                                    <includes>logback.xml</includes>
+                                    <includes>logback*xml</includes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
@@ -750,7 +750,7 @@
 
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
-                                            <includes>logback.xml</includes>
+                                            <includes>logback*xml</includes>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
@@ -812,7 +812,7 @@
 
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
-                                            <includes>logback.xml</includes>
+                                            <includes>logback*xml</includes>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
@@ -931,11 +931,11 @@
                                 </systemProperty>
                                 <systemProperty>
                                     <name>logging.config.file</name>
-                                    <value>${dir.strongbox.home}/etc/logback.xml</value>
+                                    <value>${dir.strongbox.home}/etc/logback-debug.xml</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <name>logback.configurationFile</name>
-                                    <value>${dir.strongbox.home}/etc/logback.xml</value>
+                                    <value>${dir.strongbox.home}/etc/logback-debug.xml</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <name>strongbox.truststore.jks</name>

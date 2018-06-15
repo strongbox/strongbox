@@ -98,7 +98,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
-                                    <includes>logback.xml</includes>
+                                    <includes>logback*xml</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -140,7 +140,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
-                                    <includes>logback.xml</includes>
+                                    <includes>logback*xml</includes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
@@ -166,7 +166,7 @@
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
                         <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages
                         </strongbox.storage.booter.basedir>
-                        <logback.configurationFile>${dir.strongbox.home}/etc/logback.xml</logback.configurationFile>
+                        <logback.configurationFile>${dir.strongbox.home}/etc/logback*xml</logback.configurationFile>
                         <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                     </systemPropertyVariables>
                 </configuration>
