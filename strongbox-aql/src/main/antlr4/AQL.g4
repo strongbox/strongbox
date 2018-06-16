@@ -38,7 +38,7 @@ orderDirection
 
 queryExp
 :
-    tokenPrefix? ROUND_BRACKET_LEFT vNesteedQueryExp = queryExp
+    tokenPrefix? ROUND_BRACKET_LEFT vNestedQueryExp = queryExp
     ROUND_BRACKET_RIGHT
     | vQueryExpLeft = queryExp logicalOp? vQueryExpRight = queryExp
     | tokenPrefix? tokenExp
@@ -101,60 +101,86 @@ or
     | DOUBLE_PIPE
 ;
 
+fragment A : [aA];
+fragment B : [bB];
+fragment C : [cC];
+fragment D : [dD];
+fragment E : [eE];
+fragment F : [fF];
+fragment G : [gG];
+fragment H : [hH];
+fragment I : [iI];
+fragment J : [jJ];
+fragment K : [kK];
+fragment L : [lL];
+fragment M : [mM];
+fragment N : [nN];
+fragment O : [oO];
+fragment P : [pP];
+fragment Q : [qQ];
+fragment R : [rR];
+fragment S : [sS];
+fragment T : [tT];
+fragment U : [uU];
+fragment V : [vV];
+fragment W : [wW];
+fragment X : [xX];
+fragment Y : [yY];
+fragment Z : [zZ];
+
 STORAGE
 :
-    'storage'
+    S T O R A G E
 ;
 
 REPOSITORY
 :
-    'repository'
+    R E P O S I T O R Y
 ;
 
 LAYOUT
 :
-    'layout'
+    L A Y O U T
 ;
 
 VERSION
 :
-    'version'
+    V E R S I O N
 ;
 
 TAG
 :
-    'tag'
+    T A G
 ;
 
 FROM
 :
-    'from'
+    F R O M
 ;
 
 TO
 :
-    'to'
+    T O
 ;
 
 AGE
 :
-    'age'
+    A G E
 ;
 
 ASC
 :
-    'asc'
+    A S C
 ;
 
 DESC
 :
-    'desc'
+    D E S C
 ;
 
 PAGE_SKIP
 :
-    'skip'
-    | 'SKIP'
+    S K I P
 ;
 
 AMP
@@ -169,8 +195,7 @@ DOUBLE_AMP
 
 AND
 :
-    'and'
-    | 'AND'
+    A N D
 ;
 
 PIPE
@@ -185,8 +210,7 @@ DOUBLE_PIPE
 
 OR
 :
-    'or'
-    | 'OR'
+    O R
 ;
 
 PLUS

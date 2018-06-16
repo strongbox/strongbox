@@ -2,7 +2,6 @@ package org.carlspring.strongbox.aql.grammar;
 
 import org.carlspring.strongbox.aql.grammar.AQLParser.QueryContext;
 import org.carlspring.strongbox.aql.grammar.AQLParser.QueryExpContext;
-import org.carlspring.strongbox.data.criteria.Expression;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
@@ -30,7 +29,7 @@ public class AQLStatementVisitor extends AQLBaseVisitor<Selector<ArtifactEntry>>
 
         for (QueryExpContext queryExpContext : ctx.queryExp())
         {
-            artifactPredicate.and(queryVisitor.visitQueryExp(queryExpContext).nesteed());
+            artifactPredicate.and(queryVisitor.visitQueryExp(queryExpContext).nested());
         }
         selector.where(queryVisitor.getRoot());
 
