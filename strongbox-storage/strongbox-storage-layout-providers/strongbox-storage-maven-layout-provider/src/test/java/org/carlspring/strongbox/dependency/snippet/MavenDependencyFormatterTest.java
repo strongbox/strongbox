@@ -209,11 +209,11 @@ public class MavenDependencyFormatterTest
 
         assertFalse(searchResult.getSnippets().isEmpty());
 
-        for (String key : searchResult.getSnippets().keySet())
+        for (CodeSnippet codeSnippet : searchResult.getSnippets())
         {
-            System.out.println("Dependency snippet for " + key + ":");
+            System.out.println("Dependency snippet for " + codeSnippet.name + ":");
             System.out.println("------------------------------------------------------");
-            System.out.println(searchResult.getSnippets().get(key));
+            System.out.println(codeSnippet.code);
         }
     }
 
