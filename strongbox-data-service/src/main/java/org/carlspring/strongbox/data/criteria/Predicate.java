@@ -49,9 +49,10 @@ public class Predicate
     {
         if (BooleanOperator.AND.equals(this.operator))
         {
-            Predicate nesteedPredicate = Predicate.empty().or(p);
-            add(nesteedPredicate);
-            return nesteedPredicate;
+            Predicate nestedPredicate = Predicate.empty().or(p);
+            add(nestedPredicate);
+
+            return nestedPredicate;
         }
 
         this.operator = BooleanOperator.OR;
@@ -64,9 +65,10 @@ public class Predicate
     {
         if (BooleanOperator.OR.equals(this.operator))
         {
-            Predicate nesteedPredicate = Predicate.empty().and(p);
-            add(nesteedPredicate);
-            return nesteedPredicate;
+            Predicate nestedPredicate = Predicate.empty().and(p);
+            add(nestedPredicate);
+
+            return nestedPredicate;
         }
 
         this.operator = BooleanOperator.AND;
@@ -89,7 +91,7 @@ public class Predicate
         return expression == null && childPredicateList.isEmpty();
     }
 
-    public Predicate nesteed()
+    public Predicate nested()
     {
         this.nested = true;
         return this;
@@ -100,9 +102,9 @@ public class Predicate
         return nested;
     }
 
-    public void setNested(boolean nesteed)
+    public void setNested(boolean nested)
     {
-        this.nested = nesteed;
+        this.nested = nested;
     }
 
     public boolean isNegated()

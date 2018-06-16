@@ -36,9 +36,9 @@ public class AQLQueryVisitor extends AQLBaseVisitor<Predicate>
 
             return negatePredicateIfNeeded(ctx, p);
         }
-        else if (ctx.vNesteedQueryExp != null)
+        else if (ctx.vNestedQueryExp != null)
         {
-            Predicate p = visitQueryExp(ctx.vNesteedQueryExp).nesteed();
+            Predicate p = visitQueryExp(ctx.vNestedQueryExp).nested();
 
             return negatePredicateIfNeeded(ctx, p);
         }
@@ -75,11 +75,11 @@ public class AQLQueryVisitor extends AQLBaseVisitor<Predicate>
     @Override
     public Predicate visitTokenExp(TokenExpContext ctx)
     {
-        AQLExpressionVisitor nesteedVisitor = new AQLExpressionVisitor();
-        nesteedVisitor.visitTokenKey(ctx.tokenKey());
-        nesteedVisitor.visitTokenValue(ctx.tokenValue());
+        AQLExpressionVisitor nestedVisitor = new AQLExpressionVisitor();
+        nestedVisitor.visitTokenKey(ctx.tokenKey());
+        nestedVisitor.visitTokenValue(ctx.tokenValue());
 
-        ArtifactEntryExpressionBuilder expressionBuilder = nesteedVisitor.getExpressionBuilder();
+        ArtifactEntryExpressionBuilder expressionBuilder = nestedVisitor.getExpressionBuilder();
         expressionBuilder.using(null);
 
         return Predicate.of(expressionBuilder.build());

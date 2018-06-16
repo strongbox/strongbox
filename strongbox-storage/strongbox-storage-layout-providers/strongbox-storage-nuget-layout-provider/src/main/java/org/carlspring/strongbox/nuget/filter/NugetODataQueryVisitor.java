@@ -50,9 +50,9 @@ public class NugetODataQueryVisitor extends NugetODataFilterBaseVisitor<Predicat
         {
             return visitTokenExp(ctx.tokenExp());
         }
-        else if (ctx.vNesteedFilterExp != null)
+        else if (ctx.vNestedFilterExp != null)
         {
-            return visitFilterExp(ctx.vNesteedFilterExp);
+            return visitFilterExp(ctx.vNestedFilterExp);
         }
 
         BooleanOperator booleanOperator = BooleanOperator.valueOf(ctx.vLogicalOp.getText().toUpperCase());
