@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.dependency.snippet;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 public class CodeSnippet
     implements Comparable<CodeSnippet>
@@ -41,6 +42,30 @@ public class CodeSnippet
     public int compareTo(@Nonnull CodeSnippet codeSnippet)
     {
         return name.compareTo(codeSnippet.getName());
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        CodeSnippet snippet = (CodeSnippet) o;
+
+        return Objects.equals(name, snippet.name) && Objects.equals(code, snippet.code);
+    }
+
+    @Override
+    public int hashCode()
+    {
+
+        return Objects.hash(name, code);
     }
 
 }
