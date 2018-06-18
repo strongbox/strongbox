@@ -13,7 +13,7 @@ public abstract class AbstractMappedProviderRegistryWithNestedMap<T>
      * K: The alias
      * V: The provider implementation map
      */
-    private Map<String, Map<String, T>> providers = new LinkedHashMap<>();
+    protected Map<String, Map<String, T>> providers;
 
 
     public AbstractMappedProviderRegistryWithNestedMap()

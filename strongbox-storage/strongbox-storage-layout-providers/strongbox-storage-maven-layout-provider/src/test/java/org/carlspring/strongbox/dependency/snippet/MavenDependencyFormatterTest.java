@@ -1,13 +1,11 @@
 package org.carlspring.strongbox.dependency.snippet;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -18,15 +16,9 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -53,6 +45,9 @@ public class MavenDependencyFormatterTest
 
     @Inject
     private ArtifactEntryService artifactEntryService;
+
+    @Inject
+    private SnippetGenerator snippetGenerator;
 
 
     @BeforeClass
@@ -185,7 +180,6 @@ public class MavenDependencyFormatterTest
 
     @Test
     public void testSearchExactWithDependencySnippet()
-            throws IOException, SearchException
     {
         Assume.assumeTrue(mavenIndexerSearchProvider.isPresent());
 
@@ -217,16 +211,31 @@ public class MavenDependencyFormatterTest
         }
     }
 
-    public ArtifactEntry createArtifactEntry(ArtifactCoordinates coordinates,
-                                             String storageId,
-                                             String repositoryId)
+    @Test
+    public void testRegisteredSynonyms()
     {
-        ArtifactEntry artifactEntry = new ArtifactEntry();
-        artifactEntry.setArtifactCoordinates(coordinates);
-        artifactEntry.setStorageId(storageId);
-        artifactEntry.setRepositoryId(repositoryId);
+        List<CodeSnippet> codeSnippets = snippetGenerator.generateSnippets(Maven2LayoutProvider.ALIAS,
+                                                                           new MavenArtifactCoordinates("org.carlspring.strongbox",
+                                                                                                        "maven-snippet",
+                                                                                                        "1.0",
+                                                                                                        null,
+                                                                                                        "jar"));
 
-        return artifactEntryService.save(artifactEntry);
+        assertNotNull("Failed to look up dependency synonym formatter!", codeSnippets);
+        assertFalse("No synonyms found!", codeSnippets.isEmpty());
+        assertEquals("Incorrect number of dependency synonyms!", 5, codeSnippets.size());
+
+        String[] synonyms = new String[]{ "Maven 2", "Gradle", "Ivy", "Leiningen", "SBT" };
+
+        int i = 0;
+        for (CodeSnippet snippet : codeSnippets)
+        {
+            System.out.println(snippet.getName());
+
+            assertEquals("Failed to re-order correctly!", synonyms[i], snippet.getName());
+
+            i++;
+        }
     }
 
 }
