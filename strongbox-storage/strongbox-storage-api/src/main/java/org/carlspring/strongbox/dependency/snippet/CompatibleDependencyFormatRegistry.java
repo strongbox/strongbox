@@ -3,6 +3,7 @@ package org.carlspring.strongbox.dependency.snippet;
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistryWithNestedMap;
 
 import javax.annotation.PostConstruct;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,8 @@ public class CompatibleDependencyFormatRegistry
     public void initialize()
     {
         logger.info("Initialized the dependency snippet provider registry.");
+
+        providers = new TreeMap<>();
     }
 
 }

@@ -1,6 +1,9 @@
 package org.carlspring.strongbox.dependency.snippet;
 
+import javax.annotation.Nonnull;
+
 public class CodeSnippet
+    implements Comparable<CodeSnippet>
 {
     
     protected String name;
@@ -33,5 +36,11 @@ public class CodeSnippet
     {
         this.code = code;
     }
-    
+
+    @Override
+    public int compareTo(@Nonnull CodeSnippet codeSnippet)
+    {
+        return name.compareTo(codeSnippet.getName());
+    }
+
 }
