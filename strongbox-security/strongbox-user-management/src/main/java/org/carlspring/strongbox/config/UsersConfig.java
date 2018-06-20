@@ -1,10 +1,8 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.users.UsersFileManager;
-import org.carlspring.strongbox.users.UsersMapper;
-import org.carlspring.strongbox.users.domain.MutableUsers;
-import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.dto.UsersDto;
+import org.carlspring.strongbox.users.service.UserService;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -23,7 +21,7 @@ import org.springframework.context.annotation.Import;
 @ComponentScan({ "org.carlspring.strongbox.users" })
 @Import({ DataServiceConfig.class,
           CommonConfig.class,
-          UsersAuthorizationConfig.class})
+          UsersAuthorizationConfig.class })
 public class UsersConfig
 {
 
@@ -34,11 +32,10 @@ public class UsersConfig
     private UsersFileManager usersFileManager;
 
     @PostConstruct
-    public void init()
+    void init()
     {
         final UsersDto securityUsers = usersFileManager.read();
-        MutableUsers users = UsersMapper.securityToManagement(securityUsers);
-        userService.setUsers(users);
+        userService.setUsers(securityUsers);
     }
 
 

@@ -4,7 +4,7 @@ import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.domain.MutableUser;
+import org.carlspring.strongbox.users.dto.UserDto;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -47,7 +47,7 @@ public class UserServiceTest
     {
         String testUserName = "test-user";
 
-        MutableUser user = new MutableUser();
+        UserDto user = new UserDto();
         user.setEnabled(true);
         user.setUsername(testUserName);
         user.setPassword("test-password");
@@ -71,7 +71,7 @@ public class UserServiceTest
         assertThat(userService.findAll().getUsers().stream().filter(u -> "admin".equals(u.getUsername())).collect(
                 Collectors.toList()).size(), CoreMatchers.equalTo(1));
 
-        MutableUser user = new MutableUser();
+        UserDto user = new UserDto();
         user.setUsername("admin");
 
         userService.add(user);

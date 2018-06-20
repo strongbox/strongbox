@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.users.domain;
 
+import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.UsersDto;
+
 import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.Set;
@@ -16,12 +19,12 @@ public class Users
 
     private final Set<User> users;
 
-    public Users(final MutableUsers source)
+    public Users(final UsersDto source)
     {
         this.users = immuteUsers(source.getUsers());
     }
 
-    private Set<User> immuteUsers(final Set<MutableUser> source)
+    private Set<User> immuteUsers(final Set<UserDto> source)
     {
         return source != null ? ImmutableSet.copyOf(source.stream().map(User::new).collect(
                 Collectors.toSet())) : Collections.emptySet();

@@ -1,17 +1,12 @@
-package org.carlspring.strongbox.users;
+package org.carlspring.strongbox.forms.users;
 
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
+import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
-import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.dto.UserPathPermissionDto;
 import org.carlspring.strongbox.users.dto.UserPathPermissionsDto;
 import org.carlspring.strongbox.users.dto.UserRepositoryDto;
 import org.carlspring.strongbox.users.dto.UserStorageDto;
-import org.carlspring.strongbox.users.domain.MutableAccessModel;
-import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.users.domain.MutableUser;
-import org.carlspring.strongbox.users.domain.MutableUsers;
-import org.carlspring.strongbox.users.dto.UsersDto;
 
 import java.util.Set;
 
@@ -25,15 +20,15 @@ import org.junit.Test;
 /**
  * @author Przemyslaw Fusik
  */
-public class UsersMapperTest
+public class AccessModelFormTest
 {
 
     @Test
-    public void mapperShouldWorkAsExpectedWhenMappingManagementToSecurity()
+    public void shouldProperlyMapToDto()
             throws Exception
     {
 
-        MutableAccessModel developer01AccessModel = new MutableAccessModel();
+        AccessModelForm developer01AccessModel = new AccessModelForm();
         developer01AccessModel.setWildCardPrivilegesMap(
                 ImmutableMap.of("/storages/storage0/releases/com/carlspring/foo", Privileges.r(),
                                 "/storages/storage0/releases/org/carlspring/foo", Privileges.rw()));
@@ -44,30 +39,7 @@ public class UsersMapperTest
                 ImmutableMap.of("/storages/storage0/releases", ImmutableSet.of("ARTIFACTS_RESOLVE", "ARTIFACTS_DEPLOY"),
                                 "/storages/storage0/snapshots", ImmutableSet.of("ARTIFACTS_DEPLOY")));
 
-        MutableUser developer01 = new MutableUser();
-        developer01.setPassword("$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO");
-        developer01.setUsername("developer01");
-        developer01.setRoles(ImmutableSet.of("UI_MANAGER"));
-        developer01.setSecurityTokenKey("developer01-secret");
-        developer01.setAccessModel(developer01AccessModel);
-
-        MutableUsers users = new MutableUsers(ImmutableSet.of(developer01));
-
-        UsersDto securityUsers = UsersMapper.managementToSecurity(users);
-        Assert.assertThat(securityUsers, CoreMatchers.notNullValue());
-
-        Set<UserDto> userSet = securityUsers.getUsers();
-        Assert.assertThat(userSet.size(), CoreMatchers.equalTo(1));
-
-        UserDto user = userSet.iterator().next();
-        Assert.assertThat(user.getUsername(), CoreMatchers.equalTo("developer01"));
-        Assert.assertThat(user.getPassword(),
-                          CoreMatchers.equalTo("$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO"));
-        Assert.assertThat(user.getRoles().size(), CoreMatchers.equalTo(1));
-        Assert.assertThat(user.getRoles().iterator().next(), CoreMatchers.equalTo("UI_MANAGER"));
-        Assert.assertThat(user.getSecurityTokenKey(), CoreMatchers.equalTo("developer01-secret"));
-
-        UserAccessModelDto userAccessModel = user.getUserAccessModel();
+        UserAccessModelDto userAccessModel = developer01AccessModel.toDto();
         Assert.assertThat(userAccessModel, CoreMatchers.notNullValue());
 
         Set<UserStorageDto> userStorages = userAccessModel.getStorages();

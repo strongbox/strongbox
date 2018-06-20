@@ -70,12 +70,6 @@ public enum Privileges
     UI_LOGIN,
     UI_BROWSE;
 
-    public final static String READ = "r";
-
-    public final static String READ_WRITE = "rw";
-
-    public final static String DEFAULT = READ_WRITE;
-
     /**
      * Helper method for accessing all roles.
      *
@@ -125,13 +119,21 @@ public enum Privileges
         return set;
     }
 
+    public static Set<String> w()
+    {
+        Set<String> set = new HashSet<>();
+        set.add(ARTIFACTS_DEPLOY.name());
+        set.add(ARTIFACTS_DELETE.name());
+        set.add(ARTIFACTS_COPY.name());
+
+        return set;
+    }
+
     public static Set<String> rw()
     {
         Set<String> set = new HashSet<>();
         set.addAll(r());
-        set.add(ARTIFACTS_DEPLOY.name());
-        set.add(ARTIFACTS_DELETE.name());
-        set.add(ARTIFACTS_COPY.name());
+        set.addAll(w());
 
         return set;
     }

@@ -1,12 +1,11 @@
 package org.carlspring.strongbox.users.service.impl;
 
 import org.carlspring.strongbox.users.UsersFileManager;
-import org.carlspring.strongbox.users.UsersMapper;
-import org.carlspring.strongbox.users.domain.MutableAccessModel;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.domain.Users;
-import org.carlspring.strongbox.users.domain.MutableUser;
-import org.carlspring.strongbox.users.domain.MutableUsers;
+import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 
@@ -50,7 +49,7 @@ public class UserServiceImpl
      * It is protected by the {@link #usersLock} here
      * and should not be exposed to the world.
      */
-    private MutableUsers users;
+    private UsersDto users;
 
     @Override
     public Users findAll()
@@ -76,7 +75,7 @@ public class UserServiceImpl
 
         try
         {
-            final Optional<MutableUser> user = users.findByUserName(username);
+            final Optional<UserDto> user = users.findByUserName(username);
             return user.map(User::new).orElse(null);
         }
         finally
@@ -132,16 +131,16 @@ public class UserServiceImpl
     {
         modifyInLock(users ->
                      {
-                         users.getUsers().forEach(user -> user.getRoles().remove(roleToRevoke));
+                         users.getUsers().forEach(user -> user.removeRole(roleToRevoke));
                      });
     }
 
     @Override
-    public void add(final MutableUser user)
+    public void add(final UserDto user)
     {
         modifyInLock(users ->
                      {
-                         final Set<MutableUser> currentUsers = users.getUsers();
+                         final Set<UserDto> currentUsers = users.getUsers();
                          if (!currentUsers.stream().filter(
                                  u -> u.getUsername().equals(user.getUsername())).findFirst().isPresent())
                          {
@@ -155,7 +154,7 @@ public class UserServiceImpl
     {
         modifyInLock(users ->
                      {
-                         final Set<MutableUser> currentUsers = users.getUsers();
+                         final Set<UserDto> currentUsers = users.getUsers();
                          currentUsers.stream().filter(u -> u.getUsername().equals(username)).findFirst().ifPresent(
                                  u -> currentUsers.remove(u));
                      });
@@ -163,18 +162,18 @@ public class UserServiceImpl
 
     @Override
     public void updateAccessModel(final String username,
-                                  final MutableAccessModel accessModel)
+                                  final UserAccessModelDto accessModel)
     {
         modifyInLock(users ->
                      {
-                         final Set<MutableUser> currentUsers = users.getUsers();
+                         final Set<UserDto> currentUsers = users.getUsers();
                          currentUsers.stream().filter(u -> u.getUsername().equals(username)).findFirst().ifPresent(
-                                 u -> u.setAccessModel(accessModel));
+                                 u -> u.setUserAccessModel(accessModel));
                      });
     }
 
     @Override
-    public void updatePassword(final MutableUser userToUpdate)
+    public void updatePassword(final UserDto userToUpdate)
     {
         modifyInLock(users ->
                      {
@@ -189,7 +188,7 @@ public class UserServiceImpl
     }
 
     @Override
-    public void updateByUsername(final MutableUser userToUpdate)
+    public void updateByUsername(final UserDto userToUpdate)
     {
         modifyInLock(users ->
                      {
@@ -201,14 +200,14 @@ public class UserServiceImpl
                                      user.setEnabled(userToUpdate.isEnabled());
                                      user.setRoles(userToUpdate.getRoles());
                                      user.setSecurityTokenKey(userToUpdate.getSecurityTokenKey());
-                                     user.setAccessModel(userToUpdate.getAccessModel());
+                                     user.setUserAccessModel(userToUpdate.getUserAccessModel());
                                  }
                          );
                      });
     }
 
     @Override
-    public void setUsers(final MutableUsers newUsers)
+    public void setUsers(final UsersDto newUsers)
     {
         modifyInLock(users ->
                      {
@@ -218,7 +217,7 @@ public class UserServiceImpl
     }
 
 
-    private void updatePassword(final MutableUser user,
+    private void updatePassword(final UserDto user,
                                 final String rawPassword)
     {
         if (StringUtils.isNotEmpty(rawPassword))
@@ -227,12 +226,12 @@ public class UserServiceImpl
         }
     }
 
-    private void modifyInLock(final Consumer<MutableUsers> operation)
+    private void modifyInLock(final Consumer<UsersDto> operation)
     {
         modifyInLock(operation, true);
     }
 
-    private void modifyInLock(final Consumer<MutableUsers> operation,
+    private void modifyInLock(final Consumer<UsersDto> operation,
                               final boolean storeInFile)
     {
         final Lock writeLock = usersLock.writeLock();
@@ -244,7 +243,7 @@ public class UserServiceImpl
 
             if (storeInFile)
             {
-                usersFileManager.store(UsersMapper.managementToSecurity(users));
+                usersFileManager.store(users);
             }
         }
         finally

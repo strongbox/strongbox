@@ -5,7 +5,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
+
+import org.apache.commons.collections.CollectionUtils;
 
 /**
  * @author mtodorov
@@ -38,4 +41,16 @@ public class UsersDto
         this.users = users;
     }
 
+    public Optional<UserDto> findByUserName(final String username)
+    {
+        if (CollectionUtils.isEmpty(users))
+        {
+            return Optional.empty();
+        }
+        if (username == null)
+        {
+            return Optional.empty();
+        }
+        return users.stream().filter(user -> username.equals(user.getUsername())).findFirst();
+    }
 }

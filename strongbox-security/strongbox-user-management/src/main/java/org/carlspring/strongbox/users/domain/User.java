@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.users.domain;
 
+import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserDto;
+
 import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.Set;
@@ -25,14 +28,14 @@ public class User
 
     private final AccessModel accessModel;
 
-    public User(final MutableUser other)
+    public User(final UserDto source)
     {
-        this.username = other.getUsername();
-        this.password = other.getPassword();
-        this.enabled = other.isEnabled();
-        this.roles = immuteRoles(other.getRoles());
-        this.securityTokenKey = other.getSecurityTokenKey();
-        this.accessModel = immuteAccessModel(other.getAccessModel());
+        this.username = source.getUsername();
+        this.password = source.getPassword();
+        this.enabled = source.isEnabled();
+        this.roles = immuteRoles(source.getRoles());
+        this.securityTokenKey = source.getSecurityTokenKey();
+        this.accessModel = immuteAccessModel(source.getUserAccessModel());
     }
 
     private Set<String> immuteRoles(final Set<String> source)
@@ -40,7 +43,7 @@ public class User
         return source != null ? ImmutableSet.copyOf(source) : Collections.emptySet();
     }
 
-    private AccessModel immuteAccessModel(final MutableAccessModel source)
+    private AccessModel immuteAccessModel(final UserAccessModelDto source)
     {
         return source != null ? new AccessModel(source) : null;
     }
@@ -53,11 +56,6 @@ public class User
     public String getPassword()
     {
         return password;
-    }
-
-    public boolean isEnabled()
-    {
-        return enabled;
     }
 
     public Set<String> getRoles()
@@ -73,5 +71,10 @@ public class User
     public AccessModel getAccessModel()
     {
         return accessModel;
+    }
+
+    public boolean isEnabled()
+    {
+        return enabled;
     }
 }

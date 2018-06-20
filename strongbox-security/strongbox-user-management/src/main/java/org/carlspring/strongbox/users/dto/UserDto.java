@@ -24,6 +24,9 @@ public class UserDto
     @XmlElement
     private String password;
 
+    @XmlElement
+    private boolean enabled = true;
+
     @XmlElement(name = "role")
     @XmlElementWrapper(name = "roles")
     private Set<String> roles = new HashSet<>();
@@ -65,7 +68,7 @@ public class UserDto
 
     public void setRoles(Set<String> roles)
     {
-        this.roles = roles;
+        this.roles = roles != null ? new HashSet<>(roles) : new HashSet<>();
     }
 
     public void addRole(String role)
@@ -101,6 +104,16 @@ public class UserDto
     public void setSecurityTokenKey(String securityTokenKey)
     {
         this.securityTokenKey = securityTokenKey;
+    }
+
+    public boolean isEnabled()
+    {
+        return enabled;
+    }
+
+    public void setEnabled(final boolean enabled)
+    {
+        this.enabled = enabled;
     }
 
     @Override

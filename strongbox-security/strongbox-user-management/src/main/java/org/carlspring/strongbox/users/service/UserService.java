@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.users.service;
 
-import org.carlspring.strongbox.users.domain.MutableAccessModel;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.domain.Users;
-import org.carlspring.strongbox.users.domain.MutableUser;
-import org.carlspring.strongbox.users.domain.MutableUsers;
+import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.UsersDto;
 
 import org.jose4j.lang.JoseException;
 
@@ -21,8 +21,7 @@ public interface UserService
      * Generates another one 'Security Token' for specific user.<br>
      * Token will be based on 'username' with 'securityTokenKey' used as clam.
      *
-     * @param username
-     *            user ID
+     * @param username user ID
      * @return encrypted token
      * @throws JoseException
      */
@@ -33,7 +32,7 @@ public interface UserService
      * Generates 'Authentication Token' for specific user.<br>
      * This token can be used for JWT Authentication.
      *
-     * @param username     user ID
+     * @param username      user ID
      * @param expireSeconds token expiration in seconds (endless if empty)
      * @return encrypted token
      * @throws JoseException
@@ -49,20 +48,20 @@ public interface UserService
     void verifySecurityToken(String username,
                              String token);
 
-    void updatePassword(MutableUser userToUpdate);
+    void updatePassword(UserDto userToUpdate);
 
-    void updateByUsername(MutableUser userToUpdate);
+    void updateByUsername(UserDto userToUpdate);
 
-    void setUsers(MutableUsers users);
+    void setUsers(UsersDto users);
 
     Users findAll();
 
     void revokeEveryone(String roleToRevoke);
 
-    void add(MutableUser user);
+    void add(UserDto user);
 
     void delete(String username);
 
     void updateAccessModel(String username,
-                           MutableAccessModel accessModel);
+                           UserAccessModelDto accessModel);
 }

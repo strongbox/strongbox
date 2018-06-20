@@ -4,11 +4,8 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.users.domain.MutableAccessModel;
-import org.carlspring.strongbox.users.domain.AccessModel;
-import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.users.domain.MutableUser;
+import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
@@ -176,7 +173,8 @@ public class UserControllerTestIT
         testCreateUser("test-create-text", MediaType.TEXT_PLAIN_VALUE);
     }
 
-    private void shouldNotBeAbleToCreateUserWithTheSameUsername(String username, String acceptHeader)
+    private void shouldNotBeAbleToCreateUserWithTheSameUsername(String username,
+                                                                String acceptHeader)
     {
         UserForm test = buildUser(username, "password");
 
@@ -710,7 +708,7 @@ public class UserControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                //2. Provide `securityTokenKey` to null
-               .body(buildFromUser(user, u->u.setSecurityTokenKey(null)))
+               .body(buildFromUser(user, u -> u.setSecurityTokenKey(null)))
                .when()
                .put(getContextBaseUrl() + "/user")
                .peek();
@@ -780,8 +778,10 @@ public class UserControllerTestIT
 
         UserForm test = buildUser(username, "password");
         test.setAccessModel(new AccessModelForm());
-        test.getAccessModel().getRepositoryPrivileges().put("/storages/storage0/releases", Lists.newArrayList("ARTIFACTS_RESOLVE"));
-        test.getAccessModel().getWildCardPrivilegesMap().put("/storages/storage0/releases/com/mycorp/.*", Lists.newArrayList("ARTIFACTS_RESOLVE"));
+        test.getAccessModel().getRepositoryPrivileges().put("/storages/storage0/releases",
+                                                            Lists.newArrayList("ARTIFACTS_RESOLVE"));
+        test.getAccessModel().getWildCardPrivilegesMap().put("/storages/storage0/releases/com/mycorp/.*",
+                                                             Lists.newArrayList("ARTIFACTS_RESOLVE"));
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -798,8 +798,8 @@ public class UserControllerTestIT
         displayAllUsers();
 
         // load user with custom access model
-        MutableUser user = getUser(username);
-        MutableAccessModel accessModel = user.getAccessModel();
+        UserOutput user = getUser(username);
+        AccessModelOutput accessModel = user.getAccessModel();
 
         assertNotNull(accessModel);
 
@@ -821,9 +821,9 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        MutableUser updatedUser = getUser(username);
+        UserOutput updatedUser = getUser(username);
 
-        MutableAccessModel updatedModel = updatedUser.getAccessModel();
+        AccessModelOutput updatedModel = updatedUser.getAccessModel();
         assertNotNull(updatedModel);
 
         logger.debug(updatedModel.toString());
@@ -840,8 +840,8 @@ public class UserControllerTestIT
         String username = "developer01";
 
         // load user with custom access model
-        MutableUser test = getUser(username);
-        AccessModelForm accessModel = buildFromAccessModel(new AccessModel(test.getAccessModel()));
+        UserOutput test = getUser(username);
+        AccessModelForm accessModel = buildFromAccessModel(test.getAccessModel());
 
         assertNotNull(accessModel);
 
@@ -868,8 +868,8 @@ public class UserControllerTestIT
     public void userNotExistingShouldNotUpdateAccessModel()
     {
         // load user with custom access model
-        MutableUser test = getUser("developer01");
-        AccessModelForm accessModel = buildFromAccessModel(new AccessModel(test.getAccessModel()));
+        UserOutput test = getUser("developer01");
+        AccessModelForm accessModel = buildFromAccessModel(test.getAccessModel());
 
         assertNotNull(accessModel);
 
@@ -896,7 +896,7 @@ public class UserControllerTestIT
     }
 
     // get user through REST API
-    private MutableUser getUser(String username)
+    private UserOutput getUser(String username)
     {
         return given().accept(MediaType.APPLICATION_JSON_VALUE)
                       .param("The name of the user", username)
@@ -905,7 +905,7 @@ public class UserControllerTestIT
                       .then()
                       .statusCode(HttpStatus.OK.value())
                       .extract()
-                      .as(MutableUser.class);
+                      .as(UserOutput.class);
     }
 
     // get user from DB/cache directly
@@ -933,7 +933,7 @@ public class UserControllerTestIT
         dto.setPassword(user.getPassword());
         dto.setEnabled(user.isEnabled());
         dto.setRoles(user.getRoles());
-        dto.setAccessModel(buildFromAccessModel(user.getAccessModel()));
+        dto.setAccessModel(buildFromAccessModel(new AccessModelOutput(user.getAccessModel())));
         dto.setSecurityTokenKey(user.getSecurityTokenKey());
 
         if (operation != null)
@@ -944,7 +944,7 @@ public class UserControllerTestIT
         return dto;
     }
 
-    private AccessModelForm buildFromAccessModel(AccessModel accessModel)
+    private AccessModelForm buildFromAccessModel(AccessModelOutput accessModel)
     {
         AccessModelForm dto = null;
         if (accessModel != null)
