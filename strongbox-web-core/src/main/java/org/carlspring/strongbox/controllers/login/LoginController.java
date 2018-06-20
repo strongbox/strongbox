@@ -90,7 +90,8 @@ public class LoginController
             logger.error("Unable to create JWT token.", e);
             return toResponseEntityError("Unable to create JWT token.", HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok().body(new LoginOutput(token));
+
+        return ResponseEntity.ok().body(new LoginOutput(token, authentication.getAuthorities()));
     }
 
 

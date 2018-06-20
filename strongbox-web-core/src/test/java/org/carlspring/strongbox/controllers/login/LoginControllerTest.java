@@ -9,6 +9,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 
 /**
  * @author Przemyslaw Fusik
@@ -36,6 +38,7 @@ public class LoginControllerTest
                           .peek()
                           .then()
                           .body("token", CoreMatchers.any(String.class))
+                          .body("authorities", hasSize(greaterThan(0)))
                           .statusCode(200);
     }
 
