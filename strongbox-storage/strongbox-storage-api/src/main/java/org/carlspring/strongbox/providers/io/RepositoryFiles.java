@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.io;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,6 +60,12 @@ public abstract class RepositoryFiles
                                                         formatAttributes(RepositoryFileAttributeType.COORDINATES));
     }
 
+    public static URL readResourceUrl(RepositoryPath path)
+        throws IOException
+    {
+        return (URL) Files.getAttribute(path, formatAttributes(RepositoryFileAttributeType.RESOURCE_URL));
+    }
+    
     public static String formatAttributes(RepositoryFileAttributeType... attributeTypes)
     {
         if (attributeTypes == null)

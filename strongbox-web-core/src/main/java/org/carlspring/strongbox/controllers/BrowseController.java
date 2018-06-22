@@ -1,19 +1,20 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.data.PropertyUtils;
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.services.DirectoryListingService;
+import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
@@ -50,9 +51,15 @@ public class BrowseController extends BaseArtifactController
     @Inject
     private ObjectMapper objectMapper;
 
-    @Inject
-    private ArtifactResolutionService artifactResolutionService;
-
+    private volatile DirectoryListingService directoryListingService;
+    
+    public DirectoryListingService getDirectoryListingService() {
+        return Optional.ofNullable(directoryListingService).orElseGet(() -> {
+            String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
+            return directoryListingService = new DirectoryListingServiceImpl(String.format("%s/api/browse", baseUrl));
+        });
+    }
+    
     @ApiOperation(value = "List configured storages.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
@@ -64,10 +71,10 @@ public class BrowseController extends BaseArtifactController
                            @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String acceptHeader)
     {
         logger.debug("Requested browsing for storages");
-
+        
         try
         {
-            DirectoryListing directoryListing = DirectoryListing.fromStorages(configurationManager.getConfiguration().getStorages());
+            DirectoryListing directoryListing = getDirectoryListingService().fromStorages(configurationManager.getConfiguration().getStorages());
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {
@@ -111,7 +118,7 @@ public class BrowseController extends BaseArtifactController
                 return getNotFoundResponseEntity("The requested storage was not found.", acceptHeader);
             }
 
-            DirectoryListing directoryListing = DirectoryListing.fromRepositories(storage.getRepositories());
+            DirectoryListing directoryListing = getDirectoryListingService().fromRepositories(storage.getRepositories());
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {
@@ -181,16 +188,18 @@ public class BrowseController extends BaseArtifactController
                 return getNotFoundResponseEntity("Requested repository doesn't allow browsing.", acceptHeader);
             }
 
-            Path vaultPath = Paths.get(PropertyUtils.getVaultDirectory());
-            DirectoryListing directoryListing = DirectoryListing.fromPath(vaultPath, repositoryPath);
+            DirectoryListing directoryListing = getDirectoryListingService().fromRepositoryPath(repositoryPath);
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {
                 return ResponseEntity.ok(objectMapper.writer().writeValueAsString(directoryListing));
             }
-
+            
+            URL resourceUrl = RepositoryFiles.readResourceUrl(repositoryPath);
+            
+            String downloadBaseUrl = StringUtils.chomp(resourceUrl.toString(), "/");
             String currentUrl = StringUtils.chomp(request.getRequestURI(), "/");
-            String downloadBaseUrl = StringUtils.chomp(artifactResolutionService.resolveResource(repositoryPath).toString(), "/");
+            
 
             model.addAttribute("currentUrl", currentUrl);
             model.addAttribute("downloadBaseUrl", downloadBaseUrl);

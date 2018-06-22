@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.domain;
 
+import java.net.URL;
 import java.util.Date;
 
 public class FileContent
@@ -15,6 +16,8 @@ public class FileContent
     private String repositoryId;
 
     private String artifactPath;
+
+    private URL url;
 
     public FileContent()
     {
@@ -85,5 +88,15 @@ public class FileContent
     {
         this.artifactPath = artifactPath;
     }
-}
 
+    public URL getUrl()
+    {
+        return url;
+    }
+
+    public void setUrl(URL url)
+    {
+        this.url = url;
+    }
+
+}

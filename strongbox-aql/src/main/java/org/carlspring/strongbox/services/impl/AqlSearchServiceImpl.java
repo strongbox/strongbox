@@ -7,6 +7,7 @@ import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.dependency.snippet.CodeSnippet;
 import org.carlspring.strongbox.dependency.snippet.SnippetGenerator;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.AqlSearchService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -59,7 +60,7 @@ public class AqlSearchServiceImpl implements AqlSearchService
 
             Repository repository = repositoryPath.getRepository();
 
-            URL artifactResource = artifactResolutionService.resolveResource(repositoryPath);
+            URL artifactResource = RepositoryFiles.readResourceUrl(repositoryPath);
             r.setUrl(artifactResource.toString());
 
             List<CodeSnippet> snippets = snippetGenerator.generateSnippets(repository.getLayout(),

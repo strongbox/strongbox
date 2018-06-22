@@ -86,24 +86,6 @@ public class ArtifactResolutionServiceImpl
     }
 
     @Override
-    public URL resolveResource(RepositoryPath repositoryPath)
-            throws IOException
-    {
-        URI baseUri = configurationManager.getBaseUri();
-
-        Repository repository = repositoryPath.getRepository();
-        Storage storage = repository.getStorage();
-        URI artifactResource = RepositoryFiles.resolveResource(repositoryPath);
-
-        return UriComponentsBuilder.fromUri(baseUri)
-                                   .pathSegment("storages", storage.getId(), repository.getId(), "/")
-                                   .build()
-                                   .toUri()
-                                   .resolve(artifactResource)
-                                   .toURL();
-    }
-    
-    @Override
     public RepositoryPath resolvePath(String storageId,
                                       String repositoryId,
                                       String artifactPath) 
