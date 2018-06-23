@@ -959,7 +959,7 @@
                                 </systemProperty>
                             </systemProperties>
 
-                            <!-- Restore the following for SSL/HTTPSL when the time comes:
+                            <!-- Restore the following for SSL/HTTPS when the time comes:
                             <jettyXml>${dir.jetty.etc}/jetty.xml,${dir.jetty.etc}/jetty-http.xml,${dir.jetty.etc}/jetty-ssl.xml,${dir.jetty.etc}/jetty-https.xml</jettyXml>
                             -->
                             <jettyXml>${dir.jetty.etc}/jetty.xml,${dir.jetty.etc}/jetty-http.xml</jettyXml>
