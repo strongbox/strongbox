@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.authorization.util;
 
-
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
 
 import java.util.ArrayList;
