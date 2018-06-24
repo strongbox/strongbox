@@ -49,6 +49,7 @@ public class AccessModel
                                                                                               storage.getStorageId(),
                                                                                               repository)));
         }
+        
         this.repositoryPrivileges = immutePrivilegesMap(repositoryPrivileges);
         this.urlToPrivilegesMap = immutePrivilegesMap(urlToPrivilegesMap);
         this.wildCardPrivilegesMap = immutePrivilegesMap(wildCardPrivilegesMap);
@@ -122,13 +123,11 @@ public class AccessModel
         }
     }
 
-
     private Map<String, Collection<String>> immutePrivilegesMap(final Map<String, Collection<String>> source)
     {
         return source != null ? ImmutableMap.copyOf(source.entrySet().stream().collect(
                 toMap(Map.Entry::getKey, e -> ImmutableList.copyOf(e.getValue())))) : Collections.emptyMap();
     }
-
 
     public Collection<String> getPathPrivileges(String url)
     {
@@ -177,4 +176,5 @@ public class AccessModel
     {
         return wildCardPrivilegesMap;
     }
+    
 }
