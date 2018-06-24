@@ -4,7 +4,6 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
@@ -12,6 +11,8 @@ import org.carlspring.strongbox.users.service.UserService;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -172,7 +173,8 @@ public class UserControllerTestIT
         testCreateUser("test-create-text", MediaType.TEXT_PLAIN_VALUE);
     }
 
-    private void shouldNotBeAbleToCreateUserWithTheSameUsername(String username, String acceptHeader)
+    private void shouldNotBeAbleToCreateUserWithTheSameUsername(String username,
+                                                                String acceptHeader)
     {
         UserForm test = buildUser(username, "password");
 
@@ -243,16 +245,12 @@ public class UserControllerTestIT
 
         // retrieve newly created user and store the objectId
         User createdUser = retrieveUserByName(test.getUsername());
-        assertNotNull("Created user should have objectId", createdUser.getObjectId());
         assertEquals(username, createdUser.getUsername());
-
-        // update some property for user
-        createdUser.setEnabled(true);
 
         logger.info("Users before update: ->>>>>> ");
         displayAllUsers();
 
-        UserForm updatedUser = buildFromUser(createdUser);
+        UserForm updatedUser = buildFromUser(createdUser, u -> u.setEnabled(true));
 
         // send update request
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -389,7 +387,7 @@ public class UserControllerTestIT
     private void userShouldNotBeAbleToChangeSomeoneElsePasswordToNull(String acceptHeader)
     {
         User mavenUser = retrieveUserByName("maven");
-        UserForm input = buildFromUser(mavenUser);
+        UserForm input = buildFromUser(mavenUser, null);
         input.setPassword(null);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -424,7 +422,7 @@ public class UserControllerTestIT
     private void userShouldNotBeAbleToChangeSomeoneElsePasswordToEmpty(String acceptHeader)
     {
         User mavenUser = retrieveUserByName("maven");
-        UserForm input = buildFromUser(mavenUser);
+        UserForm input = buildFromUser(mavenUser, null);
         input.setPassword("");
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -546,7 +544,9 @@ public class UserControllerTestIT
         // display all current users
         logger.info("All current users:");
         userService.findAll()
-                   .ifPresent(users -> users.forEach(user -> logger.info(user.toString())));
+                   .getUsers()
+                   .stream()
+                   .forEach(user -> logger.info(user.toString()));
     }
 
     @Test
@@ -589,7 +589,18 @@ public class UserControllerTestIT
         assertEquals(username, updatedUser.getUsername());
         assertTrue(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
 
-        updatedUser.setPassword(initialPassword);
+        // rollback
+        developer01 = buildUser(username, initialPassword);
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(developer01)
+               .when()
+               .put(getContextBaseUrl() + "/user")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(containsString(SUCCESSFUL_UPDATE_USER));
     }
 
     @Test
@@ -642,9 +653,8 @@ public class UserControllerTestIT
                .asString();
 
         User user = retrieveUserByName(input.getUsername());
-        assertNotNull("Created user should have objectId", user.getObjectId());
 
-        UserForm updatedUser = buildFromUser(user);
+        UserForm updatedUser = buildFromUser(user, null);
         updatedUser.setSecurityTokenKey("seecret");
 
         //2. Provide `securityTokenKey`
@@ -694,13 +704,11 @@ public class UserControllerTestIT
                .asString();
 
         User user = retrieveUserByName(input.getUsername());
-        assertNotNull("Created user should have objectId", user.getObjectId());
 
-        //2. Provide `securityTokenKey` to null
-        user.setSecurityTokenKey(null);
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
-               .body(buildFromUser(user))
+               //2. Provide `securityTokenKey` to null
+               .body(buildFromUser(user, u -> u.setSecurityTokenKey(null)))
                .when()
                .put(getContextBaseUrl() + "/user")
                .peek();
@@ -770,8 +778,10 @@ public class UserControllerTestIT
 
         UserForm test = buildUser(username, "password");
         test.setAccessModel(new AccessModelForm());
-        test.getAccessModel().getRepositoryPrivileges().put("/storages/storage0/releases", Lists.newArrayList("ARTIFACTS_RESOLVE"));
-        test.getAccessModel().getWildCardPrivilegesMap().put("/storages/storage0/releases/com/mycorp/.*", Lists.newArrayList("ARTIFACTS_RESOLVE"));
+        test.getAccessModel().getRepositoryPrivileges().put("/storages/storage0/releases",
+                                                            Lists.newArrayList("ARTIFACTS_RESOLVE"));
+        test.getAccessModel().getWildCardPrivilegesMap().put("/storages/storage0/releases/com/mycorp/.*",
+                                                             Lists.newArrayList("ARTIFACTS_RESOLVE"));
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -788,8 +798,8 @@ public class UserControllerTestIT
         displayAllUsers();
 
         // load user with custom access model
-        User user = getUser(username);
-        AccessModel accessModel = user.getAccessModel();
+        UserOutput user = getUser(username);
+        AccessModelOutput accessModel = user.getAccessModel();
 
         assertNotNull(accessModel);
 
@@ -803,17 +813,17 @@ public class UserControllerTestIT
         final String mockPrivilege = Privileges.ARTIFACTS_DELETE.toString();
         accessModel.getUrlToPrivilegesMap().put(mockUrl, Collections.singletonList(mockPrivilege));
 
-        User updatedUser = given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                                  .accept(MediaType.APPLICATION_JSON_VALUE)
-                                  .body(accessModel)
-                                  .put(getContextBaseUrl() + "/user/{username}/access-model", username)
-                                  .peek() // Use peek() to print the output
-                                  .then()
-                                  .statusCode(HttpStatus.OK.value()) // check http status code
-                                  .extract()
-                                  .as(User.class);
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(accessModel)
+               .put(getContextBaseUrl() + "/user/{username}/access-model", username)
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.OK.value());
 
-        AccessModel updatedModel = updatedUser.getAccessModel();
+        UserOutput updatedUser = getUser(username);
+
+        AccessModelOutput updatedModel = updatedUser.getAccessModel();
         assertNotNull(updatedModel);
 
         logger.debug(updatedModel.toString());
@@ -830,7 +840,7 @@ public class UserControllerTestIT
         String username = "developer01";
 
         // load user with custom access model
-        User test = getUser(username);
+        UserOutput test = getUser(username);
         AccessModelForm accessModel = buildFromAccessModel(test.getAccessModel());
 
         assertNotNull(accessModel);
@@ -858,7 +868,7 @@ public class UserControllerTestIT
     public void userNotExistingShouldNotUpdateAccessModel()
     {
         // load user with custom access model
-        User test = getUser("developer01");
+        UserOutput test = getUser("developer01");
         AccessModelForm accessModel = buildFromAccessModel(test.getAccessModel());
 
         assertNotNull(accessModel);
@@ -886,7 +896,7 @@ public class UserControllerTestIT
     }
 
     // get user through REST API
-    private User getUser(String username)
+    private UserOutput getUser(String username)
     {
         return given().accept(MediaType.APPLICATION_JSON_VALUE)
                       .param("The name of the user", username)
@@ -895,7 +905,7 @@ public class UserControllerTestIT
                       .then()
                       .statusCode(HttpStatus.OK.value())
                       .extract()
-                      .as(User.class);
+                      .as(UserOutput.class);
     }
 
     // get user from DB/cache directly
@@ -915,27 +925,34 @@ public class UserControllerTestIT
         return test;
     }
 
-    private UserForm buildFromUser(User user)
+    private UserForm buildFromUser(User user,
+                                   Consumer<UserForm> operation)
     {
         UserForm dto = new UserForm();
         dto.setUsername(user.getUsername());
         dto.setPassword(user.getPassword());
         dto.setEnabled(user.isEnabled());
         dto.setRoles(user.getRoles());
-        dto.setAccessModel(buildFromAccessModel(user.getAccessModel()));
+        dto.setAccessModel(buildFromAccessModel(new AccessModelOutput(user.getAccessModel())));
         dto.setSecurityTokenKey(user.getSecurityTokenKey());
+
+        if (operation != null)
+        {
+            operation.accept(dto);
+        }
+
         return dto;
     }
 
-    private AccessModelForm buildFromAccessModel(AccessModel accessModel)
+    private AccessModelForm buildFromAccessModel(AccessModelOutput accessModel)
     {
         AccessModelForm dto = null;
         if (accessModel != null)
         {
             dto = new AccessModelForm();
-            dto.setRepositoryPrivileges(accessModel.getRepositoryPrivileges());
-            dto.setUrlToPrivilegesMap(accessModel.getUrlToPrivilegesMap());
-            dto.setWildCardPrivilegesMap(accessModel.getWildCardPrivilegesMap());
+            dto.setRepositoryPrivileges(new HashMap<>(accessModel.getRepositoryPrivileges()));
+            dto.setUrlToPrivilegesMap(new HashMap<>(accessModel.getUrlToPrivilegesMap()));
+            dto.setWildCardPrivilegesMap(new HashMap<>(accessModel.getWildCardPrivilegesMap()));
         }
         return dto;
     }

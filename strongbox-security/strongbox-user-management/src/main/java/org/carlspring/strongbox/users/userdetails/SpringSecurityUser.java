@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.users.userdetails;
 
 import org.carlspring.strongbox.users.domain.AccessModel;
-import org.carlspring.strongbox.users.domain.User;
 
 import java.util.Collection;
 
@@ -9,9 +8,6 @@ import com.google.common.base.Objects;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-/**
- * A wrapper of {@link User} that is used by Spring Security
- */
 public class SpringSecurityUser
         implements UserDetails
 {
@@ -27,7 +23,7 @@ public class SpringSecurityUser
     private AccessModel accessModel;
 
     private String url;
-    
+
     private String securityKey;
 
     SpringSecurityUser()

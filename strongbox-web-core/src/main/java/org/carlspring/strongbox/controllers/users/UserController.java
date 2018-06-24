@@ -3,18 +3,21 @@ package org.carlspring.strongbox.controllers.users;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
-import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.springframework.core.convert.ConversionService;
@@ -28,7 +31,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author Pablo Tirado
@@ -39,35 +51,35 @@ import org.springframework.web.bind.annotation.*;
 public class UserController
         extends BaseController
 {
-    
+
     static final String SUCCESSFUL_CREATE_USER = "The user was created successfully.";
-    
+
     static final String FAILED_CREATE_USER = "User cannot be created because the submitted form contains errors!";
 
     static final String SUCCESSFUL_GET_USER = "User was retrieved successfully.";
-    
+
     static final String NOT_FOUND_USER = "The specified user does not exist!";
 
     static final String SUCCESSFUL_GET_USERS = "Users were retrieved successfully.";
 
     static final String SUCCESSFUL_UPDATE_USER = "The user was updated successfully.";
-    
+
     static final String FAILED_UPDATE_USER = "User cannot be updated because the submitted form contains errors!";
 
     static final String SUCCESSFUL_DELETE_USER = "The user was deleted.";
-    
+
     static final String FAILED_DELETE_USER = "Could not delete the user.";
-    
+
     static final String FAILED_DELETE_SAME_USER = "Unable to delete yourself";
 
     static final String SUCCESSFUL_GENERATE_SECURITY_TOKEN = "The security token was generated.";
-    
+
     static final String FAILED_GENERATE_SECURITY_TOKEN = "Failed to generate SecurityToken";
 
     static final String SUCCESSFUL_GENERATE_AUTH_TOKEN = "The authentication token was generated.";
 
     static final String SUCCESSFUL_UPDATE_ACCESS_MODEL = "The custom access model was updated.";
-    
+
     static final String FAILED_UPDATE_ACCESS_MODEL = "Could not update the access model.";
 
     @Inject
@@ -75,8 +87,8 @@ public class UserController
 
     @Inject
     private ConversionService conversionService;
-    
-    
+
+
     /**
      * This method exists for testing purposes.
      */
@@ -84,8 +96,8 @@ public class UserController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
     @PreAuthorize("authenticated")
     @GetMapping(value = "/{anyString}",
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity greet(@PathVariable String anyString,
                                 @ApiParam(value = "The param name", required = true)
@@ -93,7 +105,7 @@ public class UserController
                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         logger.debug("Say hello to {}. Path variable: {}", param, anyString);
-        
+
         return getSuccessfulResponseEntity("hello, " + param, accept);
     }
 
@@ -102,9 +114,9 @@ public class UserController
                             @ApiResponse(code = 400, message = FAILED_CREATE_USER) })
     @PreAuthorize("hasAuthority('CREATE_USER')")
     @PostMapping(value = "/user",
-                 consumes = MediaType.APPLICATION_JSON_VALUE,
-                 produces = { MediaType.TEXT_PLAIN_VALUE,
-                              MediaType.APPLICATION_JSON_VALUE })
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity create(@RequestBody @Validated(UserForm.NewUser.class) UserForm userForm,
                                  BindingResult bindingResult,
@@ -115,8 +127,8 @@ public class UserController
             throw new RequestBodyValidationException(FAILED_CREATE_USER, bindingResult);
         }
 
-        User user = conversionService.convert(userForm, User.class);
-        userService.save(user);
+        UserDto user = conversionService.convert(userForm, UserDto.class);
+        userService.add(user);
 
         return getSuccessfulResponseEntity(SUCCESSFUL_CREATE_USER, accept);
     }
@@ -126,8 +138,8 @@ public class UserController
                             @ApiResponse(code = 404, message = NOT_FOUND_USER) })
     @PreAuthorize("hasAuthority('VIEW_USER') || #name == principal.username")
     @GetMapping(value = "user/{name}",
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity getUser(@ApiParam(value = "The name of the user", required = true) @PathVariable String name,
                                   @RequestHeader(HttpHeaders.ACCEPT) String accept)
@@ -147,12 +159,12 @@ public class UserController
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_USERS) })
     @PreAuthorize("hasAuthority('VIEW_USER')")
     @GetMapping(value = "/all",
-                produces = { MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity getUsers()
     {
         List<UserOutput> users = userService.findAll()
-                                            .orElse(Collections.emptyList())
+                                            .getUsers()
                                             .stream()
                                             .map(UserOutput::fromUser).collect(Collectors.toList());
 
@@ -164,9 +176,9 @@ public class UserController
                             @ApiResponse(code = 400, message = FAILED_UPDATE_USER) })
     @PreAuthorize("hasAuthority('UPDATE_USER') || #userToUpdate.username == principal.username")
     @PutMapping(value = "user",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity update(@RequestBody @Validated(UserForm.ExistingUser.class) UserForm userToUpdate,
                                  BindingResult bindingResult,
@@ -184,7 +196,7 @@ public class UserController
             return getFailedResponseEntity(HttpStatus.BAD_REQUEST, message, accept);
         }
 
-        User user = conversionService.convert(userToUpdate, User.class);
+        UserDto user = conversionService.convert(userToUpdate, UserDto.class);
         final SpringSecurityUser loggedUser = (SpringSecurityUser) authentication.getPrincipal();
         if (StringUtils.equals(loggedUser.getUsername(), user.getUsername()))
         {
@@ -204,8 +216,8 @@ public class UserController
                             @ApiResponse(code = 404, message = NOT_FOUND_USER) })
     @PreAuthorize("hasAuthority('DELETE_USER')")
     @DeleteMapping(value = "user/{name}",
-                   produces = { MediaType.TEXT_PLAIN_VALUE,
-                                MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity delete(@ApiParam(value = "The name of the user") @PathVariable String name,
                                  Authentication authentication,
@@ -224,12 +236,12 @@ public class UserController
         }
 
         User user = userService.findByUserName(name);
-        if (user == null || user.getObjectId() == null)
+        if (user == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);
         }
 
-        userService.delete(user.getObjectId());
+        userService.delete(user.getUsername());
 
         return getSuccessfulResponseEntity(SUCCESSFUL_DELETE_USER, accept);
     }
@@ -240,14 +252,14 @@ public class UserController
                             @ApiResponse(code = 404, message = NOT_FOUND_USER) })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @GetMapping(value = "user/{username}/generate-security-token",
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String username,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws JoseException
     {
         User user = userService.findByUserName(username);
-        if (user == null || user.getObjectId() == null)
+        if (user == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);
         }
@@ -257,12 +269,12 @@ public class UserController
         {
             String message = String.format("Failed to generate SecurityToken, probably you should first set " +
                                            "SecurityTokenKey for the user: %s", username);
-                                           
+
             return getFailedResponseEntity(HttpStatus.BAD_REQUEST, message, accept);
         }
 
         Object body = getTokenEntityBody(securityToken, accept);
-        
+
         return ResponseEntity.ok(body);
     }
 
@@ -270,8 +282,8 @@ public class UserController
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GENERATE_AUTH_TOKEN) })
     @PreAuthorize("authenticated")
     @GetMapping(value = "user/authenticate",
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity authenticate(@RequestParam(name = "expireSeconds", required = false) Integer expireSeconds,
                                        @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws JoseException
@@ -282,7 +294,7 @@ public class UserController
         String authToken = userService.generateAuthenticationToken(username, expireSeconds);
 
         Object body = getTokenEntityBody(authToken, accept);
-        
+
         return ResponseEntity.ok(body);
     }
 
@@ -292,9 +304,9 @@ public class UserController
                             @ApiResponse(code = 404, message = NOT_FOUND_USER) })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @PutMapping(value = "user/{username}/access-model",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity updateAccessModel(@ApiParam(value = "The name of the user") @PathVariable String username,
                                             @RequestBody @Validated AccessModelForm accessModelForm,
                                             BindingResult bindingResult,
@@ -306,18 +318,14 @@ public class UserController
         }
 
         User user = userService.findByUserName(username);
-        if (user == null || user.getObjectId() == null)
+        if (user == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);
         }
 
-        AccessModel accessModel = conversionService.convert(accessModelForm, AccessModel.class);
-        user.setAccessModel(accessModel);
-        userService.save(user);
+        userService.updateAccessModel(username, accessModelForm.toDto());
 
-        Object body = getUserEntityBody(user, accept);
-        
-        return ResponseEntity.ok(body);
+        return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE_USER, accept);
     }
 
     private Object getUserOutputEntityBody(UserOutput userOutput,
@@ -330,19 +338,6 @@ public class UserController
         else
         {
             return String.valueOf(userOutput);
-        }
-    }
-
-    private Object getUserEntityBody(User user,
-                                     String accept)
-    {
-        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
-        {
-            return user;
-        }
-        else
-        {
-            return String.valueOf(user);
         }
     }
 

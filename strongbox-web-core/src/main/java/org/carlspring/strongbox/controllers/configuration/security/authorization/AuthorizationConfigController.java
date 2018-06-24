@@ -3,22 +3,16 @@ package org.carlspring.strongbox.controllers.configuration.security.authorizatio
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
-import org.carlspring.strongbox.forms.RoleListForm;
-import org.carlspring.strongbox.security.Privilege;
-import org.carlspring.strongbox.security.Role;
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.security.AuthorizationConfig;
-import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
+import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
+import org.carlspring.strongbox.authorization.dto.RoleDto;
+import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
+import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import io.swagger.annotations.Api;
@@ -26,7 +20,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.cache.CacheManager;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.http.HttpHeaders;
@@ -77,13 +70,10 @@ public class AuthorizationConfigController
     static final String AUTHORIZATION_CONFIG_NOT_FOUND = "Unable to locate AuthorizationConfig to update...";
 
     @Inject
-    private AuthorizationConfigProvider configProvider;
+    private AuthorizationConfigService authorizationConfigService;
 
     @Inject
     private UserService userService;
-
-    @Inject
-    private CacheManager cacheManager;
 
     @Inject
     private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
@@ -93,13 +83,13 @@ public class AuthorizationConfigController
 
     @ApiOperation(value = "Used to add new roles")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = SUCCESSFUL_ADD_ROLE),
+            message = SUCCESSFUL_ADD_ROLE),
                             @ApiResponse(code = 400,
-                                         message = FAILED_ADD_ROLE) })
+                                    message = FAILED_ADD_ROLE) })
     @PostMapping(value = "/role",
-                 consumes = MediaType.APPLICATION_JSON_VALUE,
-                 produces = { MediaType.TEXT_PLAIN_VALUE,
-                              MediaType.APPLICATION_JSON_VALUE })
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addRole(@RequestBody @Validated RoleForm roleForm,
                                   BindingResult bindingResult,
                                   @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -109,78 +99,61 @@ public class AuthorizationConfigController
             throw new RequestBodyValidationException(FAILED_ADD_ROLE, bindingResult);
         }
 
-        Role role = conversionService.convert(roleForm, Role.class);
+        RoleDto role = conversionService.convert(roleForm, RoleDto.class);
 
-        return processConfig(config -> addRole(config, role), () -> SUCCESSFUL_ADD_ROLE, acceptHeader);
-    }
+        authorizationConfigService.addRole(role);
 
-    private void addRole(AuthorizationConfig config,
-                         Role role)
-    {
-
-        boolean result = config.getRoles()
-                               .add(role);
-
-        if (result)
-        {
-            configProvider.save(config);
-        }
+        return processConfig(() -> SUCCESSFUL_ADD_ROLE, acceptHeader);
     }
 
     @ApiOperation(value = "Retrieves the strongbox-authorization.xml configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = SUCCESSFUL_GET_CONFIG),
+            message = SUCCESSFUL_GET_CONFIG),
                             @ApiResponse(code = 500,
-                                         message = FAILED_GET_CONFIG) })
+                                    message = FAILED_GET_CONFIG) })
     @GetMapping(value = "/xml",
-                produces = { MediaType.APPLICATION_XML_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.APPLICATION_XML_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getAuthorizationConfig(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        return processConfig(null, null, acceptHeader);
+        return processConfig(null, acceptHeader);
     }
 
     @ApiOperation(value = "Deletes a role by name.",
-                  position = 3)
+            position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = SUCCESSFUL_DELETE_ROLE),
+            message = SUCCESSFUL_DELETE_ROLE),
                             @ApiResponse(code = 400,
-                                         message = FAILED_DELETE_ROLE)
+                                    message = FAILED_DELETE_ROLE)
     })
     @DeleteMapping(value = "/role/{name}",
-                   produces = { MediaType.TEXT_PLAIN_VALUE,
-                                MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity deleteRole(@ApiParam(value = "The name of the role",
-                                               required = true)
+            required = true)
                                      @PathVariable("name") String name,
                                      @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        return processConfig(config -> deleteRole(config, name), () -> SUCCESSFUL_DELETE_ROLE, acceptHeader);
+
+        try
+        {
+            deleteRole(name);
+        }
+        catch (RuntimeException e)
+        {
+            String message = e.getMessage();
+            return getExceptionResponseEntity(HttpStatus.BAD_REQUEST, message, e, acceptHeader);
+        }
+
+        return processConfig(() -> SUCCESSFUL_DELETE_ROLE, acceptHeader);
     }
 
-    private void deleteRole(AuthorizationConfig config,
-                            String name)
+    private void deleteRole(String name)
     {
-        // find Privilege by name
-        Role target = null;
-        for (Role role : config.getRoles())
+        if (authorizationConfigService.deleteRole(name))
         {
-            if (role.getName()
-                    .equalsIgnoreCase(name))
-            {
-                target = role;
-                break;
-            }
-        }
-        if (target != null)
-        {
-            // revoke role from current config
-            config.getRoles()
-                  .remove(target);
-            configProvider.save(config);
-
             // revoke role from every user that exists in the system
-            getAllUsers().forEach(user ->user.getRoles().remove(name.toUpperCase()));
+            userService.revokeEveryone(name.toUpperCase());
         }
         else
         {
@@ -191,13 +164,13 @@ public class AuthorizationConfigController
 
     @ApiOperation(value = "Used to assign privileges to the anonymous user")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = SUCCESSFUL_ASSIGN_PRIVILEGES),
+            message = SUCCESSFUL_ASSIGN_PRIVILEGES),
                             @ApiResponse(code = 400,
-                                         message = FAILED_ASSIGN_PRIVILEGES) })
+                                    message = FAILED_ASSIGN_PRIVILEGES) })
     @PostMapping(value = "/anonymous/privileges",
-                 consumes = MediaType.APPLICATION_JSON_VALUE,
-                 produces = { MediaType.TEXT_PLAIN_VALUE,
-                              MediaType.APPLICATION_JSON_VALUE })
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addPrivilegesToAnonymous(@RequestBody @Validated PrivilegeListForm privilegeListForm,
                                                    BindingResult bindingResult,
                                                    @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -208,113 +181,56 @@ public class AuthorizationConfigController
         }
 
         TypeDescriptor sourceType = TypeDescriptor.valueOf(PrivilegeListForm.class);
-        TypeDescriptor targetType = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(Privilege.class));
-        List<Privilege> privilegeList = (List<Privilege>) conversionService.convert(privilegeListForm,
-                                                                                    sourceType,
-                                                                                    targetType);
+        TypeDescriptor targetType = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(PrivilegeDto.class));
+        List<PrivilegeDto> privilegeList = (List<PrivilegeDto>) conversionService.convert(privilegeListForm,
+                                                                                          sourceType,
+                                                                                          targetType);
 
-        return processConfig(config -> Objects.requireNonNull(privilegeList).forEach(this::addAnonymousAuthority),
-                             () -> SUCCESSFUL_ASSIGN_PRIVILEGES, acceptHeader);
+        authorizationConfigService.addPrivilegesToAnonymous(privilegeList);
+        addAnonymousAuthority(privilegeList);
+
+        return processConfig(() -> SUCCESSFUL_ASSIGN_PRIVILEGES, acceptHeader);
     }
 
-
-    @ApiOperation(value = "Used to assign roles to the anonymous user")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = SUCCESSFUL_ASSIGN_ROLES),
-                            @ApiResponse(code = 400,
-                                         message = FAILED_ASSIGN_ROLES) })
-    @PostMapping(value = "/anonymous/roles",
-                 consumes = MediaType.APPLICATION_JSON_VALUE,
-                 produces = { MediaType.TEXT_PLAIN_VALUE,
-                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addRolesToAnonymous(@RequestBody @Validated RoleListForm roleListForm,
-                                              BindingResult bindingResult,
-                                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
-    {
-        if (bindingResult.hasErrors())
-        {
-            throw new RequestBodyValidationException(FAILED_ASSIGN_ROLES, bindingResult);
-        }
-
-        TypeDescriptor sourceType = TypeDescriptor.valueOf(RoleListForm.class);
-        TypeDescriptor targetType = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(Role.class));
-        List<Role> roleList = (List<Role>) conversionService.convert(roleListForm,
-                                                                     sourceType,
-                                                                     targetType);
-
-        return processConfig(config -> addRolesToAnonymous(config, Objects.requireNonNull(roleList)),
-                             () -> SUCCESSFUL_ASSIGN_ROLES,
-                             acceptHeader);
-    }
-
-    private void addRolesToAnonymous(AuthorizationConfig config,
-                                     List<Role> roles)
-    {
-        roles.forEach(role -> config.getRoles()
-                                    .stream()
-                                    .filter(role1 -> role1.getName().equalsIgnoreCase(role.getName()))
-                                    .forEach(foundedRole -> foundedRole.getPrivileges()
-                                                                       .forEach(this::addAnonymousAuthority)));
-
-    }
-
-    private ResponseEntity processConfig(Consumer<AuthorizationConfig> authorizationConfigOperation,
-                                         Supplier<String> successMessage,
+    private ResponseEntity processConfig(Supplier<String> successMessage,
                                          String acceptHeader)
     {
-        return processConfig(authorizationConfigOperation, successMessage, ResponseEntity::ok, acceptHeader);
+        return processConfig(successMessage, ResponseEntity::ok, acceptHeader);
     }
 
-    private ResponseEntity processConfig(Consumer<AuthorizationConfig> authorizationConfigOperation,
-                                         Supplier<String> successMessage,
+    private ResponseEntity processConfig(Supplier<String> successMessage,
                                          CustomSuccessResponseBuilder customSuccessResponseBuilder,
                                          String acceptHeader)
     {
-        Optional<AuthorizationConfig> configOptional = configProvider.get();
-
-        if (configOptional.isPresent())
+        try
         {
-            try
+            if (successMessage != null)
             {
-                AuthorizationConfig config = configOptional.get();
+                return getSuccessfulResponseEntity(successMessage.get(), acceptHeader);
 
-                if (authorizationConfigOperation != null)
-                {
-                    authorizationConfigOperation.accept(config);
-                }
-
-                if (successMessage != null)
-                {
-                    return getSuccessfulResponseEntity(successMessage.get(), acceptHeader);
-
-                }
-                else
-                {
-                    return customSuccessResponseBuilder.build(config);
-                }
             }
-            catch (RuntimeException e)
+            else
             {
-                String message = e.getMessage();
-                return getExceptionResponseEntity(HttpStatus.BAD_REQUEST, message, e, acceptHeader);
-            }
-            catch (Exception e)
-            {
-                return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
-                                                  AUTHORIZATION_CONFIG_OPERATION_FAILED,
-                                                  e,
-                                                  acceptHeader);
+                return customSuccessResponseBuilder.build(authorizationConfigService.getDto());
             }
         }
-        else
+        catch (RuntimeException e)
         {
-            return getRuntimeExceptionResponseEntity(AUTHORIZATION_CONFIG_NOT_FOUND, acceptHeader);
+            String message = e.getMessage();
+            return getExceptionResponseEntity(HttpStatus.BAD_REQUEST, message, e, acceptHeader);
+        }
+        catch (Exception e)
+        {
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
+                                              AUTHORIZATION_CONFIG_OPERATION_FAILED,
+                                              e,
+                                              acceptHeader);
         }
     }
 
-    private void addAnonymousAuthority(Privilege authority)
+    private void addAnonymousAuthority(List<PrivilegeDto> authorities)
     {
-        addAnonymousAuthority(authority.getName());
+        authorities.stream().map(p -> p.getName()).forEach(this::addAnonymousAuthority);
     }
 
     private void addAnonymousAuthority(String authority)
@@ -324,16 +240,10 @@ public class AuthorizationConfigController
                                      .add(simpleGrantedAuthority);
     }
 
-    private List<User> getAllUsers()
-    {
-        return userService.findAll()
-                          .orElse(new LinkedList<>());
-    }
-
     private interface CustomSuccessResponseBuilder
     {
 
-        ResponseEntity build(AuthorizationConfig config)
+        ResponseEntity build(AuthorizationConfigDto config)
                 throws JAXBException;
     }
 

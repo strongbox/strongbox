@@ -7,8 +7,8 @@ import org.carlspring.strongbox.converters.RoleListFormToRoleListConverter;
 import org.carlspring.strongbox.converters.configuration.ProxyConfigurationFormToProxyConfigurationConverter;
 import org.carlspring.strongbox.converters.storage.routing.RoutingRuleFormToRoutingRuleConverter;
 import org.carlspring.strongbox.converters.storage.routing.RuleSetFormToRuleSetConverter;
-import org.carlspring.strongbox.converters.users.AccessModelFormToAccessModelConverter;
-import org.carlspring.strongbox.converters.users.UserFormToUserConverter;
+import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
+import org.carlspring.strongbox.converters.users.UserFormToUserDtoConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.HeaderMappingFilter;
@@ -119,6 +119,8 @@ public class WebConfig
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
         marshaller.setPackagesToScan("com.carlspring.strongbox.controllers",
                                      "org.carlspring.strongbox.artifact.coordinates",
+                                     "org.carlspring.strongbox.users.dto",
+                                     "org.carlspring.strongbox.authorization.dto",
                                      "org.carlspring.strongbox.authentication.registry",
                                      "org.carlspring.strongbox.authentication.support",
                                      "org.carlspring.strongbox.cron.domain",
@@ -132,7 +134,6 @@ public class WebConfig
                                      "org.carlspring.strongbox.storage.repository.aws",
                                      "org.carlspring.strongbox.storage.repository.gcs",
                                      "org.carlspring.strongbox.storage.routing",
-                                     "org.carlspring.strongbox.users.security",
                                      "org.carlspring.strongbox.xml",
                                      "org.carlspring.strongbox.forms");
         Map<String, Object> props = new HashMap<>();
@@ -188,8 +189,8 @@ public class WebConfig
         registry.addConverter(new RoleFormToRoleConverter());
         registry.addConverter(new RoleListFormToRoleListConverter());
         registry.addConverter(new PrivilegeListFormToPrivilegeListConverter());
-        registry.addConverter(new UserFormToUserConverter());
-        registry.addConverter(new AccessModelFormToAccessModelConverter());
+        registry.addConverter(new UserFormToUserDtoConverter());
+        registry.addConverter(new AccessModelFormToUserAccessModelDtoConverter());
         registry.addConverter(new ProxyConfigurationFormToProxyConfigurationConverter());
         registry.addConverter(new RuleSetFormToRuleSetConverter());
         registry.addConverter(new RoutingRuleFormToRoutingRuleConverter());

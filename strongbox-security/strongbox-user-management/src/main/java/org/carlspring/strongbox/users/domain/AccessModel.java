@@ -1,92 +1,93 @@
 package org.carlspring.strongbox.users.domain;
 
-import javax.persistence.Embeddable;
-import java.io.Serializable;
-import java.util.*;
+import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserPathPermissionsDto;
+import org.carlspring.strongbox.users.dto.UserRepositoryDto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.base.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.annotation.concurrent.Immutable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import static java.util.stream.Collectors.toMap;
 
 /**
- * Additional user settings (for example, per-repository access settings).
- *
- * @author Alex Oreshkevich
+ * @author Przemyslaw Fusik
  */
-@Embeddable
+@Immutable
 public class AccessModel
-        implements Serializable
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccessModel.class);
+    private final Map<String, Collection<String>> repositoryPrivileges;
 
-    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-    private Map<String, Collection<String>> repositoryPrivileges;
+    private final Map<String, Collection<String>> urlToPrivilegesMap;
 
-    // maps URL tails including wildcards for regular expressions on set of privileges that was assigned
-    // example:
-    //      key:    storage0/act-releases-1/org/carlspring/strongbox/bar/.*
-    //      value:  {ARTIFACTS_VIEW, ARTIFACTS_RESOLVE, ARTIFACTS_DEPLOY}
-    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-    private Map<String, Collection<String>> urlToPrivilegesMap;
+    private final Map<String, Collection<String>> wildCardPrivilegesMap;
 
-    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-    private Map<String, Collection<String>> wildCardPrivilegesMap;
-
-    public AccessModel()
+    public AccessModel(final UserAccessModelDto userAccessModel)
     {
-        repositoryPrivileges = new HashMap<>();
-        urlToPrivilegesMap = new HashMap<>();
-        wildCardPrivilegesMap = new HashMap<>();
+        Map<String, Collection<String>> repositoryPrivileges = new LinkedHashMap<>();
+        Map<String, Collection<String>> urlToPrivilegesMap = new LinkedHashMap<>();
+        Map<String, Collection<String>> wildCardPrivilegesMap = new LinkedHashMap<>();
+
+        if (userAccessModel != null)
+        {
+            userAccessModel.getStorages()
+                           .forEach(
+                                   storage -> storage.getRepositories()
+                                                     .forEach(repository -> processRepository(repositoryPrivileges,
+                                                                                              urlToPrivilegesMap,
+                                                                                              wildCardPrivilegesMap,
+                                                                                              storage.getStorageId(),
+                                                                                              repository)));
+        }
+        
+        this.repositoryPrivileges = immutePrivilegesMap(repositoryPrivileges);
+        this.urlToPrivilegesMap = immutePrivilegesMap(urlToPrivilegesMap);
+        this.wildCardPrivilegesMap = immutePrivilegesMap(wildCardPrivilegesMap);
     }
 
-    @Override
-    public boolean equals(Object o)
+    private static void processRepository(Map<String, Collection<String>> repositoryPrivileges,
+                                          Map<String, Collection<String>> urlToPrivilegesMap,
+                                          Map<String, Collection<String>> wildCardPrivilegesMap,
+                                          String storageId,
+                                          UserRepositoryDto repository)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AccessModel that = (AccessModel) o;
-        return Objects.equal(urlToPrivilegesMap, that.urlToPrivilegesMap);
+        // assign default repository-level privileges set
+        Set<String> defaultPrivileges = new HashSet<>();
+        String key = "/storages/" + storageId + "/" + repository.getRepositoryId();
+
+        repository.getPrivileges()
+                  .forEach(privilege -> defaultPrivileges.add(privilege.getName().toUpperCase()));
+
+        repositoryPrivileges.put(key, defaultPrivileges);
+
+        // assign path-specific privileges
+        UserPathPermissionsDto userPathPermissions = repository.getPathPermissions();
+        if (userPathPermissions != null)
+        {
+
+            userPathPermissions
+                    .getPathPermissions()
+                    .forEach(pathPermission ->
+                             {
+                                 Set<String> privileges = translateToPrivileges(pathPermission.getPermission());
+                                 urlToPrivilegesMap.put(key + "/" + pathPermission.getPath(), privileges);
+                             });
+            toWildCardPrivilegesMap(urlToPrivilegesMap, wildCardPrivilegesMap);
+        }
     }
 
-    @Override
-    public int hashCode()
-    {
-        return Objects.hashCode(urlToPrivilegesMap);
-    }
-
-    public Map<String, Collection<String>> getUrlToPrivilegesMap()
-    {
-        return urlToPrivilegesMap;
-    }
-
-    public void setUrlToPrivilegesMap(Map<String, Collection<String>> urlToPrivilegesMap)
-    {
-        this.urlToPrivilegesMap = urlToPrivilegesMap;
-    }
-
-    public Map<String, Collection<String>> getWildCardPrivilegesMap()
-    {
-        return wildCardPrivilegesMap;
-    }
-
-    public void setWildCardPrivilegesMap(Map<String, Collection<String>> wildCardPrivilegesMap)
-    {
-        this.wildCardPrivilegesMap = wildCardPrivilegesMap;
-    }
-
-    public Map<String, Collection<String>> getRepositoryPrivileges()
-    {
-        return repositoryPrivileges;
-    }
-
-    public void setRepositoryPrivileges(Map<String, Collection<String>> repositoryPrivileges)
-    {
-        this.repositoryPrivileges = repositoryPrivileges;
-    }
-
-    public void obtainPrivileges()
+    private static void toWildCardPrivilegesMap(Map<String, Collection<String>> urlToPrivilegesMap,
+                                                Map<String, Collection<String>> wildCardPrivilegesMap)
     {
         if (urlToPrivilegesMap != null && !urlToPrivilegesMap.isEmpty())
         {
@@ -108,6 +109,24 @@ public class AccessModel
             keysToRemove.forEach(key -> urlToPrivilegesMap.remove(key));
             keysToRemove.clear();
         }
+    }
+
+    private static Set<String> translateToPrivileges(String permission)
+    {
+        if (permission == null || permission.equalsIgnoreCase(Permissions.DEFAULT))
+        {
+            return Privileges.rw();
+        }
+        else
+        {
+            return Privileges.r();
+        }
+    }
+
+    private Map<String, Collection<String>> immutePrivilegesMap(final Map<String, Collection<String>> source)
+    {
+        return source != null ? ImmutableMap.copyOf(source.entrySet().stream().collect(
+                toMap(Map.Entry::getKey, e -> ImmutableList.copyOf(e.getValue())))) : Collections.emptyMap();
     }
 
     public Collection<String> getPathPrivileges(String url)
@@ -140,38 +159,22 @@ public class AccessModel
                                                     privileges.addAll(entry.getValue()));
         }
 
-        logger.debug("Calculated privileges for \n\t" + url + "\n\t" + privileges);
         return privileges;
     }
 
-    @Override
-    public String toString()
+    public Map<String, Collection<String>> getRepositoryPrivileges()
     {
-        final StringBuilder sb = new StringBuilder("\nAccessModel {");
-        prettyPrintMap(sb, "urlToPrivilegesMap", urlToPrivilegesMap);
-        prettyPrintMap(sb, "repositoryPrivileges", repositoryPrivileges);
-        prettyPrintMap(sb, "wildCardPrivilegesMap", wildCardPrivilegesMap);
-        sb.append("\n}");
-        return sb.toString();
+        return repositoryPrivileges;
     }
 
-    private void prettyPrintMap(StringBuilder sb,
-                                String name,
-                                Map<?, ?> map)
+    public Map<String, Collection<String>> getUrlToPrivilegesMap()
     {
-        if (map != null && !map.isEmpty())
-        {
-            sb.append("\n\t")
-              .append(name)
-              .append(" = {");
-
-            map.entrySet()
-               .forEach(entry ->
-                                sb.append("\n\t\t")
-                                  .append(entry.getKey())
-                                  .append("\t\t-> ")
-                                  .append(entry.getValue()));
-            sb.append("\n\t}");
-        }
+        return urlToPrivilegesMap;
     }
+
+    public Map<String, Collection<String>> getWildCardPrivilegesMap()
+    {
+        return wildCardPrivilegesMap;
+    }
+    
 }
