@@ -2,12 +2,14 @@ package org.carlspring.strongbox.providers.io;
 
 import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.*;
 
+import java.net.URL;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 public class RepositoryFileAttributes implements BasicFileAttributes
 {
@@ -113,7 +115,27 @@ public class RepositoryFileAttributes implements BasicFileAttributes
     {
         return Boolean.TRUE.equals(attributes.get(ARTIFACT));
     }
+    
+    public boolean getResourceUrl()
+    {
+        return Boolean.TRUE.equals(attributes.get(RESOURCE_URL));
+    }
+    
+    public boolean getArtifactPath()
+    {
+        return Boolean.TRUE.equals(attributes.get(ARTIFACT_PATH));
+    }
 
+    public String getStorageId()
+    {
+        return (String) attributes.get(STORAGE_ID);
+    }
+
+    public String getRepositoryId()
+    {
+        return (String) attributes.get(REPOSITORY_ID);
+    }
+    
     protected void setMetadata(boolean isMetadata)
     {
         attributes.put(METADATA, isMetadata);
@@ -144,9 +166,29 @@ public class RepositoryFileAttributes implements BasicFileAttributes
         attributes.put(INDEX, isIndex);
     }
 
-    protected void setArtifact(boolean isArtifact)
+    protected void setArtifact(String path)
     {
-        attributes.put(ARTIFACT, isArtifact);
+        attributes.put(RepositoryFileAttributeType.ARTIFACT_PATH, path);
+    }
+    
+    protected void setResourceUrl(URL url)
+    {
+        attributes.put(RESOURCE_URL, url);
+    }
+    
+    protected void setArtifactPath(String path)
+    {
+        attributes.put(ARTIFACT_PATH, path);
+    }
+    
+    protected void setStorageId(String id)
+    {
+        attributes.put(STORAGE_ID, id);
     }
 
+    public void setRepositoryId(String id)
+    {
+        attributes.put(REPOSITORY_ID, id);
+    }
+    
 }

@@ -17,7 +17,15 @@ public enum RepositoryFileAttributeType
 
     INDEX("index"),
 
-    ARTIFACT("artifact");
+    ARTIFACT("artifact"),
+    
+    ARTIFACT_PATH("artifactPath"),
+    
+    RESOURCE_URL("resourceUrl"),
+    
+    REPOSITORY_ID("repositoryId"),
+    
+    STORAGE_ID("storageId");
 
     private String name;
 
@@ -26,7 +34,7 @@ public enum RepositoryFileAttributeType
         this.name = name;
     }
 
-    protected String getName()
+    public String getName()
     {
         return name;
     }

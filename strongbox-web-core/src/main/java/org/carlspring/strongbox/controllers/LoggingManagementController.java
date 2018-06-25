@@ -6,6 +6,9 @@ import org.carlspring.logging.exceptions.LoggingConfigurationException;
 import org.carlspring.logging.services.LoggingManagementService;
 import org.carlspring.strongbox.data.PropertyUtils;
 import org.carlspring.strongbox.domain.DirectoryListing;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.services.DirectoryListingService;
+import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -67,6 +70,16 @@ public class LoggingManagementController
     @Inject
     private ObjectMapper objectMapper;
 
+    private DirectoryListingService directoryListingService;
+    
+    public DirectoryListingService getDirectoryListingService()
+    {
+        return Optional.ofNullable(directoryListingService).orElseGet(() -> {
+            String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
+            return directoryListingService = new DirectoryListingServiceImpl(String.format("%s/api/logging", baseUrl));
+        });
+    }
+    
     @ApiOperation(value = "Used to add new logger.",
             position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was added successfully."),
@@ -260,7 +273,7 @@ public class LoggingManagementController
                 return getBadRequestResponseEntity("Requested path is not a directory!", acceptHeader);
             }
 
-            DirectoryListing directoryListing = DirectoryListing.fromPath(logsBaseDir, requestedLogPath);
+            DirectoryListing directoryListing = getDirectoryListingService().fromPath(logsBaseDir, requestedLogPath);
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {

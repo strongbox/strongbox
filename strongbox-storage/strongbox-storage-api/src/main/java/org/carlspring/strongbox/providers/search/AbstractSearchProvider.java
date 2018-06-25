@@ -5,6 +5,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.dependency.snippet.CodeSnippet;
 import org.carlspring.strongbox.dependency.snippet.SnippetGenerator;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -82,7 +83,7 @@ public abstract class AbstractSearchProvider
         try
         {
             RepositoryPath repositoryPath = artifactResolutionService.resolvePath(a.getStorageId(), a.getRepositoryId(), a.getArtifactPath());
-            artifactResource = artifactResolutionService.resolveResource(repositoryPath);
+            artifactResource = RepositoryFiles.readResourceUrl(repositoryPath);
         }
         catch (IOException e)
         {

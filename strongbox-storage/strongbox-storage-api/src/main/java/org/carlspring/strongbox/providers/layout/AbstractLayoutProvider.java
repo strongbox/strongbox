@@ -25,6 +25,7 @@ import org.carlspring.strongbox.storage.repository.MutableRepository;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.spi.FileSystemProvider;
@@ -38,6 +39,7 @@ import java.util.stream.Stream;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * @author mtodorov
@@ -482,7 +484,25 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                 
                 value = isArtifact ? getArtifactCoordinates(RepositoryFiles.stringValue(repositoryPath)) : null;
                 break;
+            case RESOURCE_URL:
+                value = resolveResource(repositoryPath);
+                
+                break;
+            case ARTIFACT_PATH:
+                value = RepositoryFiles.stringValue(repositoryPath);
 
+                break;
+                
+            case STORAGE_ID:
+                value = repositoryPath.getRepository().getStorage().getId();
+
+                break;
+                
+            case REPOSITORY_ID:
+                value = repositoryPath.getRepository().getId();
+
+                break;
+                
             }
             if (value != null)
             {
@@ -491,6 +511,23 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         }
 
         return result;
+    }
+    
+    public URL resolveResource(RepositoryPath repositoryPath)
+            throws IOException
+    {
+        URI baseUri = configurationManager.getBaseUri();
+
+        Repository repository = repositoryPath.getRepository();
+        Storage storage = repository.getStorage();
+        URI artifactResource = RepositoryFiles.resolveResource(repositoryPath);
+
+        return UriComponentsBuilder.fromUri(baseUri)
+                                   .pathSegment("storages", storage.getId(), repository.getId(), "/")
+                                   .build()
+                                   .toUri()
+                                   .resolve(artifactResource)
+                                   .toURL();
     }
     
     protected RepositoryPathHandler getRepositoryPathHandler()

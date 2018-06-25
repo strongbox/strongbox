@@ -21,9 +21,6 @@ public interface ArtifactResolutionService
             throws IOException,
                    NoSuchAlgorithmException;
     
-    URL resolveResource(RepositoryPath repositoryPath)
-            throws IOException;
-    
     RepositoryPath resolvePath(String storageId,
                                String repositoryId,
                                String path) 
