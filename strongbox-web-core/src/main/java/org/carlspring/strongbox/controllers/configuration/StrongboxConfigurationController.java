@@ -37,8 +37,8 @@ public class StrongboxConfigurationController
     @PreAuthorize("hasAuthority('CONFIGURATION_UPLOAD')")
     @RequestMapping(value = "",
                     method = RequestMethod.PUT,
-                    produces = MediaType.TEXT_PLAIN_VALUE,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+                    produces = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+                    consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity setConfigurationXML(@ApiParam(value = "The strongbox.xml configuration file", required = true)
                                               @RequestBody MutableConfiguration configuration)
     {
