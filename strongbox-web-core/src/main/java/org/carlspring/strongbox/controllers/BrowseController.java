@@ -53,7 +53,8 @@ public class BrowseController extends BaseArtifactController
 
     private volatile DirectoryListingService directoryListingService;
     
-    public DirectoryListingService getDirectoryListingService() {
+    public DirectoryListingService getDirectoryListingService()
+    {
         return Optional.ofNullable(directoryListingService).orElseGet(() -> {
             String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
             return directoryListingService = new DirectoryListingServiceImpl(String.format("%s/api/browse", baseUrl));
