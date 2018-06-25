@@ -126,11 +126,13 @@ public class RepositoryFileAttributes implements BasicFileAttributes
         return Boolean.TRUE.equals(attributes.get(ARTIFACT_PATH));
     }
 
-    public String getStorageId() {
+    public String getStorageId()
+    {
         return (String) attributes.get(STORAGE_ID);
     }
 
-    public String getRepositoryId() {
+    public String getRepositoryId()
+    {
         return (String) attributes.get(REPOSITORY_ID);
     }
     
@@ -179,11 +181,13 @@ public class RepositoryFileAttributes implements BasicFileAttributes
         attributes.put(ARTIFACT_PATH, path);
     }
     
-    protected void setStorageId(String id) {
+    protected void setStorageId(String id)
+    {
         attributes.put(STORAGE_ID, id);
     }
 
-    public void setRepositoryId(String id) {
+    public void setRepositoryId(String id)
+    {
         attributes.put(REPOSITORY_ID, id);
     }
     
