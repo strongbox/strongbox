@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.storage.repository;
 
-import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
-import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
-import org.carlspring.strongbox.xml.ArtifactCoordinateValidatorsAdapter;
-import org.carlspring.strongbox.xml.RepositoryGroupsAdapter;
-import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
+import java.io.Serializable;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -16,13 +16,16 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.io.Serializable;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
+import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
+import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
+import org.carlspring.strongbox.xml.ArtifactCoordinateValidatorsAdapter;
+import org.carlspring.strongbox.xml.RepositoryGroupsAdapter;
+import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author mtodorov
@@ -97,6 +100,7 @@ public class MutableRepository
     private List<MutableCustomConfiguration> customConfigurations = new ArrayList<>();
 
     @XmlElementRef
+    @JsonProperty("repositoryConfiguration")
     private MutableCustomRepositoryConfiguration repositoryConfiguration;
 
     @XmlElement(name = "group")

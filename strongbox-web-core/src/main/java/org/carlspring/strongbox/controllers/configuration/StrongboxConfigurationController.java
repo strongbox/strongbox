@@ -1,10 +1,11 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.configuration.MutableConfiguration;
+import org.carlspring.strongbox.controllers.ResponseMessage;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.services.support.ConfigurationException;
 
 import io.swagger.annotations.*;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author Pablo Tirado
  */
 @Controller
-@RequestMapping("/api/configuration/strongbox/xml")
-@Api(value = "/api/configuration/strongbox/xml")
+@RequestMapping("/api/configuration/strongbox")
+@Api(value = "/api/configuration/strongbox")
 public class StrongboxConfigurationController
         extends BaseConfigurationController
 {
@@ -35,27 +36,16 @@ public class StrongboxConfigurationController
                             @ApiResponse(code = 500,
                                          message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_UPLOAD')")
-    @RequestMapping(value = "",
-                    method = RequestMethod.PUT,
+    @RequestMapping(method = RequestMethod.PUT,
                     produces = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
                     consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity setConfigurationXML(@ApiParam(value = "The strongbox.xml configuration file", required = true)
-                                              @RequestBody MutableConfiguration configuration)
+    public ResponseEntity<ResponseMessage> setConfigurationXML(@ApiParam(value = "The strongbox.xml configuration file", required = true) @RequestBody MutableConfiguration configuration)
     {
-        try
-        {
-            configurationManagementService.setConfiguration(configuration);
+        configurationManagementService.setConfiguration(configuration);
 
-            logger.info("Received new configuration over REST.");
+        logger.info("Received new configuration over REST.");
 
-            return ResponseEntity.ok("The configuration was updated successfully.");
-        }
-        catch (ConfigurationException e)
-        {
-            logger.error(e.getMessage(), e);
-
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(ResponseMessage.empty().withMessage("The configuration was updated successfully."), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Retrieves the strongbox.xml configuration file.")
@@ -64,15 +54,13 @@ public class StrongboxConfigurationController
                             @ApiResponse(code = 500,
                                          message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW')")
-    @RequestMapping(value = "",
-                    method = RequestMethod.GET,
+    @RequestMapping(method = RequestMethod.GET,
                     produces = { MediaType.APPLICATION_XML_VALUE,
                                  MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity getConfigurationXML()
+    public ResponseEntity<MutableConfiguration> getConfigurationXML()
     {
         logger.debug("Retrieved strongbox.xml configuration file.");
 
-        return ResponseEntity.status(HttpStatus.OK)
-                             .body(getMutableConfigurationClone());
+        return new ResponseEntity<>(getMutableConfigurationClone(), HttpStatus.OK);
     }
 }
