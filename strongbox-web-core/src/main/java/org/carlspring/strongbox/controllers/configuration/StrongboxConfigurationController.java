@@ -39,7 +39,7 @@ public class StrongboxConfigurationController
     @RequestMapping(method = RequestMethod.PUT,
                     produces = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
                     consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<ResponseMessage> setConfigurationXML(@ApiParam(value = "The strongbox.xml configuration file", required = true) @RequestBody MutableConfiguration configuration)
+    public ResponseEntity<ResponseMessage> setStrongboxConfiguration(@ApiParam(value = "The strongbox.xml configuration file", required = true) @RequestBody MutableConfiguration configuration)
     {
         configurationManagementService.setConfiguration(configuration);
 
@@ -57,7 +57,7 @@ public class StrongboxConfigurationController
     @RequestMapping(method = RequestMethod.GET,
                     produces = { MediaType.APPLICATION_XML_VALUE,
                                  MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<MutableConfiguration> getConfigurationXML()
+    public ResponseEntity<MutableConfiguration> getStrongboxConfiguration()
     {
         logger.debug("Retrieved strongbox.xml configuration file.");
 
