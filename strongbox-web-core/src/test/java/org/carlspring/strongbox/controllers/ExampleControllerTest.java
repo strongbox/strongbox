@@ -221,7 +221,7 @@ public class ExampleControllerTest
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-               .body(containsString("This example message will be logged in the logs and sent to the client."));
+               .body("message", containsString("This example message will be logged in the logs and sent to the client."));
     }
 
     @Test
@@ -238,4 +238,33 @@ public class ExampleControllerTest
                .body(containsString("This example message will be logged in the logs and sent to the client."));
     }
 
+    @Test
+    public void testUnhandledExceptionHandlingWithJsonResponse()
+            throws Exception
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get("/example-controller/unhandled-exception")
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+               .body("error", containsString("Something bad happened."));
+    }
+
+    @Test
+    public void testUnhandledExceptionHandlingWithPlainTextResponse()
+            throws Exception
+    {
+        given().accept(MediaType.TEXT_PLAIN_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get("/example-controller/unhandled-exception")
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+               .body(containsString("Something bad happened."));
+    }
+
+    
 }

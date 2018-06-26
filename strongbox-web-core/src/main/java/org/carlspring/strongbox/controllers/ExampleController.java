@@ -136,4 +136,14 @@ public class ExampleController
             return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, message, e, accept);
         }
     }
+    
+    @ApiOperation(value = "Handling unhadled exceptions")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok"),
+                            @ApiResponse(code = 500, message = "Something really bad and unpredictable happened.") })
+    @GetMapping(value = "/unhandled-exception", consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                                                                          MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity unhandledExceptions(@RequestHeader(HttpHeaders.ACCEPT) String accept) throws Exception
+    {
+        throw new Exception("Something bad happened.");
+    }
 }

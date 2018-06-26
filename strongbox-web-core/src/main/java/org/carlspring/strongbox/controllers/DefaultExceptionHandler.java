@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import org.springframework.web.util.WebUtils;
 
 @ControllerAdvice
 public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
@@ -51,14 +50,7 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
     protected ResponseEntity<?> handleRequestBodyValidationException(final RequestBodyValidationException ex,
                                                                      final WebRequest request)
     {
-        if (requestedContent(request).equals(MediaType.TEXT_PLAIN))
-        {
-            return provideDefaultErrorResponse(ex, request, HttpStatus.BAD_REQUEST);
-        }
-        else
-        {
-            return provideValidationErrorResponse(ex, request);
-        }
+        return provideValidationErrorResponse(ex, request);
     }
 
     @ExceptionHandler(Exception.class)
@@ -74,7 +66,19 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
                                                              HttpStatus status,
                                                              WebRequest request)
     {
-        return provideDefaultErrorResponse(ex, request, status);
+        MediaType contentType = requestedContent(request);
+        headers.set(HttpHeaders.CONTENT_TYPE, contentType.toString());
+
+        if (contentType.equals(MediaType.TEXT_PLAIN))
+        {
+            body = ex.getMessage();
+        }
+        else if (body == null)
+        {
+            body = new ErrorResponseEntityBody(ex.getMessage());
+        }
+
+        return super.handleExceptionInternal(ex, body, headers, status, request);
     }
 
     private ResponseEntity<?> provideValidationErrorResponse(final RequestBodyValidationException ex,
@@ -98,22 +102,7 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
                                                                WebRequest request,
                                                                HttpStatus status)
     {
-        MediaType contentType = requestedContent(request);
-
-        final HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.CONTENT_TYPE, contentType.toString());
-
-        if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status))
-        {
-            request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
-        }
-
-        if (contentType.equals(MediaType.TEXT_PLAIN))
-        {
-            return new ResponseEntity<>(ex.getMessage(), headers, status);
-        }
-
-        return new ResponseEntity<>(new ErrorResponseEntityBody(ex.getMessage()), headers, status);
+        return handleExceptionInternal(ex, null, new HttpHeaders(), status, request);
     }
 
     private MediaType requestedContent(WebRequest request)
@@ -131,7 +120,7 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
 
         MediaType result = mediaTypes.stream()
                                      .reduce(null, this::reduceByPriority);
-        
+
         return Optional.ofNullable(result).orElse(MediaType.APPLICATION_JSON);
     }
 
