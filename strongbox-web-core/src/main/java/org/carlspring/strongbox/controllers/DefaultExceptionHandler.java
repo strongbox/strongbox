@@ -1,7 +1,10 @@
 package org.carlspring.strongbox.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import javax.inject.Inject;
 
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.data.criteria.QueryParserException;
@@ -11,10 +14,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -22,9 +29,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
 {
 
-    @ExceptionHandler(QueryParserException.class)
-    protected ResponseEntity<?> handleQueryParserException(QueryParserException ex,
-                                                           WebRequest request)
+    @Inject
+    private ContentNegotiationManager contentNegotiationManager;
+
+    @ExceptionHandler({ QueryParserException.class })
+    protected ResponseEntity<?> handleRequestParseException(Exception ex,
+                                                            WebRequest request)
     {
         return provideDefaultErrorResponse(ex, request, HttpStatus.BAD_REQUEST);
     }
@@ -40,21 +50,35 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
     protected ResponseEntity<?> handleRequestBodyValidationException(final RequestBodyValidationException ex,
                                                                      final WebRequest request)
     {
-        if (aceptOf(request).contains(MediaType.TEXT_PLAIN_VALUE))
-        {
-            return provideDefaultErrorResponse(ex, request, HttpStatus.BAD_REQUEST);
-        }
-        else
-        {
-            return provideValidationErrorResponse(ex, request);
-        }
+        return provideValidationErrorResponse(ex, request);
     }
-    
+
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<?> handleUnknownError(Exception ex,
                                                    WebRequest request)
     {
         return provideDefaultErrorResponse(ex, request, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex,
+                                                             @Nullable Object body,
+                                                             HttpHeaders headers,
+                                                             HttpStatus status,
+                                                             WebRequest request)
+    {
+        MediaType contentType = requestedContent(request);
+        headers.set(HttpHeaders.CONTENT_TYPE, contentType.toString());
+
+        if (contentType.equals(MediaType.TEXT_PLAIN))
+        {
+            body = ex.getMessage();
+        }
+        else if (body == null)
+        {
+            body = new ErrorResponseEntityBody(ex.getMessage());
+        }
+
+        return super.handleExceptionInternal(ex, body, headers, status, request);
     }
 
     private ResponseEntity<?> provideValidationErrorResponse(final RequestBodyValidationException ex,
@@ -74,28 +98,48 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
         return handleExceptionInternal(ex, validationError, headers, HttpStatus.BAD_REQUEST, request);
     }
 
-    private ResponseEntity<?> provideDefaultErrorResponse(Exception ex,
-                                                          WebRequest request,
-                                                          HttpStatus status)
+    private ResponseEntity<Object> provideDefaultErrorResponse(Exception ex,
+                                                               WebRequest request,
+                                                               HttpStatus status)
     {
-        String accept = aceptOf(request);
+        return handleExceptionInternal(ex, null, new HttpHeaders(), status, request);
+    }
 
-        final HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.ACCEPT, accept);
-
-        if (accept.contains(MediaType.TEXT_PLAIN_VALUE))
+    private MediaType requestedContent(WebRequest request)
+    {
+        List<MediaType> mediaTypes = new ArrayList<>();
+        try
         {
-            return handleExceptionInternal(ex, ex.getMessage() + "\n", headers, HttpStatus.BAD_REQUEST, request);
+            mediaTypes.addAll(contentNegotiationManager.resolveMediaTypes((NativeWebRequest) request));
+        }
+        catch (HttpMediaTypeNotAcceptableException e1)
+        {
+            logger.error(String.format("Reuqested invalid content-type [%s]", request.getHeader(HttpHeaders.ACCEPT)));
+            mediaTypes.add(MediaType.APPLICATION_JSON);
         }
 
-        return handleExceptionInternal(ex,
-                                       new ErrorResponseEntityBody(ex.getMessage()),
-                                       headers,
-                                       status, request);
+        MediaType result = mediaTypes.stream()
+                                     .reduce(null, this::reduceByPriority);
+
+        return Optional.ofNullable(result).orElse(MediaType.APPLICATION_JSON);
     }
 
-    private String aceptOf(WebRequest request)
+    private MediaType reduceByPriority(MediaType m1,
+                                       MediaType m2)
     {
-        return Optional.of(request.getHeader(HttpHeaders.ACCEPT)).orElse(MediaType.APPLICATION_JSON_VALUE);
+        if (MediaType.APPLICATION_JSON.equals(m1) || MediaType.APPLICATION_JSON.equals(m2))
+        {
+            return MediaType.APPLICATION_JSON;
+        }
+        if (MediaType.APPLICATION_XML.equals(m1) || MediaType.APPLICATION_XML.equals(m2))
+        {
+            return MediaType.APPLICATION_XML;
+        }
+        if (MediaType.TEXT_PLAIN.equals(m1) || MediaType.TEXT_PLAIN.equals(m2))
+        {
+            return MediaType.TEXT_PLAIN;
+        }
+        return null;
     }
+
 }

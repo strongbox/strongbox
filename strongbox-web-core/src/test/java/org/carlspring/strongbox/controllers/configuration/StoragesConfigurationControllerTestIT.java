@@ -92,6 +92,7 @@ public class StoragesConfigurationControllerTestIT
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId;
 
         return given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                      .accept(MediaType.APPLICATION_XML_VALUE)
                       .when()
                       .get(url)
                       .as(MutableStorage.class);

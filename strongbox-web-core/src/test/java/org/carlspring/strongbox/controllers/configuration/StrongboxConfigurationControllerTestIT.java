@@ -9,8 +9,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertNotNull;
+
+import java.io.IOException;
+
+import javax.inject.Inject;
 
 /**
  * @author Pablo Tirado
@@ -21,8 +30,11 @@ public class StrongboxConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
+    @Inject
+    private ObjectMapper objectMapper;
+    
     @Test
-    public void testGetAndSetConfiguration()
+    public void testGetAndSetConfiguration() throws JsonParseException, JsonMappingException, IOException
     {
         MutableConfiguration configuration = getConfigurationFromRemote();
 
@@ -30,10 +42,11 @@ public class StrongboxConfigurationControllerTestIT
 
         configuration.addStorage(storage);
 
-        String url = getContextBaseUrl() + "/api/configuration/strongbox/xml";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .body(configuration)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(objectMapper.writeValueAsString(configuration))
                .when()
                .put(url)
                .then()
@@ -44,14 +57,15 @@ public class StrongboxConfigurationControllerTestIT
         assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
     }
 
-    public MutableConfiguration getConfigurationFromRemote()
+    public MutableConfiguration getConfigurationFromRemote() throws JsonParseException, JsonMappingException, IOException
     {
-        String url = getContextBaseUrl() + "/api/configuration/strongbox/xml";
+        String url = getContextBaseUrl() + "/api/configuration/strongbox";
 
-        return given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                      .when()
-                      .get(url)
-                      .as(MutableConfiguration.class);
+        return objectMapper.readValue(given().accept(MediaType.APPLICATION_JSON_VALUE)
+                                             .when()
+                                             .get(url)
+                                             .asString(),
+                                      MutableConfiguration.class);
     }
 
 }
