@@ -73,13 +73,13 @@ public class RestClient
     public int setConfiguration(MutableConfiguration configuration)
             throws IOException, JAXBException
     {
-        return setServerConfiguration(configuration, "/api/configuration/strongbox/xml", MutableConfiguration.class);
+        return setServerConfiguration(configuration, "/api/configuration/strongbox", MutableConfiguration.class);
     }
 
     public MutableConfiguration getConfiguration()
             throws JAXBException
     {
-        return (MutableConfiguration) getServerConfiguration("/api/configuration/strongbox/xml", MutableConfiguration.class);
+        return (MutableConfiguration) getServerConfiguration("/api/configuration/strongbox", MutableConfiguration.class);
     }
 
     public int setServerConfiguration(ServerConfiguration configuration,
