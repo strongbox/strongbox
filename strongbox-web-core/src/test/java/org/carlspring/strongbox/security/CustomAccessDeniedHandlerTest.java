@@ -61,10 +61,10 @@ public class CustomAccessDeniedHandlerTest
     {
         given().contentType("application/json")
                .when()
-               .get("/api/configuration/strongbox/xml")
+               .get("/api/configuration/strongbox")
                .peek()
                .then()
-               .body("error", CoreMatchers.equalTo("unauthorized"))
+               .body("error", CoreMatchers.equalTo("Access is denied"))
                .contentType("application/json")
                .statusCode(HttpStatus.FORBIDDEN.value());
     }
