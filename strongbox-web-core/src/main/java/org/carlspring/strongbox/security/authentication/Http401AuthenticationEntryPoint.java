@@ -4,6 +4,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -34,7 +35,7 @@ public class Http401AuthenticationEntryPoint
         {
             response.setHeader("WWW-Authenticate", "Basic realm=\"" + this.headerValue + "\"");
         }
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, Optional.ofNullable(authException).map(e -> e.getMessage()).orElse("unauthorized"));
     }
 
 }

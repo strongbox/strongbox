@@ -1,10 +1,14 @@
 package org.carlspring.strongbox.controllers;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.data.criteria.QueryParserException;
@@ -16,6 +20,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.accept.ContentNegotiationManager;
@@ -32,6 +40,12 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
     @Inject
     private ContentNegotiationManager contentNegotiationManager;
 
+    @Inject
+    private AuthenticationTrustResolver authenticationTrustResolver;
+    
+    @Inject
+    private AuthenticationEntryPoint authenticationEntryPoint;
+    
     @ExceptionHandler({ QueryParserException.class })
     protected ResponseEntity<?> handleRequestParseException(Exception ex,
                                                             WebRequest request)
@@ -41,9 +55,30 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
 
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex,
-                                                            WebRequest request)
+                                                            WebRequest request,
+                                                            HttpServletRequest httpRequest,
+                                                            HttpServletResponse httpResponse)
     {
-        return provideDefaultErrorResponse(ex, request, HttpStatus.FORBIDDEN);
+        Authentication authentication = Optional.ofNullable(SecurityContextHolder.getContext())
+                                                .map(c -> c.getAuthentication())
+                                                .orElse(null);
+        if (!authenticationTrustResolver.isAnonymous(authentication))
+        {
+            return provideDefaultErrorResponse(ex, request, HttpStatus.FORBIDDEN);
+        }
+        
+        try
+        {
+            authenticationEntryPoint.commence(httpRequest, httpResponse, null);
+            
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        catch (IOException|ServletException e)
+        {
+            logger.error("Failed to provide unauthorized response.", e);
+            
+            return provideDefaultErrorResponse(e, request, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @ExceptionHandler(RequestBodyValidationException.class)
