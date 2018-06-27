@@ -30,7 +30,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -136,11 +135,6 @@ public class SecurityConfig
     }
 
     @Bean
-    AuthenticationTrustResolver authenticationTrustResolver() {
-        return new AuthenticationTrustResolverImpl();
-    }
-    
-    @Bean
     AuthenticationEntryPoint customBasicAuthenticationEntryPoint()
     {
         return new Http401AuthenticationEntryPoint("Strongbox Repository Manager");
@@ -190,6 +184,16 @@ public class SecurityConfig
             return methodAccessDecisionManager;
         }
 
+    }
+
+    @Configuration
+    public static class SharedObjectsConfig{
+
+        @Bean
+        AuthenticationTrustResolver authenticationTrustResolver() {
+            return new AuthenticationTrustResolverImpl();
+        }
+        
     }
 
 }
