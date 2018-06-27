@@ -1,11 +1,9 @@
 package org.carlspring.strongbox.cron.services;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.exceptions.CronTaskException;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNamesDto;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
-import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
-
-import java.util.List;
 
 import org.quartz.SchedulerException;
 
@@ -13,19 +11,20 @@ public interface CronTaskConfigurationService
 {
 
 
-    void saveConfiguration(CronTaskConfiguration cronTaskConfiguration)
+    void saveConfiguration(CronTaskConfigurationDto cronTaskConfiguration)
             throws Exception;
 
-    void deleteConfiguration(CronTaskConfiguration cronTaskConfiguration)
+    void deleteConfiguration(String cronTaskConfigurationName)
             throws SchedulerException,
                    CronTaskNotFoundException,
                    ClassNotFoundException;
 
-    List<CronTaskConfiguration> getConfiguration(String name);
+    CronTaskConfigurationDto getTaskConfigurationDto(String cronTaskConfigurationName);
 
-    CronTaskConfiguration findOne(String name);
+    CronTasksConfigurationDto getTasksConfigurationDto();
 
-    List<CronTaskConfiguration> getConfigurations();
+    GroovyScriptNamesDto getGroovyScriptsName();
 
-    GroovyScriptNames getGroovyScriptsName();
+    void setConfiguration(CronTasksConfigurationDto cronTasksConfiguration)
+            throws Exception;
 }

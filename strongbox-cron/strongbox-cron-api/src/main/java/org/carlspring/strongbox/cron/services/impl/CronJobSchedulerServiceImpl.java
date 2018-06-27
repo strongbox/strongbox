@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.cron.services.impl;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNamesDto;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 import org.carlspring.strongbox.cron.quartz.CronTask;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
@@ -33,7 +33,7 @@ public class CronJobSchedulerServiceImpl
 
 
     @Override
-    public void scheduleJob(CronTaskConfiguration cronTaskConfiguration)
+    public void scheduleJob(CronTaskConfigurationDto cronTaskConfiguration)
             throws ClassNotFoundException, SchedulerException
     {
         Scheduler scheduler = schedulerFactoryBean.getScheduler();
@@ -96,7 +96,7 @@ public class CronJobSchedulerServiceImpl
     }
 
     @Override
-    public void executeJob(CronTaskConfiguration cronTaskConfiguration)
+    public void executeJob(CronTaskConfigurationDto cronTaskConfiguration)
             throws SchedulerException
     {
         Scheduler scheduler = schedulerFactoryBean.getScheduler();
@@ -115,33 +115,33 @@ public class CronJobSchedulerServiceImpl
     }
 
     @Override
-    public void deleteJob(CronTaskConfiguration cronTaskConfiguration)
+    public void deleteJob(String cronTaskConfigurationName)
             throws ClassNotFoundException, SchedulerException, CronTaskNotFoundException
     {
         Scheduler scheduler = schedulerFactoryBean.getScheduler();
-        if (!jobsMap.containsKey(cronTaskConfiguration.getName()))
+        if (!jobsMap.containsKey(cronTaskConfigurationName))
         {
             logger.warn("Could not find cron task under the specified name! Existing jobs map: {}, lookup name: {}", jobsMap,
-                        cronTaskConfiguration.getName());
+                        cronTaskConfigurationName);
             return;
         }
 
-        CronTask cronTask = jobsMap.get(cronTaskConfiguration.getName());
+        CronTask cronTask = jobsMap.get(cronTaskConfigurationName);
         JobDetail jobDetail = cronTask.getJobDetail();
         Trigger trigger = cronTask.getTrigger();
 
         scheduler.unscheduleJob(trigger.getKey());
         scheduler.deleteJob(jobDetail.getKey());
 
-        jobsMap.remove(cronTaskConfiguration.getName());
+        jobsMap.remove(cronTaskConfigurationName);
 
-        logger.debug("Job '" + cronTaskConfiguration.getName() + "' un-scheduled.");
+        logger.debug("Job '" + cronTaskConfigurationName + "' un-scheduled.");
     }
 
     @Override
-    public GroovyScriptNames getGroovyScriptsName()
+    public GroovyScriptNamesDto getGroovyScriptsName()
     {
-        GroovyScriptNames groovyScriptNames = new GroovyScriptNames();
+        GroovyScriptNamesDto groovyScriptNames = new GroovyScriptNamesDto();
         for (CronTask struct : jobsMap.values())
         {
             if (struct.getScriptName() != null && !struct.getScriptName().isEmpty() &&

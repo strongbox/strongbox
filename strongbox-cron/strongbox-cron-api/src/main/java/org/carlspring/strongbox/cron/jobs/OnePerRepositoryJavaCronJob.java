@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.cron.services.support.CronTaskConfigurationSearchCriteria;
-import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -25,7 +25,7 @@ public abstract class OnePerRepositoryJavaCronJob
     private CronTaskConfigurationService cronTaskConfigurationService;
 
     @Override
-    public void beforeScheduleCallback(final CronTaskConfiguration notYetScheduledConfiguration)
+    public void beforeScheduleCallback(final CronTaskConfigurationDto notYetScheduledConfiguration)
             throws Exception
     {
         final String storageId = notYetScheduledConfiguration.getProperty("storageId");
@@ -38,14 +38,15 @@ public abstract class OnePerRepositoryJavaCronJob
                                                                                          getClass().getName())
                                                                            .build();
 
-        final List<CronTaskConfiguration> previousConfigurations = cronTaskDataService.findMatching(searchCriteria,
-                                                                                                    PagingCriteria.ALL);
+        final List<CronTaskConfiguration> previousConfigurations = cronTaskDataService.findMatching(
+                searchCriteria);
+        final CronTaskConfiguration immutableNotYetScheduledConfiguration = new CronTaskConfiguration(notYetScheduledConfiguration);
         for (final CronTaskConfiguration storedConfiguration : previousConfigurations)
         {
-            if (!storedConfiguration.equals(notYetScheduledConfiguration))
+            if (!storedConfiguration.equals(immutableNotYetScheduledConfiguration))
             {
                 // remove previous configurations for the same job and repository
-                cronTaskConfigurationService.deleteConfiguration(storedConfiguration);
+                cronTaskConfigurationService.deleteConfiguration(storedConfiguration.getName());
             }
 
         }

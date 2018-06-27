@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -28,7 +28,7 @@ public class RebuildMavenIndexesCronJob
     private RepositoryPathResolver repositoryPathResolver;
     
     @Override
-    public void executeTask(CronTaskConfiguration config)
+    public void executeTask(CronTaskConfigurationDto config)
             throws Throwable
     {
         logger.debug("Executing RebuildMavenIndexesCronJob ...");

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
@@ -32,7 +32,7 @@ public class RebuildMavenMetadataCronJob
 
 
     @Override
-    public void executeTask(CronTaskConfiguration config)
+    public void executeTask(CronTaskConfigurationDto config)
             throws Throwable
     {
         String storageId = config.getProperty("storageId");

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
 import org.carlspring.strongbox.event.cron.CronTaskEventListener;
@@ -38,12 +38,12 @@ abstract class BaseCronTestCase
 
     protected boolean receivedExpectedEvent;
 
-    public CronTaskConfiguration addCronJobConfig(CronTaskConfiguration cronTaskConfiguration)
+    public CronTaskConfigurationDto addCronJobConfig(CronTaskConfigurationDto cronTaskConfiguration)
             throws Exception
     {
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
 
-        CronTaskConfiguration configuration = cronTaskConfigurationService.findOne(cronTaskConfiguration.getName());
+        CronTaskConfigurationDto configuration = cronTaskConfigurationService.getTaskConfigurationDto(cronTaskConfiguration.getName());
 
         assertNotNull("Failed to save cron configuration!", configuration);
 

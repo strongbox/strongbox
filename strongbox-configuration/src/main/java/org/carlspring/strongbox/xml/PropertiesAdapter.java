@@ -42,9 +42,12 @@ public class PropertiesAdapter
         final List<Node> nodes = new ArrayList<>();
         for (final Map.Entry<String, String> entry : map.entrySet())
         {
-            final Element property = document.createElement(entry.getKey());
-            property.appendChild(document.createTextNode(entry.getValue()));
-            nodes.add(property);
+            if (entry.getKey() != null && entry.getValue() != null)
+            {
+                final Element property = document.createElement(entry.getKey());
+                property.appendChild(document.createTextNode(entry.getValue()));
+                nodes.add(property);
+            }
         }
         return new ElementWrapper<>(nodes);
     }

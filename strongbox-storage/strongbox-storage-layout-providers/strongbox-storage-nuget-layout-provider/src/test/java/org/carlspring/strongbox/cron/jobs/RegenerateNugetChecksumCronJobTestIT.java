@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.NugetLayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
@@ -148,7 +148,7 @@ public class RegenerateNugetChecksumCronJobTestIT
                                            boolean forceRegeneration)
             throws Exception
     {
-        CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
+        CronTaskConfigurationDto cronTaskConfiguration = new CronTaskConfigurationDto();
         cronTaskConfiguration.setOneTimeExecution(true);
         cronTaskConfiguration.setImmediateExecution(true);
         cronTaskConfiguration.setName(name);
@@ -160,7 +160,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         cronTaskConfiguration.addProperty("forceRegeneration", String.valueOf(forceRegeneration));
 
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
-        CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
+        CronTaskConfigurationDto obj = cronTaskConfigurationService.getTaskConfigurationDto(name);
         assertNotNull(obj);
     }
 

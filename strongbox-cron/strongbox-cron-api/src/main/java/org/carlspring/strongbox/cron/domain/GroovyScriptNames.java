@@ -1,40 +1,29 @@
 package org.carlspring.strongbox.cron.domain;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import jersey.repackaged.com.google.common.collect.ImmutableList;
+
 /**
- * @author Yougeshwar
+ * @author Przemyslaw Fusik
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+@Immutable
 public class GroovyScriptNames
 {
 
     @XmlElement
-    private List<String> list;
+    private final List<String> list;
 
-    public GroovyScriptNames()
+    public GroovyScriptNames(final GroovyScriptNamesDto source)
     {
-        list = new ArrayList<>();
+        this.list = immuteList(source.getList());
     }
 
-    public void addName(String name)
+    private List<String> immuteList(final List<String> source)
     {
-        list.add(name);
-    }
-
-    public List<String> getList()
-    {
-        return list;
-    }
-
-    public void setList(List<String> list)
-    {
-        this.list = list;
+        return source != null ? ImmutableList.copyOf(source) : Collections.emptyList();
     }
 }
