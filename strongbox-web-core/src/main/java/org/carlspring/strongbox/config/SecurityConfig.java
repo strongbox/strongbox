@@ -21,6 +21,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -182,6 +184,16 @@ public class SecurityConfig
             return methodAccessDecisionManager;
         }
 
+    }
+
+    @Configuration
+    public static class SharedObjectsConfig{
+
+        @Bean
+        AuthenticationTrustResolver authenticationTrustResolver() {
+            return new AuthenticationTrustResolverImpl();
+        }
+        
     }
 
 }
