@@ -39,7 +39,8 @@ public abstract class RepositoryFileSystem
         return repository;
     }
 
-    public RepositoryFileSystemProvider provider() {
+    public RepositoryFileSystemProvider provider()
+    {
         return provider;
     }
 
