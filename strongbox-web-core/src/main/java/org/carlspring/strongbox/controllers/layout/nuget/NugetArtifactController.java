@@ -244,7 +244,7 @@ public class NugetArtifactController extends BaseArtifactController
     }
 
     private void calculateFeedEntryProperties(PathNupkg nupkg,
-                                              EntryProperties properties)
+                                              EntryProperties properties) throws IOException
     {
         RepositoryPath path = nupkg.getPath();
         ArtifactEntry artifactEntry = path.getArtifactEntry();

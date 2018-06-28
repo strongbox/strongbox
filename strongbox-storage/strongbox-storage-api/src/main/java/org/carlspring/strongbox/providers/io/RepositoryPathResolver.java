@@ -1,18 +1,16 @@
 package org.carlspring.strongbox.providers.io;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -78,11 +76,41 @@ public class RepositoryPathResolver
         {
             return repositoryPath.resolve(path);
         }
+        
+        return new LazyRepositoryPath(repositoryPath.resolve(path));
+    }
+    
+    private class LazyRepositoryPath extends RepositoryPath
+    {
 
-        return artifactEntryService.findOneArtifact(repository.getStorage().getId(),
-                                                    repository.getId(), path)
-                                   .map(e -> repositoryPath.resolve(e))
-                                   .orElseGet(() -> repositoryPath.resolve(path));
+        private LazyRepositoryPath(RepositoryPath target)
+        {
+            super(target.getTarget(), target.getFileSystem());
+        }
+
+        @Override
+        public ArtifactEntry getArtifactEntry()
+            throws IOException
+        {
+            ArtifactEntry result = super.getArtifactEntry();
+            if (result != null)
+            {
+                return result;
+            }
+
+            result = artifactEntryService.findOneArtifact(getRepository().getStorage().getId(),
+                                                          getRepository().getId(),
+                                                          RepositoryFiles.relativizePath(this))
+                                         .orElse(null);
+// TODO: we should check this restriction 
+//            if (Files.exists(this) && !Files.isDirectory(this) && RepositoryFiles.isArtifact(this) && result == null)
+//            {
+//                throw new IOException(String.format("Corresponding [%s] record not found for path [%s]",
+//                                                    ArtifactEntry.class.getSimpleName(), this));
+//            }
+
+            return this.artifactEntry = result;
+        }
 
     }
 

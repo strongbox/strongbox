@@ -236,7 +236,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         artifactEntryService.save(artifactEntry);
     }
 
-    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath)
+    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
     {
         return Optional.ofNullable(repositoryPath.getArtifactEntry())
                        .map(e -> artifactEntryService.lockOne(e.getObjectId()))

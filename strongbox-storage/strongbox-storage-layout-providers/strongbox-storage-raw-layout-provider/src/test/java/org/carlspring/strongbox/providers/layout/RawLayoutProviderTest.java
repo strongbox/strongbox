@@ -6,6 +6,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.data.PropertyUtils;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -17,6 +18,9 @@ import org.carlspring.strongbox.testing.TestCaseWithRepository;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -118,22 +122,15 @@ public class RawLayoutProviderTest
             throws Exception
     {
         String path = "foo/bar.zip";
-        File artifactFile = new File("target/strongbox-vault/storages/" + STORAGE + "/" + REPOSITORY + "/" + path);
-        File artifactTempFile = new File(PropertyUtils.getTempDirectory() +
-                                         "/storages/" + STORAGE + "/" + REPOSITORY + "/" + path);
-
-        if (!artifactTempFile.getParentFile().exists())
-        {
-            //noinspection ResultOfMethodCallIgnored
-            artifactTempFile.getParentFile().mkdirs();
-        }
 
         // Deploy the artifact
         artifactManagementService.validateAndStore(STORAGE,
                                                    REPOSITORY,
                                                    path,
-                                                   createZipFile(artifactTempFile.getPath()));
+                                                   createZipFile());
 
+        
+        File artifactFile = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + STORAGE + "/" + REPOSITORY + "/" + path);
         assertTrue("Failed to deploy artifact!", artifactFile.exists());
         assertTrue("Failed to deploy artifact!", artifactFile.length() > 0);
 
@@ -143,7 +140,7 @@ public class RawLayoutProviderTest
             artifactManagementService.validateAndStore(STORAGE,
                                                        REPOSITORY,
                                                        path,
-                                                       createZipFile(artifactTempFile.getPath()));
+                                                       createZipFile());
         }
         catch (Exception e)
         {
@@ -199,11 +196,11 @@ public class RawLayoutProviderTest
         storageManagementService.createStorage(storage);
     }
 
-    private InputStream createZipFile(String path)
+    private InputStream createZipFile()
             throws IOException
     {
-        FileOutputStream fos = new FileOutputStream(path);
-        try (ZipOutputStream zos = new ZipOutputStream(fos))
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(os))
         {
             ZipEntry entry = new ZipEntry("dummy-file.txt");
 
@@ -212,7 +209,7 @@ public class RawLayoutProviderTest
             zos.closeEntry();
         }
 
-        return new FileInputStream(path);
+        return new ByteArrayInputStream(os.toByteArray());
     }
 
 }

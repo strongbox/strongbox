@@ -53,7 +53,7 @@ public class RepositoryPath
         return target;
     }
     
-    public ArtifactEntry getArtifactEntry()
+    public ArtifactEntry getArtifactEntry() throws IOException
     {
         return artifactEntry;
     }

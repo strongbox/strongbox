@@ -121,7 +121,7 @@ public class ProxyRepositoryProvider
         return hostedRepositoryProvider.count(storageId, repositoryId, predicate);
     }
 
-    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath)
+    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
     {
         RemoteArtifactEntry artifactEntry = Optional.of(super.provideArtifactEntry(repositoryPath))
                                                     .map(e -> e.getObjectId() == null ? new RemoteArtifactEntry()

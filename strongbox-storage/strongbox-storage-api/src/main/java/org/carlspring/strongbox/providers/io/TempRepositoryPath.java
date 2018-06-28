@@ -42,7 +42,7 @@ public class TempRepositoryPath extends RepositoryPath implements Closeable
 
         TempRepositoryPath result = new TempRepositoryPath(tempPath);
         result.tempTarget = path;
-        result.artifactEntry = path.artifactEntry;
+        result.artifactEntry = path.getArtifactEntry();
 
         return result;
     }
