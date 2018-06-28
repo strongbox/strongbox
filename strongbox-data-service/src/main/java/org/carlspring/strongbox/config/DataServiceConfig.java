@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.spring.cache.HazelcastCacheManager;
+import com.hazelcast.spring.transaction.HazelcastTransactionManager;
 import com.orientechnologies.orient.object.jpa.OJPAObjectDatabaseTxPersistenceProvider;
 import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.cache.CacheManager;
@@ -21,6 +23,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.transaction.ChainedTransactionManager;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -62,9 +65,11 @@ public class DataServiceConfig
     }
 
     @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf)
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf, HazelcastInstance hazelcastInstance)
     {
-        return new JpaTransactionManager(emf);
+        JpaTransactionManager jpaTransactionManager = new JpaTransactionManager(emf);
+        HazelcastTransactionManager hazelcastTransactionManager = new HazelcastTransactionManager(hazelcastInstance);
+        return new ChainedTransactionManager(hazelcastTransactionManager, jpaTransactionManager);
     }
 
     @Bean
@@ -89,9 +94,7 @@ public class DataServiceConfig
     @Bean
     public CacheManager cacheManager(HazelcastInstance hazelcastInstance)
     {
-        HazelcastTransactionSupportingCacheManager cacheManager = new HazelcastTransactionSupportingCacheManager(hazelcastInstance);
-        cacheManager.setTransactionAware(true);
-        return cacheManager;
+        return new HazelcastCacheManager(hazelcastInstance);
     }
 
 

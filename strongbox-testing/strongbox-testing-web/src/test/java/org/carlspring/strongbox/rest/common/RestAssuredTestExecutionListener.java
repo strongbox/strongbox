@@ -17,7 +17,10 @@ public class RestAssuredTestExecutionListener extends AbstractTestExecutionListe
     public void beforeTestClass(TestContext testContext)
         throws Exception
     {
-        RestAssuredMockMvc.webAppContextSetup((WebApplicationContext) testContext.getApplicationContext());
+        WebApplicationContext applicationContext = (WebApplicationContext) testContext.getApplicationContext();
+        
+        RestAssuredMockMvc.webAppContextSetup(applicationContext);
+
     }
 
     @Override

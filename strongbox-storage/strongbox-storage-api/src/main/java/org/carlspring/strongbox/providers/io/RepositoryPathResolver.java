@@ -92,23 +92,26 @@ public class RepositoryPathResolver
         public ArtifactEntry getArtifactEntry()
             throws IOException
         {
-            ArtifactEntry result = super.getArtifactEntry();
-            if (result != null)
+            if (artifactEntry != null)
             {
-                return result;
+                return artifactEntry;
             }
-
-            result = artifactEntryService.findOneArtifact(getRepository().getStorage().getId(),
-                                                          getRepository().getId(),
-                                                          RepositoryFiles.relativizePath(this));
-// TODO: we should check this restriction 
+            
+            if (this.getRepository().isGroupRepository() || !RepositoryFiles.isArtifact(this))
+            {
+                return this.artifactEntry = null;
+            }
+            
+            return this.artifactEntry = artifactEntryService.findOneArtifact(getRepository().getStorage().getId(),
+                                                                             getRepository().getId(),
+                                                                             RepositoryFiles.relativizePath(this));
+            // TODO: we should check this restriction 
 //            if (Files.exists(this) && !Files.isDirectory(this) && RepositoryFiles.isArtifact(this) && result == null)
 //            {
 //                throw new IOException(String.format("Corresponding [%s] record not found for path [%s]",
 //                                                    ArtifactEntry.class.getSimpleName(), this));
 //            }
 
-            return this.artifactEntry = result;
         }
 
     }

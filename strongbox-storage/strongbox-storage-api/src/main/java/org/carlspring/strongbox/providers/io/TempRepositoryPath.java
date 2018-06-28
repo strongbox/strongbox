@@ -54,7 +54,8 @@ public class TempRepositoryPath extends RepositoryPath implements Closeable
         try
         {
             getFileSystem().provider().moveFromTemporaryDirectory(this);
-        } finally
+        } 
+        finally
         {
             if (Files.exists(this))
             {

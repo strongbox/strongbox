@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
 
 import javax.inject.Inject;
 
@@ -30,7 +29,6 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.javatuples.Pair;
-import org.javatuples.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -45,7 +43,6 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * DAO implementation for {@link ArtifactEntry} entities.
@@ -464,12 +461,33 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         ORID artifactEntryId = findArtifactEntryId(storageId, repositoryId, path);
         return Optional.ofNullable(artifactEntryId)
                        .flatMap(id -> Optional.ofNullable(entityManager.find(ArtifactEntry.class, id)))
-                       .map(e -> (ArtifactEntry) ((OObjectDatabaseTx) entityManager.getDelegate()).detachAll(e,
-                                                                                                             true))
+                       .map(e -> detach(e))
                        .orElse(null);
+    }
+    
+    @Override
+    @CacheEvict(cacheNames = CacheName.Artifact.ARTIFACT_ENTRIES, allEntries = true)
+    public void delete(String id)
+    {
+        super.delete(id);
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheName.Artifact.ARTIFACT_ENTRIES, keyGenerator = ArtifactEntryKeyGenerator.NAME_ARTIFACT_ENTRY_KYE_GENERATOR)
+    public void delete(ArtifactEntry entity)
+    {
+        super.delete(entity);
+    }
+
+    @Override
+    @CacheEvict(cacheNames = CacheName.Artifact.ARTIFACT_ENTRIES, allEntries = true)
+    public void deleteAll()
+    {
+        super.deleteAll();
+    }
+
+    @Override
+    @CacheEvict(cacheNames = CacheName.Artifact.ARTIFACT_ENTRIES, allEntries = true)
     public int delete(List<ArtifactEntry> artifactEntries)
     {
         if (CollectionUtils.isEmpty(artifactEntries))
@@ -531,7 +549,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     }
     
     @Component(ArtifactEntryKeyGenerator.NAME_ARTIFACT_ENTRY_KYE_GENERATOR)
-    public static class ArtifactEntryKeyGenerator implements KeyGenerator
+    public class ArtifactEntryKeyGenerator implements KeyGenerator
     {
 
         public static final String NAME_ARTIFACT_ENTRY_KYE_GENERATOR = "artifactEntryKeyGenerator";
@@ -541,16 +559,25 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                Method method,
                                Object... params)
         {
-            return Arrays.stream(params)
-                         .filter(p -> p instanceof ArtifactEntry)
-                         .findFirst()
-                         .flatMap(p -> Optional.of((ArtifactEntry) p))
-                         .map(e -> String.format("%s/%s/%s", e.getStorageId(), e.getRepositoryId(),
-                                                 e.getArtifactCoordinates().toPath())
-                                         .toString())
-                         .orElse(null);
+            return Optional.ofNullable((ArtifactEntry) params[0])
+                    .map(e -> detach(e))
+                    .map(e -> String.format("%s/%s/%s", e.getStorageId(), e.getRepositoryId(),
+                                            e.getArtifactCoordinates().toPath())
+                                    .toString())
+                    .orElse(null);
         }
 
     }
 
+    @Override
+    protected ArtifactEntry detach(ArtifactEntry entity)
+    {
+        ArtifactEntry result = super.detach(entity);
+        result.setArtifactCoordinates(getDelegate().detachAll(entity.getArtifactCoordinates(), true));
+        
+        return result;
+    }
+
+    
+    
 }

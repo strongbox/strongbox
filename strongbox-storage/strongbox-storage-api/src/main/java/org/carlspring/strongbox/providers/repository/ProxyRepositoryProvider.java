@@ -121,15 +121,31 @@ public class ProxyRepositoryProvider
         return hostedRepositoryProvider.count(storageId, repositoryId, predicate);
     }
 
-    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
+    @Override
+    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath, boolean create, boolean lock) throws IOException
     {
-        RemoteArtifactEntry artifactEntry = Optional.of(super.provideArtifactEntry(repositoryPath))
-                                                    .map(e -> e.getObjectId() == null ? new RemoteArtifactEntry()
-                                                            : (RemoteArtifactEntry) e)
-                                                    .get();
-        artifactEntry.setIsCached(Boolean.TRUE);
+        ArtifactEntry artifactEntry = super.provideArtifactEntry(repositoryPath, create, lock);
+        
+        if (artifactEntry instanceof RemoteArtifactEntry)
+        {
+            ((RemoteArtifactEntry) artifactEntry).setIsCached(true);
+            return artifactEntry;
+        }
+        else if (artifactEntry == null)
+        {
+            return null;
+        }
 
-        return artifactEntry;
+        return artifactEntry.getObjectId() == null ? createCachedRemoteArtifactEntry()
+                : (RemoteArtifactEntry) artifactEntry;
+    }
+
+    private RemoteArtifactEntry createCachedRemoteArtifactEntry()
+    {
+        RemoteArtifactEntry result = new RemoteArtifactEntry();
+        result.setIsCached(Boolean.TRUE);
+        
+        return result;
     }
 
 }

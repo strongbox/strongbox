@@ -176,10 +176,9 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath);
-        Date now = new Date();
+        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath, true, true);
         
-        if (artifactEntry.getUuid() != null && now.getTime() - artifactEntry.getLastUpdated().getTime() < HazelcastConfiguration.ARTIFACT_ENTRY_CACHE_INVALIDATE_INTERVAL)
+        if (artifactEntry.getUuid() != null)
         {
             return;
         }
@@ -191,12 +190,19 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         ArtifactCoordinates coordinates = aos.getCoordinates();
         artifactEntry.setArtifactCoordinates(coordinates);
 
-        artifactEntry.setLastUpdated(now);
+        Date now = new Date();
+        artifactEntry.setLastUpdated(now );
         artifactEntry.setLastUsed(now);
 
-        artifactEntry = artifactEntryService.save(artifactEntry, true);
-        
         repositoryPath.artifactEntry = artifactEntry;
+    }
+
+    private boolean shouldUpdateArtifactEntry(ArtifactEntry artifactEntry)
+    {
+        Date now = new Date();
+        Date lastUpdated = artifactEntry.getLastUpdated();
+        
+        return now.getTime() - lastUpdated.getTime() > HazelcastConfiguration.ARTIFACT_ENTRY_CACHE_INVALIDATE_INTERVAL;
     }
 
     @Override
@@ -209,18 +215,20 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         {
             return;
         }
-        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath);
-        Assert.notNull(artifactEntry.getUuid(),
+        
+        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath, false, false);
+        
+        Assert.notNull(artifactEntry,
                        String.format("Invalid [%s] for [%s]", ArtifactEntry.class.getSimpleName(),
                                      repositoryPath));
 
         CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, (OutputStream) ctx);
         long size = cos.getByteCount();
-        if (!Long.valueOf(size).equals(artifactEntry.getSizeInBytes()))
+        if (!Long.valueOf(size).equals(artifactEntry.getSizeInBytes()) || shouldUpdateArtifactEntry(artifactEntry))
         {
             artifactEntry.setSizeInBytes(size);
 
-            artifactEntryService.save(artifactEntry);
+            repositoryPath.artifactEntry = artifactEntryService.save(artifactEntry, true);
         }
     }
 
@@ -234,9 +242,10 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         {
             return;
         }
-        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath);
+        
+        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath, false, true);
 
-        Assert.notNull(artifactEntry.getUuid(),
+        Assert.notNull(artifactEntry,
                        String.format("Invalid [%s] for [%s]",
                                      ArtifactEntry.class.getSimpleName(),
                                      ctx.getPath()));
@@ -251,15 +260,19 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         
         artifactEntry.setLastUsed(now);
         artifactEntry.setDownloadCount(artifactEntry.getDownloadCount() + 1);
-
-        artifactEntryService.save(artifactEntry);
     }
 
-    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
+    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath, boolean create, boolean lock) throws IOException
     {
-        return Optional.ofNullable(repositoryPath.getArtifactEntry())
-                       .map(e -> artifactEntryService.lockOne(e.getObjectId()))
-                       .orElse(new ArtifactEntry());
+        ArtifactEntry artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry())
+                                              .orElse(create ? new ArtifactEntry() : null);
+        
+        if (lock && artifactEntry.getObjectId() != null)
+        {
+            artifactEntry = artifactEntryService.lockOne(artifactEntry.getObjectId());
+        }
+
+        return artifactEntry;
     }
     
     @Override

@@ -290,6 +290,12 @@ public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileS
                                 boolean force)
         throws IOException
     {
+        if (!RepositoryFiles.isArtifact(repositoryPath))
+        {
+            super.doDeletePath(repositoryPath, force);
+            return;
+        }
+        
         ArtifactEntry artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry())
                                               .orElseGet(() -> fetchArtifactEntry(repositoryPath));
         if (artifactEntry != null)

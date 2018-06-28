@@ -33,6 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -45,7 +46,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.FileSystemUtils;
 
 /**
@@ -85,8 +87,10 @@ public class ArtifactManagementService
 
     @Inject
     protected RepositoryPathLock repositoryPathLock;
+    
+    @Inject
+    private PlatformTransactionManager transactionManager;
 
-    @Transactional
     public long validateAndStore(RepositoryPath repositoryPath,
                                  InputStream is)
         throws IOException,
@@ -99,7 +103,6 @@ public class ArtifactManagementService
         return store(repositoryPath, is);
     }
     
-    @Transactional
     @Deprecated
     public long validateAndStore(String storageId,
                                  String repositoryId,
@@ -117,20 +120,30 @@ public class ArtifactManagementService
         return store(repositoryPath, is);
     }
     
-    @Transactional
     public long store(RepositoryPath repositoryPath,
-                       InputStream is)
+                      InputStream is)
            throws IOException
     {
         repositoryPathLock.lock(repositoryPath);
-        
-        try (TempRepositoryPath tempArtifact = RepositoryFiles.temporary(repositoryPath))
+
+        try
         {
-            return tryToStore(tempArtifact, is);
+            TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+            //TODO: implement suspension for HazelcastTransactionManager
+            //transactionTemplate.setPropagationBehavior(Propagation.REQUIRES_NEW.value());
+            return transactionTemplate.execute((s) -> storeInTransaction(repositoryPath, is));
         }
-        catch (IOException e)
+        catch (UndeclaredThrowableException e)
         {
-            throw e;
+            Throwable cause = e.getCause();
+            if (cause instanceof IOException)
+            {
+                throw (IOException) cause;
+            }
+            else
+            {
+                throw new IOException(cause);
+            }
         }
         catch (Exception e)
         {
@@ -142,8 +155,21 @@ public class ArtifactManagementService
         }
     }
 
-    private long tryToStore(TempRepositoryPath repositoryPath,
-                            InputStream is)
+    private long storeInTransaction(RepositoryPath repositoryPath,
+                                    InputStream is)
+    {
+        try (TempRepositoryPath tempArtifact = RepositoryFiles.temporary(repositoryPath))
+        {
+            return storeInTemp(tempArtifact, is);
+        }
+        catch (IOException e)
+        {
+            throw new UndeclaredThrowableException(e);
+        }
+    }
+    
+    private long storeInTemp(TempRepositoryPath repositoryPath,
+                             InputStream is)
         throws IOException
     {
 
