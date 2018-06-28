@@ -171,11 +171,15 @@ public abstract class RepositoryFiles
         }
     }
 
-    public static void deleteTrash(RepositoryPath repositoryPath) throws IOException {
+    public static void deleteTrash(RepositoryPath repositoryPath)
+        throws IOException
+    {
         repositoryPath.getFileSystem().provider().deleteTrash(repositoryPath);
     }
     
-    public static void undeleteTrash(RepositoryPath repositoryPath) throws IOException {
+    public static void undeleteTrash(RepositoryPath repositoryPath)
+        throws IOException
+    {
         repositoryPath.getFileSystem().provider().undelete(repositoryPath);
     }
     
@@ -191,4 +195,5 @@ public abstract class RepositoryFiles
     {
         Files.delete(path);
     }
+    
 }
