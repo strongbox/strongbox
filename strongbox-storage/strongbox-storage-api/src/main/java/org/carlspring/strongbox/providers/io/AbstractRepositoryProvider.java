@@ -38,6 +38,7 @@ import org.springframework.util.Assert;
 public abstract class AbstractRepositoryProvider implements RepositoryProvider, RepositoryStreamCallback
 {
 
+    public static final int CACHE_INVALIDATE_INTERVAL = 60000;
     private static final Logger logger = LoggerFactory.getLogger(AbstractRepositoryProvider.class);
     @Inject
     protected RepositoryProviderRegistry repositoryProviderRegistry;
@@ -175,7 +176,13 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String repositoryId = repository.getId();
 
         ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath);
-
+        Date now = new Date();
+        
+        if (artifactEntry.getUuid() != null && now.getTime() - artifactEntry.getLastUpdated().getTime() < 60000)
+        {
+            return;
+        }
+        
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
 
@@ -183,7 +190,6 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         ArtifactCoordinates coordinates = aos.getCoordinates();
         artifactEntry.setArtifactCoordinates(coordinates);
 
-        Date now = new Date();
         artifactEntry.setLastUpdated(now);
         artifactEntry.setLastUsed(now);
 
@@ -208,9 +214,13 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
                                      repositoryPath));
 
         CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, (OutputStream) ctx);
-        artifactEntry.setSizeInBytes(cos.getByteCount());
+        long size = cos.getByteCount();
+        if (size != artifactEntry.getSizeInBytes())
+        {
+            artifactEntry.setSizeInBytes(size);
 
-        artifactEntryService.save(artifactEntry);
+            artifactEntryService.save(artifactEntry);
+        }
     }
 
     @Override
@@ -230,7 +240,15 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
                                      ArtifactEntry.class.getSimpleName(),
                                      ctx.getPath()));
 
-        artifactEntry.setLastUsed(new Date());
+        Date now = new Date();
+        
+        if (artifactEntry.getUuid() != null
+                && now.getTime() - artifactEntry.getLastUsed().getTime() < CACHE_INVALIDATE_INTERVAL)
+        {
+            return;
+        }
+        
+        artifactEntry.setLastUsed(now);
         artifactEntry.setDownloadCount(artifactEntry.getDownloadCount() + 1);
 
         artifactEntryService.save(artifactEntry);

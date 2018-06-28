@@ -88,7 +88,6 @@ public class ProxyRepositoryArtifactResolver
         repositoryPathLock.lock(repositoryPath);
         try (InputStream is = new BufferedInputStream(new ProxyRepositoryInputStream(client, repositoryPath)))
         {
-            repositoryPath = repositoryPathResolver.resolve(repository, repositoryPath);
             if (RepositoryFiles.artifactExists(repositoryPath))
             {
                 return repositoryPath;
