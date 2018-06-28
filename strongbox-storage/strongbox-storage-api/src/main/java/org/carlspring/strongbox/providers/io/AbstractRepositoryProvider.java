@@ -215,7 +215,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
 
         CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, (OutputStream) ctx);
         long size = cos.getByteCount();
-        if (size != artifactEntry.getSizeInBytes())
+        if (!Long.valueOf(size).equals(artifactEntry.getSizeInBytes()))
         {
             artifactEntry.setSizeInBytes(size);
 
