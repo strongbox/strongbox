@@ -76,9 +76,9 @@ public interface ArtifactEntryService
                            String repositoryId,
                            String path);
 
-    Optional<ArtifactEntry> findOneArtifact(String storageId,
-                                            String repositoryId,
-                                            String path);
+    ArtifactEntry findOneArtifact(String storageId,
+                                  String repositoryId,
+                                  String path);
 
     int delete(List<ArtifactEntry> artifactEntries);
 

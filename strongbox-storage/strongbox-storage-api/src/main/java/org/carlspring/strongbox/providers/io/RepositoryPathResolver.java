@@ -100,8 +100,7 @@ public class RepositoryPathResolver
 
             result = artifactEntryService.findOneArtifact(getRepository().getStorage().getId(),
                                                           getRepository().getId(),
-                                                          RepositoryFiles.relativizePath(this))
-                                         .orElse(null);
+                                                          RepositoryFiles.relativizePath(this));
 // TODO: we should check this restriction 
 //            if (Files.exists(this) && !Files.isDirectory(this) && RepositoryFiles.isArtifact(this) && result == null)
 //            {

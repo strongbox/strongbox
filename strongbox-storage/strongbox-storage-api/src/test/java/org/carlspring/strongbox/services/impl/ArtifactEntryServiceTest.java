@@ -76,8 +76,9 @@ public class ArtifactEntryServiceTest
         createArtifacts(groupId, artifactId, storageId, repositoryId);
         displayAllEntries();
 
-        Optional<ArtifactEntry> artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId,
-                                                                                             "org.carlspring.strongbox/coordinates-test123/1.2.3/jar");
+        Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                                                 repositoryId,
+                                                                                                                 "org.carlspring.strongbox/coordinates-test123/1.2.3/jar"));
 
         assertTrue(artifactEntryOptional.isPresent());
 
@@ -90,12 +91,13 @@ public class ArtifactEntryServiceTest
         artifactEntry.setRepositoryId(repositoryId + "abc");
         artifactEntry = artifactEntryService.save(artifactEntry);
 
-        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId,
-                                                                     "org.carlspring.strongbox/coordinates-test123/1.2.3/jar");
+        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId, repositoryId,
+                                                                                         "org.carlspring.strongbox/coordinates-test123/1.2.3/jar"));
         assertFalse(artifactEntryOptional.isPresent());
 
-        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId + "abc",
-                                                                     "org.carlspring.strongbox/coordinates-test123/1.2.3/jar");
+        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                         repositoryId + "abc",
+                                                                                         "org.carlspring.strongbox/coordinates-test123/1.2.3/jar"));
         assertTrue(artifactEntryOptional.isPresent());
 
         //Cascade field update
@@ -103,12 +105,14 @@ public class ArtifactEntryServiceTest
         nullArtifactCoordinates.setId("org.carlspring.strongbox/coordinates-test123/1.2.3/pom");
         artifactEntryService.save(artifactEntry);
 
-        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId + "abc",
-                                                                     "org.carlspring.strongbox/coordinates-test123/1.2.3/jar");
+        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                         repositoryId + "abc",
+                                                                                         "org.carlspring.strongbox/coordinates-test123/1.2.3/jar"));
         assertFalse(artifactEntryOptional.isPresent());
 
-        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId + "abc",
-                                                                     "org.carlspring.strongbox/coordinates-test123/1.2.3/pom");
+        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                         repositoryId + "abc",
+                                                                                         "org.carlspring.strongbox/coordinates-test123/1.2.3/pom"));
         assertTrue(artifactEntryOptional.isPresent());
 
     }

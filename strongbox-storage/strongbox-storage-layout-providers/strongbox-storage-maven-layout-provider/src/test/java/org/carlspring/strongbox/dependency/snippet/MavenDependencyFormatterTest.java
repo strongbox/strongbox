@@ -114,8 +114,7 @@ public class MavenDependencyFormatterTest
     {
         ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0,
                                                                            REPOSITORY_RELEASES,
-                                                                           coordinates1.toPath())
-                                                          .orElse(null);
+                                                                           coordinates1.toPath());
 
         if (artifactEntry != null)
         {

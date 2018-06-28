@@ -316,8 +316,7 @@ public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileS
 
         return artifactEntryService.findOneArtifact(repository.getStorage().getId(),
                                                     repository.getId(),
-                                                    path)
-                                   .orElse(null);
+                                                    path);
     }
 
     @Override

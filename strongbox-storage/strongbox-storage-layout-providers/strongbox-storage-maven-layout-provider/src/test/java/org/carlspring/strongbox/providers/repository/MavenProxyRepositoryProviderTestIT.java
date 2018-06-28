@@ -175,12 +175,14 @@ public class MavenProxyRepositoryProviderTestIT
         String repositoryId = "maven-central";
         String path = "org/carlspring/properties-injector/1.6/properties-injector-1.6.jar";
 
-        Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneArtifact(storageId, repositoryId, path);
+        Optional<ArtifactEntry> artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                                         repositoryId,
+                                                                                                         path));
         assertThat(artifactEntry, CoreMatchers.equalTo(Optional.empty()));
 
         assertStreamNotNull(storageId, repositoryId, path);
 
-        artifactEntry = artifactEntryService.findOneArtifact(storageId, repositoryId, path);
+        artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId, repositoryId, path));
         assertThat(artifactEntry, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
     }
 

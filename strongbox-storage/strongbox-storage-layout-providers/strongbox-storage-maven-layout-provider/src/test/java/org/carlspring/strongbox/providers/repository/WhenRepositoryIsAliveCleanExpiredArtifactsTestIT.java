@@ -32,8 +32,9 @@ public class WhenRepositoryIsAliveCleanExpiredArtifactsTestIT
         ArtifactEntry artifactEntry = downloadAndSaveArtifactEntry();
 
         localStorageProxyRepositoryExpiredArtifactsCleaner.cleanup(5, artifactEntry.getSizeInBytes() - 1);
-        Optional<ArtifactEntry> artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId,
-                                                                                             path);
+        Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                                                 repositoryId,
+                                                                                                                 path));
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
         final Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());

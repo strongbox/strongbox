@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.config.HazelcastConfiguration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
@@ -38,8 +39,8 @@ import org.springframework.util.Assert;
 public abstract class AbstractRepositoryProvider implements RepositoryProvider, RepositoryStreamCallback
 {
 
-    public static final int CACHE_INVALIDATE_INTERVAL = 60000;
     private static final Logger logger = LoggerFactory.getLogger(AbstractRepositoryProvider.class);
+    
     @Inject
     protected RepositoryProviderRegistry repositoryProviderRegistry;
 
@@ -178,7 +179,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath);
         Date now = new Date();
         
-        if (artifactEntry.getUuid() != null && now.getTime() - artifactEntry.getLastUpdated().getTime() < 60000)
+        if (artifactEntry.getUuid() != null && now.getTime() - artifactEntry.getLastUpdated().getTime() < HazelcastConfiguration.ARTIFACT_ENTRY_CACHE_INVALIDATE_INTERVAL)
         {
             return;
         }
@@ -243,7 +244,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         Date now = new Date();
         
         if (artifactEntry.getUuid() != null
-                && now.getTime() - artifactEntry.getLastUsed().getTime() < CACHE_INVALIDATE_INTERVAL)
+                && now.getTime() - artifactEntry.getLastUsed().getTime() < HazelcastConfiguration.ARTIFACT_ENTRY_CACHE_INVALIDATE_INTERVAL)
         {
             return;
         }

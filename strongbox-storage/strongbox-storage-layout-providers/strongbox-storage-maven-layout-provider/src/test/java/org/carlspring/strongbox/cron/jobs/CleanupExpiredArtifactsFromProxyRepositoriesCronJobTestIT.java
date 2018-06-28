@@ -79,8 +79,9 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         final String repositoryId = "maven-central";
         final String path = "org/carlspring/properties-injector/1.6/properties-injector-1.6.jar";
 
-        Optional<ArtifactEntry> artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId,
-                                                                                             path);
+        Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                                                 repositoryId,
+                                                                                                                 path));
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
         Path repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(storageId, repositoryId,
@@ -89,7 +90,8 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         {
         }
 
-        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId, path);
+        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId, repositoryId,
+                                                                                         path));
         ArtifactEntry artifactEntry = artifactEntryOptional.orElse(null);
         assertThat(artifactEntry, CoreMatchers.notNullValue());
         assertThat(artifactEntry.getLastUpdated(), CoreMatchers.notNullValue());
@@ -108,9 +110,9 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         {
             if (jobName1.equals(jobName) && statusExecuted)
             {
-                Optional<ArtifactEntry> optionalArtifactEntryFromDb = artifactEntryService.findOneArtifact(storageId,
-                                                                                                           repositoryId,
-                                                                                                           path);
+                Optional<ArtifactEntry> optionalArtifactEntryFromDb = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                                                               repositoryId,
+                                                                                                                               path));
                 assertThat(optionalArtifactEntryFromDb, CoreMatchers.equalTo(Optional.empty()));
 
                 final Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());

@@ -51,7 +51,7 @@
     -->
 
     <!-- Strongbox packages -->
-    <logger name="org.carlspring.strongbox" level="INFO"/>
+    <logger name="org.carlspring.strongbox" level="DEBUG"/>
     <logger name="org.carlspring.strongbox.security.authentication" level="INFO"/>
     <logger name="org.carlspring.strongbox.security.vote" level="INFO"/>
     <logger name="org.carlspring.strongbox.data" level="WARN"/>
@@ -78,7 +78,7 @@
     <logger name="org.springframework.web" level="INFO"/>
     <!-- Third-party packages -->
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </root>

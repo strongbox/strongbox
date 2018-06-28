@@ -117,9 +117,9 @@ public class NugetRemoteRepositoryTest
                                     nugetSearchRequest);
 
         NugetArtifactCoordinates c = new NugetArtifactCoordinates("NHibernate", "4.0.4.4000", "nupkg");
-        Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneArtifact(NUGET_COMMON_STORAGE,
-                                                                                     REPOSITORY_PROXY,
-                                                                                     c.toPath());
+        Optional<ArtifactEntry> artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(NUGET_COMMON_STORAGE,
+                                                                                                         REPOSITORY_PROXY,
+                                                                                                         c.toPath()));
 
         Assert.assertTrue(artifactEntry.isPresent());
         Assert.assertFalse(((RemoteArtifactEntry) artifactEntry.get()).getIsCached());

@@ -72,8 +72,9 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     protected ArtifactEntry downloadAndSaveArtifactEntry()
             throws Exception
     {
-        Optional<ArtifactEntry> artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId,
-                                                                                             path);
+        Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                                                 repositoryId,
+                                                                                                                 path));
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
         RepositoryPath repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(storageId, repositoryId,
@@ -82,7 +83,8 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
         {
         }
 
-        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId, path);
+        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId, repositoryId,
+                                                                                         path));
         ArtifactEntry artifactEntry = artifactEntryOptional.orElse(null);
         assertThat(artifactEntry, CoreMatchers.notNullValue());
         assertThat(artifactEntry.getLastUpdated(), CoreMatchers.notNullValue());
