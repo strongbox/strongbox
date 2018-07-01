@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
+import org.carlspring.strongbox.storage.routing.RoutingRules;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.ArrayList;
@@ -48,6 +48,8 @@ public class Configuration
 
     private final RoutingRules routingRules;
 
+    private final CorsConfiguration corsConfiguration;
+
     public Configuration(final MutableConfiguration delegate)
     {
 
@@ -63,8 +65,8 @@ public class Configuration
                 delegate.getRemoteRepositoriesConfiguration());
         storages = immuteStorages(delegate.getStorages());
         routingRules = immuteRoutingRules(delegate.getRoutingRules());
+        corsConfiguration = immuteCorsConfiguration(delegate.getCorsConfiguration());
     }
-
 
     private ProxyConfiguration immuteProxyConfiguration(final MutableProxyConfiguration source)
     {
@@ -90,6 +92,11 @@ public class Configuration
     private RoutingRules immuteRoutingRules(final MutableRoutingRules source)
     {
         return source != null ? new RoutingRules(source) : null;
+    }
+
+    private CorsConfiguration immuteCorsConfiguration(final MutableCorsConfiguration source)
+    {
+        return source != null ? new CorsConfiguration(source) : null;
     }
 
     public String getId()
@@ -227,4 +234,8 @@ public class Configuration
         return getStorage(storageId).getRepository(repositoryId).getHttpConnectionPool();
     }
 
+    public CorsConfiguration getCorsConfiguration()
+    {
+        return corsConfiguration;
+    }
 }

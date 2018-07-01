@@ -22,6 +22,7 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -543,6 +544,16 @@ public class ConfigurationManagementServiceImpl
                      });
 
         return result.isTrue();
+    }
+
+    @Override
+    public void setCorsAllowedOrigins(final List<String> allowedOrigins)
+    {
+        modifyInLock(configuration ->
+                     {
+                         configuration.getCorsConfiguration()
+                                      .setAllowedOrigins(new ArrayList<>(allowedOrigins));
+                     });
     }
 
     private void setProxyRepositoryConnectionPoolConfigurations()
