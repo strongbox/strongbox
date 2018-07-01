@@ -33,7 +33,7 @@ pipeline {
         stage('Building')
         {
             steps {
-                withMavenPlus(timestamps: true, mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833')
+                withMavenPlus(timestamps: true, mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534')
                 {
                     sh "mvn -U clean install -Pdependency-convergence-check -Dintegration.tests -Dprepare.revision -Dmaven.test.failure.ignore=true"
                 }
@@ -41,7 +41,7 @@ pipeline {
         }
         stage('Code Analysis') {
             steps {
-                withMavenPlus(mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833', publisherStrategy: 'EXPLICIT')
+                withMavenPlus(mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534', publisherStrategy: 'EXPLICIT')
                 {
                     script
                     {
@@ -137,8 +137,9 @@ pipeline {
             junit '**/target/*-reports/*.xml'
         }
         cleanup {
-            // Cleanup workspace.
-            cleanWs deleteDirs: true, externalDelete: 'rm -rf %s', notFailBuild: true
+            script {
+                workspace().clean()
+            }
         }
     }
 }
