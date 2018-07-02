@@ -62,6 +62,9 @@ public class MutableConfiguration
     @XmlElement(name = "routing-rules")
     private MutableRoutingRules routingRules = new MutableRoutingRules();
 
+    @XmlElement(name = "cors-configuration")
+    private MutableCorsConfiguration corsConfiguration = new MutableCorsConfiguration();
+
 
     public MutableConfiguration()
     {
@@ -188,6 +191,16 @@ public class MutableConfiguration
         this.remoteRepositoriesConfiguration = remoteRepositoriesConfiguration;
     }
 
+    public MutableCorsConfiguration getCorsConfiguration()
+    {
+        return corsConfiguration;
+    }
+
+    public void setCorsConfiguration(final MutableCorsConfiguration corsConfiguration)
+    {
+        this.corsConfiguration = corsConfiguration;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -202,14 +215,15 @@ public class MutableConfiguration
                Objects.equal(sessionConfiguration, that.sessionConfiguration) &&
                Objects.equal(storages, that.storages) &&
                Objects.equal(routingRules, that.routingRules) &&
-               Objects.equal(remoteRepositoriesConfiguration, that.remoteRepositoriesConfiguration);
+               Objects.equal(remoteRepositoriesConfiguration, that.remoteRepositoriesConfiguration) &&
+               Objects.equal(corsConfiguration, that.corsConfiguration);
     }
 
     @Override
     public int hashCode()
     {
         return Objects.hashCode(version, baseUrl, port, proxyConfiguration, sessionConfiguration, storages,
-                                routingRules, remoteRepositoriesConfiguration);
+                                routingRules, remoteRepositoriesConfiguration, corsConfiguration);
     }
 
     @Override
@@ -225,6 +239,7 @@ public class MutableConfiguration
                           .add("\n\tstorages", storages)
                           .add("\n\troutingRules", routingRules)
                           .add("\n\tremoteRepositoriesConfiguration", remoteRepositoriesConfiguration)
+                          .add("\n\tcorsConfiguration", corsConfiguration)
                           .toString();
     }
 

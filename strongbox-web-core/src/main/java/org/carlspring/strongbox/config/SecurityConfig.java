@@ -10,12 +10,14 @@ import org.carlspring.strongbox.security.authentication.StrongboxAuthenticationF
 import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSupplier;
 import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSuppliers;
 import org.carlspring.strongbox.security.vote.MethodAccessDecisionManager;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -98,30 +100,39 @@ public class SecurityConfig
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource()
+    public CorsConfigurationSource corsConfigurationSource(ConfigurationManagementService configurationManagementService)
     {
         final CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedMethods(Arrays.asList("GET",
-                                                      "PUT",
-                                                      "POST",
-                                                      "DELETE",
-                                                      "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Accept",
-                                                      "Accepts",
-                                                      "Authorization",
-                                                      "Access-Control-Allow-Headers",
-                                                      "Access-Control-Request-Headers",
-                                                      "Access-Control-Request-Method",
-                                                      "DNT",
-                                                      "Keep-Alive",
-                                                      "User-Agent",
-                                                      "X-Requested-With",
-                                                      "If-Modified-Since",
-                                                      "Cache-Control",
-                                                      "Content-Type",
-                                                      "Content-Range,Range"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(600L);
+        final org.carlspring.strongbox.configuration.CorsConfiguration internalCorsConfiguration = configurationManagementService
+                                                                                                           .getConfiguration()
+                                                                                                           .getCorsConfiguration();
+        if (internalCorsConfiguration != null)
+        {
+            if (internalCorsConfiguration.getAllowedMethods() != null)
+            {
+                configuration.setAllowedMethods(new ArrayList<>(internalCorsConfiguration.getAllowedMethods()));
+            }
+            if (internalCorsConfiguration.getAllowedHeaders() != null)
+            {
+                configuration.setAllowedHeaders(new ArrayList<>(internalCorsConfiguration.getAllowedHeaders()));
+            }
+            if (internalCorsConfiguration.getAllowedOrigins() != null)
+            {
+                configuration.setAllowedOrigins(new ArrayList<>(internalCorsConfiguration.getAllowedOrigins()));
+            }
+            if (internalCorsConfiguration.getExposedHeaders() != null)
+            {
+                configuration.setExposedHeaders(new ArrayList<>(internalCorsConfiguration.getExposedHeaders()));
+            }
+            if (internalCorsConfiguration.getAllowCredentials() != null)
+            {
+                configuration.setAllowCredentials(BooleanUtils.isTrue(internalCorsConfiguration.getAllowCredentials()));
+            }
+            if (internalCorsConfiguration.getMaxAge() != null)
+            {
+                configuration.setMaxAge(internalCorsConfiguration.getMaxAge());
+            }
+        }
 
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

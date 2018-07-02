@@ -16,6 +16,35 @@
                                                min-attempts-interval-seconds="5"/>
     </remote-repositories-configuration>
 
+    <cors-configuration allowed-credentials="true" max-age="600">
+        <allowed-origins>
+            <allowed-origin>*</allowed-origin>
+        </allowed-origins>
+        <allowed-methods>
+            <allowed-method>GET</allowed-method>
+            <allowed-method>PUT</allowed-method>
+            <allowed-method>POST</allowed-method>
+            <allowed-method>DELETE</allowed-method>
+            <allowed-method>OPTIONS</allowed-method>
+        </allowed-methods>
+        <allowed-headers>
+            <allowed-header>Accept</allowed-header>
+            <allowed-header>Accepts</allowed-header>
+            <allowed-header>Authorization</allowed-header>
+            <allowed-header>Access-Control-Allow-Headers</allowed-header>
+            <allowed-header>Access-Control-Request-Headers</allowed-header>
+            <allowed-header>Access-Control-Request-Method</allowed-header>
+            <allowed-header>DNT</allowed-header>
+            <allowed-header>Keep-Alive</allowed-header>
+            <allowed-header>User-Agent</allowed-header>
+            <allowed-header>X-Requested-With</allowed-header>
+            <allowed-header>If-Modified-Since</allowed-header>
+            <allowed-header>Cache-Control</allowed-header>
+            <allowed-header>Content-Type</allowed-header>
+            <allowed-header>Content-Range,Range</allowed-header>
+        </allowed-headers>
+    </cors-configuration>
+
     <storages>
         <storage id="storage0">
             <repositories>

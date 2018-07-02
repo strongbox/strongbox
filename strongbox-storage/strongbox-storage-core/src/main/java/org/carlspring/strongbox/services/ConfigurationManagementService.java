@@ -9,6 +9,8 @@ import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 
+import java.util.List;
+
 /**
  * @author mtodorov
  */
@@ -89,4 +91,6 @@ public interface ConfigurationManagementService
     boolean removeRepositoryArtifactCoordinateValidator(String storageId,
                                                      String repositoryId,
                                                      String alias);
+
+    void setCorsAllowedOrigins(List<String> allowedOrigins);
 }

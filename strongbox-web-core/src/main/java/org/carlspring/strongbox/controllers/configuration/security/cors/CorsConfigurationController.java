@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration.security.cors;
 
 import org.carlspring.strongbox.controllers.BaseController;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -12,11 +13,18 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -32,14 +40,17 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class CorsConfigurationController
         extends BaseController
 {
-
     public static final String SUCCESSFUL_UPDATE = "CORS allowed origins was updated.";
 
     public static final String FAILED_UPDATE = "Could not update CORS allowed origins.";
 
+    private static final Logger logger = LoggerFactory.getLogger(CorsConfigurationController.class);
+
     @Inject
     private CorsConfigurationSource corsConfigurationSource;
 
+    @Inject
+    private ConfigurationManagementService configurationManagementService;
 
     @ApiOperation(value = "Returns allowed origins")
     @ApiResponses(value = @ApiResponse(code = 200, message = "Allowed origins."))
@@ -79,13 +90,28 @@ public class CorsConfigurationController
 
         if (corsConfiguration.isPresent())
         {
-            corsConfiguration.get().setAllowedOrigins(allowedOrigins);
-            return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE, accept);
+            if (setAllowedOrigins(corsConfiguration.get(), allowedOrigins))
+            {
+                return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE, accept);
+            }
         }
-        else
+        return getBadRequestResponseEntity(FAILED_UPDATE, accept);
+    }
+
+    private boolean setAllowedOrigins(CorsConfiguration corsConfiguration,
+                                      List<String> allowedOrigins)
+    {
+        try
         {
-            return getBadRequestResponseEntity(FAILED_UPDATE, accept);
+            configurationManagementService.setCorsAllowedOrigins(allowedOrigins);
         }
+        catch (Exception ex)
+        {
+            logger.error(String.format("Unable to set CORS allowed origins"), ex);
+            return false;
+        }
+        corsConfiguration.setAllowedOrigins(allowedOrigins);
+        return true;
     }
 
 }
