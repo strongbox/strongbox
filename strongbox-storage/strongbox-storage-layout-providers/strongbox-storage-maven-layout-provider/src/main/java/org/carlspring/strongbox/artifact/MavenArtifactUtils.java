@@ -25,7 +25,9 @@ public class MavenArtifactUtils
         return ArtifactUtils.getArtifactFileName(artifact);
     }
 
-    public static Pair<String, String> getArtifactGroupId(RepositoryPath repositoryPath) throws IOException{
+    public static Pair<String, String> getArtifactGroupId(RepositoryPath repositoryPath)
+        throws IOException
+    {
         MavenArtifact tmpArtifact = MavenArtifactUtils.convertPathToArtifact(repositoryPath);
 
         return Pair.with(tmpArtifact.getGroupId(), tmpArtifact.getArtifactId());
