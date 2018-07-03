@@ -43,7 +43,8 @@ public class RepositoryOutputStream extends FilterOutputStream implements Reposi
             throws IOException
     {
         CountingOutputStream counting = (CountingOutputStream)out;
-        if (counting.getByteCount() == 0L){
+        if (counting.getByteCount() == 0L)
+        {
             try
             {
                 callback.onBeforeWrite(this);
