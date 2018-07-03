@@ -21,7 +21,8 @@ public class MavenRepositoryArtifact
 
     private RepositoryPath path;
 
-    public MavenRepositoryArtifact(Artifact artifact, RepositoryPath path) {
+    public MavenRepositoryArtifact(Artifact artifact, RepositoryPath path)
+    {
         this(artifact);
         this.path = path;
     }
@@ -99,7 +100,8 @@ public class MavenRepositoryArtifact
     public String getType()
     {
         String type = super.getType();
-        if (type != null && type.trim().length() > 0) {
+        if (type != null && type.trim().length() > 0)
+        {
             return type;
         }
         
@@ -108,6 +110,5 @@ public class MavenRepositoryArtifact
                        .map(i -> (i == -1) ? "" : fileName.substring(i + 1))
                        .get();
     }
-    
     
 }
