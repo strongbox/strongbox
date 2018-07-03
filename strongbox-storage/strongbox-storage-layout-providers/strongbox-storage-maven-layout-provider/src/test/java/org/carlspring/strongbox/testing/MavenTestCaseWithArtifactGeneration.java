@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.testing;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenDetachedArtifact;
+import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
@@ -18,11 +18,11 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 
@@ -43,6 +43,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
@@ -53,19 +55,19 @@ public class MavenTestCaseWithArtifactGeneration
 {
 
     @Inject
-    LayoutProviderRegistry layoutProviderRegistry;
+    protected LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
-    MavenRepositoryFeatures features;
+    protected MavenRepositoryFeatures features;
     
     @Inject
-    HostedRepositoryProvider hostedRepositoryProvider;
+    protected HostedRepositoryProvider hostedRepositoryProvider;
     
     @Inject
-    RepositoryPathResolver repositoryPathResolver;
+    protected RepositoryPathResolver repositoryPathResolver;
 
     @Inject
-    MavenRepositoryFactory mavenRepositoryFactory;
+    protected MavenRepositoryFactory mavenRepositoryFactory;
 
     @Inject
     protected ConfigurationManagementService configurationManagementService;
@@ -96,8 +98,8 @@ public class MavenTestCaseWithArtifactGeneration
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        MavenArtifact artifact = MavenArtifactUtils.getArtifactFromGAVTC(gavtc);
-        artifact.setPath(basedir.resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
+        MavenArtifact artifact = new MavenRepositoryArtifact(ArtifactUtils.getArtifactFromGAVTC(gavtc));
+        artifact.setPath(resolve(basedir.toAbsolutePath().toString(), artifact));
         generateArtifact(basedir, artifact);
 
         return artifact;
@@ -108,29 +110,30 @@ public class MavenTestCaseWithArtifactGeneration
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        artifact.setPath(basedir.resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
+        
+        artifact.setPath(resolve(basedir.toAbsolutePath().toString(), artifact));
 
         MavenArtifactGenerator generator = createArtifactGenerator(basedir.toAbsolutePath().toString());
         generator.generate(artifact);
     }
 
-    public void generateArtifact(String basedir, MavenArtifact artifact)
+    public void generateArtifact(String basedir, Artifact artifact)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        artifact.setPath(Paths.get(basedir).resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
+        //artifact.setPath(Paths.get(basedir).resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
 
         MavenArtifactGenerator generator = createArtifactGenerator(basedir);
         generator.generate(artifact);
     }
 
-    public void generateArtifact(String basedir, MavenArtifact artifact, String packaging)
+    public void generateArtifact(String basedir, Artifact artifact, String packaging)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        artifact.setPath(Paths.get(basedir).resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
+        //artifact.setPath(Paths.get(basedir).resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
 
         MavenArtifactGenerator generator = createArtifactGenerator(basedir);
         generator.generate(artifact, packaging);
@@ -155,9 +158,9 @@ public class MavenTestCaseWithArtifactGeneration
             {
                 Path basePath = Paths.get(basedir);
                 Path artifactPath = artifactFile.toPath();
-                
-                String path = basePath.relativize(artifactPath).toString();
-                
+
+                String path = FilenameUtils.separatorsToUnix(basePath.relativize(artifactPath).toString());
+
                 Path repositoryBasePath = basePath;
                 if (repositoryBasePath.endsWith(RepositoryFileSystem.TEMP) || repositoryBasePath.endsWith(RepositoryFileSystem.TEMP))
                 {
@@ -165,9 +168,9 @@ public class MavenTestCaseWithArtifactGeneration
                 }
                 String storageId = repositoryBasePath.getParent().getFileName().toString();
                 String repositoryId = repositoryBasePath.getFileName().toString();
-                
+
                 RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
-                
+
                 if (basePath.endsWith(RepositoryFileSystem.TEMP))
                 {
                     repositoryPath = RepositoryFiles.temporary(repositoryPath);
@@ -213,12 +216,12 @@ public class MavenTestCaseWithArtifactGeneration
             baseDir.mkdirs();
         }
 
-        MavenArtifact artifact = generateArtifact(baseDir.getCanonicalPath(), gavtc);
+        Artifact artifact = generateArtifact(baseDir.getCanonicalPath(), gavtc);
 
-        return new FileInputStream(new File(baseDir, MavenArtifactUtils.convertArtifactToPath(artifact)));
+        return new FileInputStream(new File(baseDir, ArtifactUtils.convertArtifactToPath(artifact)));
     }
 
-    public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,
+    public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
                                                            String groupId,
                                                            String artifactId,
                                                            String baseSnapshotVersion)
@@ -233,7 +236,7 @@ public class MavenTestCaseWithArtifactGeneration
                                                  1);
     }
 
-    public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,
+    public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
                                                            String groupId,
                                                            String artifactId,
                                                            String baseSnapshotVersion,
@@ -297,8 +300,10 @@ public class MavenTestCaseWithArtifactGeneration
         {
             String version = createSnapshotVersion(baseSnapshotVersion, i + 1);
 
-            artifact = new MavenDetachedArtifact(groupId, artifactId, version);
-            artifact.setPath(Paths.get(repositoryBasedir).resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
+            artifact = new MavenRepositoryArtifact(groupId, artifactId, version);
+            
+            RepositoryPath repositoryPath = resolve(repositoryBasedir, artifact);
+            artifact.setPath(repositoryPath);
 
             generateArtifact(repositoryBasedir, artifact, packaging);
 
@@ -307,13 +312,30 @@ public class MavenTestCaseWithArtifactGeneration
                 for (String classifier : classifiers)
                 {
                     String gavtc = groupId + ":" + artifactId + ":" + version + ":jar:" + classifier;
-                    generateArtifact(repositoryBasedir,MavenArtifactUtils.getArtifactFromGAVTC(gavtc));
+                    generateArtifact(repositoryBasedir,ArtifactUtils.getArtifactFromGAVTC(gavtc));
                 }
             }
         }
 
         // Return the main artifact
         return artifact;
+    }
+
+    protected RepositoryPath resolve(String repositoryBasedir,
+                                     Artifact artifact)
+    {
+        Path repositoryBasePath = Paths.get(repositoryBasedir);
+        if (repositoryBasePath.endsWith(RepositoryFileSystem.TEMP)
+                || repositoryBasePath.endsWith(RepositoryFileSystem.TRASH))
+        {
+            repositoryBasePath = repositoryBasePath.getParent();
+        }
+        
+        String repositoryId = repositoryBasePath.getFileName().toString();
+        String storageId = repositoryBasePath.getParent().getFileName().toString();
+        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, ArtifactUtils.convertArtifactToPath(artifact));
+        return repositoryPath;
     }
 
     public MavenArtifact createTimestampedSnapshot(String repositoryBasedir,
@@ -330,8 +352,9 @@ public class MavenTestCaseWithArtifactGeneration
 
         String version = createSnapshotVersion(baseSnapshotVersion, numberOfBuild, timestamp);
 
-        artifact = new MavenDetachedArtifact(groupId, artifactId, version);
-        artifact.setPath(Paths.get(repositoryBasedir).resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
+        artifact = new MavenRepositoryArtifact(groupId, artifactId, version);
+        RepositoryPath repositoryPath = resolve(repositoryBasedir, artifact);
+        artifact.setPath(repositoryPath);
 
         generateArtifact(repositoryBasedir, artifact, packaging);
 
@@ -340,7 +363,7 @@ public class MavenTestCaseWithArtifactGeneration
             for (String classifier : classifiers)
             {
                 String gavtc = groupId + ":" + artifactId + ":" + version + ":jar:" + classifier;
-                generateArtifact(repositoryBasedir, MavenArtifactUtils.getArtifactFromGAVTC(gavtc));
+                generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(gavtc));
             }
         }
 
@@ -382,11 +405,11 @@ public class MavenTestCaseWithArtifactGeneration
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public MavenArtifact createSnapshot(String repositoryBasedir, String gavt)
+    public Artifact createSnapshot(String repositoryBasedir, String gavt)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        MavenArtifact snapshot = MavenArtifactUtils.getArtifactFromGAVTC(gavt);
-        snapshot.setFile(new File(repositoryBasedir + "/" + MavenArtifactUtils.convertArtifactToPath(snapshot)));
+        Artifact snapshot = ArtifactUtils.getArtifactFromGAVTC(gavt);
+        snapshot.setFile(new File(repositoryBasedir + "/" + ArtifactUtils.convertArtifactToPath(snapshot)));
 
         generateArtifact(repositoryBasedir, snapshot);
 
@@ -402,17 +425,17 @@ public class MavenTestCaseWithArtifactGeneration
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public MavenArtifact createSnapshot(String repositoryBasedir, String gavt, String[] classifiers)
+    public Artifact createSnapshot(String repositoryBasedir, String gavt, String[] classifiers)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        MavenArtifact snapshot = MavenArtifactUtils.getArtifactFromGAVTC(gavt);
-        snapshot.setFile(new File(repositoryBasedir + "/" + MavenArtifactUtils.convertArtifactToPath(snapshot)));
+        Artifact snapshot = ArtifactUtils.getArtifactFromGAVTC(gavt);
+        snapshot.setFile(new File(repositoryBasedir + "/" + ArtifactUtils.convertArtifactToPath(snapshot)));
 
         generateArtifact(repositoryBasedir, snapshot);
 
         for (String classifier : classifiers)
         {
-            generateArtifact(repositoryBasedir, MavenArtifactUtils.getArtifactFromGAVTC(gavt + ":" + classifier));
+            generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(gavt + ":" + classifier));
 
         }
 

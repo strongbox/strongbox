@@ -14,6 +14,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchResult;
@@ -63,13 +64,14 @@ public class RepositoryIndexerTest
     public void removeRepositories()
             throws IOException, JAXBException
     {
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
         removeRepositories(getRepositoriesToClean());
     }
 
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -109,10 +111,10 @@ public class RepositoryIndexerTest
         assertEquals("Only three versions of the strongbox-commons artifact were expected!", 3, search.size());
 
         search = repositoryIndexer.search("org.carlspring.strongbox", "strongbox-commons", "1.0", "jar", null);
-        assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should have been deleted!", 1, search.size());
+        assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should not been deleted!", 1, search.size());
 
         search = repositoryIndexer.search("+g:org.carlspring.strongbox +a:strongbox-commons +v:1.0");
-        assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should have been deleted!", 1, search.size());
+        assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should not been deleted!", 2, search.size());
 
         repositoryIndexer.delete(asArtifactInfo(search));
         search = repositoryIndexer.search("org.carlspring.strongbox", "strongbox-commons", "1.0", null, null);

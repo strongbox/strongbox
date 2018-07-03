@@ -133,7 +133,7 @@ public class BaseCronJobWithMavenIndexingTestCase
     public boolean expectEvent()
             throws InterruptedException
     {
-        return expectEvent(5000, CRON_TASK_CHECK_INTERVAL);
+        return expectEvent(10000, CRON_TASK_CHECK_INTERVAL);
     }
 
     /**

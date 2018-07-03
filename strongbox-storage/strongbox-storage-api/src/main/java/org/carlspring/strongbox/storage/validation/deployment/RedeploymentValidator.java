@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.storage.validation.deployment;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -28,12 +30,15 @@ public class RedeploymentValidator
     public static final String ALIAS = "redeployment-validator";
 
     public static final String DESCRIPTION = "Re-deployment validator";
+    
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     @PostConstruct
     @Override
@@ -65,8 +70,10 @@ public class RedeploymentValidator
     {
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, coordinates);
+        
         if (repository.acceptsReleases() &&
-            (!repository.allowsDeployment() && layoutProvider.containsArtifact(repository, coordinates)))
+            (!repository.allowsDeployment() && layoutProvider.containsPath(repositoryPath)))
         {
             throw new VersionValidationException("The " + repository.getStorage().getId() + ":" +
                                                  repository.toString() +

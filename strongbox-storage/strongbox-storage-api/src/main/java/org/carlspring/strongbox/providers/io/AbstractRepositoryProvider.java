@@ -1,18 +1,18 @@
-package org.carlspring.strongbox.providers.repository;
+package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.config.HazelcastConfiguration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
-import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.io.*;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.repository.RepositoryProvider;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -24,7 +24,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
-import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.output.CountingOutputStream;
 import org.slf4j.Logger;
@@ -40,6 +40,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractRepositoryProvider.class);
+    
     @Inject
     protected RepositoryProviderRegistry repositoryProviderRegistry;
 
@@ -57,6 +58,9 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     
     @Inject
     protected ArtifactTagService artifactTagService;
+    
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     public RepositoryProviderRegistry getRepositoryProviderRegistry()
     {
@@ -161,9 +165,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     public void onBeforeWrite(RepositoryStreamContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        String path = RepositoryFiles.stringValue(repositoryPath);
-        
-        logger.debug(String.format("Writing [%s]", path));
+        logger.debug(String.format("Writing [%s]", repositoryPath));
         
         if (!RepositoryFiles.isArtifact(repositoryPath))
         {
@@ -174,92 +176,101 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        ArtifactEntry artifactEntry = provideArtifactEntry(storageId, repositoryId, path);
-
+        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath, true, true);
+        
+        if (artifactEntry.getUuid() != null)
+        {
+            return;
+        }
+        
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
-        artifactEntry.setArtifactPath(path);
 
         ArtifactOutputStream aos = StreamUtils.findSource(ArtifactOutputStream.class, (OutputStream) ctx);
         ArtifactCoordinates coordinates = aos.getCoordinates();
         artifactEntry.setArtifactCoordinates(coordinates);
 
         Date now = new Date();
-        artifactEntry.setLastUpdated(now);
+        artifactEntry.setLastUpdated(now );
         artifactEntry.setLastUsed(now);
 
-        artifactEntryService.save(artifactEntry, true);
+        repositoryPath.artifactEntry = artifactEntry;
+    }
+
+    private boolean shouldUpdateArtifactEntry(ArtifactEntry artifactEntry)
+    {
+        Date now = new Date();
+        Date lastUpdated = artifactEntry.getLastUpdated();
+        
+        return now.getTime() - lastUpdated.getTime() > HazelcastConfiguration.ARTIFACT_ENTRY_CACHE_INVALIDATE_INTERVAL;
     }
 
     @Override
     public void onAfterClose(RepositoryStreamContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        String path = RepositoryFiles.stringValue(repositoryPath);
-        
-        logger.debug(String.format("Closing [%s]", path));
+        logger.debug(String.format("Closing [%s]", repositoryPath));
         
         if (!RepositoryFiles.isArtifact(repositoryPath) || !Files.exists(repositoryPath))
         {
             return;
         }
-
-        Repository repository = repositoryPath.getRepository();
-        String storageId = repository.getStorage().getId();
-        String repositoryId = repository.getId();
-
-        ArtifactEntry artifactEntry = provideArtifactEntry(storageId, repositoryId, path);
-        Assert.notNull(artifactEntry.getUuid(),
+        
+        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath, false, false);
+        
+        Assert.notNull(artifactEntry,
                        String.format("Invalid [%s] for [%s]", ArtifactEntry.class.getSimpleName(),
-                                     ctx.getPath()));
+                                     repositoryPath));
 
         CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, (OutputStream) ctx);
-        artifactEntry.setSizeInBytes(cos.getByteCount());
+        long size = cos.getByteCount();
+        if (!Long.valueOf(size).equals(artifactEntry.getSizeInBytes()) || shouldUpdateArtifactEntry(artifactEntry))
+        {
+            artifactEntry.setSizeInBytes(size);
 
-        artifactEntryService.save(artifactEntry);
+            repositoryPath.artifactEntry = artifactEntryService.save(artifactEntry, true);
+        }
     }
 
     @Override
     public void onBeforeRead(RepositoryStreamContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        String path = RepositoryFiles.stringValue(repositoryPath);
-        
-        logger.debug(String.format("Reading /" + repositoryPath.getRepository().getStorage().getId() + "/" +
-                                   repositoryPath.getRepository().getId() +
-                                   "/%s", path));
+        logger.debug(String.format("Reading %s", repositoryPath));
         
         if (!RepositoryFiles.isArtifact(repositoryPath))
         {
             return;
         }
+        
+        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath, false, true);
 
-        Repository repository = repositoryPath.getRepository();
-        String storageId = repository.getStorage().getId();
-        String repositoryId = repository.getId();
-
-        ArtifactEntry artifactEntry = provideArtifactEntry(storageId, repositoryId, path);
-
-        Assert.notNull(artifactEntry.getUuid(),
+        Assert.notNull(artifactEntry,
                        String.format("Invalid [%s] for [%s]",
                                      ArtifactEntry.class.getSimpleName(),
                                      ctx.getPath()));
 
-        artifactEntry.setLastUsed(new Date());
+        Date now = new Date();
+        
+        if (artifactEntry.getUuid() != null
+                && now.getTime() - artifactEntry.getLastUsed().getTime() < HazelcastConfiguration.ARTIFACT_ENTRY_CACHE_INVALIDATE_INTERVAL)
+        {
+            return;
+        }
+        
+        artifactEntry.setLastUsed(now);
         artifactEntry.setDownloadCount(artifactEntry.getDownloadCount() + 1);
-
-        artifactEntryService.save(artifactEntry);
     }
 
-    protected ArtifactEntry provideArtifactEntry(String storageId,
-                                                 String repositoryId,
-                                                 String path)
+    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath, boolean create, boolean lock) throws IOException
     {
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
-                                                                           repositoryId,
-                                                                           path)
-                                                          .map(e -> artifactEntryService.lockOne(e.getObjectId()))
-                                                          .orElse(new ArtifactEntry());
+        ArtifactEntry artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry())
+                                              .orElse(create ? new ArtifactEntry() : null);
+        
+        if (lock && artifactEntry.getObjectId() != null)
+        {
+            artifactEntry = artifactEntryService.lockOne(artifactEntry.getObjectId());
+        }
 
         return artifactEntry;
     }
@@ -272,41 +283,6 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     }
 
     protected abstract RepositoryPath fetchPath(RepositoryPath repositoryPath) throws IOException;
-    
-    @Override
-    public List<Path> search(RepositorySearchRequest searchRequest,
-                             RepositoryPageRequest pageRequest)
-    {
-        Paginator paginator = new Paginator();
-        paginator.setLimit(pageRequest.getLimit());
-        paginator.setSkip(pageRequest.getSkip());
-
-        Predicate p = createPredicate(searchRequest);        
-        
-        return search(searchRequest.getStorageId(), searchRequest.getRepositoryId(), p, paginator);
-    }    
-    
-    @Override
-    public Long count(RepositorySearchRequest searchRequest)
-    {
-        Predicate p = createPredicate(searchRequest);
-        return count(searchRequest.getStorageId(), searchRequest.getRepositoryId(), p);
-    }
-    
-    protected Predicate createPredicate(RepositorySearchRequest searchRequest)
-    {
-        Predicate p = Predicate.empty();
-
-        searchRequest.getCoordinates()
-                     .entrySet()
-                     .forEach(e -> p.and(createCoordinatePredicate(e.getKey(), e.getValue(),
-                                                                   searchRequest.isStrict())));
-
-        searchRequest.getTagSet()
-                     .forEach(t -> p.and(Predicate.of(ExpOperator.CONTAINS.of("tagSet.name", t.getName()))));
-
-        return p;
-    }
     
     protected Predicate createPredicate(String storageId,
                                         String repositoryId,
@@ -323,21 +299,6 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         return result.and(predicate);
     }
 
-    private Predicate createCoordinatePredicate(String key,
-                                                String value,
-                                                boolean strict)
-    {
-        if (!strict)
-        {
-            return Predicate.of(ExpOperator.LIKE.of(String.format("artifactCoordinates.coordinates.%s",
-                                                                  key),
-                                                    "%"+ value + "%"));
-        }
-        return Predicate.of(ExpOperator.EQ.of(String.format("artifactCoordinates.coordinates.%s",
-                                                            key),
-                                              value));
-    }
-    
     protected Selector<ArtifactEntry> createSelector(String storageId,
                                                      String repositoryId,
                                                      Predicate p)

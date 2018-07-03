@@ -4,14 +4,12 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -37,62 +35,6 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
     {
     }
     
-    public void deleteTrash()
-            throws IOException
-    {
-        for (Map.Entry<String, Storage> entry : getConfiguration().getStorages().entrySet())
-        {
-            Storage storage = entry.getValue();
-
-            final Map<String, Repository> repositories = storage.getRepositories();
-            for (Repository repository : repositories.values())
-            {
-                if (repository.allowsDeletion())
-                {
-                    logger.debug("Emptying trash for repository " + repository.getId() + "...");
-
-                    getProvider(repository.getLayout()).deleteTrash(storage.getId(), repository.getId());
-                }
-                else
-                {
-                    logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
-                }
-            }
-        }
-    }
-
-    public void undeleteTrash()
-            throws ProviderImplementationException
-    {
-        for (Map.Entry<String, Storage> entry : getConfiguration().getStorages().entrySet())
-        {
-            Storage storage = entry.getValue();
-
-            final Map<String, Repository> repositories = storage.getRepositories();
-            for (Repository repository : repositories.values())
-            {
-                LayoutProvider layoutProvider = getLayoutProvider(repository, this);
-
-                final String storageId = storage.getId();
-                final String repositoryId = repository.getId();
-
-                try
-                {
-                    if (repository.isTrashEnabled())
-                    {
-                        RootRepositoryPath repositoryPath = layoutProvider.resolve(repository);
-                        layoutProvider.undelete(repositoryPath);
-                    }
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException("Unable to undelete trash for storage " + storageId + " in repository " +
-                                               repositoryId, e);
-                }
-            }
-        }
-    }
-
     @Override
     @PostConstruct
     public void initialize()

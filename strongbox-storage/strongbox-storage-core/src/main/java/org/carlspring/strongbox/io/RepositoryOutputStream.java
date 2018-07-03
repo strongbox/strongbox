@@ -42,7 +42,9 @@ public class RepositoryOutputStream extends FilterOutputStream implements Reposi
     public void write(int b)
             throws IOException
     {
-        if (((CountingOutputStream)out).getByteCount() == 0L){
+        CountingOutputStream counting = (CountingOutputStream)out;
+        if (counting.getByteCount() == 0L)
+        {
             try
             {
                 callback.onBeforeWrite(this);
@@ -53,6 +55,7 @@ public class RepositoryOutputStream extends FilterOutputStream implements Reposi
                 throw new IOException(e);
             }
         }
+        
         super.write(b);
     }
 

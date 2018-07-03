@@ -54,25 +54,6 @@ public interface RepositoryProvider
      * Searches Artifact Paths. For Group Repositories result will be group
      * member Paths.
      * 
-     * @param searchRequest
-     * @param pageRequest
-     * @return
-     */
-    List<Path> search(RepositorySearchRequest searchRequest, RepositoryPageRequest pageRequest);
-    
-    /**
-     * Counts Artifacts. For Group repositories result will be distinct within
-     * group members.
-     * 
-     * @param searchRequest
-     * @return
-     */
-    Long count(RepositorySearchRequest searchRequest);
-    
-    /**
-     * Searches Artifact Paths. For Group Repositories result will be group
-     * member Paths.
-     * 
      * @param storageId
      * @param repositoryId
      * @param predicate

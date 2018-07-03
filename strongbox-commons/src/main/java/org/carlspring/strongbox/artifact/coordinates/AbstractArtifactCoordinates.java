@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -33,13 +31,15 @@ public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoor
         this.path = toPath();
     }
     
-    protected final void defineCoordinates(String... coordinates)
+    protected final void resetCoordinates(String... coordinates)
     {
+        this.coordinates.clear();
         for (String coordinate : coordinates)
         {
             this.coordinates.put(coordinate, null);
         }
-        this.path = toPath();
+        
+        this.path = null;
     }
 
     public void dump()

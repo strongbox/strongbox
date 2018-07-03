@@ -2,6 +2,7 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
@@ -23,6 +24,9 @@ public class RebuildMavenIndexesCronJob
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+    
     @Override
     public void executeTask(CronTaskConfiguration config)
             throws Throwable
@@ -35,8 +39,7 @@ public class RebuildMavenIndexesCronJob
 
         Storage storage = layoutProviderRegistry.getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        LayoutProvider provider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath repositoryPath = provider.resolve(repository).resolve(basePath);
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, basePath);
         
         artifactIndexesService.rebuildIndex(repositoryPath);
     }

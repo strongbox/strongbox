@@ -1,14 +1,13 @@
 package org.carlspring.strongbox.storage.metadata;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.RootRepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
@@ -16,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -26,6 +24,7 @@ import java.util.*;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -51,14 +50,12 @@ public class MavenSnapshotManager
     @Inject
     private MavenMetadataManager mavenMetadataManager;
 
-
     public MavenSnapshotManager()
     {
     }
 
-    public void deleteTimestampedSnapshotArtifacts(Repository repository,
-                                                   String artifactPath,
-                                                   VersionCollectionRequest request,
+    public void deleteTimestampedSnapshotArtifacts(RepositoryPath basePath,
+                                                   Versioning versioning,
                                                    int numberToKeep,
                                                    int keepPeriod)
             throws IOException,
@@ -67,48 +64,48 @@ public class MavenSnapshotManager
                    ParseException,
                    XmlPullParserException
     {
+        Repository repository = basePath.getRepository();
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        if (layoutProvider.containsPath(repository, artifactPath))
+        if (!layoutProvider.containsPath(basePath))
         {
-            logger.debug("Removal of timestamped Maven snapshot artifact " + artifactPath +
-                         " in '" + repository.getStorage()
-                                             .getId() + ":" + repository.getId() + "'.");
+            logger.error("Removal of timestamped Maven snapshot artifact: " + basePath + ".");
+            
+            return;
+        }
+        
+        logger.debug("Removal of timestamped Maven snapshot artifact " + basePath +
+                     " in '" + repository.getStorage()
+                                         .getId() + ":" + repository.getId() + "'.");
 
-            Versioning versioning = request.getVersioning();
-            MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(artifactPath);
+        Pair<String, String> artifactGroup = MavenArtifactUtils.getArtifactGroupId(basePath);
+        String artifactGroupId = artifactGroup.getValue0();
+        String artifactId = artifactGroup.getValue1();
 
-            if (!versioning.getVersions()
-                           .isEmpty())
+        if (versioning.getVersions()
+                       .isEmpty())
+        {
+            return;
+        }
+        
+        for (String version : versioning.getVersions())
+        {
+
+            RepositoryPath versionDirectoryPath = (RepositoryPath) basePath.resolve(ArtifactUtils.getSnapshotBaseVersion(version));
+            if (!removeTimestampedSnapshot(versionDirectoryPath, numberToKeep, keepPeriod))
             {
-                for (String version : versioning.getVersions())
-                {
-
-                    Path versionBasePath = Paths.get(request.getArtifactBasePath()
-                                                            .toString(),
-                                                     ArtifactUtils.getSnapshotBaseVersion(version));
-
-                    if (removeTimestampedSnapshot(versionBasePath.toString(), repository, numberToKeep, keepPeriod))
-                    {
-
-                        logger.debug("Generate snapshot versioning metadata for " + versionBasePath + ".");
-
-                        mavenMetadataManager.generateSnapshotVersioningMetadata(versionBasePath,
-                                                                                artifact,
-                                                                                version,
-                                                                                true);
-                    }
-                }
+                continue;
             }
 
+            logger.debug("Generate snapshot versioning metadata for " + versionDirectoryPath + ".");
+
+            mavenMetadataManager.generateSnapshotVersioningMetadata(artifactGroupId, artifactId, versionDirectoryPath,
+                                                                    version,
+                                                                    true);
         }
-        else
-        {
-            logger.error("Removal of timestamped Maven snapshot artifact: " + artifactPath + ".");
-        }
+
     }
 
-    private boolean removeTimestampedSnapshot(String basePath,
-                                              Repository repository,
+    private boolean removeTimestampedSnapshot(RepositoryPath basePath,
                                               int numberToKeep,
                                               int keepPeriod)
             throws ProviderImplementationException,
@@ -116,76 +113,62 @@ public class MavenSnapshotManager
                    XmlPullParserException,
                    ParseException
     {
-        String storageId = repository.getStorage()
-                                     .getId();
-        Path base = Paths.get(basePath);
+        Metadata metadata = mavenMetadataManager.readMetadata(basePath);
 
-        LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-
-        Metadata metadata = mavenMetadataManager.readMetadata(base);
-
-        if (metadata != null && metadata.getVersioning() != null)
+        if (metadata == null || metadata.getVersioning() == null)
         {
-            /**
-             * map of snapshots for removing
-             * k - number of the build, v - version of the snapshot
-             */
-            Map<Integer, String> mapToRemove = getRemovableTimestampedSnapshots(metadata, numberToKeep, keepPeriod);
+            return false;
+        }
+        
+        /**
+         * map of snapshots for removing
+         * k - number of the build, v - version of the snapshot
+         */
+        Map<Integer, String> mapToRemove = getRemovableTimestampedSnapshots(metadata, numberToKeep, keepPeriod);
 
-            if (!mapToRemove.isEmpty())
+        if (mapToRemove.isEmpty())
+        {
+            return false;
+        }
+        List<String> removingSnapshots = new ArrayList<>();
+
+        new ArrayList<>(mapToRemove.values()).forEach(e -> removingSnapshots.add(metadata.getArtifactId()
+                                                                                         .concat("-")
+                                                                                         .concat(e)
+                                                                                         .concat(".jar")));
+
+        try (final DirectoryStream<Path> directoryStream = Files.newDirectoryStream(basePath))
+        {
+            for (Path path : directoryStream)
             {
-                List<String> removingSnapshots = new ArrayList<>();
-
-                new ArrayList<>(mapToRemove.values()).forEach(e -> removingSnapshots.add(metadata.getArtifactId()
-                                                                                                 .concat("-")
-                                                                                                 .concat(e)
-                                                                                                 .concat(".jar")));
-
-                final RootRepositoryPath rootRepositoryPath = layoutProvider.resolve(repository);
-
-                try (final DirectoryStream<Path> directoryStream = Files.newDirectoryStream(base))
+                if (!Files.isRegularFile(path))
                 {
-                    for (Path path : directoryStream)
-                    {
-                        if (Files.isRegularFile(path))
-                        {
-                            final String filename = path.getFileName().toString();
-                            if (ArtifactUtils.isArtifact(path.toString()) && removingSnapshots.contains(filename))
-                            {
-                                try
-                                {
-
-                                    layoutProvider.delete(storageId,
-                                                          repository.getId(),
-                                                          rootRepositoryPath.getTarget().relativize(path).toString(),
-                                                          true);
-
-                                    String artifactName = filename;
-                                    artifactName = artifactName.substring(0, artifactName.lastIndexOf('.'));
-                                    Path pomPath = Paths.get(path.getParent().toString(), artifactName, ".pom");
-
-                                    layoutProvider.delete(storageId,
-                                                          repository.getId(),
-                                                          rootRepositoryPath.getTarget().relativize(pomPath).toString(),
-                                                          true);
-                                }
-                                catch (IOException ex)
-                                {
-                                    logger.error(ex.getMessage(), ex);
-                                }
-                                catch (SearchException ex)
-                                {
-                                    logger.error(ex.getMessage(), ex);
-                                }
-                            }
-                        }
-                    }
+                    continue;
                 }
-                return true;
+                
+                RepositoryPath repositoryPath = (RepositoryPath) path;
+                final String filename = path.getFileName().toString();
+                
+                if (!removingSnapshots.contains(filename) || !RepositoryFiles.isArtifact(repositoryPath) || RepositoryFiles.isMetadata(repositoryPath))
+                {
+                    continue;
+                }
+                
+                try
+                {
+                    RepositoryFiles.delete(repositoryPath, true);
+
+                    RepositoryPath pomRepositoryPath = repositoryPath.resolveSibling(filename.replace(".jar", ".pom"));
+                    
+                    RepositoryFiles.delete(pomRepositoryPath,true);
+                }
+                catch (IOException ex)
+                {
+                    logger.error(ex.getMessage(), ex);
+                }
             }
         }
-
-        return false;
+        return true;
     }
 
     /**

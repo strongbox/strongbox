@@ -1,5 +1,21 @@
 package org.carlspring.strongbox.services.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
@@ -20,23 +36,11 @@ import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRuleSet;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Consumer;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.google.common.base.Throwables;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.springframework.stereotype.Service;
 
 /**
  * @author mtodorov
@@ -60,6 +64,9 @@ public class ConfigurationManagementServiceImpl
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
+    @Inject
+    private PlatformTransactionManager transactionManager;
+
     /**
      * Yes, this is a state object.
      * It is protected by the {@link #configurationLock} here
@@ -69,6 +76,19 @@ public class ConfigurationManagementServiceImpl
      */
     private MutableConfiguration configuration;
 
+    @PostConstruct
+    public void init()
+    {
+        new TransactionTemplate(transactionManager).execute((s) -> doInit());
+    }
+
+    private Object doInit()
+    {
+        final MutableConfiguration configuration = configurationFileManager.read();
+        setConfiguration(configuration);
+        return null;
+    }
+    
     @Override
     public MutableConfiguration getMutableConfigurationClone()
     {

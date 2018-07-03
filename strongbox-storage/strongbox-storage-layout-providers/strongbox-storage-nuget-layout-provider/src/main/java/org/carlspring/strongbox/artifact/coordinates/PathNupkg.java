@@ -131,7 +131,14 @@ public class PathNupkg implements Nupkg
     @Override
     public Long getSize()
     {
-        return path.getArtifactEntry().getSizeInBytes();
+        try
+        {
+            return path.getArtifactEntry().getSizeInBytes();
+        }
+        catch (IOException e)
+        {
+            return 0L;
+        }
     }
 
     @Override
@@ -144,7 +151,14 @@ public class PathNupkg implements Nupkg
     @Override
     public Date getUpdated()
     {
-        return path.getArtifactEntry().getLastUpdated();
+        try
+        {
+            return path.getArtifactEntry().getLastUpdated();
+        }
+        catch (IOException e)
+        {
+            return null;
+        }
     }
 
     @Override

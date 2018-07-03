@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -29,6 +30,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
@@ -272,8 +274,11 @@ public class MavenArtifactGenerator
 
         logger.debug("Generating pom file for " + artifact.toString() + "...");
 
-        ModelWriter writer = new ModelWriter(model, pomFile);
-        writer.write();
+        try (OutputStreamWriter pomFileWriter = new OutputStreamWriter(newOutputStream(pomFile)))
+        {
+            MavenXpp3Writer xpp3Writer = new MavenXpp3Writer();
+            xpp3Writer.write(pomFileWriter, model);
+        }
 
         generateChecksumsForArtifact(pomFile);
     }

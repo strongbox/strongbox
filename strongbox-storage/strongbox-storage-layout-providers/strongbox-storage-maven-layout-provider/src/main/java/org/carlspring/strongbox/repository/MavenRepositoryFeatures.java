@@ -6,8 +6,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.locator.handlers.RemoveTimestampedSnapshotOperation;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
@@ -44,9 +43,6 @@ public class MavenRepositoryFeatures
     private ConfigurationManager configurationManager;
 
     @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
     private MavenSnapshotManager mavenSnapshotManager;
 
     @Inject
@@ -58,7 +54,8 @@ public class MavenRepositoryFeatures
     @Inject
     private MavenSnapshotVersionValidator mavenSnapshotVersionValidator;
 
-
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     private Set<String> defaultArtifactCoordinateValidators;
 
@@ -83,8 +80,7 @@ public class MavenRepositoryFeatures
 
         if (repository.getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
         {
-            LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-            RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, artifactPath);
 
             RemoveTimestampedSnapshotOperation operation = new RemoveTimestampedSnapshotOperation(mavenSnapshotManager);
             operation.setBasePath(repositoryPath);

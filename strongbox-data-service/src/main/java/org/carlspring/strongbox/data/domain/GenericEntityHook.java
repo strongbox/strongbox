@@ -64,22 +64,13 @@ public class GenericEntityHook extends ORecordHookAbstract
                                           doc.getSchemaClass()));
                 }
                 
-                String artifactCoordinatesPath = artifactCoordinates == null ? "" : artifactCoordinates.field("path");
+                String artifactCoordinatesPath = artifactCoordinates.field("path");
 
-                String artifactEntryPath = doc.field("artifactPath");
-                artifactEntryPath = artifactEntryPath == null ? "" : artifactEntryPath.trim();
-
-                if (artifactCoordinatesPath.trim().isEmpty() && artifactEntryPath.trim().isEmpty())
+                if (artifactCoordinatesPath == null || artifactCoordinatesPath.trim().isEmpty())
                 {
                     throw new OValidationException(
                             String.format("Failed to persist document [%s]. 'artifactPath' can't be empty or null.",
                                           doc.getSchemaClass()));
-                }
-                else if (artifactCoordinates != null && !artifactEntryPath.equals(artifactCoordinatesPath))
-                {
-                    throw new OValidationException(
-                            String.format("Failed to persist document [%s]. Paths [%s] and [%s] dont match.",
-                                          doc.getSchemaClass(), artifactEntryPath, artifactCoordinatesPath));
                 }
 
                 validateArtifactEntryCreatedProperty(doc);

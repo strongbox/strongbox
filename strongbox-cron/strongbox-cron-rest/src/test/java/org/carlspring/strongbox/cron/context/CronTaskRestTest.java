@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.cron.context;
 
-import org.carlspring.strongbox.MockedRepositoryPathResolverConfig;
 import org.carlspring.strongbox.config.RestAssuredConfig;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.rest.common.RestAssuredTestExecutionListener;
 
 import java.lang.annotation.ElementType;
@@ -21,12 +21,11 @@ import org.springframework.test.context.web.WebAppConfiguration;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ContextConfiguration(classes = { MockedRepositoryPathResolverConfig.class,
-                                  RestAssuredConfig.class,
+@ContextConfiguration(classes = { RestAssuredConfig.class,
                                   CronTasksConfig.class,
                                   WebConfig.class })
 @WebAppConfiguration("classpath:")
-@TestExecutionListeners(listeners = RestAssuredTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = {RestAssuredTestExecutionListener.class, CacheManagerTestExecutionListener.class}, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @WithUserDetails(value = "admin")
 public @interface CronTaskRestTest
 {

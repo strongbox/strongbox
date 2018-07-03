@@ -13,9 +13,10 @@ import javax.xml.bind.JAXBException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.junit.After;
 import org.junit.Assume;
@@ -52,8 +53,8 @@ public class Maven2ProxyRepositoryTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXY));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXY, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -77,6 +78,8 @@ public class Maven2ProxyRepositoryTest
     public void removeRepositories()
             throws IOException, JAXBException
     {
+        closeIndexersForRepository(STORAGE0, REPOSITORY_PROXY);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
         removeRepositories(getRepositoriesToClean());
     }
 

@@ -33,19 +33,6 @@ public interface ArtifactMetadataService
             throws IOException, XmlPullParserException;
 
     /**
-     * Get artifact metadata.
-     *
-     * @param artifactBasePath  The base path of the artifact
-     *
-     * @return Metadata
-     *
-     * @throws IOException
-     * @throws XmlPullParserException
-     */
-    Metadata getMetadata(String artifactBasePath)
-            throws IOException, XmlPullParserException;
-
-    /**
      * Get artifact metadata using an InputStream.
      *
      * @return Metadata
@@ -84,15 +71,13 @@ public interface ArtifactMetadataService
     /**
      * Merge existing artifact metadata with mergeMetadata.
      *
-     * @param storageId     String
-     * @param repositoryId  String
      * @param artifact      Artifact
      * @param mergeMetadata Metadata
      *
      * @throws IOException
      * @throws XmlPullParserException
      */
-    void mergeMetadata(String storageId, String repositoryId, MavenArtifact artifact, Metadata mergeMetadata)
+    void mergeMetadata(MavenArtifact artifact, Metadata mergeMetadata)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException;
 
     /**

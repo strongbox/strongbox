@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.providers.repository.group;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -27,6 +27,9 @@ public class GroupRepositoryArtifactExistenceChecker
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
+    
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     public boolean artifactExistsInTheGroupRepositorySubTree(final Repository groupRepository,
                                                              final RepositoryPath repositoryPath)
@@ -67,7 +70,9 @@ public class GroupRepositoryArtifactExistenceChecker
             else
             {
                 final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(subRepository.getLayout());
-                if (layoutProvider.containsPath(subRepository, RepositoryFiles.stringValue(repositoryPath)))
+                RepositoryPath subRepositoryPath = repositoryPathResolver.resolve(subRepository, repositoryPath.relativize());
+                
+                if (layoutProvider.containsPath(subRepositoryPath))
                 {
                     repositoryArtifactExistence.get(storageAndRepositoryId).setTrue();
                     return true;

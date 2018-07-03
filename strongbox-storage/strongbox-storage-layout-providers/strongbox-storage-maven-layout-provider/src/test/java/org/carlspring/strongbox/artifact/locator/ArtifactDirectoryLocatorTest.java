@@ -10,14 +10,10 @@ import java.io.PrintStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 
-import javax.inject.Inject;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -47,11 +43,6 @@ public class ArtifactDirectoryLocatorTest
     private ByteArrayOutputStream os;
 
     private static PrintStream tempSysOut;
-
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
-    @Inject
-    private StorageProviderRegistry storageProviderRegistry;
 
     @Before
     public void setUp()
@@ -176,8 +167,8 @@ public class ArtifactDirectoryLocatorTest
     {
         Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
         Repository repository = storage.getRepository("releases");
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath repositoryPath = layoutProvider.resolve(repository);
+        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
         
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setBasedir(repositoryPath);
@@ -204,8 +195,8 @@ public class ArtifactDirectoryLocatorTest
     {
         Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
         Repository repository = storage.getRepository("releases");
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath repositoryPath = layoutProvider.resolve(repository);
+        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
         
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setBasedir(repositoryPath);

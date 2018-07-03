@@ -48,7 +48,7 @@ public class SafeArtifactContextProducer
     {
         try
         {
-            return context.getGavCalculator().pathToGav(RepositoryFiles.stringValue(this.artifactPath));
+            return context.getGavCalculator().pathToGav(RepositoryFiles.relativizePath(this.artifactPath));
         }
         catch (IOException e)
         {

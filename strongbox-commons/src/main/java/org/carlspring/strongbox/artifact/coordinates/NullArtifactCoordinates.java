@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * @author carlspring
  */
-@Embeddable
+@Entity
 public class NullArtifactCoordinates
         extends AbstractArtifactCoordinates<NullArtifactCoordinates, NullArtifactCoordinates>
 {
@@ -17,7 +18,7 @@ public class NullArtifactCoordinates
 
     public NullArtifactCoordinates()
     {
-        defineCoordinates(PATH);
+        resetCoordinates(PATH);
     }
 
     public NullArtifactCoordinates(String path)

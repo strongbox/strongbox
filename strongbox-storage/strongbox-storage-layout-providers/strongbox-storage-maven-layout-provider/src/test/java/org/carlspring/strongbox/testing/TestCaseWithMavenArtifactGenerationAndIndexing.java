@@ -5,7 +5,7 @@ import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
@@ -24,6 +24,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
@@ -35,6 +36,7 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -184,7 +186,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
         repository.setPolicy(policy);
         repository.setRepositoryConfiguration(repositoryConfiguration);
-
+        repository.setBasedir(ConfigurationResourceResolver.getVaultDirectory()
+                + String.format("/storages/%s/%s", storageId, repositoryId));
+        
         createRepository(storageId, repository);
         
         return repository;
@@ -207,6 +211,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
         repository.setRemoteRepository(remoteRepository);
         repository.setRepositoryConfiguration(repositoryConfiguration);
+        repository.setType(RepositoryTypeEnum.PROXY.getType());
 
         createRepository(storageId, repository);
     }
@@ -378,8 +383,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath repositoryPath = layoutProvider.resolve(repository);
+        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setBasedir(repositoryPath);
@@ -475,4 +480,21 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         return repositoryManagementService;
     }
 
+    @Override
+    public void removeRepositories(Set<MutableRepository> repositoriesToClean)
+        throws IOException,
+        JAXBException
+    {
+        for (MutableRepository mutableRepository : repositoriesToClean)
+        {
+            RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(mutableRepository));
+
+            Files.delete(repositoryPath);
+        }
+        
+        super.removeRepositories(repositoriesToClean);
+        
+    }
+
+    
 }

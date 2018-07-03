@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.inject.Inject;
 
+import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.RepositoryInputStream;
 import org.carlspring.strongbox.io.RepositoryOutputStream;
@@ -96,7 +97,14 @@ public class ArtifactResolutionServiceImpl
         Repository repository = repositoryPath.getRepository();
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
         
-        return (RepositoryPath)repositoryProvider.fetchPath(repositoryPath);
+        try
+        {
+            return (RepositoryPath)repositoryProvider.fetchPath(repositoryPath);
+        }
+        catch (ArtifactNotFoundException e)
+        {
+            return null;
+        }
     }
     
 }

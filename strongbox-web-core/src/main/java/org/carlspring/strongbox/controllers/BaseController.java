@@ -8,6 +8,7 @@ import org.carlspring.strongbox.controllers.support.ListEntityBody;
 import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 
 import javax.inject.Inject;
@@ -46,6 +47,9 @@ public abstract class BaseController
 
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
+    
+    @Inject
+    protected ArtifactResolutionService artifactResolutionService;
 
     protected Configuration getConfiguration()
     {

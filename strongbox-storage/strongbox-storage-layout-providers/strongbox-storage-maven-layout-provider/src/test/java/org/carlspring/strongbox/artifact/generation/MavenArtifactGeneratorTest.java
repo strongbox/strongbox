@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.artifact.generation;
 
+import org.apache.maven.artifact.Artifact;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -32,7 +34,7 @@ public class MavenArtifactGeneratorTest
     public void testArtifactGeneration()
             throws Exception
     {
-        MavenArtifact artifact = MavenArtifactUtils.getArtifactFromGAVTC(
+        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(
                 "org.carlspring.strongbox.testing:test-foo:1.2.3:jar");
 
         generateArtifact(BASEDIR.getAbsolutePath(), artifact);

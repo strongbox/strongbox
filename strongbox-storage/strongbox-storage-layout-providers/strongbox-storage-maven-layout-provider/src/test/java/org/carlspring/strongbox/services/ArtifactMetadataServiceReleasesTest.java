@@ -1,9 +1,14 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
@@ -18,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -51,6 +57,9 @@ public class ArtifactMetadataServiceReleasesTest
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
+    
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
 
     @BeforeClass
@@ -106,7 +115,7 @@ public class ArtifactMetadataServiceReleasesTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -215,7 +224,7 @@ public class ArtifactMetadataServiceReleasesTest
                                "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin",
                                "1.0");
 
-        MavenArtifact pluginArtifact = MavenArtifactUtils.getArtifactFromGAVTC(
+        Artifact pluginArtifact = ArtifactUtils.getArtifactFromGAVTC(
                 "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin:1.0");
 
         artifactMetadataService.rebuildMetadata(STORAGE0,
@@ -261,7 +270,7 @@ public class ArtifactMetadataServiceReleasesTest
         mergeMetadata.setVersioning(appendVersioning);
 
         // Merge
-        artifactMetadataService.mergeMetadata(STORAGE0, REPOSITORY_RELEASES, mergeArtifact, mergeMetadata);
+        artifactMetadataService.mergeMetadata(mergeArtifact, mergeMetadata);
 
         Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
                                                                 REPOSITORY_RELEASES,
@@ -288,7 +297,13 @@ public class ArtifactMetadataServiceReleasesTest
     private MavenArtifact createRelease(String gavtc)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        return generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc);
+        
+        MavenArtifact result = new MavenRepositoryArtifact(generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc));
+
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY_RELEASES, ArtifactUtils.convertArtifactToPath(result));
+        result.setPath(repositoryPath);
+        
+        return result;
     }
 
 }

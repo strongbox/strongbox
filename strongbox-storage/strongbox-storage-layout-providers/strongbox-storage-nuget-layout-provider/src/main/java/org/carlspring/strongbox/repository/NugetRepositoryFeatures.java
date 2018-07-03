@@ -17,7 +17,7 @@ import org.carlspring.strongbox.event.CommonEventListener;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
-import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -78,7 +78,7 @@ public class NugetRepositoryFeatures
     private RepositoryPathLock repositoryPathLock;
 
     @Inject
-    private NugetLayoutProvider nugetLayoutProvider;
+    private RepositoryPathResolver repositoryPathResolver;
 
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
@@ -230,7 +230,7 @@ public class NugetRepositoryFeatures
 
         for (ArtifactEntry e : artifactToSaveSet)
         {
-            RepositoryPath repositoryPath = nugetLayoutProvider.resolve(repository, e.getArtifactCoordinates());
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, (NugetArtifactCoordinates) e.getArtifactCoordinates());
             repositoryPathLock.lock(repositoryPath);
             try
             {

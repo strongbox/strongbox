@@ -121,22 +121,17 @@ public class MavenArtifactFetchedFromRemoteEventListener
         
     }
 
-    private void mergeMetadata(RepositoryPath artifactAbsolutePath,
+    private void mergeMetadata(RepositoryPath repositoryPath,
                                InputStream remoteMetadataIs)
         throws IOException,
         NoSuchAlgorithmException,
         XmlPullParserException,
         ProviderImplementationException
     {
-        final Repository repository = artifactAbsolutePath.getFileSystem().getRepository();
-        final Storage storage = repository.getStorage();
-        
-        MavenArtifact localArtifact = MavenArtifactUtils.convertPathToArtifact(RepositoryFiles.stringValue(artifactAbsolutePath));
-        localArtifact.setPath(artifactAbsolutePath);
-
+        MavenArtifact localArtifact = MavenArtifactUtils.convertPathToArtifact(repositoryPath);
         Metadata metadata = artifactMetadataService.getMetadata(remoteMetadataIs);
-        artifactMetadataService.mergeMetadata(storage.getId(), repository.getId(), localArtifact,
-                                              metadata);
+        
+        artifactMetadataService.mergeMetadata(localArtifact, metadata);
 
     }
 

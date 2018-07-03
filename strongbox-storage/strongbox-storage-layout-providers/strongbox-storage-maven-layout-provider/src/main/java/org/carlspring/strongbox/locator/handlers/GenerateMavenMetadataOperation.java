@@ -39,19 +39,17 @@ public class GenerateMavenMetadataOperation
 
     @Override
     public void executeOperation(VersionCollectionRequest request,
-                                 RepositoryPath artifactPath,
+                                 RepositoryPath artifactGroupDirectoryPath,
                                  List<RepositoryPath> versionDirectories)
     {
         try
         {
-            final Repository repository = artifactPath.getFileSystem().getRepository();
-            String path = RepositoryFiles.stringValue(artifactPath);
-            mavenMetadataManager.generateMetadata(repository, path, request);
-            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(artifactPath.resolve("maven-metadata.xml"));
+            mavenMetadataManager.generateMetadata(artifactGroupDirectoryPath, request);
+            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(artifactGroupDirectoryPath.resolve("maven-metadata.xml"));
         }
         catch (Exception e)
         {
-            logger.error("Failed to generate metadata for " + artifactPath, e);
+            logger.error("Failed to generate metadata for " + artifactGroupDirectoryPath, e);
         }
     }
 

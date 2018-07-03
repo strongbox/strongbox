@@ -2,10 +2,12 @@ package org.carlspring.strongbox.controllers.layout.maven;
 
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -48,6 +50,9 @@ public class MavenArtifactController
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+    
     @PreAuthorize("authenticated")
     @RequestMapping(value = "greet", method = RequestMethod.GET)
     public ResponseEntity greet()
@@ -69,7 +74,8 @@ public class MavenArtifactController
     {
         try
         {
-            artifactManagementService.validateAndStore(storageId, repositoryId, path, request.getInputStream());
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
+            artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
         }
@@ -128,8 +134,11 @@ public class MavenArtifactController
 
             return;
         }
-
-        provideArtifactDownloadResponse(request, response, httpHeaders, repository, path);
+        
+        path = correctIndexPathIfNecessary(path);
+        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, path);
+        
+        provideArtifactDownloadResponse(request, response, httpHeaders, repositoryPath);
     }
 
     @ApiOperation(value = "Copies a path from one repository to another.", position = 4)
@@ -261,18 +270,6 @@ public class MavenArtifactController
         }
 
         return ResponseEntity.ok("The artifact was deleted.");
-    }
-
-    @Override
-    protected boolean provideArtifactDownloadResponse(final HttpServletRequest request,
-                                                      final HttpServletResponse response,
-                                                      final HttpHeaders httpHeaders,
-                                                      final Repository repository,
-                                                      final String requestedPath)
-            throws Exception
-    {
-        String path = correctIndexPathIfNecessary(requestedPath);
-        return super.provideArtifactDownloadResponse(request, response, httpHeaders, repository, path);
     }
 
     private String correctIndexPathIfNecessary(final String requestedPath)

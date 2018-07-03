@@ -83,12 +83,12 @@ public class ConfigurationManagementServiceImplTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_2));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_4_DB_VERSION_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_4_DB_VERSION_2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_1, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_2, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_4_DB_VERSION_1, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_4_DB_VERSION_2, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }

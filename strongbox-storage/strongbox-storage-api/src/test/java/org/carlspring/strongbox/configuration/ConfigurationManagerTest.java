@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.MutableStorage;
@@ -21,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.carlspring.strongbox.testing.TestCaseWithRepository.STORAGE0;
 import static org.junit.Assert.*;
@@ -30,6 +32,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = StorageApiTestConfig.class)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ConfigurationManagerTest
 {
 

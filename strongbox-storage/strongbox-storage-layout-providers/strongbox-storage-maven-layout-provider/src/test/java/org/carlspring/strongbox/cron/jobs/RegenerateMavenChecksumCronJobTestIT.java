@@ -1,23 +1,24 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
+import static org.junit.Assert.assertTrue;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -28,15 +29,15 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Kate Novik.
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class RegenerateMavenChecksumCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
@@ -74,13 +75,7 @@ public class RegenerateMavenChecksumCronJobTestIT
     };
 
     @Inject
-    private CronTaskConfigurationService cronTaskConfigurationService;
-
-    @Inject
-    private ConfigurationManager configurationManager;
-
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
+    private ArtifactMetadataService artifactMetadataService;
 
     @BeforeClass
     public static void cleanUp()
@@ -92,9 +87,9 @@ public class RegenerateMavenChecksumCronJobTestIT
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
-        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
         return repositories;
     }
 
@@ -136,6 +131,9 @@ public class RegenerateMavenChecksumCronJobTestIT
     public void removeRepositories()
             throws IOException, JAXBException
     {
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
+        closeIndexersForRepository(STORAGE1, REPOSITORY_RELEASES);
         removeRepositories(getRepositoriesToClean());
     }
 
@@ -147,8 +145,8 @@ public class RegenerateMavenChecksumCronJobTestIT
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/strongbox-checksum-one";
 
-        getLayoutProvider(REPOSITORY_SNAPSHOTS).rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
-                                                                "org/carlspring/strongbox/strongbox-checksum-one");
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
+                                                "org/carlspring/strongbox/strongbox-checksum-one");
 
         deleteIfExists(new File(snapshotArtifact_1.getPath().toString() + ".md5"));
         deleteIfExists(new File(snapshotArtifact_1.getPath().toString() + ".sha1"));
@@ -215,8 +213,8 @@ public class RegenerateMavenChecksumCronJobTestIT
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/strongbox-checksum-second";
 
-        getLayoutProvider(REPOSITORY_SNAPSHOTS).rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
-                                                                "org/carlspring/strongbox/strongbox-checksum-second");
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
+                                                "org/carlspring/strongbox/strongbox-checksum-second");
 
         deleteIfExists(new File(snapshotArtifact_2.getPath().toString() + ".md5"));
         deleteIfExists(new File(snapshotArtifact_2.getPath().toString() + ".sha1"));
@@ -278,8 +276,8 @@ public class RegenerateMavenChecksumCronJobTestIT
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org/carlspring/strongbox/checksum/strongbox-checksum";
 
-        getLayoutProvider(REPOSITORY_RELEASES).rebuildMetadata(STORAGE0, REPOSITORY_RELEASES,
-                                                               "org/carlspring/strongbox/checksum/strongbox-checksum");
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES,
+                                                "org/carlspring/strongbox/checksum/strongbox-checksum");
 
         deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5"));
         deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1"));
@@ -339,8 +337,8 @@ public class RegenerateMavenChecksumCronJobTestIT
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_2 + "/org/carlspring/strongbox/checksum/strongbox-checksum";
 
-        getLayoutProvider(REPOSITORY_RELEASES).rebuildMetadata(STORAGE1, REPOSITORY_RELEASES,
-                                                               "org/carlspring/strongbox/checksum/strongbox-checksum");
+        artifactMetadataService.rebuildMetadata(STORAGE1, REPOSITORY_RELEASES,
+                                                "org/carlspring/strongbox/checksum/strongbox-checksum");
 
         deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5"));
         deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1"));
@@ -389,13 +387,6 @@ public class RegenerateMavenChecksumCronJobTestIT
                          properties -> properties.put("forceRegeneration", "false"));
 
         assertTrue("Failed to execute task!", expectEvent());
-    }
-
-    private LayoutProvider getLayoutProvider(String repositoryId)
-    {
-        Repository repository = configurationManager.getRepository(STORAGE0, repositoryId);
-
-        return layoutProviderRegistry.getProvider(repository.getLayout());
     }
 
 }

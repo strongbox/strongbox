@@ -3,6 +3,8 @@ package org.carlspring.strongbox.providers.repository;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -98,16 +100,16 @@ public class NugetGroupRepositoryProviderTest
         MutableNugetRepositoryConfiguration nugetRepositoryConfiguration = new MutableNugetRepositoryConfiguration();
 
         //REPOSITORY_RELEASES_1
-        createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1), NugetLayoutProvider.ALIAS);
+        createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS), NugetLayoutProvider.ALIAS);
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, "grpt.search.package", 9);
 
         //REPOSITORY_RELEASES_2
-        createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2),
+        createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, NugetLayoutProvider.ALIAS),
                          NugetLayoutProvider.ALIAS);
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_2, "grpt.search.package", 12);
         
         //REPOSITORY_RELEASES_3
-        createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3),
+        createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3, NugetLayoutProvider.ALIAS),
                          NugetLayoutProvider.ALIAS);
         generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_3, "grpt.search.package", 8);
 
@@ -191,12 +193,12 @@ public class NugetGroupRepositoryProviderTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, NugetLayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3, NugetLayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_1, NugetLayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2, NugetLayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP, NugetLayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -207,35 +209,37 @@ public class NugetGroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
         
-        RepositorySearchRequest searchRequest = new RepositorySearchRequest(STORAGE0, REPOSITORY_GROUP);
-        RepositoryPageRequest pageRequest = new RepositoryPageRequest();
-        pageRequest.setSkip(10);
-        pageRequest.setLimit(10);
+        Paginator paginator = new Paginator();
+        paginator.setLimit(10);
+        paginator.setSkip(10);
+
+        Predicate p = Predicate.empty();
         
-        List<Path> result = repositoryProvider.search(searchRequest, pageRequest);
+        List<Path> result = repositoryProvider.search(STORAGE0, REPOSITORY_GROUP, p, paginator);
         
         assertEquals(2, result.size());
         
-        pageRequest.setLimit(-1);
-        result = repositoryProvider.search(searchRequest, pageRequest);
+        paginator.setLimit(-1);
+        result = repositoryProvider.search(STORAGE0, REPOSITORY_GROUP, p, paginator);
         
         assertEquals(2, result.size());
         
         repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
         repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-        searchRequest = new RepositorySearchRequest(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
-        pageRequest.setSkip(11);
-        pageRequest.setLimit(10);
-        result = repositoryProvider.search(searchRequest, pageRequest);
+        
+        paginator.setSkip(11);
+        paginator.setLimit(10);
+        
+        result = repositoryProvider.search(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2, p, paginator);
         
         assertEquals(1, result.size());
         
-        pageRequest.setLimit(-1);
-        result = repositoryProvider.search(searchRequest, pageRequest);
+        paginator.setLimit(-1);
+        result = repositoryProvider.search(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2, p, paginator);
         
         assertEquals(1, result.size());
         
-        Long count = repositoryProvider.count(searchRequest);
+        Long count = repositoryProvider.count(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2, p);
         assertEquals(Long.valueOf(12), count);
     }
 

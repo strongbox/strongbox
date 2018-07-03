@@ -1,58 +1,44 @@
 package org.carlspring.strongbox.providers.layout;
 
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.config.MavenIndexerDisabledCondition;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
-import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.providers.search.SearchException;
+import org.carlspring.strongbox.providers.io.RepositoryRelativePathConstructionException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.services.ArtifactSearchService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.carlspring.strongbox.storage.search.SearchResult;
-import org.carlspring.strongbox.storage.search.SearchResults;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
  */
 @Component("maven2LayoutProvider")
-@Conditional(MavenIndexerDisabledCondition.class)
 public class Maven2LayoutProvider
         extends AbstractLayoutProvider<MavenArtifactCoordinates>
-        implements RepositoryPathHandler
 {
 
     public static final String ALIAS = "Maven 2";
@@ -63,22 +49,13 @@ public class Maven2LayoutProvider
     private MavenMetadataManager mavenMetadataManager;
 
     @Inject
-    private ArtifactManagementService mavenArtifactManagementService;
-
-    @Inject
-    private ArtifactMetadataService artifactMetadataService;
-
-    @Inject
-    private ArtifactSearchService artifactSearchService;
-
-    @Inject
     private MavenRepositoryManagementStrategy mavenRepositoryManagementStrategy;
 
     @Inject
     private MavenRepositoryFeatures mavenRepositoryFeatures;
 
+    
     @PostConstruct
-    @Override
     public void register()
     {
         layoutProviderRegistry.addProvider(ALIAS, this);
@@ -86,38 +63,76 @@ public class Maven2LayoutProvider
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
-    @Override
-    public String getAlias()
+    protected MavenArtifactCoordinates getArtifactCoordinates(RepositoryPath repositoryPath) throws IOException
     {
-        return ALIAS;
+        MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(repositoryPath);
+
+        return new MavenArtifactCoordinates(artifact);
     }
 
-    @Override
-    public MavenArtifactCoordinates getArtifactCoordinates(String path)
+    public boolean isArtifactMetadata(RepositoryPath path)
     {
-        if (path == null || !ArtifactUtils.isArtifact(path))
-        {
-            return null;
-        }
-
-        MavenArtifactCoordinates coordinates;
-        if (isMetadata(path))
-        {
-            MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(path);
-            coordinates = new MavenArtifactCoordinates(artifact);
-        }
-        else
-        {
-            coordinates = new MavenArtifactCoordinates(path);
-        }
-
-        return coordinates;
+        return path.getFileName().toString().endsWith(".pom");
     }
 
-    @Override
-    public boolean isMetadata(String path)
+    public boolean isMavenMetadata(RepositoryPath path)
     {
-        return path.endsWith(".pom") || path.endsWith(".xml");
+        return path.getFileName().toString().equals("maven-metadata.xml");
+    }
+    
+    @Override
+    protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryPath,
+                                                                                   RepositoryFileAttributeType... attributeTypes)
+        throws IOException
+    {
+        Map<RepositoryFileAttributeType, Object> result = super.getRepositoryFileAttributes(repositoryPath,
+                                                                                            attributeTypes);
+
+        for (RepositoryFileAttributeType attributeType : attributeTypes)
+        {
+            Object value = result.get(attributeType);
+            switch (attributeType)
+            {
+                case ARTIFACT:
+                    value = (Boolean) value && !isMavenMetadata(repositoryPath) && !isIndex(repositoryPath);
+    
+                    if (value != null)
+                    {
+                        result.put(attributeType, value);
+                    }
+    
+                    break;
+                case METADATA:
+                    value = (Boolean) value || isMavenMetadata(repositoryPath);
+    
+                    if (value != null)
+                    {
+                        result.put(attributeType, value);
+                    }
+    
+                    break;
+                default:
+    
+                    break;
+            }
+        }
+
+        return result;
+    }
+
+    private boolean isIndex(RepositoryPath path)
+    {
+        if (!path.isAbsolute())
+        {
+            return false;
+        }
+        RepositoryPath indexRoot = path.getFileSystem().getRootDirectory().resolve(RepositoryFileSystem.INDEX);
+        if (path.startsWith(indexRoot))
+        {
+            return true;
+        }
+        
+        return false;
     }
 
     @Override
@@ -126,95 +141,22 @@ public class Maven2LayoutProvider
         return mavenRepositoryFeatures.getDefaultArtifactCoordinateValidators();
     }
 
-    
-    
     @Override
-    public void delete(RepositoryPath repositoryPath,
-                       boolean force)
-        throws IOException,
-        SearchException
+    public void deleteMetadata(RepositoryPath artifactPath)
     {
-        logger.debug("Removing " + repositoryPath + "...");
-
-        Repository repository = repositoryPath.getRepository();
-        Storage storage = repository.getStorage();
-        RepositoryPath repositoryPathRelative = repositoryPath.relativize();
-        
-        if (!Files.isDirectory(repositoryPath))
-        {
-            delete(repositoryPath);
-        }
-        else
-        {
-            List<String> artifactCoordinateElements = StreamSupport.stream(repositoryPathRelative.spliterator(), false)
-                                                                   .map(p -> p.toString())
-                                                                   .collect(Collectors.toList());
-            StringBuffer groupId = new StringBuffer();
-            for (int i = 0; i < artifactCoordinateElements.size() - 2; i++)
-            {
-                String element = artifactCoordinateElements.get(i);
-                groupId.append((groupId.length() == 0) ? element : "." + element);
-            }
-
-            String artifactId = artifactCoordinateElements.get(artifactCoordinateElements.size() - 2);
-            String version = artifactCoordinateElements.get(artifactCoordinateElements.size() - 1);
-
-            Path pomFilePath = repositoryPathRelative.resolve(artifactId + "-" + version + ".pom");
-
-            // If there is a pom file, read it.
-            if (Files.exists(resolve(repository).resolve(pomFilePath)))
-            {
-                // Run a search against the index and get a list of all the artifacts matching this exact GAV
-                SearchRequest request = new SearchRequest(storage.getId(),
-                                                          repository.getId(),
-                                                          "+g:" + groupId + " " +
-                                                          "+a:" + artifactId + " " +
-                                                          "+v:" + version,
-                                                          MavenIndexerSearchProvider.ALIAS);
-
-                try
-                {
-                    SearchResults results = artifactSearchService.search(request);
-
-                    for (SearchResult result : results.getResults())
-                    {
-                        delete(resolve(repository, result.getArtifactCoordinates()));
-                    }
-                }
-                catch (SearchException e)
-                {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-            // Otherwise, this is either not an artifact directory, or not a valid Maven artifact
-        }
-
-        deleteMetadata(storage.getId(), repository.getId(), repositoryPathRelative.toString());
-
-        super.delete(repositoryPath, force);
-    }
-
-
-    protected void delete(RepositoryPath directory)
-            throws IOException
-    {
-
-
-    }
-
-    @Override
-    public void deleteMetadata(String storageId,
-                               String repositoryId,
-                               String path)
-    {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-
         try
         {
-            RepositoryPath artifactPath = resolve(repository).resolve(path);
             RepositoryPath artifactBasePath = artifactPath;
-            RepositoryPath artifactIdLevelPath = artifactBasePath.getParent();
+            RepositoryPath artifactIdLevelPath;
+            try
+            {
+                artifactIdLevelPath = artifactBasePath.getParent();
+            }
+            catch (RepositoryRelativePathConstructionException e)
+            {
+                //it's repository root directory, so we have nothing to clean here
+                return;
+            }
 
             if (Files.exists(artifactPath))
             {
@@ -235,9 +177,9 @@ public class Maven2LayoutProvider
 
                         if (pomPath != null)
                         {
-                            String version = ArtifactUtils.convertPathToArtifact(path).getVersion() != null ?
-                                             ArtifactUtils.convertPathToArtifact(path).getVersion() :
-                                             pomPath.getParent().getFileName().toString();
+                            String version = ArtifactUtils.convertPathToArtifact(RepositoryFiles.relativizePath(artifactPath))
+                                                          .getVersion();
+                            version = version == null ? pomPath.getParent().getFileName().toString() : version;
 
                             deleteMetadataAtVersionLevel(artifactBasePath, version);
                         }
@@ -331,46 +273,9 @@ public class Maven2LayoutProvider
     }
 
     @Override
-    public void rebuildMetadata(String storageId,
-                                String repositoryId,
-                                String basePath)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   XmlPullParserException
-    {
-        artifactMetadataService.rebuildMetadata(storageId, repositoryId, basePath);
-    }
-
-    @Override
-    public void rebuildIndexes(String storageId,
-                               String repositoryId,
-                               String basePath,
-                               boolean forceRegeneration)
-    {
-        throw new UnsupportedOperationException("Not yet implemented!");
-    }
-
-    @Override
     public MavenRepositoryManagementStrategy getRepositoryManagementStrategy()
     {
         return mavenRepositoryManagementStrategy;
     }
 
-    @Override
-    public ArtifactManagementService getArtifactManagementService()
-    {
-        return mavenArtifactManagementService;
-    }
-
-    protected RepositoryPathHandler getRepositoryPathHandler()
-    {
-        return this;
-    }
-
-    @Override
-    public void postProcess(final RepositoryPath path)
-            throws IOException
-    {
-        // do nothing
-    }
 }

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -17,7 +17,7 @@ import org.springframework.util.Assert;
  * @author Sergey Bespalov
  *
  */
-@Embeddable
+@Entity
 @XmlRootElement(name = "nugetArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactLayout("nuget")
@@ -32,7 +32,7 @@ public class NugetArtifactCoordinates
 
     public NugetArtifactCoordinates()
     {
-        defineCoordinates(ID, VERSION, EXTENSION);
+        resetCoordinates(ID, VERSION, EXTENSION);
     }
 
     public NugetArtifactCoordinates(String id,

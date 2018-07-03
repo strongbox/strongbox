@@ -5,6 +5,8 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 
 import javax.inject.Inject;
@@ -18,10 +20,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.CacheManager;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria.Builder.anArtifactEntrySearchCriteria;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 /**
@@ -32,6 +35,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = StorageApiTestConfig.class)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ArtifactEntryServiceTest
 {
 
@@ -43,7 +47,8 @@ public class ArtifactEntryServiceTest
     @Inject
     ArtifactEntryService artifactEntryService;
 
-
+    @Inject
+    CacheManager cacheManager;
 
     @Test
     public void saveEntityShouldWork()
@@ -56,14 +61,14 @@ public class ArtifactEntryServiceTest
 
         assertThat(artifactEntry.getCreated(), CoreMatchers.nullValue());
 
-        artifactEntry = artifactEntryService.save(artifactEntry);
+        artifactEntry = save(artifactEntry);
 
         assertThat(artifactEntry.getCreated(), CoreMatchers.notNullValue());
 
         Date creationDate = artifactEntry.getCreated();
         //Updating artifact entry in order to ensure that creationDate is not updated
         artifactEntry.setDownloadCount(1);
-        artifactEntry = artifactEntryService.save(artifactEntry);
+        artifactEntry = save(artifactEntry);
 
         assertEquals(artifactEntry.getCreated(), creationDate);
     }
@@ -76,8 +81,9 @@ public class ArtifactEntryServiceTest
         createArtifacts(groupId, artifactId, storageId, repositoryId);
         displayAllEntries();
 
-        Optional<ArtifactEntry> artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId,
-                                                                                             "org.carlspring.strongbox/coordinates-test123/1.2.3/jar");
+        Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                                                 repositoryId,
+                                                                                                                 "org.carlspring.strongbox/coordinates-test123/1.2.3/jar"));
 
         assertTrue(artifactEntryOptional.isPresent());
 
@@ -88,29 +94,40 @@ public class ArtifactEntryServiceTest
 
         //Simple field update
         artifactEntry.setRepositoryId(repositoryId + "abc");
-        artifactEntry = artifactEntryService.save(artifactEntry);
+        artifactEntry = save(artifactEntry);
 
-        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId,
-                                                                     "org.carlspring.strongbox/coordinates-test123/1.2.3/jar");
+        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId, repositoryId,
+                                                                                         "org.carlspring.strongbox/coordinates-test123/1.2.3/jar"));
         assertFalse(artifactEntryOptional.isPresent());
 
-        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId + "abc",
-                                                                     "org.carlspring.strongbox/coordinates-test123/1.2.3/jar");
+        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                         repositoryId + "abc",
+                                                                                         "org.carlspring.strongbox/coordinates-test123/1.2.3/jar"));
         assertTrue(artifactEntryOptional.isPresent());
 
         //Cascade field update
         NullArtifactCoordinates nullArtifactCoordinates = (NullArtifactCoordinates)artifactEntry.getArtifactCoordinates();
         nullArtifactCoordinates.setId("org.carlspring.strongbox/coordinates-test123/1.2.3/pom");
-        artifactEntryService.save(artifactEntry);
+        save(artifactEntry);
 
-        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId + "abc",
-                                                                     "org.carlspring.strongbox/coordinates-test123/1.2.3/jar");
+        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                         repositoryId + "abc",
+                                                                                         "org.carlspring.strongbox/coordinates-test123/1.2.3/jar"));
         assertFalse(artifactEntryOptional.isPresent());
 
-        artifactEntryOptional = artifactEntryService.findOneArtifact(storageId, repositoryId + "abc",
-                                                                     "org.carlspring.strongbox/coordinates-test123/1.2.3/pom");
+        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                         repositoryId + "abc",
+                                                                                         "org.carlspring.strongbox/coordinates-test123/1.2.3/pom"));
         assertTrue(artifactEntryOptional.isPresent());
 
+    }
+
+    private ArtifactEntry save(ArtifactEntry artifactEntry)
+    {
+        ArtifactEntry result = artifactEntryService.save(artifactEntry);
+        cacheManager.getCache(CacheName.Artifact.ARTIFACT_ENTRIES).clear();
+        
+        return result;
     }
     
     @Test
@@ -309,7 +326,7 @@ public class ArtifactEntryServiceTest
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
 
-        return artifactEntryService.save(artifactEntry);
+        return save(artifactEntry);
     }
 
     public ArtifactCoordinates createMavenArtifactCoordinates()
@@ -337,7 +354,7 @@ public class ArtifactEntryServiceTest
                 artifactEntry.setSizeInBytes(100000l);
             }
 
-            artifactEntryService.save(artifactEntry);
+            save(artifactEntry);
         }
     }
 

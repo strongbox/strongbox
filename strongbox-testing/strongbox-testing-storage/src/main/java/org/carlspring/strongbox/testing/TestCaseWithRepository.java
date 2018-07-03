@@ -75,12 +75,6 @@ public class TestCaseWithRepository
     }
 
     public static MutableRepository createRepositoryMock(String storageId,
-                                                         String repositoryId)
-    {
-        return createRepositoryMock(storageId, repositoryId, null);
-    }
-
-    public static MutableRepository createRepositoryMock(String storageId,
                                                          String repositoryId,
                                                          String layout)
     {

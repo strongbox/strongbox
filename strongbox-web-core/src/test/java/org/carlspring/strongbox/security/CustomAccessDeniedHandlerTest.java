@@ -8,6 +8,9 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.restassured.http.ContentType;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,13 +63,14 @@ public class CustomAccessDeniedHandlerTest
     public void unauthorizedUserShouldReceiveExpectedUnauthorizedResponse()
     {
         given().contentType("application/json")
+               .accept(ContentType.JSON)
                .when()
                .get("/api/configuration/strongbox")
                .peek()
                .then()
-               .body("error", CoreMatchers.equalTo("Access is denied"))
+               .statusCode(HttpStatus.FORBIDDEN.value())
                .contentType("application/json")
-               .statusCode(HttpStatus.FORBIDDEN.value());
+               .body("error", CoreMatchers.equalTo("Access is denied"));
     }
 
 }

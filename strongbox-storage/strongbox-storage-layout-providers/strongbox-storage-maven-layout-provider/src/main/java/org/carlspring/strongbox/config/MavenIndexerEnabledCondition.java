@@ -11,7 +11,7 @@ public class MavenIndexerEnabledCondition
         implements Condition
 {
 
-    private static final String MAVEN_INDEXER_ENABLED = "maven.indexer.enabled";
+    public static final String MAVEN_INDEXER_ENABLED = "maven.indexer.enabled";
 
     @Override
     public boolean matches(final ConditionContext context,

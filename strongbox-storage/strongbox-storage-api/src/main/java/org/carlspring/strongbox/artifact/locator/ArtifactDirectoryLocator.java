@@ -6,6 +6,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,17 +32,21 @@ public class ArtifactDirectoryLocator
     {
         long startTime = System.currentTimeMillis();
 
-        Files.walk(getStartingPath())
-             .filter(Files::isDirectory)
-             // Skip directories which start with a dot (like, for example: .index)
-             .filter(path -> !(path.getNameCount() == 0 ? path.toString() : path.getName(path.getNameCount() - 1)).toString().startsWith("."))
-             // Note: Sorting can be expensive:
-             .sorted()
-             .forEach(this::execute);
+        RepositoryPath startingPath = getStartingPath();
+
+        try (Stream<Path> pathStream = Files.walk(startingPath))
+        {
+            pathStream.filter(Files::isDirectory)
+                      // Skip directories which start with a dot (like, for example: .index)
+                      .filter(path -> !path.getFileName().toString().startsWith("."))
+                      // Note: Sorting can be expensive:
+                      .sorted()
+                      .forEach(this::execute);
+        }
 
         long endTime = System.currentTimeMillis();
 
-        logger.debug("Executed (cache: " + operation.getVisitedRootPaths().size() + ")" +
+        logger.debug("Executed (cache: " + -operation.getVisitedRootPaths().size() + ")" +
                      " visits in " + (endTime - startTime) + " ms.");
 
         getOperation().getVisitedRootPaths().clear();

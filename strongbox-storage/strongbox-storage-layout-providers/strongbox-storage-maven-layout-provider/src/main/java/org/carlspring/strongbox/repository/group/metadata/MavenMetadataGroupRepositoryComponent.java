@@ -31,9 +31,9 @@ public class MavenMetadataGroupRepositoryComponent
             throws IOException
     {
         final LayoutProvider layoutProvider = getRepositoryProvider(groupRepository);
-        layoutProvider.deleteMetadata(groupRepository.getStorage().getId(),
-                                      groupRepository.getId(),
-                                      artifactPath);
+        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(groupRepository, artifactPath);
+        layoutProvider.deleteMetadata(repositoryPath);
     }
 
     @Override

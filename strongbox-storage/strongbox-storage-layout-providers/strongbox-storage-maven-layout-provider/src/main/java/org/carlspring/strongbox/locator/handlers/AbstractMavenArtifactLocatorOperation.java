@@ -31,25 +31,25 @@ public abstract class AbstractMavenArtifactLocatorOperation
     {
     }
 
-    public void execute(RepositoryPath path)
+    public void execute(RepositoryPath direcotryPath)
             throws IOException
     {
-        List<Path> filePathList;
-        try (Stream<Path> pathStream = Files.list(path))
+        List<Path> pomFiles;
+        try (Stream<Path> pathStream = Files.list(direcotryPath))
         {
-            filePathList = pathStream.filter(p -> p.getFileName().toString().endsWith(".pom")).sorted().collect(
+            pomFiles = pathStream.filter(p -> p.getFileName().toString().endsWith(".pom")).sorted().collect(
                     Collectors.toList());
         }
 
-        RepositoryPath parentPath = path.getParent();
-
-        if (filePathList.isEmpty())
+        if (pomFiles.isEmpty())
         {
             return;
         }
-
+        
+        RepositoryPath artifactGroupDirectoryPath = direcotryPath.getParent();
+        
         // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
-        if (getVisitedRootPaths().containsKey(parentPath) && getVisitedRootPaths().get(parentPath).contains(path))
+        if (getVisitedRootPaths().containsKey(artifactGroupDirectoryPath) && getVisitedRootPaths().get(artifactGroupDirectoryPath).contains(direcotryPath))
         {
             return;
         }
@@ -57,30 +57,30 @@ public abstract class AbstractMavenArtifactLocatorOperation
         if (logger.isDebugEnabled())
         {
             // We're using System.out.println() here for clarity and due to the length of the lines
-            System.out.println(parentPath);
+            System.out.println(artifactGroupDirectoryPath);
         }
 
         // The current directory is out of the tree
-        if (previousPath != null && !parentPath.startsWith(previousPath))
+        if (previousPath != null && !artifactGroupDirectoryPath.startsWith(previousPath))
         {
             getVisitedRootPaths().remove(previousPath);
-            previousPath = parentPath;
+            previousPath = artifactGroupDirectoryPath;
         }
 
         if (previousPath == null)
         {
-            previousPath = parentPath;
+            previousPath = artifactGroupDirectoryPath;
         }
 
-        List<RepositoryPath> versionDirectories = getVersionDirectories(parentPath);
+        List<RepositoryPath> versionDirectories = getVersionDirectories(artifactGroupDirectoryPath);
         if (versionDirectories == null)
         {
             return;
         }
-        getVisitedRootPaths().put(parentPath, versionDirectories);
+        getVisitedRootPaths().put(artifactGroupDirectoryPath, versionDirectories);
 
         VersionCollector versionCollector = new VersionCollector();
-        VersionCollectionRequest request = versionCollector.collectVersions(path.getParent().toAbsolutePath());
+        VersionCollectionRequest request = versionCollector.collectVersions(artifactGroupDirectoryPath.toAbsolutePath());
 
         if (logger.isDebugEnabled())
         {
@@ -91,11 +91,11 @@ public abstract class AbstractMavenArtifactLocatorOperation
             }
         }
 
-        executeOperation(request, parentPath, versionDirectories);
+        executeOperation(request, artifactGroupDirectoryPath, versionDirectories);
     }
 
     public abstract void executeOperation(VersionCollectionRequest request,
-                                          RepositoryPath artifactPath,
+                                          RepositoryPath artifactGroupDirectoryPath,
                                           List<RepositoryPath> versionDirectories)
             throws IOException;
 

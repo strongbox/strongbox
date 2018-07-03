@@ -5,6 +5,7 @@ import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.rest.common.RestAssuredTestExecutionListener;
 
 import java.lang.annotation.ElementType;
@@ -37,7 +38,7 @@ import static org.mockito.Matchers.any;
                                   IntegrationTest.TestConfig.class })
 @WebAppConfiguration("classpath:")
 @WithUserDetails(value = "admin")
-@TestExecutionListeners(listeners = RestAssuredTestExecutionListener.class,
+@TestExecutionListeners(listeners = {RestAssuredTestExecutionListener.class, CacheManagerTestExecutionListener.class},
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Rollback
 public @interface IntegrationTest

@@ -26,8 +26,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * @author Sergey Bespalov
  */
-public abstract class ArtifactOutputStream
-        extends MultipleDigestOutputStream
+public class ArtifactOutputStream extends MultipleDigestOutputStream
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactOutputStream.class);

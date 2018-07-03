@@ -33,19 +33,6 @@ public class StorageApiConfig
     @Inject
     private List<ArtifactCoordinatesValidator> versionValidators;
 
-    @Inject
-    private ConfigurationFileManager configurationFileManager;
-
-    @Inject
-    private ConfigurationManagementService configurationManagementService;
-
-    @PostConstruct
-    public void init()
-    {
-        final MutableConfiguration configuration = configurationFileManager.read();
-        configurationManagementService.setConfiguration(configuration);
-    }
-
     @Bean(name = "checksumCacheManager")
     ChecksumCacheManager checksumCacheManager()
     {

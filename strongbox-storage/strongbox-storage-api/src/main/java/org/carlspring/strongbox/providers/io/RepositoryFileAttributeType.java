@@ -14,9 +14,7 @@ public enum RepositoryFileAttributeType
     TRASH("trash"),
 
     TEMP("temp"),
-
-    INDEX("index"),
-
+    
     ARTIFACT("artifact"),
     
     ARTIFACT_PATH("artifactPath"),

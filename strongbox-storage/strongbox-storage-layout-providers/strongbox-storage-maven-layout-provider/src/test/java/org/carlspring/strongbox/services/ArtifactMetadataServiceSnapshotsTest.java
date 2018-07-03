@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.MavenDetachedArtifact;
+import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -187,7 +187,7 @@ public class ArtifactMetadataServiceSnapshotsTest
         String timestamp = formatter.format(calendar.getTime());
         String version = "2.0-" + timestamp + "-" + 6;
 
-        addedArtifact = new MavenDetachedArtifact(addedArtifact.getGroupId(),
+        addedArtifact = new MavenRepositoryArtifact(addedArtifact.getGroupId(),
                                                   addedArtifact.getArtifactId(),
                                                   version);
 
@@ -253,7 +253,7 @@ public class ArtifactMetadataServiceSnapshotsTest
                          "org.carlspring.strongbox.snapshots:metadata:" + version);
         final String artifactPath = "org/carlspring/strongbox/snapshots/metadata";
 
-        MavenArtifact snapshotArtifact = new MavenDetachedArtifact("org.carlspring.strongbox.snapshots", "metadata", version);
+        MavenArtifact snapshotArtifact = new MavenRepositoryArtifact("org.carlspring.strongbox.snapshots", "metadata", version);
 
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, artifactPath);
 
@@ -330,7 +330,7 @@ public class ArtifactMetadataServiceSnapshotsTest
         mergeMetadata.setVersioning(appendVersioning);
 
         // Merge
-        artifactMetadataService.mergeMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, mergeArtifact, mergeMetadata);
+        artifactMetadataService.mergeMetadata(mergeArtifact, mergeMetadata);
 
         Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
                                                                 REPOSITORY_SNAPSHOTS,

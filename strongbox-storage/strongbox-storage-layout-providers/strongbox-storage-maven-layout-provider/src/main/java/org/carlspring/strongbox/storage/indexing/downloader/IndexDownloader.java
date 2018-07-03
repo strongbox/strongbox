@@ -1,7 +1,8 @@
 package org.carlspring.strongbox.storage.indexing.downloader;
 
 import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
-import org.carlspring.strongbox.providers.io.RepositoryTempPathResolver;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 
@@ -42,7 +43,7 @@ public class IndexDownloader
     private ResourceFetcherFactory resourceFetcherFactory;
 
     @Inject
-    private RepositoryTempPathResolver repositoryTempPathResolver;
+    private RepositoryPathResolver repositoryPathResolver;
 
     public IndexDownloader()
     {
@@ -67,7 +68,7 @@ public class IndexDownloader
                                                                           request.getRemoteRepositoryURL(),
                                                                           proxyRepositoryConnectionPoolConfigurationService.getHttpClient()));
 
-        updateRequest.setIndexTempDir(repositoryTempPathResolver.resolve(request.getRepository()).toFile());
+        updateRequest.setIndexTempDir(RepositoryFiles.temporary(repositoryPathResolver.resolve(request.getRepository())).toFile());
 
         IndexUpdateResult updateResult = indexUpdater.fetchAndUpdateIndex(updateRequest);
 

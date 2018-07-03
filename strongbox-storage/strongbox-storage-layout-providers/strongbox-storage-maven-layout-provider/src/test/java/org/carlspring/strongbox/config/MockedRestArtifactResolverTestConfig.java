@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import static org.carlspring.strongbox.config.HazelcastConfiguration.newDefaultMapConfig;
+import static org.carlspring.strongbox.config.HazelcastConfiguration.nearCacheConfig;
 
 /**
  * @author Przemyslaw Fusik
@@ -28,7 +29,8 @@ public class MockedRestArtifactResolverTestConfig
     {
         final Config config = new Config().setInstanceName("mocked-hazelcast-instance")
                                           .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
-                                          .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
+                                          .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS))
+                                          .addMapConfig(nearCacheConfig(CacheName.Artifact.ARTIFACT_ENTRIES));
         config.getGroupConfig().setName("strongbox").setPassword("password");
         return config;
     }

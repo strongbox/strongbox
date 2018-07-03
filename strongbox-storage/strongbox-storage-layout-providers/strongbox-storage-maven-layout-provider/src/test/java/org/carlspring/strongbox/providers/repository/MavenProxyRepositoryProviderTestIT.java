@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -31,6 +32,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -41,6 +43,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class MavenProxyRepositoryProviderTestIT
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -123,7 +126,7 @@ public class MavenProxyRepositoryProviderTestIT
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
-        assertTrue(layoutProvider.containsPath(repository, "org/carlspring/properties-injector/maven-metadata.xml"));
+        assertTrue(layoutProvider.containsPath(repositoryPathResolver.resolve(repository, "org/carlspring/properties-injector/maven-metadata.xml")));
     }
 
     @Test
@@ -140,19 +143,19 @@ public class MavenProxyRepositoryProviderTestIT
         // 2. resolve downloaded artifact base path
         Repository repository = storage.getRepository(repositoryId);
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        final Path mavenCentralArtifactBaseBath = layoutProvider.resolve(repository).resolve("javax/media/jai_core");
+        final Path mavenCentralArtifactBaseBath = repositoryPathResolver.resolve(repository, "javax/media/jai_core");
 
         // 3. copy the content to carlspring repository
         repositoryId = "carlspring";
         repository = storage.getRepository(repositoryId);
-        final Path carlspringArtifactBaseBath = layoutProvider.resolve(repository).resolve("javax/media/jai_core");
+        final Path carlspringArtifactBaseBath = repositoryPathResolver.resolve(repository).resolve("javax/media/jai_core");
         FileUtils.copyDirectory(mavenCentralArtifactBaseBath.toFile(), carlspringArtifactBaseBath.toFile());
 
         // 4. confirm maven-metadata.xml lies in the carlspring repository
-        assertTrue(layoutProvider.containsPath(repository, "javax/media/jai_core/maven-metadata.xml"));
+        assertTrue(layoutProvider.containsPath(repositoryPathResolver.resolve(repository).resolve("javax/media/jai_core/maven-metadata.xml")));
 
         // 5. confirm some pre-merge state
-        Path artifactBasePath = layoutProvider.resolve(repository).resolve("javax/media/jai_core/");
+        Path artifactBasePath = repositoryPathResolver.resolve(repository).resolve("javax/media/jai_core/");
         Metadata metadata = mavenMetadataManager.readMetadata(artifactBasePath);
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.1.2_01"));
@@ -175,12 +178,14 @@ public class MavenProxyRepositoryProviderTestIT
         String repositoryId = "maven-central";
         String path = "org/carlspring/properties-injector/1.6/properties-injector-1.6.jar";
 
-        Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOneArtifact(storageId, repositoryId, path);
+        Optional<ArtifactEntry> artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                                         repositoryId,
+                                                                                                         path));
         assertThat(artifactEntry, CoreMatchers.equalTo(Optional.empty()));
 
         assertStreamNotNull(storageId, repositoryId, path);
 
-        artifactEntry = artifactEntryService.findOneArtifact(storageId, repositoryId, path);
+        artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId, repositoryId, path));
         assertThat(artifactEntry, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
     }
 

@@ -1,17 +1,11 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.metadata.MetadataHelper;
-import org.carlspring.strongbox.storage.metadata.MetadataType;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static junit.framework.TestCase.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -20,8 +14,21 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
+import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.storage.metadata.MetadataHelper;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -30,9 +37,6 @@ import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.*;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -124,8 +128,8 @@ public class MavenMetadataManagementControllerTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
