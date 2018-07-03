@@ -130,9 +130,11 @@ public class RepositoryIndexer
     public Set<SearchResult> search(final ArtifactInfo artifactInfo)
         throws IOException
     {
-        return search(artifactInfo.getGroupId(), artifactInfo.getArtifactId(),
-                                           artifactInfo.getVersion(),
-                                           artifactInfo.getFileExtension(), artifactInfo.getClassifier());
+        return search(artifactInfo.getGroupId(),
+                      artifactInfo.getArtifactId(),
+                      artifactInfo.getVersion(),
+                      artifactInfo.getFileExtension(),
+                      artifactInfo.getClassifier());
     }
 
     public Set<SearchResult> search(final String groupId,
