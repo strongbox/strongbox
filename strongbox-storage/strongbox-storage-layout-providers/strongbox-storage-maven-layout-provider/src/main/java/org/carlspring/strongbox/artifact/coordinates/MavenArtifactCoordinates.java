@@ -97,7 +97,8 @@ public class MavenArtifactCoordinates
 
     }
 
-    public MavenArtifactCoordinates(Artifact artifact) {
+    public MavenArtifactCoordinates(Artifact artifact)
+    {
         setGroupId(artifact.getGroupId());
         setArtifactId(artifact.getArtifactId());
         setVersion(artifact.getVersion());
