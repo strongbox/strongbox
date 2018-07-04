@@ -10,7 +10,7 @@ import java.nio.file.Files;
  * along with all additional logic needed, and, if procedure completed
  * successfully, then file just moved into original location, other way
  * "transaction" will be rolled back and temporary file will be removed.
- * 
+ *
  * @author sbespalov
  *
  */
@@ -24,7 +24,7 @@ public class TempRepositoryPath extends RepositoryPath implements Closeable
         super(tempPath.getTarget(), tempPath.getFileSystem());
     }
 
-    protected RepositoryPath getTempTarget()
+    public RepositoryPath getTempTarget()
     {
         return tempTarget;
     }
@@ -54,7 +54,7 @@ public class TempRepositoryPath extends RepositoryPath implements Closeable
         try
         {
             getFileSystem().provider().moveFromTemporaryDirectory(this);
-        } 
+        }
         finally
         {
             if (Files.exists(this))
