@@ -34,6 +34,8 @@ public class ArtifactEntry
 
     @ManyToMany(targetEntity = ArtifactTagEntry.class)
     private Set<ArtifactTag> tagSet;
+
+    private ArtifactArchiveListing artifactArchiveListing;
     
     private Long sizeInBytes;
 
