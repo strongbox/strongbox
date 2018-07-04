@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +36,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -82,6 +88,13 @@ public class NpmArtifactController extends BaseArtifactController
     @Qualifier("npmJackasonMapper")
     private ObjectMapper npmJackasonMapper;
 
+    @RequestMapping(path = { "{storageId}/{repositoryId}/npm"}, method = RequestMethod.GET)
+    public ResponseEntity<String> greet()
+    {
+        return ResponseEntity.ok("");
+    }
+
+    
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{resource:.+}", method = { RequestMethod.GET,
                                                                                   RequestMethod.HEAD })
@@ -126,7 +139,7 @@ public class NpmArtifactController extends BaseArtifactController
     }
 
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{name:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON)
+    @RequestMapping(path = "{storageId}/{repositoryId}/{name:.+}", method = RequestMethod.PUT)
     public ResponseEntity publish(@PathVariable(name = "storageId") String storageId,
                                   @PathVariable(name = "repositoryId") String repositoryId,
                                   @PathVariable(name = "name") String name,
