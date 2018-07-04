@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -35,6 +34,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -82,6 +82,14 @@ public class NpmArtifactController extends BaseArtifactController
     @Qualifier("npmJackasonMapper")
     private ObjectMapper npmJackasonMapper;
 
+    @RequestMapping(path = { "{storageId}/{repositoryId}/npm"}, method = RequestMethod.GET)
+    public ResponseEntity<String> greet()
+    {
+        //TODO: find out what NPM expect to receive here
+        return ResponseEntity.ok("");
+    }
+
+    
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{resource:.+}", method = { RequestMethod.GET,
                                                                                   RequestMethod.HEAD })
