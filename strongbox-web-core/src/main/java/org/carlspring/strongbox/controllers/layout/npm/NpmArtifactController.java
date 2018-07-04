@@ -85,6 +85,7 @@ public class NpmArtifactController extends BaseArtifactController
     @RequestMapping(path = { "{storageId}/{repositoryId}/npm"}, method = RequestMethod.GET)
     public ResponseEntity<String> greet()
     {
+        //TODO: find out what NPM expect to receive here
         return ResponseEntity.ok("");
     }
 
