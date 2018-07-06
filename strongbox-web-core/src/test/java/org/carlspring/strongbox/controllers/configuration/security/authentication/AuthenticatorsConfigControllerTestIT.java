@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration.security.authentication;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator;
+import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticator;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -146,7 +146,7 @@ public class AuthenticatorsConfigControllerTestIT
                .body("authenticators.authenticator[0].index",
                      equalByToString(0))
                .body("authenticators.authenticator[0].name",
-                     CoreMatchers.equalTo(DefaultAuthenticator.class.getName()))
+                     CoreMatchers.equalTo(PasswordAuthenticator.class.getName()))
                .body("authenticators.authenticator[1].index",
                      equalByToString(1))
                .body("authenticators.authenticator[1].name",

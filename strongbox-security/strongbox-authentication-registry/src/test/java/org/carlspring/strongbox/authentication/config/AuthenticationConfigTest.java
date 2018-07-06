@@ -2,7 +2,7 @@ package org.carlspring.strongbox.authentication.config;
 
 import org.carlspring.strongbox.authentication.TestConfig;
 import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator;
+import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticator;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 
 import javax.inject.Inject;
@@ -44,7 +44,7 @@ public class AuthenticationConfigTest
                     {
                         return ((Authenticator) o).getName()
                                                   .equals(
-                                                          DefaultAuthenticator.class.getName());
+                                                          PasswordAuthenticator.class.getName());
                     }
                 }));
     }

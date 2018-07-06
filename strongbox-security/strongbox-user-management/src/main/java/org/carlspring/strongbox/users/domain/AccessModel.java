@@ -19,11 +19,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import static java.util.stream.Collectors.toMap;
 
+import java.io.Serializable;
+
 /**
  * @author Przemyslaw Fusik
  */
 @Immutable
-public class AccessModel
+public class AccessModel implements Serializable
 {
 
     private final Map<String, Collection<String>> repositoryPrivileges;

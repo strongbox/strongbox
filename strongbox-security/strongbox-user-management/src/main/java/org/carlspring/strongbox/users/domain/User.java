@@ -4,6 +4,8 @@ import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserDto;
 
 import javax.annotation.concurrent.Immutable;
+
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 
@@ -13,7 +15,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Przemyslaw Fusik
  */
 @Immutable
-public class User
+public class User implements Serializable
 {
 
     private final String username;
