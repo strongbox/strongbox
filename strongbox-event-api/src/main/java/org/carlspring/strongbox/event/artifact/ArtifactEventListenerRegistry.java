@@ -1,37 +1,21 @@
 package org.carlspring.strongbox.event.artifact;
 
 import java.nio.file.Path;
-import java.util.List;
 
-import javax.annotation.PostConstruct;
 
 import org.carlspring.strongbox.event.AbstractEventListenerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
  */
 @Component
-public class ArtifactEventListenerRegistry
-        extends AbstractEventListenerRegistry
+public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEventListenerRegistry.class);
-
-    @Autowired(required = false)
-    private List<ArtifactEventListener> artifactEventListeners;
-
-    @PostConstruct
-    public void init()
-    {
-        if (artifactEventListeners != null)
-        {
-            artifactEventListeners.forEach(this::addListener);
-        }
-    }
 
     public void dispatchArtifactUploadingEvent(Path path)
     {
@@ -49,16 +33,6 @@ public class ArtifactEventListenerRegistry
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADED.getType());
 
         logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADED event for " + path + "...");
-
-        dispatchEvent(event);
-    }
-
-    public void dispatchArtifactMetadataFileUploadedEvent(Path path)
-    {
-        ArtifactEvent event = new ArtifactEvent(path,
-                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPLOADED.getType());
-
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPLOADED event for " + path + "...");
 
         dispatchEvent(event);
     }

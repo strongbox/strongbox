@@ -23,6 +23,7 @@ import static org.mockito.Matchers.any;
  */
 @Configuration
 @Import({ TestingCoreConfig.class,
+          EventsConfig.class,
           DataServiceConfig.class,
           CommonConfig.class,
           StorageCoreConfig.class,

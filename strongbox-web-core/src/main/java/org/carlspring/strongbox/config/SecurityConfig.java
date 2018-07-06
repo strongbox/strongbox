@@ -46,7 +46,6 @@ import static org.carlspring.strongbox.authorization.service.AuthorizationConfig
 
 @ComponentScan({ "org.carlspring.strongbox.security" })
 @Import({ DataServiceConfig.class,
-          EventsConfig.class,
           UsersConfig.class,
           AuthenticationConfig.class})
 @Configuration

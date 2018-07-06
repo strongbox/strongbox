@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import com.google.common.base.Throwables;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
@@ -25,7 +26,7 @@ public class IndexedMavenArtifactDeletedEventListener
     @Inject
     private MavenIndexGroupRepositoryComponent mavenIndexGroupRepositoryComponent;
 
-    @Override
+    @EventListener
     public void handle(final ArtifactEvent<RepositoryPath> event)
     {
         final Repository repository = getRepository(event);

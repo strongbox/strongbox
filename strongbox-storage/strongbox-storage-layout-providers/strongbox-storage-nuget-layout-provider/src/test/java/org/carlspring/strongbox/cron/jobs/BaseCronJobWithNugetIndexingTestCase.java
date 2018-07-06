@@ -3,7 +3,6 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
-import org.carlspring.strongbox.event.cron.CronTaskEventListener;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
@@ -13,16 +12,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.junit.After;
-import org.junit.Before;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
+
 import static org.junit.Assert.assertNotNull;
 
 /**
  * @author carlspring
  */
 public class BaseCronJobWithNugetIndexingTestCase
-        extends TestCaseWithNugetPackageGeneration
-        implements CronTaskEventListener
+        extends TestCaseWithNugetPackageGeneration implements ApplicationListener<CronTaskEvent>, ApplicationContextAware
 {
     public static final long CRON_TASK_CHECK_INTERVAL = 500L;
 
@@ -45,20 +47,19 @@ public class BaseCronJobWithNugetIndexingTestCase
 
     protected String expectedJobName;
 
-    @Before
-    public void listenerSetup()
-            throws Exception
+    
+    
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+        throws BeansException
     {
-        // Register to receive cron task-related events
-        cronTaskEventListenerRegistry.addListener(this);
+        ((ConfigurableApplicationContext) applicationContext).addApplicationListener(this);        
     }
 
-    @After
-    public void listenerTearDown()
-            throws Exception
+    @Override
+    public void onApplicationEvent(CronTaskEvent event)
     {
-        // Un-register to receive cron task-related events
-        cronTaskEventListenerRegistry.removeListener(this);
+        handle(event);
     }
 
     protected CronTaskConfigurationDto addCronJobConfig(String jobName,
@@ -113,7 +114,6 @@ public class BaseCronJobWithNugetIndexingTestCase
         return cronTaskConfiguration;
     }
 
-    @Override
     public void handle(CronTaskEvent event)
     {
         if (event.getType() == expectedEventType && expectedJobName.equals(event.getName()))

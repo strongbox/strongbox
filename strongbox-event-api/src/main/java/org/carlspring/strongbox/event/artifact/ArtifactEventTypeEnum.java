@@ -34,11 +34,6 @@ public enum ArtifactEventTypeEnum
     EVENT_ARTIFACT_CHECKSUM_UPDATED(5),
 
     /**
-     * Occurs when an artifact metadata file has been uploaded.
-     */
-    EVENT_ARTIFACT_METADATA_UPLOADED(6),
-
-    /**
      * Occurs when an artifact metadata file has been updated.
      */
     EVENT_ARTIFACT_METADATA_UPDATED(7),

@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.config;
 
-import java.io.IOException;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;

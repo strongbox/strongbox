@@ -1,22 +1,22 @@
 package org.carlspring.strongbox.event;
 
+import org.springframework.context.ApplicationEvent;
+
 /**
  * @author carlspring
  */
-public class Event
+public class Event extends ApplicationEvent
 {
 
-    private final int type;
-
-
-    public Event(int type)
+    public Event(Object source)
     {
-        this.type = type;
+        super(source);
     }
+
 
     public int getType()
     {
-        return type;
+        return (int) getSource();
     }
 
 }

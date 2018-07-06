@@ -55,6 +55,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Import({ CommonConfig.class,
           StrongboxSecurityConfig.class,
           StorageApiConfig.class,
+          EventsConfig.class,
           Maven2LayoutProviderConfig.class,
           NugetLayoutProviderConfig.class,
           NpmLayoutProviderConfig.class,

@@ -124,6 +124,8 @@ public class ArtifactManagementService
                       InputStream is)
            throws IOException
     {
+        ArtifactStoreResult result;
+        
         repositoryPathLock.lock(repositoryPath);
 
         try
@@ -131,7 +133,7 @@ public class ArtifactManagementService
             TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
             //TODO: implement suspension for HazelcastTransactionManager
             //transactionTemplate.setPropagationBehavior(Propagation.REQUIRES_NEW.value());
-            return transactionTemplate.execute((s) -> storeInTransaction(repositoryPath, is));
+            result = transactionTemplate.execute((s) -> storeInTransaction(repositoryPath, is));
         }
         catch (UndeclaredThrowableException e)
         {
@@ -153,9 +155,13 @@ public class ArtifactManagementService
         {
             repositoryPathLock.unlock(repositoryPath);
         }
+        
+        result.getEvents().stream().forEach(Runnable::run);
+        
+        return result.getSize();
     }
 
-    private long storeInTransaction(RepositoryPath repositoryPath,
+    private ArtifactStoreResult storeInTransaction(RepositoryPath repositoryPath,
                                     InputStream is)
     {
         try (TempRepositoryPath tempArtifact = RepositoryFiles.temporary(repositoryPath))
@@ -168,7 +174,7 @@ public class ArtifactManagementService
         }
     }
     
-    private long storeInTemp(TempRepositoryPath repositoryPath,
+    private ArtifactStoreResult storeInTemp(TempRepositoryPath repositoryPath,
                              InputStream is)
         throws IOException
     {
@@ -188,10 +194,12 @@ public class ArtifactManagementService
         }
     }
 
-    private long doStore(RepositoryPath repositoryPath,
+    private ArtifactStoreResult doStore(RepositoryPath repositoryPath,
                       InputStream is)
             throws IOException
     {
+        ArtifactStoreResult result = new ArtifactStoreResult();
+        
         boolean updatedMetadataFile = false;
         boolean updatedArtifactFile = false;
         boolean updatedArtifactChecksumFile = false;
@@ -212,11 +220,9 @@ public class ArtifactManagementService
             }
         }
         
-        long result;
-        
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(repositoryPath))
         {
-            result = storeArtifact(repositoryPath, is, aos);
+            result.setSize(storeArtifact(repositoryPath, is, aos));
         }
         catch (IOException e)
         {
@@ -231,26 +237,30 @@ public class ArtifactManagementService
 
         if (updatedMetadataFile)
         {
+            result.getEvents()
+                  .add(() -> artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(repositoryPath));
             // If this is a metadata file and it has been updated:
-            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(repositoryPath);
-            artifactEventListenerRegistry.dispatchArtifactMetadataFileUploadedEvent(repositoryPath);
         }
         if (updatedArtifactChecksumFile)
         {
             // If this is a checksum file and it has been updated:
-            artifactEventListenerRegistry.dispatchArtifactChecksumFileUpdatedEvent(repositoryPath);
+            result.getEvents()
+                  .add(() -> artifactEventListenerRegistry.dispatchArtifactChecksumFileUpdatedEvent(repositoryPath));
         }
-        
+
         if (RepositoryFiles.isChecksum(repositoryPath))
         {
-            artifactEventListenerRegistry.dispatchArtifactChecksumUploadedEvent(repositoryPath);
+            result.getEvents()
+                  .add(() -> artifactEventListenerRegistry.dispatchArtifactChecksumUploadedEvent(repositoryPath));
         }
 
         if (updatedArtifactFile)
         {
             // If this is an artifact file and it has been updated:
-            artifactEventListenerRegistry.dispatchArtifactUploadedEvent(repositoryPath);
+            result.getEvents()
+                  .add(() -> artifactEventListenerRegistry.dispatchArtifactUploadedEvent(repositoryPath));
         }
+        
         
         return result;
     }

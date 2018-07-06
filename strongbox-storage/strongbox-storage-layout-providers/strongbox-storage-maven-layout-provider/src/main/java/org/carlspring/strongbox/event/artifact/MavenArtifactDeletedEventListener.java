@@ -7,6 +7,8 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import java.io.IOException;
 
 import com.google.common.base.Throwables;
+
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,7 +19,7 @@ public class MavenArtifactDeletedEventListener
         extends BaseMavenArtifactEventListener
 {
 
-    @Override
+    @EventListener
     public void handle(final ArtifactEvent<RepositoryPath> event)
     {
         final Repository repository = getRepository(event);
