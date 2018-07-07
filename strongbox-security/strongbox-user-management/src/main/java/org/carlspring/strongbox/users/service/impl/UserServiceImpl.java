@@ -196,6 +196,21 @@ public class UserServiceImpl
     }
 
     @Override
+    public void updateSecurityToken(final UserDto userToUpdate)
+    {
+        modifyInLock(users ->
+                     {
+                         users.getUsers().stream().filter(
+                                 user -> user.getUsername().equals(userToUpdate.getUsername())).findFirst().ifPresent(
+                                 user ->
+                                 {
+                                     updateSecurityToken(user, userToUpdate.getSecurityTokenKey());
+                                 }
+                         );
+                     });
+    }
+
+    @Override
     @CacheEvict(cacheNames = CacheName.User.USERS, key = "#p0.username")
     public void updateByUsername(final UserDto userToUpdate)
     {
@@ -216,6 +231,22 @@ public class UserServiceImpl
     }
 
     @Override
+    public void updateAccountDetailsByUsername(UserDto userToUpdate)
+    {
+        modifyInLock(users ->
+                     {
+                         users.getUsers().stream().filter(
+                                 user -> user.getUsername().equals(userToUpdate.getUsername())).findFirst().ifPresent(
+                                 user ->
+                                 {
+                                     updatePassword(user, userToUpdate.getPassword());
+                                     updateSecurityToken(user, userToUpdate.getSecurityTokenKey());
+                                 }
+                         );
+                     });
+    }
+
+    @Override
     @CacheEvict(cacheNames = CacheName.User.USERS, allEntries = true)
     public void setUsers(final UsersDto newUsers)
     {
@@ -230,9 +261,18 @@ public class UserServiceImpl
     private void updatePassword(final UserDto user,
                                 final String rawPassword)
     {
-        if (StringUtils.isNotEmpty(rawPassword))
+        if (StringUtils.isNotBlank(rawPassword))
         {
             user.setPassword(passwordEncoder.encode(rawPassword));
+        }
+    }
+
+    private void updateSecurityToken(final UserDto user,
+                                     final String securityToken)
+    {
+        if (StringUtils.isNotBlank(securityToken))
+        {
+            user.setSecurityTokenKey(securityToken);
         }
     }
 
