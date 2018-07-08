@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,16 @@ public class AccountControllerTest
         setContextBaseUrl(getContextBaseUrl() + "/api/account");
     }
 
+    @Before
+    public void setupDisabledUser()
+    {
+        UserDto disabledUser = new UserDto();
+        disabledUser.setUsername("test-disabled-user-account");
+        disabledUser.setPassword("1234");
+        disabledUser.setEnabled(false);
+        userService.add(disabledUser);
+    }
+
     @Test
     @WithUserDetails("admin")
     public void testGetAccountDetails()
@@ -57,7 +68,7 @@ public class AccountControllerTest
     }
 
     @Test
-    @WithUserDetails("test-account-disabled")
+    @WithUserDetails("test-disabled-user-account")
     public void testGetAccountDetailsOnDisabledUserShouldFail()
             throws Exception
     {
