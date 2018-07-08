@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.cron.services;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
-import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNamesDto;
 
 import org.quartz.SchedulerException;
 
@@ -12,14 +12,14 @@ import org.quartz.SchedulerException;
 public interface CronJobSchedulerService
 {
 
-    void scheduleJob(CronTaskConfiguration cronTaskConfiguration)
+    void scheduleJob(CronTaskConfigurationDto cronTaskConfiguration)
             throws ClassNotFoundException, SchedulerException;
 
-    void executeJob(CronTaskConfiguration cronTaskConfiguration)
+    void executeJob(CronTaskConfigurationDto cronTaskConfiguration)
             throws SchedulerException;
 
-    void deleteJob(CronTaskConfiguration cronTaskConfiguration)
+    void deleteJob(String cronTaskConfigurationName)
                     throws ClassNotFoundException, SchedulerException, CronTaskNotFoundException;
 
-    GroovyScriptNames getGroovyScriptsName();
+    GroovyScriptNamesDto getGroovyScriptsName();
 }

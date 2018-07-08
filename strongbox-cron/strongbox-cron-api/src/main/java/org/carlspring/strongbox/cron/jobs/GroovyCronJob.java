@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -20,7 +20,7 @@ public class GroovyCronJob
 
     @Override
     @SuppressFBWarnings(value = "DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED")
-    public void executeTask(CronTaskConfiguration config)
+    public void executeTask(CronTaskConfigurationDto config)
             throws Throwable
     {
         try
@@ -39,7 +39,7 @@ public class GroovyCronJob
 
     public String getScriptPath()
     {
-        return getConfiguration().getProperties().get("script.path");
+        return configuration.getProperties().get("script.path");
     }
 
 }

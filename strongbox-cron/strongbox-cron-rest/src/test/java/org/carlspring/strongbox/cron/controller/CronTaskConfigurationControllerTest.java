@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.cron.controller;
 
 import org.carlspring.strongbox.cron.context.CronTaskRestTest;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.domain.CronTasksConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.MyTask;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
@@ -53,10 +53,10 @@ public class CronTaskConfigurationControllerTest
     {
         Assume.assumeTrue(context.containsBean("repositoryIndexManager"));
 
-        List<CronTaskConfiguration> configurationList = getDownloadRemoteMavenIndexOfCarlspringCronJobs();
+        List<CronTaskConfigurationDto> configurationList = getDownloadRemoteMavenIndexOfCarlspringCronJobs();
 
         assertThat(configurationList.size(), CoreMatchers.equalTo(1));
-        CronTaskConfiguration configuration = configurationList.get(0);
+        CronTaskConfigurationDto configuration = configurationList.get(0);
         assertThat(configuration.getProperties().keySet().size(), CoreMatchers.equalTo(4));
         assertThat(configuration.getProperties().get("cronExpression"), CoreMatchers.equalTo("0 0 5 * * ?"));
         assertThat(configuration.getName(),
@@ -76,14 +76,14 @@ public class CronTaskConfigurationControllerTest
         assertThat(configuration.getName(), CoreMatchers.equalTo("This is completely new name for this job"));
     }
 
-    private List<CronTaskConfiguration> getDownloadRemoteMavenIndexOfCarlspringCronJobs()
+    private List<CronTaskConfigurationDto> getDownloadRemoteMavenIndexOfCarlspringCronJobs()
     {
 
-        final CronTasksConfiguration cronTasksConfiguration = given().accept(MediaType.APPLICATION_XML_VALUE)
-                                                                     .when()
-                                                                     .get(getContextBaseUrl() + "/")
-                                                                     .peek()
-                                                                     .as(CronTasksConfiguration.class);
+        final CronTasksConfigurationDto cronTasksConfiguration = given().accept(MediaType.APPLICATION_XML_VALUE)
+                                                                        .when()
+                                                                        .get(getContextBaseUrl() + "/")
+                                                                        .peek()
+                                                                        .as(CronTasksConfigurationDto.class);
 
         return cronTasksConfiguration.getCronTaskConfigurations().stream().filter(
                 p -> "org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob".equals(
@@ -125,7 +125,7 @@ public class CronTaskConfigurationControllerTest
 
         String url = "/cron";
 
-        CronTaskConfiguration configuration = new CronTaskConfiguration();
+        CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setOneTimeExecution(true);
         configuration.setName(cronName1);
         configuration.addProperty("cronExpression", cronExpression);
@@ -161,7 +161,7 @@ public class CronTaskConfigurationControllerTest
 
         String url = client.getContextBaseUrl() + "/cron";
 
-        CronTaskConfiguration configuration = new CronTaskConfiguration();
+        CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setOneTimeExecution(true);
         configuration.setName(name);
         configuration.addProperty("cronExpression", cronExpression);

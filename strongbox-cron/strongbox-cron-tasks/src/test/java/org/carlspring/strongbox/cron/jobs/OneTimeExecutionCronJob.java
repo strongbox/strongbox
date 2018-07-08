@@ -2,7 +2,7 @@ package org.carlspring.strongbox.cron.jobs;
 
 import static org.junit.Assert.assertFalse;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 
 /**
  * @author carlspring
@@ -14,7 +14,7 @@ public class OneTimeExecutionCronJob
     int runs = 1;
 
     @Override
-    public void executeTask(CronTaskConfiguration config)
+    public void executeTask(CronTaskConfigurationDto config)
             throws Throwable
     {
         System.out.println("The one-time task has run " + runs + " times.");

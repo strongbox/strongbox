@@ -1,7 +1,8 @@
 package org.carlspring.strongbox.cron.services.impl;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNamesDto;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 import org.carlspring.strongbox.cron.jobs.AbstractCronJob;
@@ -11,10 +12,7 @@ import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Optional;
 
-import org.apache.commons.collections.IteratorUtils;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +20,8 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 class CronTaskConfigurationServiceImpl
         implements CronTaskConfigurationService, ApplicationContextAware
 {
@@ -49,7 +45,7 @@ class CronTaskConfigurationServiceImpl
         beanFactory = context.getAutowireCapableBeanFactory();
     }
 
-    public void saveConfiguration(CronTaskConfiguration configuration)
+    public void saveConfiguration(CronTaskConfigurationDto configuration)
             throws Exception
     {
         logger.debug("CronTaskConfigurationService.saveConfiguration()");
@@ -59,7 +55,7 @@ class CronTaskConfigurationServiceImpl
             throw new CronTaskException("cronExpression property does not exists");
         }
 
-        configuration = cronTaskDataService.save(configuration);
+        cronTaskDataService.save(configuration);
 
         if (configuration.contains("jobClass"))
         {
@@ -87,50 +83,44 @@ class CronTaskConfigurationServiceImpl
         cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(configuration.getName());
     }
 
-    public void deleteConfiguration(CronTaskConfiguration configuration)
+    public void deleteConfiguration(String cronTaskConfigurationName)
             throws SchedulerException,
                    CronTaskNotFoundException,
                    ClassNotFoundException
     {
-        logger.debug("Deleting cron task configuration {}", configuration);
+        logger.debug("Deleting cron task configuration {}", cronTaskConfigurationName);
 
-        cronTaskDataService.delete(configuration);
-        cronJobSchedulerService.deleteJob(configuration);
+        cronTaskDataService.delete(cronTaskConfigurationName);
+        cronJobSchedulerService.deleteJob(cronTaskConfigurationName);
 
-        cronTaskEventListenerRegistry.dispatchCronTaskDeletedEvent(configuration.getName());
-    }
-
-    public List<CronTaskConfiguration> getConfiguration(String name)
-    {
-        return cronTaskDataService.findByName(name);
+        cronTaskEventListenerRegistry.dispatchCronTaskDeletedEvent(cronTaskConfigurationName);
     }
 
     @Override
-    public CronTaskConfiguration findOne(String name)
+    public CronTaskConfigurationDto getTaskConfigurationDto(String name)
     {
-        List<CronTaskConfiguration> configurations = getConfiguration(name);
-        if (configurations == null || configurations.isEmpty())
-        {
-            return null;
-        }
-
-        return configurations.get(0);
+        return cronTaskDataService.getTaskConfigurationDto(name);
     }
 
-    public List<CronTaskConfiguration> getConfigurations()
+    public CronTasksConfigurationDto getTasksConfigurationDto()
     {
-        logger.debug("CronTaskConfigurationService.getConfigurations()");
-
-        Optional<List<CronTaskConfiguration>> optional = cronTaskDataService.findAll();
-
-        return (List<CronTaskConfiguration>) (optional.isPresent() ? optional.get() :
-                                              IteratorUtils.toList(optional.get().iterator()));
+        return cronTaskDataService.getTasksConfigurationDto();
     }
 
-    public GroovyScriptNames getGroovyScriptsName()
+    public GroovyScriptNamesDto getGroovyScriptsName()
     {
         logger.debug("CronTaskConfigurationService.getGroovyScriptsName");
 
         return cronJobSchedulerService.getGroovyScriptsName();
+    }
+
+    @Override
+    public void setConfiguration(final CronTasksConfigurationDto cronTasksConfiguration)
+            throws Exception
+    {
+        for (CronTaskConfigurationDto dto : cronTasksConfiguration.getCronTaskConfigurations()) {
+            saveConfiguration(dto);
+        }
+
     }
 }

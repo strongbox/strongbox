@@ -1,48 +1,30 @@
 package org.carlspring.strongbox.cron.domain;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.concurrent.Immutable;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement(name = "cron-tasks-configuration")
-@XmlAccessorType(XmlAccessType.FIELD)
+@Immutable
 public class CronTasksConfiguration
 {
 
-    @XmlElement(name = "cron-task-configuration")
-    private List<CronTaskConfiguration> cronTaskConfigurations = new ArrayList<>();
+    private Set<CronTaskConfiguration> cronTaskConfigurations;
 
-    public CronTasksConfiguration()
+    public CronTasksConfiguration(final CronTasksConfigurationDto source)
     {
+        this.cronTaskConfigurations = immuteCronTaskConfigurations(source.getCronTaskConfigurations());
     }
 
-    public CronTasksConfiguration(final List<CronTaskConfiguration> cronTaskConfigurations)
+    private Set<CronTaskConfiguration> immuteCronTaskConfigurations(final Set<CronTaskConfigurationDto> source)
     {
-        this.cronTaskConfigurations = cronTaskConfigurations;
-    }
-
-    public List<CronTaskConfiguration> getCronTaskConfigurations()
-    {
-        return cronTaskConfigurations;
-    }
-
-    public void setCronTaskConfigurations(List<CronTaskConfiguration> cronTaskConfigurations)
-    {
-        this.cronTaskConfigurations = cronTaskConfigurations;
-    }
-
-    @Override
-    public String toString()
-    {
-        final StringBuilder sb = new StringBuilder("CronTasksConfiguration{");
-        sb.append("cronTaskConfigurations=").append(cronTaskConfigurations);
-        sb.append('}');
-        return sb.toString();
+        return source != null ? ImmutableSet.copyOf(
+                source.stream().map(CronTaskConfiguration::new).collect(Collectors.toList())) :
+               Collections.emptySet();
     }
 }

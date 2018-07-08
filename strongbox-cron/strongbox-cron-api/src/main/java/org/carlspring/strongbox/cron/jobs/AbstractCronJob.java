@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.cron.CronJobStatusEnum;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
@@ -25,8 +25,8 @@ public abstract class AbstractCronJob
 {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    
-    private CronTaskConfiguration configuration;
+
+    protected CronTaskConfigurationDto configuration;
 
     @Inject
     private CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
@@ -40,7 +40,7 @@ public abstract class AbstractCronJob
     private String status = CronJobStatusEnum.SLEEPING.getStatus();
 
 
-    public abstract void executeTask(CronTaskConfiguration config)
+    public abstract void executeTask(CronTaskConfigurationDto config)
             throws Throwable;
 
     @Override
@@ -51,15 +51,15 @@ public abstract class AbstractCronJob
 
         if (configuration == null)
         {
-            configuration = cronTaskConfigurationService.findOne(jobExecutionContext.getJobDetail()
-                                                                                    .getKey()
-                                                                                    .getName());
+            configuration = cronTaskConfigurationService.getTaskConfigurationDto(jobExecutionContext.getJobDetail()
+                                                                                                    .getKey()
+                                                                                                    .getName());
         }
 
         setStatus(CronJobStatusEnum.EXECUTING.getStatus());
         cronTaskEventListenerRegistry.dispatchCronTaskExecutingEvent(configuration.getName());
 
-        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
+        CronTaskConfigurationDto config = (CronTaskConfigurationDto) jobExecutionContext.getMergedJobDataMap().get("config");
 
         try
         {
@@ -79,7 +79,7 @@ public abstract class AbstractCronJob
         {
             try
             {
-                cronTaskConfigurationService.deleteConfiguration(getConfiguration());
+                cronTaskConfigurationService.deleteConfiguration(configuration.getName());
             }
             catch (Exception e)
             {
@@ -94,19 +94,9 @@ public abstract class AbstractCronJob
     {
     }
 
-    public void beforeScheduleCallback(CronTaskConfiguration config)
+    public void beforeScheduleCallback(CronTaskConfigurationDto config)
             throws Exception
     {
-    }
-
-    public CronTaskConfiguration getConfiguration()
-    {
-        return configuration;
-    }
-
-    public void setConfiguration(CronTaskConfiguration configuration)
-    {
-        this.configuration = configuration;
     }
 
     public String getStatus()

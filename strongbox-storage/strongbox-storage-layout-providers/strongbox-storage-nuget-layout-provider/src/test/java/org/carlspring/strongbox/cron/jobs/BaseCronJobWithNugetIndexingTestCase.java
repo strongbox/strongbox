@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
 import org.carlspring.strongbox.event.cron.CronTaskEventListener;
@@ -35,7 +35,7 @@ public class BaseCronJobWithNugetIndexingTestCase
     /**
      * A map containing the cron task configurations used by this test.
      */
-    protected Map<String, CronTaskConfiguration> cronTaskConfigurations = new LinkedHashMap<>();
+    protected Map<String, CronTaskConfigurationDto> cronTaskConfigurations = new LinkedHashMap<>();
 
     protected int expectedEventType = CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType();
 
@@ -61,20 +61,20 @@ public class BaseCronJobWithNugetIndexingTestCase
         cronTaskEventListenerRegistry.removeListener(this);
     }
 
-    protected CronTaskConfiguration addCronJobConfig(String jobName,
-                                                     Class<? extends JavaCronJob> className,
-                                                     String storageId,
-                                                     String repositoryId)
+    protected CronTaskConfigurationDto addCronJobConfig(String jobName,
+                                                        Class<? extends JavaCronJob> className,
+                                                        String storageId,
+                                                        String repositoryId)
             throws Exception
     {
         return addCronJobConfig(jobName,className,storageId, repositoryId,null);
     }
 
-    protected CronTaskConfiguration addCronJobConfig(String jobName,
-                                                     Class<? extends JavaCronJob> className,
-                                                     String storageId,
-                                                     String repositoryId,
-                                                     Consumer<Map<String, String>> additionalProperties)
+    protected CronTaskConfigurationDto addCronJobConfig(String jobName,
+                                                        Class<? extends JavaCronJob> className,
+                                                        String storageId,
+                                                        String repositoryId,
+                                                        Consumer<Map<String, String>> additionalProperties)
             throws Exception
     {
         Map<String, String> properties = new LinkedHashMap<>();
@@ -88,10 +88,10 @@ public class BaseCronJobWithNugetIndexingTestCase
         return addCronJobConfig(jobName, className, properties);
     }
 
-    protected CronTaskConfiguration addCronJobConfig(String jobName, Class<? extends JavaCronJob> className, Map<String, String> properties)
+    protected CronTaskConfigurationDto addCronJobConfig(String jobName, Class<? extends JavaCronJob> className, Map<String, String> properties)
             throws Exception
     {
-        CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
+        CronTaskConfigurationDto cronTaskConfiguration = new CronTaskConfigurationDto();
         cronTaskConfiguration.setOneTimeExecution(true);
         cronTaskConfiguration.setImmediateExecution(true);
         cronTaskConfiguration.setName(jobName);
@@ -104,7 +104,7 @@ public class BaseCronJobWithNugetIndexingTestCase
 
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
 
-        CronTaskConfiguration configuration = cronTaskConfigurationService.findOne(jobName);
+        CronTaskConfigurationDto configuration = cronTaskConfigurationService.getTaskConfigurationDto(jobName);
 
         assertNotNull("Failed to save cron configuration!", configuration);
 
@@ -149,18 +149,18 @@ public class BaseCronJobWithNugetIndexingTestCase
         return receivedExpectedEvent;
     }
 
-    public CronTaskConfiguration getCronTaskConfiguration(String key)
+    public CronTaskConfigurationDto getCronTaskConfiguration(String key)
     {
         return cronTaskConfigurations.get(key);
     }
 
-    public CronTaskConfiguration addCronTaskConfiguration(String key,
-                                                          CronTaskConfiguration value)
+    public CronTaskConfigurationDto addCronTaskConfiguration(String key,
+                                                             CronTaskConfigurationDto value)
     {
         return cronTaskConfigurations.put(key, value);
     }
 
-    public CronTaskConfiguration removeCronTaskConfiguration(String key)
+    public CronTaskConfigurationDto removeCronTaskConfiguration(String key)
     {
         return cronTaskConfigurations.remove(key);
     }

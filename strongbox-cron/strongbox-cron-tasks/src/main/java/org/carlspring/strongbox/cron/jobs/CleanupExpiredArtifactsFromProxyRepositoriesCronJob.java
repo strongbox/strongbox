@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryExpiredArtifactsCleaner;
 
 import javax.inject.Inject;
@@ -16,7 +16,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJob
     private LocalStorageProxyRepositoryExpiredArtifactsCleaner proxyRepositoryObsoleteArtifactsCleaner;
 
     @Override
-    public void executeTask(final CronTaskConfiguration config)
+    public void executeTask(final CronTaskConfigurationDto config)
             throws Throwable
     {
         final String lastAccessedTimeInDaysText = config.getRequiredProperty("lastAccessedTimeInDays");

@@ -2,7 +2,7 @@ package org.carlspring.strongbox.cron.jobs;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 
 /**
@@ -17,7 +17,7 @@ public class DownloadRemoteFeedCronJob
     private NugetRepositoryFeatures features;
     
     @Override
-    public void executeTask(CronTaskConfiguration config)
+    public void executeTask(CronTaskConfigurationDto config)
         throws Throwable
     {
         String storageId = config.getProperty("storageId");

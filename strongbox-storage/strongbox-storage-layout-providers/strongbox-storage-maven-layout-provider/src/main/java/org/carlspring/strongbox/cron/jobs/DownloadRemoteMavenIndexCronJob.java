@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 
 import javax.inject.Inject;
@@ -17,7 +17,7 @@ public class DownloadRemoteMavenIndexCronJob
     private IndexedMavenRepositoryFeatures features;
 
     @Override
-    public void executeTask(CronTaskConfiguration config)
+    public void executeTask(CronTaskConfigurationDto config)
             throws Throwable
     {
         logger.debug("Executing DownloadRemoteIndexCronJob.");

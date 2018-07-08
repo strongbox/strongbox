@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 
 import javax.inject.Inject;
@@ -16,7 +16,7 @@ public class ClearRepositoryTrashCronJob
     private RepositoryManagementService repositoryManagementService;
 
     @Override
-    public void executeTask(CronTaskConfiguration config)
+    public void executeTask(CronTaskConfigurationDto config)
             throws Throwable
     {
         String storageId = config.getProperty("storageId");

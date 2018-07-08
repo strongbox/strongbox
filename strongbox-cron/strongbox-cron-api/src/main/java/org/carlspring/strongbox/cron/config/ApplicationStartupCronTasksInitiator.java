@@ -1,21 +1,17 @@
 package org.carlspring.strongbox.cron.config;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.domain.CronTasksConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.io.InputStream;
+
+import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,15 +27,20 @@ public class ApplicationStartupCronTasksInitiator
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
+    @Inject
+    private CronTasksConfigurationFileManager cronTasksConfigurationFileManager;
+
     @PostConstruct
     public void postConstruct()
             throws Exception
     {
-        CronTasksConfiguration cronTasksConfiguration = loadConfigurationFromFileSystem();
-        for (final CronTaskConfiguration configuration : cronTasksConfiguration.getCronTaskConfigurations())
+        CronTasksConfigurationDto cronTasksConfiguration = cronTasksConfigurationFileManager.read();
+        for (Iterator<CronTaskConfigurationDto> iterator = cronTasksConfiguration.getCronTaskConfigurations().iterator(); iterator.hasNext();)
         {
+            CronTaskConfigurationDto configuration = iterator.next();
+
             logger.debug("Saving cron configuration {}", configuration);
-            
+
             String jobClass = configuration.getProperty("jobClass");
             if (jobClass != null && !jobClass.trim().isEmpty())
             {
@@ -50,37 +51,14 @@ public class ApplicationStartupCronTasksInitiator
                 catch (ClassNotFoundException e)
                 {
                     logger.warn(String.format("Skip configuration, job class not found [%s].", jobClass));
+                    iterator.remove();
                     continue;
                 }
             }
-            cronTaskConfigurationService.saveConfiguration(configuration);
+
         }
+        cronTaskConfigurationService.setConfiguration(cronTasksConfiguration);
     }
 
-    private CronTasksConfiguration loadConfigurationFromFileSystem()
-            throws IOException, JAXBException
-    {
-
-        final Resource resource = getConfigurationResource();
-
-        logger.debug("Loading cron configuration from XML file {}", resource.getURI());
-
-        GenericParser<CronTasksConfiguration> parser = new GenericParser<>(CronTasksConfiguration.class);
-        CronTasksConfiguration configuration;
-
-        try (final InputStream is = resource.getInputStream())
-        {
-            configuration = parser.parse(is);
-        }
-
-        return configuration;
-    }
-
-    public Resource getConfigurationResource()
-            throws IOException
-    {
-        return ConfigurationResourceResolver.getConfigurationResource("strongbox.cron.tasks.xml",
-                                                                      "etc/conf/strongbox-cron-tasks.xml");
-    }
 
 }

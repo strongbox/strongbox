@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.cron.controller;
 
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.domain.CronTasksConfiguration;
-import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNamesDto;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
 import org.carlspring.strongbox.cron.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
@@ -23,6 +23,7 @@ import java.util.List;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -54,7 +55,7 @@ public class CronTaskController
                     consumes = { MediaType.APPLICATION_JSON,
                                  MediaType.APPLICATION_XML }
     )
-    public ResponseEntity saveConfiguration(@RequestBody CronTaskConfiguration cronTaskConfiguration)
+    public ResponseEntity saveConfiguration(@RequestBody CronTaskConfigurationDto cronTaskConfiguration)
     {
         try
         {
@@ -78,30 +79,31 @@ public class CronTaskController
     public ResponseEntity deleteConfiguration(@RequestParam("name") String name)
     {
         final List<Exception> errors = new LinkedList<>();
-        cronTaskConfigurationService.getConfiguration(name)
-                                    .forEach(config -> {
-                                        try
-                                        {
-                                            cronTaskConfigurationService.deleteConfiguration(config);
-                                            if (config.contains("jobClass"))
-                                            {
-                                                Class c = Class.forName(config.getProperty("jobClass"));
-                                                Object classInstance = c.newInstance();
+        final CronTaskConfigurationDto config = cronTaskConfigurationService.getTaskConfigurationDto(name);
+        if (config != null)
+        {
+            try
+            {
+                cronTaskConfigurationService.deleteConfiguration(config.getName());
+                if (config.contains("jobClass"))
+                {
+                    Class c = Class.forName(config.getProperty("jobClass"));
+                    Object classInstance = c.newInstance();
 
-                                                logger.debug("> " + c.getSuperclass().getCanonicalName());
+                    logger.debug("> " + c.getSuperclass().getCanonicalName());
 
-                                                if (classInstance instanceof GroovyCronJob)
-                                                {
-                                                    Path path = Paths.get(config.getProperty("script.path"));
-                                                    Files.deleteIfExists(path);
-                                                }
-                                            }
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            errors.add(e);
-                                        }
-                                    });
+                    if (classInstance instanceof GroovyCronJob)
+                    {
+                        Path path = Paths.get(config.getProperty("script.path"));
+                        Files.deleteIfExists(path);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                errors.add(e);
+            }
+        }
 
         if (!errors.isEmpty())
         {
@@ -120,7 +122,7 @@ public class CronTaskController
                                  MediaType.APPLICATION_XML })
     public ResponseEntity getConfiguration(@RequestParam("name") String name)
     {
-        CronTaskConfiguration config = cronTaskConfigurationService.findOne(name);
+        CronTaskConfigurationDto config = cronTaskConfigurationService.getTaskConfigurationDto(name);
         if (config == null)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -147,14 +149,14 @@ public class CronTaskController
                                  MediaType.APPLICATION_XML })
     public ResponseEntity getConfigurations()
     {
-        List<CronTaskConfiguration> configList = cronTaskConfigurationService.getConfigurations();
-        if (configList == null || configList.isEmpty())
+        CronTasksConfigurationDto config = cronTaskConfigurationService.getTasksConfigurationDto();
+        if (config == null || CollectionUtils.isEmpty(config.getCronTaskConfigurations()))
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                  .body("There are no cron task configs");
         }
 
-        return ResponseEntity.ok(new CronTasksConfiguration(configList));
+        return ResponseEntity.ok(config);
     }
 
     @ApiOperation(value = "Used to upload groovy script for groovy cron task", position = 4)
@@ -172,7 +174,7 @@ public class CronTaskController
                                  .body("The uploaded file must be a Groovy one!");
         }
 
-        CronTaskConfiguration cronTaskConfiguration = cronTaskConfigurationService.findOne(cronName);
+        CronTaskConfigurationDto cronTaskConfiguration = cronTaskConfigurationService.getTaskConfigurationDto(cronName);
         if (cronTaskConfiguration == null)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -212,7 +214,7 @@ public class CronTaskController
                                  MediaType.APPLICATION_XML })
     public ResponseEntity getGroovyScriptsName()
     {
-        GroovyScriptNames groovyScriptNames = cronTaskConfigurationService.getGroovyScriptsName();
+        GroovyScriptNamesDto groovyScriptNames = cronTaskConfigurationService.getGroovyScriptsName();
 
         return ResponseEntity.ok(groovyScriptNames);
     }
