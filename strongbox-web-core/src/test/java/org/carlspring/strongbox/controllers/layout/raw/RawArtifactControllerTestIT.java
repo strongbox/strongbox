@@ -77,7 +77,7 @@ public class RawArtifactControllerTestIT
 
         createProxyRepository(STORAGE0,
                               REPOSITORY_PROXY,
-                              "http://apache.cbox.biz");
+                              "http://slackbuilds.org/slackbuilds/14.2/");
         // Required for http://www-eu.apache.org/dist/maven/pom/apache-19-source-release.zip
 
         MutableRepository repository2 = rawRepositoryFactory.createRepository(REPOSITORY_GROUP);
@@ -105,7 +105,7 @@ public class RawArtifactControllerTestIT
             throws Exception
     {
         String artifactPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_PROXY +
-                              "/maven/pom/apache-19-source-release.zip";
+                              "/system/alien.tar.gz";
 
         resolveArtifact(artifactPath);
     }
@@ -120,7 +120,7 @@ public class RawArtifactControllerTestIT
             throws Exception
     {
         String artifactPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_GROUP +
-                              "/maven/pom/maven-parent-31-source-release.zip";
+                              "/system/alien.tar.gz";
 
         resolveArtifact(artifactPath);
     }
