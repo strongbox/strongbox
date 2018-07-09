@@ -35,7 +35,7 @@ public class StrongboxUserDetailService
     AuthoritiesProvider authoritiesProvider;
 
     @Override
-    public synchronized UserDetails loadUserByUsername(String name)
+    public UserDetails loadUserByUsername(String name)
             throws UsernameNotFoundException
     {
         logger.debug("Loading user details for " + name + " ...");

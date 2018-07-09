@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.users.service.impl;
 
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.users.UsersFileManager;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.domain.Users;
@@ -21,6 +22,8 @@ import java.util.function.Consumer;
 
 import org.apache.commons.lang.StringUtils;
 import org.jose4j.lang.JoseException;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -68,6 +71,7 @@ public class UserServiceImpl
     }
 
     @Override
+    @Cacheable(cacheNames = CacheName.User.USERS, key = "#p0")
     public User findByUserName(final String username)
     {
         final Lock readLock = usersLock.readLock();
@@ -136,6 +140,7 @@ public class UserServiceImpl
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheName.User.USERS, key = "#p0.username")
     public void add(final UserDto user)
     {
         modifyInLock(users ->
@@ -150,6 +155,7 @@ public class UserServiceImpl
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheName.User.USERS, key = "#p0")
     public void delete(final String username)
     {
         modifyInLock(users ->
@@ -161,6 +167,7 @@ public class UserServiceImpl
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheName.User.USERS, key = "#p0")
     public void updateAccessModel(final String username,
                                   final UserAccessModelDto accessModel)
     {
@@ -173,6 +180,7 @@ public class UserServiceImpl
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheName.User.USERS, key = "#p0.username")
     public void updatePassword(final UserDto userToUpdate)
     {
         modifyInLock(users ->
@@ -188,6 +196,7 @@ public class UserServiceImpl
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheName.User.USERS, key = "#p0.username")
     public void updateByUsername(final UserDto userToUpdate)
     {
         modifyInLock(users ->
@@ -207,6 +216,7 @@ public class UserServiceImpl
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheName.User.USERS, allEntries = true)
     public void setUsers(final UsersDto newUsers)
     {
         modifyInLock(users ->

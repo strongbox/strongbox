@@ -2,13 +2,9 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
-import org.carlspring.strongbox.configuration.ConfigurationFileManager;
-import org.carlspring.strongbox.configuration.MutableConfiguration;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.LinkedHashSet;
 import java.util.List;

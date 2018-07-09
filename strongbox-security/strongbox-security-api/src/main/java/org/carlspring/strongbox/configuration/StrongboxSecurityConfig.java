@@ -1,7 +1,10 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.security.managers.AuthenticationManager;
+import javax.enterprise.inject.Default;
 
+import org.carlspring.strongbox.security.managers.AuthenticationManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class StrongboxSecurityConfig
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(StrongboxSecurityConfig.class);
+    
     @Bean(name = "authenticationManager", initMethod = "load")
     @Lazy
     AuthenticationManager authenticationManager()
@@ -26,8 +31,10 @@ public class StrongboxSecurityConfig
     }
 
     @Bean
+    @Default
     PasswordEncoder passwordEncoder()
     {
         return new BCryptPasswordEncoder();
     }
+
 }

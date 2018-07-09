@@ -86,6 +86,9 @@
     <logger name="org.springframework.web" level="DEBUG"/>
     
     <logger name="com.hazelcast" level="INFO"/>
+    
+    <logger name="org.springframework.cache" level="TRACE"/>
+    
     <!-- Third-party packages -->
 
     <root level="DEBUG">
