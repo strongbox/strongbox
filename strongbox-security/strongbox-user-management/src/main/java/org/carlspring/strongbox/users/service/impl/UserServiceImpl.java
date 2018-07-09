@@ -196,6 +196,7 @@ public class UserServiceImpl
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheName.User.USERS, key = "#p0.username")
     public void updateSecurityToken(final UserDto userToUpdate)
     {
         modifyInLock(users ->
@@ -231,6 +232,7 @@ public class UserServiceImpl
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheName.User.USERS, key = "#p0.username")
     public void updateAccountDetailsByUsername(UserDto userToUpdate)
     {
         modifyInLock(users ->
