@@ -8,17 +8,23 @@ import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.BeforeTransaction;
+
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -28,13 +34,16 @@ import static org.junit.Assert.*;
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AccountControllerTest
         extends RestAssuredBaseTest
 {
 
+    private static final String TEST_DISABLED_USER_ACCOUNT = "test-disabled-user-account";
+
     @Inject
     private UserService userService;
-
+    
     @Override
     public void init()
             throws Exception
@@ -43,11 +52,11 @@ public class AccountControllerTest
         setContextBaseUrl(getContextBaseUrl() + "/api/account");
     }
 
-    @Before
+    @BeforeTransaction
     public void setupDisabledUser()
     {
         UserDto disabledUser = new UserDto();
-        disabledUser.setUsername("test-disabled-user-account");
+        disabledUser.setUsername(TEST_DISABLED_USER_ACCOUNT);
         disabledUser.setPassword("1234");
         disabledUser.setEnabled(false);
         userService.add(disabledUser);
@@ -68,7 +77,8 @@ public class AccountControllerTest
     }
 
     @Test
-    @WithUserDetails("test-disabled-user-account")
+    @WithUserDetails(TEST_DISABLED_USER_ACCOUNT)
+    @Transactional
     public void testGetAccountDetailsOnDisabledUserShouldFail()
             throws Exception
     {
