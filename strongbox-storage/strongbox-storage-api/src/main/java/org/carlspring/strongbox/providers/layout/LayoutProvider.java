@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 
 /**
@@ -25,6 +26,8 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
             throws IOException;
 
     RepositoryManagementStrategy getRepositoryManagementStrategy();
+
+    Set<String> getArchiveListing(RepositoryPath repositoryPath);
 
     Set<String> getDefaultArtifactCoordinateValidators();
 

@@ -23,8 +23,10 @@ import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryRelativePathConstructionException;
+import org.carlspring.strongbox.repository.JarArchiveListingFunction;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
+import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
@@ -276,6 +278,12 @@ public class Maven2LayoutProvider
     public MavenRepositoryManagementStrategy getRepositoryManagementStrategy()
     {
         return mavenRepositoryManagementStrategy;
+    }
+
+    @Override
+    public Set<String> getArchiveListing(final RepositoryPath repositoryPath)
+    {
+        return JarArchiveListingFunction.INSTANCE.listFilenames(repositoryPath);
     }
 
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.artifact",
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
                  "org.carlspring.strongbox.xml",
                  "org.carlspring.strongbox.dependency"
 })
+@EnableAsync
 public class StorageApiConfig
 {
 

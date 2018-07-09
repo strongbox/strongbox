@@ -6,6 +6,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.NpmRepositoryFeatures;
 import org.carlspring.strongbox.repository.NpmRepositoryManagementStrategy;
+import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 
 import javax.annotation.PostConstruct;
@@ -113,6 +114,12 @@ public class NpmLayoutProvider
     public RepositoryManagementStrategy getRepositoryManagementStrategy()
     {
         return npmRepositoryManagementStrategy;
+    }
+
+    @Override
+    public RepositoryFeatures getRepositoryFeatures()
+    {
+        return npmRepositoryFeatures
     }
 
     @Override
