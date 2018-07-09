@@ -107,7 +107,7 @@ public class UserController
         return getJSONListResponseEntityBody("users", users);
     }
 
-    @ApiOperation(value = "Used to retrieve an user")
+    @ApiOperation(value = "Used to retrieve a user")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_USER),
                             @ApiResponse(code = 404, message = NOT_FOUND_USER) })
     @PreAuthorize("hasAuthority('VIEW_USER')")
@@ -130,7 +130,7 @@ public class UserController
         return ResponseEntity.ok(body);
     }
 
-    @ApiOperation(value = "Used to create new user")
+    @ApiOperation(value = "Used to create a new user")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_CREATE_USER),
                             @ApiResponse(code = 400, message = FAILED_CREATE_USER) })
     @PreAuthorize("hasAuthority('CREATE_USER')")
@@ -170,12 +170,6 @@ public class UserController
                                  Authentication authentication,
                                  @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        // If the {username} is admin - don't allow editing!
-        if (StringUtils.equals(username, "admin"))
-        {
-            return getFailedResponseEntity(HttpStatus.FORBIDDEN, USER_UPDATE_FORBIDDEN, accept);
-        }
-
         if (bindingResult.hasErrors())
         {
             throw new RequestBodyValidationException(FAILED_UPDATE_USER, bindingResult);
@@ -213,11 +207,6 @@ public class UserController
                                  Authentication authentication,
                                  @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        if (StringUtils.equals(username, "admin"))
-        {
-            return getFailedResponseEntity(HttpStatus.FORBIDDEN, USER_DELETE_FORBIDDEN, accept);
-        }
-
         if (!(authentication.getPrincipal() instanceof UserDetails))
         {
             String message = "Unsupported logged user principal type: " + authentication.getPrincipal().getClass();
