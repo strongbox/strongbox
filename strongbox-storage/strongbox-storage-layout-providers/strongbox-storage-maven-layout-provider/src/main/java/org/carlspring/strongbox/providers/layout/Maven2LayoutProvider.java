@@ -1,21 +1,10 @@
 package org.carlspring.strongbox.providers.layout;
 
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.artifact.archive.JarArchiveListingFunction;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
@@ -23,13 +12,24 @@ import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryRelativePathConstructionException;
-import org.carlspring.strongbox.repository.JarArchiveListingFunction;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
-import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ public class Maven2LayoutProvider
     @Inject
     private MavenRepositoryFeatures mavenRepositoryFeatures;
 
-    
+
     @PostConstruct
     public void register()
     {
@@ -65,7 +65,8 @@ public class Maven2LayoutProvider
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
-    protected MavenArtifactCoordinates getArtifactCoordinates(RepositoryPath repositoryPath) throws IOException
+    protected MavenArtifactCoordinates getArtifactCoordinates(RepositoryPath repositoryPath)
+            throws IOException
     {
         MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(repositoryPath);
 
@@ -81,11 +82,11 @@ public class Maven2LayoutProvider
     {
         return path.getFileName().toString().equals("maven-metadata.xml");
     }
-    
+
     @Override
     protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryPath,
                                                                                    RepositoryFileAttributeType... attributeTypes)
-        throws IOException
+            throws IOException
     {
         Map<RepositoryFileAttributeType, Object> result = super.getRepositoryFileAttributes(repositoryPath,
                                                                                             attributeTypes);
@@ -97,24 +98,24 @@ public class Maven2LayoutProvider
             {
                 case ARTIFACT:
                     value = (Boolean) value && !isMavenMetadata(repositoryPath) && !isIndex(repositoryPath);
-    
+
                     if (value != null)
                     {
                         result.put(attributeType, value);
                     }
-    
+
                     break;
                 case METADATA:
                     value = (Boolean) value || isMavenMetadata(repositoryPath);
-    
+
                     if (value != null)
                     {
                         result.put(attributeType, value);
                     }
-    
+
                     break;
                 default:
-    
+
                     break;
             }
         }
@@ -133,7 +134,7 @@ public class Maven2LayoutProvider
         {
             return true;
         }
-        
+
         return false;
     }
 
@@ -179,7 +180,8 @@ public class Maven2LayoutProvider
 
                         if (pomPath != null)
                         {
-                            String version = ArtifactUtils.convertPathToArtifact(RepositoryFiles.relativizePath(artifactPath))
+                            String version = ArtifactUtils.convertPathToArtifact(
+                                    RepositoryFiles.relativizePath(artifactPath))
                                                           .getVersion();
                             version = version == null ? pomPath.getParent().getFileName().toString() : version;
 
@@ -281,9 +283,21 @@ public class Maven2LayoutProvider
     }
 
     @Override
-    public Set<String> getArchiveListing(final RepositoryPath repositoryPath)
+    public Set<String> listArchiveFilenames(final RepositoryPath repositoryPath)
     {
-        return JarArchiveListingFunction.INSTANCE.listFilenames(repositoryPath);
+        if (JarArchiveListingFunction.INSTANCE.supports(repositoryPath))
+        {
+            try
+            {
+                return JarArchiveListingFunction.INSTANCE.listFilenames(repositoryPath);
+            }
+            catch (IOException e)
+            {
+                logger.error(String.format("Unable to list filenames in archive path %s using %s", repositoryPath,
+                                           JarArchiveListingFunction.INSTANCE.getClass()), e);
+            }
+        }
+        return Collections.emptySet();
     }
 
 }

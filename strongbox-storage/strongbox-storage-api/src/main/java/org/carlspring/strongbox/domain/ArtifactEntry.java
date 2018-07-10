@@ -9,8 +9,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
-
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
@@ -35,6 +35,10 @@ public class ArtifactEntry
     @ManyToMany(targetEntity = ArtifactTagEntry.class)
     private Set<ArtifactTag> tagSet;
 
+    @OneToOne(cascade = { CascadeType.DETACH,
+                          CascadeType.MERGE,
+                          CascadeType.PERSIST,
+                          CascadeType.REFRESH })
     private ArtifactArchiveListing artifactArchiveListing;
     
     private Long sizeInBytes;
@@ -139,6 +143,16 @@ public class ArtifactEntry
     public void setDownloadCount(Integer downloadCount)
     {
         this.downloadCount = downloadCount;
+    }
+
+    public ArtifactArchiveListing getArtifactArchiveListing()
+    {
+        return artifactArchiveListing;
+    }
+
+    public void setArtifactArchiveListing(final ArtifactArchiveListing artifactArchiveListing)
+    {
+        this.artifactArchiveListing = artifactArchiveListing;
     }
 
     @Transient

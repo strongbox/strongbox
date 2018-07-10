@@ -3,6 +3,7 @@ package org.carlspring.strongbox.domain;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import javax.persistence.Entity;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -13,7 +14,7 @@ public class ArtifactArchiveListing
         extends GenericEntity
 {
 
-    private Set<String> filenames;
+    private Set<String> filenames = new LinkedHashSet<>();
 
     public Set<String> getFilenames()
     {
@@ -24,4 +25,6 @@ public class ArtifactArchiveListing
     {
         this.filenames = filenames;
     }
+
+
 }

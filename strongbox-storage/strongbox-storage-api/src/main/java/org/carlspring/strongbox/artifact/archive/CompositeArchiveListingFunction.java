@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.repository;
+package org.carlspring.strongbox.artifact.archive;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 
@@ -13,7 +13,6 @@ import java.util.Set;
 public class CompositeArchiveListingFunction
         implements ArchiveListingFunction
 {
-
 
     private final Set<ArchiveListingFunction> leafs;
 
@@ -42,5 +41,11 @@ public class CompositeArchiveListingFunction
     public boolean supports(final RepositoryPath path)
     {
         return leafs.stream().filter(leaf -> leaf.supports(path)).findFirst().isPresent();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[" + getClass().getName() + "] leafs {" + Objects.toString(leafs) + "}";
     }
 }

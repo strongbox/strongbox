@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.repository;
+package org.carlspring.strongbox.artifact.archive;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 
@@ -9,14 +9,15 @@ import java.nio.file.Files;
 import java.util.Set;
 
 import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.jar.JarArchiveInputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
 /**
  * @author Przemyslaw Fusik
  */
-public enum JarArchiveListingFunction
+public enum TarArchiveListingFunction
         implements ArchiveListingFunction
 {
+
     INSTANCE;
 
     @Override
@@ -25,7 +26,7 @@ public enum JarArchiveListingFunction
     {
         try (InputStream is = Files.newInputStream(path);
              BufferedInputStream bis = new BufferedInputStream(is);
-             ArchiveInputStream ais = new JarArchiveInputStream(bis))
+             ArchiveInputStream ais = new TarArchiveInputStream(bis))
         {
             return getEntriesNames(ais);
         }
@@ -34,7 +35,7 @@ public enum JarArchiveListingFunction
     @Override
     public boolean supports(final RepositoryPath path)
     {
-        final String filename = path.getFileName().toString();
-        return filename.endsWith(".jar") || filename.endsWith(".war") || filename.endsWith(".ear");
+        return path.getFileName().toString().endsWith(".tar");
     }
+
 }

@@ -24,7 +24,7 @@ public class TempRepositoryPath extends RepositoryPath implements Closeable
         super(tempPath.getTarget(), tempPath.getFileSystem());
     }
 
-    protected RepositoryPath getTempTarget()
+    public RepositoryPath getTempTarget()
     {
         return tempTarget;
     }

@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.repository;
+package org.carlspring.strongbox.artifact.archive;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 
@@ -9,15 +9,14 @@ import java.nio.file.Files;
 import java.util.Set;
 
 import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.compress.archivers.jar.JarArchiveInputStream;
 
 /**
  * @author Przemyslaw Fusik
  */
-public enum ZipArchiveListingFunction
+public enum JarArchiveListingFunction
         implements ArchiveListingFunction
 {
-
     INSTANCE;
 
     @Override
@@ -26,7 +25,7 @@ public enum ZipArchiveListingFunction
     {
         try (InputStream is = Files.newInputStream(path);
              BufferedInputStream bis = new BufferedInputStream(is);
-             ArchiveInputStream ais = new ZipArchiveInputStream(bis))
+             ArchiveInputStream ais = new JarArchiveInputStream(bis))
         {
             return getEntriesNames(ais);
         }
@@ -35,6 +34,7 @@ public enum ZipArchiveListingFunction
     @Override
     public boolean supports(final RepositoryPath path)
     {
-        return path.getFileName().toString().endsWith(".zip");
+        final String filename = path.getFileName().toString();
+        return filename.endsWith(".jar") || filename.endsWith(".war") || filename.endsWith(".ear");
     }
 }

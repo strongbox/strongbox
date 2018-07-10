@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.repository;
+package org.carlspring.strongbox.artifact.archive;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 
@@ -10,11 +10,12 @@ import java.util.Set;
 
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
 /**
  * @author Przemyslaw Fusik
  */
-public enum TarArchiveListingFunction
+public enum Bzip2ArchiveListingFunction
         implements ArchiveListingFunction
 {
 
@@ -26,16 +27,16 @@ public enum TarArchiveListingFunction
     {
         try (InputStream is = Files.newInputStream(path);
              BufferedInputStream bis = new BufferedInputStream(is);
-             ArchiveInputStream ais = new TarArchiveInputStream(bis))
+             BZip2CompressorInputStream bzIs = new BZip2CompressorInputStream(bis);
+             ArchiveInputStream tarIs = new TarArchiveInputStream(bzIs))
         {
-            return getEntriesNames(ais);
+            return getEntriesNames(tarIs);
         }
     }
 
     @Override
     public boolean supports(final RepositoryPath path)
     {
-        return path.getFileName().toString().endsWith(".tar");
+        return path.getFileName().toString().endsWith(".tar.bz2");
     }
-
 }

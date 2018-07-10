@@ -874,6 +874,10 @@
                         <artifactId>hamcrest-core</artifactId>
                         <groupId>org.hamcrest</groupId>
                     </exclusion>
+                    <exclusion>
+                        <artifactId>objenesis</artifactId>
+                        <groupId>org.objenesis</groupId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
