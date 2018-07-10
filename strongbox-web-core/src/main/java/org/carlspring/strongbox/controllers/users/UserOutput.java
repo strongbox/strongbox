@@ -78,7 +78,7 @@ public class UserOutput implements Serializable
         this.accessModel = accessModel;
     }
 
-    static UserOutput fromUser(User user)
+    public static UserOutput fromUser(User user)
     {
         final UserOutput output = new UserOutput();
         output.setEnabled(user.isEnabled());

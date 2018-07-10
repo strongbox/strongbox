@@ -18,12 +18,12 @@ import com.google.common.collect.ImmutableSet;
 public class UserForm implements Serializable
 {
 
-    @NotEmpty(groups = {NewUser.class, ExistingUser.class}, message = "A username must be specified.")
+    @NotEmpty(groups = {NewUser.class}, message = "A username must be specified.")
     @UniqueUsername(groups = NewUser.class, message = "A user with this username already exists. Please enter another username.")
     private String username;
 
     @NotEmpty(groups = {NewUser.class, ExistingUser.class}, message = "A password must be specified.")
-    @Size(groups = {NewUser.class, ExistingUser.class}, min = 6, message = "This field is less than 6 characters long.")
+    @Size(groups = {NewUser.class, ExistingUser.class}, min = 8, message = "This field is less than 8 characters long.")
     private String password;
 
     private boolean enabled;
@@ -100,6 +100,11 @@ public class UserForm implements Serializable
     }
 
     public interface ExistingUser extends Serializable
+    {
+        // validation group marker interface for existing users.
+    }
+
+    public interface UpdateAccount extends Serializable
     {
         // validation group marker interface for existing users.
     }

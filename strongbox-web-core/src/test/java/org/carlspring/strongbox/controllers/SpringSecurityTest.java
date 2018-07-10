@@ -37,38 +37,28 @@ public class SpringSecurityTest
     @Inject
     private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
+    @Override
+    public void init()
+            throws Exception
+    {
+        super.init();
+        setContextBaseUrl(getContextBaseUrl() + "/api/users");
+    }
+
     @Test
-    @Ignore
-    public void testThatAnonymousUserHasFullAccessAccordingToAuthorities()
+    public void testThatAnonymousUserHasUserViewAccessAccordingToAuthorities()
     {
         anonymousAuthenticationFilter.getAuthorities().add(new SimpleGrantedAuthority("VIEW_USER"));
 
-        final String username = "anyName";
-        String url = getContextBaseUrl() + "/api/users/user/" + username;
+        final String username = "admin";
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .when()
-               .get(url)
+               .get(getContextBaseUrl() + "/{username}", username)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
                .body(containsString(username));
-    }
-
-    @Test
-    @WithUserDetails("admin")
-    public void testUserAuth()
-    {
-        String url = getContextBaseUrl() + "/api/users/greet";
-        String name = "Johan";
-
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-               .param("name", name)
-               .when()
-               .get(url)
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body("message", equalTo("hello, " + name));
     }
 
     @Test
@@ -80,9 +70,8 @@ public class SpringSecurityTest
                              .setAuthentication(null);
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-               .param("name", "John")
                .when()
-               .get(getContextBaseUrl() + "/api/users/greet")
+               .get(getContextBaseUrl())
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value());
@@ -92,6 +81,7 @@ public class SpringSecurityTest
     @Ignore
     public void testJWTAuth()
     {
+        // TODO: Rewrite this test case.
         String url = getContextBaseUrl() + "/api/users/user/authenticate";
 
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
@@ -133,6 +123,7 @@ public class SpringSecurityTest
     public void testJWTExpire()
             throws InterruptedException
     {
+        // TODO: Rewrite this test case.
         String url = getContextBaseUrl() + "/api/users/user/authenticate";
 
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
@@ -169,29 +160,16 @@ public class SpringSecurityTest
     }
 
     @Test
-    @WithUserDetails("user")
-    public void testThatUserHasViewUsersPrivilege()
-    {
-        String username = "user";
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get("/api/users/user/" + username)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value());
-    }
-
-    @Test
     @WithUserDetails("deployer")
     public void testThatNewUserCreationIsForbiddenForCertainUser()
     {
         UserForm user = new UserForm();
         user.setUsername("someNewUserName");
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(user)
                .when()
-               .put("/api/users/user")
+               .put(getContextBaseUrl())
                .peek()
                .then()
                .body("error", CoreMatchers.equalTo("Access is denied"))
