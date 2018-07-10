@@ -513,7 +513,7 @@ public class RestClient
 
     public String generateUserSecurityToken()
     {
-        String url = String.format("%s/api/users/user/%s/generate-security-token", getContextBaseUrl(), getUsername());
+        String url = String.format("%s/api/users/%s/generate-security-token", getContextBaseUrl(), getUsername());
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
