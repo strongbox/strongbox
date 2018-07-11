@@ -87,7 +87,7 @@ public class BrowseController extends BaseArtifactController
             model.addAttribute("directories", directoryListing.getDirectories());
             model.addAttribute("files", directoryListing.getFiles());
 
-            return new ModelAndView("directoryListing", model);
+            return new ModelAndView("views/directoryListing.twig.html", model);
         }
         catch (Exception e)
         {
@@ -130,7 +130,7 @@ public class BrowseController extends BaseArtifactController
             model.addAttribute("directories", directoryListing.getDirectories());
             model.addAttribute("files", directoryListing.getFiles());
 
-            return new ModelAndView("directoryListing", model);
+            return new ModelAndView("views/directoryListing.twig.html", model);
         }
         catch (Exception e)
         {
@@ -207,7 +207,7 @@ public class BrowseController extends BaseArtifactController
             model.addAttribute("directories", directoryListing.getDirectories());
             model.addAttribute("files", directoryListing.getFiles());
 
-            return new ModelAndView("directoryListing", model);
+            return new ModelAndView("views/directoryListing.twig.html", model);
         }
         catch (Exception e)
         {
