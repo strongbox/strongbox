@@ -26,5 +26,15 @@ public class ArtifactArchiveListing
         this.filenames = filenames;
     }
 
-
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("ArtifactArchiveListing{");
+        sb.append("filenames=").append(filenames);
+        sb.append(", objectId='").append(objectId).append('\'');
+        sb.append(", uuid='").append(uuid).append('\'');
+        sb.append(", entityVersion=").append(entityVersion);
+        sb.append('}');
+        return sb.toString();
+    }
 }

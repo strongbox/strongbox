@@ -6,6 +6,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -35,7 +36,8 @@ public enum TarArchiveListingFunction
     @Override
     public boolean supports(final RepositoryPath path)
     {
-        return path.getFileName().toString().endsWith(".tar");
+        final Path fileName = path.getFileName();
+        return fileName != null && fileName.toString().endsWith(".tar");
     }
 
 }

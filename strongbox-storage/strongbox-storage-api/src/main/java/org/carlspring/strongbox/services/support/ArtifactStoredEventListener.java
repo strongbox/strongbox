@@ -20,6 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.util.Assert;
 
 /**
  * @author Przemyslaw Fusik
@@ -37,6 +40,7 @@ public class ArtifactStoredEventListener
     @Inject
     private ArtifactEntryService artifactEntryService;
 
+    @Transactional
     @Async
     @Override
     public void handle(final ArtifactEvent<RepositoryPath> event)
@@ -45,6 +49,8 @@ public class ArtifactStoredEventListener
         {
             return;
         }
+
+        Assert.isTrue(TransactionSynchronizationManager.isActualTransactionActive());
 
         RepositoryPath repositoryPath = event.getPath();
         if (repositoryPath instanceof TempRepositoryPath)
@@ -74,13 +80,17 @@ public class ArtifactStoredEventListener
             }
             artifactEntry = artifactEntryService.lockOne(artifactEntry.getObjectId());
             ArtifactArchiveListing artifactArchiveListing = artifactEntry.getArtifactArchiveListing();
+            logger.debug(
+                    String.format("XXXXXXXXXXXXXXXX Previous state of artifact entry [%s].", artifactEntry));
             if (artifactArchiveListing == null)
             {
                 artifactArchiveListing = new ArtifactArchiveListing();
                 artifactEntry.setArtifactArchiveListing(artifactArchiveListing);
             }
             artifactArchiveListing.setFilenames(archiveFilenames);
-            artifactEntryService.save(artifactEntry);
+            logger.debug(
+                    String.format("XXXXXXXXXXXXXXXX Current state of artifact entry [%s].", artifactEntry));
+            artifactEntryService.save(artifactEntry, true);
         }
 
     }

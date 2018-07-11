@@ -75,7 +75,11 @@ public class NullArtifactCoordinates
     @Override
     public String toString()
     {
-        return "NullArtifactCoordinates{path='" + getPath() + '\'' + '}';
+        final StringBuilder sb = new StringBuilder("NullArtifactCoordinates{");
+        sb.append("objectId='").append(objectId).append('\'');
+        sb.append(", uuid='").append(uuid).append('\'');
+        sb.append(", entityVersion=").append(entityVersion);
+        sb.append('}');
+        return sb.toString();
     }
-
 }

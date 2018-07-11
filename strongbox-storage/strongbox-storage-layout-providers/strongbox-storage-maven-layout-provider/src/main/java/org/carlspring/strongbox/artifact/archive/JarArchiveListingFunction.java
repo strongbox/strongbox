@@ -6,6 +6,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -34,7 +35,12 @@ public enum JarArchiveListingFunction
     @Override
     public boolean supports(final RepositoryPath path)
     {
-        final String filename = path.getFileName().toString();
-        return filename.endsWith(".jar") || filename.endsWith(".war") || filename.endsWith(".ear");
+        final Path fileName = path.getFileName();
+        if (fileName == null)
+        {
+            return false;
+        }
+        final String filenameString = fileName.toString();
+        return filenameString.endsWith(".jar") || filenameString.endsWith(".war") || filenameString.endsWith(".ear");
     }
 }

@@ -1,5 +1,16 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactTagEntry;
+import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.services.ArtifactTagService;
+import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
+
+import javax.inject.Inject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,19 +26,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-
+import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.ArtifactTagService;
-import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,11 +43,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-
 /**
  * DAO implementation for {@link ArtifactEntry} entities.
  *
@@ -51,32 +50,48 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
  */
 @Service
 @Transactional
-class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
+class ArtifactEntryServiceImpl
+        extends AbstractArtifactEntryService
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryService.class);
 
     @Inject
     private ArtifactTagService artifactTagService;
-    
+
     @Override
     @CacheEvict(cacheNames = CacheName.Artifact.ARTIFACT_ENTRIES, keyGenerator = ArtifactEntryKeyGenerator.NAME_ARTIFACT_ENTRY_KYE_GENERATOR)
     public <S extends ArtifactEntry> S save(S entity,
                                             boolean updateLastVersion)
     {
+        logger.debug(
+                String.format("############## Previous state of artifact entry [%s].", entity));
+        logger.debug(
+                String.format("############## Coordinates [%s].",
+                              getDelegate().command(new OSQLSynchQuery<>("SELECT * FROM #53:0")).execute().toString()));
+
         //this needed to update `ArtifactEntry.path` property
         entity.setArtifactCoordinates(entity.getArtifactCoordinates());
 
-        if(artifactEntryIsSavedForTheFirstTime(entity))
+        if (artifactEntryIsSavedForTheFirstTime(entity))
         {
             entity.setCreated(new Date());
         }
 
+        S result = null;
 
         ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
         if (coordinates == null)
         {
-            return super.save(entity);
+            result = super.save(entity);
+
+            logger.debug(
+                    String.format("############## Current state of artifact entry [%s].", result));
+            logger.debug(
+                    String.format("############## Coordinates [%s].",
+                                  getDelegate().command(new OSQLSynchQuery<>("SELECT * FROM #53:0")).execute().toString()));
+
+            return result;
         }
 
         if (updateLastVersion)
@@ -84,7 +99,15 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
             updateLastVersionTag(entity);
         }
 
-        return super.save(entity);
+        result = super.save(entity);
+
+        logger.debug(
+                String.format("############## Current state of artifact entry [%s].", result));
+        logger.debug(
+                String.format("############## Coordinates [%s].",
+                              getDelegate().command(new OSQLSynchQuery<>("SELECT * FROM #53:0")).execute().toString()));
+
+        return result;
     }
 
     private boolean artifactEntryIsSavedForTheFirstTime(ArtifactEntry artifactEntry)
@@ -103,24 +126,26 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     {
         ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
         Assert.notNull(coordinates);
-        
+
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
         Set<ArtifactTag> tagSet = new HashSet<>();
         tagSet.add(lastVersionTag);
-        
+
         Map<String, String> coordinatesMap = coordinates.dropVersion();
-        
+
         List<ArtifactEntry> lastVersionArtifactList = findArtifactList(entity.getStorageId(),
                                                                        entity.getRepositoryId(),
                                                                        coordinatesMap, tagSet,
                                                                        0,
                                                                        -1,
                                                                        "uuid", true).stream()
-                                                                                    .map(e -> (ArtifactEntry) getDelegate().detachAll(e,
-                                                                                                                                      true))
+                                                                                    .map(e -> (ArtifactEntry) getDelegate().detachAll(
+                                                                                            e,
+                                                                                            true))
                                                                                     .collect(Collectors.toList());
         ArtifactEntry lastVersionEntry = lastVersionArtifactList.stream().findFirst().orElse(entity);
-        Optional<ArtifactCoordinates> lastVersionCoordinates = Optional.ofNullable(lastVersionEntry.getArtifactCoordinates());
+        Optional<ArtifactCoordinates> lastVersionCoordinates = Optional.ofNullable(
+                lastVersionEntry.getArtifactCoordinates());
         if (lastVersionEntry.equals(entity))
         {
             logger.debug(String.format("Set [%s] last version to [%s]", entity.getArtifactPath(),
@@ -172,9 +197,11 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         coordinates = prepareParameterMap(coordinates, strict);
 
         Map<String, ArtifactTagEntry> tagMap = tagSet.stream()
-                                                     .collect(Collectors.toMap(t -> String.format("%sTag", t.getName().replaceAll("-", "")),
+                                                     .collect(Collectors.toMap(t -> String.format("%sTag",
+                                                                                                  t.getName().replaceAll(
+                                                                                                          "-", "")),
                                                                                t -> (ArtifactTagEntry) t));
-        
+
         String sQuery = buildCoordinatesQuery(toList(storageId, repositoryId), coordinates.keySet(), tagMap.keySet(),
                                               skip,
                                               limit, orderBy, strict);
@@ -191,7 +218,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         }
 
         tagMap.entrySet().stream().forEach(e -> parameterMap.put(e.getKey(), e.getValue().getName()));
-        
+
         List<ArtifactEntry> entries = getDelegate().command(oQuery).execute(parameterMap);
 
         return entries;
@@ -251,33 +278,42 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         }
         return findArtifactList(storageId, repositoryId, coordinates.getCoordinates(), true);
     }
-    
+
     @Override
     public Long countCoordinates(Collection<Pair<String, String>> storageRepositoryPairList,
                                  Map<String, String> coordinates,
                                  boolean strict)
     {
         coordinates = prepareParameterMap(coordinates, strict);
-        String sQuery = buildCoordinatesQuery(storageRepositoryPairList, coordinates.keySet(), Collections.emptySet(), 0, 0, null, strict);
+        String sQuery = buildCoordinatesQuery(storageRepositoryPairList, coordinates.keySet(), Collections.emptySet(),
+                                              0, 0, null, strict);
         sQuery = sQuery.replace("*", "count(distinct(artifactCoordinates))");
         OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
 
         Map<String, Object> parameterMap = new HashMap<>(coordinates);
 
         Pair<String, String>[] p = storageRepositoryPairList.toArray(new Pair[storageRepositoryPairList.size()]);
-        IntStream.range(0, storageRepositoryPairList.size()).forEach(idx -> {
-            String storageId = p[idx].getValue0();
-            String repositoryId = p[idx].getValue1();
+        IntStream.range(0, storageRepositoryPairList.size()).forEach(idx ->
+                                                                     {
+                                                                         String storageId = p[idx].getValue0();
+                                                                         String repositoryId = p[idx].getValue1();
 
-            if (storageId != null && !storageId.trim().isEmpty())
-            {
-                parameterMap.put(String.format("storageId%s", idx), p[idx].getValue0());
-            }
-            if (repositoryId != null && !repositoryId.trim().isEmpty())
-            {
-                parameterMap.put(String.format("repositoryId%s", idx), p[idx].getValue1());
-            }
-        });
+                                                                         if (storageId != null &&
+                                                                             !storageId.trim().isEmpty())
+                                                                         {
+                                                                             parameterMap.put(
+                                                                                     String.format("storageId%s", idx),
+                                                                                     p[idx].getValue0());
+                                                                         }
+                                                                         if (repositoryId != null &&
+                                                                             !repositoryId.trim().isEmpty())
+                                                                         {
+                                                                             parameterMap.put(
+                                                                                     String.format("repositoryId%s",
+                                                                                                   idx),
+                                                                                     p[idx].getValue1());
+                                                                         }
+                                                                     });
 
 
         List<ODocument> result = getDelegate().command(oQuery).execute(parameterMap);
@@ -290,26 +326,35 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                boolean strict)
     {
         coordinates = prepareParameterMap(coordinates, strict);
-        String sQuery = buildCoordinatesQuery(storageRepositoryPairList, coordinates.keySet(), Collections.emptySet(), 0, 0, null, strict);
+        String sQuery = buildCoordinatesQuery(storageRepositoryPairList, coordinates.keySet(), Collections.emptySet(),
+                                              0, 0, null, strict);
         sQuery = sQuery.replace("*", "count(*)");
         OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
 
         Map<String, Object> parameterMap = new HashMap<>(coordinates);
 
         Pair<String, String>[] p = storageRepositoryPairList.toArray(new Pair[storageRepositoryPairList.size()]);
-        IntStream.range(0, storageRepositoryPairList.size()).forEach(idx -> {
-            String storageId = p[idx].getValue0();
-            String repositoryId = p[idx].getValue1();
+        IntStream.range(0, storageRepositoryPairList.size()).forEach(idx ->
+                                                                     {
+                                                                         String storageId = p[idx].getValue0();
+                                                                         String repositoryId = p[idx].getValue1();
 
-            if (storageId != null && !storageId.trim().isEmpty())
-            {
-                parameterMap.put(String.format("storageId%s", idx), p[idx].getValue0());
-            }
-            if (repositoryId != null && !repositoryId.trim().isEmpty())
-            {
-                parameterMap.put(String.format("repositoryId%s", idx), p[idx].getValue1());
-            }
-        });
+                                                                         if (storageId != null &&
+                                                                             !storageId.trim().isEmpty())
+                                                                         {
+                                                                             parameterMap.put(
+                                                                                     String.format("storageId%s", idx),
+                                                                                     p[idx].getValue0());
+                                                                         }
+                                                                         if (repositoryId != null &&
+                                                                             !repositoryId.trim().isEmpty())
+                                                                         {
+                                                                             parameterMap.put(
+                                                                                     String.format("repositoryId%s",
+                                                                                                   idx),
+                                                                                     p[idx].getValue1());
+                                                                         }
+                                                                     });
 
 
         List<ODocument> result = getDelegate().command(oQuery).execute(parameterMap);
@@ -329,7 +374,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     public List<Pair<String, String>> toList(String storageId,
                                              String repositoryId)
     {
-        return Arrays.asList(new Pair[] { Pair.with(storageId, repositoryId) });
+        return Arrays.asList(new Pair[]{ Pair.with(storageId, repositoryId) });
     }
 
     protected String buildCoordinatesQuery(Collection<Pair<String, String>> storageRepositoryPairList,
@@ -343,7 +388,8 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
 
-        Pair<String, String>[] storageRepositoryPairArray = storageRepositoryPairList.toArray(new Pair[storageRepositoryPairList.size()]);
+        Pair<String, String>[] storageRepositoryPairArray = storageRepositoryPairList.toArray(
+                new Pair[storageRepositoryPairList.size()]);
         // COORDINATES
         StringBuffer c1 = new StringBuffer();
         parameterNameSet.stream()
@@ -359,9 +405,10 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         StringBuffer c2 = new StringBuffer();
         IntStream.range(0, storageRepositoryPairList.size())
                  .forEach(idx -> c2.append(idx > 0 ? " OR " : "")
-                                   .append(calculateStorageAndRepositoryCondition(storageRepositoryPairArray[idx], idx)));
+                                   .append(calculateStorageAndRepositoryCondition(storageRepositoryPairArray[idx],
+                                                                                  idx)));
         sb.append(c2.length() > 0 ? c2.toString() : "true");
-        
+
         //TAGS
         tagNameSet.stream().forEach(t -> sb.append(String.format(" AND tagSet contains (name = :%s)", t)));
 
@@ -464,7 +511,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                        .map(e -> detach(e))
                        .orElse(null);
     }
-    
+
     @Override
     @CacheEvict(cacheNames = CacheName.Artifact.ARTIFACT_ENTRIES, allEntries = true)
     public void delete(String id)
@@ -526,7 +573,8 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
             return null;
         }
 
-        sQuery = String.format("SELECT FROM INDEX:idx_artifact WHERE key = [:storageId, :repositoryId, :artifactCoordinatesId]");
+        sQuery = String.format(
+                "SELECT FROM INDEX:idx_artifact WHERE key = [:storageId, :repositoryId, :artifactCoordinatesId]");
 
         oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);
@@ -547,9 +595,19 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     {
         return ArtifactEntry.class;
     }
-    
+
+    @Override
+    protected ArtifactEntry detach(ArtifactEntry entity)
+    {
+        ArtifactEntry result = super.detach(entity);
+        result.setArtifactCoordinates(getDelegate().detachAll(entity.getArtifactCoordinates(), true));
+
+        return result;
+    }
+
     @Component(ArtifactEntryKeyGenerator.NAME_ARTIFACT_ENTRY_KYE_GENERATOR)
-    public class ArtifactEntryKeyGenerator implements KeyGenerator
+    public class ArtifactEntryKeyGenerator
+            implements KeyGenerator
     {
 
         public static final String NAME_ARTIFACT_ENTRY_KYE_GENERATOR = "artifactEntryKeyGenerator";
@@ -560,24 +618,14 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                Object... params)
         {
             return Optional.ofNullable((ArtifactEntry) params[0])
-                    .map(e -> detach(e))
-                    .map(e -> String.format("%s/%s/%s", e.getStorageId(), e.getRepositoryId(),
-                                            e.getArtifactCoordinates().toPath())
-                                    .toString())
-                    .orElse(null);
+                           .map(e -> detach(e))
+                           .map(e -> String.format("%s/%s/%s", e.getStorageId(), e.getRepositoryId(),
+                                                   e.getArtifactCoordinates().toPath())
+                                           .toString())
+                           .orElse(null);
         }
 
     }
 
-    @Override
-    protected ArtifactEntry detach(ArtifactEntry entity)
-    {
-        ArtifactEntry result = super.detach(entity);
-        result.setArtifactCoordinates(getDelegate().detachAll(entity.getArtifactCoordinates(), true));
-        
-        return result;
-    }
 
-    
-    
 }
