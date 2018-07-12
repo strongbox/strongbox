@@ -207,7 +207,7 @@ public class WebConfig
     {
         JtwigViewResolver viewResolver = new JtwigViewResolver();
         viewResolver.setRenderer(JtwigRenderer.defaultRenderer());
-        viewResolver.setPrefix("classpath:/");
+        viewResolver.setPrefix("/");
 
         return viewResolver;
     }
