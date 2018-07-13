@@ -50,7 +50,17 @@ public interface UserService
 
     void updatePassword(UserDto userToUpdate);
 
+    void updateSecurityToken(UserDto userToUpdate);
+
     void updateByUsername(UserDto userToUpdate);
+
+    /**
+     * This method is mainly necessary for the UI - for users to be able to update their own account data
+     * (i.e. change password or securityToken)
+     *
+     * @param userToUpdate
+     */
+    void updateAccountDetailsByUsername(UserDto userToUpdate);
 
     void setUsers(UsersDto users);
 

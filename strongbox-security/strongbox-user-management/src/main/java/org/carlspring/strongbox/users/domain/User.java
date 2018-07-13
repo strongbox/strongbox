@@ -79,4 +79,19 @@ public class User implements Serializable
     {
         return enabled;
     }
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("User{");
+        sb.append("username='")
+          .append(username)
+          .append('\'');
+        sb.append(", roles=")
+          .append(roles);
+        sb.append(", userAccessModel=")
+          .append(accessModel);
+        sb.append('}');
+        return sb.toString();
+    }
 }

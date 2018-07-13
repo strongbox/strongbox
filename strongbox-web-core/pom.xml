@@ -431,7 +431,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-aql</artifactId>
             <version>${project.version}</version>
-        </dependency>        
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-web-ui</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.carlspring.maven</groupId>
             <artifactId>maven-commons</artifactId>
@@ -834,6 +840,27 @@
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${dir.strongbox.home}</outputDirectory>
                                             <includes>etc/**,webapp/**</includes>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>unpack-web-ui</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>${project.groupId}</groupId>
+                                            <artifactId>strongbox-web-ui</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>zip</type>
+
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${dir.strongbox.home}/webapp</outputDirectory>
+                                            <includes>*</includes>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>

@@ -39,10 +39,9 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.resource.GzipResourceResolver;
+import org.springframework.web.servlet.resource.PathResourceResolver;
 
 @Configuration
 @ComponentScan({ "com.carlspring.strongbox.controllers",
@@ -171,6 +170,13 @@ public class WebConfig
         registry.addResourceHandler("/docs/**")
                 .addResourceLocations("/docs/")
                 .setCachePeriod(3600);
+
+        registry.addResourceHandler("/**")
+                .addResourceLocations("/")
+                .setCachePeriod(3600)
+                .resourceChain(true)
+                .addResolver(new GzipResourceResolver())
+                .addResolver(new PathResourceResolver());
     }
     
     @Bean
@@ -201,8 +207,7 @@ public class WebConfig
     {
         JtwigViewResolver viewResolver = new JtwigViewResolver();
         viewResolver.setRenderer(JtwigRenderer.defaultRenderer());
-        viewResolver.setPrefix("classpath:/WEB-INF/views/");
-        viewResolver.setSuffix(".twig.html");
+        viewResolver.setPrefix("/");
 
         return viewResolver;
     }
