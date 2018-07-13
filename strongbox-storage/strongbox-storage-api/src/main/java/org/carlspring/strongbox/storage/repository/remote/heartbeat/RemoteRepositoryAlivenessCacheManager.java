@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.repository.remote.heartbeat;
 
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 
 import javax.inject.Inject;
@@ -24,7 +25,7 @@ public class RemoteRepositoryAlivenessCacheManager
     @Inject
     RemoteRepositoryAlivenessCacheManager(CacheManager cacheManager)
     {
-        cache = cacheManager.getCache("remoteRepositoryAliveness");
+        cache = cacheManager.getCache(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS);
         Objects.requireNonNull(cache, "remoteRepositoryAliveness cache configuration was not provided");
     }
 

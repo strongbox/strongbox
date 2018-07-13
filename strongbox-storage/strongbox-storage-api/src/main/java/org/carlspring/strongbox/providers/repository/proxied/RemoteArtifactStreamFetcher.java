@@ -65,15 +65,31 @@ public class RemoteArtifactStreamFetcher
         Response response = connection.getResponse();
         if (response.getStatus() == 404)
         {
+            terminateConnection(connection);
+            
             throw new ArtifactNotFoundException(resource);
         }
         if (response.getStatus() != 200 || response.getEntity() == null)
         {
+            terminateConnection(connection);
+            
             throw new IOException(String.format("Unreadable response for %s. Response status is %s",
                                                 resource, response.getStatus()));
         }
 
         return connection;
+    }
+
+    private void terminateConnection(CloseableRestResponse connection)
+    {
+        try
+        {
+            connection.close();
+        }
+        catch (Exception e)
+        {
+            // ignore
+        }
     }
 
     public class RemoteArtifactInputStream extends InputStream
