@@ -86,6 +86,11 @@ public class ProxyRepositoryInputStream extends FilterInputStream
     public int available()
         throws IOException
     {
+        if (!checkRemoteRepositoryHeartbeat())
+        {
+            throw new IOException(String.format("Remote repository not avaliable for path [%s] ", repositoryPath));
+        }
+
         return super.available();
     }
 
