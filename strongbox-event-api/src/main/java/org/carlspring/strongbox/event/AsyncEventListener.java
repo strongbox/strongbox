@@ -13,7 +13,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+// TransactionalEventListener.fallbackExecution() needed only for test environment 
+@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
 @Async("eventTaskExecutor")
 public @interface AsyncEventListener
 {
