@@ -11,7 +11,6 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.context.annotation.Conditional;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,7 +25,6 @@ public class IndexedMavenArtifactStoredEventListener
     @Inject
     private MavenIndexGroupRepositoryComponent mavenIndexGroupRepositoryComponent;
 
-    @EventListener
     @AsyncEventListener
     public void handle(final ArtifactEvent<RepositoryPath> event)
     {
