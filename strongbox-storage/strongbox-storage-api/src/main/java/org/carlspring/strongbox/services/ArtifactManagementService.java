@@ -201,23 +201,10 @@ public class ArtifactManagementService
         ArtifactStoreResult result = new ArtifactStoreResult();
         
         boolean updatedMetadataFile = false;
-        boolean updatedArtifactFile = false;
-        boolean updatedArtifactChecksumFile = false;
 
-        if (Files.exists(repositoryPath))
+        if (Files.exists(repositoryPath) && RepositoryFiles.isMetadata(repositoryPath))
         {
-            if (RepositoryFiles.isMetadata(repositoryPath))
-            {
-                updatedMetadataFile = true;
-            }
-            else if (RepositoryFiles.isChecksum(repositoryPath))
-            {
-                updatedArtifactChecksumFile = true;
-            }
-            else
-            {
-                updatedArtifactFile = true;
-            }
+            updatedMetadataFile = true;
         }
         
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(repositoryPath))
@@ -233,34 +220,16 @@ public class ArtifactManagementService
             throw new ArtifactStorageException(e);
         }
         
-        artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
+        if (RepositoryFiles.isArtifact(repositoryPath))
+        {
+            artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
+        }
 
         if (updatedMetadataFile)
         {
-            result.getEvents()
-                  .add(() -> artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(repositoryPath));
+            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(repositoryPath);
             // If this is a metadata file and it has been updated:
         }
-        if (updatedArtifactChecksumFile)
-        {
-            // If this is a checksum file and it has been updated:
-            result.getEvents()
-                  .add(() -> artifactEventListenerRegistry.dispatchArtifactChecksumFileUpdatedEvent(repositoryPath));
-        }
-
-        if (RepositoryFiles.isChecksum(repositoryPath))
-        {
-            result.getEvents()
-                  .add(() -> artifactEventListenerRegistry.dispatchArtifactChecksumUploadedEvent(repositoryPath));
-        }
-
-        if (updatedArtifactFile)
-        {
-            // If this is an artifact file and it has been updated:
-            result.getEvents()
-                  .add(() -> artifactEventListenerRegistry.dispatchArtifactUploadedEvent(repositoryPath));
-        }
-        
         
         return result;
     }

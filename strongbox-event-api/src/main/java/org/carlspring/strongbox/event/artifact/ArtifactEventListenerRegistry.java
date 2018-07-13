@@ -27,16 +27,6 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         dispatchEvent(event);
     }
 
-    public void dispatchArtifactUploadedEvent(Path path)
-    {
-        ArtifactEvent event = new ArtifactEvent(path,
-                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADED.getType());
-
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADED event for " + path + "...");
-
-        dispatchEvent(event);
-    }
-
     public void dispatchArtifactFileUpdatedEvent(Path path)
     {
         ArtifactEvent event = new ArtifactEvent(path,
@@ -54,28 +44,6 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPDATED.getType());
 
         logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPDATED event for " +
-                      path + "...");
-
-        dispatchEvent(event);
-    }
-
-    public void dispatchArtifactChecksumUploadedEvent(Path path)
-    {
-        ArtifactEvent event = new ArtifactEvent(path,
-                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_UPLOADED.getType());
-
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_UPLOADED event for " +
-                      path + "...");
-
-        dispatchEvent(event);
-    }
-
-    public void dispatchArtifactChecksumFileUpdatedEvent(Path path)
-    {
-        ArtifactEvent event = new ArtifactEvent(path,
-                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_UPDATED.getType());
-
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_UPDATED event for " +
                       path + "...");
 
         dispatchEvent(event);
