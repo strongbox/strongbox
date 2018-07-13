@@ -19,10 +19,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.web.WebAppConfiguration;
+
 
 /**
  * Helper meta annotation for all rest-assured based tests. Specifies tests that
@@ -40,7 +40,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WithUserDetails(value = "admin")
 @TestExecutionListeners(listeners = { RestAssuredTestExecutionListener.class,
                                       CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@Rollback
 public @interface IntegrationTest
 {
 

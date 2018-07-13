@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.locks.Lock;
 
 import javax.inject.Inject;
 
@@ -108,14 +109,16 @@ public class MavenArtifactFetchedFromRemoteEventListener
         RemoteRepository remoteRepository = repository.getRemoteRepository();
         RestArtifactResolver client = restArtifactResolverFactory.newInstance(remoteRepository);
         
-        repositoryPathLock.lock(metadataPath);
+        Lock lock = repositoryPathLock.lock(metadataPath).writeLock();
+        lock.lock();
+
         try (InputStream is = new BufferedInputStream(new ProxyRepositoryInputStream(client, metadataPath)))
         {
             mergeMetadata(artifactAbsolutePath, is);
         } 
         finally
         {
-            repositoryPathLock.unlock(metadataPath);
+            lock.unlock();
         }
         
     }

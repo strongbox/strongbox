@@ -1,8 +1,11 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import javax.persistence.EntityManager;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
@@ -11,11 +14,11 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
  * @author carlspring
  */
 public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoordinates<C, V>, V extends Comparable<V>>
-        extends GenericEntity
+        extends GenericEntity<C>
         implements ArtifactCoordinates<C, V>
 {
 
-    private Map<String, String> coordinates = new LinkedHashMap<>();
+    protected Map<String, String> coordinates = new LinkedHashMap<>();
     /**
      * This field is used as unique OrientDB index.
      */
@@ -101,6 +104,11 @@ public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoor
     @Override
     public int compareTo(C that)
     {
+        if (this == that)
+        {
+            return 0;
+        }
+        
         if (that == null)
         {
             return -1;
@@ -153,6 +161,15 @@ public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoor
     public String toString()
     {
         return toPath();
+    }
+
+    @Override
+    public C detach(EntityManager entityManager)
+    {
+        C result = super.detach(entityManager);
+        result.coordinates = new HashMap<>(result.coordinates);
+        
+        return result;
     }
 
     @Override

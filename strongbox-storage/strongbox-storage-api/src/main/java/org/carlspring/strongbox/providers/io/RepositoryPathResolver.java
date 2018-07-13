@@ -77,13 +77,13 @@ public class RepositoryPathResolver
             return repositoryPath.resolve(path);
         }
         
-        return new LazyRepositoryPath(repositoryPath.resolve(path));
+        return new CachedRepositoryPath(repositoryPath.resolve(path));
     }
     
-    private class LazyRepositoryPath extends RepositoryPath
+    private class CachedRepositoryPath extends RepositoryPath
     {
 
-        private LazyRepositoryPath(RepositoryPath target)
+        private CachedRepositoryPath(RepositoryPath target)
         {
             super(target.getTarget(), target.getFileSystem());
         }
@@ -92,19 +92,14 @@ public class RepositoryPathResolver
         public ArtifactEntry getArtifactEntry()
             throws IOException
         {
-            if (artifactEntry != null)
-            {
-                return artifactEntry;
-            }
-            
             if (this.getRepository().isGroupRepository() || !RepositoryFiles.isArtifact(this))
             {
-                return this.artifactEntry = null;
+                return null;
             }
-            
-            return this.artifactEntry = artifactEntryService.findOneArtifact(getRepository().getStorage().getId(),
-                                                                             getRepository().getId(),
-                                                                             RepositoryFiles.relativizePath(this));
+
+            return artifactEntryService.findOneArtifact(getRepository().getStorage().getId(),
+                                                        getRepository().getId(),
+                                                        RepositoryFiles.relativizePath(this));
             // TODO: we should check this restriction 
 //            if (Files.exists(this) && !Files.isDirectory(this) && RepositoryFiles.isArtifact(this) && result == null)
 //            {

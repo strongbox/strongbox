@@ -42,15 +42,5 @@ public class MockedRestArtifactResolverTestConfig
         return Mockito.mock(RestArtifactResolverFactory.class);
     }
 
-    @Bean
-    @Primary
-    ArtifactEventListenerRegistry artifactEventListenerRegistry()
-    {
-        final ArtifactEventListenerRegistry artifactEventListenerRegistry = Mockito.mock(
-                ArtifactEventListenerRegistry.class);
-        Mockito.doNothing().when(artifactEventListenerRegistry).dispatchArtifactFetchedFromRemoteEvent(
-                Matchers.any(Path.class));
-        return artifactEventListenerRegistry;
-    }
 
 }

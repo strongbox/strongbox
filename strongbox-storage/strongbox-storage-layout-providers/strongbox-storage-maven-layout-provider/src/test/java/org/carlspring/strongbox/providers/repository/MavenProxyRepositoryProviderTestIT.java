@@ -148,14 +148,14 @@ public class MavenProxyRepositoryProviderTestIT
         // 3. copy the content to carlspring repository
         repositoryId = "carlspring";
         repository = storage.getRepository(repositoryId);
-        final Path carlspringArtifactBaseBath = repositoryPathResolver.resolve(repository).resolve("javax/media/jai_core");
+        final Path carlspringArtifactBaseBath = repositoryPathResolver.resolve(repository, "javax/media/jai_core");
         FileUtils.copyDirectory(mavenCentralArtifactBaseBath.toFile(), carlspringArtifactBaseBath.toFile());
 
         // 4. confirm maven-metadata.xml lies in the carlspring repository
-        assertTrue(layoutProvider.containsPath(repositoryPathResolver.resolve(repository).resolve("javax/media/jai_core/maven-metadata.xml")));
+        assertTrue(layoutProvider.containsPath(repositoryPathResolver.resolve(repository, "javax/media/jai_core/maven-metadata.xml")));
 
         // 5. confirm some pre-merge state
-        Path artifactBasePath = repositoryPathResolver.resolve(repository).resolve("javax/media/jai_core/");
+        Path artifactBasePath = repositoryPathResolver.resolve(repository, "javax/media/jai_core/");
         Metadata metadata = mavenMetadataManager.readMetadata(artifactBasePath);
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.1.2_01"));

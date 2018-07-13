@@ -428,6 +428,10 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
             {
                 System.out.println(ByteStreams.toByteArray(is));
             }
+            else
+            {
+                while (is.read(new byte[1024]) != -1);
+            }
         }
     }
 

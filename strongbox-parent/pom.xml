@@ -1121,7 +1121,18 @@
                 <scope>provided</scope>
             </dependency>
 
-
+            <dependency>
+                <groupId>com.github.ThoughtWire</groupId>
+                <artifactId>hazelcast-locks</artifactId>
+                <version>v1.0.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.hazelcast</groupId>
+                        <artifactId>hazelcast</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        
         </dependencies>
 
     </dependencyManagement>

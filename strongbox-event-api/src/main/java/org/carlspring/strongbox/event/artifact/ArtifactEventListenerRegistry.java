@@ -27,7 +27,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         dispatchEvent(event);
     }
 
-    public void dispatchArtifactFileUpdatedEvent(Path path)
+    public void dispatchArtifactUpdatedEvent(Path path)
     {
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPDATED.getType());

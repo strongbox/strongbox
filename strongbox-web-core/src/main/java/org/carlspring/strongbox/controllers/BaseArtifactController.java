@@ -65,9 +65,7 @@ public abstract class BaseArtifactController
             ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
         }
 
-        artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(repositoryPath);
         copyToResponse(is, response);
-        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(repositoryPath);
 
         return true;
     }

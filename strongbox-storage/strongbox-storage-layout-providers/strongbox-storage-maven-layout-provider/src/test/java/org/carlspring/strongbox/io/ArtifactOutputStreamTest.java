@@ -87,18 +87,20 @@ public class ArtifactOutputStreamTest
 
         RepositoryPath artifactPath = repositoryPathResolver.resolve(repository, coordinates);
 
-        try (TempRepositoryPath artifactPathTemp = RepositoryFiles.temporary(artifactPath))
-        {
+        TempRepositoryPath artifactPathTemp = RepositoryFiles.temporary(artifactPath);
 
-            final ArtifactOutputStream afos = (ArtifactOutputStream) Files.newOutputStream(artifactPathTemp);
-            ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
-            IOUtils.copy(bais, afos);
-            
-            assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
+        ArtifactOutputStream afos = (ArtifactOutputStream) Files.newOutputStream(artifactPathTemp);
+        
+        ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
+        IOUtils.copy(bais, afos);
+        afos.close();
+        
+        assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
 
-            afos.close();
-        }
+        
 
+        artifactPathTemp.getFileSystem().provider().moveFromTemporaryDirectory(artifactPathTemp);
+        
         assertTrue("Failed to the move temporary artifact file to original location!", Files.exists(artifactPath));
     }
 
@@ -118,13 +120,14 @@ public class ArtifactOutputStreamTest
 
         TempRepositoryPath artifactPathTemp = RepositoryFiles.temporary(artifactPath);
 
-        final ArtifactOutputStream afos = (ArtifactOutputStream) Files.newOutputStream(artifactPathTemp);
+        ArtifactOutputStream afos = (ArtifactOutputStream) Files.newOutputStream(artifactPathTemp);
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
-
+        afos.close();
+        
         assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
 
-        afos.close();
+        
 
         assertFalse("Should not have move temporary the artifact file to original location!",
                     Files.exists(artifactPath));

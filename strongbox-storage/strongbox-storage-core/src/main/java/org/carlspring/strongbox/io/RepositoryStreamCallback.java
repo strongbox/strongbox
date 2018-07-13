@@ -5,10 +5,15 @@ import java.io.IOException;
 public interface RepositoryStreamCallback
 {
 
-    void onBeforeRead(RepositoryStreamContext ctx) throws IOException;
+    void onBeforeRead(RepositoryStreamReadContext ctx)
+        throws IOException;
 
-    void onBeforeWrite(RepositoryStreamContext ctx) throws IOException;
-    
-    void onAfterClose(RepositoryStreamContext ctx) throws IOException;
+    void onBeforeWrite(RepositoryStreamWriteContext ctx)
+        throws IOException;
+
+    void onAfterWrite(RepositoryStreamWriteContext ctx)
+        throws IOException;
+
+    void onAfterRead(RepositoryStreamReadContext ctx);
 
 }

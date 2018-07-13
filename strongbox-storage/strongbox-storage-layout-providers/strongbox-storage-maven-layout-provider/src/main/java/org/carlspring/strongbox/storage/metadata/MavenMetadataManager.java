@@ -31,6 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
 
 import com.google.common.base.Throwables;
@@ -145,9 +146,9 @@ public class MavenMetadataManager
                          Files.deleteIfExists(metadataPath);
 
                          try (OutputStream os = new MultipleDigestOutputStream(metadataPath,
-                                                                               Files.newOutputStream(metadataPath));
-                              Writer writer = WriterFactory.newXmlWriter(os))
+                                                                               Files.newOutputStream(metadataPath)))
                          {
+                             Writer writer = WriterFactory.newXmlWriter(os);
 
                              MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
                              mappingWriter.write(writer, metadata);
@@ -421,7 +422,8 @@ public class MavenMetadataManager
     private void doInLock(RepositoryPath metadataBasePath,
                           Consumer<Path> operation)
     {
-        repositoryPathLock.lock(metadataBasePath);
+        Lock lock = repositoryPathLock.lock(metadataBasePath).writeLock();
+        lock.lock();
         
         try
         {
@@ -429,7 +431,7 @@ public class MavenMetadataManager
         } 
         finally
         {
-            repositoryPathLock.unlock(metadataBasePath);
+            lock.unlock();
         }
     }
 

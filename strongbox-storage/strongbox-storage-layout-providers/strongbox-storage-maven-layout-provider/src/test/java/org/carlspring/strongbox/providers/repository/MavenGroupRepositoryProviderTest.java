@@ -329,15 +329,14 @@ public class MavenGroupRepositoryProviderTest
 
         Path repositoryPath = repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0, REPOSITORY_GROUP,
                                                                                           "com/artifacts/in/releases/under/group/maven-metadata.xml"));
-        try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
-        {
+        InputStream is = repositoryProvider.getInputStream(repositoryPath);
 
-            assertNotNull(is);
+        assertNotNull(is);
 
-            Metadata metadata = artifactMetadataService.getMetadata(is);
-            assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
-            assertThat(metadata.getVersioning().getVersions(), CoreMatchers.hasItems("1.2.3", "1.2.4"));
-        }
+        Metadata metadata = artifactMetadataService.getMetadata(is);
+        
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
+        assertThat(metadata.getVersioning().getVersions(), CoreMatchers.hasItems("1.2.3", "1.2.4"));
     }
 
     @Test

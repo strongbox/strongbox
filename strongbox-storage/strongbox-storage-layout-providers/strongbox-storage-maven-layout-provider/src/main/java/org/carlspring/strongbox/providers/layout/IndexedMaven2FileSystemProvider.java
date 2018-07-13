@@ -11,6 +11,7 @@ import java.util.Collections;
 
 import javax.inject.Inject;
 
+import org.apache.commons.io.output.ProxyOutputStream;
 import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
@@ -150,7 +151,7 @@ public class IndexedMaven2FileSystemProvider extends Maven2FileSystemProvider
         return super.decorateStream(path, new IndexedOutputStream(path, os), artifactCoordinates);
     }
 
-    private class IndexedOutputStream extends FilterOutputStream
+    private class IndexedOutputStream extends ProxyOutputStream
     {
 
         private RepositoryPath repositoryPath;

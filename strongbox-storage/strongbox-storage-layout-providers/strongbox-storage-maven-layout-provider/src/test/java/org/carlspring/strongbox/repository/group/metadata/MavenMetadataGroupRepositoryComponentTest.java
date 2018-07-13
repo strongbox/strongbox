@@ -67,10 +67,10 @@ public class MavenMetadataGroupRepositoryComponentTest
         final Storage storage = getConfiguration().getStorage(STORAGE0);
 
         Repository repository = storage.getRepository(sourceRepositoryId);
-        final Path sourcePath = repositoryPathResolver.resolve(repository).resolve(path);
+        final Path sourcePath = repositoryPathResolver.resolve(repository, path);
 
         repository = storage.getRepository(destinationRepositoryId);
-        final Path destinationPath = repositoryPathResolver.resolve(repository).resolve(path);
+        final Path destinationPath = repositoryPathResolver.resolve(repository, path);
         FileUtils.copyFile(sourcePath.toFile(), destinationPath.toFile());
     }
 
@@ -87,7 +87,7 @@ public class MavenMetadataGroupRepositoryComponentTest
 
         assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(path);
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
         RepositoryFiles.delete(repositoryPath, false);
 
         Optional.of(repositoryPath.getFileSystem().provider())
@@ -109,35 +109,35 @@ public class MavenMetadataGroupRepositoryComponentTest
 
         // author of changes
         Metadata metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_L, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_L, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/delete/releases/delete-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.2"));
 
         // direct parent
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_F, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_F, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/delete/releases/delete-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.2"));
 
         // next direct parent
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/delete/releases/delete-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.2"));
 
         // grand parent
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/delete/releases/delete-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.2"));
 
         // grand parent with other kids
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/delete/releases/delete-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
@@ -150,33 +150,33 @@ public class MavenMetadataGroupRepositoryComponentTest
     {
         Metadata metadata = mavenMetadataManager.readMetadata(repositoryPathResolver.resolve(new Repository(
                 createRepositoryMock(STORAGE0,
-                                     REPOSITORY_LEAF_D, Maven2LayoutProvider.ALIAS))).resolve("com/artifacts/to/update/releases/update-group"));
+                                     REPOSITORY_LEAF_D, Maven2LayoutProvider.ALIAS)), "com/artifacts/to/update/releases/update-group"));
         
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
         assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_K, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_K, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
         assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
@@ -196,20 +196,20 @@ public class MavenMetadataGroupRepositoryComponentTest
 
         // BEFORE
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_D, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_D, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
         assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_K, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_K, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
@@ -230,7 +230,7 @@ public class MavenMetadataGroupRepositoryComponentTest
         try
         {
             metadata = mavenMetadataManager.readMetadata(
-                    repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_F, Maven2LayoutProvider.ALIAS))).resolve(
+                    repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_F, Maven2LayoutProvider.ALIAS)), 
                             "com/artifacts/to/update/releases/update-group"));
 
             fail("metadata SHOULD NOT exist");
@@ -243,7 +243,7 @@ public class MavenMetadataGroupRepositoryComponentTest
         try
         {
             metadata = mavenMetadataManager.readMetadata(
-                    repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B, Maven2LayoutProvider.ALIAS))).resolve(
+                    repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B, Maven2LayoutProvider.ALIAS)), 
                             "com/artifacts/to/update/releases/update-group"));
 
             fail("metadata SHOULD NOT exist");
@@ -269,39 +269,39 @@ public class MavenMetadataGroupRepositoryComponentTest
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve("com/artifacts/to/update/releases/update-group");
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, "com/artifacts/to/update/releases/update-group");
         // IMITATE THE EVENT
         mavenGroupRepositoryComponent.updateGroupsContaining(repositoryPath);
 
         // AFTER
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_D, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_D, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
         assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_K, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_K, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
         assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A, Maven2LayoutProvider.ALIAS))).resolve(
+                repositoryPathResolver.resolve(new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A, Maven2LayoutProvider.ALIAS)), 
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));

@@ -80,7 +80,7 @@ public class MavenIndexController
                 Storage storage = layoutProviderRegistry.getStorage(storageId);
                 Repository repository = storage.getRepository(repositoryId);
                 
-                RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(path);
+                RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
                 // Rebuild the index for a path under in a repository under a specified storage
                 artifactIndexesService.rebuildIndex(repositoryPath);
             }

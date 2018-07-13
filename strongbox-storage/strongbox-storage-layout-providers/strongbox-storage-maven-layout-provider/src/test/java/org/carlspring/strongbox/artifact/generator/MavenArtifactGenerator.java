@@ -144,9 +144,6 @@ public class MavenArtifactGenerator
     protected void createMetadata(Metadata metadata, String metadataPath)
             throws NoSuchAlgorithmException, IOException
     {
-        OutputStream os = null;
-        Writer writer = null;
-
         File metadataFile = null;
 
         try
@@ -163,17 +160,17 @@ public class MavenArtifactGenerator
             // noinspection ResultOfMethodCallIgnored
             metadataFile.getParentFile().mkdirs();
 
-            os = new MultipleDigestOutputStream(metadataFile, newOutputStream(metadataFile));
-            writer = WriterFactory.newXmlWriter(os);
-            MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
-            mappingWriter.write(writer, metadata);
+            try (OutputStream os = new MultipleDigestOutputStream(metadataFile, newOutputStream(metadataFile)))
+            {
+                Writer writer = WriterFactory.newXmlWriter(os);
+                MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
+                mappingWriter.write(writer, metadata);
 
-            os.flush();
+                os.flush();
+            }
         }
         finally
         {
-            ResourceCloser.close(os, logger);
-
             generateChecksumsForArtifact(metadataFile);
         }
     }

@@ -61,6 +61,8 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
     protected ResponseEntity<?> handleUnknownError(Exception ex,
                                                    WebRequest request)
     {
+        logger.error(String.format("Request [%s] failed.", request), ex);
+        
         return provideDefaultErrorResponse(ex, request, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

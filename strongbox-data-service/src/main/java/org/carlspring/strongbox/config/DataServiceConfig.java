@@ -13,6 +13,8 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
 import com.hazelcast.spring.transaction.HazelcastTransactionManager;
 import com.orientechnologies.orient.object.jpa.OJPAObjectDatabaseTxPersistenceProvider;
 import liquibase.integration.spring.SpringLiquibase;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +24,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.transaction.ChainedTransactionManager;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -65,11 +68,20 @@ public class DataServiceConfig
     }
 
     @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf, HazelcastInstance hazelcastInstance)
+    @Primary
+    public PlatformTransactionManager transactionManager(JpaTransactionManager jpaTransactionManager,
+                                                         HazelcastInstance hazelcastInstance)
     {
-        JpaTransactionManager jpaTransactionManager = new JpaTransactionManager(emf);
         HazelcastTransactionManager hazelcastTransactionManager = new HazelcastTransactionManager(hazelcastInstance);
         return new ChainedTransactionManager(hazelcastTransactionManager, jpaTransactionManager);
+    }
+
+    @Bean
+    @OrientDBTransactionManager
+    public JpaTransactionManager jpaTransactionManager(EntityManagerFactory emf)
+    {
+        JpaTransactionManager jpaTransactionManager = new JpaTransactionManager(emf);
+        return jpaTransactionManager;
     }
 
     @Bean
@@ -98,4 +110,9 @@ public class DataServiceConfig
     }
 
 
+    @Qualifier
+    public static @interface OrientDBTransactionManager
+    {
+    }
+    
 }
