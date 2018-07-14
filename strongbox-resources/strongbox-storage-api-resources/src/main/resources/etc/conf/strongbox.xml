@@ -335,6 +335,8 @@
                             type="group"
                             secured="true">
                     <group>
+                        <repository>storage0:releases</repository>
+                        <repository>storage0:snapshots</repository>
                         <repository>storage-common-proxies:group-common-proxies</repository>
                         <repository>storage-springsource-proxies:springsource-proxies</repository>
                         <repository>storage-ivy-proxies:group-ivy-proxies</repository>
