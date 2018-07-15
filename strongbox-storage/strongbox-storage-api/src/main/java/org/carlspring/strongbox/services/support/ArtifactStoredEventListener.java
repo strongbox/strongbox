@@ -2,8 +2,8 @@ package org.carlspring.strongbox.services.support;
 
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.event.AsyncEventListener;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListener;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.TempRepositoryPath;
@@ -18,9 +18,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
@@ -29,7 +27,6 @@ import org.springframework.util.Assert;
  */
 @Component
 public class ArtifactStoredEventListener
-        implements ArtifactEventListener<RepositoryPath>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactStoredEventListener.class);
@@ -40,9 +37,7 @@ public class ArtifactStoredEventListener
     @Inject
     private ArtifactEntryService artifactEntryService;
 
-    @Transactional
-    @Async
-    @Override
+    @AsyncEventListener
     public void handle(final ArtifactEvent<RepositoryPath> event)
     {
         if (event.getType() != ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED.getType())
