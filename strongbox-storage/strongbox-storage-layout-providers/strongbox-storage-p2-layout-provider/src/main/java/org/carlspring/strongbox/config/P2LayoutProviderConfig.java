@@ -9,8 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ComponentScan({ "org.carlspring.strongbox.event",
-                 "org.carlspring.strongbox.repository",
+@ComponentScan({ "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
                  "org.carlspring.strongbox.storage",

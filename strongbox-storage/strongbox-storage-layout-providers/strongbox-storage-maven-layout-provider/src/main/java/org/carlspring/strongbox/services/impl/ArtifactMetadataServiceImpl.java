@@ -353,7 +353,7 @@ public class ArtifactMetadataServiceImpl
         try
         {
             String version = repositoryPath.getFileName().toString();
-            Path path = repositoryPath.getParent();
+            RepositoryPath path = repositoryPath.getParent();
 
             Metadata metadata = mavenMetadataManager.readMetadata(path);
             if (metadata != null && metadata.getVersioning() != null &&

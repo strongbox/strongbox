@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @Import({ RawLayoutProviderConfig.class,
+          EventsConfig.class,
           StorageCoreConfig.class,
           StorageApiConfig.class,
           CommonConfig.class,

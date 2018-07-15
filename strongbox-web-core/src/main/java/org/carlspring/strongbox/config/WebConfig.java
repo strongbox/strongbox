@@ -54,6 +54,7 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
 @Import({ CommonConfig.class,
           StrongboxSecurityConfig.class,
           StorageApiConfig.class,
+          EventsConfig.class,
           Maven2LayoutProviderConfig.class,
           NugetLayoutProviderConfig.class,
           NpmLayoutProviderConfig.class,

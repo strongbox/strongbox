@@ -19,26 +19,6 @@ public enum ArtifactEventTypeEnum
     EVENT_ARTIFACT_FILE_UPLOADING(2),
 
     /**
-     * Occurs when an artifact upload operation has completed.
-     */
-    EVENT_ARTIFACT_FILE_UPLOADED(3),
-
-    /**
-     * Occurs when an artifact checksum file has been uploaded.
-     */
-    EVENT_ARTIFACT_CHECKSUM_UPLOADED(4),
-
-    /**
-     * Occurs when an artifact checksum file has been updated.
-     */
-    EVENT_ARTIFACT_CHECKSUM_UPDATED(5),
-
-    /**
-     * Occurs when an artifact metadata file has been uploaded.
-     */
-    EVENT_ARTIFACT_METADATA_UPLOADED(6),
-
-    /**
      * Occurs when an artifact metadata file has been updated.
      */
     EVENT_ARTIFACT_METADATA_UPDATED(7),

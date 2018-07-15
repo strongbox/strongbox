@@ -1,11 +1,6 @@
 package org.carlspring.strongbox.event.repository;
 
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
 import org.carlspring.strongbox.event.AbstractEventListenerRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,18 +10,6 @@ import org.springframework.stereotype.Component;
 public class RepositoryEventListenerRegistry
         extends AbstractEventListenerRegistry
 {
-
-    @Autowired(required = false)
-    private List<RepositoryEventListener> repositoryEventListeners;
-
-    @PostConstruct
-    public void init()
-    {
-        if (repositoryEventListeners != null)
-        {
-            repositoryEventListeners.forEach(this::addListener);
-        }
-    }
 
 
     public void dispatchEmptyTrashEvent(String storageId,

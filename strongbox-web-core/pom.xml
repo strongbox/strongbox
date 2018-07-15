@@ -613,6 +613,7 @@
             <groupId>javax.transaction</groupId>
             <artifactId>javax.transaction-api</artifactId>
         </dependency>
+        
     </dependencies>
 
     <profiles>

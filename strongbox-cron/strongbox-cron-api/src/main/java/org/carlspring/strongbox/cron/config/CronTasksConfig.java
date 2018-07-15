@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.cron.config;
 
-import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.StorageCoreConfig;
-import org.carlspring.strongbox.cron.services.impl.CronTaskExecutor;
-
-import javax.inject.Inject;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.config.StorageCoreConfig;
+import org.carlspring.strongbox.cron.services.impl.CronTaskExecutor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -38,7 +38,7 @@ public class CronTasksConfig
         
         return schedulerFactoryBean;
     }
-
+    
     @Bean
     public Executor cronJobTaskExecutor()
     {

@@ -2,13 +2,10 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 
 import javax.inject.Inject;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -38,26 +35,7 @@ public class ImmediateExecutionCronJobTestIT
     };
 
     @Inject
-    private CronTaskConfigurationService cronTaskConfigurationService;
-
-    @Inject
     private JobManager jobManager;
-
-    @Before
-    public void initialize()
-            throws Exception
-    {
-        // Register to receive cron task-related events
-        cronTaskEventListenerRegistry.addListener(this);
-    }
-
-    @After
-    public void tearDown()
-            throws Exception
-    {
-        // Un-register to receive cron task-related events
-        cronTaskEventListenerRegistry.removeListener(this);
-    }
 
     public void addImmediateExecutionCronJobConfig(String name)
             throws Exception

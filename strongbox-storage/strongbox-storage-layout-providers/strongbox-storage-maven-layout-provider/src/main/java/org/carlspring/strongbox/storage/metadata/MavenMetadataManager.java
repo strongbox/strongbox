@@ -8,6 +8,7 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ResourceCloser;
@@ -66,12 +67,9 @@ public class MavenMetadataManager
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-
-    private ConcurrentHashMap<String, String> metadataSynchronizationContainer = new ConcurrentHashMap<>();
-
-    public MavenMetadataManager()
-    {
-    }
+    
+    @Inject
+    private RepositoryPathLock repositoryPathLock;
 
     public Metadata readMetadata(MavenArtifact artifact)
             throws IOException,
@@ -133,7 +131,7 @@ public class MavenMetadataManager
         return metadata;
     }
 
-    public void storeMetadata(final Path metadataBasePath,
+    public void storeMetadata(final RepositoryPath metadataBasePath,
                               final String version,
                               final Metadata metadata,
                               final MetadataType metadataType)
@@ -328,7 +326,7 @@ public class MavenMetadataManager
         return snapshotMetadata;
     }
 
-    public void mergeAndStore(final Path metadataBasePath,
+    public void mergeAndStore(final RepositoryPath metadataBasePath,
                               final Metadata mergeMetadata)
     {
         doInLock(metadataBasePath, path ->
@@ -397,7 +395,7 @@ public class MavenMetadataManager
         }
     }
 
-    public void mergeAndStore(final Path metadataBasePath,
+    public void mergeAndStore(final RepositoryPath metadataBasePath,
                               final Metadata metadata,
                               final Metadata mergeMetadata)
     {
@@ -420,21 +418,19 @@ public class MavenMetadataManager
 
     }
 
-    private void doInLock(final Path metadataBasePath,
-                          final Consumer<Path> operation)
+    private void doInLock(RepositoryPath metadataBasePath,
+                          Consumer<Path> operation)
     {
-        synchronized (getMetadataSynchronizationLock(metadataBasePath))
+        repositoryPathLock.lock(metadataBasePath);
+        
+        try
         {
             operation.accept(metadataBasePath);
+        } 
+        finally
+        {
+            repositoryPathLock.unlock(metadataBasePath);
         }
-    }
-
-    private String getMetadataSynchronizationLock(final Path metadataBasePath)
-    {
-        final String artifactBasePathAsAbsolutePathString = metadataBasePath.toAbsolutePath().toString();
-        final String normalizedPath = FilenameUtils.normalizeNoEndSeparator(artifactBasePathAsAbsolutePathString);
-        metadataSynchronizationContainer.putIfAbsent(normalizedPath, normalizedPath);
-        return metadataSynchronizationContainer.get(normalizedPath);
     }
 
 }

@@ -13,7 +13,6 @@ import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-import org.carlspring.strongbox.event.CommonEventListener;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
@@ -47,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import ru.aristar.jnuget.rss.PackageEntry;
 import ru.aristar.jnuget.rss.PackageFeed;
@@ -258,7 +258,6 @@ public class NugetRepositoryFeatures
     @Component
     @Scope(scopeName = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
     public class RepositorySearchEventListener
-            implements CommonEventListener<RemoteRepositorySearchEvent>
     {
 
         private NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
@@ -273,7 +272,7 @@ public class NugetRepositoryFeatures
             this.nugetSearchRequest = nugetSearchRequest;
         }
 
-        @Override
+        @EventListener
         public void handle(RemoteRepositorySearchEvent event)
         {
             Storage storage = getConfiguration().getStorage(event.getSorageId());

@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Przemyslaw Fusik
  */
-abstract class BaseMavenArtifactEventListener
-        implements ArtifactEventListener<RepositoryPath>
+public abstract class BaseMavenArtifactEventListener
 {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());

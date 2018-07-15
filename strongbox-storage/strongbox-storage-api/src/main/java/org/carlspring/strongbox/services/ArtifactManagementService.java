@@ -124,6 +124,8 @@ public class ArtifactManagementService
                       InputStream is)
            throws IOException
     {
+        ArtifactStoreResult result;
+        
         repositoryPathLock.lock(repositoryPath);
 
         try
@@ -131,7 +133,7 @@ public class ArtifactManagementService
             TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
             //TODO: implement suspension for HazelcastTransactionManager
             //transactionTemplate.setPropagationBehavior(Propagation.REQUIRES_NEW.value());
-            return transactionTemplate.execute((s) -> storeInTransaction(repositoryPath, is));
+            result = transactionTemplate.execute((s) -> storeInTransaction(repositoryPath, is));
         }
         catch (UndeclaredThrowableException e)
         {
@@ -153,10 +155,14 @@ public class ArtifactManagementService
         {
             repositoryPathLock.unlock(repositoryPath);
         }
+        
+        result.getEvents().stream().forEach(Runnable::run);
+        
+        return result.getSize();
     }
 
-    private long storeInTransaction(RepositoryPath repositoryPath,
-                                    InputStream is)
+    private ArtifactStoreResult storeInTransaction(RepositoryPath repositoryPath,
+                                                   InputStream is)
     {
         try (TempRepositoryPath tempArtifact = RepositoryFiles.temporary(repositoryPath))
         {
@@ -168,13 +174,13 @@ public class ArtifactManagementService
         }
     }
     
-    private long storeInTemp(TempRepositoryPath repositoryPath,
-                             InputStream is)
+    private ArtifactStoreResult storeInTemp(TempRepositoryPath repositoryPath,
+                                            InputStream is)
         throws IOException
     {
 
         try (// Wrap the InputStream, so we could have checksums to compare
-                final InputStream remoteIs = new MultipleDigestInputStream(is))
+             final InputStream remoteIs = new MultipleDigestInputStream(is))
         {
             return doStore(repositoryPath, remoteIs);
         }
@@ -188,35 +194,22 @@ public class ArtifactManagementService
         }
     }
 
-    private long doStore(RepositoryPath repositoryPath,
-                      InputStream is)
+    private ArtifactStoreResult doStore(RepositoryPath repositoryPath,
+                                        InputStream is)
             throws IOException
     {
-        boolean updatedMetadataFile = false;
-        boolean updatedArtifactFile = false;
-        boolean updatedArtifactChecksumFile = false;
-
-        if (Files.exists(repositoryPath))
-        {
-            if (RepositoryFiles.isMetadata(repositoryPath))
-            {
-                updatedMetadataFile = true;
-            }
-            else if (RepositoryFiles.isChecksum(repositoryPath))
-            {
-                updatedArtifactChecksumFile = true;
-            }
-            else
-            {
-                updatedArtifactFile = true;
-            }
-        }
+        ArtifactStoreResult result = new ArtifactStoreResult();
         
-        long result;
+        boolean updatedMetadataFile = false;
+
+        if (Files.exists(repositoryPath) && RepositoryFiles.isMetadata(repositoryPath))
+        {
+            updatedMetadataFile = true;
+        }
         
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(repositoryPath))
         {
-            result = storeArtifact(repositoryPath, is, aos);
+            result.setSize(storeArtifact(repositoryPath, is, aos));
         }
         catch (IOException e)
         {
@@ -227,29 +220,15 @@ public class ArtifactManagementService
             throw new ArtifactStorageException(e);
         }
         
-        artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
+        if (RepositoryFiles.isArtifact(repositoryPath))
+        {
+            artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
+        }
 
         if (updatedMetadataFile)
         {
-            // If this is a metadata file and it has been updated:
             artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(repositoryPath);
-            artifactEventListenerRegistry.dispatchArtifactMetadataFileUploadedEvent(repositoryPath);
-        }
-        if (updatedArtifactChecksumFile)
-        {
-            // If this is a checksum file and it has been updated:
-            artifactEventListenerRegistry.dispatchArtifactChecksumFileUpdatedEvent(repositoryPath);
-        }
-        
-        if (RepositoryFiles.isChecksum(repositoryPath))
-        {
-            artifactEventListenerRegistry.dispatchArtifactChecksumUploadedEvent(repositoryPath);
-        }
-
-        if (updatedArtifactFile)
-        {
-            // If this is an artifact file and it has been updated:
-            artifactEventListenerRegistry.dispatchArtifactUploadedEvent(repositoryPath);
+            // If this is a metadata file and it has been updated:
         }
         
         return result;
@@ -280,7 +259,6 @@ public class ArtifactManagementService
         {
             artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(repositoryPath);
         }
-
         
         long totalAmountOfBytes = IOUtils.copy(is, os);
 

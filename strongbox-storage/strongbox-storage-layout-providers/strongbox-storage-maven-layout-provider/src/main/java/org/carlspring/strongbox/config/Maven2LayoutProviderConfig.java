@@ -24,7 +24,6 @@ import org.springframework.core.env.Environment;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.configuration",
-                 "org.carlspring.strongbox.event",
                  "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
