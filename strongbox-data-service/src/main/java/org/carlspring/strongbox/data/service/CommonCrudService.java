@@ -13,9 +13,19 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PersistenceContext;
-
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -24,6 +34,7 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.ReflectionUtils;
 
 @Transactional
@@ -48,25 +59,27 @@ public abstract class CommonCrudService<T extends GenericEntity>
     protected <S extends T> S cascadeEntitySave(T entity)
     {
         identifyEntity(entity);
-        
-        ReflectionUtils.doWithFields(entity.getClass(), (field) -> {
+
+        ReflectionUtils.doWithFields(entity.getClass(), (field) ->
+        {
             ReflectionUtils.makeAccessible(field);
 
             Set<CascadeType> cascadeTypeSet = Arrays.stream(field.getAnnotations())
                                                     .map(a -> exposeCascadeType(a))
                                                     .reduce((c1,
-                                                             c2) -> {
-                                                        c1.addAll(c2);
-                                                        return c1;
-                                                    })
+                                                             c2) ->
+                                                            {
+                                                                c1.addAll(c2);
+                                                                return c1;
+                                                            })
                                                     .orElse(Collections.emptySet());
-            
+
             if (!cascadeTypeSet.stream().anyMatch(c -> CascadeType.ALL.equals(c) || CascadeType.MERGE.equals(c)
-                    || CascadeType.PERSIST.equals(c)))
+                                                       || CascadeType.PERSIST.equals(c)))
             {
                 return;
             }
-            
+
             Class<?> fieldType = field.getType();
             Object fieldValue = ReflectionUtils.getField(field, entity);
 
@@ -79,15 +92,16 @@ public abstract class CommonCrudService<T extends GenericEntity>
             {
                 Collection<Object> collection = (Collection<Object>) fieldValue;
                 List<Object> replaceCollection = new LinkedList<>();
-                collection.removeIf(a -> {
-                    Object b = tryToCascadeEntitySave(a);
-                    if (b != a)
-                    {
-                        replaceCollection.add(b);
-                        return true;
-                    }
-                    return false;
-                });
+                collection.removeIf(a ->
+                                    {
+                                        Object b = tryToCascadeEntitySave(a);
+                                        if (b != a)
+                                        {
+                                            replaceCollection.add(b);
+                                            return true;
+                                        }
+                                        return false;
+                                    });
                 collection.addAll(replaceCollection);
             }
             else
@@ -134,10 +148,11 @@ public abstract class CommonCrudService<T extends GenericEntity>
         }
 
         GenericEntity entity = (GenericEntity) entityCandidate;
-        CommonCrudService<GenericEntity> entityService = (CommonCrudService<GenericEntity>) entityServiceRegistry.getEntityService(entity.getClass());
+        CommonCrudService<GenericEntity> entityService = (CommonCrudService<GenericEntity>) entityServiceRegistry.getEntityService(
+                entity.getClass());
         return entityService.cascadeEntitySave(entity);
     }
-    
+
     protected boolean identifyEntity(T entity)
     {
         if (entity.getObjectId() != null)
@@ -149,7 +164,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
             entity.setUuid(UUID.randomUUID().toString());
             return false;
         }
-        
+
         String sQuery = String.format("SELECT @rid AS objectId FROM %s WHERE uuid = :uuid",
                                       entity.getClass().getSimpleName());
 
@@ -164,7 +179,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
         {
             return false;
         }
-        
+
         ODocument record = resultList.iterator().next();
         ODocument value = record.field("objectId");
         entity.setObjectId(value.getIdentity().toString());
@@ -181,13 +196,26 @@ public abstract class CommonCrudService<T extends GenericEntity>
     @Override
     public T lockOne(String id)
     {
+        logger.error(
+                String.format("%%%%%%%%%%%% Locking [%s]. Transaction [%s] active ? [%s]", id,
+                              TransactionSynchronizationManager.getCurrentTransactionName(),
+                              TransactionSynchronizationManager.isActualTransactionActive()));
+
         String sQuery = String.format("SELECT * FROM %s LOCK RECORD", id);
         OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);
 
         List<T> resultList = getDelegate().command(oQuery).execute();
-        
-        return !resultList.isEmpty() ? resultList.iterator().next() : null;
+
+        T result = !resultList.isEmpty() ? resultList.iterator().next() : null;
+
+        logger.error(
+                String.format("%%%%%%%%%%%% Lock done [%s]. Transaction [%s] active ? [%s]. Result [%s]", id,
+                              TransactionSynchronizationManager.getCurrentTransactionName(),
+                              TransactionSynchronizationManager.isActualTransactionActive(),
+                              result));
+
+        return result;
     }
 
     @Override
@@ -336,7 +364,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
     {
         return (OObjectDatabaseTx) entityManager.getDelegate();
     }
-    
+
     protected T detach(T entity)
     {
         return getDelegate().detachAll(entity, true);

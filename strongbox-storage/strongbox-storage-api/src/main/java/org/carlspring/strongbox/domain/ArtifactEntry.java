@@ -9,8 +9,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
-
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
@@ -29,12 +29,21 @@ public class ArtifactEntry
     private String repositoryId;
 
     // if you have to rename this field please update ArtifactEntryServiceImpl.findByCoordinates() implementation
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToOne(cascade = { CascadeType.DETACH,
+                           CascadeType.MERGE,
+                           CascadeType.PERSIST,
+                           CascadeType.REFRESH })
     private AbstractArtifactCoordinates artifactCoordinates;
 
     @ManyToMany(targetEntity = ArtifactTagEntry.class)
     private Set<ArtifactTag> tagSet;
-    
+
+    @OneToOne(cascade = { CascadeType.DETACH,
+                          CascadeType.MERGE,
+                          CascadeType.PERSIST,
+                          CascadeType.REFRESH })
+    private ArtifactArchiveListing artifactArchiveListing;
+
     private Long sizeInBytes;
 
     private Date lastUpdated;
@@ -42,7 +51,7 @@ public class ArtifactEntry
     private Date lastUsed;
 
     private Date created;
-    
+
     private Integer downloadCount = Integer.valueOf(0);
 
     public ArtifactEntry()
@@ -139,6 +148,16 @@ public class ArtifactEntry
         this.downloadCount = downloadCount;
     }
 
+    public ArtifactArchiveListing getArtifactArchiveListing()
+    {
+        return artifactArchiveListing;
+    }
+
+    public void setArtifactArchiveListing(final ArtifactArchiveListing artifactArchiveListing)
+    {
+        this.artifactArchiveListing = artifactArchiveListing;
+    }
+
     @Transient
     public String getArtifactPath()
     {
@@ -147,33 +166,25 @@ public class ArtifactEntry
                        .orElseThrow(() -> new IllegalStateException("ArtifactCoordinates required to be set."));
     }
 
-    
+
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("ArtifactEntry{");
-        sb.append("\n\tstorageId='")
-          .append(storageId)
-          .append('\'');
-        sb.append(", \n\trepositoryId='")
-          .append(repositoryId)
-          .append('\'');
-        sb.append(", \n\tsizeInBytes='")
-          .append(sizeInBytes)
-          .append('\'');
-        sb.append(", \n\tcreated='")
-          .append(created)
-          .append('\'');
-        sb.append(", \n\tlastUpdated='")
-          .append(lastUpdated)
-          .append('\'');
-        sb.append(", \n\tlastUsed='")
-          .append(lastUsed)
-          .append('\'');
-        sb.append(", \n\tartifactCoordinates=")
-          .append(artifactCoordinates);
-        sb.append('}');
+        final StringBuilder sb = new StringBuilder("\nArtifactEntry{");
+        sb.append("storageId='").append(storageId).append('\'');
+        sb.append(", repositoryId='").append(repositoryId).append('\'');
+        sb.append(", artifactCoordinates=").append(artifactCoordinates).append('\n');
+        sb.append(", tagSet=").append(tagSet);
+        sb.append(", objectId='").append(objectId).append('\'');
+        sb.append(", uuid='").append(uuid).append('\'');
+        sb.append(", artifactArchiveListing=").append(artifactArchiveListing);
+        sb.append(", entityVersion=").append(entityVersion);
+        sb.append(", sizeInBytes=").append(sizeInBytes);
+        sb.append(", lastUpdated=").append(lastUpdated);
+        sb.append(", lastUsed=").append(lastUsed);
+        sb.append(", created=").append(created);
+        sb.append(", downloadCount=").append(downloadCount);
+        sb.append('}').append('\n');
         return sb.toString();
     }
-
 }

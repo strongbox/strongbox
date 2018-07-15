@@ -216,7 +216,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
             return;
         }
         
-        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath, false, false);
+        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath, false, true);
         
         Assert.notNull(artifactEntry,
                        String.format("Invalid [%s] for [%s]", ArtifactEntry.class.getSimpleName(),
