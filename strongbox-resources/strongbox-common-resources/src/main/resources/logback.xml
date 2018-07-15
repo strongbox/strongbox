@@ -61,6 +61,8 @@
     <!-- Strongbox packages -->
 
     <!-- Third-party packages -->
+    <logger name="liquibase" level="DEBUG"/>
+
     <logger name="ch.qos.logback" level="ERROR"/>
 
     <logger name="com.orientechnologies.orient" level="ERROR"/>

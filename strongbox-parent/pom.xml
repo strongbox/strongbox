@@ -94,6 +94,7 @@
         <version.antlr>4.7.1</version.antlr>
         <version.liquibase>3.5.3</version.liquibase>
         <version.reflections>0.9.11</version.reflections>
+        <version.liquibase-slf4j>2.0.0</version.liquibase-slf4j>
         <!-- Version properties. -->
     </properties>
 
@@ -1090,6 +1091,11 @@
                         <artifactId>hibernate-validator</artifactId>
                     </exclusion>               
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.mattbertolini</groupId>
+                <artifactId>liquibase-slf4j</artifactId>
+                <version>${version.liquibase-slf4j}</version>
             </dependency>
 
             <dependency>
