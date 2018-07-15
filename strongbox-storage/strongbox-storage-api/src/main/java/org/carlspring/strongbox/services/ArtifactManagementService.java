@@ -162,7 +162,7 @@ public class ArtifactManagementService
     }
 
     private ArtifactStoreResult storeInTransaction(RepositoryPath repositoryPath,
-                                    InputStream is)
+                                                   InputStream is)
     {
         try (TempRepositoryPath tempArtifact = RepositoryFiles.temporary(repositoryPath))
         {
@@ -175,12 +175,12 @@ public class ArtifactManagementService
     }
     
     private ArtifactStoreResult storeInTemp(TempRepositoryPath repositoryPath,
-                             InputStream is)
+                                            InputStream is)
         throws IOException
     {
 
         try (// Wrap the InputStream, so we could have checksums to compare
-                final InputStream remoteIs = new MultipleDigestInputStream(is))
+             final InputStream remoteIs = new MultipleDigestInputStream(is))
         {
             return doStore(repositoryPath, remoteIs);
         }
@@ -195,7 +195,7 @@ public class ArtifactManagementService
     }
 
     private ArtifactStoreResult doStore(RepositoryPath repositoryPath,
-                      InputStream is)
+                                        InputStream is)
             throws IOException
     {
         ArtifactStoreResult result = new ArtifactStoreResult();
@@ -259,7 +259,6 @@ public class ArtifactManagementService
         {
             artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(repositoryPath);
         }
-
         
         long totalAmountOfBytes = IOUtils.copy(is, os);
 
