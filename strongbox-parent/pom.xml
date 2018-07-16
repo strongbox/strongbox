@@ -871,12 +871,12 @@
                 <scope>test</scope>
                 <exclusions>
                     <exclusion>
-                        <artifactId>hamcrest-core</artifactId>
                         <groupId>org.hamcrest</groupId>
+                        <artifactId>hamcrest-core</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>objenesis</artifactId>
                         <groupId>org.objenesis</groupId>
+                        <artifactId>objenesis</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
