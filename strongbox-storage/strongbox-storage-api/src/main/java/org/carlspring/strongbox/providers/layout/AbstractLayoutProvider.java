@@ -1,9 +1,25 @@
 package org.carlspring.strongbox.providers.layout;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.artifact.archive.ArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.Bzip2ArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.CompositeArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.TarArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.TarGzArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.ZipArchiveListingFunction;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,20 +28,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.providers.datastore.StorageProvider;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -38,6 +42,15 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractLayoutProvider.class);
+
+    private static final ArchiveListingFunction ARCHIVE_LISTING_FUNCTION = new CompositeArchiveListingFunction(
+            ImmutableSet.of(
+                ZipArchiveListingFunction.INSTANCE,
+                TarGzArchiveListingFunction.INSTANCE,
+                TarArchiveListingFunction.INSTANCE,
+                Bzip2ArchiveListingFunction.INSTANCE
+            )
+    );
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -192,4 +205,21 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                                    .toURL();
     }
 
+    @Override
+    public Set<String> listArchiveFilenames(final RepositoryPath repositoryPath)
+    {
+        if (ARCHIVE_LISTING_FUNCTION.supports(repositoryPath))
+        {
+            try
+            {
+                return ARCHIVE_LISTING_FUNCTION.listFilenames(repositoryPath);
+            }
+            catch (IOException e)
+            {
+                logger.error(String.format("Unable to list filenames in archive path %s using %s", repositoryPath,
+                                           ARCHIVE_LISTING_FUNCTION), e);
+            }
+        }
+        return Collections.emptySet();
+    }
 }
