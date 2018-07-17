@@ -30,7 +30,7 @@ public enum TarGzArchiveListingFunction
              GzipCompressorInputStream gzi = new GzipCompressorInputStream(bis);
              ArchiveInputStream ais = new TarArchiveInputStream(gzi))
         {
-            return getEntriesNames(ais);
+            return getEntryNames(ais);
         }
     }
 

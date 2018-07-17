@@ -28,7 +28,7 @@ public enum JarArchiveListingFunction
              BufferedInputStream bis = new BufferedInputStream(is);
              ArchiveInputStream ais = new JarArchiveInputStream(bis))
         {
-            return getEntriesNames(ais);
+            return getEntryNames(ais);
         }
     }
 

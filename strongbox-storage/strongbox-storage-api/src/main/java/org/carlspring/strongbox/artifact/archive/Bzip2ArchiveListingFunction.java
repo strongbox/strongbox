@@ -31,7 +31,7 @@ public enum Bzip2ArchiveListingFunction
              BZip2CompressorInputStream bzIs = new BZip2CompressorInputStream(bis);
              ArchiveInputStream tarIs = new TarArchiveInputStream(bzIs))
         {
-            return getEntriesNames(tarIs);
+            return getEntryNames(tarIs);
         }
     }
 

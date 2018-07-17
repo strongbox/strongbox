@@ -19,7 +19,7 @@ public interface ArchiveListingFunction
     Set<String> listFilenames(RepositoryPath path)
             throws IOException;
 
-    default Set<String> getEntriesNames(final ArchiveInputStream archiveInputStream)
+    default Set<String> getEntryNames(final ArchiveInputStream archiveInputStream)
             throws IOException
     {
         final Set<String> result = new HashSet<>();

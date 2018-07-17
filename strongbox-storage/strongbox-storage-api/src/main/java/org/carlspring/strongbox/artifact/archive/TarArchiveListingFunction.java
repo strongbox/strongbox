@@ -29,7 +29,7 @@ public enum TarArchiveListingFunction
              BufferedInputStream bis = new BufferedInputStream(is);
              ArchiveInputStream ais = new TarArchiveInputStream(bis))
         {
-            return getEntriesNames(ais);
+            return getEntryNames(ais);
         }
     }
 
