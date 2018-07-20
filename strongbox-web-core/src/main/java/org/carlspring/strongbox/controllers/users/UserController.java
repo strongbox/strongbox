@@ -9,6 +9,7 @@ import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -102,7 +103,9 @@ public class UserController
         List<UserOutput> users = userService.findAll()
                                             .getUsers()
                                             .stream()
-                                            .map(UserOutput::fromUser).collect(Collectors.toList());
+                                            .sorted(Comparator.comparing(User::getUsername))
+                                            .map(UserOutput::fromUser)
+                                            .collect(Collectors.toList());
 
         return getJSONListResponseEntityBody("users", users);
     }
