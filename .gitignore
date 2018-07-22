@@ -43,3 +43,9 @@ lib/*
 !strongbox-security/strongbox-authentication-registry/src/test/resources/webapp/WEB-INF/lib/strongbox-example-authentication-provider-1.0-SNAPSHOT.jar
 !strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout-provider/src/test/resources/artifacts/properties-injector-1.7.jar
 *.sh
+.idea/
+strongbox-web-core/db/
+strongbox-web-core/etc/
+strongbox-web-core/storage-booter.lock
+strongbox-web-core/storages/
+strongbox-web-core/www/

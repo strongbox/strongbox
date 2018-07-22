@@ -1,0 +1,31 @@
+package org.carlspring.strongbox;
+
+import org.carlspring.strongbox.config.ConnectionConfigOrientDB;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+/**
+ * @author carlspring
+ */
+@SpringBootApplication
+public class StrongboxSpringBootApplication
+{
+
+    private static final Logger logger = LoggerFactory.getLogger(StrongboxSpringBootApplication.class);
+
+    public static void main(String[] args)
+    {
+        if (System.getProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE) == null)
+        {
+            logger.info(String.format("OrientDB profile not set, will use [%s] profile as default",
+                                      ConnectionConfigOrientDB.PROFILE_EMBEDDED));
+            System.setProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE, ConnectionConfigOrientDB.PROFILE_EMBEDDED);
+        }
+
+        SpringApplication.run(StrongboxSpringBootApplication.class, args);
+    }
+
+}
