@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.carlspring.strongbox</groupId>
+        <artifactId>strongbox-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../../strongbox-parent</relativePath>
+    </parent>
+
+    <artifactId>strongbox-distribution</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>Strongbox: Distribution</name>
+    <description>The Strongbox distribution.</description>
+
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Carlspring Consulting &amp; Development Ltd.</name>
+        <url>http://www.carlspring.org/</url>
+    </organization>
+
+    <inceptionYear>2018</inceptionYear>
+
+    <scm>
+        <connection>scm:git:https://github.com/strongbox/strongbox-assembly.git</connection>
+        <developerConnection>scm:git:https://github.com/strongbox/strongbox-assembly.git</developerConnection>
+        <url>https://github.com/strongbox/strongbox-assembly/tree/${project.scm.tag}</url>
+        <tag>master</tag>
+    </scm>
+
+    <properties>
+        <dir.assembly>${project.build.directory}/assembly</dir.assembly>
+        <dir.strongbox.standalone>${dir.assembly}/strongbox-${project.version}</dir.strongbox.standalone>
+        <dir.jetty.etc>${dir.strongbox.standalone}/etc/jetty</dir.jetty.etc>
+        <dir.strongbox.vault>${dir.assembly}/strongbox-vault</dir.strongbox.vault>
+
+        <!-- Spring Boot properties -->
+        <main.basedir>${basedir}/../..</main.basedir>
+        <java.version>1.8</java.version>
+        <jetty.version>${version.jetty}</jetty.version>
+        <servlet-api.version>${version.servlet.api}</servlet-api.version>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>target/generated-resources/appassembler/jsw/strongbox</directory>
+                <targetPath>target/assembly/strongbox-1.0-SNAPSHOT</targetPath>
+                <includes>
+                    <include>**/**</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+
+                <executions>
+                    <execution>
+                        <id>unpack-resources-logging</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-common-resources</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${dir.strongbox.standalone}/etc</outputDirectory>
+                                    <includes>logback*xml</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-resources-etc</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-common-resources</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${dir.strongbox.standalone}</outputDirectory>
+                                    <includes>etc/**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-storage-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-common-resources</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${dir.strongbox.standalone}/etc</outputDirectory>
+                                    <includes>logback*xml</includes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-storage-api-resources</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${dir.strongbox.standalone}</outputDirectory>
+                                    <includes>etc/conf/strongbox.xml,META-INF/spring/**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-web-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-web-resources</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${dir.strongbox.standalone}</outputDirectory>
+                                    <includes>etc/**,webapp/**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-user-management-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-user-management</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${dir.strongbox.standalone}</outputDirectory>
+                                    <includes>etc/**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-web-core</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <!--
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-web-core</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${dir.strongbox.standalone}/webapp</outputDirectory>
+                                    <excludes>META-INF/MANIFEST.MF,META-INF/maven/**</excludes>
+                                    <includes>**/**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                            -->
+                            <includeArtifactIds>strongbox-*</includeArtifactIds>
+                            <excludeArtifactIds>strongbox-jetty-booter</excludeArtifactIds>
+                            <outputDirectory>${dir.strongbox.standalone}/webapp</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${version.spring.boot}</version>
+            </plugin>
+            -->
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>2.0.0</version>
+
+                <configuration>
+                    <configurationDirectory>conf</configurationDirectory>
+
+                    <repositoryLayout>flat</repositoryLayout>
+                    <assembleDirectory>target/generated-resources/appassembler/jsw/strongbox</assembleDirectory>
+
+                    <binFileExtensions>
+                        <unix>.sh</unix>
+                    </binFileExtensions>
+
+                    <configurationDirectory>etc/conf</configurationDirectory>
+
+                    <daemons>
+                        <daemon>
+                            <id>strongbox</id>
+                            <mainClass>org.carlspring.strongbox.server.StrongboxSpringBootApplication</mainClass>
+
+                            <commandLineArguments>
+                                <commandLineArgument>-Djetty.port=48080</commandLineArgument>
+                            </commandLineArguments>
+                            <platforms>
+                                <platform>jsw</platform>
+                            </platforms>
+
+                            <generatorConfigurations>
+                                <generatorConfiguration>
+                                    <generator>jsw</generator>
+                                    <configuration>
+                                        <property>
+                                            <name>wrapper.console.loglevel</name>
+                                            <value>INFO</value>
+                                        </property>
+                                        <property>
+                                            <name>wrapper.java.additional.1.stripquotes</name>
+                                            <value>TRUE</value>
+                                        </property>
+                                        <property>
+                                            <name>wrapper.logfile</name>
+                                            <value>%STRONGBOX_HOME%/logs/wrapper-YYYYMMDD.log</value>
+                                        </property>
+                                        <property>
+                                            <name>wrapper.logfile.rollmode</name>
+                                            <value>DATE</value>
+                                        </property>
+                                        <!--
+                                        <property>
+                                            <name>wrapper.app.parameter.2</name>
+                                            <value>%STRONGBOX_HOME%/conf/jetty.xml</value>
+                                        </property>
+                                        -->
+                                        <property>
+                                            <name>app.base.envvar</name>
+                                            <value>STRONGBOX_HOME</value>
+                                        </property>
+                                        <property>
+                                            <name>wrapper.on_exit.default</name>
+                                            <value>SHUTDOWN</value>
+                                        </property>
+                                        <property>
+                                            <name>wrapper.on_exit.0</name>
+                                            <value>SHUTDOWN</value>
+                                        </property>
+                                        <property>
+                                            <name>wrapper.restart.delay</name>
+                                            <value>30</value>
+                                        </property>
+                                    </configuration>
+                                    <includes>
+                                        <include>linux-x86-32</include>
+                                        <include>linux-x86-64</include>
+                                        <include>macosx-universal-32</include>
+                                        <!-- not available -->
+                                        <include>macosx-universal-64</include>
+                                        <include>solaris-x86-32</include>
+                                        <include>solaris-sparc-32</include>
+                                        <include>solaris-sparc-64</include>
+                                        <include>windows-x86-32</include>
+                                        <include>windows-x86-64</include>
+                                    </includes>
+                                </generatorConfiguration>
+                            </generatorConfigurations>
+                            <jvmSettings>
+                                <initialMemorySize>256</initialMemorySize>
+                                <maxMemorySize>1024</maxMemorySize>
+
+                                <systemProperties>
+                                    <systemProperty>appserver.home=.</systemProperty>
+                                    <systemProperty>appserver.base=%STRONGBOX_HOME%</systemProperty>
+                                    <systemProperty>ehcache.disk.store.dir=../strongbox-vault/cache</systemProperty>
+                                    <systemProperty>strongbox.home=%STRONGBOX_HOME%</systemProperty>
+                                    <systemProperty>strongbox.vault=../strongbox-vault</systemProperty>
+                                    <systemProperty>strongbox.storage.booter.basedir=../strongbox-vault/storages</systemProperty>
+                                    <systemProperty>logback.configurationFile=%STRONGBOX_HOME%/etc/${strongbox.log.file}</systemProperty>
+                                    <systemProperty>logging.config.file=%STRONGBOX_HOME%/etc/${strongbox.log.file}</systemProperty>
+                                    <systemProperty>logging.dir=../strongbox-vault/logs</systemProperty>
+                                    <systemProperty>jetty.logs=%STRONGBOX_HOME%/logs</systemProperty>
+                                    <systemProperty>java.io.tmpdir=%STRONGBOX_HOME%/tmp</systemProperty>
+                                    <systemProperty>strongbox.port=48080</systemProperty>
+                                    <systemProperty>strongbox.orientdb.port=2424</systemProperty>
+                                </systemProperties>
+                            </jvmSettings>
+                        </daemon>
+                    </daemons>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-daemons</goal>
+                            <!--<goal>assemble</goal>-->
+                        </goals>
+                        <phase>prepare-package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>config</id>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <tasks>
+                                <copy todir="${dir.strongbox.standalone}">
+                                    <fileset dir="${project.build.directory}/generated-resources/appassembler/jsw/strongbox"/>
+                                </copy>
+                                <mkdir dir="${dir.strongbox.vault}/"/>
+                                <mkdir dir="${dir.strongbox.standalone}/tmp"/>
+                                <mkdir dir="${dir.strongbox.standalone}/logs"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/distribution.xml</descriptor>
+                    </descriptors>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-jetty-booter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-web-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-cron-rest</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!--
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-webapp</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-web-resources</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>${version.jetty}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-start</artifactId>
+            <version>${version.jetty}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${version.jetty}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+            <version>${version.jetty}</version>
+        </dependency>
+        -->
+
+        <dependency>
+            <groupId>org.codehaus.mojo.appassembler</groupId>
+            <artifactId>appassembler-booter</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>log-file-default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            
+            <properties>
+                <strongbox.log.file>logback.xml</strongbox.log.file>
+            </properties>
+        </profile>
+        <profile>
+            <id>log-file-debug</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            
+            <properties>
+                <strongbox.log.file>logback-debug.xml</strongbox.log.file>
+            </properties>
+        </profile>
+        <profile>
+            <id>deploy-release-artifact-to-github</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>de.jutzig</groupId>
+                        <artifactId>github-release-plugin</artifactId>
+
+                        <configuration>
+                            <description>Strongbox distribution version ${project.version}.</description>
+                            <releaseName>${project.version}</releaseName>
+                            <tag>${project.version}</tag>
+
+                            <overwriteArtifact>true</overwriteArtifact>
+
+                            <fileSets>
+                                <fileSet>
+                                    <directory>${project.build.directory}</directory>
+                                    <includes>
+                                        <include>${project.artifactId}*.tar.gz</include>
+                                        <include>${project.artifactId}*.zip</include>
+                                    </includes>
+                                </fileSet>
+                            </fileSets>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>release</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
