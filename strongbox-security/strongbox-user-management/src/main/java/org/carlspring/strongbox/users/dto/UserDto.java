@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,6 +31,10 @@ public class UserDto
     @XmlElement(name = "role")
     @XmlElementWrapper(name = "roles")
     private Set<String> roles = new HashSet<>();
+
+    @XmlElement(name = "authority")
+    @XmlElementWrapper(name = "authorities")
+    private Set<String> authorities = new HashSet<>();
 
     @XmlElement(name = "access-model")
     private UserAccessModelDto userAccessModel;
@@ -84,6 +89,16 @@ public class UserDto
     public boolean hasRole(String role)
     {
         return roles.contains(role);
+    }
+
+    public Set<String> getAuthorities()
+    {
+        return authorities;
+    }
+
+    public void setAuthorities(Set<String> authorities)
+    {
+        this.authorities = authorities;
     }
 
     public UserAccessModelDto getUserAccessModel()

@@ -15,13 +15,17 @@ import com.google.common.collect.ImmutableSet;
  * @JsonInclude used because org.carlspring.strongbox.users.domain.User is annotated with it
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserOutput implements Serializable
+public class UserOutput
+        implements Serializable
 {
+
     private String username;
 
     private boolean enabled;
 
     private Set<String> roles;
+
+    private Set<String> authorities;
 
     private String securityTokenKey;
 
@@ -57,6 +61,16 @@ public class UserOutput implements Serializable
         this.roles = roles;
     }
 
+    public Set<String> getAuthorities()
+    {
+        return authorities;
+    }
+
+    public void setAuthorities(Set<String> authorities)
+    {
+        this.authorities = authorities;
+    }
+
     public String getSecurityTokenKey()
     {
         return securityTokenKey;
@@ -82,6 +96,7 @@ public class UserOutput implements Serializable
         final UserOutput output = new UserOutput();
         output.setEnabled(user.isEnabled());
         output.setRoles(user.getRoles());
+        output.setAuthorities(user.getAuthorities());
         output.setUsername(user.getUsername());
         output.setAccessModel(new AccessModelOutput(user.getAccessModel()));
         output.setSecurityTokenKey(user.getSecurityTokenKey());

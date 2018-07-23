@@ -48,7 +48,7 @@ public class AuthoritiesProvider
 
         Set<GrantedAuthority> authorities = new HashSet<>();
 
-        if (roleName.equals("ADMIN"))
+        if (roleName.toUpperCase().equals("ADMIN"))
         {
             authorities.addAll(fullAuthorities);
         }
