@@ -95,7 +95,8 @@ public class UserServiceImpl
                                                  .flatMap(Collection::stream)
                                                  .collect(Collectors.toCollection(HashSet::new));
 
-                if(authorities.size() > 0) {
+                if (authorities.size() > 0)
+                {
                     userDto.setAuthorities(authorities);
                     optionalUserDto = Optional.of(userDto);
                 }
