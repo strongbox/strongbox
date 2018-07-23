@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.controllers.users.UserController;
-import org.carlspring.strongbox.controllers.users.UserOutput;
+import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.dto.UserDto;

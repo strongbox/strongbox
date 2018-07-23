@@ -1,6 +1,9 @@
 package org.carlspring.strongbox.controllers.users;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.controllers.users.support.AccessModelOutput;
+import org.carlspring.strongbox.controllers.users.support.UserOutput;
+import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
 import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -34,15 +37,8 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.users.UserController.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 /**
  * @author Pablo Tirado
@@ -76,12 +72,26 @@ public class UserControllerTestIT
     {
         final String username = "admin";
 
+        // By default assignableRoles should not be present in the response.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/{name}", username)
+               .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body("username", equalTo(username));
+               .body("user.username", equalTo(username))
+               .body("assignableRoles", nullValue());
+
+        // assignableRoles should be present only if there is ?assignableRoles=true in the request.
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl() + "/{name}?assignableRoles=true", username)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("user.username", equalTo(username))
+               .body("assignableRoles", notNullValue())
+               .body("assignableRoles", hasSize(greaterThan(0)));
     }
 
     private void userNotFound(String acceptHeader)
@@ -106,6 +116,19 @@ public class UserControllerTestIT
     public void testUserNotFoundWithJsonAcceptHeader()
     {
         userNotFound(MediaType.APPLICATION_JSON_VALUE);
+    }
+
+    @Test
+    public void testGetAssignableRoles()
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl() + "/assignableRoles")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("assignableRoles", notNullValue())
+               .body("assignableRoles", hasSize(greaterThan(0)));
     }
 
     private void createUser(String username,
@@ -329,7 +352,8 @@ public class UserControllerTestIT
         setBlankPassword(MediaType.APPLICATION_JSON_VALUE);
     }
 
-    private void changeOwnUser(final String username, String acceptHeader)
+    private void changeOwnUser(final String username,
+                               String acceptHeader)
     {
         final String newPassword = "";
         UserForm user = buildUser(username, newPassword);
@@ -741,14 +765,16 @@ public class UserControllerTestIT
     // get user through REST API
     private UserOutput getUser(String username)
     {
-        return given().accept(MediaType.APPLICATION_JSON_VALUE)
-                      .param("The name of the user", username)
-                      .when()
-                      .get(getContextBaseUrl() + "/{username}", username)
-                      .then()
-                      .statusCode(HttpStatus.OK.value())
-                      .extract()
-                      .as(UserOutput.class);
+        UserResponseEntity responseEntity = given().accept(MediaType.APPLICATION_JSON_VALUE)
+                                                   .param("The name of the user", username)
+                                                   .when()
+                                                   .get(getContextBaseUrl() + "/{username}", username)
+                                                   .then()
+                                                   .statusCode(HttpStatus.OK.value())
+                                                   .extract()
+                                                   .as(UserResponseEntity.class);
+
+        return responseEntity.getUser();
     }
 
     // get user from DB/cache directly

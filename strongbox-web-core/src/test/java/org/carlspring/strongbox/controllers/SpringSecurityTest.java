@@ -52,7 +52,7 @@ public class SpringSecurityTest
 
         final String username = "admin";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/{username}", username)
                .peek() // Use peek() to print the output

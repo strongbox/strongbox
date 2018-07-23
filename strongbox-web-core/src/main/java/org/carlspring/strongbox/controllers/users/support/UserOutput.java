@@ -1,6 +1,5 @@
-package org.carlspring.strongbox.controllers.users;
+package org.carlspring.strongbox.controllers.users.support;
 
-import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
 
 import java.io.Serializable;

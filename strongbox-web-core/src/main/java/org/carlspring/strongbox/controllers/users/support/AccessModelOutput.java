@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.users;
+package org.carlspring.strongbox.controllers.users.support;
 
 import org.carlspring.strongbox.users.domain.AccessModel;
 

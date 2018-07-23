@@ -1,6 +1,12 @@
 package org.carlspring.strongbox.controllers.users;
 
+import org.carlspring.strongbox.authorization.domain.Role;
+import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.controllers.BaseController;
+import org.carlspring.strongbox.controllers.users.support.AssignableRoleResponseEntity;
+import org.carlspring.strongbox.controllers.users.support.TokenEntityBody;
+import org.carlspring.strongbox.controllers.users.support.UserOutput;
+import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
 import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.users.domain.User;
@@ -11,13 +17,10 @@ import org.carlspring.strongbox.validation.RequestBodyValidationException;
 import javax.inject.Inject;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.springframework.core.convert.ConversionService;
@@ -27,21 +30,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Pablo Tirado
@@ -87,11 +80,16 @@ public class UserController
 
     public static final String USER_UPDATE_FORBIDDEN = "Updating this account is forbidden!";
 
+    public static final String ASSIGNABLE_ROLES_LIST = "List of all assignable roles.";
+
     @Inject
     private UserService userService;
 
     @Inject
     private ConversionService conversionService;
+
+    @Inject
+    private AuthorizationConfigService authorizationConfigService;
 
     @ApiOperation(value = "Used to retrieve all users")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_USERS) })
@@ -118,9 +116,12 @@ public class UserController
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public ResponseEntity getUser(
-            @ApiParam(value = "The name of the user", required = true) @PathVariable String username,
-            @RequestHeader(HttpHeaders.ACCEPT) String accept)
+    public ResponseEntity getUser(@ApiParam(value = "The name of the user", required = true)
+                                  @PathVariable String username,
+                                  @RequestParam(value = "assignableRoles",
+                                                required = false,
+                                                defaultValue = "false") Boolean includeAssignableRoles,
+                                  @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         User user = userService.findByUserName(username);
         if (user == null)
@@ -129,9 +130,29 @@ public class UserController
         }
 
         UserOutput userOutput = UserOutput.fromUser(user);
-        Object body = getUserOutputEntityBody(userOutput, accept);
-        return ResponseEntity.ok(body);
+        UserResponseEntity responseEntity = new UserResponseEntity(userOutput);
+
+        if (includeAssignableRoles)
+        {
+            Set<Role> assignableRoles = this.authorizationConfigService.get().getRoles();
+
+            responseEntity.setAssignableRoles(assignableRoles);
+        }
+
+        return ResponseEntity.ok(responseEntity);
     }
+
+    @ApiOperation(value = "Used to retrieve all assignable user roles")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = ASSIGNABLE_ROLES_LIST) })
+    @PreAuthorize("hasAuthority('CREATE_USER') or hasAuthority('UPDATE_USER')")
+    @GetMapping(value = "assignableRoles",
+                produces = { MediaType.APPLICATION_JSON_VALUE })
+    @ResponseBody
+    public ResponseEntity getAssignableRoles()
+    {
+        return ResponseEntity.ok(new AssignableRoleResponseEntity(this.authorizationConfigService.get().getRoles()));
+    }
+
 
     @ApiOperation(value = "Used to create a new user")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_CREATE_USER),
