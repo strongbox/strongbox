@@ -80,6 +80,8 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("user.username", equalTo(username))
+               .body("user.authorities", notNullValue())
+               .body("user.authorities", hasSize(greaterThan(0)))
                .body("assignableRoles", nullValue());
 
         // assignableRoles should be present only if there is ?assignableRoles=true in the request.
@@ -90,6 +92,8 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("user.username", equalTo(username))
+               .body("user.authorities", notNullValue())
+               .body("user.authorities", hasSize(greaterThan(0)))
                .body("assignableRoles", notNullValue())
                .body("assignableRoles", hasSize(greaterThan(0)));
     }

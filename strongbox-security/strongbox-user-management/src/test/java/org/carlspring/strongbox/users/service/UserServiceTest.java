@@ -40,6 +40,17 @@ public class UserServiceTest
     }
 
     @Test
+    public void testFindByUsername()
+    {
+        // Load the user
+        User user = userService.findByUserName("developer01");
+
+        assertNotNull("Unable to find user by name developer01", user);
+        assertNotNull("User authorities were not set!", user.getAuthorities());
+        assertTrue("Expected user authorities to be grater than 0!", user.getAuthorities().size() > 0);
+    }
+
+    @Test
     public void testCreateAndDeleteUserOperations()
             throws Exception
     {

@@ -7,23 +7,23 @@ import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.dto.UsersDto;
+import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +46,9 @@ public class UserServiceImpl
 
     @Inject
     private UsersFileManager usersFileManager;
+
+    @Inject
+    private AuthoritiesProvider authoritiesProvider;
 
     /**
      * Yes, this is a state object.
@@ -79,8 +82,26 @@ public class UserServiceImpl
 
         try
         {
-            final Optional<UserDto> user = users.findByUserName(username);
-            return user.map(User::new).orElse(null);
+            Optional<UserDto> optionalUserDto = users.findByUserName(username);
+
+            if (optionalUserDto.isPresent())
+            {
+                UserDto userDto = optionalUserDto.get();
+
+                Set<String> authorities = userDto.getRoles()
+                                                 .stream()
+                                                 .map(this::getGrantedAuthorities)
+                                                 .map(this::getAuthoritiesAsString)
+                                                 .flatMap(Collection::stream)
+                                                 .collect(Collectors.toCollection(HashSet::new));
+
+                if(authorities.size() > 0) {
+                    userDto.setAuthorities(authorities);
+                    optionalUserDto = Optional.of(userDto);
+                }
+            }
+
+            return optionalUserDto.map(User::new).orElse(null);
         }
         finally
         {
@@ -302,6 +323,18 @@ public class UserServiceImpl
         {
             writeLock.unlock();
         }
+    }
+
+    private Set<GrantedAuthority> getGrantedAuthorities(String role)
+    {
+        return authoritiesProvider.getAuthoritiesByRoleName(role);
+    }
+
+    private Set<String> getAuthoritiesAsString(Set<GrantedAuthority> authorities)
+    {
+        return authorities.stream()
+                          .map(GrantedAuthority::getAuthority)
+                          .collect(Collectors.toCollection(HashSet::new));
     }
 
 }

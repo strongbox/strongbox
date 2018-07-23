@@ -26,6 +26,8 @@ public class User implements Serializable
 
     private final Set<String> roles;
 
+    private final Set<String> authorities;
+
     private final String securityTokenKey;
 
     private final AccessModel accessModel;
@@ -36,6 +38,7 @@ public class User implements Serializable
         this.password = source.getPassword();
         this.enabled = source.isEnabled();
         this.roles = immuteRoles(source.getRoles());
+        this.authorities = source.getAuthorities();
         this.securityTokenKey = source.getSecurityTokenKey();
         this.accessModel = immuteAccessModel(source.getUserAccessModel());
     }
@@ -65,6 +68,11 @@ public class User implements Serializable
         return roles;
     }
 
+    public Set<String> getAuthorities()
+    {
+        return authorities;
+    }
+
     public String getSecurityTokenKey()
     {
         return securityTokenKey;
@@ -89,6 +97,8 @@ public class User implements Serializable
           .append('\'');
         sb.append(", roles=")
           .append(roles);
+        sb.append(", authorities=")
+          .append(authorities);
         sb.append(", userAccessModel=")
           .append(accessModel);
         sb.append('}');
