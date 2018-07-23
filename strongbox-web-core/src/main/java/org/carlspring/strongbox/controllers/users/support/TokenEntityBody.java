@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.users;
+package org.carlspring.strongbox.controllers.users.support;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
