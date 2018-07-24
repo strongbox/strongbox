@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.controllers.users;
 
-import org.carlspring.strongbox.authorization.domain.Role;
 import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.controllers.users.support.AssignableRoleResponseEntity;
@@ -11,16 +10,20 @@ import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.springframework.core.convert.ConversionService;
@@ -34,7 +37,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author Pablo Tirado
@@ -70,15 +81,11 @@ public class UserController
 
     public static final String FAILED_GENERATE_SECURITY_TOKEN = "Failed to generate SecurityToken";
 
-    public static final String SUCCESSFUL_GENERATE_AUTH_TOKEN = "The authentication token was generated.";
-
     public static final String SUCCESSFUL_UPDATE_ACCESS_MODEL = "The custom access model was updated.";
 
     public static final String FAILED_UPDATE_ACCESS_MODEL = "Could not update the access model.";
 
     public static final String USER_DELETE_FORBIDDEN = "Deleting this account is forbidden!";
-
-    public static final String USER_UPDATE_FORBIDDEN = "Updating this account is forbidden!";
 
     public static final String ASSIGNABLE_ROLES_LIST = "List of all assignable roles.";
 
@@ -90,6 +97,9 @@ public class UserController
 
     @Inject
     private AuthorizationConfigService authorizationConfigService;
+
+    @Inject
+    private AuthoritiesProvider authoritiesProvider;
 
     @ApiOperation(value = "Used to retrieve all users")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_USERS) })
@@ -134,9 +144,7 @@ public class UserController
 
         if (includeAssignableRoles)
         {
-            Set<Role> assignableRoles = this.authorizationConfigService.get().getRoles();
-
-            responseEntity.setAssignableRoles(assignableRoles);
+            responseEntity.setAssignableRoles(authoritiesProvider.getAssignableRoles());
         }
 
         return ResponseEntity.ok(responseEntity);
@@ -146,13 +154,12 @@ public class UserController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ASSIGNABLE_ROLES_LIST) })
     @PreAuthorize("hasAuthority('CREATE_USER') or hasAuthority('UPDATE_USER')")
     @GetMapping(value = "assignableRoles",
-                produces = { MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity getAssignableRoles()
     {
-        return ResponseEntity.ok(new AssignableRoleResponseEntity(this.authorizationConfigService.get().getRoles()));
+        return ResponseEntity.ok(new AssignableRoleResponseEntity(authoritiesProvider.getAssignableRoles()));
     }
-
 
     @ApiOperation(value = "Used to create a new user")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_CREATE_USER),
