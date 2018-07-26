@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * @author Pablo Tirado
  */
 @Documented
-@Constraint(validatedBy = ValidAccessModelMapKeyValidator.class)
+@Constraint(validatedBy = ValidAccessModelPathValidator.class)
 @Target({ ElementType.METHOD,
           ElementType.FIELD,
           ElementType.ANNOTATION_TYPE,
@@ -16,7 +16,7 @@ import java.lang.annotation.*;
           ElementType.PARAMETER,
           ElementType.TYPE_USE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidAccessModelMapKey
+public @interface ValidAccessModelPath
 {
 
     String message();

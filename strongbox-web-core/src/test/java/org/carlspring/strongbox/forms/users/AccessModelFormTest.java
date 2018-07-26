@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.forms.users;
 
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
+import org.carlspring.strongbox.controllers.users.support.PathPrivilege;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserPathPermissionDto;
@@ -10,7 +11,7 @@ import org.carlspring.strongbox.users.dto.UserStorageDto;
 
 import java.util.Set;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.IsCollectionContaining;
@@ -29,15 +30,27 @@ public class AccessModelFormTest
     {
 
         AccessModelForm developer01AccessModel = new AccessModelForm();
-        developer01AccessModel.setWildCardPrivilegesMap(
-                ImmutableMap.of("/storages/storage0/releases/com/carlspring/foo", Privileges.r(),
-                                "/storages/storage0/releases/org/carlspring/foo", Privileges.rw()));
-        developer01AccessModel.setUrlToPrivilegesMap(
-                ImmutableMap.of("/storages/storage0/releases/com/apache/foo", Privileges.r(),
-                                "/storages/storage0/releases/org/apache/foo", Privileges.rw()));
+
+        developer01AccessModel.setWildCardPrivileges(
+            ImmutableList.of(
+                new PathPrivilege("/storages/storage0/releases/com/carlspring/foo", Privileges.r()),
+                new PathPrivilege("/storages/storage0/releases/org/carlspring/foo", Privileges.rw())
+            )
+        );
+
+        developer01AccessModel.setUrlToPrivileges(
+            ImmutableList.of(
+                new PathPrivilege("/storages/storage0/releases/com/apache/foo", Privileges.r()),
+                new PathPrivilege("/storages/storage0/releases/org/apache/foo", Privileges.rw())
+            )
+        );
+
         developer01AccessModel.setRepositoryPrivileges(
-                ImmutableMap.of("/storages/storage0/releases", ImmutableSet.of("ARTIFACTS_RESOLVE", "ARTIFACTS_DEPLOY"),
-                                "/storages/storage0/snapshots", ImmutableSet.of("ARTIFACTS_DEPLOY")));
+            ImmutableList.of(
+                new PathPrivilege("/storages/storage0/releases", ImmutableSet.of("ARTIFACTS_RESOLVE", "ARTIFACTS_DEPLOY")),
+                new PathPrivilege("/storages/storage0/snapshots", ImmutableSet.of("ARTIFACTS_DEPLOY"))
+            )
+        );
 
         UserAccessModelDto userAccessModel = developer01AccessModel.toDto();
         Assert.assertThat(userAccessModel, CoreMatchers.notNullValue());
