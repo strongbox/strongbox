@@ -2,9 +2,7 @@ package org.carlspring.strongbox.controllers.users.support;
 
 import org.carlspring.strongbox.users.domain.AccessModel;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -15,13 +13,13 @@ public class AccessModelOutput
 {
 
     @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-    private Map<String, Collection<String>> repositoryPrivileges = new LinkedHashMap<>();
+    private List<PathPrivilege> repositoryPrivileges = new ArrayList<>();
 
     @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-    private Map<String, Collection<String>> urlToPrivilegesMap = new LinkedHashMap<>();
+    private List<PathPrivilege> urlToPrivileges = new ArrayList<>();
 
     @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-    private Map<String, Collection<String>> wildCardPrivilegesMap = new LinkedHashMap<>();
+    private List<PathPrivilege> wildCardPrivileges = new ArrayList<>();
 
     public AccessModelOutput()
     {
@@ -32,24 +30,49 @@ public class AccessModelOutput
     {
         if (accessModel != null)
         {
-            repositoryPrivileges.putAll(accessModel.getRepositoryPrivileges());
-            urlToPrivilegesMap.putAll(accessModel.getUrlToPrivilegesMap());
-            wildCardPrivilegesMap.putAll(accessModel.getWildCardPrivilegesMap());
+            for (Map.Entry<String, Collection<String>> entry : accessModel.getRepositoryPrivileges().entrySet())
+            {
+                repositoryPrivileges.add(new PathPrivilege(entry.getKey(), entry.getValue()));
+            }
+
+            for (Map.Entry<String, Collection<String>> entry : accessModel.getUrlToPrivilegesMap().entrySet())
+            {
+                urlToPrivileges.add(new PathPrivilege(entry.getKey(), entry.getValue()));
+            }
+
+            for (Map.Entry<String, Collection<String>> entry : accessModel.getWildCardPrivilegesMap().entrySet())
+            {
+                wildCardPrivileges.add(new PathPrivilege(entry.getKey(), entry.getValue()));
+            }
         }
     }
 
-    public Map<String, Collection<String>> getRepositoryPrivileges()
+    public List<PathPrivilege> getRepositoryPrivileges()
     {
         return repositoryPrivileges;
     }
 
-    public Map<String, Collection<String>> getUrlToPrivilegesMap()
+    public List<PathPrivilege> getUrlToPrivileges()
     {
-        return urlToPrivilegesMap;
+        return urlToPrivileges;
     }
 
-    public Map<String, Collection<String>> getWildCardPrivilegesMap()
+    public List<PathPrivilege> getWildCardPrivileges()
     {
-        return wildCardPrivilegesMap;
+        return wildCardPrivileges;
+    }
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("AccessModelOutput {\n");
+        sb.append(" repositoryPrivileges=")
+          .append(repositoryPrivileges);
+        sb.append(",\n urlToPrivileges=")
+          .append(urlToPrivileges);
+        sb.append(",\n wildCardPrivileges=")
+          .append(wildCardPrivileges);
+        sb.append("\n}");
+        return sb.toString();
     }
 }

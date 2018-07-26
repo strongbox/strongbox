@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.validation.users;
 
+import org.carlspring.strongbox.controllers.users.support.PathPrivilege;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.util.CollectionUtils;
@@ -15,8 +16,8 @@ import org.springframework.util.CollectionUtils;
 /**
  * @author Pablo Tirado
  */
-public class ValidAccessModelMapKeyValidator
-        implements ConstraintValidator<ValidAccessModelMapKey, Map<String, Collection<String>>>
+public class ValidAccessModelPathValidator
+        implements ConstraintValidator<ValidAccessModelPath, List<PathPrivilege>>
 {
 
     private static final String KEY_PATTERN =
@@ -27,24 +28,24 @@ public class ValidAccessModelMapKeyValidator
     private CustomAntPathMatcher antPathMatcher;
 
     @Override
-    public void initialize(ValidAccessModelMapKey constraintAnnotation)
+    public void initialize(ValidAccessModelPath constraintAnnotation)
     {
         // Empty method, not used.
     }
 
     @Override
-    public boolean isValid(Map<String, Collection<String>> map,
+    public boolean isValid(List<PathPrivilege> pathAuthorities,
                            ConstraintValidatorContext context)
     {
-        if (map == null || CollectionUtils.isEmpty(map))
+        if (pathAuthorities == null || CollectionUtils.isEmpty(pathAuthorities))
         {
             return true;
         }
 
         final Map<String, String> uriTemplateVariables = new HashMap<>();
-        for (Map.Entry<String, Collection<String>> e : map.entrySet())
+        for (PathPrivilege authority : pathAuthorities)
         {
-            String key = e.getKey();
+            String key = authority.getPath();
             boolean matches = antPathMatcher.doMatch(KEY_PATTERN, key, true, uriTemplateVariables);
             if (!matches)
             {
