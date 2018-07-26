@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.controllers.users.support;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 public class PathPrivilege
+        implements Serializable
 {
 
     private String path;
