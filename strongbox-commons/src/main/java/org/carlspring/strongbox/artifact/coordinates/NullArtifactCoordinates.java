@@ -10,7 +10,7 @@ import java.util.Optional;
  */
 @Entity
 public class NullArtifactCoordinates
-        extends AbstractArtifactCoordinates<NullArtifactCoordinates, NullArtifactCoordinates>
+        extends AbstractArtifactCoordinates<NullArtifactCoordinates, NullArtifactCoordinates, NullArtifactCoordinates>
 {
 
     private static final String PATH = "path";
@@ -70,6 +70,12 @@ public class NullArtifactCoordinates
     public String toPath()
     {
         return Optional.ofNullable(getCoordinate(PATH)).orElse("");
+    }
+    
+    @Override
+    public Class<NullArtifactCoordinates> getEntityClass()
+    {
+        return NullArtifactCoordinates.class;
     }
 
     @Override

@@ -28,7 +28,7 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactLayout("maven")
 public class MavenArtifactCoordinates
-        extends AbstractArtifactCoordinates<MavenArtifactCoordinates, ComparableVersion>
+        extends AbstractArtifactCoordinates<MavenArtifactCoordinates, MavenArtifactCoordinates, ComparableVersion>
 {
 
     private static final String GROUPID = "groupId";
@@ -215,9 +215,15 @@ public class MavenArtifactCoordinates
     @Override
     public Map<String, String> dropVersion()
     {
-        Map<String, String> result = getCoordinates();
+        Map<String, String> result = super.getCoordinates();
         result.remove(VERSION);
         return result;
+    }
+    
+    @Override
+    public Class<MavenArtifactCoordinates> getEntityClass()
+    {
+        return MavenArtifactCoordinates.class;
     }
 
     @Override

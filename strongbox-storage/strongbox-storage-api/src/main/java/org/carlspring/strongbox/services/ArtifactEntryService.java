@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Sergey Bespalov
  * @author carlspring
  */
-@Transactional
 public interface ArtifactEntryService
         extends CrudService<ArtifactEntry, String>
 {

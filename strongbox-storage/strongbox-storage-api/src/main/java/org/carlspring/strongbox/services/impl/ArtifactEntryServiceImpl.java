@@ -154,7 +154,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     }
 
     @Override
-    @Transactional
     public List<ArtifactEntry> findArtifactList(String storageId,
                                                 String repositoryId,
                                                 Map<String, String> coordinates,

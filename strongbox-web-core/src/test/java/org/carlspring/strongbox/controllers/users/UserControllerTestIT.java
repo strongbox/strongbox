@@ -44,7 +44,6 @@ import static org.junit.Assert.*;
  */
 @IntegrationTest
 @RunWith(SpringRunner.class)
-@Transactional
 public class UserControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -487,7 +486,6 @@ public class UserControllerTestIT
     }
 
     @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void testGenerateSecurityToken()
     {
         String username = "test-jwt";
@@ -537,7 +535,6 @@ public class UserControllerTestIT
     }
 
     @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void testUserWithoutSecurityTokenKeyShouldNotGenerateSecurityToken()
     {
         String username = "test-jwt-key";

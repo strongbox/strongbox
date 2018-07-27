@@ -18,7 +18,6 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@Transactional
 public class PasswordEncoderControllerTest
         extends RestAssuredBaseTest
 {

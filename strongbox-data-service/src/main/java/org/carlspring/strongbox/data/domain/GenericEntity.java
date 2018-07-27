@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
  */
 @MappedSuperclass
 @Inheritance
-public abstract class GenericEntity
+public abstract class GenericEntity<T extends GenericEntity<T>>
         implements Serializable
 {
     /**
@@ -70,6 +70,8 @@ public abstract class GenericEntity
         this.uuid = uuid;
     }
 
+    public abstract Class<T> getEntityClass();
+    
     @Override
     public boolean equals(Object obj)
     {

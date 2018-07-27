@@ -34,10 +34,10 @@ public class ArtifactTagServiceImpl extends CommonCrudService<ArtifactTagEntry> 
 
         List<ArtifactTagEntry> resultList = getDelegate().command(oQuery).execute(params);
 
-        return resultList.stream().findFirst().orElseGet(() -> {
+        return resultList.stream().findFirst().map(e -> detach(e)).orElseGet(() -> {
             ArtifactTagEntry artifactTagEntry = new ArtifactTagEntry();
             artifactTagEntry.setName(name);
-            return getDelegate().detach(save(artifactTagEntry));
+            return save(artifactTagEntry);
         });
     }
 

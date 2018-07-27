@@ -19,7 +19,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 public class MockedMavenArtifactCoordinates
-        extends AbstractArtifactCoordinates<MockedMavenArtifactCoordinates, ComparableVersion>
+        extends AbstractArtifactCoordinates<MockedMavenArtifactCoordinates, MockedMavenArtifactCoordinates, ComparableVersion>
 {
 
 
@@ -228,4 +228,12 @@ public class MockedMavenArtifactCoordinates
         result.remove(VERSION);
         return result;
     }
+
+    @Override
+    public Class<MockedMavenArtifactCoordinates> getEntityClass()
+    {
+        return MockedMavenArtifactCoordinates.class;
+    }
+    
+    
 }

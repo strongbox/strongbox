@@ -26,7 +26,7 @@ import org.springframework.util.Assert;
 @XmlRootElement(name = "npmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactLayout("npm")
-public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtifactCoordinates, Version>
+public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtifactCoordinates, NpmArtifactCoordinates, Version>
 {
     public static final String NPM_VERSION_REGEX = "(\\d+)\\.(\\d+)(?:\\.)?(\\d*)(\\.|-|\\+)?([0-9A-Za-z-.]*)?";
     public static final String NPM_NAME_REGEX = "[a-z0-9][\\w-.]*";
@@ -184,6 +184,12 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         return result;
     }
 
+    @Override
+    public Class<NpmArtifactCoordinates> getEntityClass()
+    {
+        return NpmArtifactCoordinates.class;
+    }
+    
     public static NpmArtifactCoordinates parse(String path)
     {
         Matcher matcher = NPM_PATH_PATTERN.matcher(path);

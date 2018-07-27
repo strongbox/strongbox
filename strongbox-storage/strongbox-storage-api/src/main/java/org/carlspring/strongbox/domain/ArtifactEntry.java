@@ -21,7 +21,7 @@ import java.util.Set;
  */
 @Entity
 public class ArtifactEntry
-        extends GenericEntity
+        extends GenericEntity<ArtifactEntry>
 {
 
     private String storageId;
@@ -163,6 +163,11 @@ public class ArtifactEntry
                        .orElseThrow(() -> new IllegalStateException("ArtifactCoordinates required to be set."));
     }
 
+    @Override
+    public Class<ArtifactEntry> getEntityClass()
+    {
+        return ArtifactEntry.class;
+    }
 
     @Override
     public String toString()

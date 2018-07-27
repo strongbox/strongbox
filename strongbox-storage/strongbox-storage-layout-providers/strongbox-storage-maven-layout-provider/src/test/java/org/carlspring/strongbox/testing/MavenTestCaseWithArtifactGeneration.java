@@ -46,10 +46,12 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author mtodorov
  */
+@Transactional
 public class MavenTestCaseWithArtifactGeneration
         extends TestCaseWithRepositoryManagement
 {

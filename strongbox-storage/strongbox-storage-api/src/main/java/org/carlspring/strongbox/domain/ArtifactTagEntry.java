@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Entity
 public class ArtifactTagEntry
-        extends GenericEntity
+        extends GenericEntity<ArtifactTagEntry>
         implements ArtifactTag
 {
 
@@ -27,6 +27,12 @@ public class ArtifactTagEntry
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    @Override
+    public Class<ArtifactTagEntry> getEntityClass()
+    {
+        return ArtifactTagEntry.class;
     }
 
     @Override

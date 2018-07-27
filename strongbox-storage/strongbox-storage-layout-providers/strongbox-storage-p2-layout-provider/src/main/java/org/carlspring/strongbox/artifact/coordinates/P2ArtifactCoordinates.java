@@ -15,7 +15,7 @@ import javax.persistence.Entity;
 @Entity
 @ArtifactLayout("p2")
 public class P2ArtifactCoordinates
-        extends AbstractArtifactCoordinates<P2ArtifactCoordinates, P2ArtifactCoordinates>
+        extends AbstractArtifactCoordinates<P2ArtifactCoordinates, P2ArtifactCoordinates, P2ArtifactCoordinates>
 {
 
     public static final String ID = "id";
@@ -161,6 +161,12 @@ public class P2ArtifactCoordinates
         Map<String, String> result = getCoordinates();
         result.remove(VERSION);
         return result;
+    }
+
+    @Override
+    public Class<P2ArtifactCoordinates> getEntityClass()
+    {
+        return P2ArtifactCoordinates.class;
     }
     
 }

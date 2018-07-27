@@ -151,7 +151,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
         }
         
         String sQuery = String.format("SELECT @rid AS objectId FROM %s WHERE uuid = :uuid",
-                                      entity.getClass().getSimpleName());
+                                      entity.getEntityClass().getSimpleName());
 
         OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);
@@ -175,7 +175,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
     @Override
     public <S extends T> S save(S entity)
     {
-        return cascadeEntitySave(entity);
+        return (S) detach(cascadeEntitySave(entity));
     }
 
     @Override
@@ -187,7 +187,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
 
         List<T> resultList = getDelegate().command(oQuery).execute();
         
-        return !resultList.isEmpty() ? resultList.iterator().next() : null;
+        return !resultList.isEmpty() ? detach(resultList.iterator().next()) : null;
     }
 
     @Override

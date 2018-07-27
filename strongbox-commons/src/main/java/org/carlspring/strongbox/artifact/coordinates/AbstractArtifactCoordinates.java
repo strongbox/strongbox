@@ -10,8 +10,8 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
 /**
  * @author carlspring
  */
-public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoordinates<C, V>, V extends Comparable<V>>
-        extends GenericEntity
+public abstract class AbstractArtifactCoordinates<T extends AbstractArtifactCoordinates<T,C,V>, C extends AbstractArtifactCoordinates<T, C, V>, V extends Comparable<V>>
+        extends GenericEntity<T>
         implements ArtifactCoordinates<C, V>
 {
 

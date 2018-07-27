@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * @author carlspring
  */
-public class ArtifactDependency extends GenericEntity
+public abstract class ArtifactDependency<T extends ArtifactDependency<T>> extends GenericEntity<T>
         implements Serializable
 {
 

@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactLayout("nuget")
 public class NugetArtifactCoordinates
-        extends AbstractArtifactCoordinates<NugetArtifactCoordinates, Version>
+        extends AbstractArtifactCoordinates<NugetArtifactCoordinates, NugetArtifactCoordinates, Version>
 {
     public static final String ID = "id";
     public static final String VERSION = "version";
@@ -127,7 +127,13 @@ public class NugetArtifactCoordinates
         result.remove(VERSION);
         return result;
     }
-    
+
+    @Override
+    public Class<NugetArtifactCoordinates> getEntityClass()
+    {
+        return NugetArtifactCoordinates.class;
+    }
+
     public static NugetArtifactCoordinates parse(String path)
     {
         Matcher matcher = NUGET_PACKAGE_REGEXP.matcher(path);
