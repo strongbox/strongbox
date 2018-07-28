@@ -49,6 +49,11 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>org.carlspring.strongbox</groupId>
+            <artifactId>strongbox-data-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--
         <dependency>
             <groupId>org.eclipse.jetty</groupId>

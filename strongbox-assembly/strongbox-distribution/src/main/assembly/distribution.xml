@@ -1,4 +1,4 @@
-q<assembly>
+<assembly>
     <id>distribution</id>
 
     <formats>
@@ -19,6 +19,7 @@ q<assembly>
         <fileSet>
             <directory>target/assembly/strongbox-${project.version}/logs</directory>
             <outputDirectory>strongbox-${project.version}/logs</outputDirectory>
+            <fileMode>0744</fileMode>
         </fileSet>
         <fileSet>
             <directory>target/assembly/strongbox-${project.version}/bin</directory>
@@ -58,6 +59,11 @@ q<assembly>
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
+            <directory>target/assembly/strongbox-${project.version}/tmp</directory>
+            <outputDirectory>strongbox-${project.version}/tmp</outputDirectory>
+            <fileMode>0744</fileMode>
+        </fileSet>
+        <fileSet>
             <directory>target/assembly/strongbox-${project.version}/webapp</directory>
             <outputDirectory>strongbox-${project.version}/webapp</outputDirectory>
             <includes>
@@ -67,6 +73,7 @@ q<assembly>
         <fileSet>
             <directory>target/assembly/strongbox-vault</directory>
             <outputDirectory>strongbox-vault</outputDirectory>
+            <fileMode>0755</fileMode>
             <includes>
                 <include>**/*</include>
             </includes>

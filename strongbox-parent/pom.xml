@@ -100,7 +100,7 @@
     </properties>
 
     <build>
-        <pluginManagement>
+            <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -213,7 +213,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.9</version>
+                    <version>3.1.1</version>
                 </plugin>
 
                 <plugin>

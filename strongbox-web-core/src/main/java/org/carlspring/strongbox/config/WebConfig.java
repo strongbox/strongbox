@@ -72,6 +72,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
           StorageCoreConfig.class,
           UsersConfig.class,
           SecurityConfig.class,
+          ServletConfig.class,
           ClientConfig.class,
           CronTasksConfig.class })
 @EnableCaching(order = 105)
