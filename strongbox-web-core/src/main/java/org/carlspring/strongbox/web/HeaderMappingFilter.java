@@ -62,7 +62,7 @@ public class HeaderMappingFilter
     private static final String USER_AGENT_MAVEN = "Maven";
     private static final String USER_AGENT_NPM = "npm";
     private static final String USER_AGENT_RAW = "Raw";
-    
+
     private Map<String, String> userAgentMap = new HashMap<>();
     private Map<String, String> layoutMap = new HashMap<>();
 
@@ -86,7 +86,7 @@ public class HeaderMappingFilter
         userAgentMap.put(USER_AGENT_MAVEN, String.format(format, USER_AGENT_MAVEN));
         userAgentMap.put(USER_AGENT_NPM, String.format(format, USER_AGENT_NPM));
         userAgentMap.put(USER_AGENT_RAW, String.format(format, USER_AGENT_RAW));
-        
+
         layoutMap.put(NugetLayoutProvider.ALIAS, String.format(format, USER_AGENT_NUGET));
         layoutMap.put(Maven2LayoutProvider.ALIAS, String.format(format, USER_AGENT_MAVEN));
         layoutMap.put(NpmLayoutProvider.ALIAS, String.format(format, USER_AGENT_NPM));
@@ -103,12 +103,12 @@ public class HeaderMappingFilter
         String layout;
         try
         {
-            layout = getRequestedLayout(((HttpServletRequest) request).getPathInfo());
+            layout = getRequestedLayout(((HttpServletRequest) request).getServletPath());
         }
         catch (IllegalArgumentException e)
         {
             ((HttpServletResponse)response).setStatus(404);
-            ((HttpServletResponse)response).getWriter().append(e.getMessage());
+            response.getWriter().append(e.getMessage());
             return;
         }
 
@@ -118,13 +118,13 @@ public class HeaderMappingFilter
         chain.doFilter(targetRequest, response);
     }
 
-    private String getRequestedLayout(String pathInfo)
+    private String getRequestedLayout(String servletPath)
     {
-        if (!pathInfo.startsWith("/storages"))
+        if (!servletPath.startsWith("/storages"))
         {
             return null;
         }
-        String[] pathParts = pathInfo.split("/");
+        String[] pathParts = servletPath.split("/");
         if (pathParts.length < 4)
         {
             return null;
@@ -138,7 +138,7 @@ public class HeaderMappingFilter
         {
             throw new IllegalArgumentException(String.format("Storage not found [%s]", storageId));
         }
-        
+
         Repository repository = storage.getRepository(repositoryId);
         if (repository == null)
         {

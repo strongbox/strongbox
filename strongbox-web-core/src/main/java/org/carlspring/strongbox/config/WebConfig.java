@@ -62,6 +62,7 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
           StorageCoreConfig.class,
           UsersConfig.class,
           SecurityConfig.class,
+          ServletConfig.class,
           ClientConfig.class,
           CronTasksConfig.class })
 @EnableCaching(order = 105)
