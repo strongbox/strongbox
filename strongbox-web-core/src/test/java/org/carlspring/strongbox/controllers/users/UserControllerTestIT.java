@@ -9,6 +9,7 @@ import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.Privileges;
+import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 
@@ -408,7 +409,7 @@ public class UserControllerTestIT
 
         User updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("admin")));
+        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(Roles.ADMIN.name())));
 
         admin.setRoles(ImmutableSet.of("UI_MANAGER"));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -428,7 +429,7 @@ public class UserControllerTestIT
         assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("UI_MANAGER")));
 
         // Rollback changes.
-        admin.setRoles(ImmutableSet.of("admin"));
+        admin.setRoles(ImmutableSet.of(Roles.ADMIN.name()));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(admin)
