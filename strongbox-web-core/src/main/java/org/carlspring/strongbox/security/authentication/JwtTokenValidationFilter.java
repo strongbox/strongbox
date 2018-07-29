@@ -14,6 +14,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -74,8 +75,7 @@ public class JwtTokenValidationFilter
         try
         {
             username = securityTokenProvider.getSubject(token);
-            String password = securityTokenProvider.getPassword(token);
-            securityTokenProvider.verifyToken(token, username, securityTokenProvider.passwordClaimMap(password));
+            securityTokenProvider.verifyToken(token, username, Collections.emptyMap());
         }
         catch (SecurityTokenExpiredException ex)
         {

@@ -9,11 +9,13 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
+@Order(2)
 class JWTAuthenticationSupplier
         implements AuthenticationSupplier, JwtTokenFetcher
 {
@@ -33,7 +35,6 @@ class JWTAuthenticationSupplier
 
         final String token = optToken.get();
         String username = securityTokenProvider.getSubject(token);
-        String password = securityTokenProvider.getPassword(token);
-        return new UsernamePasswordAuthenticationToken(username, password);
+        return new UsernamePasswordAuthenticationToken(username, null);
     }
 }

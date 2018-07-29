@@ -6,7 +6,6 @@ import org.carlspring.strongbox.security.exceptions.SecurityTokenExpiredExceptio
 import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 import java.security.Key;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.jose4j.jws.AlgorithmIdentifiers;
@@ -31,9 +30,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityTokenProvider
 {
-
-    private static final String PASSWORD_CLAIM_MAP_KEY = "credentials";
-
     private static final String MESSAGE_INVALID_JWT = "Invalid JWT: value-[%s]";
     /**
      * Secret key which is used to encode and verify tokens.<br>
@@ -90,19 +86,6 @@ public class SecurityTokenProvider
         jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.HMAC_SHA256);
 
         return jws.getCompactSerialization();
-    }
-
-    public String getPassword(String token)
-    {
-        JwtClaims jwtClaims = getClaims(token);
-        return (String) jwtClaims.getClaimValue(PASSWORD_CLAIM_MAP_KEY);
-    }
-
-    public Map<String, String> passwordClaimMap(String password)
-    {
-        Map<String, String> claimMap = new HashMap<>();
-        claimMap.put(PASSWORD_CLAIM_MAP_KEY, password);
-        return claimMap;
     }
 
     public String getSubject(String token)

@@ -12,7 +12,13 @@ import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -132,12 +138,7 @@ public class UserServiceImpl
                                               final Integer expireMinutes)
             throws JoseException
     {
-        final User user = findByUserName(username);
-
-        final Map<String, String> claimMap = new HashMap<>();
-        claimMap.put("credentials", user.getPassword());
-
-        return tokenProvider.getToken(username, claimMap, expireMinutes);
+        return tokenProvider.getToken(username, Collections.emptyMap(), expireMinutes);
     }
 
     @Override

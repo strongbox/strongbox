@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ import org.springframework.util.Assert;
  * @author Przemyslaw Fusik
  */
 @Component
+@Order(4)
 class BasicAuthenticationSupplier
         implements AuthenticationSupplier
 {
