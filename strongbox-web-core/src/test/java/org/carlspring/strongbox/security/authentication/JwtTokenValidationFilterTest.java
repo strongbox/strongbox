@@ -7,6 +7,8 @@ import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.Collections;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -75,7 +77,7 @@ public class JwtTokenValidationFilterTest
             throws Exception
     {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        String token = securityTokenProvider.getToken("przemyslaw", securityTokenProvider.passwordClaimMap("fusik"), 0);
+        String token = securityTokenProvider.getToken("przemyslaw", Collections.emptyMap(), 0);
         request.addHeader("Authorization", "Bearer " + token);
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = mock(MockFilterChain.class);
@@ -96,8 +98,7 @@ public class JwtTokenValidationFilterTest
             throws Exception
     {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        String token = securityTokenProvider.getToken("przemyslaw", securityTokenProvider.passwordClaimMap("fusik"),
-                                                      60);
+        String token = securityTokenProvider.getToken("przemyslaw", Collections.emptyMap(), 60);
         request.addHeader("Authorization", "Bearer " + token);
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = mock(MockFilterChain.class);

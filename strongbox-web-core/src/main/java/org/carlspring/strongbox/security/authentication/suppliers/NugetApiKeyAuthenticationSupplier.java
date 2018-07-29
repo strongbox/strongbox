@@ -11,6 +11,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
+@Order(3)
 public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
 {
 

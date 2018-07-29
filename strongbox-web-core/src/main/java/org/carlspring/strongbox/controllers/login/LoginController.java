@@ -6,6 +6,8 @@ import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
 import javax.inject.Inject;
 
+import java.util.Collections;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -81,8 +83,7 @@ public class LoginController
                 subject = principal.toString();
             }
             token = securityTokenProvider.getToken(subject,
-                                                   securityTokenProvider.passwordClaimMap(
-                                                           authentication.getCredentials().toString()),
+                                                   Collections.emptyMap(),
                                                    configurationManagementService.getConfiguration().getSessionConfiguration().getTimeoutSeconds());
         }
         catch (JoseException e)
