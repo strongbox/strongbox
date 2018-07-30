@@ -8,6 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 
 /**
  * @author Przemyslaw Fusik
@@ -29,7 +30,13 @@ public class AuthenticationSuppliers
     @Override
     public Authentication supply(@Nonnull HttpServletRequest request)
     {
-        Authentication authentication = null;
+        if (suppliers == null || suppliers.isEmpty())
+        {
+            logger.debug(String.format("There was no any [%s] provided.", AuthenticationSupplier.class));
+            
+            return null;
+        }
+
         for (final AuthenticationSupplier supplier : suppliers)
         {
             final String supplierName = supplier.getClass()
@@ -43,17 +50,25 @@ public class AuthenticationSuppliers
             }
 
             logger.debug("Authentication supplier attempt using {}", supplierName);
-            authentication = supplier.supply(request);
-
-            if (authentication == null)
+            Authentication authentication;
+            try
             {
-                logger.debug("Unable to get an authentication instance using {}", supplierName);
+                authentication = supplier.supply(request);
+            }
+            catch (AuthenticationException e)
+            {
                 continue;
             }
 
-            logger.debug("Authentication supplied by {}", supplierName);
-            break;
+            if (authentication != null)
+            {
+                logger.debug("Authentication supplied by {}", supplierName);
+                
+                return authentication;
+            }
         }
-        return authentication;
+        
+        return null;
     }
+    
 }

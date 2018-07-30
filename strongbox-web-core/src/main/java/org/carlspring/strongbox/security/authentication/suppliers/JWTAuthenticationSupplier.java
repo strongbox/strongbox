@@ -1,23 +1,22 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
-import org.carlspring.strongbox.security.authentication.JwtTokenFetcher;
-import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import java.util.Optional;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
 
+import org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthentication;
+import org.carlspring.strongbox.security.authentication.JwtTokenFetcher;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
 @Order(2)
-class JWTAuthenticationSupplier
-        implements AuthenticationSupplier, JwtTokenFetcher
+class JWTAuthenticationSupplier implements AuthenticationSupplier, JwtTokenFetcher
 {
 
     @Inject
@@ -35,6 +34,21 @@ class JWTAuthenticationSupplier
 
         final String token = optToken.get();
         String username = securityTokenProvider.getSubject(token);
-        return new UsernamePasswordAuthenticationToken(username, null);
+
+        return new JwtAuthentication(username, token);
     }
+
+    @Override
+    public boolean supports(HttpServletRequest request)
+    {
+        String authHeader = request.getHeader(AUTHORIZATION_HEADER);
+
+        if (authHeader != null && authHeader.startsWith(BEARER_AUTHORIZATION_PREFIX))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
 }

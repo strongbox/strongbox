@@ -128,7 +128,7 @@ public class UserServiceImpl
         }
 
         final Map<String, String> claimMap = new HashMap<>();
-        claimMap.put("security-token-key", user.getSecurityTokenKey());
+        claimMap.put(User.SECURITY_TOKEN_KEY, user.getSecurityTokenKey());
 
         return tokenProvider.getToken(username, claimMap, null);
     }
