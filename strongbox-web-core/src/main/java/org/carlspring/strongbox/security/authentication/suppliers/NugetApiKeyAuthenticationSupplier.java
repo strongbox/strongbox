@@ -91,7 +91,7 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
         while (headerNames.hasMoreElements())
         {
             String headerName = (String) headerNames.nextElement();
-            if (!HEADER_NUGET_APIKEY.equals(headerName))
+            if (!HEADER_NUGET_APIKEY.equalsIgnoreCase(headerName))
             {
                 continue;
             }
