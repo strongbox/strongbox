@@ -8,7 +8,7 @@
     <baseUrl>http://localhost:48080/</baseUrl>
     <port>48080</port>
 
-    <session-configuration timeout-seconds="30" />
+    <session-configuration timeout-seconds="3600" />
 
     <remote-repositories-configuration check-interval-seconds="60" heartbeat-threads-number="5">
         <retry-artifact-download-configuration timeout-seconds="60"
