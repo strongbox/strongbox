@@ -5,7 +5,6 @@ import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.security.CustomAccessDeniedHandler;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
-import org.carlspring.strongbox.security.authentication.JwtTokenValidationFilter;
 import org.carlspring.strongbox.security.authentication.StrongboxAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSupplier;
 import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSuppliers;
@@ -14,6 +13,8 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 
 import javax.inject.Inject;
+import javax.inject.Qualifier;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
@@ -78,9 +80,8 @@ public class SecurityConfig
     protected void configure(HttpSecurity http)
             throws Exception
     {
-        http.addFilterBefore(strongboxAuthenticationFilter(),
-                             BasicAuthenticationFilter.class)
-            .addFilterBefore(jwtTokenValidationFilter(), StrongboxAuthenticationFilter.class)
+        http.addFilterAfter(strongboxAuthenticationFilter(),
+                            BasicAuthenticationFilter.class)
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
@@ -145,21 +146,16 @@ public class SecurityConfig
     }
 
     @Bean
+    @UnauthorizedEntyPoint
     AuthenticationEntryPoint customBasicAuthenticationEntryPoint()
     {
-        return new Http401AuthenticationEntryPoint("Strongbox Repository Manager");
+        return new Http401AuthenticationEntryPoint();
     }
 
     @Bean
     StrongboxAuthenticationFilter strongboxAuthenticationFilter()
     {
         return new StrongboxAuthenticationFilter(new AuthenticationSuppliers(suppliers), authenticatorsRegistry);
-    }
-
-    @Bean
-    JwtTokenValidationFilter jwtTokenValidationFilter()
-    {
-        return new JwtTokenValidationFilter();
     }
 
     @Bean
@@ -206,4 +202,9 @@ public class SecurityConfig
         
     }
 
+    @Qualifier
+    public static @interface UnauthorizedEntyPoint
+    {
+
+    }
 }

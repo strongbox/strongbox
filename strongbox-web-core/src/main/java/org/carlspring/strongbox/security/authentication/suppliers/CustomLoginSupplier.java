@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
+import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthentication;
 import org.carlspring.strongbox.controllers.login.LoginController;
 import org.carlspring.strongbox.controllers.login.LoginInput;
 
@@ -13,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -46,7 +46,7 @@ public class CustomLoginSupplier implements AuthenticationSupplier
             return null;
         }
 
-        return new UsernamePasswordAuthenticationToken(loginInput.getUsername(), loginInput.getPassword());
+        return new PasswordAuthentication(loginInput.getUsername(), loginInput.getPassword());
     }
 
     @Override

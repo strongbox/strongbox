@@ -55,7 +55,7 @@ public class PasswordAuthenticator extends DaoAuthenticationProvider
     @Override
     public boolean supports(Class<?> authentication)
     {
-        return UsernamePasswordAuthenticationToken.class == authentication;
+        return PasswordAuthentication.class.isAssignableFrom(authentication);
     }
 
     @Override

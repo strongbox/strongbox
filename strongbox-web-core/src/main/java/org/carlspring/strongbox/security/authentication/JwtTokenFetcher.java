@@ -17,6 +17,8 @@ public interface JwtTokenFetcher
     Logger logger = LoggerFactory.getLogger(JwtTokenFetcher.class);
 
     String AUTHORIZATION_HEADER = "Authorization";
+    
+    String BEARER_AUTHORIZATION_PREFIX = "Bearer";
 
     Pattern BEARER_PATTERN = Pattern.compile("Bearer (.*)");
 
