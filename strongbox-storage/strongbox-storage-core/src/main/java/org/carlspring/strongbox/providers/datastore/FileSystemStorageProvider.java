@@ -21,7 +21,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
 
     private static final Logger logger = LoggerFactory.getLogger(FileSystemStorageProvider.class);
 
-    public static final String ALIAS = "file-system";
+    public static final String ALIAS = StorageProviderEnum.FILESYSTEM.describe();
 
 
     @Inject

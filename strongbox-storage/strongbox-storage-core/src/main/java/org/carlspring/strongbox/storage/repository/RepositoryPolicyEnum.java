@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.storage.repository;
 
+import org.carlspring.strongbox.api.Describable;
+
 import java.util.stream.Stream;
 
 /**
  * @author mtodorov
  */
-public enum RepositoryPolicyEnum
+public enum RepositoryPolicyEnum implements Describable
 {
 
     RELEASE("release", true, false),
@@ -59,4 +61,9 @@ public enum RepositoryPolicyEnum
         return policy;
     }
 
+    @Override
+    public String describe()
+    {
+        return getPolicy();
+    }
 }

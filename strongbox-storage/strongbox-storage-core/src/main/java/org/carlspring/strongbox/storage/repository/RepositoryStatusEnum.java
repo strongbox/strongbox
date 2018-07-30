@@ -1,9 +1,11 @@
 package org.carlspring.strongbox.storage.repository;
 
+import org.carlspring.strongbox.api.Describable;
+
 /**
  * @author mtodorov
  */
-public enum RepositoryStatusEnum
+public enum RepositoryStatusEnum implements Describable
 {
 
     IN_SERVICE("In Service"),
@@ -28,4 +30,9 @@ public enum RepositoryStatusEnum
         this.status = status;
     }
 
+    @Override
+    public String describe()
+    {
+        return getStatus();
+    }
 }

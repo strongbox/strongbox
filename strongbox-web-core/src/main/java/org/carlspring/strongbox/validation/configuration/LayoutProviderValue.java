@@ -12,11 +12,13 @@ import java.lang.annotation.Target;
  * @author Przemyslaw Fusik
  */
 @Documented
-@Constraint(validatedBy = RepositoryPolicyValueValidator.class)
+@Constraint(validatedBy = LayoutProviderValueValidator.class)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RepositoryPolicyValue
+public @interface LayoutProviderValue
 {
+
+    boolean allowNull() default true;
 
     String message();
 

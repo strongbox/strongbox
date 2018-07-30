@@ -1,11 +1,16 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.RepositoryForm;
+import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -15,7 +20,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
-import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationControllerTestIT.createProxyConfiguration;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -28,19 +32,37 @@ public class StoragesConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
+    static ProxyConfigurationForm createProxyConfiguration()
+    {
+        ProxyConfigurationForm proxyConfiguration = new ProxyConfigurationForm();
+        proxyConfiguration.setHost("localhost");
+        proxyConfiguration.setPort(8080);
+        proxyConfiguration.setUsername("user1");
+        proxyConfiguration.setPassword("pass2");
+        proxyConfiguration.setType("http");
+        List<String> nonProxyHosts = Lists.newArrayList();
+        nonProxyHosts.add("localhost");
+        nonProxyHosts.add("some-hosts.com");
+        proxyConfiguration.setNonProxyHosts(nonProxyHosts);
+
+        return proxyConfiguration;
+    }
+
     @Test
     public void testAddGetStorage()
     {
         String storageId = "storage1";
 
-        MutableStorage storage1 = new MutableStorage("storage1");
+        StorageForm storage1 = new StorageForm();
+        storage1.setId("storage1");
 
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages";
 
         logger.debug("Using storage class " + storage1.getClass()
                                                       .getName());
 
-        given().contentType(MediaType.APPLICATION_XML_VALUE)
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(storage1)
                .when()
                .put(url)
@@ -48,21 +70,21 @@ public class StoragesConfigurationControllerTestIT
                .then()
                .statusCode(200);
 
-        MutableRepository r1 = new MutableRepository("repository0");
+        RepositoryForm r1 = new RepositoryForm();
+        r1.setId("repository0");
         r1.setAllowsRedeployment(true);
         r1.setSecured(true);
-        r1.setStorage(storage1);
         r1.setLayout(Maven2LayoutProvider.ALIAS);
 
-        MutableRepository r2 = new MutableRepository("repository1");
+        RepositoryForm r2 = new RepositoryForm();
+        r2.setId("repository1");
         r2.setAllowsForceDeletion(true);
         r2.setTrashEnabled(true);
-        r2.setStorage(storage1);
         r2.setProxyConfiguration(createProxyConfiguration());
         r2.setLayout(Maven2LayoutProvider.ALIAS);
 
-        addRepository(r1);
-        addRepository(r2);
+        addRepository(r1, storage1);
+        addRepository(r2, storage1);
 
         MutableStorage storage = getStorage(storageId);
 
@@ -98,7 +120,8 @@ public class StoragesConfigurationControllerTestIT
                       .as(MutableStorage.class);
     }
 
-    private int addRepository(MutableRepository repository)
+    private int addRepository(RepositoryForm repository,
+                              final StorageForm storage)
     {
         String url;
         if (repository == null)
@@ -109,7 +132,7 @@ public class StoragesConfigurationControllerTestIT
                                                "Unable to add non-existing repository.");
         }
 
-        if (repository.getStorage() == null)
+        if (storage == null)
         {
             logger.error("Storage associated with repo is null.");
 
@@ -119,7 +142,7 @@ public class StoragesConfigurationControllerTestIT
 
         try
         {
-            url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + repository.getStorage().getId() +
+            url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storage.getId() +
                   "/" +
                   repository.getId();
         }
@@ -130,7 +153,8 @@ public class StoragesConfigurationControllerTestIT
             throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        int status = given().contentType(MediaType.APPLICATION_XML_VALUE)
+        int status = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                            .accept(MediaType.APPLICATION_JSON_VALUE)
                             .body(repository)
                             .when()
                             .put(url)
@@ -163,11 +187,13 @@ public class StoragesConfigurationControllerTestIT
         final String repositoryId1 = "repository0";
         final String repositoryId2 = "repository1";
 
-        MutableStorage storage2 = new MutableStorage(storageId);
+        StorageForm storage2 = new StorageForm();
+        storage2.setId(storageId);
 
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages";
 
-        given().contentType(MediaType.APPLICATION_XML_VALUE)
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(storage2)
                .when()
                .put(url)
@@ -175,21 +201,21 @@ public class StoragesConfigurationControllerTestIT
                .then()
                .statusCode(200);
 
-        MutableRepository r1 = new MutableRepository(repositoryId1);
+        RepositoryForm r1 = new RepositoryForm();
+        r1.setId(repositoryId1);
         r1.setAllowsRedeployment(true);
         r1.setSecured(true);
-        r1.setStorage(storage2);
         r1.setProxyConfiguration(createProxyConfiguration());
         r1.setLayout(Maven2LayoutProvider.ALIAS);
 
-        MutableRepository r2 = new MutableRepository(repositoryId2);
+        RepositoryForm r2 = new RepositoryForm();
+        r2.setId(repositoryId2);
         r2.setAllowsRedeployment(true);
         r2.setSecured(true);
-        r2.setStorage(storage2);
         r2.setLayout(Maven2LayoutProvider.ALIAS);
 
-        addRepository(r1);
-        addRepository(r2);
+        addRepository(r1, storage2);
+        addRepository(r2, storage2);
 
         url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration";
 
