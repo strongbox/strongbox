@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -24,10 +25,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Order(1)
-public class CustomLoginSupplier implements AuthenticationSupplier
+public class JsonFormLoginSupplier implements AuthenticationSupplier
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(CustomLoginSupplier.class);
+    private static final Logger logger = LoggerFactory.getLogger(JsonFormLoginSupplier.class);
 
     @Inject
     private ObjectMapper objectMapper;
@@ -42,8 +43,7 @@ public class CustomLoginSupplier implements AuthenticationSupplier
         }
         catch (IOException e)
         {
-            logger.error(e.getMessage() ,e);
-            return null;
+            throw new BadCredentialsException("invalid.credentials");
         }
 
         return new PasswordAuthentication(loginInput.getUsername(), loginInput.getPassword());
@@ -54,7 +54,7 @@ public class CustomLoginSupplier implements AuthenticationSupplier
     {
         return "POST".equalsIgnoreCase(request.getMethod()) &&
                request.getContentType()!=null &&
-               request.getContentType().startsWith(MediaType.APPLICATION_JSON_VALUE) &&
+               request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE) &&
                LoginController.REQUEST_MAPPING.equals(request.getRequestURI());
     }
 }

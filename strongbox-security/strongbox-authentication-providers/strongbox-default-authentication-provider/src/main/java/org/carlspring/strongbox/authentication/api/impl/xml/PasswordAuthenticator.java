@@ -10,6 +10,7 @@ import org.carlspring.strongbox.users.userdetails.StrongboxUserDetailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
@@ -66,8 +67,11 @@ public class PasswordAuthenticator extends DaoAuthenticationProvider
         UsernamePasswordAuthenticationToken cachedAuthentication = authenticationCache.getAuthenticationToken(userDetails.getUsername());
 
         if (Optional.ofNullable(cachedAuthentication)
-                    .filter(c -> authenticationCache.matches(authentication.getCredentials().toString(),
-                                                             c.getCredentials().toString()))
+                    .filter(c -> authentication.getCredentials() != null && c.getCredentials() != null)
+                    .filter(c -> authenticationCache.matches(authentication.getCredentials()
+                                                                           .toString(),
+                                                             c.getCredentials()
+                                                              .toString()))
                     .isPresent())
 
         {
@@ -76,7 +80,14 @@ public class PasswordAuthenticator extends DaoAuthenticationProvider
             return;
         }
 
-        super.additionalAuthenticationChecks(userDetails, authentication);
+        try
+        {
+            super.additionalAuthenticationChecks(userDetails, authentication);
+        }
+        catch (BadCredentialsException e)
+        {
+            throw new BadCredentialsException("invalid.credentials");
+        }
 
         authenticationCache.putAuthenticationToken(authentication);
     }

@@ -12,6 +12,7 @@ import org.carlspring.strongbox.converters.users.UserFormToUserDtoConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.HeaderMappingFilter;
+import org.codehaus.groovy.tools.shell.util.MessageSource;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -30,6 +31,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -212,5 +214,9 @@ public class WebConfig
 
         return viewResolver;
     }
+    
+//    public MessageSource messageSource() {
+//        return new ResourceBundleMessageSource();
+//    }
 
 }

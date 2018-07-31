@@ -1,11 +1,10 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.UndeclaredThrowableException;
-
 
 import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthentication;
 import org.slf4j.Logger;
@@ -22,24 +21,30 @@ import org.springframework.util.Assert;
  */
 @Component
 @Order(4)
-class BasicAuthenticationSupplier
-        implements AuthenticationSupplier
+class BasicAuthenticationSupplier implements AuthenticationSupplier
 {
 
     private static final Logger logger = LoggerFactory.getLogger(BasicAuthenticationSupplier.class);
 
     private String credentialsCharset = "UTF-8";
 
+    @Override
+    public boolean supports(HttpServletRequest request)
+    {
+        final String header = getAuthenticationHeaderValue(request);
+        if (header == null || !header.startsWith("Basic "))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     @CheckForNull
     @Override
     public Authentication supply(@Nonnull HttpServletRequest request)
     {
-        final String header = request.getHeader("Authorization");
-
-        if (header == null || !header.startsWith("Basic "))
-        {
-            return null;
-        }
+        String header = getAuthenticationHeaderValue(request);
 
         String[] tokens;
         try
@@ -48,7 +53,7 @@ class BasicAuthenticationSupplier
         }
         catch (UnsupportedEncodingException e)
         {
-            throw new UndeclaredThrowableException(e);
+            throw new BadCredentialsException("Failed to decode basic authentication token", e);
         }
 
         String username = tokens[0];
@@ -56,6 +61,11 @@ class BasicAuthenticationSupplier
         logger.debug("Basic Authentication Authorization header found for user '" + username + "'");
 
         return new PasswordAuthentication(username, tokens[1]);
+    }
+
+    private String getAuthenticationHeaderValue(HttpServletRequest request)
+    {
+        return request.getHeader("Authorization");
     }
 
     public void setCredentialsCharset(String credentialsCharset)
@@ -67,11 +77,12 @@ class BasicAuthenticationSupplier
     /**
      * Decodes the header into a username and password.
      *
-     * @throws BadCredentialsException if the Basic header is not present or is not valid
-     *                                 Base64
+     * @throws BadCredentialsException
+     *             if the Basic header is not present or is not valid
+     *             Base64
      */
     private String[] extractAndDecodeHeader(String header)
-            throws UnsupportedEncodingException
+        throws UnsupportedEncodingException
     {
         byte[] base64Token = header.substring(6)
                                    .getBytes(credentialsCharset);
@@ -93,7 +104,7 @@ class BasicAuthenticationSupplier
         {
             throw new BadCredentialsException("Invalid basic authentication token");
         }
-        return new String[]{ token.substring(0, delim),
-                             token.substring(delim + 1) };
+        return new String[] { token.substring(0, delim),
+                              token.substring(delim + 1) };
     }
 }

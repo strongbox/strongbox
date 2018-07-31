@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.users.security;
 
-import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
-import org.carlspring.strongbox.security.exceptions.SecurityTokenExpiredException;
+import org.carlspring.strongbox.security.exceptions.InvalidTokenException;
+import org.carlspring.strongbox.security.exceptions.ExpiredTokenException;
 
 import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
@@ -100,7 +100,7 @@ public class SecurityTokenProvider
         }
         catch (MalformedClaimException e)
         {
-            throw new SecurityTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
+            throw new InvalidTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
         }
         return subject;
     }
@@ -116,7 +116,7 @@ public class SecurityTokenProvider
                                                              .setRelaxVerificationKeyValidation();
         if (!verify)
         {
-            builder.setSkipSignatureVerification();
+            builder.setSkipSignatureVerification().setSkipAllValidators();
         }
         else
         {
@@ -134,9 +134,9 @@ public class SecurityTokenProvider
         {
             if (e.getMessage().contains("The JWT is no longer valid"))
             {
-                throw new SecurityTokenExpiredException(String.format(MESSAGE_INVALID_JWT, token), e);
+                throw new ExpiredTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
             }
-            throw new SecurityTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
+            throw new InvalidTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
         }
         return jwtClaims;
     }
@@ -158,12 +158,12 @@ public class SecurityTokenProvider
         }
         catch (MalformedClaimException e)
         {
-            throw new SecurityTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
+            throw new InvalidTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
         }
 
         if (!targetSubject.equals(subject))
         {
-            throw new SecurityTokenException(String.format(MESSAGE_INVALID_JWT, token));
+            throw new InvalidTokenException(String.format(MESSAGE_INVALID_JWT, token));
         }
 
         boolean claimMatch;
@@ -175,12 +175,12 @@ public class SecurityTokenProvider
         }
         catch (Exception e)
         {
-            throw new SecurityTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
+            throw new InvalidTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
         }
 
         if (!claimMatch)
         {
-            throw new SecurityTokenException(String.format(MESSAGE_INVALID_JWT, token));
+            throw new InvalidTokenException(String.format(MESSAGE_INVALID_JWT, token));
         }
     }
 

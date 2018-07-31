@@ -3,16 +3,16 @@ package org.carlspring.strongbox.security.exceptions;
 /**
  * @author Przemyslaw Fusik
  */
-public class SecurityTokenExpiredException extends SecurityTokenException
+public class ExpiredTokenException extends InvalidTokenException
 {
 
-    public SecurityTokenExpiredException(String msg,
+    public ExpiredTokenException(String msg,
                                          Throwable t)
     {
         super(msg, t);
     }
 
-    public SecurityTokenExpiredException(String msg)
+    public ExpiredTokenException(String msg)
     {
         super(msg);
     }

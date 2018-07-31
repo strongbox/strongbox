@@ -9,8 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthentication;
 import org.carlspring.strongbox.security.authentication.JwtTokenFetcher;
+import org.carlspring.strongbox.security.exceptions.InvalidTokenException;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +35,15 @@ class JWTAuthenticationSupplier implements AuthenticationSupplier, JwtTokenFetch
         }
 
         final String token = optToken.get();
-        String username = securityTokenProvider.getSubject(token);
+        String username;
+        try
+        {
+            username = securityTokenProvider.getSubject(token);
+        }
+        catch (InvalidTokenException e)
+        {
+            throw new BadCredentialsException("invalid.token");
+        }
 
         return new JwtAuthentication(username, token);
     }
