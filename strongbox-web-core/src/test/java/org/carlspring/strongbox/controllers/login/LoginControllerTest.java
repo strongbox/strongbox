@@ -93,7 +93,7 @@ public class LoginControllerTest
                           .post("/api/login")
                           .peek()
                           .then()
-                          .body("error", CoreMatchers.equalTo("invalid.credentials"))
+                          .body("error", CoreMatchers.equalTo("User account is locked"))
                           .statusCode(401);
     }
 

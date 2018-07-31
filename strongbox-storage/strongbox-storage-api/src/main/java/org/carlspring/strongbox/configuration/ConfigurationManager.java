@@ -66,5 +66,7 @@ public class ConfigurationManager
         }
     }
 
-
+    public Integer getSessionTimeoutSeconds() {
+        return getConfiguration().getSessionConfiguration().getTimeoutSeconds();
+    }
 }

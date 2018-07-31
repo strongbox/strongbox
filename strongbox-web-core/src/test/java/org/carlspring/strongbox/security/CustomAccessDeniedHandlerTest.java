@@ -55,7 +55,7 @@ public class CustomAccessDeniedHandlerTest
         assertTrue(response.isCommitted());
         assertThat(response.getStatus(), CoreMatchers.equalTo(HttpServletResponse.SC_FORBIDDEN));
         assertThat(response.getContentType(), CoreMatchers.equalTo(MediaType.APPLICATION_JSON_VALUE));
-        assertThat(responseEntityBody.getError(), CoreMatchers.equalTo("unauthorized"));
+        assertThat(responseEntityBody.getError(), CoreMatchers.equalTo("forbidden"));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class CustomAccessDeniedHandlerTest
                .then()
                .statusCode(HttpStatus.FORBIDDEN.value())
                .contentType("application/json")
-               .body("error", CoreMatchers.equalTo("Access is denied"));
+               .body("error", CoreMatchers.equalTo("forbidden"));
     }
 
 }

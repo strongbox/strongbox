@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -57,6 +58,20 @@ public class PasswordAuthenticator extends DaoAuthenticationProvider
     public boolean supports(Class<?> authentication)
     {
         return PasswordAuthentication.class.isAssignableFrom(authentication);
+    }
+
+    @Override
+    public Authentication authenticate(Authentication authentication)
+        throws AuthenticationException
+    {
+        try
+        {
+            return super.authenticate(authentication);
+        }
+        catch (BadCredentialsException e)
+        {
+            throw new BadCredentialsException("invalid.credentials");
+        }
     }
 
     @Override

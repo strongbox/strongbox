@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.controllers.configuration.security.authentication;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
+import org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthenticator;
 import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticator;
+import org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthenticator;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -150,8 +152,12 @@ public class AuthenticatorsConfigControllerTestIT
                .body("authenticators.authenticator[1].index",
                      equalByToString(1))
                .body("authenticators.authenticator[1].name",
-                     CoreMatchers.equalTo(org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator.class.getName()))
-               .body("authenticators.authenticator.size()", is(2))
+                     CoreMatchers.equalTo(JwtAuthenticator.class.getName()))
+               .body("authenticators.authenticator[2].name",
+                     CoreMatchers.equalTo(SecurityTokenAuthenticator.class.getName()))
+               .body("authenticators.authenticator[3].name",
+                     CoreMatchers.equalTo(org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator.class.getName()))               
+               .body("authenticators.authenticator.size()", is(4))
                .statusCode(HttpStatus.OK.value());
     }
 

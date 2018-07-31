@@ -66,13 +66,22 @@ public class StrongboxAuthenticationFilter
 
     private Authentication provideAuthentication(Authentication authentication)
     {
+        String authenticationName = Optional.ofNullable(authentication)
+                                            .map(a -> a.getClass().getSimpleName())
+                                            .orElse("empty");
+        if (authentication == null || authentication.isAuthenticated())
+        {
+            logger.debug("Authentication {} already authenticated or empty, skip providers.", authenticationName);
+
+            return authentication;
+        }
+
         Authentication authResult = authentication;
 
         for (Authenticator authenticator : authenticatorsRegistry)
         {
             AuthenticationProvider authenticationProvider = authenticator.getAuthenticationProvider();
             String authenticationProviderName = authenticationProvider.getClass().getName();
-            String authenticationName = authentication.getClass().getName();
 
             if (!authenticationProvider.supports(authentication.getClass()))
             {
