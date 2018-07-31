@@ -33,13 +33,22 @@ public enum RepositoryFormToMutableRepositoryConverter
         result.setAllowsDelete(source.isAllowsDelete());
         result.setAllowsDirectoryBrowsing(source.isAllowsDirectoryBrowsing());
         result.setChecksumHeadersEnabled(source.isChecksumHeadersEnabled());
-        result.setProxyConfiguration(
-                ProxyConfigurationFormToProxyConfigurationConverter.INSTANCE.convert(source.getProxyConfiguration()));
-        result.setRemoteRepository(
-                RemoteRepositoryFormToMutableRepositoryConverter.INSTANCE.convert(source.getRemoteRepository()));
-        MutableHttpConnectionPool httpConnectionPool = new MutableHttpConnectionPool();
-        httpConnectionPool.setAllocatedConnections(source.getHttpConnectionPool());
-        result.setHttpConnectionPool(httpConnectionPool);
+        if (source.getProxyConfiguration() != null)
+        {
+            result.setProxyConfiguration(ProxyConfigurationFormToProxyConfigurationConverter.INSTANCE.convert(
+                    source.getProxyConfiguration()));
+        }
+        if (source.getRemoteRepository() != null)
+        {
+            result.setRemoteRepository(
+                    RemoteRepositoryFormToMutableRepositoryConverter.INSTANCE.convert(source.getRemoteRepository()));
+        }
+        if (source.getHttpConnectionPool() != null)
+        {
+            MutableHttpConnectionPool httpConnectionPool = new MutableHttpConnectionPool();
+            httpConnectionPool.setAllocatedConnections(source.getHttpConnectionPool());
+            result.setHttpConnectionPool(httpConnectionPool);
+        }
         if (source.getGroupRepositories() != null)
         {
             result.setGroupRepositories(source.getGroupRepositories());

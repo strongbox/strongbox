@@ -70,17 +70,11 @@ public class UserController
 
     public static final String FAILED_GENERATE_SECURITY_TOKEN = "Failed to generate SecurityToken";
 
-    public static final String SUCCESSFUL_GENERATE_AUTH_TOKEN = "The authentication token was generated.";
-
     public static final String SUCCESSFUL_UPDATE_ACCESS_MODEL = "The custom access model was updated.";
 
     public static final String FAILED_UPDATE_ACCESS_MODEL = "Could not update the access model.";
 
     public static final String USER_DELETE_FORBIDDEN = "Deleting this account is forbidden!";
-
-    public static final String USER_UPDATE_FORBIDDEN = "Updating this account is forbidden!";
-
-    public static final String ASSIGNABLE_ROLES_LIST = "List of all assignable roles.";
 
     @Inject
     private UserService userService;
@@ -141,18 +135,6 @@ public class UserController
 
         return ResponseEntity.ok(responseEntity);
     }
-
-    @ApiOperation(value = "Used to retrieve all assignable user roles")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ASSIGNABLE_ROLES_LIST) })
-    @PreAuthorize("hasAuthority('CREATE_USER') or hasAuthority('UPDATE_USER')")
-    @GetMapping(value = "assignableRoles",
-                produces = { MediaType.APPLICATION_JSON_VALUE })
-    @ResponseBody
-    public ResponseEntity getAssignableRoles()
-    {
-        return ResponseEntity.ok(new AssignableRoleResponseEntity(this.authorizationConfigService.get().getRoles()));
-    }
-
 
     @ApiOperation(value = "Used to create a new user")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_CREATE_USER),

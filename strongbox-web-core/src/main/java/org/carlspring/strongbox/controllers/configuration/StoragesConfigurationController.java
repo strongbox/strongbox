@@ -16,8 +16,11 @@ import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -122,6 +125,24 @@ public class StoragesConfigurationController
         }
     }
 
+    @JsonView(Views.ShortStorage.class)
+    @ApiOperation(value = "Retrieve the basic info about storages.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
+    @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
+    @RequestMapping(method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                             MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getStorages()
+    {
+        final List<StorageOutput> storages = configurationManagementService.getMutableConfigurationClone()
+                                                                           .getStorages()
+                                                                           .values()
+                                                                           .stream()
+                                                                           .map(StorageOutput::new)
+                                                                           .collect(Collectors.toList());
+        return ResponseEntity.ok(new StoragesOutput(storages));
+    }
+
+    @JsonView(Views.LongStorage.class)
     @ApiOperation(value = "Retrieve the configuration of a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = ""),
@@ -129,8 +150,7 @@ public class StoragesConfigurationController
                                          message = "Storage ${storageId} was not found.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
     @RequestMapping(value = "/{storageId}",
-                    method = RequestMethod.GET,
-                    consumes = { MediaType.TEXT_PLAIN_VALUE })
+                    method = RequestMethod.GET)
     public ResponseEntity getStorage(@ApiParam(value = "The storageId", required = true)
                                      @PathVariable final String storageId)
     {
@@ -139,7 +159,7 @@ public class StoragesConfigurationController
         if (storage != null)
         {
             return ResponseEntity.status(HttpStatus.OK)
-                                 .body(storage);
+                                 .body(new StorageOutput(storage));
         }
         else
         {

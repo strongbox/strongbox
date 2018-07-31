@@ -2,10 +2,9 @@ package org.carlspring.strongbox.validation.configuration;
 
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 
+import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Przemyslaw Fusik
@@ -16,7 +15,7 @@ public class LayoutProviderValueValidator
 
     private boolean allowNull;
 
-    @Autowired
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Override

@@ -34,11 +34,29 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.controllers.users.UserController.*;
+import static org.carlspring.strongbox.controllers.users.UserController.FAILED_CREATE_USER;
+import static org.carlspring.strongbox.controllers.users.UserController.FAILED_GENERATE_SECURITY_TOKEN;
+import static org.carlspring.strongbox.controllers.users.UserController.FAILED_UPDATE_ACCESS_MODEL;
+import static org.carlspring.strongbox.controllers.users.UserController.FAILED_UPDATE_USER;
+import static org.carlspring.strongbox.controllers.users.UserController.NOT_FOUND_USER;
+import static org.carlspring.strongbox.controllers.users.UserController.OWN_USER_DELETE_FORBIDDEN;
+import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSFUL_CREATE_USER;
+import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSFUL_DELETE_USER;
+import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSFUL_UPDATE_USER;
+import static org.carlspring.strongbox.controllers.users.UserController.USER_DELETE_FORBIDDEN;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Pablo Tirado
@@ -120,19 +138,6 @@ public class UserControllerTestIT
     public void testUserNotFoundWithJsonAcceptHeader()
     {
         userNotFound(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    @Test
-    public void testGetAssignableRoles()
-    {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(getContextBaseUrl() + "/assignableRoles")
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body("assignableRoles", notNullValue())
-               .body("assignableRoles", hasSize(greaterThan(0)));
     }
 
     private void createUser(String username,
