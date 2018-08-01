@@ -42,7 +42,7 @@ public class AccountController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Returns account details"),
                             @ApiResponse(code = 403, message = "Unauthenticated access or user account has been disabled"),
                             @ApiResponse(code = 404, message = UserController.NOT_FOUND_USER) })
-    @PreAuthorize("authenticated && principal.enabled == true")
+    @PreAuthorize("hasAuthority('VIEW_USER')")
     @GetMapping(value = "",
                 produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
@@ -69,7 +69,7 @@ public class AccountController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Account details have been successfully updated"),
                             @ApiResponse(code = 400, message = "Unsupported logged user principal type"),
                             @ApiResponse(code = 404, message = UserController.NOT_FOUND_USER) })
-    @PreAuthorize("authenticated")
+    @PreAuthorize("hasAuthority('VIEW_USER')")
     @PutMapping(value = "",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.APPLICATION_JSON_VALUE })
