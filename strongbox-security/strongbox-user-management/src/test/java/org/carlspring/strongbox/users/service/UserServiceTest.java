@@ -48,6 +48,9 @@ public class UserServiceTest
         assertNotNull("Unable to find user by name developer01", user);
         assertNotNull("User authorities were not set!", user.getAuthorities());
         assertTrue("Expected user authorities to be grater than 0!", user.getAuthorities().size() > 0);
+
+        User nullUser = userService.findByUserName(null);
+        assertNull("User should have been null", nullUser);
     }
 
     @Test

@@ -80,7 +80,7 @@ public class UserServiceImpl
     }
 
     @Override
-    @Cacheable(cacheNames = CacheName.User.USERS, key = "#p0")
+    @Cacheable(cacheNames = CacheName.User.USERS, key = "#p0", condition="#p0 != null")
     public User findByUserName(final String username)
     {
         final Lock readLock = usersLock.readLock();
