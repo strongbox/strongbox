@@ -5,6 +5,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.springframework.http.MediaType;
@@ -31,13 +32,16 @@ public class Http401AuthenticationEntryPoint implements AuthenticationEntryPoint
                          AuthenticationException authException)
             throws IOException,
                    ServletException
-    {        
+    {
+        String message = Optional.ofNullable(authException).map(e -> e.getMessage()).orElse("unauthorized");
+        
         if (!IS_AJAX_REQUEST_HEADER_VALUE.equals(request.getHeader(IS_AJAX_REQUEST_HEADER_NAME)))
         {
             response.setHeader("WWW-Authenticate", "Basic realm=\"" + STRONGBOX_REALM + "\"");
         }
+
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().println(objectMapper.writeValueAsString(new ErrorResponseEntityBody("unauthorized")));
+        response.getWriter().println(objectMapper.writeValueAsString(new ErrorResponseEntityBody(message)));
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);      
 
         response.flushBuffer();

@@ -7,11 +7,10 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
-import org.carlspring.strongbox.security.exceptions.SecurityTokenExpiredException;
+import org.carlspring.strongbox.security.exceptions.InvalidTokenException;
+import org.carlspring.strongbox.security.exceptions.ExpiredTokenException;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.userdetails.StrongboxUserDetailService;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -55,23 +54,23 @@ public class JwtAuthenticator extends AbstractUserDetailsAuthenticationProvider 
 
         String token = authentication.getCredentials().toString();
 
-        Map<String, String> claimMap = provideTargetClaims(userDetails);
+        Map<String, String> claimMap = provideTokenClaims(userDetails);
         try
         {
             securityTokenProvider.verifyToken(token, authentication.getPrincipal().toString(), claimMap);
         }
-        catch (SecurityTokenExpiredException e)
+        catch (ExpiredTokenException e)
         {
             throw new BadCredentialsException("expired");
         }
-        catch (SecurityTokenException e)
+        catch (InvalidTokenException e)
         {
             throw new BadCredentialsException("invalid.token");
         }
 
     }
 
-    protected Map<String, String> provideTargetClaims(UserDetails userDetails)
+    protected Map<String, String> provideTokenClaims(UserDetails userDetails)
     {
         return Collections.emptyMap();
     }

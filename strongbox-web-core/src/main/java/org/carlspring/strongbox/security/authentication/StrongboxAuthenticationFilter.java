@@ -1,21 +1,20 @@
 package org.carlspring.strongbox.security.authentication;
 
-import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
-import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSuppliers;
+import java.io.IOException;
+import java.util.Optional;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
+import org.carlspring.strongbox.authentication.api.Authenticator;
+import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
+import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSuppliers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -44,53 +43,60 @@ public class StrongboxAuthenticationFilter
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
-            throws ServletException,
-                   IOException
+        throws ServletException,
+        IOException
     {
         Authentication authentication = authenticationSuppliers.supply(request);
-
         if (authentication == null)
         {
-            logger.debug(
-                    "Authentication not supplied by any authentication supplier. Skipping authentication providing.");
+            authentication = SecurityContextHolder.getContext().getAuthentication();
+            logger.debug("Authentication not supplied by any authentication supplier, using [{}] context authentication.",
+                         Optional.ofNullable(authentication).map(a -> a.getClass().getSimpleName()).orElse("empty"));
         }
         else
         {
-            provideAuthentication(authentication);
+            logger.debug("Supplied [{}] authentication.", authentication.getClass().getSimpleName());
         }
+
+        authentication = provideAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }
 
-    private void provideAuthentication(Authentication authentication)
+    private Authentication provideAuthentication(Authentication authentication)
     {
-        for (final Authenticator authenticator : authenticatorsRegistry)
+        String authenticationName = Optional.ofNullable(authentication)
+                                            .map(a -> a.getClass().getSimpleName())
+                                            .orElse("empty");
+        if (authentication == null || authentication.isAuthenticated())
         {
-            final AuthenticationProvider authenticationProvider = authenticator.getAuthenticationProvider();
+            logger.debug("Authentication {} already authenticated or empty, skip providers.", authenticationName);
+
+            return authentication;
+        }
+
+        Authentication authResult = authentication;
+
+        for (Authenticator authenticator : authenticatorsRegistry)
+        {
+            AuthenticationProvider authenticationProvider = authenticator.getAuthenticationProvider();
+            String authenticationProviderName = authenticationProvider.getClass().getName();
 
             if (!authenticationProvider.supports(authentication.getClass()))
             {
-                logger.debug("Authentication provider {} does not support {}",
-                             authenticationProvider.getClass().getName(), authentication.getClass().getName());
+                logger.debug("Authentication provider {} does not support {}", authenticationProviderName,
+                             authenticationName);
                 continue;
             }
 
-            try
-            {
-                authentication = authenticationProvider.authenticate(authentication);
+            logger.debug("Try to authenticate {} with {}", authenticationName, authenticationProviderName);
+            authResult = authenticationProvider.authenticate(authentication);
+            logger.debug("Got success {} with {}", authenticationName, authenticationProviderName);
 
-                if (authentication != null)
-                {
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    logger.debug("Authentication success using {}", authenticationProvider.getClass().getName());
-                    break;
-                }
-            }
-            catch (AuthenticationException e)
-            {
-                logger.debug("Authentication request failed", e);
-                continue;
-            }
+            break;
         }
+
+        return authResult;
     }
 }

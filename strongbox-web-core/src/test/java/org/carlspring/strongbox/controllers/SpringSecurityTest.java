@@ -172,7 +172,7 @@ public class SpringSecurityTest
                .put(getContextBaseUrl())
                .peek()
                .then()
-               .body("error", CoreMatchers.equalTo("Access is denied"))
+               .body("error", CoreMatchers.equalTo("forbidden"))
                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 }

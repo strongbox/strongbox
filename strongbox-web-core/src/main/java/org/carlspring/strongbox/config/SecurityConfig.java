@@ -81,7 +81,7 @@ public class SecurityConfig
             throws Exception
     {
         http.addFilterAfter(strongboxAuthenticationFilter(),
-                            BasicAuthenticationFilter.class)
+                            ExceptionTranslationFilter.class)
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()

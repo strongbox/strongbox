@@ -32,7 +32,7 @@ public class CustomAccessDeniedHandler
     {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        response.getWriter().println(objectMapper.writeValueAsString(new ErrorResponseEntityBody("unauthorized")));
+        response.getWriter().println(objectMapper.writeValueAsString(new ErrorResponseEntityBody("forbidden")));
         response.flushBuffer();
     }
 }

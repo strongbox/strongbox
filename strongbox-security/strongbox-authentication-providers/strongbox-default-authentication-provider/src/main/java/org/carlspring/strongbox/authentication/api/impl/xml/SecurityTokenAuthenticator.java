@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class SecurityTokenAuthenticator extends JwtAuthenticator
 {
 
-    protected Map<String, String> provideTargetClaims(UserDetails userDetails)
+    protected Map<String, String> provideTokenClaims(UserDetails userDetails)
     {
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put(User.SECURITY_TOKEN_KEY, ((SpringSecurityUser) userDetails).getSecurityKey());

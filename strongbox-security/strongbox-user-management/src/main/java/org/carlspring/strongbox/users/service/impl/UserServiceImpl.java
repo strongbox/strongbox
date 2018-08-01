@@ -142,18 +142,6 @@ public class UserServiceImpl
     }
 
     @Override
-    public void verifySecurityToken(final String username,
-                                    final String apiKey)
-    {
-        final User user = findByUserName(username);
-
-        final Map<String, String> claimMap = new HashMap<>();
-        claimMap.put("security-token-key", user.getSecurityTokenKey());
-
-        tokenProvider.verifyToken(apiKey, username, claimMap);
-    }
-
-    @Override
     public void revokeEveryone(final String roleToRevoke)
     {
         modifyInLock(users ->

@@ -41,13 +41,6 @@ public interface UserService
                                        Integer expireSeconds)
             throws JoseException;
 
-    /**
-     * @param username
-     * @param token
-     */
-    void verifySecurityToken(String username,
-                             String token);
-
     void updatePassword(UserDto userToUpdate);
 
     void updateSecurityToken(UserDto userToUpdate);

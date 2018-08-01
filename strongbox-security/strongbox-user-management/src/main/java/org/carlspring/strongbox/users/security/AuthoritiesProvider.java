@@ -6,6 +6,7 @@ import org.carlspring.strongbox.authorization.domain.Role;
 import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
 import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
+import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.annotation.PostConstruct;
@@ -51,6 +52,7 @@ public class AuthoritiesProvider
         populate(fullAuthorities, configuredRoles);
 
         Set<GrantedAuthority> authorities = new HashSet<>();
+        authorities.add(new SimpleGrantedAuthority(Privileges.UI_LOGIN.getAuthority()));
 
         if (Roles.ADMIN.name().equals(roleName))
         {

@@ -24,7 +24,7 @@ public class CustomLoginSupplierTest
 {
 
     @Inject
-    private CustomLoginSupplier customLoginSupplier;
+    private JsonFormLoginSupplier customLoginSupplier;
 
     @Inject
     private ObjectMapper objectMapper;

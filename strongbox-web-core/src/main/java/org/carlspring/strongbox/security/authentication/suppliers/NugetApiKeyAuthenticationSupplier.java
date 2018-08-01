@@ -9,12 +9,15 @@ import javax.servlet.http.HttpServletRequest;
 import org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthentication;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
+import org.carlspring.strongbox.security.exceptions.InvalidTokenException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -40,10 +43,18 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
         final String nugetApiKey = request.getHeader(HEADER_NUGET_APIKEY);
         if (nugetApiKey == null)
         {
-            return null;
+            throw new PreAuthenticatedCredentialsNotFoundException("Unauthorized");
         }
 
-        String username = securityTokenProvider.getSubject(nugetApiKey);
+        String username;
+        try
+        {
+            username = securityTokenProvider.getSubject(nugetApiKey);
+        }
+        catch (InvalidTokenException e)
+        {
+            throw new BadCredentialsException("Invalid token");
+        }
 
         return new SecurityTokenAuthentication(username, nugetApiKey);
     }
@@ -86,7 +97,7 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
         {
             return false;
         }
-        
+
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements())
         {
@@ -95,11 +106,11 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
             {
                 continue;
             }
-            
+
             return true;
         }
-        
-        return  false;
+
+        return false;
     }
 
 }
