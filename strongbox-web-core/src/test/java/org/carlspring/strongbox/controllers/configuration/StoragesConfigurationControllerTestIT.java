@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
@@ -8,10 +9,12 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -78,11 +81,26 @@ public class StoragesConfigurationControllerTestIT
     }
 
     @Test
-    public void testGetRepository()
+    public void testGetGroupRepository()
             throws Exception
     {
         String url = getContextBaseUrl() +
                      "/api/configuration/strongbox/storages/storage-common-proxies/group-common-proxies";
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(200);
+    }
+
+    @Test
+    public void testGetMavenRepository()
+            throws Exception
+    {
+        String url = getContextBaseUrl() +
+                     "/api/configuration/strongbox/storages/storage0/releases";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -163,6 +181,76 @@ public class StoragesConfigurationControllerTestIT
 
         deleteRepository(storageId, "repository0");
         deleteRepository(storageId, "repository1");
+    }
+
+    @Ignore
+    @Test
+    public void testAddGetRepository()
+    {
+        StorageForm storage0 = new StorageForm();
+        String storageId = "storage0";
+        storage0.setId(storageId);
+
+        RepositoryForm r0_1 = new RepositoryForm();
+        r0_1.setId("repository0_1");
+        r0_1.setAllowsRedeployment(true);
+        r0_1.setSecured(true);
+        r0_1.setLayout(Maven2LayoutProvider.ALIAS);
+        MavenRepositoryConfigurationForm mavenRepositoryConfigurationForm = new MavenRepositoryConfigurationForm();
+        mavenRepositoryConfigurationForm.setIndexingEnabled(true);
+        mavenRepositoryConfigurationForm.setIndexingClassNamesEnabled(false);
+        r0_1.setRepositoryConfiguration(mavenRepositoryConfigurationForm);
+        r0_1.setType("hosted");
+        r0_1.setPolicy("release");
+        r0_1.setImplementation("file-system");
+        r0_1.setStatus("In Service");
+
+        RepositoryForm r0_2 = new RepositoryForm();
+        r0_2.setId("repository0_2");
+        r0_2.setAllowsForceDeletion(true);
+        r0_2.setTrashEnabled(true);
+        r0_2.setProxyConfiguration(createProxyConfiguration());
+        r0_2.setLayout(Maven2LayoutProvider.ALIAS);
+        r0_2.setType("hosted");
+        r0_2.setPolicy("release");
+        r0_2.setImplementation("file-system");
+        r0_2.setStatus("In Service");
+
+        addRepository(r0_1, storage0);
+        addRepository(r0_2, storage0);
+
+        Storage storage = getStorage(storageId);
+        Repository repository0 = storage.getRepositories().get(r0_1.getId());
+        Repository repository1 = storage.getRepositories().get(r0_2.getId());
+
+        assertNotNull("Failed to get storage (" + storageId + ")!", storage);
+        assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   repository0.allowsRedeployment());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   repository0.isSecured());
+        assertNotNull("Failed to get storage (" + storageId + ")!",
+                      repository0.getRepositoryConfiguration());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   repository0.getRepositoryConfiguration() instanceof MavenRepositoryConfiguration);
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   ((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingEnabled());
+        assertFalse("Failed to get storage (" + storageId + ")!",
+                    ((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingEnabled());
+
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   repository1.allowsForceDeletion());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   repository1.isTrashEnabled());
+        assertNotNull("Failed to get storage (" + storageId + ")!",
+                      repository1.getProxyConfiguration().getHost());
+        assertEquals("Failed to get storage (" + storageId + ")!",
+                     "localhost",
+                     repository1.getProxyConfiguration().getHost());
+
+
+        deleteRepository(storage0.getId(), r0_1.getId());
+        deleteRepository(storage0.getId(), r0_2.getId());
     }
 
     private Storage getStorage(String storageId)

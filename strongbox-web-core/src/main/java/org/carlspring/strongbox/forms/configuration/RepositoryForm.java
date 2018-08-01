@@ -70,6 +70,9 @@ public class RepositoryForm
     @PositiveOrZero(message = "A httpConnectionPool must be positive or zero.")
     private Integer httpConnectionPool;
 
+    @Valid
+    private CustomRepositoryConfigurationForm repositoryConfiguration;
+
     private Set<String> groupRepositories;
 
     private Set<String> artifactCoordinateValidators;
@@ -262,6 +265,16 @@ public class RepositoryForm
     public void setHttpConnectionPool(final Integer httpConnectionPool)
     {
         this.httpConnectionPool = httpConnectionPool;
+    }
+
+    public CustomRepositoryConfigurationForm getRepositoryConfiguration()
+    {
+        return repositoryConfiguration;
+    }
+
+    public void setRepositoryConfiguration(final CustomRepositoryConfigurationForm repositoryConfiguration)
+    {
+        this.repositoryConfiguration = repositoryConfiguration;
     }
 
     public Set<String> getGroupRepositories()
