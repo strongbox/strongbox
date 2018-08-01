@@ -93,7 +93,7 @@ public class AccountControllerTest
     }
 
     @Test
-    @WithMockUser(username = "test-account-update", authorities = {"VIEW_USER"})
+    @WithMockUser(username = "test-account-update", authorities = {"UI_LOGIN"})
     public void testUpdateAccountDetails()
             throws Exception
     {
@@ -153,7 +153,7 @@ public class AccountControllerTest
     }
 
     @Test
-    @WithMockUser(username = "test-account-update-additional", authorities = {"VIEW_USER"})
+    @WithMockUser(username = "test-account-update-additional", authorities = {"UI_LOGIN"})
     public void testUpdateAdditionalAccountDetailsShouldntUpdateThem()
     {
         UserDto testUser = new UserDto();

@@ -56,7 +56,7 @@ public class LoginController
                             @ApiResponse(code = 401, message = "Invalid credentials"),
                             @ApiResponse(code = 500, message = "org.springframework.security.core.Authentication " +
                                                                "fetched by the strongbox security implementation is not supported") })
-    @PreAuthorize("hasAuthority('VIEW_USER')")
+    @PreAuthorize("hasAuthority('UI_LOGIN')")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity login(Authentication authentication) {
         return formLogin(authentication);
@@ -67,7 +67,7 @@ public class LoginController
                             @ApiResponse(code = 401, message = "Invalid credentials"),
                             @ApiResponse(code = 500, message = "org.springframework.security.core.Authentication " +
                                                                "fetched by the strongbox security implementation is not supported") })
-    @PreAuthorize("hasAuthority('VIEW_USER')")
+    @PreAuthorize("hasAuthority('UI_LOGIN')")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity formLogin(Authentication authentication)
     {
