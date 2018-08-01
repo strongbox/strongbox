@@ -51,7 +51,7 @@ public class UserServiceTest
     }
 
     @Test
-    public void testCreateAndDeleteUserOperations()
+    public void testCreate()
             throws Exception
     {
         String testUserName = "test-user";
@@ -71,7 +71,8 @@ public class UserServiceTest
         logger.debug("Found stored user\n\t" + foundEntity + "\n");
 
         assertEquals(testUserName, foundEntity.getUsername());
-        assertEquals("test-password", foundEntity.getPassword());
+        assertNotEquals("Expected a hashed password, received plain-text!", "test-password", foundEntity.getPassword()); // password should NOT be saved as "plain"
+        assertNotNull("User contains empty password!", foundEntity.getPassword());
         assertTrue(foundEntity.isEnabled());
         assertEquals("some-security-token", foundEntity.getSecurityTokenKey());
     }
@@ -101,6 +102,7 @@ public class UserServiceTest
         userUpdate.setUsername(testUserName);
         userUpdate.setPassword("another-password");
         userUpdate.setSecurityTokenKey("after");
+        userUpdate.setEnabled(false);
 
         userService.updateByUsername(userUpdate);
 
@@ -110,8 +112,9 @@ public class UserServiceTest
         logger.debug("Found stored updated user\n\t" + updatedEntity + "\n");
 
         assertEquals(testUserName, updatedEntity.getUsername());
-        assertNotEquals(addedEntity.getPassword(), updatedEntity.getPassword());
-        assertTrue(updatedEntity.isEnabled());
+        assertNotEquals("Expected current password to have changed.",addedEntity.getPassword(), updatedEntity.getPassword());
+        assertNotNull("Expected password to be other than null", updatedEntity.getPassword());
+        assertFalse("User should have been disabled, but is still enabled!", updatedEntity.isEnabled());
         assertEquals("after", updatedEntity.getSecurityTokenKey());
     }
 
@@ -204,7 +207,8 @@ public class UserServiceTest
 
         logger.debug("Updated user found: \n\t" + updatedEntity + "\n");
 
-        assertNotEquals(addedEntity.getPassword(), updatedEntity.getPassword());
+        assertNotEquals("User password should have been encrypted!",addedEntity.getPassword(), updatedEntity.getPassword());
+        assertNotNull("User password was updated to null", updatedEntity.getPassword());
         assertTrue(updatedEntity.isEnabled());
         assertEquals("Expected no user roles to have been updated!", 0, updatedEntity.getRoles().size());
         assertEquals("after", updatedEntity.getSecurityTokenKey());
@@ -258,6 +262,34 @@ public class UserServiceTest
         assertFalse(privileges.isEmpty());
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
         assertTrue(privileges.contains("ARTIFACTS_VIEW"));
+    }
+
+
+    @Test
+    public void testDeleteUser()
+            throws Exception
+    {
+        String testUserName = "test-delete-user";
+
+        UserDto userAdd = new UserDto();
+        userAdd.setEnabled(true);
+        userAdd.setUsername(testUserName);
+        userAdd.setPassword("test-password");
+        userAdd.setSecurityTokenKey("before");
+
+        userService.add(userAdd);
+
+        User addedEntity = userService.findByUserName(testUserName);
+        assertNotNull("Unable to locate user " + testUserName + ". Delete operation failed!", addedEntity);
+
+        logger.debug("Found stored user\n\t" + addedEntity + "\n");
+
+        logger.debug("Deleting user...");
+
+        userService.delete(testUserName);
+
+        User deletedEntity = userService.findByUserName(testUserName);
+        assertNull("User " + testUserName + " is still present in the database. Delete operation failed!", deletedEntity);
     }
 
 }

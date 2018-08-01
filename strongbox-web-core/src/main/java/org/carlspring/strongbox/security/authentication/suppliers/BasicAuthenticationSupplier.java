@@ -4,12 +4,14 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.UndeclaredThrowableException;
 
-import com.google.common.base.Throwables;
+
+import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,7 @@ import org.springframework.util.Assert;
  * @author Przemyslaw Fusik
  */
 @Component
+@Order(4)
 class BasicAuthenticationSupplier
         implements AuthenticationSupplier
 {
@@ -45,14 +48,14 @@ class BasicAuthenticationSupplier
         }
         catch (UnsupportedEncodingException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
 
         String username = tokens[0];
 
         logger.debug("Basic Authentication Authorization header found for user '" + username + "'");
 
-        return new UsernamePasswordAuthenticationToken(username, tokens[1]);
+        return new PasswordAuthentication(username, tokens[1]);
     }
 
     public void setCredentialsCharset(String credentialsCharset)

@@ -1,20 +1,18 @@
 package org.carlspring.strongbox.forms.users;
 
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
+import org.carlspring.strongbox.controllers.users.support.PathPrivilege;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserPathPermissionDto;
 import org.carlspring.strongbox.users.dto.UserPathPermissionsDto;
 import org.carlspring.strongbox.users.dto.UserRepositoryDto;
 import org.carlspring.strongbox.users.dto.UserStorageDto;
-import org.carlspring.strongbox.validation.users.ValidAccessModelMapKey;
-import org.carlspring.strongbox.validation.users.ValidAccessModelMapValue;
+import org.carlspring.strongbox.validation.users.ValidAccessModelPath;
+import org.carlspring.strongbox.validation.users.ValidAccessModelPrivilege;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,53 +23,53 @@ public class AccessModelForm
         implements Serializable
 {
 
-    @ValidAccessModelMapKey(message = "The repository privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}'.")
-    @ValidAccessModelMapValue(message = "The repository privileges map values must be specified.")
-    private Map<String, Collection<String>> repositoryPrivileges;
+    @ValidAccessModelPath(message = "The repository privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}'.")
+    @ValidAccessModelPrivilege(message = "The repository privileges map values must be specified.")
+    private List<PathPrivilege> repositoryPrivileges;
 
-    @ValidAccessModelMapKey(message = "The URL to privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}'.")
-    @ValidAccessModelMapValue(message = "The URL to privileges map values must be specified.")
-    private Map<String, Collection<String>> urlToPrivilegesMap;
+    @ValidAccessModelPath(message = "The URL to privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}'.")
+    @ValidAccessModelPrivilege(message = "The URL to privileges map values must be specified.")
+    private List<PathPrivilege> urlToPrivileges;
 
-    @ValidAccessModelMapKey(message = "The wildcard privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}'.")
-    @ValidAccessModelMapValue(message = "The wildcard privileges map values must be specified.")
-    private Map<String, Collection<String>> wildCardPrivilegesMap;
+    @ValidAccessModelPath(message = "The wildcard privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}'.")
+    @ValidAccessModelPrivilege(message = "The wildcard privileges map values must be specified.")
+    private List<PathPrivilege> wildCardPrivileges;
 
     public AccessModelForm()
     {
-        repositoryPrivileges = new HashMap<>();
-        urlToPrivilegesMap = new HashMap<>();
-        wildCardPrivilegesMap = new HashMap<>();
+        repositoryPrivileges = new ArrayList<>();
+        urlToPrivileges = new ArrayList<>();
+        wildCardPrivileges = new ArrayList<>();
     }
 
-    public Map<String, Collection<String>> getRepositoryPrivileges()
+    public List<PathPrivilege> getRepositoryPrivileges()
     {
         return repositoryPrivileges;
     }
 
-    public void setRepositoryPrivileges(Map<String, Collection<String>> repositoryPrivileges)
+    public void setRepositoryPrivileges(List<PathPrivilege> repositoryPrivileges)
     {
         this.repositoryPrivileges = repositoryPrivileges;
     }
 
-    public Map<String, Collection<String>> getUrlToPrivilegesMap()
+    public List<PathPrivilege> getUrlToPrivileges()
     {
-        return urlToPrivilegesMap;
+        return urlToPrivileges;
     }
 
-    public void setUrlToPrivilegesMap(Map<String, Collection<String>> urlToPrivilegesMap)
+    public void setUrlToPrivileges(List<PathPrivilege> urlToPrivilegesMap)
     {
-        this.urlToPrivilegesMap = urlToPrivilegesMap;
+        this.urlToPrivileges = urlToPrivilegesMap;
     }
 
-    public Map<String, Collection<String>> getWildCardPrivilegesMap()
+    public List<PathPrivilege> getWildCardPrivileges()
     {
-        return wildCardPrivilegesMap;
+        return wildCardPrivileges;
     }
 
-    public void setWildCardPrivilegesMap(Map<String, Collection<String>> wildCardPrivilegesMap)
+    public void setWildCardPrivileges(List<PathPrivilege> wildCardPrivilegesMap)
     {
-        this.wildCardPrivilegesMap = wildCardPrivilegesMap;
+        this.wildCardPrivileges = wildCardPrivilegesMap;
     }
 
     public UserAccessModelDto toDto()
@@ -81,9 +79,9 @@ public class AccessModelForm
         // repositoryPrivileges
         if (getRepositoryPrivileges() != null)
         {
-            for (Map.Entry<String, Collection<String>> repositoryPrivileges : getRepositoryPrivileges().entrySet())
+            for (PathPrivilege accessModelAuthority : getRepositoryPrivileges())
             {
-                String storageIdAndRepositoryId = StringUtils.substringAfter(repositoryPrivileges.getKey(),
+                String storageIdAndRepositoryId = StringUtils.substringAfter(accessModelAuthority.getPath(),
                                                                              "/storages/");
                 String storageId = StringUtils.substringBefore(storageIdAndRepositoryId, "/");
                 String repositoryId = StringUtils.substringAfter(storageIdAndRepositoryId, "/");
@@ -93,17 +91,20 @@ public class AccessModelForm
                 UserRepositoryDto userRepository = userStorage.putIfAbsent(repositoryId, new UserRepositoryDto());
 
                 userRepository.setPrivileges(
-                        repositoryPrivileges.getValue().stream().map(name -> new PrivilegeDto(name, null)).collect(
-                                Collectors.toSet()));
+                        accessModelAuthority.getPrivileges()
+                                            .stream()
+                                            .map(name -> new PrivilegeDto(name, null))
+                                            .collect(Collectors.toSet())
+                );
             }
         }
 
-        // urlToPrivilegesMap
-        if (getUrlToPrivilegesMap() != null)
+        // urlToPrivileges
+        if (getUrlToPrivileges() != null)
         {
-            for (Map.Entry<String, Collection<String>> urlToPrivileges : getUrlToPrivilegesMap().entrySet())
+            for (PathPrivilege accessModelAuthority : getUrlToPrivileges())
             {
-                String storageIdRepositoryIdAndPath = StringUtils.substringAfter(urlToPrivileges.getKey(),
+                String storageIdRepositoryIdAndPath = StringUtils.substringAfter(accessModelAuthority.getPath(),
                                                                                  "/storages/");
                 String storageId = StringUtils.substringBefore(storageIdRepositoryIdAndPath, "/");
                 String repositoryId = StringUtils.substringBetween(storageIdRepositoryIdAndPath, "/", "/");
@@ -121,16 +122,16 @@ public class AccessModelForm
                                                                                            new UserPathPermissionDto());
 
                 userPathPermission.setPath(path);
-                userPathPermission.setPermission(pathPrivilegesToPermission(urlToPrivileges.getValue()));
+                userPathPermission.setPermission(pathPrivilegesToPermission(accessModelAuthority.getPrivileges()));
             }
         }
 
-        // wildCardPrivilegesMap
-        if (getWildCardPrivilegesMap() != null)
+        // wildCardPrivileges
+        if (getWildCardPrivileges() != null)
         {
-            for (Map.Entry<String, Collection<String>> wildcardPrivilegesMap : getWildCardPrivilegesMap().entrySet())
+            for (PathPrivilege accessModelAuthority : getWildCardPrivileges())
             {
-                String storageIdRepositoryIdAndPath = StringUtils.substringAfter(wildcardPrivilegesMap.getKey(),
+                String storageIdRepositoryIdAndPath = StringUtils.substringAfter(accessModelAuthority.getPath(),
                                                                                  "/storages/");
                 String storageId = StringUtils.substringBefore(storageIdRepositoryIdAndPath, "/");
                 String repositoryId = StringUtils.substringBetween(storageIdRepositoryIdAndPath, "/", "/");
@@ -148,7 +149,7 @@ public class AccessModelForm
                                                                                            new UserPathPermissionDto());
 
                 userPathPermission.setPath(path + "/.*");
-                userPathPermission.setPermission(pathPrivilegesToPermission(wildcardPrivilegesMap.getValue()));
+                userPathPermission.setPermission(pathPrivilegesToPermission(accessModelAuthority.getPrivileges()));
             }
         }
 
@@ -159,5 +160,19 @@ public class AccessModelForm
     private String pathPrivilegesToPermission(Collection<String> pathPrivileges)
     {
         return Collections.disjoint(pathPrivileges, Privileges.w()) ? READ : READ_WRITE;
+    }
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder(AccessModelForm.class.getSimpleName() + " {\n");
+        sb.append(" repositoryPrivileges=")
+          .append(repositoryPrivileges);
+        sb.append(",\n urlToPrivileges=")
+          .append(urlToPrivileges);
+        sb.append(",\n wildCardPrivileges=")
+          .append(wildCardPrivileges);
+        sb.append("\n}");
+        return sb.toString();
     }
 }

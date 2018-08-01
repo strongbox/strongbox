@@ -12,7 +12,13 @@ import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -122,7 +128,7 @@ public class UserServiceImpl
         }
 
         final Map<String, String> claimMap = new HashMap<>();
-        claimMap.put("security-token-key", user.getSecurityTokenKey());
+        claimMap.put(User.SECURITY_TOKEN_KEY, user.getSecurityTokenKey());
 
         return tokenProvider.getToken(username, claimMap, null);
     }
@@ -132,12 +138,7 @@ public class UserServiceImpl
                                               final Integer expireMinutes)
             throws JoseException
     {
-        final User user = findByUserName(username);
-
-        final Map<String, String> claimMap = new HashMap<>();
-        claimMap.put("credentials", user.getPassword());
-
-        return tokenProvider.getToken(username, claimMap, expireMinutes);
+        return tokenProvider.getToken(username, Collections.emptyMap(), expireMinutes);
     }
 
     @Override
@@ -168,9 +169,12 @@ public class UserServiceImpl
         modifyInLock(users ->
                      {
                          final Set<UserDto> currentUsers = users.getUsers();
-                         if (!currentUsers.stream().filter(
-                                 u -> u.getUsername().equals(user.getUsername())).findFirst().isPresent())
+                         if (currentUsers.stream()
+                                         .noneMatch(
+                                                 u -> u.getUsername().equals(user.getUsername())
+                                         ))
                          {
+                             updatePassword(user, user.getPassword());
                              currentUsers.add(user);
                          }
                      });
@@ -183,8 +187,10 @@ public class UserServiceImpl
         modifyInLock(users ->
                      {
                          final Set<UserDto> currentUsers = users.getUsers();
-                         currentUsers.stream().filter(u -> u.getUsername().equals(username)).findFirst().ifPresent(
-                                 u -> currentUsers.remove(u));
+                         currentUsers.stream()
+                                     .filter(u -> u.getUsername().equals(username))
+                                     .findFirst()
+                                     .ifPresent(currentUsers::remove);
                      });
     }
 
@@ -196,8 +202,10 @@ public class UserServiceImpl
         modifyInLock(users ->
                      {
                          final Set<UserDto> currentUsers = users.getUsers();
-                         currentUsers.stream().filter(u -> u.getUsername().equals(username)).findFirst().ifPresent(
-                                 u -> u.setUserAccessModel(accessModel));
+                         currentUsers.stream()
+                                     .filter(u -> u.getUsername().equals(username))
+                                     .findFirst()
+                                     .ifPresent(u -> u.setUserAccessModel(accessModel));
                      });
     }
 
@@ -207,13 +215,11 @@ public class UserServiceImpl
     {
         modifyInLock(users ->
                      {
-                         users.getUsers().stream().filter(
-                                 user -> user.getUsername().equals(userToUpdate.getUsername())).findFirst().ifPresent(
-                                 user ->
-                                 {
-                                     updatePassword(user, userToUpdate.getPassword());
-                                 }
-                         );
+                         users.getUsers()
+                              .stream()
+                              .filter(user -> user.getUsername().equals(userToUpdate.getUsername()))
+                              .findFirst()
+                              .ifPresent(user -> updatePassword(user, userToUpdate.getPassword()));
                      });
     }
 
@@ -223,13 +229,11 @@ public class UserServiceImpl
     {
         modifyInLock(users ->
                      {
-                         users.getUsers().stream().filter(
-                                 user -> user.getUsername().equals(userToUpdate.getUsername())).findFirst().ifPresent(
-                                 user ->
-                                 {
-                                     updateSecurityToken(user, userToUpdate.getSecurityTokenKey());
-                                 }
-                         );
+                         users.getUsers()
+                              .stream()
+                              .filter(user -> user.getUsername().equals(userToUpdate.getUsername()))
+                              .findFirst()
+                              .ifPresent(user -> updateSecurityToken(user, userToUpdate.getSecurityTokenKey()));
                      });
     }
 
@@ -259,14 +263,15 @@ public class UserServiceImpl
     {
         modifyInLock(users ->
                      {
-                         users.getUsers().stream().filter(
-                                 user -> user.getUsername().equals(userToUpdate.getUsername())).findFirst().ifPresent(
-                                 user ->
-                                 {
-                                     updatePassword(user, userToUpdate.getPassword());
-                                     updateSecurityToken(user, userToUpdate.getSecurityTokenKey());
-                                 }
-                         );
+                         users.getUsers()
+                              .stream()
+                              .filter(user -> user.getUsername().equals(userToUpdate.getUsername()))
+                              .findFirst()
+                              .ifPresent(user ->
+                                         {
+                                             updatePassword(user, userToUpdate.getPassword());
+                                             updateSecurityToken(user, userToUpdate.getSecurityTokenKey());
+                                         });
                      });
     }
 

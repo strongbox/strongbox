@@ -4,7 +4,7 @@
         <username>admin</username>
         <password>$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO</password>
         <roles>
-            <role>admin</role>
+            <role>ADMIN</role>
         </roles>
         <security-token-key>admin-secret</security-token-key>
     </user>
@@ -12,7 +12,7 @@
         <username>maven</username>
         <password>$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO</password>
         <roles>
-            <role>admin</role>
+            <role>ADMIN</role>
         </roles>
         <security-token-key>maven-secret</security-token-key>
     </user>

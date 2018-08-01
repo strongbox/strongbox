@@ -6,8 +6,8 @@ import org.carlspring.strongbox.security.exceptions.SecurityTokenExpiredExceptio
 import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 import java.security.Key;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
@@ -31,9 +31,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityTokenProvider
 {
-
-    private static final String PASSWORD_CLAIM_MAP_KEY = "credentials";
-
     private static final String MESSAGE_INVALID_JWT = "Invalid JWT: value-[%s]";
     /**
      * Secret key which is used to encode and verify tokens.<br>
@@ -92,19 +89,6 @@ public class SecurityTokenProvider
         return jws.getCompactSerialization();
     }
 
-    public String getPassword(String token)
-    {
-        JwtClaims jwtClaims = getClaims(token);
-        return (String) jwtClaims.getClaimValue(PASSWORD_CLAIM_MAP_KEY);
-    }
-
-    public Map<String, String> passwordClaimMap(String password)
-    {
-        Map<String, String> claimMap = new HashMap<>();
-        claimMap.put(PASSWORD_CLAIM_MAP_KEY, password);
-        return claimMap;
-    }
-
     public String getSubject(String token)
     {
 
@@ -123,10 +107,23 @@ public class SecurityTokenProvider
 
     public JwtClaims getClaims(String token)
     {
-        JwtConsumer jwtConsumer = new JwtConsumerBuilder().setRequireSubject()
-                                                          .setVerificationKey(key)
-                                                          .setRelaxVerificationKeyValidation()
-                                                          .build();
+        return getClaims(token, false);
+    }
+    
+    public JwtClaims getClaims(String token, boolean verify)
+    {
+        JwtConsumerBuilder builder = new JwtConsumerBuilder().setRequireSubject()
+                                                             .setRelaxVerificationKeyValidation();
+        if (!verify)
+        {
+            builder.setSkipSignatureVerification();
+        }
+        else
+        {
+            builder.setVerificationKey(key);
+        }
+        
+        JwtConsumer jwtConsumer = builder.build();
 
         JwtClaims jwtClaims;
         try
@@ -153,7 +150,7 @@ public class SecurityTokenProvider
                             String targetSubject,
                             Map<String, String> claimMap)
     {
-        JwtClaims jwtClaims = getClaims(token);
+        JwtClaims jwtClaims = getClaims(token, true);
         String subject;
         try
         {
@@ -172,8 +169,9 @@ public class SecurityTokenProvider
         boolean claimMatch;
         try
         {
-            claimMatch = claimMap.entrySet().stream().allMatch(
-                    (e) -> e.getValue().equals(jwtClaims.getClaimValue(e.getKey())));
+            claimMatch = claimMap.entrySet()
+                                 .stream()
+                                 .allMatch((e) -> e.getValue().equals(jwtClaims.getClaimValue(e.getKey())));
         }
         catch (Exception e)
         {

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
+import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthentication;
 import org.carlspring.strongbox.controllers.login.LoginController;
 import org.carlspring.strongbox.controllers.login.LoginInput;
 
@@ -11,8 +12,8 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Component;
  * @author Przemyslaw Fusik
  */
 @Component
+@Order(1)
 public class CustomLoginSupplier implements AuthenticationSupplier
 {
 
@@ -44,14 +46,15 @@ public class CustomLoginSupplier implements AuthenticationSupplier
             return null;
         }
 
-        return new UsernamePasswordAuthenticationToken(loginInput.getUsername(), loginInput.getPassword());
+        return new PasswordAuthentication(loginInput.getUsername(), loginInput.getPassword());
     }
 
     @Override
     public boolean supports(@Nonnull HttpServletRequest request)
     {
         return "POST".equalsIgnoreCase(request.getMethod()) &&
-               MediaType.APPLICATION_JSON_VALUE.equals(request.getContentType()) &&
+               request.getContentType()!=null &&
+               request.getContentType().startsWith(MediaType.APPLICATION_JSON_VALUE) &&
                LoginController.REQUEST_MAPPING.equals(request.getRequestURI());
     }
 }

@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
+import java.util.Enumeration;
+
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +13,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +22,11 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
+@Order(3)
 public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
 {
+
+    public static final String HEADER_NUGET_APIKEY = "x-nuget-apikey";
 
     @Inject
     private SecurityTokenProvider securityTokenProvider;
@@ -31,17 +37,15 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
     @Override
     public Authentication supply(@Nonnull HttpServletRequest request)
     {
-        final String nugetApiKey = request.getHeader("x-nuget-apikey");
+        final String nugetApiKey = request.getHeader(HEADER_NUGET_APIKEY);
         if (nugetApiKey == null)
         {
             return null;
         }
 
         String username = securityTokenProvider.getSubject(nugetApiKey);
-        String securityToken = (String) securityTokenProvider.getClaims(nugetApiKey)
-                                                             .getClaimValue("security-token-key");
 
-        return new SecurityTokenAuthentication(username, securityToken);
+        return new SecurityTokenAuthentication(username, nugetApiKey);
     }
 
     @Override
@@ -78,7 +82,24 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
             return false;
         }
 
-        return NugetLayoutProvider.ALIAS.equals(repository.getLayout());
+        if (!NugetLayoutProvider.ALIAS.equals(repository.getLayout()))
+        {
+            return false;
+        }
+        
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements())
+        {
+            String headerName = (String) headerNames.nextElement();
+            if (!HEADER_NUGET_APIKEY.equalsIgnoreCase(headerName))
+            {
+                continue;
+            }
+            
+            return true;
+        }
+        
+        return  false;
     }
 
 }

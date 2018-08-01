@@ -177,6 +177,10 @@ public class HeaderMappingFilter
             {
                 return headerValue;
             }
+            if (headerValue == null)
+            {
+                return USER_AGENT_UNKNOWN;
+            }
 
             Optional<String> targetUserAgent = userAgentMap.keySet()
                                                            .stream()

@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.carlspring.strongbox.config.SecurityConfig.UnauthorizedEntyPoint;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.data.criteria.QueryParserException;
 import org.carlspring.strongbox.validation.RequestBodyValidationError;
@@ -44,6 +45,7 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
     private AuthenticationTrustResolver authenticationTrustResolver;
     
     @Inject
+    @UnauthorizedEntyPoint
     private AuthenticationEntryPoint authenticationEntryPoint;
     
     @ExceptionHandler({ QueryParserException.class })

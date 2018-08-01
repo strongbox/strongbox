@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.users;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.controllers.users.support.PathPrivilege;
 import org.carlspring.strongbox.controllers.users.support.AccessModelOutput;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
@@ -8,14 +9,12 @@ import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.Privileges;
+import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableSet;
@@ -88,7 +87,7 @@ public class UserControllerTestIT
     @Test
     public void testGetUser()
     {
-        final String username = "admin";
+        final String username = "developer01";
 
         // By default assignableRoles should not be present in the response.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -100,7 +99,10 @@ public class UserControllerTestIT
                .body("user.username", equalTo(username))
                .body("user.authorities", notNullValue())
                .body("user.authorities", hasSize(greaterThan(0)))
+               .body("user.accessModel.repositoryPrivileges", notNullValue())
+               .body("user.accessModel.repositoryPrivileges", hasSize(greaterThan(0)))
                .body("assignableRoles", nullValue());
+
 
         // assignableRoles should be present only if there is ?assignableRoles=true in the request.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -112,6 +114,8 @@ public class UserControllerTestIT
                .body("user.username", equalTo(username))
                .body("user.authorities", notNullValue())
                .body("user.authorities", hasSize(greaterThan(0)))
+               .body("user.accessModel.repositoryPrivileges", notNullValue())
+               .body("user.accessModel.repositoryPrivileges", hasSize(greaterThan(0)))
                .body("assignableRoles", notNullValue())
                .body("assignableRoles", hasSize(greaterThan(0)));
     }
@@ -410,7 +414,7 @@ public class UserControllerTestIT
 
         User updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("admin")));
+        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(Roles.ADMIN.name())));
 
         admin.setRoles(ImmutableSet.of("UI_MANAGER"));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -430,7 +434,7 @@ public class UserControllerTestIT
         assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("UI_MANAGER")));
 
         // Rollback changes.
-        admin.setRoles(ImmutableSet.of("admin"));
+        admin.setRoles(ImmutableSet.of(Roles.ADMIN.name()));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(admin)
@@ -644,10 +648,20 @@ public class UserControllerTestIT
 
         UserForm test = buildUser(username, "password");
         test.setAccessModel(new AccessModelForm());
-        test.getAccessModel().getRepositoryPrivileges().put("/storages/storage0/releases",
-                                                            Lists.newArrayList("ARTIFACTS_RESOLVE"));
-        test.getAccessModel().getWildCardPrivilegesMap().put("/storages/storage0/releases/com/mycorp/.*",
-                                                             Lists.newArrayList("ARTIFACTS_RESOLVE"));
+
+        test.getAccessModel()
+            .getRepositoryPrivileges()
+            .add(new PathPrivilege("/storages/storage0/releases", Lists.newArrayList("ARTIFACTS_RESOLVE")));
+
+        test.getAccessModel()
+            .getWildCardPrivileges()
+            .add(new PathPrivilege("/storages/storage0/releases/com/mycorp/.*",
+                                   Lists.newArrayList("ARTIFACTS_RESOLVE")));
+
+        test.getAccessModel()
+            .getUrlToPrivileges()
+            .add(new PathPrivilege("/storages/storage0/releases/com/mycorp2/.*",
+                                   Lists.newArrayList("ARTIFACTS_RESOLVE")));
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -671,13 +685,13 @@ public class UserControllerTestIT
 
         logger.debug(accessModel.toString());
 
-        assertFalse(accessModel.getWildCardPrivilegesMap().isEmpty());
+        assertFalse(accessModel.getWildCardPrivileges().isEmpty());
         assertFalse(accessModel.getRepositoryPrivileges().isEmpty());
 
         // modify access model and save it
         final String mockUrl = "/storages/storage0/act-releases-1/org/carlspring/strongbox";
         final String mockPrivilege = Privileges.ARTIFACTS_DELETE.toString();
-        accessModel.getUrlToPrivilegesMap().put(mockUrl, Collections.singletonList(mockPrivilege));
+        accessModel.getUrlToPrivileges().add(new PathPrivilege(mockUrl, Collections.singletonList(mockPrivilege)));
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -694,10 +708,14 @@ public class UserControllerTestIT
 
         logger.debug(updatedModel.toString());
 
-        Collection<String> privileges = updatedModel.getUrlToPrivilegesMap().get(mockUrl);
+        Optional<PathPrivilege> authority = updatedModel.getUrlToPrivileges()
+                                                        .stream()
+                                                        .filter(a -> a.getPath().equals(mockUrl))
+                                                        .findFirst();
 
-        assertNotNull(privileges);
-        assertTrue(privileges.contains(mockPrivilege));
+        assertNotNull(authority);
+        assertTrue(authority.isPresent());
+        assertTrue(authority.get().getPrivileges().contains(mockPrivilege));
     }
 
     @Test
@@ -713,13 +731,13 @@ public class UserControllerTestIT
 
         logger.debug(accessModel.toString());
 
-        assertFalse(accessModel.getWildCardPrivilegesMap().isEmpty());
+        assertFalse(accessModel.getWildCardPrivileges().isEmpty());
         assertFalse(accessModel.getRepositoryPrivileges().isEmpty());
 
         // modify access model and save it
         final String mockUrl = "/storagesNotValid/storage0/act-releases-1/org/carlspring/strongbox";
 
-        accessModel.getUrlToPrivilegesMap().put(mockUrl, Collections.emptyList());
+        accessModel.getUrlToPrivileges().add(new PathPrivilege(mockUrl, Collections.emptyList()));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(accessModel)
@@ -735,20 +753,25 @@ public class UserControllerTestIT
     {
         // load user with custom access model
         UserOutput test = getUser("developer01");
+
+        logger.debug(test.toString());
+
         AccessModelForm accessModel = buildFromAccessModel(test.getAccessModel());
+
+        logger.debug(accessModel.toString());
 
         assertNotNull(accessModel);
 
         logger.debug(accessModel.toString());
 
-        assertFalse(accessModel.getWildCardPrivilegesMap().isEmpty());
         assertFalse(accessModel.getRepositoryPrivileges().isEmpty());
+        assertFalse(accessModel.getWildCardPrivileges().isEmpty());
 
         // modify access model and save it
         final String mockUrl = "/storages/storage0/act-releases-1/org/carlspring/strongbox";
         final String mockPrivilege = Privileges.ARTIFACTS_DELETE.toString();
 
-        accessModel.getUrlToPrivilegesMap().put(mockUrl, Collections.singletonList(mockPrivilege));
+        accessModel.getUrlToPrivileges().add(new PathPrivilege(mockUrl, Collections.singletonList(mockPrivilege)));
 
         String username = "userNotFound";
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -853,9 +876,9 @@ public class UserControllerTestIT
         if (accessModel != null)
         {
             dto = new AccessModelForm();
-            dto.setRepositoryPrivileges(new HashMap<>(accessModel.getRepositoryPrivileges()));
-            dto.setUrlToPrivilegesMap(new HashMap<>(accessModel.getUrlToPrivilegesMap()));
-            dto.setWildCardPrivilegesMap(new HashMap<>(accessModel.getWildCardPrivilegesMap()));
+            dto.setRepositoryPrivileges(accessModel.getRepositoryPrivileges());
+            dto.setUrlToPrivileges(accessModel.getUrlToPrivileges());
+            dto.setWildCardPrivileges(accessModel.getWildCardPrivileges());
         }
         return dto;
     }

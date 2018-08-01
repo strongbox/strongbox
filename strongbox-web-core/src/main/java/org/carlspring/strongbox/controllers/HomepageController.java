@@ -24,7 +24,7 @@ public class HomepageController
     public String homepage(@RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws IOException
     {
-        return "index.html";
+        return "/index.html";
     }
 
 }

@@ -6,11 +6,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
  * @author Sergey Bespalov
  *
  */
-public class SecurityTokenAuthentication extends UsernamePasswordAuthenticationToken
+public class JwtAuthentication extends UsernamePasswordAuthenticationToken
 {
-    
-    public SecurityTokenAuthentication(String principal,
-                                       String credentials)
+
+    public JwtAuthentication(String principal,
+                             String credentials)
     {
         super(principal, credentials);
     }
@@ -27,5 +27,4 @@ public class SecurityTokenAuthentication extends UsernamePasswordAuthenticationT
         return (String) super.getPrincipal();
     }
 
-    
 }

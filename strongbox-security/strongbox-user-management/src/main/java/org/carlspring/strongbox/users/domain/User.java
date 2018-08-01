@@ -18,6 +18,8 @@ import com.google.common.collect.ImmutableSet;
 public class User implements Serializable
 {
 
+    public static final String SECURITY_TOKEN_KEY = "security-token-key";
+    
     private final String username;
 
     private final String password;
