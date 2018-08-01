@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.util.Set;
 
@@ -60,7 +60,7 @@ public class RepositoryOutput
     {
     }
 
-    public RepositoryOutput(final MutableRepository repository)
+    public RepositoryOutput(final Repository repository)
     {
         this.id = repository.getId();
         this.basedir = repository.getBasedir();

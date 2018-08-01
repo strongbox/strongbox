@@ -61,6 +61,34 @@ public class StoragesConfigurationControllerTestIT
     }
 
     @Test
+    public void testGetStorage()
+            throws Exception
+    {
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/storage0";
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(200);
+    }
+
+    @Test
+    public void testGetRepository()
+            throws Exception
+    {
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/storage0/releases";
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(200);
+    }
+
+    @Test
     public void testAddGetStorage()
     {
         String storageId = "storage1";
@@ -197,6 +225,7 @@ public class StoragesConfigurationControllerTestIT
                                                          repositoryId);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .delete(url)
                .then()
@@ -269,6 +298,7 @@ public class StoragesConfigurationControllerTestIT
         logger.debug(url);
 
         given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .accept(MediaType.TEXT_PLAIN_VALUE)
                .param("force", true)
                .when()
                .delete(url)

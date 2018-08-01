@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.Storage;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class StorageOutput
     {
     }
 
-    public StorageOutput(final MutableStorage storage)
+    public StorageOutput(final Storage storage)
     {
         this.id = storage.getId();
         this.basedir = storage.getBasedir();
