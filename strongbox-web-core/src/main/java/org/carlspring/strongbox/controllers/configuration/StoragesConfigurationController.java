@@ -10,6 +10,7 @@ import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.services.support.ConfigurationException;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.Views;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -104,9 +105,9 @@ public class StoragesConfigurationController
 
     @ApiOperation(value = "Add/update a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The storage was updated successfully."),
+                                    message = "The storage was updated successfully."),
                             @ApiResponse(code = 500,
-                                         message = "An error occurred.") })
+                                    message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
                                                                           MediaType.APPLICATION_JSON_VALUE })
@@ -145,21 +146,20 @@ public class StoragesConfigurationController
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getStorages()
     {
-        final List<StorageOutput> storages = configurationManagementService.getConfiguration()
-                                                                           .getStorages()
-                                                                           .values()
-                                                                           .stream()
-                                                                           .map(StorageOutput::new)
-                                                                           .collect(Collectors.toList());
+        final List<Storage> storages = configurationManagementService.getConfiguration()
+                                                                     .getStorages()
+                                                                     .values()
+                                                                     .stream()
+                                                                     .collect(Collectors.toList());
         return ResponseEntity.ok(new StoragesOutput(storages));
     }
 
     @JsonView(Views.LongStorage.class)
     @ApiOperation(value = "Retrieve the configuration of a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = ""),
+                                    message = ""),
                             @ApiResponse(code = 404,
-                                         message = "Storage ${storageId} was not found.") })
+                                    message = "Storage ${storageId} was not found.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
     @GetMapping(value = "/{storageId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getStorage(@ApiParam(value = "The storageId", required = true)
@@ -169,7 +169,7 @@ public class StoragesConfigurationController
 
         if (storage != null)
         {
-            return ResponseEntity.ok(new StorageOutput(storage));
+            return ResponseEntity.ok(storage);
         }
         else
         {
@@ -179,11 +179,11 @@ public class StoragesConfigurationController
 
     @ApiOperation(value = "Deletes a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The storage was removed successfully."),
+            message = "The storage was removed successfully."),
                             @ApiResponse(code = 404,
-                                         message = "Storage ${storageId} not found!"),
+                                    message = "Storage ${storageId} not found!"),
                             @ApiResponse(code = 500,
-                                         message = "Failed to remove storage ${storageId}!") })
+                                    message = "Failed to remove storage ${storageId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_STORAGE_CONFIGURATION')")
     @DeleteMapping(value = "/{storageId}", produces = { MediaType.TEXT_PLAIN_VALUE,
                                                         MediaType.APPLICATION_JSON_VALUE })
@@ -270,10 +270,10 @@ public class StoragesConfigurationController
 
     @ApiOperation(value = "Returns the configuration of a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The repository was updated successfully.",
-                                         response = MutableRepository.class),
+                                    message = "The repository was updated successfully.",
+            response = MutableRepository.class),
                             @ApiResponse(code = 404,
-                                         message = "Repository ${storageId}:${repositoryId} was not found!") })
+                                    message = "Repository ${storageId}:${repositoryId} was not found!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
     @GetMapping(value = "/{storageId}/{repositoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getRepository(@ApiParam(value = "The storageId", required = true)
@@ -290,28 +290,30 @@ public class StoragesConfigurationController
 
             if (repository != null)
             {
-                return ResponseEntity.ok(new RepositoryOutput(repository));
+                return ResponseEntity.ok(repository);
             }
             else
             {
-                return getFailedResponseEntity(HttpStatus.NOT_FOUND, REPOSITORY_NOT_FOUND, MediaType.APPLICATION_JSON_VALUE);
+                return getFailedResponseEntity(HttpStatus.NOT_FOUND, REPOSITORY_NOT_FOUND,
+                                               MediaType.APPLICATION_JSON_VALUE);
             }
         }
         catch (Exception e)
         {
             logger.error(e.getMessage(), e);
 
-            return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_GET_REPOSITORY, MediaType.APPLICATION_JSON_VALUE);
+            return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_GET_REPOSITORY,
+                                           MediaType.APPLICATION_JSON_VALUE);
         }
     }
 
     @ApiOperation(value = "Deletes a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The repository was deleted successfully."),
+                                    message = "The repository was deleted successfully."),
                             @ApiResponse(code = 404,
-                                         message = "Repository ${storageId}:${repositoryId} was not found!"),
+                                    message = "Repository ${storageId}:${repositoryId} was not found!"),
                             @ApiResponse(code = 500,
-                                         message = "Failed to remove repository ${repositoryId}!") })
+                                    message = "Failed to remove repository ${repositoryId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_REPOSITORY')")
     @DeleteMapping(value = "/{storageId}/{repositoryId}", produces = { MediaType.TEXT_PLAIN_VALUE,
                                                                        MediaType.APPLICATION_JSON_VALUE })

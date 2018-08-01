@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.configuration;
+package org.carlspring.strongbox.storage;
 
 /**
  * @author Przemyslaw Fusik

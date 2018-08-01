@@ -1,20 +1,27 @@
 package org.carlspring.strongbox.storage.repository;
 
-import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.json.MapValuesJsonSerializer;
+import org.carlspring.strongbox.json.StringArrayToMapJsonDeserializer;
 import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
-import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
+import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
 
 import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -22,56 +29,67 @@ import com.google.common.collect.ImmutableMap;
  * @author Przemyslaw Fusik
  */
 @Immutable
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Repository
 {
 
-    private final String id;
+    private String id;
 
-    private final String basedir;
+    private String basedir;
 
-    private final String policy;
+    private String policy;
 
-    private final String implementation;
+    private String implementation;
 
-    private final String layout;
+    private String layout;
 
-    private final String type;
+    private String type;
 
-    private final boolean secured;
+    private boolean secured;
 
-    private final String status;
+    private String status;
 
-    private final long artifactMaxSize;
+    private long artifactMaxSize;
 
-    private final boolean trashEnabled;
+    private boolean trashEnabled;
 
-    private final boolean allowsForceDeletion;
+    private boolean allowsForceDeletion;
 
-    private final boolean allowsDeployment;
+    private boolean allowsDeployment;
 
-    private final boolean allowsRedeployment;
+    private boolean allowsRedeployment;
 
-    private final boolean allowsDelete;
+    private boolean allowsDelete;
 
-    private final boolean allowsDirectoryBrowsing;
+    private boolean allowsDirectoryBrowsing;
 
-    private final boolean checksumHeadersEnabled;
+    private boolean checksumHeadersEnabled;
 
-    private final ProxyConfiguration proxyConfiguration;
+    private ProxyConfiguration proxyConfiguration;
 
-    private final RemoteRepository remoteRepository;
+    private RemoteRepository remoteRepository;
 
-    private final HttpConnectionPool httpConnectionPool;
+    private HttpConnectionPool httpConnectionPool;
 
-    private final List<CustomConfiguration> customConfigurations;
+    private List<CustomConfiguration> customConfigurations;
 
-    private final CustomRepositoryConfiguration repositoryConfiguration;
+    private CustomRepositoryConfiguration repositoryConfiguration;
 
-    private final Map<String, String> groupRepositories;
+    @JsonSerialize(using = MapValuesJsonSerializer.class)
+    @JsonDeserialize(using = StringArrayToMapJsonDeserializer.class)
+    private Map<String, String> groupRepositories;
 
-    private final Map<String, String> artifactCoordinateValidators;
+    @JsonSerialize(using = MapValuesJsonSerializer.class)
+    @JsonDeserialize(using = StringArrayToMapJsonDeserializer.class)
+    private Map<String, String> artifactCoordinateValidators;
 
-    private final Storage storage;
+    @JsonIgnore
+    private Storage storage;
+
+    Repository()
+    {
+
+    }
 
     public Repository(final MutableRepository delegate)
     {
@@ -135,8 +153,9 @@ public class Repository
 
     private List<CustomConfiguration> immuteCustomConfigurations(final List<MutableCustomConfiguration> source)
     {
-        return source != null ? ImmutableList.copyOf(source.stream().map(MutableCustomConfiguration::getImmutable).collect(
-                Collectors.toList())) : Collections.emptyList();
+        return source != null ?
+               ImmutableList.copyOf(source.stream().map(MutableCustomConfiguration::getImmutable).collect(
+                       Collectors.toList())) : Collections.emptyList();
     }
 
     private CustomRepositoryConfiguration immuteCustomRepositoryConfiguration(final MutableCustomRepositoryConfiguration source)

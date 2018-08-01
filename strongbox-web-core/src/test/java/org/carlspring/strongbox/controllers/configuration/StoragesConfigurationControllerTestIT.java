@@ -6,6 +6,8 @@ import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.util.List;
 
@@ -30,6 +32,7 @@ import static org.junit.Assert.assertTrue;
 public class StoragesConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
+
     static ProxyConfigurationForm createProxyConfiguration()
     {
         ProxyConfigurationForm proxyConfiguration = new ProxyConfigurationForm();
@@ -78,7 +81,8 @@ public class StoragesConfigurationControllerTestIT
     public void testGetRepository()
             throws Exception
     {
-        String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/storage0/releases";
+        String url = getContextBaseUrl() +
+                     "/api/configuration/strongbox/storages/storage-common-proxies/group-common-proxies";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -134,41 +138,41 @@ public class StoragesConfigurationControllerTestIT
         addRepository(r1, storage1);
         addRepository(r2, storage1);
 
-        StorageOutput storage = getStorage(storageId);
-        RepositoryOutput repository0 = storage.getRepositories().stream().filter(r->"repository0".equals(r.getId())).findFirst().get();
-        RepositoryOutput repository1 = storage.getRepositories().stream().filter(r->"repository1".equals(r.getId())).findFirst().get();
+        Storage storage = getStorage(storageId);
+        Repository repository0 = storage.getRepositories().get("repository0");
+        Repository repository1 = storage.getRepositories().get("repository1");
 
         assertNotNull("Failed to get storage (" + storageId + ")!", storage);
         assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());
         assertTrue("Failed to get storage (" + storageId + ")!",
-                   repository0.isAllowsRedeployment());
+                   repository0.allowsRedeployment());
         assertTrue("Failed to get storage (" + storageId + ")!",
                    repository0.isSecured());
         assertTrue("Failed to get storage (" + storageId + ")!",
-                   repository1.isAllowsForceDeletion());
+                   repository1.allowsForceDeletion());
         assertTrue("Failed to get storage (" + storageId + ")!",
                    repository1.isTrashEnabled());
 
-        /* TODO
+
         assertNotNull("Failed to get storage (" + storageId + ")!",
                       repository1.getProxyConfiguration().getHost());
         assertEquals("Failed to get storage (" + storageId + ")!",
                      "localhost",
                      repository1.getProxyConfiguration().getHost());
-                     */
+
 
         deleteRepository(storageId, "repository0");
         deleteRepository(storageId, "repository1");
     }
 
-    private StorageOutput getStorage(String storageId)
+    private Storage getStorage(String storageId)
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId;
 
         return given().accept(MediaType.APPLICATION_JSON_VALUE)
                       .when()
                       .get(url)
-                      .as(StorageOutput.class);
+                      .as(Storage.class);
     }
 
     private int addRepository(RepositoryForm repository,
@@ -288,7 +292,7 @@ public class StoragesConfigurationControllerTestIT
                .statusCode(200)
                .extract();
 
-        StorageOutput storage = getStorage(storageId);
+        Storage storage = getStorage(storageId);
 
         assertNotNull("Failed to get storage (" + storageId + ")!", storage);
         assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());

@@ -1,12 +1,18 @@
 package org.carlspring.strongbox.storage;
 
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.json.MapValuesJsonSerializer;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import java.util.Collections;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMap;
 import static java.util.stream.Collectors.toMap;
 
@@ -14,14 +20,25 @@ import static java.util.stream.Collectors.toMap;
  * @author Przemyslaw Fusik
  */
 @Immutable
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Storage
 {
 
-    private final String id;
+    @JsonView(Views.ShortStorage.class)
+    private String id;
 
-    private final String basedir;
+    @JsonView(Views.ShortStorage.class)
+    private String basedir;
 
-    private final Map<String, Repository> repositories;
+    @JsonView(Views.LongStorage.class)
+    @JsonSerialize(using = MapValuesJsonSerializer.class)
+    @JsonDeserialize(using = RepositoryArrayToMapJsonDeserializer.class)
+    private Map<String, Repository> repositories;
+
+    Storage()
+    {
+
+    }
 
     public Storage(final MutableStorage delegate)
     {
