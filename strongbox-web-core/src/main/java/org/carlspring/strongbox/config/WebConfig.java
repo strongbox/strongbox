@@ -4,10 +4,10 @@ import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.converters.PrivilegeListFormToPrivilegeListConverter;
 import org.carlspring.strongbox.converters.RoleFormToRoleConverter;
 import org.carlspring.strongbox.converters.RoleListFormToRoleListConverter;
-import org.carlspring.strongbox.converters.configuration.ProxyConfigurationFormToProxyConfigurationConverter;
-import org.carlspring.strongbox.converters.configuration.RemoteRepositoryFormToMutableRepositoryConverter;
-import org.carlspring.strongbox.converters.configuration.RepositoryFormToMutableRepositoryConverter;
-import org.carlspring.strongbox.converters.configuration.StorageFormToMutableStorageConverter;
+import org.carlspring.strongbox.converters.configuration.ProxyConfigurationFormConverter;
+import org.carlspring.strongbox.converters.configuration.RemoteRepositoryFormConverter;
+import org.carlspring.strongbox.converters.configuration.RepositoryFormConverter;
+import org.carlspring.strongbox.converters.configuration.StorageFormConverter;
 import org.carlspring.strongbox.converters.storage.routing.RoutingRuleFormToRoutingRuleConverter;
 import org.carlspring.strongbox.converters.storage.routing.RuleSetFormToRuleSetConverter;
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
@@ -201,12 +201,12 @@ public class WebConfig
         registry.addConverter(new PrivilegeListFormToPrivilegeListConverter());
         registry.addConverter(new UserFormToUserDtoConverter());
         registry.addConverter(new AccessModelFormToUserAccessModelDtoConverter());
-        registry.addConverter(ProxyConfigurationFormToProxyConfigurationConverter.INSTANCE);
+        registry.addConverter(ProxyConfigurationFormConverter.INSTANCE);
         registry.addConverter(new RuleSetFormToRuleSetConverter());
         registry.addConverter(new RoutingRuleFormToRoutingRuleConverter());
-        registry.addConverter(StorageFormToMutableStorageConverter.INSTANCE);
-        registry.addConverter(RepositoryFormToMutableRepositoryConverter.INSTANCE);
-        registry.addConverter(RemoteRepositoryFormToMutableRepositoryConverter.INSTANCE);
+        registry.addConverter(StorageFormConverter.INSTANCE);
+        registry.addConverter(RepositoryFormConverter.INSTANCE);
+        registry.addConverter(RemoteRepositoryFormConverter.INSTANCE);
     }
 
     @Bean

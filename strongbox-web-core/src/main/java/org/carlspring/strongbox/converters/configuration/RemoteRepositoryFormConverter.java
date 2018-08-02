@@ -8,7 +8,7 @@ import org.springframework.core.convert.converter.Converter;
 /**
  * @author Przemyslaw Fusik
  */
-public enum RemoteRepositoryFormToMutableRepositoryConverter
+public enum RemoteRepositoryFormConverter
         implements Converter<RemoteRepositoryForm, MutableRemoteRepository>
 {
 

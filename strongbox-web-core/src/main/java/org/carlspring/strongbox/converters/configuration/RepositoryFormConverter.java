@@ -9,7 +9,7 @@ import org.springframework.core.convert.converter.Converter;
 /**
  * @author Przemyslaw Fusik
  */
-public enum RepositoryFormToMutableRepositoryConverter
+public enum RepositoryFormConverter
         implements Converter<RepositoryForm, MutableRepository>
 {
     INSTANCE;
@@ -33,15 +33,20 @@ public enum RepositoryFormToMutableRepositoryConverter
         result.setAllowsDelete(source.isAllowsDelete());
         result.setAllowsDirectoryBrowsing(source.isAllowsDirectoryBrowsing());
         result.setChecksumHeadersEnabled(source.isChecksumHeadersEnabled());
+        if (source.getRepositoryConfiguration() != null)
+        {
+            result.setRepositoryConfiguration(
+                    source.getRepositoryConfiguration().accept(CustomRepositoryConfigurationFormConverter.INSTANCE));
+        }
         if (source.getProxyConfiguration() != null)
         {
-            result.setProxyConfiguration(ProxyConfigurationFormToProxyConfigurationConverter.INSTANCE.convert(
+            result.setProxyConfiguration(ProxyConfigurationFormConverter.INSTANCE.convert(
                     source.getProxyConfiguration()));
         }
         if (source.getRemoteRepository() != null)
         {
             result.setRemoteRepository(
-                    RemoteRepositoryFormToMutableRepositoryConverter.INSTANCE.convert(source.getRemoteRepository()));
+                    RemoteRepositoryFormConverter.INSTANCE.convert(source.getRemoteRepository()));
         }
         if (source.getHttpConnectionPool() != null)
         {

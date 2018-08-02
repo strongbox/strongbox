@@ -14,7 +14,7 @@ import org.springframework.core.convert.converter.Converter;
 /**
  * @author Przemyslaw Fusik
  */
-public enum StorageFormToMutableStorageConverter
+public enum StorageFormConverter
         implements Converter<StorageForm, MutableStorage>
 {
     INSTANCE;
@@ -31,7 +31,7 @@ public enum StorageFormToMutableStorageConverter
             Map<String, MutableRepository> internalMap = new LinkedHashMap<>();
             result.setRepositories(internalMap);
             repositories.stream()
-                        .map(RepositoryFormToMutableRepositoryConverter.INSTANCE::convert)
+                        .map(RepositoryFormConverter.INSTANCE::convert)
                         .forEach(mr -> internalMap.put(mr.getId(), mr));
         }
         return result;

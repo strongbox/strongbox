@@ -8,7 +8,7 @@ import org.springframework.core.convert.converter.Converter;
 /**
  * @author Pablo Tirado
  */
-public enum ProxyConfigurationFormToProxyConfigurationConverter
+public enum ProxyConfigurationFormConverter
         implements Converter<ProxyConfigurationForm, MutableProxyConfiguration>
 {
 

@@ -41,8 +41,8 @@ public class FormDataControllerTestIT
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body("assignableRoles", notNullValue())
-               .body("assignableRoles", hasSize(greaterThan(0)));
+               .body("formDataValues", notNullValue())
+               .body("formDataValues", hasSize(greaterThan(0)));
     }
 
     @Test

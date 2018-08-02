@@ -14,14 +14,14 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import org.junit.Ignore;
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpServerErrorException;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -58,12 +58,12 @@ public class StoragesConfigurationControllerTestIT
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(200);
+        givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
+                     .when()
+                     .get(url)
+                     .peek()
+                     .then()
+                     .statusCode(200);
     }
 
     @Test
@@ -72,12 +72,12 @@ public class StoragesConfigurationControllerTestIT
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/storage0";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(200);
+        givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
+                     .when()
+                     .get(url)
+                     .peek()
+                     .then()
+                     .statusCode(200);
     }
 
     @Test
@@ -87,12 +87,12 @@ public class StoragesConfigurationControllerTestIT
         String url = getContextBaseUrl() +
                      "/api/configuration/strongbox/storages/storage-common-proxies/group-common-proxies";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(200);
+        givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
+                     .when()
+                     .get(url)
+                     .peek()
+                     .then()
+                     .statusCode(200);
     }
 
     @Test
@@ -102,12 +102,12 @@ public class StoragesConfigurationControllerTestIT
         String url = getContextBaseUrl() +
                      "/api/configuration/strongbox/storages/storage0/releases";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(200);
+        givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
+                     .when()
+                     .get(url)
+                     .peek()
+                     .then()
+                     .statusCode(200);
     }
 
     @Test
@@ -123,14 +123,14 @@ public class StoragesConfigurationControllerTestIT
         logger.debug("Using storage class " + storage1.getClass()
                                                       .getName());
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(MediaType.APPLICATION_JSON_VALUE)
-               .body(storage1)
-               .when()
-               .put(url)
-               .prettyPeek()
-               .then()
-               .statusCode(200);
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .body(storage1)
+                     .when()
+                     .put(url)
+                     .prettyPeek()
+                     .then()
+                     .statusCode(200);
 
         RepositoryForm r1 = new RepositoryForm();
         r1.setId("repository0");
@@ -183,7 +183,6 @@ public class StoragesConfigurationControllerTestIT
         deleteRepository(storageId, "repository1");
     }
 
-    @Ignore
     @Test
     public void testAddGetRepository()
     {
@@ -236,7 +235,7 @@ public class StoragesConfigurationControllerTestIT
         assertTrue("Failed to get storage (" + storageId + ")!",
                    ((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingEnabled());
         assertFalse("Failed to get storage (" + storageId + ")!",
-                    ((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingEnabled());
+                    ((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingClassNamesEnabled());
 
         assertTrue("Failed to get storage (" + storageId + ")!",
                    repository1.allowsForceDeletion());
@@ -257,10 +256,17 @@ public class StoragesConfigurationControllerTestIT
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId;
 
-        return given().accept(MediaType.APPLICATION_JSON_VALUE)
-                      .when()
-                      .get(url)
-                      .as(Storage.class);
+        RestAssuredMockMvcConfig config = RestAssuredMockMvcConfig.config().objectMapperConfig(
+                new ObjectMapperConfig().jackson2ObjectMapperFactory(
+                        (aClass, s) -> objectMapper
+                ));
+
+        return givenCustom()
+                       .accept(MediaType.APPLICATION_JSON_VALUE)
+                       .when()
+                       .get(url)
+                       .prettyPeek()
+                       .as(Storage.class);
     }
 
     private int addRepository(RepositoryForm repository,
@@ -296,15 +302,15 @@ public class StoragesConfigurationControllerTestIT
             throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        int status = given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                            .accept(MediaType.APPLICATION_JSON_VALUE)
-                            .body(repository)
-                            .when()
-                            .put(url)
-                            .then()
-                            .statusCode(200)
-                            .extract()
-                            .statusCode();
+        int status = givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                                  .accept(MediaType.APPLICATION_JSON_VALUE)
+                                  .body(repository)
+                                  .when()
+                                  .put(url)
+                                  .then()
+                                  .statusCode(200)
+                                  .extract()
+                                  .statusCode();
 
         return status;
     }
@@ -316,12 +322,12 @@ public class StoragesConfigurationControllerTestIT
                                                          storageId,
                                                          repositoryId);
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .delete(url)
-               .then()
-               .statusCode(200);
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .when()
+                     .delete(url)
+                     .then()
+                     .statusCode(200);
     }
 
     @Test
@@ -336,14 +342,14 @@ public class StoragesConfigurationControllerTestIT
 
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(MediaType.APPLICATION_JSON_VALUE)
-               .body(storage2)
-               .when()
-               .put(url)
-               .peek() // Use peek() to print the ouput
-               .then()
-               .statusCode(200);
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .body(storage2)
+                     .when()
+                     .put(url)
+                     .peek() // Use peek() to print the ouput
+                     .then()
+                     .statusCode(200);
 
         RepositoryForm r1 = new RepositoryForm();
         r1.setId(repositoryId1);
@@ -371,14 +377,14 @@ public class StoragesConfigurationControllerTestIT
 
         url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .params("storageId", storageId, "repositoryId", repositoryId1)
-               .when()
-               .get(url)
-               .peek() // Use peek() to print the ouput
-               .then()
-               .statusCode(200)
-               .extract();
+        givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
+                     .params("storageId", storageId, "repositoryId", repositoryId1)
+                     .when()
+                     .get(url)
+                     .peek() // Use peek() to print the ouput
+                     .then()
+                     .statusCode(200)
+                     .extract();
 
         Storage storage = getStorage(storageId);
 
@@ -389,26 +395,26 @@ public class StoragesConfigurationControllerTestIT
 
         logger.debug(url);
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .accept(MediaType.TEXT_PLAIN_VALUE)
-               .param("force", true)
-               .when()
-               .delete(url)
-               .peek() // Use peek() to print the ouput
-               .then()
-               .statusCode(200);
+        givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
+                     .accept(MediaType.TEXT_PLAIN_VALUE)
+                     .param("force", true)
+                     .when()
+                     .delete(url)
+                     .peek() // Use peek() to print the ouput
+                     .then()
+                     .statusCode(200);
 
         url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
 
         logger.debug(storageId);
         logger.debug(repositoryId1);
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .when()
-               .get(url)
-               .peek() // Use peek() to print the ouput
-               .then()
-               .statusCode(404);
+        givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
+                     .when()
+                     .get(url)
+                     .peek() // Use peek() to print the ouput
+                     .then()
+                     .statusCode(404);
 
         deleteRepository(storageId, repositoryId2);
     }

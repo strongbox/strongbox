@@ -1,17 +1,18 @@
 package org.carlspring.strongbox.rest.common;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.util.Collection;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.testing.TestCaseWithRepository;
 import org.carlspring.strongbox.users.domain.Roles;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.util.Collection;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.junit.Assert.assertTrue;
 
 /**
  * General settings for the testing sub-system.
@@ -42,12 +46,17 @@ public abstract class RestAssuredBaseTest
     protected WebApplicationContext context;
 
     @Inject
+    protected ObjectMapper objectMapper;
+
+    @Inject
     private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
     @Inject
     protected RestAssuredArtifactClient client;
 
     private String contextBaseUrl;
+
+    private RestAssuredMockMvcConfig restAssuredMockMvcConfig;
 
     @Before
     public void init()
@@ -59,11 +68,18 @@ public abstract class RestAssuredBaseTest
         // By default all operations incl. deletion, etc. are allowed (be careful)!
         // Override #provideAuthorities, if you want be more specific.
         anonymousAuthenticationFilter.getAuthorities().addAll(provideAuthorities());
+
+        restAssuredMockMvcConfig = RestAssuredMockMvcConfig.config().objectMapperConfig(
+                new ObjectMapperConfig().jackson2ObjectMapperFactory((aClass, s) -> objectMapper));
     }
 
     public String getContextBaseUrl()
     {
         return contextBaseUrl;
+    }
+
+    protected MockMvcRequestSpecification givenCustom() {
+        return given().config(restAssuredMockMvcConfig);
     }
 
     @Inject

@@ -3,16 +3,20 @@ package org.carlspring.strongbox.authorization.domain;
 import org.carlspring.strongbox.authorization.dto.RoleDto;
 
 import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableSet;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Immutable
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Role
 {
 
@@ -20,8 +24,10 @@ public class Role
 
     private final String description;
 
+    @JsonIgnore
     private final String repository;
 
+    @JsonIgnore
     private final Set<String> privileges;
 
     public Role(final RoleDto source)

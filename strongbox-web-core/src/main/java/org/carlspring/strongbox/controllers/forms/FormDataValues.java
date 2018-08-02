@@ -4,8 +4,8 @@ import org.carlspring.strongbox.api.Describable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -28,12 +28,12 @@ public class FormDataValues<T>
         return result;
     }
 
-    public static FormDataValues fromSet(final String name,
-                                         final Set<String> values)
+    public static FormDataValues fromCollection(final String name,
+                                                final Collection<?> values)
     {
         final FormDataValues<String> result = new FormDataValues<>();
         result.setName(name);
-        result.setValues(new ArrayList<>(values));
+        result.setValues(new ArrayList(values));
         return result;
     }
 
