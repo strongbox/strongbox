@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 /**
@@ -29,17 +28,9 @@ public class StringArrayToMapJsonDeserializer
         ObjectCodec codec = parser.getCodec();
         TreeNode node = codec.readTree(parser);
 
-        if (node.isArray())
+        if (node.isArray() && node.size() > 0)
         {
-            for (JsonNode n : (ArrayNode) node)
-            {
-                JsonNode id = n.get("id");
-                if (id != null)
-                {
-                    JsonNode name = n.get("name");
-                    //ret.put(id.asText(), name.asText());
-                }
-            }
+            ((ArrayNode) node).forEach(n -> result.put(n.asText(), n.asText()));
         }
         return result;
     }

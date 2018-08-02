@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMap;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -21,6 +22,7 @@ import static java.util.stream.Collectors.toMap;
  */
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
+@SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
 public class Storage
 {
 

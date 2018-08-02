@@ -13,6 +13,7 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
@@ -152,6 +153,7 @@ public class StoragesConfigurationControllerTestIT
         r2.setPolicy("release");
         r2.setImplementation("file-system");
         r2.setStatus("In Service");
+        r2.setGroupRepositories(ImmutableSet.of("repository0"));
 
         addRepository(r1, storage1);
         addRepository(r2, storage1);
@@ -214,6 +216,7 @@ public class StoragesConfigurationControllerTestIT
         r0_2.setPolicy("release");
         r0_2.setImplementation("file-system");
         r0_2.setStatus("In Service");
+        r0_2.setGroupRepositories(ImmutableSet.of("repository0"));
 
         addRepository(r0_1, storage0);
         addRepository(r0_2, storage0);

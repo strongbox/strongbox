@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import java.util.Collections;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jersey.repackaged.com.google.common.collect.ImmutableList;
 
 /**
@@ -14,6 +15,7 @@ import jersey.repackaged.com.google.common.collect.ImmutableList;
  */
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
+@SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
 public class ProxyConfiguration
 {
 
