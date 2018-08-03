@@ -30,4 +30,14 @@ public class LdapUserSearchResponseEntityBody
         this.searchFilter = searchFilter;
         return this;
     }
+
+    public String getSearchBase()
+    {
+        return searchBase;
+    }
+
+    public String getSearchFilter()
+    {
+        return searchFilter;
+    }
 }

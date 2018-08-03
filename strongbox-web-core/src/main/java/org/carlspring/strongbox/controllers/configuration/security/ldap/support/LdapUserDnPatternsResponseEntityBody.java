@@ -25,4 +25,9 @@ public class LdapUserDnPatternsResponseEntityBody
     {
         this.userDnPatterns = userDnPatterns;
     }
+
+    public List<String> getUserDnPatterns()
+    {
+        return userDnPatterns;
+    }
 }
