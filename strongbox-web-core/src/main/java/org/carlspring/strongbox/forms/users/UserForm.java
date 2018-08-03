@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.forms.users;
 
+import org.carlspring.strongbox.validation.users.Password;
 import org.carlspring.strongbox.validation.users.UniqueUsername;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
@@ -22,8 +22,8 @@ public class UserForm implements Serializable
     @UniqueUsername(groups = NewUser.class, message = "A user with this username already exists. Please enter another username.")
     private String username;
 
-    @NotEmpty(groups = {NewUser.class, ExistingUser.class}, message = "A password must be specified.")
-    @Size(groups = {NewUser.class, ExistingUser.class}, min = 8, message = "This field is less than 8 characters long.")
+    @Password(groups = {NewUser.class}, min = 8)
+    @Password(groups = {ExistingUser.class}, allowNull = true, min = 8)
     private String password;
 
     private boolean enabled;
