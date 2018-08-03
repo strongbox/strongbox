@@ -1,47 +1,20 @@
 package org.carlspring.strongbox.web;
 
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.controllers.layout.maven.MavenArtifactController;
+import org.carlspring.strongbox.controllers.layout.nuget.NugetArtifactController;
+import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import javax.servlet.*;
+import javax.servlet.http.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.servlet.AsyncContext;
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpUpgradeHandler;
-import javax.servlet.http.Part;
-
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controllers.layout.maven.MavenArtifactController;
-import org.carlspring.strongbox.controllers.layout.nuget.NugetArtifactController;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
-import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
-import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import java.util.*;
 
 /**
  * This filter used to map HTTP header values from one to another.<br>
@@ -58,39 +31,18 @@ public class HeaderMappingFilter
 {
 
     private static final String USER_AGENT_UNKNOWN = "unknown";
-    private static final String USER_AGENT_NUGET = "NuGet";
-    private static final String USER_AGENT_MAVEN = "Maven";
-    private static final String USER_AGENT_NPM = "npm";
-    private static final String USER_AGENT_RAW = "Raw";
-    
-    private Map<String, String> userAgentMap = new HashMap<>();
-    private Map<String, String> layoutMap = new HashMap<>();
+
+    @Inject
+    private HeaderMappingRegistry headerMappingRegistry;
 
     @Inject
     private ConfigurationManager configurationManager;
 
+
     @Override
     public void init(FilterConfig filterConfig)
-            throws ServletException
     {
         // Do nothing
-    }
-
-    @PostConstruct
-    public void postConstruct()
-    {
-        // TODO: we need auto configuration for this, maybe thru `LayoutProviderRegistry`
-
-        String format = "%s/*";
-        userAgentMap.put(USER_AGENT_NUGET, String.format(format, USER_AGENT_NUGET));
-        userAgentMap.put(USER_AGENT_MAVEN, String.format(format, USER_AGENT_MAVEN));
-        userAgentMap.put(USER_AGENT_NPM, String.format(format, USER_AGENT_NPM));
-        userAgentMap.put(USER_AGENT_RAW, String.format(format, USER_AGENT_RAW));
-        
-        layoutMap.put(NugetLayoutProvider.ALIAS, String.format(format, USER_AGENT_NUGET));
-        layoutMap.put(Maven2LayoutProvider.ALIAS, String.format(format, USER_AGENT_MAVEN));
-        layoutMap.put(NpmLayoutProvider.ALIAS, String.format(format, USER_AGENT_NPM));
-        layoutMap.put(RawLayoutProvider.ALIAS, String.format(format, USER_AGENT_RAW));
     }
 
     @Override
@@ -109,6 +61,7 @@ public class HeaderMappingFilter
         {
             ((HttpServletResponse)response).setStatus(404);
             ((HttpServletResponse)response).getWriter().append(e.getMessage());
+
             return;
         }
 
@@ -124,16 +77,17 @@ public class HeaderMappingFilter
         {
             return null;
         }
+
         String[] pathParts = pathInfo.split("/");
         if (pathParts.length < 4)
         {
             return null;
         }
+
         String storageId = pathParts[2];
         String repositoryId = pathParts[3];
 
-        Storage storage = configurationManager.getConfiguration()
-                                              .getStorage(storageId);
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         if (storage == null)
         {
             throw new IllegalArgumentException(String.format("Storage not found [%s]", storageId));
@@ -158,13 +112,17 @@ public class HeaderMappingFilter
     {
 
         private static final String HEADER_NAME_USER_AGENT = "user-agent";
+
         private HttpServletRequest target;
+
         private String layout;
+
 
         public ServletRequestDecorator(HttpServletRequest target,
                                        String layout)
         {
             super();
+
             this.target = target;
             this.layout = layout;
         }
@@ -177,25 +135,27 @@ public class HeaderMappingFilter
             {
                 return headerValue;
             }
+
             if (headerValue == null)
             {
                 return USER_AGENT_UNKNOWN;
             }
 
-            Optional<String> targetUserAgent = userAgentMap.keySet()
-                                                           .stream()
-                                                           .filter((k) ->
-                                                                   {
-                                                                       return headerValue.toUpperCase()
-                                                                                         .contains(k.toUpperCase());
-                                                                   })
-                                                           .findFirst();
+            Optional<String> targetUserAgent = headerMappingRegistry.getUserAgentMap()
+                                                                    .keySet()
+                                                                    .stream()
+                                                                    .filter((k) ->
+                                                                            {
+                                                                                return headerValue.toUpperCase()
+                                                                                                  .contains(k.toUpperCase());
+                                                                            })
+                                                                    .findFirst();
 
             String result = targetUserAgent.map((k) ->
                                                 {
-                                                    return userAgentMap.get(k);
+                                                    return headerMappingRegistry.getUserAgentMap().get(k);
                                                 })
-                                           .orElseGet(() -> layoutMap.get(layout));
+                                           .orElseGet(() -> headerMappingRegistry.getLayoutMap().get(layout));
 
             return Optional.ofNullable(result)
                            .orElse(String.format("%s/*", USER_AGENT_UNKNOWN));
@@ -253,7 +213,9 @@ public class HeaderMappingFilter
             {
                 return target.getHeaders(name);
             }
+
             Enumeration<String> result = Collections.enumeration(Arrays.asList(new String[]{ getHeader(name) }));
+
             return result;
         }
 
