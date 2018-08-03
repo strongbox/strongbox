@@ -15,8 +15,6 @@ import org.springframework.stereotype.Component;
 public class HeaderMappingRegistry
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(HeaderMappingRegistry.class);
-
     private static final String USER_AGENT_FORMAT = "%s/*";
 
     private Map<String, String> userAgentMap = new LinkedHashMap<>();
@@ -26,12 +24,6 @@ public class HeaderMappingRegistry
 
     public HeaderMappingRegistry()
     {
-    }
-
-    @PostConstruct
-    public void initialize()
-    {
-        logger.info("Initialized the header mapping registry.");
     }
 
     public void register(String layoutProviderAlias,
