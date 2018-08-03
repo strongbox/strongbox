@@ -103,12 +103,12 @@ public class HeaderMappingFilter
         String layout;
         try
         {
-            layout = getRequestedLayout(((HttpServletRequest) request).getPathInfo());
+            layout = getRequestedLayout(((HttpServletRequest) request).getServletPath());
         }
         catch (IllegalArgumentException e)
         {
             ((HttpServletResponse)response).setStatus(404);
-            ((HttpServletResponse)response).getWriter().append(e.getMessage());
+            response.getWriter().append(e.getMessage());
             return;
         }
 
@@ -118,13 +118,13 @@ public class HeaderMappingFilter
         chain.doFilter(targetRequest, response);
     }
 
-    private String getRequestedLayout(String pathInfo)
+    private String getRequestedLayout(String servletPath)
     {
-        if (!pathInfo.startsWith("/storages"))
+        if (!servletPath.startsWith("/storages"))
         {
             return null;
         }
-        String[] pathParts = pathInfo.split("/");
+        String[] pathParts = servletPath.split("/");
         if (pathParts.length < 4)
         {
             return null;
