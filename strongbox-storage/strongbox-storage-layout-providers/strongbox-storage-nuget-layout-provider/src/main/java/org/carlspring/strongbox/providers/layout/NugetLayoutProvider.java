@@ -17,6 +17,7 @@ import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -48,6 +49,11 @@ public class NugetLayoutProvider
 
     public static final String ALIAS = "NuGet";
 
+    public static final String USER_AGENT_PREFIX = "NuGet";
+
+    @Inject
+    private HeaderMappingRegistry headerMappingRegistry;
+
     @Inject
     private NugetRepositoryManagementStrategy nugetRepositoryManagementStrategy;
 
@@ -59,6 +65,7 @@ public class NugetLayoutProvider
     public void register()
     {
         layoutProviderRegistry.addProvider(ALIAS, this);
+        headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
 
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }

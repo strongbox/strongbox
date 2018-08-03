@@ -6,6 +6,7 @@ import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.archive.JarArchiveListingFunction;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
@@ -45,7 +46,12 @@ public class Maven2LayoutProvider
 
     public static final String ALIAS = "Maven 2";
 
+    public static final String USER_AGENT_PREFIX = "Maven";
+
     private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
+
+    @Inject
+    private HeaderMappingRegistry headerMappingRegistry;
 
     @Inject
     private MavenMetadataManager mavenMetadataManager;
@@ -61,6 +67,7 @@ public class Maven2LayoutProvider
     public void register()
     {
         layoutProviderRegistry.addProvider(ALIAS, this);
+        headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
 
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }

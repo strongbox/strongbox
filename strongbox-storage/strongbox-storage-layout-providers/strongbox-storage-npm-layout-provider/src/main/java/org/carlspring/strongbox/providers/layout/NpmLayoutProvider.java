@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -35,16 +36,23 @@ public class NpmLayoutProvider
 
     public static final String ALIAS = "npm";
 
+    public static final String USER_AGENT_PREFIX = "npm";
+
+    @Inject
+    private HeaderMappingRegistry headerMappingRegistry;
+
     @Inject
     private NpmRepositoryManagementStrategy npmRepositoryManagementStrategy;
 
     @Inject
     private NpmRepositoryFeatures npmRepositoryFeatures;
 
+
     @PostConstruct
     public void register()
     {
         layoutProviderRegistry.addProvider(ALIAS, this);
+        headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
 
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
