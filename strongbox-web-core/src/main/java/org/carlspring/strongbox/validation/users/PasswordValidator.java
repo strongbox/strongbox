@@ -22,7 +22,7 @@ public class PasswordValidator
     public boolean isValid(String password,
                            ConstraintValidatorContext context)
     {
-        if (StringUtils.isEmpty(password))
+        if (StringUtils.isBlank(password))
         {
             if (constraint.allowNull())
             {

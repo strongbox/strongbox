@@ -85,6 +85,20 @@ public class PasswordValidatorTest
     }
 
     @Test
+    public void testNewUserInvalidBlankPassword()
+    {
+        PasswordAnnotationTestClass testClass = new PasswordAnnotationTestClass();
+        testClass.setPassword("        ");
+        Set<ConstraintViolation<PasswordAnnotationTestClass>> violations = validator.validate(testClass,
+                                                                                              PasswordAnnotationTestClass.NewUser.class);
+
+
+        violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
+
+        assertFalse(violations.isEmpty());
+    }
+
+    @Test
     public void testUpdateUserNullPassword()
     {
         PasswordAnnotationTestClass testClass = new PasswordAnnotationTestClass();

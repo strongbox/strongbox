@@ -11,6 +11,7 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
@@ -288,47 +289,11 @@ public class UserControllerTestIT
         updateUser(MediaType.APPLICATION_JSON_VALUE, username);
     }
 
-    private void setNullPassword(String acceptHeader)
+    private void updateExistingUserWithNullPassword(String acceptHeader)
     {
         User mavenUser = retrieveUserByName("maven");
         UserForm input = buildFromUser(mavenUser, null);
         input.setPassword(null);
-
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(acceptHeader)
-               .body(input)
-               .when()
-               .put(getContextBaseUrl() + "/" + mavenUser.getUsername())
-               .peek()
-               .then()
-               .statusCode(HttpStatus.BAD_REQUEST.value())
-               .body(containsString(FAILED_UPDATE_USER))
-               .extract()
-               .asString();
-
-        User updatedUser = retrieveUserByName("maven");
-
-        assertNotNull(updatedUser.getPassword());
-        assertEquals(mavenUser.getPassword(), updatedUser.getPassword());
-    }
-
-    @Test
-    public void testSettingNullPasswordShouldFailWithTextAcceptHeader()
-    {
-        setNullPassword(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    public void testSettingNullPasswordShouldFailWithJsonAcceptHeader()
-    {
-        setNullPassword(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    private void setBlankPassword(String acceptHeader)
-    {
-        User mavenUser = retrieveUserByName("maven");
-        UserForm input = buildFromUser(mavenUser, null);
-        input.setPassword("          ");
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
@@ -349,15 +314,91 @@ public class UserControllerTestIT
     }
 
     @Test
-    public void testSettingBlankPasswordShouldFailWithTextAcceptHeader()
+    public void testUpdatingExistingUserPasswordToNullShouldWorkWithTextAcceptHeader()
     {
-        setBlankPassword(MediaType.TEXT_PLAIN_VALUE);
+        updateExistingUserWithNullPassword(MediaType.TEXT_PLAIN_VALUE);
     }
 
     @Test
-    public void testSettingBlankPasswordShouldFailWithJsonAcceptHeader()
+    public void testUpdatingExistingUserPasswordToNullShouldWorkWithJsonAcceptHeader()
     {
-        setBlankPassword(MediaType.APPLICATION_JSON_VALUE);
+        updateExistingUserWithNullPassword(MediaType.APPLICATION_JSON_VALUE);
+    }
+
+    private void createNewUserWithNullPassword(String acceptHeader)
+    {
+        UserDto newUserDto = new UserDto();
+        newUserDto.setUsername("new-username-with-null-password");
+
+        User newUser = new User(newUserDto);
+        UserForm input = buildFromUser(newUser, null);
+        input.setPassword(null);
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(acceptHeader)
+               .body(input)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .body(containsString(FAILED_CREATE_USER))
+               .extract()
+               .asString();
+
+        User databaseCheck = retrieveUserByName(newUserDto.getUsername());
+
+        assertNull(databaseCheck);
+    }
+
+    @Test
+    public void testSavingNewUserWithNullPasswordShouldFailWithTextAcceptHeader()
+    {
+        createNewUserWithNullPassword(MediaType.TEXT_PLAIN_VALUE);
+    }
+
+    @Test
+    public void testSavingNewUserWithNullPasswordShouldFailWithJsonAcceptHeader()
+    {
+        createNewUserWithNullPassword(MediaType.APPLICATION_JSON_VALUE);
+    }
+
+    private void setBlankPasswordExistingUser(String acceptHeader)
+    {
+        UserDto newUserDto = new UserDto();
+        newUserDto.setUsername("new-username-with-blank-password");
+
+        User newUser = new User(newUserDto);
+        UserForm input = buildFromUser(newUser, null);
+        input.setPassword("         ");
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(acceptHeader)
+               .body(input)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .body(containsString(FAILED_CREATE_USER))
+               .extract()
+               .asString();
+
+        User databaseCheck = retrieveUserByName(newUserDto.getUsername());
+
+        assertNull(databaseCheck);
+    }
+
+    @Test
+    public void testSavingNewUserWithBlankPasswordShouldFailWithTextAcceptHeader()
+    {
+        setBlankPasswordExistingUser(MediaType.TEXT_PLAIN_VALUE);
+    }
+
+    @Test
+    public void testSavingNewUserWithBlankPasswordShouldFailWithJsonAcceptHeader()
+    {
+        setBlankPasswordExistingUser(MediaType.APPLICATION_JSON_VALUE);
     }
 
     private void changeOwnUser(final String username,
@@ -366,9 +407,6 @@ public class UserControllerTestIT
         final String newPassword = "";
         UserForm user = buildUser(username, newPassword);
 
-        int statusCode = HttpStatus.BAD_REQUEST.value();
-        String responseContains = FAILED_UPDATE_USER;
-
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(user)
@@ -376,8 +414,8 @@ public class UserControllerTestIT
                .put(getContextBaseUrl() + "/{username}", username)
                .peek()
                .then()
-               .statusCode(statusCode)
-               .body(containsString(responseContains))
+               .statusCode(HttpStatus.FORBIDDEN.value())
+               .body(containsString(OWN_USER_DELETE_FORBIDDEN))
                .extract()
                .asString();
 

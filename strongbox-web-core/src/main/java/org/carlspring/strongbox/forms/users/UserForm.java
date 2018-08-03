@@ -4,6 +4,7 @@ import org.carlspring.strongbox.validation.users.Password;
 import org.carlspring.strongbox.validation.users.UniqueUsername;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.groups.Default;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
@@ -15,15 +16,16 @@ import com.google.common.collect.ImmutableSet;
  * @author Pablo Tirado
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserForm implements Serializable
+public class UserForm
+        implements Serializable
 {
 
-    @NotEmpty(groups = {NewUser.class}, message = "A username must be specified.")
+    @NotEmpty(groups = { NewUser.class }, message = "A username must be specified.")
     @UniqueUsername(groups = NewUser.class, message = "A user with this username already exists. Please enter another username.")
     private String username;
 
-    @Password(groups = {NewUser.class}, min = 8)
-    @Password(groups = {ExistingUser.class}, allowNull = true, min = 8)
+    @Password(groups = { NewUser.class }, min = 8)
+    @Password(groups = { ExistingUser.class }, allowNull = true, min = 8)
     private String password;
 
     private boolean enabled;
@@ -94,17 +96,20 @@ public class UserForm implements Serializable
         this.accessModel = accessModel;
     }
 
-    public interface NewUser extends Serializable
+    public interface NewUser
+            extends Serializable
     {
         // validation group marker interface for new users.
     }
 
-    public interface ExistingUser extends Serializable
+    public interface ExistingUser
+            extends Serializable
     {
         // validation group marker interface for existing users.
     }
 
-    public interface UpdateAccount extends Serializable
+    public interface UpdateAccount
+            extends Serializable
     {
         // validation group marker interface for existing users.
     }
