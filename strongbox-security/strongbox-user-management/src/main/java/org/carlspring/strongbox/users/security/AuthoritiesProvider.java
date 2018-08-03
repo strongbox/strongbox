@@ -52,7 +52,16 @@ public class AuthoritiesProvider
         populate(fullAuthorities, configuredRoles);
 
         Set<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority(Privileges.UI_LOGIN.getAuthority()));
+
+        // set by SecurityConfig#anonymousAuthenticationFilter()
+        if (AuthorizationConfigService.ANONYMOUS_ROLE.equals(roleName))
+        {
+            authorities.add(new SimpleGrantedAuthority(Privileges.ANONYMOUS_USER.getAuthority()));
+        }
+        else
+        {
+            authorities.add(new SimpleGrantedAuthority(Privileges.AUTHENTICATED_USER.getAuthority()));
+        }
 
         if (Roles.ADMIN.name().equals(roleName))
         {
@@ -91,11 +100,14 @@ public class AuthoritiesProvider
         AuthorizationConfig authorizationConfig = authorizationConfigService.get();
 
         authorizationConfig.getRoles()
-                           .forEach(role -> role.getPrivileges()
-                                                .forEach(
-                                                        privilegeName -> fullAuthorities.add(
-                                                                new SimpleGrantedAuthority(
-                                                                                                  privilegeName.toUpperCase()))));
+                           .forEach(
+                                   role -> role.getPrivileges()
+                                               .forEach(
+                                                       privilegeName -> fullAuthorities.add(
+                                                               new SimpleGrantedAuthority(privilegeName.toUpperCase())
+                                                       )
+                                               )
+                           );
 
         configuredRoles.addAll(authorizationConfig.getRoles());
     }

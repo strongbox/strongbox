@@ -1,8 +1,7 @@
 package org.carlspring.strongbox.users.domain;
 
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -18,6 +17,8 @@ public enum Privileges
         implements GrantedAuthority
 {
     ADMIN,
+    ANONYMOUS_USER,
+    AUTHENTICATED_USER,
     CONFIGURATION_UPLOAD,
     CONFIGURATION_VIEW,
     CONFIGURATION_SET_INSTANCE_NAME,
@@ -77,7 +78,11 @@ public enum Privileges
      */
     public static EnumSet<Privileges> all()
     {
-        return EnumSet.allOf(Privileges.class);
+        EnumSet<Privileges> privileges = EnumSet.allOf(Privileges.class)
+                                                .stream()
+                                                .filter(Privileges::excludeInternalAuthorities)
+                                                .collect(Collectors.toCollection(() -> EnumSet.noneOf(Privileges.class)));
+        return privileges;
     }
 
     public static EnumSet<Privileges> repoAll()
@@ -142,5 +147,14 @@ public enum Privileges
     public String getAuthority()
     {
         return this.name();
+    }
+
+    private static boolean excludeInternalAuthorities(Privileges p)
+    {
+        List<Privileges> exclude = new ArrayList<>();
+        exclude.add(Privileges.ANONYMOUS_USER);
+        exclude.add(Privileges.AUTHENTICATED_USER);
+
+        return exclude.stream().noneMatch(p::equals);
     }
 }

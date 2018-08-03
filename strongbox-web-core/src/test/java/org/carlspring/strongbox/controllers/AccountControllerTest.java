@@ -13,19 +13,21 @@ import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.apache.http.HttpHeaders;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.BeforeTransaction;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -93,7 +95,7 @@ public class AccountControllerTest
     }
 
     @Test
-    @WithMockUser(username = "test-account-update", authorities = {"UI_LOGIN"})
+    @WithMockUser(username = "test-account-update", authorities = {"AUTHENTICATED_USER"})
     public void testUpdateAccountDetails()
             throws Exception
     {
@@ -153,8 +155,8 @@ public class AccountControllerTest
     }
 
     @Test
-    @WithMockUser(username = "test-account-update-additional", authorities = {"UI_LOGIN"})
-    public void testUpdateAdditionalAccountDetailsShouldntUpdateThem()
+    @WithMockUser(username = "test-account-update-additional", authorities = {"AUTHENTICATED_USER"})
+    public void testUpdateAdditionalAccountDetailsShouldNotUpdateThem()
     {
         UserDto testUser = new UserDto();
         testUser.setUsername("test-account-update-additional");
@@ -200,7 +202,7 @@ public class AccountControllerTest
      * In those cases the request should pass "as normal", but the password should NOT be changed to null!
      */
     @Test
-    public void testChangingPasswordToNullShouldntUpdate()
+    public void testChangingPasswordToNullShouldNotUpdate()
     {
         final String username = "admin";
         UserForm userForm = new UserForm();
@@ -223,5 +225,18 @@ public class AccountControllerTest
         assertEquals(originalUser.getPassword(), updatedUser.getPassword());
     }
 
+    @Test
+    @WithAnonymousUser
+    public void testAnonymousUsersShouldNotBeAbleToAccess()
+    {
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl())
+               .peek()
+               .then()
+               .log().all()
+               .statusCode(HttpStatus.UNAUTHORIZED.value())
+               .body(notNullValue());
+    }
 
 }

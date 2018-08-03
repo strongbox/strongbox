@@ -39,7 +39,7 @@ public class PingController
      * @return ResponseEntity
      */
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful when token is still valid.") })
-    @PreAuthorize("hasAuthority('UI_LOGIN')")
+    @PreAuthorize("hasAuthority('AUTHENTICATED_USER')")
     @GetMapping(value = "/token",
                 produces = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
