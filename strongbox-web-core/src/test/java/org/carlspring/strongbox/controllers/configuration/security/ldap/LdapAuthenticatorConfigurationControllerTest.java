@@ -27,15 +27,29 @@ public class LdapAuthenticatorConfigurationControllerTest
         extends RestAssuredBaseTest
 {
 
+
     @Inject
     private AuthenticatorsScanner scanner;
-
 
     @Before
     public void setUp()
     {
         setContextBaseUrl("/api/configuration/ldap");
         scanner.scanAndReloadRegistry();
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void shouldReturnProperLdapConfiguration()
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl())
+               .peek()
+               .then()
+               //.body("roles-mapping.Developers", equalTo("REPOSITORY_MANAGER"))
+               //.body("roles-mapping.Contributors", equalTo("USER_ROLE"))
+               .statusCode(HttpStatus.OK.value());
     }
 
     @WithMockUser(authorities = "ADMIN")

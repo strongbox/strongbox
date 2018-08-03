@@ -2,11 +2,19 @@ package org.carlspring.strongbox.controllers.configuration.security.ldap;
 
 import org.carlspring.strongbox.authentication.support.AuthoritiesExternalToInternalMapper;
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.controllers.configuration.security.ldap.support.*;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapGroupSearchResponseEntityBody;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapMessages;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserDnPatternsResponseEntityBody;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserSearchResponseEntityBody;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsSupplier;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater;
+import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
+import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
 import java.util.List;
 
+import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -15,14 +23,24 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Przemyslaw Fusik
@@ -36,18 +54,67 @@ public class LdapAuthenticatorConfigurationController
         extends BaseController
 {
 
+    private static final String FAILED_PUT_LDAP = "User cannot be created because the submitted form contains errors!";
+
+    private static final String SUCCESS_PUT_LDAP = "LDAP configuration update succeeded";
+
+    private static final String SUCCESS_ADD_ROLE_MAPPING = "LDAP role mapping configuration update succeeded";
+
     @Inject
     private SpringSecurityLdapInternalsSupplier springSecurityLdapInternalsSupplier;
 
     @Inject
     private SpringSecurityLdapInternalsUpdater springSecurityLdapInternalsUpdater;
 
+    @ApiOperation(value = "Update the LDAP configuration settings")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP configuration updated successfully.") })
+    @PutMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
+    @ResponseBody
+    public ResponseEntity putLdapConfiguration(@RequestBody @Validated LdapConfigurationForm form,
+                                               BindingResult bindingResult,
+                                               @RequestHeader(HttpHeaders.ACCEPT) String accept)
+    {
+        if (bindingResult.hasErrors())
+        {
+            throw new RequestBodyValidationException(FAILED_PUT_LDAP, bindingResult);
+        }
+
+        try
+        {
+            springSecurityLdapInternalsUpdater.updateLdapConfigurationSettings(form);
+        }
+        catch (Exception e)
+        {
+            String message = "Failed to update LDAP configuration.";
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, message, e, accept);
+        }
+
+        return getSuccessfulResponseEntity(SUCCESS_PUT_LDAP, accept);
+    }
+
+    @ApiOperation(value = "Returns LDAP configuration")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The LDAP configuration."),
+                            @ApiResponse(code = 400, message = "LDAP is not enabled.") })
+    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getLdapConfiguration(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    {
+        ResponseEntity rolesMapping = getRolesMapping(acceptHeader);
+        ResponseEntity groupSearchFilter = getGroupSearchFilter(acceptHeader);
+        ResponseEntity userDnPatterns = getUserDnPatterns(acceptHeader);
+        ResponseEntity userSearchFilter = getUserSearchFilter(acceptHeader);
+
+        return ResponseEntity.ok(ImmutableSet.of("rolesMapping", rolesMapping.getBody(),
+                                                 "groupSearchFilter", groupSearchFilter.getBody(),
+                                                 "userDnPatterns", userDnPatterns.getBody(),
+                                                 "userSearchFilter", userSearchFilter.getBody())
+        );
+    }
 
     @ApiOperation(value = "Returns LDAP roles to strongbox internal roles mapping")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The mapping."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled.") })
     @GetMapping(value = "/rolesMapping",
-                produces = { MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRolesMapping(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
@@ -64,8 +131,8 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 400, message = "LDAP is not enabled or LDAP role mapping already exists for given LDAP role"),
                             @ApiResponse(code = 500, message = "Failed to add LDAP role mapping") })
     @PostMapping(value = "/rolesMapping/{externalRole}/{internalRole}",
-                 produces = { MediaType.TEXT_PLAIN_VALUE,
-                              MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addRoleMapping(@PathVariable String externalRole,
                                          @PathVariable String internalRole,
                                          @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -90,7 +157,7 @@ public class LdapAuthenticatorConfigurationController
             return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, message, e, acceptHeader);
         }
 
-        return getSuccessfulResponseEntity("LDAP role mapping addition succeeded", acceptHeader);
+        return getSuccessfulResponseEntity(SUCCESS_ADD_ROLE_MAPPING, acceptHeader);
     }
 
     @ApiOperation(value = "Adds or updates LDAP role mapping")
@@ -98,8 +165,8 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 400, message = "LDAP is not enabled"),
                             @ApiResponse(code = 500, message = "Failed to add or update LDAP role mapping") })
     @PutMapping(value = "/rolesMapping/{externalRole}/{internalRole}",
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setRoleMapping(@PathVariable String externalRole,
                                          @PathVariable String internalRole,
                                          @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -127,8 +194,8 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 400, message = "LDAP is not enabled or externalRole does not exist in the LDAP roles mapping"),
                             @ApiResponse(code = 500, message = "Failed to delete the LDAP role mapping!") })
     @DeleteMapping(value = "/rolesMapping/{externalRole}",
-                   produces = { MediaType.TEXT_PLAIN_VALUE,
-                                MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity deleteRoleMapping(@PathVariable String externalRole,
                                             @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
@@ -160,7 +227,7 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 204, message = "User DN patterns are empty."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled.") })
     @GetMapping(value = "/userDnPatterns",
-                produces = { MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getUserDnPatterns(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
@@ -183,8 +250,8 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 400, message = "LDAP is not enabled or pattern does not match any existing userDnPatterns"),
                             @ApiResponse(code = 500, message = "Failed to remove user DN pattern!") })
     @DeleteMapping(value = "/userDnPatterns/{pattern}",
-                   produces = { MediaType.TEXT_PLAIN_VALUE,
-                                MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity deleteUserDnPattern(@PathVariable String pattern,
                                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
@@ -221,8 +288,8 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 400, message = "LDAP is not enabled or if userDnPatterns collection haven't changed"),
                             @ApiResponse(code = 500, message = "User DN pattern addition to the userDnPatterns failed with server error") })
     @PostMapping(value = "/userDnPatterns/{pattern}",
-                 produces = { MediaType.TEXT_PLAIN_VALUE,
-                              MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addUserDnPattern(@PathVariable String pattern,
                                            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
@@ -259,7 +326,7 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 204, message = "User search filter was not provided."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled or userSearchFilter is not supported via this method.") })
     @GetMapping(value = "/userSearchFilter",
-                produces = { MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getUserSearchFilter(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
@@ -290,8 +357,8 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 204, message = "AbstractLdapAuthenticator was not provided."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled.") })
     @PutMapping(value = "/userSearchFilter/{searchBase}/{searchFilter}",
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity updateUserSearchFilter(@PathVariable String searchBase,
                                                  @PathVariable String searchFilter,
                                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -306,8 +373,7 @@ public class LdapAuthenticatorConfigurationController
             return ResponseEntity.noContent()
                                  .build();
         }
-        abstractLdapAuthenticator.setUserSearch(new FilterBasedLdapUserSearch(searchBase, searchFilter,
-                                                                              (BaseLdapPathContextSource) springSecurityLdapInternalsSupplier.getContextSource()));
+        springSecurityLdapInternalsUpdater.updateUserSearchFilter(abstractLdapAuthenticator, searchBase, searchFilter);
 
         return getSuccessfulResponseEntity("User search filter updated.", acceptHeader);
     }
@@ -317,7 +383,7 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 204, message = "Group search filter was not provided."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled or groupSearchFilter is not supported via this method.") })
     @GetMapping(value = "/groupSearchFilter",
-                produces = { MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getGroupSearchFilter(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
@@ -338,7 +404,8 @@ public class LdapAuthenticatorConfigurationController
             return getBadRequestResponseEntity(message, acceptHeader);
         }
 
-        LdapGroupSearchResponseEntityBody body = springSecurityLdapInternalsSupplier.ldapGroupSearchHolder((DefaultLdapAuthoritiesPopulator) populator);
+        LdapGroupSearchResponseEntityBody body = springSecurityLdapInternalsSupplier.ldapGroupSearchHolder(
+                (DefaultLdapAuthoritiesPopulator) populator);
         return ResponseEntity.ok(body);
     }
 
@@ -347,8 +414,8 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 204, message = "LdapAuthoritiesPopulator was not provided."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled or ldapAuthoritiesPopulator class is not supported via this method.") })
     @PutMapping(value = "/groupSearchFilter/{searchBase}/{searchFilter}",
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity updateGroupSearchFilter(@PathVariable String searchBase,
                                                   @PathVariable String searchFilter,
                                                   @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
