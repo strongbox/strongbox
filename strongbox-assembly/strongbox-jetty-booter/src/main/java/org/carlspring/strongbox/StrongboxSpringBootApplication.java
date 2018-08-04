@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.server;
+package org.carlspring.strongbox;
 
 import org.carlspring.strongbox.config.ConnectionConfigOrientDB;
 
@@ -10,7 +10,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.DependsOn;
 
 /**
  * @author carlspring

@@ -275,7 +275,7 @@
                     <daemons>
                         <daemon>
                             <id>strongbox</id>
-                            <mainClass>org.carlspring.strongbox.server.StrongboxSpringBootApplication</mainClass>
+                            <mainClass>org.carlspring.strongbox.StrongboxSpringBootApplication</mainClass>
 
                             <commandLineArguments>
                                 <commandLineArgument>-Djetty.port=48080</commandLineArgument>
@@ -490,7 +490,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-web-core</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
             <exclusions>
                 <exclusion>
                     <groupId>${project.groupId}</groupId>
