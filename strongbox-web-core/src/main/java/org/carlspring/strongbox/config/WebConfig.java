@@ -227,11 +227,13 @@ public class WebConfig
 
     
     @Bean
-    public InternalResourceViewResolver resourceViewResolver() {
+    public InternalResourceViewResolver resourceViewResolver()
+    {
         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
         viewResolver.setViewClass(InternalResourceView.class);
         viewResolver.setOrder(1);
         
         return viewResolver;
     }
+
 }

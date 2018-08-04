@@ -240,18 +240,6 @@
                             </artifactItems>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>copy-web-dependencies</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeGroupIds>org.carlspring.strongbox</includeGroupIds>
-                            <excludeArtifactIds>strongbox-jetty-booter,strongbox-web-ui</excludeArtifactIds>
-                            <outputDirectory>${dir.strongbox.standalone}/webapp/WEB-INF/lib</outputDirectory>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
 
@@ -524,14 +512,14 @@
             <version>${project.version}</version>
         </dependency>
 
-<!--
+        <!--
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-web-core</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
--->
+        -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-web-ui</artifactId>
@@ -553,14 +541,14 @@
             <type>war</type>
         </dependency>
         -->
-<!--
+        <!--
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-web-resources</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
--->
+        -->
 
         <dependency>
             <groupId>org.carlspring.maven</groupId>
