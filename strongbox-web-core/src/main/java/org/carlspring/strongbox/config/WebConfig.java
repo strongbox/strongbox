@@ -72,6 +72,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
           StorageCoreConfig.class,
           UsersConfig.class,
           SecurityConfig.class,
+          ServletConfig.class,
           ClientConfig.class,
           CronTasksConfig.class })
 @EnableCaching(order = 105)
@@ -226,11 +227,13 @@ public class WebConfig
 
     
     @Bean
-    public InternalResourceViewResolver resourceViewResolver() {
+    public InternalResourceViewResolver resourceViewResolver()
+    {
         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
         viewResolver.setViewClass(InternalResourceView.class);
         viewResolver.setOrder(1);
         
         return viewResolver;
     }
+
 }

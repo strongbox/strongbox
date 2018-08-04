@@ -85,7 +85,8 @@
         <version.quartz>2.3.0</version.quartz>
         <version.servlet.api>3.1.0</version.servlet.api>
         <version.slf4j>1.7.24</version.slf4j>
-        <version.spring>5.0.6.RELEASE</version.spring>
+        <!--<version.spring>5.0.6.RELEASE</version.spring>-->
+        <version.spring.boot>2.0.3.RELEASE</version.spring.boot>
         <version.spring.security>5.0.5.RELEASE</version.spring.security>
         <version.rest.assured>3.0.3</version.rest.assured>
         <version.jnuget>0.8.5-SNAPSHOT</version.jnuget>
@@ -99,7 +100,7 @@
     </properties>
 
     <build>
-        <pluginManagement>
+            <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -212,7 +213,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.9</version>
+                    <version>3.1.1</version>
                 </plugin>
 
                 <plugin>
@@ -603,18 +604,23 @@
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
+                <artifactId>jersey-media-jaxb</artifactId>
+                <version>${version.jersey}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-json-jackson</artifactId>
                 <version>${version.jersey}</version>
                 <exclusions>
                     <exclusion>
-                        <!-- Exclude this transitive dependency in order 
-                            to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
+                        <!-- Exclude this transitive dependency in order
+                             to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
                         <groupId>com.fasterxml.jackson.jaxrs</groupId>
                         <artifactId>jackson-jaxrs-base</artifactId>
                     </exclusion>
                     <exclusion>
-                        <!-- Exclude this transitive dependency in order 
-                            to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
+                        <!-- Exclude this transitive dependency in order
+                             to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
                         <groupId>com.fasterxml.jackson.jaxrs</groupId>
                         <artifactId>jackson-jaxrs-json-provider</artifactId>
                     </exclusion>
@@ -628,6 +634,11 @@
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
+                <version>${version.jersey}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-server</artifactId>
                 <version>${version.jersey}</version>
             </dependency>
             <dependency>
@@ -742,41 +753,6 @@
                 <groupId>org.quartz-scheduler</groupId>
                 <artifactId>quartz</artifactId>
                 <version>${version.quartz}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-bom</artifactId>
-                <version>${version.spring.security}</version>
-                <type>pom</type>
-                <scope>import</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-expression</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-        
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-framework-bom</artifactId>
-                <version>${version.spring}</version>
-                <type>pom</type>
-                <scope>import</scope>
-                <exclusions>
-                    <!-- Exclude Commons Logging -->
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>                
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-commons</artifactId>
-                <version>2.0.8.RELEASE</version>
             </dependency>
 
             <dependency>
@@ -1096,6 +1072,22 @@
                     </exclusion>               
                 </exclusions>
             </dependency>
+
+            <dependency>
+                <!-- Import dependency management from Spring Boot -->
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${version.spring.boot}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-commons</artifactId>
+                <version>2.0.8.RELEASE</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.mattbertolini</groupId>
                 <artifactId>liquibase-slf4j</artifactId>
@@ -1120,8 +1112,6 @@
                 </exclusions>
                 <scope>provided</scope>
             </dependency>
-
-
         </dependencies>
 
     </dependencyManagement>
