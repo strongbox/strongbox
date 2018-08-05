@@ -25,6 +25,8 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     void deleteMetadata(RepositoryPath repositoryPath)
             throws IOException;
 
+    String getAlias();
+
     RepositoryManagementStrategy getRepositoryManagementStrategy();
 
     @Nonnull

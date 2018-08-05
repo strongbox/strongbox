@@ -1,18 +1,18 @@
 package org.carlspring.strongbox.providers.layout;
 
 
-import java.io.IOException;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RawRepositoryFeatures;
 import org.carlspring.strongbox.repository.RawRepositoryManagementStrategy;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -44,7 +44,6 @@ public class RawLayoutProvider
     @PostConstruct
     public void register()
     {
-        layoutProviderRegistry.addProvider(ALIAS, this);
         headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
 
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
@@ -64,6 +63,12 @@ public class RawLayoutProvider
     public void deleteMetadata(RepositoryPath repositoryPath)
     {
         // Note: There's no known metadata for this format, hence no action is taken here
+    }
+
+    @Override
+    public String getAlias()
+    {
+        return ALIAS;
     }
 
     @Override

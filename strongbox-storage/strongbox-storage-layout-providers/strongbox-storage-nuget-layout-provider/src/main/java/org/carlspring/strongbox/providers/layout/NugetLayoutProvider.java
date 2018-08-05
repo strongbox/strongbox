@@ -26,6 +26,8 @@ import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
@@ -64,7 +66,6 @@ public class NugetLayoutProvider
     @PostConstruct
     public void register()
     {
-        layoutProviderRegistry.addProvider(ALIAS, this);
         headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
 
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
@@ -83,6 +84,12 @@ public class NugetLayoutProvider
     @Override
     public void deleteMetadata(RepositoryPath repositoryPath)
     {
+    }
+
+    @Override
+    public String getAlias()
+    {
+        return ALIAS;
     }
 
     protected String toBase64(byte[] digest)

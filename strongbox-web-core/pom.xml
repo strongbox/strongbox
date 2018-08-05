@@ -283,7 +283,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                
+                <configuration>
+                    <mainClass>org.carlspring.strongbox.StrongboxSpringBootApplication</mainClass>
+                </configuration>
+
                 <executions>
                     <execution>
                         <id>spring-boot-repackage</id>

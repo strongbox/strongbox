@@ -24,6 +24,8 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,6 +33,7 @@ import org.springframework.stereotype.Component;
  */
 @Component("mavenIndexerSearchProvider")
 @Conditional(MavenIndexerEnabledCondition.class)
+@Order(Ordered.LOWEST_PRECEDENCE - 1)
 public class MavenIndexerSearchProvider
         extends AbstractSearchProvider
 {

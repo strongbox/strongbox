@@ -7,6 +7,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.P2RepositoryFeatures;
 import org.carlspring.strongbox.repository.P2RepositoryManagementStrategy;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Set;
@@ -23,18 +24,14 @@ public class P2LayoutProvider
     public static final String ALIAS = "P2 Repository";
 
     @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
     private P2RepositoryManagementStrategy p2RepositoryManagementStrategy;
 
     @Inject
     private P2RepositoryFeatures p2RepositoryFeatures;
 
+    @PostConstruct
     public void register()
     {
-        layoutProviderRegistry.addProvider(ALIAS, this);
-
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
@@ -55,6 +52,12 @@ public class P2LayoutProvider
     public void deleteMetadata(RepositoryPath repositoryPath)
     {
 
+    }
+
+    @Override
+    public String getAlias()
+    {
+        return ALIAS;
     }
 
     @Override
