@@ -1,22 +1,33 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 
 import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Immutable
+@XmlAccessorType(XmlAccessType.FIELD)
+@SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
 public class RemoteRepositoriesConfiguration
 {
 
-    private final RemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration;
+    private RemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration;
 
-    private final int checkIntervalSeconds;
+    private int checkIntervalSeconds;
 
-    private final int heartbeatThreadsNumber;
+    private int heartbeatThreadsNumber;
+
+    RemoteRepositoriesConfiguration()
+    {
+
+    }
 
     public RemoteRepositoriesConfiguration(final MutableRemoteRepositoriesConfiguration delegate)
     {

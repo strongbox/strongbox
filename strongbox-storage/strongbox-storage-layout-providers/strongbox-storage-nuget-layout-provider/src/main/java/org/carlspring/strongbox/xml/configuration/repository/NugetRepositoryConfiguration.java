@@ -1,20 +1,34 @@
 package org.carlspring.strongbox.xml.configuration.repository;
 
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 
 import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Immutable
+@XmlAccessorType(XmlAccessType.FIELD)
+@SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
+@JsonTypeName(NugetLayoutProvider.ALIAS)
 public class NugetRepositoryConfiguration
         extends CustomRepositoryConfiguration
 {
 
-    private final String feedVersion;
+    private String feedVersion;
 
-    private final Integer remoteFeedPageSize;
+    private Integer remoteFeedPageSize;
+
+    NugetRepositoryConfiguration()
+    {
+
+    }
 
 
     public NugetRepositoryConfiguration(final MutableNugetRepositoryConfiguration delegate)

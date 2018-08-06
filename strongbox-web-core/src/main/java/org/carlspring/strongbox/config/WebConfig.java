@@ -12,7 +12,10 @@ import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.converters.PrivilegeListFormToPrivilegeListConverter;
 import org.carlspring.strongbox.converters.RoleFormToRoleConverter;
 import org.carlspring.strongbox.converters.RoleListFormToRoleListConverter;
-import org.carlspring.strongbox.converters.configuration.ProxyConfigurationFormToProxyConfigurationConverter;
+import org.carlspring.strongbox.converters.configuration.ProxyConfigurationFormConverter;
+import org.carlspring.strongbox.converters.configuration.RemoteRepositoryFormConverter;
+import org.carlspring.strongbox.converters.configuration.RepositoryFormConverter;
+import org.carlspring.strongbox.converters.configuration.StorageFormConverter;
 import org.carlspring.strongbox.converters.storage.routing.RoutingRuleFormToRoutingRuleConverter;
 import org.carlspring.strongbox.converters.storage.routing.RuleSetFormToRuleSetConverter;
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
@@ -208,9 +211,12 @@ public class WebConfig
         registry.addConverter(new PrivilegeListFormToPrivilegeListConverter());
         registry.addConverter(new UserFormToUserDtoConverter());
         registry.addConverter(new AccessModelFormToUserAccessModelDtoConverter());
-        registry.addConverter(new ProxyConfigurationFormToProxyConfigurationConverter());
+        registry.addConverter(ProxyConfigurationFormConverter.INSTANCE);
         registry.addConverter(new RuleSetFormToRuleSetConverter());
         registry.addConverter(new RoutingRuleFormToRoutingRuleConverter());
+        registry.addConverter(StorageFormConverter.INSTANCE);
+        registry.addConverter(RepositoryFormConverter.INSTANCE);
+        registry.addConverter(RemoteRepositoryFormConverter.INSTANCE);
     }
 
     @Bean

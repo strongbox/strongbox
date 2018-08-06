@@ -1,33 +1,44 @@
 package org.carlspring.strongbox.storage.repository.remote;
 
 import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Immutable
+@XmlAccessorType(XmlAccessType.FIELD)
+@SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
 public class RemoteRepository
 {
 
-    private final boolean downloadRemoteIndexes;
+    private boolean downloadRemoteIndexes;
 
-    private final boolean autoBlocking;
+    private boolean autoBlocking;
 
-    private final boolean checksumValidation;
+    private boolean checksumValidation;
 
-    private final String username;
+    private String username;
 
-    private final String password;
+    private String password;
 
-    private final String checksumPolicy;
+    private String checksumPolicy;
 
-    private final Integer checkIntervalSeconds;
+    private Integer checkIntervalSeconds;
 
-    private final boolean allowsDirectoryBrowsing;
+    private boolean allowsDirectoryBrowsing;
 
-    private final boolean autoImportRemoteSSLCertificate;
-    
+    private boolean autoImportRemoteSSLCertificate;
+
     private String url;
+
+    RemoteRepository()
+    {
+
+    }
 
     public RemoteRepository(final MutableRemoteRepository other)
     {

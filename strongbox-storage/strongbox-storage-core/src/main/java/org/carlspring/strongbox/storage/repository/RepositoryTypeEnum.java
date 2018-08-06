@@ -1,9 +1,12 @@
 package org.carlspring.strongbox.storage.repository;
 
+import org.carlspring.strongbox.api.Describable;
+
 /**
  * @author mtodorov
  */
 public enum RepositoryTypeEnum
+        implements Describable
 {
 
     HOSTED("hosted"),
@@ -33,4 +36,9 @@ public enum RepositoryTypeEnum
         this.type = type;
     }
 
+    @Override
+    public String describe()
+    {
+        return getType();
+    }
 }

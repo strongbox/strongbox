@@ -1,9 +1,12 @@
 package org.carlspring.strongbox.configuration;
 
 import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import java.util.Collections;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jersey.repackaged.com.google.common.collect.ImmutableList;
 
 /**
@@ -11,20 +14,27 @@ import jersey.repackaged.com.google.common.collect.ImmutableList;
  * @see MutableProxyConfiguration
  */
 @Immutable
+@XmlAccessorType(XmlAccessType.FIELD)
+@SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
 public class ProxyConfiguration
 {
 
-    private final String host;
+    private String host;
 
-    private final int port;
+    private int port;
 
-    private final String username;
+    private String username;
 
-    private final String password;
+    private String password;
 
-    private final String type;
+    private String type;
 
-    private final List<String> nonProxyHosts;
+    private List<String> nonProxyHosts;
+
+    ProxyConfiguration()
+    {
+
+    }
 
     public ProxyConfiguration(final MutableProxyConfiguration delegate)
     {

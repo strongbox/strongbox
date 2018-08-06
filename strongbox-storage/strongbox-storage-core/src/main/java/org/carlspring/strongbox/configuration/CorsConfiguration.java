@@ -1,29 +1,39 @@
 package org.carlspring.strongbox.configuration;
 
 import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import java.util.Collections;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jersey.repackaged.com.google.common.collect.ImmutableList;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Immutable
+@XmlAccessorType(XmlAccessType.FIELD)
+@SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
 public class CorsConfiguration
 {
 
-    private final List<String> allowedOrigins;
+    private List<String> allowedOrigins;
 
-    private final List<String> allowedMethods;
+    private List<String> allowedMethods;
 
-    private final List<String> allowedHeaders;
+    private List<String> allowedHeaders;
 
-    private final List<String> exposedHeaders;
+    private List<String> exposedHeaders;
 
-    private final Boolean allowCredentials;
+    private Boolean allowCredentials;
 
-    private final Long maxAge;
+    private Long maxAge;
+
+    CorsConfiguration()
+    {
+
+    }
 
     public CorsConfiguration(final MutableCorsConfiguration source)
     {
