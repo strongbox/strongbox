@@ -80,6 +80,7 @@
         <module>strongbox-data-service</module>
         <module>strongbox-aql</module>
         <module>strongbox-web-core</module>
+        <module>strongbox-web-forms</module>
     </modules>
 
     <profiles>

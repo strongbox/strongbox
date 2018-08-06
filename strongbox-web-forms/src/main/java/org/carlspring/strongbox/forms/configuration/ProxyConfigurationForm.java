@@ -23,8 +23,8 @@ public class ProxyConfigurationForm
 
     @NotBlank(message = "A proxy type must be specified.")
     @Pattern(regexp = "DIRECT|HTTP|SOCKS4|SOCKS5",
-             flags = Pattern.Flag.CASE_INSENSITIVE,
-             message = "Proxy type must contain one the following strings as value: DIRECT, HTTP, SOCKS4, SOCKS5")
+            flags = Pattern.Flag.CASE_INSENSITIVE,
+            message = "Proxy type must contain one the following strings as value: DIRECT, HTTP, SOCKS4, SOCKS5")
     private String type;
 
     private String username;

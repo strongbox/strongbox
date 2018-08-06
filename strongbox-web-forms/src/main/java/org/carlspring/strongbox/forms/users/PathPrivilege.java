@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.users.support;
+package org.carlspring.strongbox.forms.users;
 
 import java.io.Serializable;
 import java.util.Collection;

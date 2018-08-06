@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers.users;
 
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.controllers.users.support.PathPrivilege;
+import org.carlspring.strongbox.forms.users.PathPrivilege;
 import org.carlspring.strongbox.controllers.users.support.AccessModelOutput;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
@@ -37,7 +37,6 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.users.UserController.FAILED_CREATE_USER;
 import static org.carlspring.strongbox.controllers.users.UserController.FAILED_GENERATE_SECURITY_TOKEN;
 import static org.carlspring.strongbox.controllers.users.UserController.FAILED_UPDATE_ACCESS_MODEL;
-import static org.carlspring.strongbox.controllers.users.UserController.FAILED_UPDATE_USER;
 import static org.carlspring.strongbox.controllers.users.UserController.NOT_FOUND_USER;
 import static org.carlspring.strongbox.controllers.users.UserController.OWN_USER_DELETE_FORBIDDEN;
 import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSFUL_CREATE_USER;

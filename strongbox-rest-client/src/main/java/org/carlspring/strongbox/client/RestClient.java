@@ -3,8 +3,10 @@ package org.carlspring.strongbox.client;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.configuration.ServerConfiguration;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.forms.configuration.RepositoryForm;
+import org.carlspring.strongbox.forms.configuration.StorageForm;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.ws.rs.ServerErrorException;
@@ -253,7 +255,7 @@ public class RestClient
      * @return The response code.
      * @throws IOException
      */
-    public int addStorage(MutableStorage storage)
+    public int addStorage(StorageForm storage)
             throws IOException, JAXBException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages";
@@ -261,13 +263,8 @@ public class RestClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        GenericParser<MutableStorage> parser = new GenericParser<>(MutableStorage.class);
-        parser.store(storage, baos);
-
         Response response = resource.request(MediaType.TEXT_PLAIN)
-                                    .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
+                                    .put(Entity.entity(storage, MediaType.APPLICATION_JSON_TYPE));
 
         return response.getStatus();
     }
@@ -279,7 +276,7 @@ public class RestClient
      * @return
      * @throws IOException
      */
-    public MutableStorage getStorage(String storageId)
+    public Storage getStorage(String storageId)
             throws JAXBException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId;
@@ -287,18 +284,12 @@ public class RestClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        final Response response = resource.request(MediaType.APPLICATION_XML).get();
+        final Response response = resource.request(MediaType.APPLICATION_JSON).get();
 
-        MutableStorage storage = null;
+        Storage storage = null;
         if (response.getStatus() == 200)
         {
-            final String xml = response.readEntity(String.class);
-
-            final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
-
-            GenericParser<MutableStorage> parser = new GenericParser<>(MutableStorage.class);
-
-            storage = parser.parse(bais);
+            storage = response.readEntity(Storage.class);
         }
         else
         {
@@ -328,7 +319,7 @@ public class RestClient
         return response.getStatus();
     }
 
-    public int addRepository(MutableRepository repository)
+    public int addRepository(RepositoryForm repository, String storageId)
     {
         if (repository == null)
         {
@@ -339,7 +330,7 @@ public class RestClient
 
         WebTarget resource;
 
-        if (repository.getStorage() == null)
+        if (storageId == null)
         {
             logger.error("Storage associated with repo is null.");
             throw new ServerErrorException("Storage associated with repo is null.",
@@ -349,9 +340,10 @@ public class RestClient
         try
         {
             String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" +
-                         repository.getStorage().getId() + "/" + repository.getId();
+                         storageId + "/" + repository.getId();
 
             resource = getClientInstance().target(url);
+
         }
         catch (RuntimeException e)
         {
@@ -362,7 +354,7 @@ public class RestClient
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN)
-                                    .put(Entity.entity(repository, MediaType.APPLICATION_XML));
+                                    .put(Entity.entity(repository, MediaType.APPLICATION_JSON_TYPE));
 
         return response.getStatus();
     }
@@ -375,8 +367,8 @@ public class RestClient
      * @return
      * @throws java.io.IOException
      */
-    public MutableRepository getRepository(String storageId,
-                                           String repositoryId)
+    public Repository getRepository(String storageId,
+                                    String repositoryId)
             throws JAXBException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
@@ -384,18 +376,12 @@ public class RestClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        final Response response = resource.request(MediaType.APPLICATION_XML).get();
+        final Response response = resource.request(MediaType.APPLICATION_JSON).get();
 
-        MutableRepository repository = null;
+        Repository repository = null;
         if (response.getStatus() == 200)
         {
-            final String xml = response.readEntity(String.class);
-
-            final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
-
-            GenericParser<MutableRepository> parser = new GenericParser<>(MutableRepository.class);
-
-            repository = parser.parse(bais);
+            repository = response.readEntity(Repository.class);
         }
         else
         {

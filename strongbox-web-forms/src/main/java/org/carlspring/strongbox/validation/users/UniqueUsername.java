@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * @author Pablo Tirado
  */
 @Documented
-@Constraint(validatedBy = ValidAccessModelPathValidator.class)
+@Constraint(validatedBy = {})
 @Target({ ElementType.METHOD,
           ElementType.FIELD,
           ElementType.ANNOTATION_TYPE,
@@ -16,7 +16,7 @@ import java.lang.annotation.*;
           ElementType.PARAMETER,
           ElementType.TYPE_USE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidAccessModelPath
+public @interface UniqueUsername
 {
 
     String message();
@@ -24,4 +24,5 @@ public @interface ValidAccessModelPath
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
 }

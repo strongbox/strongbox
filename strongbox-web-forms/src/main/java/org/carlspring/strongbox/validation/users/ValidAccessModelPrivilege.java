@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * @author Pablo Tirado
  */
 @Documented
-@Constraint(validatedBy = UniqueUsernameValidator.class)
+@Constraint(validatedBy = {})
 @Target({ ElementType.METHOD,
           ElementType.FIELD,
           ElementType.ANNOTATION_TYPE,
@@ -16,7 +16,7 @@ import java.lang.annotation.*;
           ElementType.PARAMETER,
           ElementType.TYPE_USE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UniqueUsername
+public @interface ValidAccessModelPrivilege
 {
 
     String message();
@@ -24,5 +24,4 @@ public @interface UniqueUsername
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
 }

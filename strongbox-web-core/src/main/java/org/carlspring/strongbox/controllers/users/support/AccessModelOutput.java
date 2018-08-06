@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.users.support;
 
+import org.carlspring.strongbox.forms.users.PathPrivilege;
 import org.carlspring.strongbox.users.domain.AccessModel;
 
 import java.util.*;

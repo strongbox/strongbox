@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.forms.users;
 
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
-import org.carlspring.strongbox.controllers.users.support.PathPrivilege;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserPathPermissionDto;

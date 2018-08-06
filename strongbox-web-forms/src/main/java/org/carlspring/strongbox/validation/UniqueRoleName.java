@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * @author Pablo Tirado
  */
 @Documented
-@Constraint(validatedBy = UniqueRoleNameValidator.class)
+@Constraint(validatedBy = {})
 @Target({ ElementType.FIELD,
           ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

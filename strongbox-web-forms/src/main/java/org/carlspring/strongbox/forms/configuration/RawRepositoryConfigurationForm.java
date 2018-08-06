@@ -1,13 +1,11 @@
 package org.carlspring.strongbox.forms.configuration;
 
-import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
-
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * @author Przemyslaw Fusik
  */
-@JsonTypeName(RawLayoutProvider.ALIAS)
+@JsonTypeName("Raw")
 public class RawRepositoryConfigurationForm
         extends CustomRepositoryConfigurationForm
 {
