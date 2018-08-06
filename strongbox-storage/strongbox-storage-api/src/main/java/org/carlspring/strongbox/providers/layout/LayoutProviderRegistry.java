@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
  * @author carlspring
  */
 @Component
+@DependsOn("configurationManager")
 public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<LayoutProvider>
 {
 
@@ -37,6 +38,7 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
     @Inject
     private List<LayoutProvider> layoutProviders;
 
+    
     public LayoutProviderRegistry()
     {
     }

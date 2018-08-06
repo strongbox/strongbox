@@ -11,9 +11,12 @@ import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 
 import java.util.List;
 
+import org.springframework.context.annotation.DependsOn;
+
 /**
  * @author mtodorov
  */
+@DependsOn
 public interface ConfigurationManagementService
 {
 

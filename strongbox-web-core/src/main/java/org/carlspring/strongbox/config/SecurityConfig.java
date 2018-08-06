@@ -19,10 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.BooleanUtils;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.*;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -52,6 +49,7 @@ import static org.carlspring.strongbox.authorization.service.AuthorizationConfig
           AuthenticationConfig.class})
 @Configuration
 @EnableWebSecurity
+@DependsOn("configurationManager")
 public class SecurityConfig
         extends WebSecurityConfigurerAdapter
 {

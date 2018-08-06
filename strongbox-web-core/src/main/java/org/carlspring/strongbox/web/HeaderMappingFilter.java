@@ -16,6 +16,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.*;
 
+import org.springframework.context.annotation.DependsOn;
+
 /**
  * This filter used to map HTTP header values from one to another.<br>
  * Mapping example:<br>
@@ -26,6 +28,7 @@ import java.util.*;
  * @author Sergey Bespalov
  * @see {@link MavenArtifactController} {@link NugetArtifactController}
  */
+@DependsOn("configurationManager")
 public class HeaderMappingFilter
         implements Filter
 {

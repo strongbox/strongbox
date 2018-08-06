@@ -48,7 +48,7 @@ import com.google.common.base.Throwables;
 /**
  * @author mtodorov
  */
-@Service
+@Service("configurationManagementService")
 public class ConfigurationManagementServiceImpl
         implements ConfigurationManagementService
 {

@@ -26,6 +26,7 @@ import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -44,6 +45,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
+@DependsOn("layoutProviderRegistry")
 public class NugetLayoutProvider
         extends AbstractLayoutProvider<NugetArtifactCoordinates>
 {
