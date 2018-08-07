@@ -150,9 +150,6 @@ public class SpringSecurityUser
         sb.append("username='")
           .append(username)
           .append('\'');
-        sb.append(", password='")
-          .append(password)
-          .append('\'');
         sb.append(", enabled=")
           .append(enabled);
         if (authorities != null)

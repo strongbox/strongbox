@@ -518,7 +518,15 @@
         <!-- Theme -->
         <dependency>
             <groupId>org.jtwig</groupId>
-            <artifactId>jtwig-spring</artifactId>
+            <artifactId>jtwig-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-analysis</artifactId>
         </dependency>
         
         <!-- Spring security dependencies -->
@@ -655,6 +663,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jetty</artifactId>
         </dependency>
+
     </dependencies>
 
     <profiles>
