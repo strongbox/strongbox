@@ -60,8 +60,7 @@ public abstract class AsyncArtifactEntryHandler
         // TODO: please don't panic, this is needed just as workadound to have
         // new transaction within this async event (expected to be replaced with
         // just Propagation.REQUIRES_NEW after SB-1200)
-        Object sync = new Object();
-        new Thread(() -> {
+        Thread threadWithNewTransactionContext = new Thread(() -> {
             try
             {
                 handleLocked(repositoryPath);
@@ -72,19 +71,10 @@ public abstract class AsyncArtifactEntryHandler
                                            AsyncArtifactEntryHandler.this.getClass().getSimpleName()),
                              e);
             } 
-            finally
-            {
-                synchronized (sync)
-                {
-                    sync.notifyAll();
-                }
-            }
-        }).start();
-
-        synchronized (sync)
-        {
-            sync.wait();
-        }
+        });
+        
+        threadWithNewTransactionContext.start();
+        threadWithNewTransactionContext.join();
     }
 
     private void handleLocked(RepositoryPath repositoryPath)
