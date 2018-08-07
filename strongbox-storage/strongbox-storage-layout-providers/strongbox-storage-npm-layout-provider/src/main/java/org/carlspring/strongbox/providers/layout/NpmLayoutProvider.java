@@ -11,7 +11,6 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +20,7 @@ import java.util.stream.Stream;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 /**
@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
+@DependsOn("layoutProviderRegistry")
 public class NpmLayoutProvider
         extends AbstractLayoutProvider<NpmArtifactCoordinates>
 {

@@ -44,12 +44,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     private static final Logger logger = LoggerFactory.getLogger(AbstractLayoutProvider.class);
 
     private static final ArchiveListingFunction ARCHIVE_LISTING_FUNCTION = new CompositeArchiveListingFunction(
-            ImmutableSet.of(
-                ZipArchiveListingFunction.INSTANCE,
-                TarGzArchiveListingFunction.INSTANCE,
-                TarArchiveListingFunction.INSTANCE,
-                Bzip2ArchiveListingFunction.INSTANCE
-            )
+            ImmutableSet.of(ZipArchiveListingFunction.INSTANCE,
+                            TarGzArchiveListingFunction.INSTANCE,
+                            TarArchiveListingFunction.INSTANCE,
+                            Bzip2ArchiveListingFunction.INSTANCE)
     );
 
     @Inject
@@ -57,9 +55,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
     @Inject
     protected LayoutProviderRegistry layoutProviderRegistry;
-    
-    @Inject
-    protected StorageProviderRegistry storageProviderRegistry;
 
     public abstract Set<String> getDefaultArtifactCoordinateValidators();
 
@@ -75,7 +70,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
     @Override
     public boolean containsPath(RepositoryPath repositoryPath)
-            throws IOException
     {
         return Files.exists(repositoryPath);
     }
@@ -89,7 +83,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     {
         for (String e : getDigestAlgorithmSet())
         {
-            if (fileName.toString().endsWith("." + e.replaceAll("-", "").toLowerCase()))
+            if (fileName.endsWith("." + e.replaceAll("-", "").toLowerCase()))
             {
                 return true;
             }
@@ -97,7 +91,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         
         return false;
     }
-
     
     protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryPath,
                                                                                    RepositoryFileAttributeType... attributeTypes)
@@ -114,71 +107,72 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             Object value;
             switch (repositoryFileAttributeType)
             {
-            default:
-                Map<RepositoryFileAttributeType, Object> attributesLocal;
-                value = null;
-                
-                break;
-            case CHECKSUM:
-                value = isChecksum(repositoryPath);
-                
-                break;
-            case TEMP:
-                value = repositoryPath.isAbsolute()
-                        && repositoryPath.startsWith(repositoryPath.getFileSystem()
-                                                                   .getRootDirectory()
-                                                                   .resolve(RepositoryFileSystem.TEMP));
+                default:
+                    Map<RepositoryFileAttributeType, Object> attributesLocal;
+                    value = null;
 
-                break;
-            case TRASH:
-                value = repositoryPath.isAbsolute()
-                        && repositoryPath.startsWith(repositoryPath.getFileSystem()
-                                                                   .getRootDirectory()
-                                                                   .resolve(RepositoryFileSystem.TRASH));
-                
-                break;
-            case METADATA:
-                value = isArtifactMetadata(repositoryPath);
-                
-                break;
-            case ARTIFACT:
-                attributesLocal = getRepositoryFileAttributes(repositoryPath,
-                                                              RepositoryFileAttributeType.CHECKSUM);
-                
-                boolean isChecksum = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.CHECKSUM));
-                boolean isDirectory = Files.isDirectory(repositoryPath);
-                
-                value = !isChecksum && !isDirectory;
-                
-                break;
-            case COORDINATES:
-                attributesLocal = getRepositoryFileAttributes(repositoryPath,
-                                                              RepositoryFileAttributeType.ARTIFACT);
-                
-                boolean isArtifact = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.ARTIFACT));
-                
-                value = isArtifact ? getArtifactCoordinates(repositoryPath) : null;
-                break;
-            case RESOURCE_URL:
-                value = resolveResource(repositoryPath);
-                
-                break;
-            case ARTIFACT_PATH:
-                value = RepositoryFiles.relativizePath(repositoryPath);
+                    break;
+                case CHECKSUM:
+                    value = isChecksum(repositoryPath);
 
-                break;
-                
-            case STORAGE_ID:
-                value = repositoryPath.getRepository().getStorage().getId();
+                    break;
+                case TEMP:
+                    value = repositoryPath.isAbsolute()
+                            && repositoryPath.startsWith(repositoryPath.getFileSystem()
+                                                                       .getRootDirectory()
+                                                                       .resolve(RepositoryFileSystem.TEMP));
 
-                break;
-                
-            case REPOSITORY_ID:
-                value = repositoryPath.getRepository().getId();
+                    break;
+                case TRASH:
+                    value = repositoryPath.isAbsolute()
+                            && repositoryPath.startsWith(repositoryPath.getFileSystem()
+                                                                       .getRootDirectory()
+                                                                       .resolve(RepositoryFileSystem.TRASH));
 
-                break;
-                
+                    break;
+                case METADATA:
+                    value = isArtifactMetadata(repositoryPath);
+
+                    break;
+                case ARTIFACT:
+                    attributesLocal = getRepositoryFileAttributes(repositoryPath,
+                                                                  RepositoryFileAttributeType.CHECKSUM);
+
+                    boolean isChecksum = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.CHECKSUM));
+                    boolean isDirectory = Files.isDirectory(repositoryPath);
+
+                    value = !isChecksum && !isDirectory;
+
+                    break;
+                case COORDINATES:
+                    attributesLocal = getRepositoryFileAttributes(repositoryPath,
+                                                                  RepositoryFileAttributeType.ARTIFACT);
+
+                    boolean isArtifact = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.ARTIFACT));
+
+                    value = isArtifact ? getArtifactCoordinates(repositoryPath) : null;
+                    break;
+                case RESOURCE_URL:
+                    value = resolveResource(repositoryPath);
+
+                    break;
+                case ARTIFACT_PATH:
+                    value = RepositoryFiles.relativizePath(repositoryPath);
+
+                    break;
+
+                case STORAGE_ID:
+                    value = repositoryPath.getRepository().getStorage().getId();
+
+                    break;
+
+                case REPOSITORY_ID:
+                    value = repositoryPath.getRepository().getId();
+
+                    break;
+
             }
+
             if (value != null)
             {
                 result.put(repositoryFileAttributeType, value);

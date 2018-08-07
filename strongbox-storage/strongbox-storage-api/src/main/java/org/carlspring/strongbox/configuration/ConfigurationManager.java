@@ -7,12 +7,17 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import java.net.URI;
 
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
+@DependsOn({"configurationManagementService"})
 public class ConfigurationManager
 {
 

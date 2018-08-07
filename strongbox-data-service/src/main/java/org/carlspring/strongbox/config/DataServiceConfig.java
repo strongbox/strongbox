@@ -54,7 +54,7 @@ public class DataServiceConfig
     @Inject
     private DataSource dataSource;
 
-    @Bean
+    @Bean(name = "liquibase")
     public SpringLiquibase springLiquibase(ResourceLoader resourceLoader)
     {
         SpringLiquibase liquibase = new SpringLiquibase();
@@ -73,7 +73,7 @@ public class DataServiceConfig
     }
 
     @Bean
-    @DependsOn("springLiquibase")
+    @DependsOn("liquibase")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(ConnectionConfig connectionConfig)
     {
         Map<String, String> jpaProperties = new HashMap<>();

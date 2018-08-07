@@ -3,7 +3,6 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.DirectoryListingService;
 import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 import org.carlspring.strongbox.storage.Storage;
@@ -30,7 +29,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -130,7 +133,7 @@ public class BrowseController extends BaseArtifactController
             model.addAttribute("directories", directoryListing.getDirectories());
             model.addAttribute("files", directoryListing.getFiles());
 
-            return new ModelAndView("classpath:/views/directoryListing.twig.html", model);
+            return new ModelAndView("directoryListing", model);
         }
         catch (Exception e)
         {

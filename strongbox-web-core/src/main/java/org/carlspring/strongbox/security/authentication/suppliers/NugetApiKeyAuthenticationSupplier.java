@@ -14,6 +14,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Order(3)
+@DependsOn("configurationManager")
 public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
 {
 
@@ -36,6 +38,7 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
 
     @Inject
     private ConfigurationManager configurationManager;
+
 
     @Override
     public Authentication supply(@Nonnull HttpServletRequest request)
@@ -62,13 +65,13 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
     @Override
     public boolean supports(@Nonnull HttpServletRequest request)
     {
-        String pathInfo = request.getPathInfo();
-        if (!pathInfo.startsWith("/storages"))
+        String servletPath = request.getServletPath();
+        if (!servletPath.startsWith("/storages"))
         {
             return false;
         }
 
-        String[] pathParts = pathInfo.split("/");
+        String[] pathParts = servletPath.split("/");
         if (pathParts.length < 4)
         {
             return false;

@@ -40,12 +40,10 @@ public class StorageApiTestConfig
     @Bean
     @Primary
     ConfigurationFileManager configurationFileManager()
-            throws IOException, JAXBException
     {
         final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager());
 
-        Mockito.doNothing().when(configurationFileManager).store(
-                any(MutableConfiguration.class));
+        Mockito.doNothing().when(configurationFileManager).store(any(MutableConfiguration.class));
 
         return configurationFileManager;
     }

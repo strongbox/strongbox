@@ -7,13 +7,16 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.P2RepositoryFeatures;
 import org.carlspring.strongbox.repository.P2RepositoryManagementStrategy;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 
+@DependsOn("layoutProviderRegistry")
 public class P2LayoutProvider
         extends AbstractLayoutProvider<P2ArtifactCoordinates>
 {
@@ -23,14 +26,12 @@ public class P2LayoutProvider
     public static final String ALIAS = "P2 Repository";
 
     @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
     private P2RepositoryManagementStrategy p2RepositoryManagementStrategy;
 
     @Inject
     private P2RepositoryFeatures p2RepositoryFeatures;
 
+    @PostConstruct
     public void register()
     {
         layoutProviderRegistry.addProvider(ALIAS, this);

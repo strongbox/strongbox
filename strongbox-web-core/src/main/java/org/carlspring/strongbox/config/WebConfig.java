@@ -24,6 +24,7 @@ import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.HeaderMappingFilter;
 import org.jtwig.spring.JtwigViewResolver;
+import org.jtwig.spring.boot.config.JtwigViewResolverConfigurer;
 import org.jtwig.web.servlet.JtwigRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,12 +76,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
           StorageCoreConfig.class,
           UsersConfig.class,
           SecurityConfig.class,
+          ServletConfig.class,
           ClientConfig.class,
           CronTasksConfig.class })
 @EnableCaching(order = 105)
 @EnableWebMvc
 public class WebConfig
-        implements WebMvcConfigurer
+        implements WebMvcConfigurer, JtwigViewResolverConfigurer
 {
 
     private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
@@ -218,25 +220,23 @@ public class WebConfig
         registry.addConverter(RepositoryFormConverter.INSTANCE);
         registry.addConverter(RemoteRepositoryFormConverter.INSTANCE);
     }
-
-    @Bean
-    public ViewResolver viewResolver()
-    {
-        JtwigViewResolver viewResolver = new JtwigViewResolver();
-        viewResolver.setRenderer(JtwigRenderer.defaultRenderer());
-        viewResolver.setViewNames("*.twig.html");
-        viewResolver.setOrder(0);
-        
-        return viewResolver;
-    }
-
     
     @Bean
-    public InternalResourceViewResolver resourceViewResolver() {
+    public InternalResourceViewResolver resourceViewResolver()
+    {
         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
         viewResolver.setViewClass(InternalResourceView.class);
         viewResolver.setOrder(1);
         
         return viewResolver;
+    }
+
+    @Override
+    public void configure(final JtwigViewResolver viewResolver)
+    {
+        viewResolver.setRenderer(JtwigRenderer.defaultRenderer());
+        viewResolver.setPrefix("classpath:/views/");
+        viewResolver.setSuffix(".twig.html");
+        viewResolver.setOrder(0);
     }
 }

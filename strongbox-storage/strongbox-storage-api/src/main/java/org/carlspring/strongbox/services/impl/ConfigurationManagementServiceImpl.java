@@ -36,6 +36,9 @@ import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRuleSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -45,10 +48,11 @@ import com.google.common.base.Throwables;
 /**
  * @author mtodorov
  */
-@Service
+@Service("configurationManagementService")
 public class ConfigurationManagementServiceImpl
         implements ConfigurationManagementService
 {
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementServiceImpl.class);
 
     private final ReadWriteLock configurationLock = new ReentrantReadWriteLock();
 
@@ -80,6 +84,7 @@ public class ConfigurationManagementServiceImpl
     public void init()
     {
         new TransactionTemplate(transactionManager).execute((s) -> doInit());
+        logger.info("Initialized the configuration management service.");
     }
 
     private Object doInit()

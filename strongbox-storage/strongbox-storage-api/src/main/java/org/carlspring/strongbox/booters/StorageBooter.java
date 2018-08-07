@@ -4,6 +4,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
@@ -21,9 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
@@ -48,6 +47,13 @@ public class StorageBooter
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
+    /**
+     * This field is required in order to make sure that the layout providers have
+     * all been loaded by the time this class has been initialized.
+     */
+    @Inject
+    private List<LayoutProvider> layoutProviders;
+
     @Inject
     private RepositoryManagementService repositoryManagementService;
 
@@ -59,8 +65,11 @@ public class StorageBooter
 
     private Path lockFile = Paths.get(ConfigurationResourceResolver.getVaultDirectory()).resolve("storage-booter.lock");
 
-    public StorageBooter()
+
+    @Inject
+    public StorageBooter(List<LayoutProvider> layoutProviders)
     {
+        this.layoutProviders = layoutProviders;
     }
 
     @PostConstruct
@@ -143,7 +152,6 @@ public class StorageBooter
     }
 
     private boolean lockExists()
-            throws IOException
     {
         if (Files.exists(lockFile))
         {
@@ -203,7 +211,8 @@ public class StorageBooter
 
         if (layoutProviderRegistry.getProvider(repository.getLayout()) == null)
         {
-            logger.error(String.format("Failed to resolve layout [%s] for repository [%s].", repository.getLayout(),
+            logger.error(String.format("Failed to resolve layout provider [%s] for repository [%s].",
+                                       repository.getLayout(),
                                        repository.getId()));
             return;
         }
@@ -230,6 +239,7 @@ public class StorageBooter
                 addRepositoriesByChildrenFirst(repositoriesHierarchy, repository);
             }
         }
+
         return repositoriesHierarchy.values();
     }
 
@@ -241,8 +251,11 @@ public class StorageBooter
             repositoriesHierarchy.putIfAbsent(repository.getId(), repository);
             return;
         }
-        groupRepositorySetCollector.collect(repository, true).stream().forEach(
-                r -> addRepositoriesByChildrenFirst(repositoriesHierarchy, r));
+
+        groupRepositorySetCollector.collect(repository, true)
+                                   .stream()
+                                   .forEach(r -> addRepositoriesByChildrenFirst(repositoriesHierarchy, r));
+
         repositoriesHierarchy.putIfAbsent(repository.getId(), repository);
     }
 

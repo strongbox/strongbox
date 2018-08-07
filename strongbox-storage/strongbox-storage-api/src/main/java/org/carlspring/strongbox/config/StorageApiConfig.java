@@ -2,6 +2,7 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 
@@ -51,10 +52,13 @@ public class StorageApiConfig
         return new ResourcesBooter();
     }
 
+    @Inject
+    List<LayoutProvider> layoutProviders;
+
     @Bean(name = "storageBooter")
     StorageBooter getStorageBooter()
     {
-        return new StorageBooter();
+        return new StorageBooter(layoutProviders);
     }
 
 }

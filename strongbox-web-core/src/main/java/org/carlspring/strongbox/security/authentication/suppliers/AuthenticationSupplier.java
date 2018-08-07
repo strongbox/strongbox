@@ -4,11 +4,13 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.core.Authentication;
 
 /**
  * @author Przemyslaw Fusik
  */
+@DependsOn("configurationManager")
 public interface AuthenticationSupplier
 {
 

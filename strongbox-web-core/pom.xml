@@ -279,11 +279,33 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>org.carlspring.strongbox.StrongboxSpringBootApplication</mainClass>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>spring-boot-repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <phase>package</phase>
+
+                        <configuration>
+                            <classifier>spring-boot</classifier>
+                            <mainClass>org.carlspring.strongbox.StrongboxSpringBootApplication</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <dependencies>
-
         <!-- Strongbox dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -403,6 +425,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-jetty-booter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-testing-core</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -491,7 +518,15 @@
         <!-- Theme -->
         <dependency>
             <groupId>org.jtwig</groupId>
-            <artifactId>jtwig-spring</artifactId>
+            <artifactId>jtwig-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-analysis</artifactId>
         </dependency>
         
         <!-- Spring security dependencies -->
@@ -613,7 +648,22 @@
             <groupId>javax.transaction</groupId>
             <artifactId>javax.transaction-api</artifactId>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jetty</artifactId>
+        </dependency>
+
     </dependencies>
 
     <profiles>

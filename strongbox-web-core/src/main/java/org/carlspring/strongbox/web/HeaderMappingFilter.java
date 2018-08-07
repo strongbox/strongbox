@@ -16,6 +16,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.*;
 
+import org.springframework.context.annotation.DependsOn;
+
 /**
  * This filter used to map HTTP header values from one to another.<br>
  * Mapping example:<br>
@@ -26,6 +28,7 @@ import java.util.*;
  * @author Sergey Bespalov
  * @see {@link MavenArtifactController} {@link NugetArtifactController}
  */
+@DependsOn("configurationManager")
 public class HeaderMappingFilter
         implements Filter
 {
@@ -55,7 +58,7 @@ public class HeaderMappingFilter
         String layout;
         try
         {
-            layout = getRequestedLayout(((HttpServletRequest) request).getPathInfo());
+            layout = getRequestedLayout(((HttpServletRequest) request).getServletPath());
         }
         catch (IllegalArgumentException e)
         {
@@ -71,14 +74,14 @@ public class HeaderMappingFilter
         chain.doFilter(targetRequest, response);
     }
 
-    private String getRequestedLayout(String pathInfo)
+    private String getRequestedLayout(String servletPath)
     {
-        if (!pathInfo.startsWith("/storages"))
+        if (!servletPath.startsWith("/storages"))
         {
             return null;
         }
 
-        String[] pathParts = pathInfo.split("/");
+        String[] pathParts = servletPath.split("/");
         if (pathParts.length < 4)
         {
             return null;
