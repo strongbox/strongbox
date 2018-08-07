@@ -52,6 +52,7 @@ public class NpmLayoutProvider
     @PostConstruct
     public void register()
     {
+        layoutProviderRegistry.addProvider(ALIAS, this);
         headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
 
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
@@ -66,12 +67,6 @@ public class NpmLayoutProvider
     public void deleteMetadata(RepositoryPath repositoryPath)
     {
 
-    }
-
-    @Override
-    public String getAlias()
-    {
-        return ALIAS;
     }
 
     public boolean isArtifactMetadata(RepositoryPath path)

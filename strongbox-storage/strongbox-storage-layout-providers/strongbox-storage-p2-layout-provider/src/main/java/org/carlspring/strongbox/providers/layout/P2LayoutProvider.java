@@ -34,6 +34,8 @@ public class P2LayoutProvider
     @PostConstruct
     public void register()
     {
+        layoutProviderRegistry.addProvider(ALIAS, this);
+
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
@@ -54,12 +56,6 @@ public class P2LayoutProvider
     public void deleteMetadata(RepositoryPath repositoryPath)
     {
 
-    }
-
-    @Override
-    public String getAlias()
-    {
-        return ALIAS;
     }
 
     @Override

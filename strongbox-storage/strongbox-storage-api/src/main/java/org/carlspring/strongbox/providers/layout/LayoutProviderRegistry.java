@@ -3,21 +3,18 @@ package org.carlspring.strongbox.providers.layout;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 /**
  * @author carlspring
@@ -35,10 +32,7 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
-    @Inject
-    private List<LayoutProvider> layoutProviders;
 
-    
     public LayoutProviderRegistry()
     {
     }
@@ -47,7 +41,6 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
     @PostConstruct
     public void initialize()
     {
-        layoutProviders.stream().forEach(lp -> addProvider(lp.getAlias(), lp));
         logger.info("Initialized the layout provider registry.");
     }
 
@@ -87,7 +80,6 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
 
     public static LayoutProvider getLayoutProvider(Repository repository,
                                                    LayoutProviderRegistry layoutProviderRegistry)
-            throws ProviderImplementationException
     {
         return layoutProviderRegistry.getProvider(repository.getLayout());
     }
