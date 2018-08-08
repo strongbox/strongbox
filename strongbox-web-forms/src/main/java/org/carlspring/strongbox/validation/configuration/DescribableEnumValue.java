@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * @author Przemyslaw Fusik
  */
 @Documented
-@Constraint(validatedBy = DescribableEnumValueValidator.class)
+@Constraint(validatedBy = {})
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DescribableEnumValue

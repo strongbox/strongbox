@@ -1,0 +1,9 @@
+org.carlspring.strongbox.validation.configuration.DescribableEnumValueValidator
+org.carlspring.strongbox.validation.configuration.LayoutProviderValueValidator
+
+org.carlspring.strongbox.validation.users.PasswordValidator
+org.carlspring.strongbox.validation.users.UniqueUsernameValidator
+org.carlspring.strongbox.validation.users.ValidAccessModeAuthorityValidator
+org.carlspring.strongbox.validation.users.ValidAccessModelPathValidator
+
+org.carlspring.strongbox.validation.UniqueRoleNameValidator

@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(Password.List.class)
 @Documented
-@Constraint(validatedBy = PasswordValidator.class)
+@Constraint(validatedBy = {})
 public @interface Password
 {
 

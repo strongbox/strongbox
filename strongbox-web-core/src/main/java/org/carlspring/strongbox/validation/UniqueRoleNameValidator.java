@@ -4,6 +4,7 @@ import org.carlspring.strongbox.authorization.domain.Role;
 import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 
+import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -16,12 +17,8 @@ public class UniqueRoleNameValidator
         implements ConstraintValidator<UniqueRoleName, String>
 {
 
+    @Inject
     private AuthorizationConfigService authorizationConfigService;
-
-    public UniqueRoleNameValidator(AuthorizationConfigService authorizationConfigService)
-    {
-        this.authorizationConfigService = authorizationConfigService;
-    }
 
     @Override
     public void initialize(UniqueRoleName constraint)

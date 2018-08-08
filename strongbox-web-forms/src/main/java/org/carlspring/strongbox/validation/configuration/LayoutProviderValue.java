@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * @author Przemyslaw Fusik
  */
 @Documented
-@Constraint(validatedBy = LayoutProviderValueValidator.class)
+@Constraint(validatedBy = {})
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LayoutProviderValue

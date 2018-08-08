@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.validation.users;
 
-import org.carlspring.strongbox.controllers.users.support.PathPrivilege;
+import org.carlspring.strongbox.forms.users.PathPrivilege;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

@@ -3,6 +3,7 @@ package org.carlspring.strongbox.validation.users;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 
+import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -15,12 +16,8 @@ public class UniqueUsernameValidator
         implements ConstraintValidator<UniqueUsername, String>
 {
 
+    @Inject
     private UserService userService;
-
-    public UniqueUsernameValidator(UserService userService)
-    {
-        this.userService = userService;
-    }
 
     @Override
     public void initialize(UniqueUsername constraint)

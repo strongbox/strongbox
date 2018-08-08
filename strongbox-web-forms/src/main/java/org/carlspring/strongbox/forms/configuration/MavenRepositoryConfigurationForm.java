@@ -1,13 +1,11 @@
 package org.carlspring.strongbox.forms.configuration;
 
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * @author Przemyslaw Fusik
  */
-@JsonTypeName(Maven2LayoutProvider.ALIAS)
+@JsonTypeName("Maven 2")
 public class MavenRepositoryConfigurationForm
         extends CustomRepositoryConfigurationForm
 {
