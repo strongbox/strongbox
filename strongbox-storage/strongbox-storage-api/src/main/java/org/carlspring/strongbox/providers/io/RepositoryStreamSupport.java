@@ -1,15 +1,10 @@
 package org.carlspring.strongbox.providers.io;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-
-import javax.inject.Inject;
 
 import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.io.input.ProxyInputStream;
@@ -29,9 +24,6 @@ import org.slf4j.LoggerFactory;
 public abstract class RepositoryStreamSupport implements RepositoryStreamCallback
 {
     private static final Logger logger = LoggerFactory.getLogger(RepositoryStreamSupport.class);
-
-    @Inject
-    private RepositoryPathLock repositoryPathLock;
 
     private ThreadLocal<RepositoryStreamContext> ctx = new ThreadLocal<RepositoryStreamContext>();
 
@@ -58,24 +50,6 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
         {
             return;
         }
-
-        RepositoryPath path = (RepositoryPath) ctx.getPath();
-        ReadWriteLock lockSource = repositoryPathLock.lock(path);
-        Lock lock;
-        if (ctx instanceof RepositoryStreamWriteContext)
-        {
-            // TODO: write lock currently managed within
-            // ArtifactManagementService, but we should think to manage it here,
-            // as for InputStream.
-            lock = null;
-        }
-        else
-        {
-            lock = lockSource.readLock();
-        }
-
-        ctx.setLock(lock);
-        Optional.ofNullable(lock).ifPresent(l -> l.lock());
 
         doOpen(ctx);
     }

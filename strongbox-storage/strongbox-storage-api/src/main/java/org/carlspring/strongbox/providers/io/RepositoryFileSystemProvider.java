@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.commons.io.output.ProxyOutputStream;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -63,6 +65,9 @@ public abstract class RepositoryFileSystemProvider
 
     private FileSystemProvider storageFileSystemProvider;
 
+    @Inject
+    private RepositoryPathLock repositoryPathLock;
+    
     public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider)
     {
         super();
@@ -408,7 +413,7 @@ public abstract class RepositoryFileSystemProvider
                                       OpenOption... options)
         throws IOException
     {
-        return super.newInputStream(unwrap(path), options);
+        return repositoryPathLock.lockStream((RepositoryPath) path, () -> super.newInputStream(unwrap(path), options));
     }
 
     @Override
