@@ -413,7 +413,7 @@ public abstract class RepositoryFileSystemProvider
                                       OpenOption... options)
         throws IOException
     {
-        return repositoryPathLock.lockStream((RepositoryPath) path, () -> super.newInputStream(unwrap(path), options));
+        return repositoryPathLock.lockInputStream((RepositoryPath) path, () -> super.newInputStream(unwrap(path), options));
     }
 
     @Override

@@ -65,8 +65,8 @@ public class RepositoryPathLock
         return lock;
     }
 
-    public InputStream lockStream(RepositoryPath repositoryPath,
-                                  StreamSupplier<? extends InputStream> streamSuplier)
+    public InputStream lockInputStream(RepositoryPath repositoryPath,
+                                       StreamSupplier<? extends InputStream> streamSuplier)
         throws IOException
     {
         Lock lock = lock(repositoryPath).readLock();
