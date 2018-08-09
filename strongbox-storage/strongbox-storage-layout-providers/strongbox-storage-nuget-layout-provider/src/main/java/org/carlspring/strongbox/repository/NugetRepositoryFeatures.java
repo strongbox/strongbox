@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,7 +232,10 @@ public class NugetRepositoryFeatures
         for (ArtifactEntry e : artifactToSaveSet)
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, (NugetArtifactCoordinates) e.getArtifactCoordinates());
-            repositoryPathLock.lock(repositoryPath);
+
+            Lock lock = repositoryPathLock.lock(repositoryPath).writeLock();
+            lock.lock();
+            
             try
             {
                 if (e.getTagSet().contains(lastVersionTag))
@@ -245,7 +249,7 @@ public class NugetRepositoryFeatures
             }
             finally
             {
-                repositoryPathLock.unlock(repositoryPath);
+                lock.unlock();
             }
         }
     }

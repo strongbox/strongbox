@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,6 +34,9 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
+import org.apache.commons.io.output.ProxyOutputStream;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +65,9 @@ public abstract class RepositoryFileSystemProvider
 
     private FileSystemProvider storageFileSystemProvider;
 
+    @Inject
+    private RepositoryPathLock repositoryPathLock;
+    
     public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider)
     {
         super();
@@ -335,7 +342,7 @@ public abstract class RepositoryFileSystemProvider
 
         Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
 
-        path.artifactEntry = tempPath.getArtifactEntry();
+        //path.artifactEntry = tempPath.artifactEntry;
 
         return path;
     }
@@ -406,7 +413,7 @@ public abstract class RepositoryFileSystemProvider
                                       OpenOption... options)
         throws IOException
     {
-        return super.newInputStream(unwrap(path), options);
+        return repositoryPathLock.lockInputStream((RepositoryPath) path, () -> super.newInputStream(unwrap(path), options));
     }
 
     @Override
@@ -414,7 +421,9 @@ public abstract class RepositoryFileSystemProvider
                                         OpenOption... options)
         throws IOException
     {
-        return super.newOutputStream(unwrap(path), options);
+        TempRepositoryPath temp = RepositoryFiles.temporary((RepositoryPath) path);
+        
+        return new TempOutputStream(temp, options);
     }
 
     public void copy(Path source,
@@ -611,4 +620,40 @@ public abstract class RepositoryFileSystemProvider
         }
     }
 
+    
+    private class TempOutputStream extends ProxyOutputStream
+    {
+
+        private TempRepositoryPath path;
+
+        public TempOutputStream(TempRepositoryPath path,
+                                OpenOption... options)
+            throws IOException
+        {
+            super(RepositoryFileSystemProvider.super.newOutputStream(unwrap(path), options));
+
+            this.path = path;
+        }
+
+        @Override
+        public void close()
+            throws IOException
+        {
+            super.close();
+
+            try
+            {
+                moveFromTemporaryDirectory(path);
+            } 
+            finally
+            {
+                if (Files.exists(path))
+                {
+                    Files.delete(path.getTarget());
+                }
+            }
+        }
+
+    }
+    
 }

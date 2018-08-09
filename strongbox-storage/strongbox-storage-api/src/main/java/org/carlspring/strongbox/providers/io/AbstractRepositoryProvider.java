@@ -1,14 +1,31 @@
 package org.carlspring.strongbox.providers.io;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.Date;
+import java.util.Optional;
+
+import javax.inject.Inject;
+
+import org.apache.commons.io.output.CountingOutputStream;
+import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.config.HazelcastConfiguration;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.io.*;
+import org.carlspring.strongbox.event.artifact.ArtifactEvent;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.RepositoryStreamReadContext;
+import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
+import org.carlspring.strongbox.io.StreamUtils;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
@@ -16,27 +33,16 @@ import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Date;
-import java.util.Optional;
-
-import org.apache.commons.io.output.CountingOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 /**
  * @author carlspring
  */
-@Transactional
-public abstract class AbstractRepositoryProvider implements RepositoryProvider, RepositoryStreamCallback
+public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport implements RepositoryProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractRepositoryProvider.class);
@@ -60,49 +66,12 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     protected ArtifactTagService artifactTagService;
     
     @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-
-    public RepositoryProviderRegistry getRepositoryProviderRegistry()
-    {
-        return repositoryProviderRegistry;
-    }
-
-    public void setRepositoryProviderRegistry(RepositoryProviderRegistry repositoryProviderRegistry)
-    {
-        this.repositoryProviderRegistry = repositoryProviderRegistry;
-    }
-
-    public LayoutProviderRegistry getLayoutProviderRegistry()
-    {
-        return layoutProviderRegistry;
-    }
-
-    public void setLayoutProviderRegistry(LayoutProviderRegistry layoutProviderRegistry)
-    {
-        this.layoutProviderRegistry = layoutProviderRegistry;
-    }
-
-    public StorageProviderRegistry getStorageProviderRegistry()
-    {
-        return storageProviderRegistry;
-    }
-
-    public void setStorageProviderRegistry(StorageProviderRegistry storageProviderRegistry)
-    {
-        this.storageProviderRegistry = storageProviderRegistry;
-    }
-
-    public ConfigurationManager getConfigurationManager()
-    {
-        return configurationManager;
-    }
-
-    public void setConfigurationManager(ConfigurationManager configurationManager)
-    {
-        this.configurationManager = configurationManager;
-    }
-
-    public Configuration getConfiguration()
+    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
+    
+    @Inject
+    protected RepositoryPathLock repositoryPathLock;
+    
+    protected Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
     }
@@ -127,14 +96,14 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         throws IOException;
 
     protected RepositoryInputStream decorate(RepositoryPath repositoryPath,
-                                             InputStream is)
+                                             InputStream is) throws IOException
     {
         if (is == null || is instanceof RepositoryInputStream)
         {
             return (RepositoryInputStream) is;
         }
 
-        return RepositoryInputStream.of(repositoryPath, is).with(this);
+        return new RepositoryInputStream(repositoryPath, is);
     }
 
     @Override
@@ -158,11 +127,11 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
             return (RepositoryOutputStream) os;
         }
 
-        return RepositoryOutputStream.of(repositoryPath, os).with(this);
+        return new RepositoryOutputStream(repositoryPath, os);
     }
 
     @Override
-    public void onBeforeWrite(RepositoryStreamContext ctx) throws IOException
+    public void onBeforeWrite(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
         logger.debug(String.format("Writing [%s]", repositoryPath));
@@ -176,9 +145,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath, true, true);
-        
-        if (artifactEntry.getUuid() != null)
+        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath);
+        if (!shouldStoreArtifactEntry(artifactEntry))
         {
             return;
         }
@@ -186,93 +154,71 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
 
-        ArtifactOutputStream aos = StreamUtils.findSource(ArtifactOutputStream.class, (OutputStream) ctx);
+        ArtifactOutputStream aos = StreamUtils.findSource(ArtifactOutputStream.class, ctx.getStream());
         ArtifactCoordinates coordinates = aos.getCoordinates();
         artifactEntry.setArtifactCoordinates(coordinates);
 
         Date now = new Date();
-        artifactEntry.setLastUpdated(now );
+        artifactEntry.setCreated(now);
+        artifactEntry.setLastUpdated(now);
         artifactEntry.setLastUsed(now);
 
         repositoryPath.artifactEntry = artifactEntry;
     }
 
-    private boolean shouldUpdateArtifactEntry(ArtifactEntry artifactEntry)
-    {
-        Date now = new Date();
-        Date lastUpdated = artifactEntry.getLastUpdated();
-        
-        return now.getTime() - lastUpdated.getTime() > HazelcastConfiguration.ARTIFACT_ENTRY_CACHE_INVALIDATE_INTERVAL;
-    }
-
     @Override
-    public void onAfterClose(RepositoryStreamContext ctx) throws IOException
+    public void onAfterWrite(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
         logger.debug(String.format("Closing [%s]", repositoryPath));
-        
-        if (!RepositoryFiles.isArtifact(repositoryPath) || !Files.exists(repositoryPath))
-        {
+               
+        ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
+        if (artifactEntry == null)
+        {          
             return;
         }
         
-        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath, false, false);
-        
-        Assert.notNull(artifactEntry,
-                       String.format("Invalid [%s] for [%s]", ArtifactEntry.class.getSimpleName(),
-                                     repositoryPath));
-
-        CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, (OutputStream) ctx);
-        long size = cos.getByteCount();
-        if (!Long.valueOf(size).equals(artifactEntry.getSizeInBytes()) || shouldUpdateArtifactEntry(artifactEntry))
-        {
-            artifactEntry.setSizeInBytes(size);
-
-            repositoryPath.artifactEntry = artifactEntryService.save(artifactEntry, true);
-        }
+        CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
+        artifactEntry.setSizeInBytes(cos.getByteCount());
     }
 
     @Override
-    public void onBeforeRead(RepositoryStreamContext ctx) throws IOException
+    public void onBeforeRead(RepositoryStreamReadContext ctx)
+        throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
         logger.debug(String.format("Reading %s", repositoryPath));
-        
+
         if (!RepositoryFiles.isArtifact(repositoryPath))
         {
             return;
         }
-        
-        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath, false, true);
 
-        Assert.notNull(artifactEntry,
-                       String.format("Invalid [%s] for [%s]",
-                                     ArtifactEntry.class.getSimpleName(),
-                                     ctx.getPath()));
-
-        Date now = new Date();
-        
-        if (artifactEntry.getUuid() != null
-                && now.getTime() - artifactEntry.getLastUsed().getTime() < HazelcastConfiguration.ARTIFACT_ENTRY_CACHE_INVALIDATE_INTERVAL)
+        if (RepositoryFiles.artifactDoesNotExist(repositoryPath))
         {
-            return;
+            URI artifactResource = RepositoryFiles.resolveResource(repositoryPath);
+            
+            throw new ArtifactNotFoundException(artifactResource);
         }
         
-        artifactEntry.setLastUsed(now);
-        artifactEntry.setDownloadCount(artifactEntry.getDownloadCount() + 1);
+        artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(repositoryPath);
+    }
+    
+    @Override
+    public void onAfterRead(RepositoryStreamReadContext ctx)
+    {
+        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(ctx.getPath());
     }
 
-    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath, boolean create, boolean lock) throws IOException
+    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
     {
-        ArtifactEntry artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry())
-                                              .orElse(create ? new ArtifactEntry() : null);
-        
-        if (lock && artifactEntry.getObjectId() != null)
-        {
-            artifactEntry = artifactEntryService.lockOne(artifactEntry.getObjectId());
-        }
-
-        return artifactEntry;
+        return Optional.ofNullable(repositoryPath.getArtifactEntry())
+                       .orElse(new ArtifactEntry());
+    }
+    
+    protected boolean shouldStoreArtifactEntry(ArtifactEntry artifactEntry)
+    {
+        return artifactEntry.getUuid() == null;
     }
     
     @Override
@@ -307,6 +253,36 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         selector.where(createPredicate(storageId, repositoryId, p));
         
         return selector;
+    }
+
+    @Component
+    private static class ArtifactStoredEventListener
+    {
+        
+        @Inject
+        private ArtifactEntryService artifactEntryService;
+        
+        @EventListener
+        public void handleEvent(ArtifactEvent<RepositoryPath> event)
+        {
+            if (ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED.getType() != event.getType())
+            {
+                return;
+            }
+            
+            RepositoryPath repositoryPath = event.getPath();
+            ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
+            
+            repositoryPath.artifactEntry = null;
+
+            if (artifactEntry == null)
+            {
+                return;
+            }
+            
+            artifactEntryService.save(artifactEntry, true);
+        }
+        
     }
     
 }

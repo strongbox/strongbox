@@ -1,9 +1,5 @@
 package org.carlspring.strongbox.io;
 
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.util.MessageDigestUtils;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +11,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.apache.commons.io.input.ProxyInputStream;
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.util.MessageDigestUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 /**
  * Note that this class is "abstract" and you don't need to instantiate it directly, see example below:
@@ -28,7 +28,7 @@ import org.apache.commons.codec.digest.MessageDigestAlgorithms;
  * @author mtodorov
  */
 public class ArtifactInputStream
-        extends BufferedInputStream
+        extends ProxyInputStream
 {
 
     public static final String[] DEFAULT_ALGORITHMS = { EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
@@ -46,7 +46,7 @@ public class ArtifactInputStream
                                Set<String> checkSumDigestAlgorithmSet)
         throws NoSuchAlgorithmException
     {
-        super(is);
+        super(new BufferedInputStream(is));
         this.artifactCoordinates = coordinates;
         for (String algorithm : checkSumDigestAlgorithmSet)
         {

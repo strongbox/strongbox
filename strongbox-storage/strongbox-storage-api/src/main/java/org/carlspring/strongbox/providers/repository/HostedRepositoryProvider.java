@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.providers.repository;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -96,13 +98,13 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         
         QueryTemplate<List<ArtifactEntry>, ArtifactEntry> queryTemplate = new DetachQueryTemplate<>(entityManager);
         
+        RootRepositoryPath rootRepositoryPath = repositoryPathResolver.resolve(repository);
         List<ArtifactEntry> searchResult = queryTemplate.select(selector);
         for (ArtifactEntry artifactEntry : searchResult)
         {
             
             try
             {
-                RootRepositoryPath rootRepositoryPath = repositoryPathResolver.resolve(repository);
                 result.add(rootRepositoryPath.resolve(artifactEntry));
             }
             catch (Exception e)

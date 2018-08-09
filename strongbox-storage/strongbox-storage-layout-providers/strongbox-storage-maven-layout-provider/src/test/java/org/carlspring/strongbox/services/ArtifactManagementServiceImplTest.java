@@ -1,26 +1,11 @@
 package org.carlspring.strongbox.services;
 
-import org.apache.maven.artifact.Artifact;
-import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.resource.ResourceCloser;
-import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -36,23 +21,45 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
+import org.apache.maven.artifact.Artifact;
+import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * @author mtodorov
@@ -62,6 +69,10 @@ import static org.junit.Assert.fail;
 public class ArtifactManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementServiceImplTest.class);
+    
+    private static final int CONTENT_SIZE = 40000;
 
     private static final String REPOSITORY_RELEASES = "amsi-releases";
 
@@ -514,83 +525,168 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    public void storageContentShouldNotBeAffectedByMoreThanOneThreadAtTheSameTime()
+    public void testConcurrentReadWrite()
             throws Exception
     {
+        int concurrency = 8;
+        
         Random random = new Random();
 
-
-        byte[] loremIpsum1ContentArray = new byte[40000];
-        random.nextBytes(loremIpsum1ContentArray);
-
-        byte[] loremIpsum2ContentArray = new byte[40000];
-        random.nextBytes(loremIpsum2ContentArray);
-
-        byte[] loremIpsum3ContentArray = new byte[40000];
-        random.nextBytes(loremIpsum3ContentArray);
-
-        byte[] loremIpsum4ContentArray = new byte[40000];
-        random.nextBytes(loremIpsum4ContentArray);
-
+        byte[][] loremIpsumContentArray = new byte[concurrency][];
+        for (int i = 0; i < loremIpsumContentArray.length; i++)
+        {
+            random.nextBytes(loremIpsumContentArray[i] = new byte[CONTENT_SIZE]);
+        }
+        
         Repository repository = getConfiguration().getStorage(STORAGE0).getRepository(REPOSITORY_WITH_LOCK);
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(
-                "org/carlspring/strongbox/locked-artifact/12.2.0.1/locked-artifact-12.2.0.1.pom");
-
-        List<Callable<Exception>> callables = Arrays.asList(
-                new InvokeStoreCallable(repositoryPath, new ByteArrayInputStream(loremIpsum1ContentArray)),
-                new InvokeStoreCallable(repositoryPath, new ByteArrayInputStream(loremIpsum2ContentArray)),
-                new InvokeStoreCallable(repositoryPath, new ByteArrayInputStream(loremIpsum3ContentArray)),
-                new InvokeStoreCallable(repositoryPath, new ByteArrayInputStream(loremIpsum4ContentArray))
-        );
+        String path = "org/carlspring/strongbox/locked-artifact/12.2.0.1/locked-artifact-12.2.0.1.pom";
+        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
 
         // when
-        List<Future<Exception>> exceptions = Executors.newFixedThreadPool(
-                Runtime.getRuntime().availableProcessors()).invokeAll(callables);
-        byte[] repositoryPathContent = Files.readAllBytes(repositoryPath);
+        List<Long> resultList = IntStream.range(0, concurrency * 2)
+                                         .parallel()
+                                         .mapToObj(i -> getResult(i,
+                                                                  repositoryPath,
+                                                                  loremIpsumContentArray))
+                                         .collect(Collectors.toList());
 
         // then
-        assertTrue(Arrays.equals(repositoryPathContent, loremIpsum1ContentArray) ||
-                   Arrays.equals(repositoryPathContent, loremIpsum2ContentArray) ||
-                   Arrays.equals(repositoryPathContent, loremIpsum3ContentArray) ||
-                   Arrays.equals(repositoryPathContent, loremIpsum4ContentArray));
-
-        for (Future<Exception> exceptionFuture : exceptions)
+        for (int i = 0; i < resultList.size(); i++)
         {
-            assertTrue(exceptionFuture.isDone());
-            assertThat(exceptionFuture.get(), CoreMatchers.nullValue());
+            assertEquals(String.format("Operation [%s:%s] content size don't match.", i % 2 == 0 ? "write" : "read", i),
+                         Long.valueOf(CONTENT_SIZE), resultList.get(i));
+        }
+        
+        RepositoryPath repositoryPathResult = repositoryPathResolver.resolve(repository, path);
+        ArtifactEntry artifactEntry = repositoryPathResult.getArtifactEntry();
+        
+        assertNotNull(artifactEntry);
+        assertEquals(Integer.valueOf(concurrency), artifactEntry.getDownloadCount());
+        
+        byte[] repositoryPathContent = Files.readAllBytes(repositoryPath);
+        assertTrue(Arrays.stream(loremIpsumContentArray)
+                         .map(c -> Arrays.equals(repositoryPathContent, c))
+                         .reduce((r1,
+                                  r2) -> r1 || r2)
+                         .get());
+
+    }
+
+    private Long getResult(int i,
+                           RepositoryPath repositoryPath,
+                           byte[][] loremIpsumContentArray)
+    {
+        try
+        {
+            Repository repository = repositoryPath.getRepository();
+            String path = RepositoryFiles.relativizePath(repositoryPath);
+
+            return i % 2 == 0
+                    ? new Store(new ByteArrayInputStream(loremIpsumContentArray[i / 2]), repository, path).call()
+                    : new Fetch(repository, path).call();
+        }
+        catch (IOException e)
+        {
+            return 0L;
         }
     }
 
-    private class InvokeStoreCallable
-            implements Callable<Exception>
+    private class Store implements Callable<Long>
     {
 
-        private final RepositoryPath repositoryPath;
+        private final Repository repository;
+        
+        private final String path;
 
         private final InputStream is;
 
-        private InvokeStoreCallable(final RepositoryPath repositoryPath,
-                                    final InputStream is)
+        private Store(InputStream is,
+                      Repository repository,
+                      String path)
         {
-            this.repositoryPath = repositoryPath;
+            this.path = path;
+            this.repository = repository;
             this.is = is;
         }
 
         @Override
-        public Exception call()
-                throws Exception
+        public Long call()
         {
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
+            
             try
             {
-                mavenArtifactManagementService.store(repositoryPath, is);
+                return mavenArtifactManagementService.store(repositoryPath, is);
             }
             catch (Exception ex)
             {
-                return ex;
+                logger.error(String.format("Failed to store artifact [%s]", repositoryPath), ex);
+                
+                return 0L;
             }
-
-            return null;
         }
     }
 
+    private class Fetch implements Callable<Long>
+    {
+
+        private final Repository repository;
+        private final String path;
+        private int attempts = 0;
+
+        private Fetch(Repository repository, String path)
+        {
+            this.path = path;
+            this.repository = repository;
+        }
+
+        @Override
+        public Long call()
+        {
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
+            
+            long result = 0;
+            
+            byte[] buffer = new byte[1024];
+            try (RepositoryInputStream is = artifactResolutionService.getInputStream(repositoryPath))
+            {
+                while (true)
+                {
+                    int n = is.read(buffer);
+                    if (n < 0)
+                    {
+                        break;
+                    }
+                    result += n;
+                }
+            }
+            catch (ArtifactResolutionException | ArtifactNotFoundException e)
+            {
+                try
+                {
+                    Thread.sleep(100);
+                }
+                catch (InterruptedException e1)
+                {
+                    return 0L;
+                }
+                
+                if (attempts++ > 3) {
+                    return 0L;
+                }
+                
+                return this.call();
+            }
+            catch (Exception ex)
+            {
+                logger.error(String.format("Failed to read artifact [%s]", repositoryPath), ex);
+
+                return 0L;
+            }
+
+            return result;
+        }
+    }
+    
 }

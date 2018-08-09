@@ -4,6 +4,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import org.carlspring.strongbox.domain.ArtifactEntry;
+
 /**
  * The main concept of {@link TempRepositoryPath} is to provide atomacity into
  * artifact files store process. Files stored into temporary location first,
@@ -11,10 +13,11 @@ import java.nio.file.Files;
  * successfully, then file just moved into original location, other way
  * "transaction" will be rolled back and temporary file will be removed.
  *
+ * @see RepositoryFileSystemProvider.TempOutputStream
  * @author sbespalov
  *
  */
-public class TempRepositoryPath extends RepositoryPath implements Closeable
+public class TempRepositoryPath extends RepositoryPath
 {
 
     private RepositoryPath tempTarget;
@@ -42,26 +45,16 @@ public class TempRepositoryPath extends RepositoryPath implements Closeable
 
         TempRepositoryPath result = new TempRepositoryPath(tempPath);
         result.tempTarget = path;
-        result.artifactEntry = path.getArtifactEntry();
+        result.artifactEntry = path.artifactEntry;
 
         return result;
     }
-
+    
     @Override
-    public void close()
+    public ArtifactEntry getArtifactEntry()
         throws IOException
     {
-        try
-        {
-            getFileSystem().provider().moveFromTemporaryDirectory(this);
-        }
-        finally
-        {
-            if (Files.exists(this))
-            {
-                Files.delete(getTarget());
-            }
-        }
+        return tempTarget.getArtifactEntry();
     }
 
 }

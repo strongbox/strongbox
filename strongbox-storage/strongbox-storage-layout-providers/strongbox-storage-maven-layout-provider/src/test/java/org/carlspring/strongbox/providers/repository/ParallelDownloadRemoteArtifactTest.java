@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.repository;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.carlspring.strongbox.config.MockedRestArtifactResolverTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,18 +52,17 @@ public class ParallelDownloadRemoteArtifactTest
     }
 
     @Test
-    public void resurrectedInputStreamShouldBeSuccessfullyHandledByRetryFeature()
+    public void testConcurrentDownload()
         throws Exception
     {
-        int concurrency = Runtime.getRuntime().availableProcessors();
+        int concurrency = 8;
 
         final String storageId = "storage-common-proxies";
         final String repositoryId = "maven-central";
         final String path = "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar";
         final Path destinationPath = getVaultDirectoryPath().resolve("storages")
                                                             .resolve(storageId)
-                                                            .resolve(
-                                                                     repositoryId)
+                                                            .resolve(repositoryId)
                                                             .resolve(path);
 
         // given
@@ -85,6 +86,10 @@ public class ParallelDownloadRemoteArtifactTest
         assertEquals(concurrency, result.size());
 
         assertArrayEquals(expected, actual);
+        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
+        assertNotNull(repositoryPath.getArtifactEntry());
+        assertEquals(Integer.valueOf(concurrency), repositoryPath.getArtifactEntry().getDownloadCount());
 
     }
 

@@ -160,9 +160,9 @@ public abstract class RepositoryFiles
     public static boolean artifactDoesNotExist(RepositoryPath repositoryPath)
         throws IOException
     {
-        ArtifactEntry e = repositoryPath.getArtifactEntry();
         if (RepositoryFiles.isArtifact(repositoryPath))
         {
+            ArtifactEntry e = repositoryPath.getArtifactEntry();
             return e == null || e instanceof RemoteArtifactEntry && !((RemoteArtifactEntry) e).getIsCached();
         }
         else

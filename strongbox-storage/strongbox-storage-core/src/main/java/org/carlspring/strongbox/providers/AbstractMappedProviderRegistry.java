@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.framework.Advised;
 
 /**
  * @author carlspring
@@ -38,8 +37,8 @@ public abstract class AbstractMappedProviderRegistry<T>
         providers.entrySet()
                  .stream()
                  .forEach(e -> logger.info(String.format("Registered repository provider '%s' with alias '%s'.",
-                                                         ((Advised) e.getValue()).getTargetClass().getCanonicalName(),
-                                                         e.getValue())));
+                                                         e.getValue().getClass().getCanonicalName(),
+                                                         e.getKey())));
         this.providers = providers;
     }
 

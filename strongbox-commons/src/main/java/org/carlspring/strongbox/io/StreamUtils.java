@@ -66,6 +66,11 @@ public class StreamUtils
         OutputStream source = os;
         while (source instanceof FilterOutputStream)
         {
+            if (sourceClass.isAssignableFrom(source.getClass()))
+            {
+                return sourceClass.cast(source);
+            }
+
             try
             {
                 source = (OutputStream) inField.get(source);
@@ -74,10 +79,7 @@ public class StreamUtils
             {
                 return null;
             }
-            if (sourceClass.isAssignableFrom(source.getClass()))
-            {
-                return sourceClass.cast(source);
-            }
+            
         }
         return null;
     }

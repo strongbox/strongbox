@@ -16,8 +16,6 @@ public interface CrudService<T extends GenericEntity, ID extends Serializable>
 
     <S extends T> S save(S entity);
 
-    T lockOne(ID id);
-    
     Optional<T> findOne(ID id);
 
     boolean existsByUuid(String uuid);

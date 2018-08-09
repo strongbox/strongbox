@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.testing;
 
 import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.HostedRepositoryProvider;
@@ -35,6 +36,9 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
 
+    @Inject
+    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
+    
     public void createStorage(String storageId)
             throws IOException
     {
@@ -113,6 +117,8 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
                 }
             }
         }
+        
+        artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
     }
 
 }

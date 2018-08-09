@@ -98,8 +98,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories().keySet())
         {
-            String sId = getConfigurationManager().getStorageId(storage, storageAndRepositoryId);
-            String rId = getConfigurationManager().getRepositoryId(storageAndRepositoryId);
+            String sId = configurationManager.getStorageId(storage, storageAndRepositoryId);
+            String rId = configurationManager.getRepositoryId(storageAndRepositoryId);
 
             Repository r = getConfiguration().getStorage(sId).getRepository(rId);
             if (!r.isInService())
@@ -157,7 +157,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             return resolvePathTraversal(repositoryPath);
         }
         
-        RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
+        RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
         try
         {
             return (RepositoryPath) provider.fetchPath(repositoryPath);

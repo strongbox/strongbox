@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.providers.repository;
 
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -122,30 +122,23 @@ public class ProxyRepositoryProvider
     }
 
     @Override
-    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath, boolean create, boolean lock) throws IOException
+    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
     {
-        ArtifactEntry artifactEntry = super.provideArtifactEntry(repositoryPath, create, lock);
+        ArtifactEntry artifactEntry = super.provideArtifactEntry(repositoryPath);
+        ArtifactEntry remoteArtifactEntry = artifactEntry.getObjectId() == null ? new RemoteArtifactEntry() : (RemoteArtifactEntry) artifactEntry;
         
-        if (artifactEntry instanceof RemoteArtifactEntry)
-        {
-            ((RemoteArtifactEntry) artifactEntry).setIsCached(true);
-            return artifactEntry;
-        }
-        else if (artifactEntry == null)
-        {
-            return null;
-        }
-
-        return artifactEntry.getObjectId() == null ? createCachedRemoteArtifactEntry()
-                : (RemoteArtifactEntry) artifactEntry;
+        return remoteArtifactEntry;
     }
 
-    private RemoteArtifactEntry createCachedRemoteArtifactEntry()
+    @Override
+    protected boolean shouldStoreArtifactEntry(ArtifactEntry artifactEntry)
     {
-        RemoteArtifactEntry result = new RemoteArtifactEntry();
-        result.setIsCached(Boolean.TRUE);
+        RemoteArtifactEntry remoteArtifactEntry = (RemoteArtifactEntry) artifactEntry;
+        boolean result = super.shouldStoreArtifactEntry(artifactEntry) || !remoteArtifactEntry.getIsCached();
+        
+        remoteArtifactEntry.setIsCached(true);
         
         return result;
     }
-
+    
 }

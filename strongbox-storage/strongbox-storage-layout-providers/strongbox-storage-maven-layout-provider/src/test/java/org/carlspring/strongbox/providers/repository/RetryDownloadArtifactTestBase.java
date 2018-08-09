@@ -61,7 +61,7 @@ public abstract class RetryDownloadArtifactTestBase
         artifactEntryService.deleteAll();
     }
 
-    void prepareArtifactResolverContext(final InputStream brokenArtifactInputStream,
+    void prepareArtifactResolverContext(final InputStream artifactInputStream,
                                         final boolean rangeRquestSupported)
     {
         
@@ -70,8 +70,8 @@ public abstract class RetryDownloadArtifactTestBase
                                                                                                .getRemoteRepositoryRetryArtifactDownloadConfiguration();
 
         final Response response = Mockito.mock(Response.class);
-        Mockito.when(response.getEntity()).thenReturn(brokenArtifactInputStream);
-        Mockito.when(response.readEntity(InputStream.class)).thenReturn(brokenArtifactInputStream);
+        Mockito.when(response.getEntity()).thenReturn(artifactInputStream);
+        Mockito.when(response.readEntity(InputStream.class)).thenReturn(artifactInputStream);
         Mockito.when(response.getStatus()).thenReturn(200);
         Mockito.when(response.getHeaderString("Accept-Ranges")).thenReturn(rangeRquestSupported ? "bytes" : "none");
 

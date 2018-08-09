@@ -1,21 +1,36 @@
 package org.carlspring.strongbox.services;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
 import org.apache.commons.io.IOUtils;
-import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.RepositoryOutputStream;
 import org.carlspring.strongbox.io.StreamUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.io.TempRepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
@@ -27,27 +42,10 @@ import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesV
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
-
-import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 
 /**
@@ -84,13 +82,11 @@ public class ArtifactManagementService
 
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
-
-    @Inject
-    protected RepositoryPathLock repositoryPathLock;
     
     @Inject
-    private PlatformTransactionManager transactionManager;
+    protected RepositoryPathLock repositoryPathLock;
 
+    @Transactional
     public long validateAndStore(RepositoryPath repositoryPath,
                                  InputStream is)
         throws IOException,
@@ -98,12 +94,23 @@ public class ArtifactManagementService
         NoSuchAlgorithmException,
         ArtifactCoordinatesValidationException
     {
-        performRepositoryAcceptanceValidation(repositoryPath);
+        ReadWriteLock lock = repositoryPathLock.lock(repositoryPath);
+        lock.writeLock().lock();
 
-        return store(repositoryPath, is);
+        try
+        {
+            performRepositoryAcceptanceValidation(repositoryPath);
+
+            return doStore(repositoryPath, is);
+        } 
+        finally
+        {
+            lock.writeLock().unlock();
+        }
     }
     
     @Deprecated
+    @Transactional
     public long validateAndStore(String storageId,
                                  String repositoryId,
                                  String path,
@@ -115,101 +122,45 @@ public class ArtifactManagementService
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
 
-        performRepositoryAcceptanceValidation(repositoryPath);
-
-        return store(repositoryPath, is);
+        return validateAndStore(repositoryPath, is);
     }
     
+    @Transactional
     public long store(RepositoryPath repositoryPath,
                       InputStream is)
-           throws IOException
-    {
-        ArtifactStoreResult result;
-        
-        repositoryPathLock.lock(repositoryPath);
-
-        try
-        {
-            TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-            //TODO: implement suspension for HazelcastTransactionManager
-            //transactionTemplate.setPropagationBehavior(Propagation.REQUIRES_NEW.value());
-            result = transactionTemplate.execute((s) -> storeInTransaction(repositoryPath, is));
-        }
-        catch (UndeclaredThrowableException e)
-        {
-            Throwable cause = e.getCause();
-            if (cause instanceof IOException)
-            {
-                throw (IOException) cause;
-            }
-            else
-            {
-                throw new IOException(cause);
-            }
-        }
-        catch (Exception e)
-        {
-            throw new IOException(e);
-        }
-        finally
-        {
-            repositoryPathLock.unlock(repositoryPath);
-        }
-        
-        result.getEvents().stream().forEach(Runnable::run);
-        
-        return result.getSize();
-    }
-
-    private ArtifactStoreResult storeInTransaction(RepositoryPath repositoryPath,
-                                                   InputStream is)
-    {
-        try (TempRepositoryPath tempArtifact = RepositoryFiles.temporary(repositoryPath))
-        {
-            return storeInTemp(tempArtifact, is);
-        }
-        catch (IOException e)
-        {
-            throw new UndeclaredThrowableException(e);
-        }
-    }
-    
-    private ArtifactStoreResult storeInTemp(TempRepositoryPath repositoryPath,
-                                            InputStream is)
         throws IOException
     {
-
-        try (// Wrap the InputStream, so we could have checksums to compare
-             final InputStream remoteIs = new MultipleDigestInputStream(is))
+        ReadWriteLock lockSource = repositoryPathLock.lock(repositoryPath);
+        Lock lock = lockSource.writeLock();
+        lock.lock();
+        
+        try
         {
-            return doStore(repositoryPath, remoteIs);
-        }
-        catch (IOException e)
+            return doStore(repositoryPath, is);
+        } 
+        finally
         {
-            throw e;
-        }
-        catch (Exception e)
-        {
-            throw new IOException(e);
+            lock.unlock();
         }
     }
 
-    private ArtifactStoreResult doStore(RepositoryPath repositoryPath,
-                                        InputStream is)
+    private long doStore(RepositoryPath repositoryPath,
+                         InputStream is)
             throws IOException
     {
-        ArtifactStoreResult result = new ArtifactStoreResult();
-        
+        long result;
         boolean updatedMetadataFile = false;
+        boolean updatedArtifactFile = false;
 
-        if (Files.exists(repositoryPath) && RepositoryFiles.isMetadata(repositoryPath))
+        if (Files.exists(repositoryPath))
         {
-            updatedMetadataFile = true;
+            updatedMetadataFile = RepositoryFiles.isMetadata(repositoryPath);
+            updatedArtifactFile = RepositoryFiles.isArtifact(repositoryPath);
         }
         
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(repositoryPath))
         {
-            result.setSize(storeArtifact(repositoryPath, is, aos));
+            result = writeArtifact(repositoryPath, is, aos);
         }
         catch (IOException e)
         {
@@ -219,22 +170,27 @@ public class ArtifactManagementService
         {
             throw new ArtifactStorageException(e);
         }
-        
-        if (RepositoryFiles.isArtifact(repositoryPath))
+
+        if (updatedArtifactFile)
+        {
+            artifactEventListenerRegistry.dispatchArtifactUpdatedEvent(repositoryPath);
+        }
+        else
         {
             artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
         }
-
+        
         if (updatedMetadataFile)
         {
             artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(repositoryPath);
             // If this is a metadata file and it has been updated:
         }
+
         
         return result;
     }
 
-    private long storeArtifact(RepositoryPath repositoryPath,
+    private long writeArtifact(RepositoryPath repositoryPath,
                                InputStream is,
                                OutputStream os)
             throws IOException
@@ -254,10 +210,6 @@ public class ArtifactManagementService
         if (repository.isHostedRepository())
         {
             artifactEventListenerRegistry.dispatchArtifactUploadingEvent(repositoryPath);
-        }
-        else
-        {
-            artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(repositoryPath);
         }
         
         long totalAmountOfBytes = IOUtils.copy(is, os);
@@ -279,7 +231,7 @@ public class ArtifactManagementService
                 validateUploadedChecksumAgainstCache(checksumValue, repositoryPathId);
             }
         }
-
+        
         return totalAmountOfBytes;
     }
 
@@ -395,6 +347,7 @@ public class ArtifactManagementService
         return configurationManager.getConfiguration();
     }
 
+    @Transactional
     public void delete(RepositoryPath repositoryPath,
                        boolean force)
             throws IOException

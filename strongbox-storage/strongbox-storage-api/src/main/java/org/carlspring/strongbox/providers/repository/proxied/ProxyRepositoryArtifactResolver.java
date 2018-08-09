@@ -4,20 +4,20 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 
 import javax.inject.Inject;
 
-import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.client.RestArtifactResolver;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.io.TempRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.HostedRepositoryProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -85,7 +85,10 @@ public class ProxyRepositoryArtifactResolver
 
         RestArtifactResolver client = restArtifactResolverFactory.newInstance(remoteRepository);
         
-        repositoryPathLock.lock(repositoryPath);
+        ReadWriteLock lockSource = repositoryPathLock.lock(repositoryPath, "remote-fetch");
+        Lock lock = lockSource.writeLock();
+        lock.lock();
+        
         try (InputStream is = new BufferedInputStream(new ProxyRepositoryInputStream(client, repositoryPath)))
         {
             if (RepositoryFiles.artifactExists(repositoryPath))
@@ -97,7 +100,7 @@ public class ProxyRepositoryArtifactResolver
         } 
         finally
         {
-            repositoryPathLock.unlock(repositoryPath);
+            lock.unlock();
         }
     }
 

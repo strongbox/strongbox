@@ -1,19 +1,16 @@
 package org.carlspring.strongbox.services.impl;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.io.RepositoryInputStream;
-import org.carlspring.strongbox.io.RepositoryOutputStream;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
+import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -23,7 +20,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * @author mtodorov
@@ -53,7 +49,7 @@ public class ArtifactResolutionServiceImpl
         artifactOperationsValidator.validate(path);
         
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-        RepositoryInputStream is = repositoryProvider.getInputStream(path);
+        RepositoryInputStream is = (RepositoryInputStream) repositoryProvider.getInputStream(path);
         if (is == null)
         {
             throw new ArtifactResolutionException(String.format("Artifact [%s] not found.", path));
@@ -72,7 +68,7 @@ public class ArtifactResolutionServiceImpl
         Repository repository = repositoryPath.getRepository();
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        RepositoryOutputStream os = repositoryProvider.getOutputStream(repositoryPath);
+        RepositoryOutputStream os = (RepositoryOutputStream) repositoryProvider.getOutputStream(repositoryPath);
         if (os == null)
         {
             throw new ArtifactStorageException("Artifact " + repositoryPath + " cannot be stored.");

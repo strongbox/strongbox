@@ -10,7 +10,7 @@ import java.util.Optional;
  */
 @Entity
 public class NullArtifactCoordinates
-        extends AbstractArtifactCoordinates<NullArtifactCoordinates, NullArtifactCoordinates>
+        extends AbstractArtifactCoordinates<NullArtifactCoordinates, String>
 {
 
     private static final String PATH = "path";
@@ -55,9 +55,9 @@ public class NullArtifactCoordinates
     }
 
     @Override
-    public NullArtifactCoordinates getNativeVersion()
+    public String getNativeVersion()
     {
-        return this;
+        return null;
     }
 
     @Override
