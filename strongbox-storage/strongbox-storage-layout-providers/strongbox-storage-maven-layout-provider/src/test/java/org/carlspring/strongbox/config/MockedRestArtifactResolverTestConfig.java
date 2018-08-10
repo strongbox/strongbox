@@ -42,5 +42,21 @@ public class MockedRestArtifactResolverTestConfig
         return Mockito.mock(RestArtifactResolverFactory.class);
     }
 
+    @Bean
+    @Primary
+    ArtifactEventListenerRegistry artifactEventListenerRegistry()
+    {
+        return new TestArtifactEventListenerRegistry();
+    }    
+    
+    public static class TestArtifactEventListenerRegistry extends ArtifactEventListenerRegistry {
+
+        @Override
+        public void dispatchArtifactFetchedFromRemoteEvent(Path path)
+        {
+            // this event cause java.io.EOFException within `MavenArtifactFetchedFromRemoteEventListener`
+        }
+        
+    }
 
 }

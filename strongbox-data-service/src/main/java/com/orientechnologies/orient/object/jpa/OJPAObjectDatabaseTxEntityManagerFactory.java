@@ -83,6 +83,9 @@ public class OJPAObjectDatabaseTxEntityManagerFactory
         }
 
         OObjectDatabaseTx db = new OObjectDatabaseTx((ODatabaseDocumentInternal) ((OrientJdbcConnection) connection).getDatabase());
+        db.getTransaction().setIsolationLevel(com.orientechnologies.orient.core.tx.OTransaction.ISOLATION_LEVEL.READ_COMMITTED);
+        db.getLocalCache().setEnable(false);
+        
         Boolean automaticSchemaGeneration = Boolean.valueOf(properties.getOrDefault(
                 OJPAObjectDatabaseTxPersistenceProvider.PROPERTY_AUTOMATIC_SCHEMA_GENERATION,
                 Boolean.FALSE.toString())
