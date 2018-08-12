@@ -42,7 +42,8 @@ public class Maven2FileSystemProvider extends RepositoryLayoutFileSystemProvider
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-    
+
+
     public Maven2FileSystemProvider(FileSystemProvider storageFileSystemProvider)
     {
         super(storageFileSystemProvider);
@@ -117,7 +118,7 @@ public class Maven2FileSystemProvider extends RepositoryLayoutFileSystemProvider
 
                 for (SearchResult result : results.getResults())
                 {
-                    delete(repositoryPathResolver.resolve(repository, (MavenArtifactCoordinates) result.getArtifactCoordinates()), force);
+                    delete(repositoryPathResolver.resolve(repository, result.getArtifactCoordinates()), force);
                 }
             }
             catch (SearchException e)
@@ -127,6 +128,5 @@ public class Maven2FileSystemProvider extends RepositoryLayoutFileSystemProvider
         }
         // Otherwise, this is either not an artifact directory, or not a valid Maven artifact
     }
-
     
 }

@@ -15,11 +15,8 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.MavenFileSystem;
 import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Scope;
+
+import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 
 @Configuration
@@ -33,14 +30,16 @@ public class Maven2LayoutProviderConfig
 {
 
     public static final String FILE_SYSTEM_ALIAS = "RepositoryFileSystemFactory." + Maven2LayoutProvider.ALIAS;
-    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "RepositoryFileSystemProviderFactory."
-            + Maven2LayoutProvider.ALIAS;
+
+    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "RepositoryFileSystemProviderFactory." +
+                                                            Maven2LayoutProvider.ALIAS;
 
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
 
     @Inject
     private Environment environment;
+
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)
     public RepositoryFileSystemProviderFactory mavenRepositoryFileSystemProviderFactory()
@@ -77,15 +76,46 @@ public class Maven2LayoutProviderConfig
         return new IndexedMaven2FileSystemProvider(provider);
     }
 
+    // @DependsOn("mavenFileSystemProvider")
     @Bean(FILE_SYSTEM_ALIAS)
     public RepositoryFileSystemFactory mavenRepositoryFileSystemFactory()
     {
         RepositoryFileSystemProviderFactory providerFactory = mavenRepositoryFileSystemProviderFactory();
         
         return (repository) -> {
+
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+
+            for (String key : storageProviderRegistry.getProviders().keySet())
+            {
+                System.out.println(key + " => " + storageProviderRegistry.getProviders().get(key));
+            }
+
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            return mavenRepositoryFileSystem(repository, storageProvider.getFileSystem(),
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+
+            System.out.println("storageProviderRegistry.getProviders().size() : " +
+                               storageProviderRegistry.getProviders().size());
+            System.out.println("storageProvider != null ? " + (storageProvider != null));
+            System.out.println("providerFactory != null ? " + (providerFactory != null));
+
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+
+            return mavenRepositoryFileSystem(repository,
+                                             storageProvider.getFileSystem(),
                                              providerFactory.create(repository));
         };
     }
