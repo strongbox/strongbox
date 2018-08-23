@@ -456,7 +456,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         ORID artifactEntryId = findArtifactEntryId(storageId, repositoryId, path);
         return Optional.ofNullable(artifactEntryId)
                        .flatMap(id -> Optional.ofNullable(entityManager.find(ArtifactEntry.class, id)))
-                       .map(e -> detach(e))
                        .orElse(null);
     }
     
