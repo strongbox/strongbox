@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.services.impl;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +20,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
@@ -31,11 +29,6 @@ import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.interceptor.KeyGenerator;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -60,11 +53,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     @Inject
     private ArtifactTagService artifactTagService;
     
-    @Inject
-    private CacheManager cacheManager;
-    
     @Override
-    @CacheEvict(cacheNames = CacheName.Artifact.ARTIFACT_ENTRIES, keyGenerator = ArtifactEntryKeyGenerator.NAME_ARTIFACT_ENTRY_KYE_GENERATOR)
     public <S extends ArtifactEntry> S save(S entity,
                                             boolean updateLastVersion)
     {
@@ -100,7 +89,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     }
 
     @Override
-    @CacheEvict(cacheNames = CacheName.Artifact.ARTIFACT_ENTRIES, keyGenerator = ArtifactEntryKeyGenerator.NAME_ARTIFACT_ENTRY_KYE_GENERATOR)
     public <S extends ArtifactEntry> S save(S entity)
     {
         return save(entity, false);
@@ -141,8 +129,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                        coordinates.getVersion()));
             entity.getTagSet().add(lastVersionTag);
             lastVersionEntry.getTagSet().remove(lastVersionTag);
-            
-            cacheManager.getCache(CacheName.Artifact.ARTIFACT_ENTRIES).evict(generateKey(lastVersionEntry));
             
             super.save(lastVersionEntry);
         }
@@ -462,8 +448,8 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         return findArtifactEntryId(storageId, repositoryId, path) != null;
     }
 
+    //TODO: implement light weight ArtifactEntryRead (without related entities)
     @Override
-    @Cacheable(value = CacheName.Artifact.ARTIFACT_ENTRIES, key = "#p0 + '/' + #p1 + '/' + #p2")
     public ArtifactEntry findOneArtifact(String storageId,
                                          String repositoryId,
                                          String path)
@@ -471,33 +457,28 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         ORID artifactEntryId = findArtifactEntryId(storageId, repositoryId, path);
         return Optional.ofNullable(artifactEntryId)
                        .flatMap(id -> Optional.ofNullable(entityManager.find(ArtifactEntry.class, id)))
-                       .map(e -> detach(e))
                        .orElse(null);
     }
     
     @Override
-    @CacheEvict(cacheNames = CacheName.Artifact.ARTIFACT_ENTRIES, allEntries = true)
     public void delete(String id)
     {
         super.delete(id);
     }
 
     @Override
-    @CacheEvict(cacheNames = CacheName.Artifact.ARTIFACT_ENTRIES, keyGenerator = ArtifactEntryKeyGenerator.NAME_ARTIFACT_ENTRY_KYE_GENERATOR)
     public void delete(ArtifactEntry entity)
     {
         super.delete(entity);
     }
 
     @Override
-    @CacheEvict(cacheNames = CacheName.Artifact.ARTIFACT_ENTRIES, allEntries = true)
     public void deleteAll()
     {
         super.deleteAll();
     }
 
     @Override
-    @CacheEvict(cacheNames = CacheName.Artifact.ARTIFACT_ENTRIES, allEntries = true)
     public int delete(List<ArtifactEntry> artifactEntries)
     {
         if (CollectionUtils.isEmpty(artifactEntries))
@@ -556,24 +537,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     public Class<ArtifactEntry> getEntityClass()
     {
         return ArtifactEntry.class;
-    }
-    
-    @Component(ArtifactEntryKeyGenerator.NAME_ARTIFACT_ENTRY_KYE_GENERATOR)
-    public class ArtifactEntryKeyGenerator implements KeyGenerator
-    {
-
-        public static final String NAME_ARTIFACT_ENTRY_KYE_GENERATOR = "artifactEntryKeyGenerator";
-
-        @Override
-        public Object generate(Object target,
-                               Method method,
-                               Object... params)
-        {
-            ArtifactEntry artifactEntry = (ArtifactEntry) params[0];
-            
-            return generateKey(artifactEntry);
-        }
-
     }
 
     private String generateKey(ArtifactEntry artifactEntry)

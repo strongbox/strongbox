@@ -63,6 +63,12 @@ public abstract class GenericEntity<T extends GenericEntity<T>>
     }
 
     @XmlTransient
+    public Long getEntityVersion()
+    {
+        return entityVersion;
+    }
+
+    @XmlTransient
     public String getUuid()
     {
         return uuid;

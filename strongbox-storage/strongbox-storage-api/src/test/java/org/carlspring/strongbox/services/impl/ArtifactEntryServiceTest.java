@@ -125,7 +125,6 @@ public class ArtifactEntryServiceTest
     private ArtifactEntry save(ArtifactEntry artifactEntry)
     {
         ArtifactEntry result = artifactEntryService.save(artifactEntry);
-        cacheManager.getCache(CacheName.Artifact.ARTIFACT_ENTRIES).clear();
         
         return result;
     }

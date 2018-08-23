@@ -9,12 +9,13 @@ import javax.persistence.Query;
 import javax.persistence.SynchronizationType;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
+
+import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.google.common.base.Throwables;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.jdbc.OrientDataSource;
 import com.orientechnologies.orient.jdbc.OrientJdbcConnection;
@@ -79,13 +80,15 @@ public class OJPAObjectDatabaseTxEntityManagerFactory
         }
         catch (SQLException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
 
         OObjectDatabaseTx db = new OObjectDatabaseTx((ODatabaseDocumentInternal) ((OrientJdbcConnection) connection).getDatabase());
-        Boolean automaticSchemaGeneration = Boolean.valueOf(properties.getOrDefault(
-                OJPAObjectDatabaseTxPersistenceProvider.PROPERTY_AUTOMATIC_SCHEMA_GENERATION,
-                Boolean.FALSE.toString())
+        db.getTransaction().setIsolationLevel(com.orientechnologies.orient.core.tx.OTransaction.ISOLATION_LEVEL.READ_COMMITTED);
+        db.getLocalCache().setEnable(true);
+        
+        Boolean automaticSchemaGeneration = Boolean.valueOf(properties.getOrDefault(OJPAObjectDatabaseTxPersistenceProvider.PROPERTY_AUTOMATIC_SCHEMA_GENERATION,
+                                                                                    Boolean.FALSE.toString())
                                                                       .toString());
         db.setAutomaticSchemaGeneration(Boolean.TRUE.equals(automaticSchemaGeneration));
         return new OJPAObjectDatabaseTxEntityManager(db, this, properties);

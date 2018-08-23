@@ -5,7 +5,6 @@ import java.util.Set;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.data.domain.EntitySerializer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -38,15 +37,6 @@ public class HazelcastConfiguration
                                                                                                                             .setSize(1000))
                                                                                      .setInvalidateOnChange(true)
                                                                                      .setTimeToLiveSeconds(AUTHENTICATION_CACHE_INVALIDATE_INTERVAL));
-    }
-
-    public static MapConfig artifactEntryCacheConfig(String name)
-    {
-        return new MapConfig().setName(name).setNearCacheConfig(new NearCacheConfig().setCacheLocalEntries(true)
-                                                                                     .setEvictionConfig(new EvictionConfig().setMaximumSizePolicy(MaxSizePolicy.ENTRY_COUNT)
-                                                                                                                            .setSize(100))
-                                                                                     .setInvalidateOnChange(true)
-                                                                                     .setTimeToLiveSeconds(ARTIFACT_ENTRY_CACHE_INVALIDATE_INTERVAL));
     }
 
     public static MapConfig newDefaultMapConfig(String name)
@@ -86,8 +76,8 @@ public class HazelcastConfiguration
         final Config config = new Config().setInstanceName("strongbox")
                                           .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
                                           .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS))
-                                          .addMapConfig(authenticationCacheConfig(CacheName.User.AUTHENTICATIONS))
-                                          .addMapConfig(artifactEntryCacheConfig(CacheName.Artifact.ARTIFACT_ENTRIES));
+                                          .addMapConfig(authenticationCacheConfig(CacheName.User.AUTHENTICATIONS));
+        
         config.getGroupConfig().setName("strongbox").setPassword("password");
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
 

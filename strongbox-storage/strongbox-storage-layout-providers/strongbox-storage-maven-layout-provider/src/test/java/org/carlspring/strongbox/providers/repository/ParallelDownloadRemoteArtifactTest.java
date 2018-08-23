@@ -19,6 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.config.MockedRestArtifactResolverTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.hamcrest.CoreMatchers;
@@ -28,6 +30,8 @@ import org.junit.runner.RunWith;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * @author sbespalov
@@ -43,6 +47,9 @@ public class ParallelDownloadRemoteArtifactTest
 
     public Map<InputStream, Thread> repoteRepositoryConnectionOwnerMap = new ConcurrentHashMap<>();
 
+    @Inject
+    private PlatformTransactionManager transactionManager;
+    
     @Before
     public void setup()
         throws Exception
@@ -55,7 +62,7 @@ public class ParallelDownloadRemoteArtifactTest
     public void testConcurrentDownload()
         throws Exception
     {
-        int concurrency = 8;
+        int concurrency = 64;
 
         final String storageId = "storage-common-proxies";
         final String repositoryId = "maven-central";
@@ -98,19 +105,22 @@ public class ParallelDownloadRemoteArtifactTest
                                   final String path)
     {
 
-        try
-        {
-            assertStreamNotNull(storageId, repositoryId, path);
-        }
-        catch (AssertionError e)
-        {
-            return e;
-        }
-        catch (Throwable e)
-        {
-            return e;
-        }
-        return null;
+        return new TransactionTemplate(transactionManager).execute(t -> {
+            try
+            {
+                assertStreamNotNull(storageId, repositoryId, path);
+            }
+            catch (AssertionError e)
+            {
+                return e;
+            }
+            catch (Throwable e)
+            {
+                return e;
+            }
+
+            return null;
+        });
     }
 
     private class RemoteArtifactInputStreamStub

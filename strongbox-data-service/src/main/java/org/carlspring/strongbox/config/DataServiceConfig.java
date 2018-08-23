@@ -69,20 +69,15 @@ public class DataServiceConfig
 
     @Bean
     @Primary
-    public PlatformTransactionManager transactionManager(JpaTransactionManager jpaTransactionManager,
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf,
                                                          HazelcastInstance hazelcastInstance)
     {
         HazelcastTransactionManager hazelcastTransactionManager = new HazelcastTransactionManager(hazelcastInstance);
+        JpaTransactionManager jpaTransactionManager = new JpaTransactionManager(emf);
+        
         return new ChainedTransactionManager(hazelcastTransactionManager, jpaTransactionManager);
     }
 
-    @Bean
-    @OrientDBTransactionManager
-    public JpaTransactionManager jpaTransactionManager(EntityManagerFactory emf)
-    {
-        JpaTransactionManager jpaTransactionManager = new JpaTransactionManager(emf);
-        return jpaTransactionManager;
-    }
 
     @Bean
     @DependsOn("springLiquibase")
@@ -109,10 +104,4 @@ public class DataServiceConfig
         return new HazelcastCacheManager(hazelcastInstance);
     }
 
-
-    @Qualifier
-    public static @interface OrientDBTransactionManager
-    {
-    }
-    
 }
