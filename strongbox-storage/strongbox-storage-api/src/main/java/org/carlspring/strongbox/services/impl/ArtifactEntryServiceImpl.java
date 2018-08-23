@@ -448,6 +448,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         return findArtifactEntryId(storageId, repositoryId, path) != null;
     }
 
+    //TODO: implement light weight ArtifactEntryRead (without related entities)
     @Override
     public ArtifactEntry findOneArtifact(String storageId,
                                          String repositoryId,
