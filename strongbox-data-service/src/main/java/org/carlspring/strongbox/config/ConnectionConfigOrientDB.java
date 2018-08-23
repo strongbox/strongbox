@@ -127,9 +127,8 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
         String profile = System.getProperty(PROPERTY_PROFILE, PROFILE_MEMORY);
         logger.info(String.format("Bootstrap OrientDB connection properties with profile [%s].",
                                   profile));
-        //TODO: make this with Java API configuration
-        System.setProperty("cache.level2.enabled", Boolean.FALSE.toString());
-        System.setProperty("cache.level1.enabled", Boolean.FALSE.toString());
+        //TODO: we need to find out how to make this with Java API configuration for OrientDB v3
+        //System.setProperty("cache.level2.enabled", Boolean.FALSE.toString());
         
         try (InputStream is = ConnectionConfigOrientDB.class
                                                       .getResourceAsStream(String.format("/META-INF/properties/%s.properties", profile)))

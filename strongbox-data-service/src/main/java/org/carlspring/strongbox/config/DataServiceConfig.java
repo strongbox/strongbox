@@ -104,10 +104,4 @@ public class DataServiceConfig
         return new HazelcastCacheManager(hazelcastInstance);
     }
 
-
-    @Qualifier
-    public static @interface OrientDBTransactionManager
-    {
-    }
-    
 }

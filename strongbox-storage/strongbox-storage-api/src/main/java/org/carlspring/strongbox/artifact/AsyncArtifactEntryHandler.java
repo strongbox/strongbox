@@ -6,7 +6,6 @@ import java.util.concurrent.locks.Lock;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.AsyncEventListener;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
@@ -17,13 +16,11 @@ import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
 import org.springframework.data.transaction.ChainedTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 
 public abstract class AsyncArtifactEntryHandler
 {
@@ -40,9 +37,6 @@ public abstract class AsyncArtifactEntryHandler
 
     @Inject
     private PlatformTransactionManager transactionManager;
-
-    @Inject
-    private CacheManager cacheManager;
 
     private final ArtifactEventTypeEnum eventType;
 
@@ -153,12 +147,6 @@ public abstract class AsyncArtifactEntryHandler
         {
             throw e;
         }
-
-        ArtifactEntry artifactEntry = repositoryPath.getArtifactEntry();
-        cacheManager.getCache(CacheName.Artifact.ARTIFACT_ENTRIES)
-                    .evict(artifactEntry.getStorageId() + "/" + artifactEntry.getRepositoryId() + "/"
-                            + artifactEntry.getArtifactPath());
-
     }
 
     private void handleTransactional(RepositoryPath repositoryPath)
