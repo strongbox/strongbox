@@ -33,7 +33,7 @@ public class AuthoritiesExternalToInternalMapper
     @Inject
     private AuthoritiesProvider authoritiesProvider;
 
-    @JsonProperty("roles-mapping")
+    @JsonProperty
     private ConcurrentMap<String, String> rolesMapping;
 
     @Override

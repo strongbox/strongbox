@@ -2,10 +2,17 @@ package org.carlspring.strongbox.controllers.configuration.security.ldap;
 
 import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.security.ldap.LdapSearchForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import io.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,8 +54,13 @@ public class LdapAuthenticatorConfigurationControllerTest
                .get(getContextBaseUrl())
                .peek()
                .then()
-               //.body("roles-mapping.Developers", equalTo("REPOSITORY_MANAGER"))
-               //.body("roles-mapping.Contributors", equalTo("USER_ROLE"))
+               .body("[0].rolesMapping.Developers", equalTo("REPOSITORY_MANAGER"))
+               .body("[0].rolesMapping.Contributors", equalTo("USER_ROLE"))
+               .body("[1].userDnPatterns[0]", equalTo("uid={0},ou=Users"))
+               .body("[2].groupSearchFilter.searchBase", equalTo("ou=Groups"))
+               .body("[2].groupSearchFilter.searchFilter", equalTo("(uniqueMember={0})"))
+               .body("[3].userSearchFilter.searchBase", equalTo("ou=people"))
+               .body("[3].userSearchFilter.searchFilter", equalTo("(uid={0})"))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -61,8 +73,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .get(getContextBaseUrl() + "/rolesMapping")
                .peek()
                .then()
-               .body("roles-mapping.Developers", equalTo("REPOSITORY_MANAGER"))
-               .body("roles-mapping.Contributors", equalTo("USER_ROLE"))
+               .body("rolesMapping.Developers", equalTo("REPOSITORY_MANAGER"))
+               .body("rolesMapping.Contributors", equalTo("USER_ROLE"))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -75,7 +87,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                .get(getContextBaseUrl() + "/userDnPatterns")
                .peek()
                .then()
-               .body("user-dn-pattern[0]", equalTo("uid={0},ou=Users"))
+               .body("userDnPatterns[0]", equalTo("uid={0},ou=Users"))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -88,8 +100,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .get(getContextBaseUrl() + "/userSearchFilter")
                .peek()
                .then()
-               .body("search-filter", equalTo("(uid={0})"))
-               .body("search-base", equalTo("ou=people"))
+               .body("searchFilter", equalTo("(uid={0})"))
+               .body("searchBase", equalTo("ou=people"))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -102,8 +114,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .get(getContextBaseUrl() + "/groupSearchFilter")
                .peek()
                .then()
-               .body("search-base", equalTo("ou=Groups"))
-               .body("search-filter", equalTo("(uniqueMember={0})"))
+               .body("searchBase", equalTo("ou=Groups"))
+               .body("searchFilter", equalTo("(uniqueMember={0})"))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -198,9 +210,89 @@ public class LdapAuthenticatorConfigurationControllerTest
                .get(getContextBaseUrl() + "/userSearchFilter")
                .peek()
                .then()
-               .body("search-filter", equalTo("(uid={0})"))
-               .body("search-base", equalTo("ou=guys"))
+               .body("searchFilter", equalTo("(uid={0})"))
+               .body("searchBase", equalTo("ou=guys"))
                .statusCode(HttpStatus.OK.value());
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void shouldUpdateFullLdapConfiguration()
+    {
+        LdapSearchForm groupSearchForm = new LdapSearchForm();
+        groupSearchForm.setSearchBase("ou=People");
+        groupSearchForm.setSearchFilter("(people={0})");
+
+        Map<String, String> rolesMapping = new HashMap<>();
+        rolesMapping.put("ArtifactsManager", "ARTIFACTS_MANAGER");
+        rolesMapping.put("LogsManager", "LOGS_MANAGER");
+
+        List<String> userDnPatterns = new ArrayList<>();
+        userDnPatterns.add("uid={0},ou=AllUsers");
+
+        LdapSearchForm userSearchForm = new LdapSearchForm();
+        userSearchForm.setSearchBase("ou=Employee");
+        userSearchForm.setSearchFilter("(employee={0})");
+
+        LdapConfigurationForm form = new LdapConfigurationForm();
+        form.setGroupSearch(groupSearchForm);
+        form.setRolesMapping(rolesMapping);
+        form.setUserDnPatterns(userDnPatterns);
+        form.setUserSearch(userSearchForm);
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value());
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl())
+               .peek()
+               .then()
+               .body("[0].rolesMapping.ArtifactsManager", equalTo("ARTIFACTS_MANAGER"))
+               .body("[0].rolesMapping.LogsManager", equalTo("LOGS_MANAGER"))
+               .body("[1].userDnPatterns[0]", equalTo("uid={0},ou=AllUsers"))
+               .body("[2].groupSearchFilter.searchBase", equalTo("ou=People"))
+               .body("[2].groupSearchFilter.searchFilter", equalTo("(people={0})"))
+               .body("[3].userSearchFilter.searchBase", equalTo("ou=Employee"))
+               .body("[3].userSearchFilter.searchFilter", equalTo("(employee={0})"))
+               .statusCode(HttpStatus.OK.value());
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void validationShouldWorkOnLdapFullConfuguration()
+    {
+        LdapSearchForm groupSearchForm = new LdapSearchForm();
+        groupSearchForm.setSearchBase("ou=People");
+
+        Map<String, String> rolesMapping = new HashMap<>();
+        rolesMapping.put("ArtifactsManager", "ARTIFACTS_MANAGER");
+        rolesMapping.put("LogsManager", "LOGS_MANAGER");
+
+        List<String> userDnPatterns = new ArrayList<>();
+        userDnPatterns.add("uid={0},ou=AllUsers");
+
+        LdapConfigurationForm form = new LdapConfigurationForm();
+        form.setGroupSearch(groupSearchForm);
+        form.setRolesMapping(rolesMapping);
+        form.setUserDnPatterns(userDnPatterns);
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .body("message",
+                     equalTo("LDAP configuration cannot be updated because the submitted form contains errors!"))
+               .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @WithMockUser(authorities = "ADMIN")
@@ -220,8 +312,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .get(getContextBaseUrl() + "/groupSearchFilter")
                .peek()
                .then()
-               .body("search-base", equalTo("ou=guys"))
-               .body("search-filter", equalTo("(participiant={0})"))
+               .body("searchBase", equalTo("ou=guys"))
+               .body("searchFilter", equalTo("(participiant={0})"))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -256,8 +348,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .get(getContextBaseUrl() + "/userDnPatterns")
                .peek()
                .then()
-               .body("user-dn-pattern[0]", equalTo("uid={0},ou=Users"))
-               .body("user-dn-pattern[1]", equalTo("uid={0},ou=Guys"))
+               .body("userDnPatterns[0]", equalTo("uid={0},ou=Users"))
+               .body("userDnPatterns[1]", equalTo("uid={0},ou=Guys"))
                .statusCode(HttpStatus.OK.value());
     }
 

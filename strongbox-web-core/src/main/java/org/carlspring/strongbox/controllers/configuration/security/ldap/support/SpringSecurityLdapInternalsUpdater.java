@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
@@ -17,10 +18,10 @@ import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopul
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
-import static org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater.LdapConfigurationUpdateCheckpoint.GROUP_SEARCH_FILER;
-import static org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater.LdapConfigurationUpdateCheckpoint.ROLES_MAPPING;
-import static org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater.LdapConfigurationUpdateCheckpoint.USER_DN_PATTERNS;
-import static org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater.LdapConfigurationUpdateCheckpoint.USER_SEARCH_FILTER;
+import static org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater.LdapConfigurationUpdateStage.GROUP_SEARCH_FILER;
+import static org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater.LdapConfigurationUpdateStage.ROLES_MAPPING;
+import static org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater.LdapConfigurationUpdateStage.USER_DN_PATTERNS;
+import static org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater.LdapConfigurationUpdateStage.USER_SEARCH_FILTER;
 
 /**
  * Use this class if reflection on some other mechanisms is needed to affect LDAP configuration.
@@ -80,7 +81,7 @@ public class SpringSecurityLdapInternalsUpdater
                 ldapUserSearchContent != null ? springSecurityLdapInternalsSupplier.getUserSearchXmlHolder(
                         (FilterBasedLdapUserSearch) ldapUserSearchContent) : null;
 
-        LdapConfigurationUpdateCheckpoint checkpoint = null;
+        LdapConfigurationUpdateStage updateStage = null;
 
         // replace configuration
         try
@@ -90,15 +91,15 @@ public class SpringSecurityLdapInternalsUpdater
                 updateGroupSearchFilter((DefaultLdapAuthoritiesPopulator) ldapAuthoritiesPopulator,
                                         form.getGroupSearch().getSearchBase(),
                                         form.getGroupSearch().getSearchFilter());
-                checkpoint = GROUP_SEARCH_FILER;
+                updateStage = GROUP_SEARCH_FILER;
             }
 
             springSecurityLdapInternalsSupplier.getAuthoritiesMapper()
                                                .setRolesMapping(form.getRolesMapping());
-            checkpoint = ROLES_MAPPING;
+            updateStage = ROLES_MAPPING;
 
             updateUserDnPatterns(form.getUserDnPatterns());
-            checkpoint = USER_DN_PATTERNS;
+            updateStage = USER_DN_PATTERNS;
 
             AbstractLdapAuthenticator abstractLdapAuthenticator = springSecurityLdapInternalsSupplier.getAuthenticator();
             if (abstractLdapAuthenticator != null)
@@ -107,14 +108,14 @@ public class SpringSecurityLdapInternalsUpdater
                                        form.getUserSearch().getSearchBase(),
                                        form.getUserSearch().getSearchFilter());
             }
-            checkpoint = USER_SEARCH_FILTER;
+            updateStage = USER_SEARCH_FILTER;
         }
         // rollback if needed
         catch (Exception ex)
         {
             logger.error("Unable to update Ldap Configuration", ex);
 
-            rollbackUpdateLdapConfigurationSettings(checkpoint,
+            rollbackUpdateLdapConfigurationSettings(updateStage,
                                                     backupGroupSearchFilter,
                                                     backupRolesMapping,
                                                     backupUserDnPatterns,
@@ -123,24 +124,25 @@ public class SpringSecurityLdapInternalsUpdater
         }
     }
 
-    private void rollbackUpdateLdapConfigurationSettings(LdapConfigurationUpdateCheckpoint checkpoint,
+    @SuppressFBWarnings(value = "ASF_SWITCH_FALLTHROUGH", justification = "intentional")
+    private void rollbackUpdateLdapConfigurationSettings(LdapConfigurationUpdateStage updateStage,
                                                          LdapGroupSearchResponseEntityBody backupGroupSearchFilter,
                                                          AuthoritiesExternalToInternalMapper backupRolesMapping,
                                                          LdapUserDnPatternsResponseEntityBody backupUserDnPatterns,
                                                          LdapUserSearchResponseEntityBody backupUserSearchFilter)
     {
-        if (checkpoint == null)
+        if (updateStage == null)
         {
             return;
         }
 
-        switch (checkpoint)
+        switch (updateStage)
         {
             case USER_SEARCH_FILTER:
-                AbstractLdapAuthenticator abstractLdapAuthenticator = springSecurityLdapInternalsSupplier.getAuthenticator();
-                if (abstractLdapAuthenticator != null)
+                AbstractLdapAuthenticator ldapAuthenticator = springSecurityLdapInternalsSupplier.getAuthenticator();
+                if (ldapAuthenticator != null)
                 {
-                    updateUserSearchFilter(abstractLdapAuthenticator,
+                    updateUserSearchFilter(ldapAuthenticator,
                                            backupUserSearchFilter.getSearchBase(),
                                            backupUserSearchFilter.getSearchFilter());
                 }
@@ -163,7 +165,7 @@ public class SpringSecurityLdapInternalsUpdater
         }
     }
 
-    enum LdapConfigurationUpdateCheckpoint
+    enum LdapConfigurationUpdateStage
     {
         GROUP_SEARCH_FILER, ROLES_MAPPING, USER_DN_PATTERNS, USER_SEARCH_FILTER;
     }

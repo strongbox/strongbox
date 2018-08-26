@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.forms.configuration.security.ldap;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
@@ -13,9 +16,12 @@ public class LdapConfigurationForm
 
     private List<String> userDnPatterns;
 
-    private LdapUserSearchForm userSearch;
+    @Valid
+    private LdapSearchForm userSearch;
 
-    private LdapGroupSearchForm groupSearch;
+    @NotNull
+    @Valid
+    private LdapSearchForm groupSearch;
 
     public Map<String, String> getRolesMapping()
     {
@@ -37,22 +43,22 @@ public class LdapConfigurationForm
         this.userDnPatterns = userDnPatterns;
     }
 
-    public LdapUserSearchForm getUserSearch()
+    public LdapSearchForm getUserSearch()
     {
         return userSearch;
     }
 
-    public void setUserSearch(final LdapUserSearchForm userSearch)
+    public void setUserSearch(final LdapSearchForm userSearch)
     {
         this.userSearch = userSearch;
     }
 
-    public LdapGroupSearchForm getGroupSearch()
+    public LdapSearchForm getGroupSearch()
     {
         return groupSearch;
     }
 
-    public void setGroupSearch(final LdapGroupSearchForm groupSearch)
+    public void setGroupSearch(final LdapSearchForm groupSearch)
     {
         this.groupSearch = groupSearch;
     }

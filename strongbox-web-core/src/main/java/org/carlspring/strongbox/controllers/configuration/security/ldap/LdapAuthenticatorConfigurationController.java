@@ -7,13 +7,16 @@ import org.carlspring.strongbox.controllers.configuration.security.ldap.support.
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserDnPatternsResponseEntityBody;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserSearchResponseEntityBody;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsSupplier;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsTester;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
 import java.util.List;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -54,9 +57,17 @@ public class LdapAuthenticatorConfigurationController
         extends BaseController
 {
 
-    private static final String FAILED_PUT_LDAP = "User cannot be created because the submitted form contains errors!";
+    private static final String FAILED_PUT_LDAP = "LDAP configuration cannot be updated because the submitted form contains errors!";
 
-    private static final String SUCCESS_PUT_LDAP = "LDAP configuration update succeeded";
+    private static final String FAILED_PUT_LDAP_TEST = "LDAP configuration cannot be tested because the submitted form contains errors!";
+
+    private static final String ERROR_PUT_LDAP = "LDAP configuration update succeeded";
+
+    private static final String SUCCESS_PUT_LDAP = "Failed to update LDAP configuration.";
+
+    private static final String SUCCESS_PUT_LDAP_TEST = "LDAP configuration test passed";
+
+    private static final String ERROR_PUT_LDAP_TEST = "Failed to test LDAP configuration.";
 
     private static final String SUCCESS_ADD_ROLE_MAPPING = "LDAP role mapping configuration update succeeded";
 
@@ -66,6 +77,39 @@ public class LdapAuthenticatorConfigurationController
     @Inject
     private SpringSecurityLdapInternalsUpdater springSecurityLdapInternalsUpdater;
 
+    @Inject
+    private SpringSecurityLdapInternalsTester springSecurityLdapInternalsTester;
+
+    @ApiOperation(value = "Tests LDAP configuration settings")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP configuration test has passed.") })
+    @PutMapping(value = "/test", produces = { MediaType.APPLICATION_JSON_VALUE })
+    @ResponseBody
+    public ResponseEntity testLdapConfiguration(@RequestBody @Validated LdapConfigurationTestForm form,
+                                                BindingResult bindingResult,
+                                                @RequestHeader(HttpHeaders.ACCEPT) String accept)
+    {
+        if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
+        {
+            return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, accept);
+        }
+
+        if (bindingResult.hasErrors())
+        {
+            throw new RequestBodyValidationException(FAILED_PUT_LDAP_TEST, bindingResult);
+        }
+
+        try
+        {
+            springSecurityLdapInternalsTester.test(form);
+        }
+        catch (Exception e)
+        {
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_PUT_LDAP_TEST, e, accept);
+        }
+
+        return getSuccessfulResponseEntity(SUCCESS_PUT_LDAP_TEST, accept);
+    }
+
     @ApiOperation(value = "Update the LDAP configuration settings")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP configuration updated successfully.") })
     @PutMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -74,6 +118,11 @@ public class LdapAuthenticatorConfigurationController
                                                BindingResult bindingResult,
                                                @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
+        if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
+        {
+            return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, accept);
+        }
+
         if (bindingResult.hasErrors())
         {
             throw new RequestBodyValidationException(FAILED_PUT_LDAP, bindingResult);
@@ -85,8 +134,7 @@ public class LdapAuthenticatorConfigurationController
         }
         catch (Exception e)
         {
-            String message = "Failed to update LDAP configuration.";
-            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, message, e, accept);
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_PUT_LDAP, e, accept);
         }
 
         return getSuccessfulResponseEntity(SUCCESS_PUT_LDAP, accept);
@@ -98,15 +146,20 @@ public class LdapAuthenticatorConfigurationController
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getLdapConfiguration(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
+        if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
+        {
+            return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, acceptHeader);
+        }
+
         ResponseEntity rolesMapping = getRolesMapping(acceptHeader);
         ResponseEntity groupSearchFilter = getGroupSearchFilter(acceptHeader);
         ResponseEntity userDnPatterns = getUserDnPatterns(acceptHeader);
         ResponseEntity userSearchFilter = getUserSearchFilter(acceptHeader);
 
-        return ResponseEntity.ok(ImmutableSet.of("rolesMapping", rolesMapping.getBody(),
-                                                 "groupSearchFilter", groupSearchFilter.getBody(),
-                                                 "userDnPatterns", userDnPatterns.getBody(),
-                                                 "userSearchFilter", userSearchFilter.getBody())
+        return ResponseEntity.ok(ImmutableSet.of(rolesMapping.getBody(),
+                                                 userDnPatterns.getBody(),
+                                                 ImmutableMap.of("groupSearchFilter", groupSearchFilter.getBody()),
+                                                 ImmutableMap.of("userSearchFilter", userSearchFilter.getBody()))
         );
     }
 
