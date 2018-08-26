@@ -1,13 +1,17 @@
 package org.carlspring.strongbox.forms.configuration.security.ldap;
 
+import javax.validation.constraints.NotEmpty;
+
 /**
  * @author Przemyslaw Fusik
  */
-public class LdapGroupSearchForm
+public class LdapSearchForm
 {
 
+    @NotEmpty
     private String searchBase;
 
+    @NotEmpty
     private String searchFilter;
 
     public String getSearchBase()
