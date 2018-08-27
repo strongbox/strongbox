@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers.configuration.security.ldap;
 import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapSearchForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
@@ -262,6 +263,126 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("[3].userSearchFilter.searchBase", equalTo("ou=Employee"))
                .body("[3].userSearchFilter.searchFilter", equalTo("(employee={0})"))
                .statusCode(HttpStatus.OK.value());
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void ldapConfigurationTestShouldFail()
+    {
+        LdapSearchForm groupSearchForm = new LdapSearchForm();
+        groupSearchForm.setSearchBase("ou=People");
+        groupSearchForm.setSearchFilter("(people={0})");
+
+        Map<String, String> rolesMapping = new HashMap<>();
+        rolesMapping.put("ArtifactsManager", "ARTIFACTS_MANAGER");
+        rolesMapping.put("LogsManager", "LOGS_MANAGER");
+
+        List<String> userDnPatterns = new ArrayList<>();
+        userDnPatterns.add("uid={0},ou=AllUsers");
+
+        LdapSearchForm userSearchForm = new LdapSearchForm();
+        userSearchForm.setSearchBase("ou=Employee");
+        userSearchForm.setSearchFilter("(employee={0})");
+
+        LdapConfigurationForm subform = new LdapConfigurationForm();
+        subform.setGroupSearch(groupSearchForm);
+        subform.setRolesMapping(rolesMapping);
+        subform.setUserDnPatterns(userDnPatterns);
+        subform.setUserSearch(userSearchForm);
+
+        LdapConfigurationTestForm form = new LdapConfigurationTestForm();
+        form.setConfiguration(subform);
+        form.setUsername("przemyslaw");
+        form.setPassword("password");
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("LDAP configuration test failed"));
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void ldapConfigurationTestShouldPass()
+    {
+        LdapSearchForm groupSearchForm = new LdapSearchForm();
+        groupSearchForm.setSearchBase("ou=Groups");
+        groupSearchForm.setSearchFilter("(uniqueMember={0})");
+
+        List<String> userDnPatterns = new ArrayList<>();
+        userDnPatterns.add("uid={0},ou=Users");
+
+        LdapSearchForm userSearchForm = new LdapSearchForm();
+        userSearchForm.setSearchBase("ou=people");
+        userSearchForm.setSearchFilter("(uid={0})");
+
+        LdapConfigurationForm subform = new LdapConfigurationForm();
+        subform.setGroupSearch(groupSearchForm);
+        subform.setUserDnPatterns(userDnPatterns);
+        subform.setUserSearch(userSearchForm);
+
+        LdapConfigurationTestForm form = new LdapConfigurationTestForm();
+        form.setConfiguration(subform);
+        form.setUsername("przemyslaw.fusik");
+        form.setPassword("password");
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("LDAP configuration test passed"));
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void ldapConfigurationTestShouldNotAffectInternalConfiguration()
+    {
+        LdapSearchForm groupSearchForm = new LdapSearchForm();
+        groupSearchForm.setSearchBase("ou=Groups");
+        groupSearchForm.setSearchFilter("(uniqueMember={0})");
+
+        List<String> userDnPatterns = new ArrayList<>();
+        userDnPatterns.add("uid={0},ou=Users");
+
+        LdapSearchForm userSearchForm = new LdapSearchForm();
+        userSearchForm.setSearchBase("ou=people");
+        userSearchForm.setSearchFilter("(uid={0})");
+
+        Map<String, String> rolesMapping = new HashMap<>();
+        rolesMapping.put("ArtifactsManager", "ARTIFACTS_MANAGER");
+        rolesMapping.put("LogsManager", "LOGS_MANAGER");
+
+        LdapConfigurationForm subform = new LdapConfigurationForm();
+        subform.setGroupSearch(groupSearchForm);
+        subform.setUserDnPatterns(userDnPatterns);
+        subform.setUserSearch(userSearchForm);
+        subform.setRolesMapping(rolesMapping);
+
+        LdapConfigurationTestForm form = new LdapConfigurationTestForm();
+        form.setConfiguration(subform);
+        form.setUsername("przemyslaw.fusik");
+        form.setPassword("password");
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("LDAP configuration test passed"));
+
+        shouldReturnProperLdapConfiguration();
     }
 
     @WithMockUser(authorities = "ADMIN")
