@@ -7,7 +7,7 @@ import org.carlspring.strongbox.controllers.configuration.security.ldap.support.
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserDnPatternsResponseEntityBody;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserSearchResponseEntityBody;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsSupplier;
-import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsTester;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapConfigurationTester;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
@@ -65,7 +65,9 @@ public class LdapAuthenticatorConfigurationController
 
     private static final String SUCCESS_PUT_LDAP = "Failed to update LDAP configuration.";
 
-    private static final String SUCCESS_PUT_LDAP_TEST = "LDAP configuration test passed";
+    private static final String LDAP_TEST_PASSED = "LDAP configuration test passed";
+
+    private static final String LDAP_TEST_FAILED = "LDAP configuration test failed";
 
     private static final String ERROR_PUT_LDAP_TEST = "Failed to test LDAP configuration.";
 
@@ -78,7 +80,7 @@ public class LdapAuthenticatorConfigurationController
     private SpringSecurityLdapInternalsUpdater springSecurityLdapInternalsUpdater;
 
     @Inject
-    private SpringSecurityLdapInternalsTester springSecurityLdapInternalsTester;
+    private SpringSecurityLdapConfigurationTester springSecurityLdapInternalsTester;
 
     @ApiOperation(value = "Tests LDAP configuration settings")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP configuration test has passed.") })
@@ -98,16 +100,17 @@ public class LdapAuthenticatorConfigurationController
             throw new RequestBodyValidationException(FAILED_PUT_LDAP_TEST, bindingResult);
         }
 
+        boolean result;
         try
         {
-            springSecurityLdapInternalsTester.test(form);
+            result = springSecurityLdapInternalsTester.test(form);
         }
         catch (Exception e)
         {
             return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_PUT_LDAP_TEST, e, accept);
         }
 
-        return getSuccessfulResponseEntity(SUCCESS_PUT_LDAP_TEST, accept);
+        return getSuccessfulResponseEntity(result ? LDAP_TEST_PASSED : LDAP_TEST_FAILED, accept);
     }
 
     @ApiOperation(value = "Update the LDAP configuration settings")

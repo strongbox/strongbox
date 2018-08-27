@@ -6,13 +6,11 @@ import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurat
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapSearchForm;
 
 import javax.inject.Inject;
-import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,14 +27,14 @@ import org.springframework.util.CollectionUtils;
  * @author Przemyslaw Fusik
  */
 @Component
-public class SpringSecurityLdapInternalsTester
+public class SpringSecurityLdapConfigurationTester
         implements ApplicationContextAware
 {
 
     private AutowireCapableBeanFactory beanFactory;
 
     @Inject
-    private Optional<ContextSource> contextSource;
+    private SpringSecurityLdapInternalsSupplier springSecurityLdapInternalsSupplier;
 
     @Override
     public void setApplicationContext(final ApplicationContext context)
@@ -66,7 +64,7 @@ public class SpringSecurityLdapInternalsTester
         {
             Authentication authentication = provider.authenticate(
                     new UsernamePasswordAuthenticationToken(form.getUsername(), form.getPassword()));
-            return authentication != null;
+            return authentication != null && authentication.isAuthenticated();
         }
         catch (Exception ex)
         {
@@ -77,7 +75,7 @@ public class SpringSecurityLdapInternalsTester
     private DefaultLdapAuthoritiesPopulator prepareAuthoritiesPopulator(final LdapConfigurationForm configuration)
     {
         LdapSearchForm groupSearch = configuration.getGroupSearch();
-        DefaultLdapAuthoritiesPopulator ldapAuthoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource.get(),
+        DefaultLdapAuthoritiesPopulator ldapAuthoritiesPopulator = new DefaultLdapAuthoritiesPopulator(springSecurityLdapInternalsSupplier.getContextSource(),
                                                                                                        groupSearch.getSearchBase());
         ldapAuthoritiesPopulator.setSearchSubtree(true);
         ldapAuthoritiesPopulator.setGroupSearchFilter(groupSearch.getSearchFilter());
@@ -88,7 +86,7 @@ public class SpringSecurityLdapInternalsTester
 
     private LdapAuthenticator prepareAuthenticator(final LdapConfigurationForm configuration)
     {
-        BaseLdapPathContextSource baseLdapPathContextSource = (BaseLdapPathContextSource) contextSource.get();
+        BaseLdapPathContextSource baseLdapPathContextSource = (BaseLdapPathContextSource) springSecurityLdapInternalsSupplier.getContextSource();
         BindAuthenticator bindAuthenticator = new BindAuthenticator(baseLdapPathContextSource);
         if (configuration.getUserDnPatterns() != null)
         {
