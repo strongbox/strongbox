@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.forms.configuration.security.ldap;
 
+import org.carlspring.strongbox.validation.LdapUri;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -11,6 +13,14 @@ import java.util.Map;
  */
 public class LdapConfigurationForm
 {
+
+    @LdapUri
+    @NotEmpty
+    private String url;
+
+    private String managerDn;
+
+    private String managerPassword;
 
     private Map<String, String> rolesMapping;
 
@@ -61,5 +71,35 @@ public class LdapConfigurationForm
     public void setGroupSearch(final LdapSearchForm groupSearch)
     {
         this.groupSearch = groupSearch;
+    }
+
+    public String getUrl()
+    {
+        return url;
+    }
+
+    public void setUrl(final String url)
+    {
+        this.url = url;
+    }
+
+    public String getManagerDn()
+    {
+        return managerDn;
+    }
+
+    public void setManagerDn(final String managerDn)
+    {
+        this.managerDn = managerDn;
+    }
+
+    public String getManagerPassword()
+    {
+        return managerPassword;
+    }
+
+    public void setManagerPassword(final String managerPassword)
+    {
+        this.managerPassword = managerPassword;
     }
 }

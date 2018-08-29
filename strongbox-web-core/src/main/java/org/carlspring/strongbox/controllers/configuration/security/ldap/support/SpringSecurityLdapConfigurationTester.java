@@ -5,15 +5,15 @@ import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurat
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapSearchForm;
 
-import javax.inject.Inject;
-
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.authentication.LdapAuthenticator;
@@ -33,9 +33,6 @@ public class SpringSecurityLdapConfigurationTester
 
     private AutowireCapableBeanFactory beanFactory;
 
-    @Inject
-    private SpringSecurityLdapInternalsSupplier springSecurityLdapInternalsSupplier;
-
     @Override
     public void setApplicationContext(final ApplicationContext context)
     {
@@ -46,8 +43,9 @@ public class SpringSecurityLdapConfigurationTester
     {
         LdapConfigurationForm configuration = form.getConfiguration();
 
-        LdapAuthenticator ldapAuthenticator = prepareAuthenticator(configuration);
-        LdapAuthoritiesPopulator ldapAuthoritiesPopulator = prepareAuthoritiesPopulator(configuration);
+        ContextSource contextSource = prepareContextSource(configuration);
+        LdapAuthenticator ldapAuthenticator = prepareAuthenticator(configuration, contextSource);
+        LdapAuthoritiesPopulator ldapAuthoritiesPopulator = prepareAuthoritiesPopulator(configuration, contextSource);
 
         LdapAuthenticationProvider provider = new LdapAuthenticationProvider(ldapAuthenticator,
                                                                              ldapAuthoritiesPopulator);
@@ -72,10 +70,11 @@ public class SpringSecurityLdapConfigurationTester
         }
     }
 
-    private DefaultLdapAuthoritiesPopulator prepareAuthoritiesPopulator(final LdapConfigurationForm configuration)
+    private DefaultLdapAuthoritiesPopulator prepareAuthoritiesPopulator(final LdapConfigurationForm configuration,
+                                                                        final ContextSource contextSource)
     {
         LdapSearchForm groupSearch = configuration.getGroupSearch();
-        DefaultLdapAuthoritiesPopulator ldapAuthoritiesPopulator = new DefaultLdapAuthoritiesPopulator(springSecurityLdapInternalsSupplier.getContextSource(),
+        DefaultLdapAuthoritiesPopulator ldapAuthoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource,
                                                                                                        groupSearch.getSearchBase());
         ldapAuthoritiesPopulator.setSearchSubtree(true);
         ldapAuthoritiesPopulator.setGroupSearchFilter(groupSearch.getSearchFilter());
@@ -84,9 +83,10 @@ public class SpringSecurityLdapConfigurationTester
         return ldapAuthoritiesPopulator;
     }
 
-    private LdapAuthenticator prepareAuthenticator(final LdapConfigurationForm configuration)
+    private LdapAuthenticator prepareAuthenticator(final LdapConfigurationForm configuration,
+                                                   final ContextSource contextSource)
     {
-        BaseLdapPathContextSource baseLdapPathContextSource = (BaseLdapPathContextSource) springSecurityLdapInternalsSupplier.getContextSource();
+        BaseLdapPathContextSource baseLdapPathContextSource = (BaseLdapPathContextSource) contextSource;
         BindAuthenticator bindAuthenticator = new BindAuthenticator(baseLdapPathContextSource);
         if (configuration.getUserDnPatterns() != null)
         {
@@ -99,5 +99,20 @@ public class SpringSecurityLdapConfigurationTester
                                                                           baseLdapPathContextSource));
         }
         return bindAuthenticator;
+    }
+
+    private ContextSource prepareContextSource(final LdapConfigurationForm configuration)
+    {
+        DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(configuration.getUrl());
+        if (StringUtils.isNotEmpty(configuration.getManagerDn()))
+        {
+            contextSource.setUserDn(configuration.getManagerDn());
+        }
+        if (StringUtils.isNotEmpty(configuration.getManagerPassword()))
+        {
+            contextSource.setPassword(configuration.getManagerPassword());
+        }
+        contextSource.afterPropertiesSet();
+        return contextSource;
     }
 }

@@ -39,6 +39,33 @@ public class LdapAuthenticatorConfigurationControllerTest
     @Inject
     private AuthenticatorsScanner scanner;
 
+    private static LdapConfigurationTestForm validLdapConfigurationTestForm()
+    {
+        LdapSearchForm groupSearchForm = new LdapSearchForm();
+        groupSearchForm.setSearchBase("ou=Groups");
+        groupSearchForm.setSearchFilter("(uniqueMember={0})");
+
+        List<String> userDnPatterns = new ArrayList<>();
+        userDnPatterns.add("uid={0},ou=Users");
+
+        LdapSearchForm userSearchForm = new LdapSearchForm();
+        userSearchForm.setSearchBase("ou=people");
+        userSearchForm.setSearchFilter("(uid={0})");
+
+        LdapConfigurationForm subform = new LdapConfigurationForm();
+        subform.setGroupSearch(groupSearchForm);
+        subform.setUserDnPatterns(userDnPatterns);
+        subform.setUserSearch(userSearchForm);
+        subform.setUrl("ldap://127.0.0.1:33389/dc=carlspring,dc=com");
+
+        LdapConfigurationTestForm form = new LdapConfigurationTestForm();
+        form.setConfiguration(subform);
+        form.setUsername("przemyslaw.fusik");
+        form.setPassword("password");
+
+        return form;
+    }
+
     @Before
     public void setUp()
     {
@@ -119,7 +146,6 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("searchFilter", equalTo("(uniqueMember={0})"))
                .statusCode(HttpStatus.OK.value());
     }
-
 
     @WithMockUser(authorities = "ADMIN")
     @Test
@@ -240,6 +266,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         form.setRolesMapping(rolesMapping);
         form.setUserDnPatterns(userDnPatterns);
         form.setUserSearch(userSearchForm);
+        form.setUrl("ldap://127.0.0.1:33389/dc=carlspring,dc=com");
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -267,15 +294,45 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test
+    public void ldapConfigurationTestRequiresUrl()
+    {
+        LdapConfigurationTestForm form = validLdapConfigurationTestForm();
+        form.getConfiguration().setUrl(null);
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .body("errors[0]['configuration.url'][0]", equalTo("must not be empty"));
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void ldapConfigurationTestRequiresValidUrl()
+    {
+        LdapConfigurationTestForm form = validLdapConfigurationTestForm();
+        form.getConfiguration().setUrl("dc=carlspring,dc=com");
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .body("errors[0]['configuration.url'][0]", equalTo("must be a valid URI"));
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
     public void ldapConfigurationTestShouldFail()
     {
-        LdapSearchForm groupSearchForm = new LdapSearchForm();
-        groupSearchForm.setSearchBase("ou=People");
-        groupSearchForm.setSearchFilter("(people={0})");
-
-        Map<String, String> rolesMapping = new HashMap<>();
-        rolesMapping.put("ArtifactsManager", "ARTIFACTS_MANAGER");
-        rolesMapping.put("LogsManager", "LOGS_MANAGER");
+        LdapConfigurationTestForm form = validLdapConfigurationTestForm();
 
         List<String> userDnPatterns = new ArrayList<>();
         userDnPatterns.add("uid={0},ou=AllUsers");
@@ -284,16 +341,9 @@ public class LdapAuthenticatorConfigurationControllerTest
         userSearchForm.setSearchBase("ou=Employee");
         userSearchForm.setSearchFilter("(employee={0})");
 
-        LdapConfigurationForm subform = new LdapConfigurationForm();
-        subform.setGroupSearch(groupSearchForm);
-        subform.setRolesMapping(rolesMapping);
+        LdapConfigurationForm subform = form.getConfiguration();
         subform.setUserDnPatterns(userDnPatterns);
         subform.setUserSearch(userSearchForm);
-
-        LdapConfigurationTestForm form = new LdapConfigurationTestForm();
-        form.setConfiguration(subform);
-        form.setUsername("przemyslaw");
-        form.setPassword("password");
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -308,28 +358,47 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test
-    public void ldapConfigurationTestShouldPass()
+    public void ldapConfigurationTestShouldFailWithInvalidUserDn()
     {
-        LdapSearchForm groupSearchForm = new LdapSearchForm();
-        groupSearchForm.setSearchBase("ou=Groups");
-        groupSearchForm.setSearchFilter("(uniqueMember={0})");
+        LdapConfigurationTestForm form = validLdapConfigurationTestForm();
+        form.getConfiguration().setManagerDn("daddy");
+        form.getConfiguration().setManagerPassword("mummy");
 
-        List<String> userDnPatterns = new ArrayList<>();
-        userDnPatterns.add("uid={0},ou=Users");
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("LDAP configuration test failed"));
+    }
 
-        LdapSearchForm userSearchForm = new LdapSearchForm();
-        userSearchForm.setSearchBase("ou=people");
-        userSearchForm.setSearchFilter("(uid={0})");
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void ldapConfigurationTestShouldPassWithoutUserDn()
+    {
+        LdapConfigurationTestForm form = validLdapConfigurationTestForm();
 
-        LdapConfigurationForm subform = new LdapConfigurationForm();
-        subform.setGroupSearch(groupSearchForm);
-        subform.setUserDnPatterns(userDnPatterns);
-        subform.setUserSearch(userSearchForm);
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("LDAP configuration test passed"));
+    }
 
-        LdapConfigurationTestForm form = new LdapConfigurationTestForm();
-        form.setConfiguration(subform);
-        form.setUsername("przemyslaw.fusik");
-        form.setPassword("password");
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void ldapConfigurationTestShouldPassWithUserDn()
+    {
+        LdapConfigurationTestForm form = validLdapConfigurationTestForm();
+        form.getConfiguration().setManagerDn("uid=admin,ou=system");
+        form.getConfiguration().setManagerPassword("secret");
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -346,31 +415,11 @@ public class LdapAuthenticatorConfigurationControllerTest
     @Test
     public void ldapConfigurationTestShouldNotAffectInternalConfiguration()
     {
-        LdapSearchForm groupSearchForm = new LdapSearchForm();
-        groupSearchForm.setSearchBase("ou=Groups");
-        groupSearchForm.setSearchFilter("(uniqueMember={0})");
-
-        List<String> userDnPatterns = new ArrayList<>();
-        userDnPatterns.add("uid={0},ou=Users");
-
-        LdapSearchForm userSearchForm = new LdapSearchForm();
-        userSearchForm.setSearchBase("ou=people");
-        userSearchForm.setSearchFilter("(uid={0})");
-
+        LdapConfigurationTestForm form = validLdapConfigurationTestForm();
         Map<String, String> rolesMapping = new HashMap<>();
         rolesMapping.put("ArtifactsManager", "ARTIFACTS_MANAGER");
         rolesMapping.put("LogsManager", "LOGS_MANAGER");
-
-        LdapConfigurationForm subform = new LdapConfigurationForm();
-        subform.setGroupSearch(groupSearchForm);
-        subform.setUserDnPatterns(userDnPatterns);
-        subform.setUserSearch(userSearchForm);
-        subform.setRolesMapping(rolesMapping);
-
-        LdapConfigurationTestForm form = new LdapConfigurationTestForm();
-        form.setConfiguration(subform);
-        form.setUsername("przemyslaw.fusik");
-        form.setPassword("password");
+        form.getConfiguration().setRolesMapping(rolesMapping);
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -387,7 +436,7 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test
-    public void validationShouldWorkOnLdapFullConfuguration()
+    public void validationShouldWorkOnLdapFullConfiguration()
     {
         LdapSearchForm groupSearchForm = new LdapSearchForm();
         groupSearchForm.setSearchBase("ou=People");
@@ -403,6 +452,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         form.setGroupSearch(groupSearchForm);
         form.setRolesMapping(rolesMapping);
         form.setUserDnPatterns(userDnPatterns);
+        form.setUrl("ldap://127.0.0.1:33389/dc=carlspring,dc=com");
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -411,8 +461,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                .put(getContextBaseUrl())
                .peek()
                .then()
-               .body("message",
-                     equalTo("LDAP configuration cannot be updated because the submitted form contains errors!"))
+               .body("errors[0]['groupSearch.searchFilter'][0]", equalTo("must not be empty"))
                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
