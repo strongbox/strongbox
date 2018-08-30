@@ -41,17 +41,103 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>aql-dynamic-grammar</id>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <scripts>
+                        <script>file:///${basedir}/src/main/groovy/aql-dynamic-grammar.groovy</script>
+                    </scripts>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>${project.groupId}</groupId>
+                        <artifactId>strongbox-storage-maven-layout-provider</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>${project.groupId}</groupId>
+                        <artifactId>strongbox-storage-nuget-layout-provider</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>${project.groupId}</groupId>
+                        <artifactId>strongbox-storage-npm-layout-provider</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>${project.groupId}</groupId>
+                        <artifactId>strongbox-commons</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jtwig</groupId>
+                        <artifactId>jtwig-core</artifactId>
+                        <version>5.86.1.RELEASE</version>
+                        <exclusions>
+                            <exclusion> 
+                                <groupId>com.googlecode.concurrentlinkedhashmap</groupId>   
+                                <artifactId>concurrentlinkedhashmap-lru</artifactId>    
+                            </exclusion>
+                            <exclusion>
+                                <groupId>com.google.guava</groupId>
+                                <artifactId>guava</artifactId>
+                            </exclusion>
+                        </exclusions>   
+                    </dependency>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-all</artifactId>
+                        <version>${version.groovy}</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>antlr</id>
+                        <id>aql-antlr-java</id>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>antlr4</goal>
                         </goals>
                         <configuration>
+                            <arguments>
+                                <argument>-package</argument>
+                                <argument>org.carlspring.strongbox.aql.grammar</argument>
+                            </arguments>
+                            <sourceDirectory>${project.build.directory}/antlr4</sourceDirectory>
                             <visitor>true</visitor>
                             <outputDirectory>${project.build.directory}/generated-sources/antlr4/org/carlspring/strongbox/aql/grammar</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>aql-grammar-artifact</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <classesDirectory>${project.build.directory}/antlr4</classesDirectory>
+                            <includes>
+                                <include>AQL.g4</include>
+                            </includes>
+                            <classifier>grammar</classifier>
                         </configuration>
                     </execution>
                 </executions>

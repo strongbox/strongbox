@@ -25,6 +25,52 @@ public class AqlParserTest
 
 
     @Test
+    public void testLayoutSpecificKeywords()
+    {
+        String query = "storage:storage-common-proxies +repository:carlspring +groupId:'org.carlspring'" +
+                       " +artifactId:'some strange group' asc: version";
+
+        AqlQueryParser aqlParser = new AqlQueryParser(query);
+
+        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+
+        Selector<ArtifactEntry> selector = aqlParser.parseQuery();
+        Predicate predicate = selector.getPredicate();
+
+        Assert.assertNotNull(predicate);
+        Assert.assertFalse(predicate.isEmpty());
+        Assert.assertFalse(aqlParser.hasErrors());
+        
+        query = "storage:storage-common-proxies +repository:carlspring +invalidId:'org.carlspring'" +
+                " +artifactId:'test-artifact' asc: unknownCoordinateId";
+
+        aqlParser = new AqlQueryParser(query);
+
+        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+
+        Map<Pair<Integer, Integer>, String> errorMap = null;
+        try
+        {
+            aqlParser.parseQuery();
+        }
+        catch (QueryParserException e)
+        {
+            errorMap = aqlParser.getErrors();
+        }
+
+        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+
+        Assert.assertTrue(aqlParser.hasErrors());
+        Assert.assertNotNull(errorMap);
+        Assert.assertEquals(2, errorMap.size());
+
+        List<Pair<Integer, Integer>> errorPositionList = new ArrayList<>(errorMap.keySet());
+
+        Assert.assertEquals(Pair.with(1, 55), errorPositionList.get(0));
+        Assert.assertEquals(Pair.with(1, 115), errorPositionList.get(1));
+    }
+    
+    @Test
     public void testValidQueryWithUpperLowercaseCheck()
     {
         String query = "(storagE:storage-common-proxies) +Repository:carlspring Or +(groupId:'org.carlspring')" +
@@ -99,16 +145,14 @@ public class AqlParserTest
 
         Assert.assertTrue(aqlParser.hasErrors());
         Assert.assertNotNull(errorMap);
-        Assert.assertEquals(6, errorMap.size());
+        Assert.assertEquals(4, errorMap.size());
 
         List<Pair<Integer, Integer>> errorPositionList = new ArrayList<>(errorMap.keySet());
 
         Assert.assertEquals(Pair.with(1, 0), errorPositionList.get(0));
         Assert.assertEquals(Pair.with(1, 17), errorPositionList.get(1));
         Assert.assertEquals(Pair.with(1, 20), errorPositionList.get(2));
-        Assert.assertEquals(Pair.with(1, 44), errorPositionList.get(3));
-        Assert.assertEquals(Pair.with(1, 46), errorPositionList.get(4));
-        Assert.assertEquals(Pair.with(1, 78), errorPositionList.get(5));
+        Assert.assertEquals(Pair.with(1, 78), errorPositionList.get(3));
     }
 
 }

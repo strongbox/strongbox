@@ -13,7 +13,7 @@ import javax.persistence.Entity;
  * Example: strongbox.p2/1.0.0/osgi.bundle
  */
 @Entity
-@ArtifactLayout("p2")
+@ArtifactCoordinatesLayout("p2")
 public class P2ArtifactCoordinates
         extends AbstractArtifactCoordinates<P2ArtifactCoordinates, P2ArtifactCoordinates>
 {

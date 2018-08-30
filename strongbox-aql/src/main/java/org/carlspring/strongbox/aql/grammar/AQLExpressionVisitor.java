@@ -24,9 +24,9 @@ public class AQLExpressionVisitor extends AQLBaseVisitor<ArtifactEntryExpression
     public ArtifactEntryExpressionBuilder visitTokenKey(TokenKeyContext ctx)
     {
         String attribute = null;
-        if (ctx.IDENTIFIER() != null)
+        if (ctx.layoutCoordinateKeyword() != null)
         {
-            attribute = ctx.IDENTIFIER().getText();
+            attribute = ctx.layoutCoordinateKeyword().getText();
         }
         else if (ctx.tokenKeyword() != null)
         {

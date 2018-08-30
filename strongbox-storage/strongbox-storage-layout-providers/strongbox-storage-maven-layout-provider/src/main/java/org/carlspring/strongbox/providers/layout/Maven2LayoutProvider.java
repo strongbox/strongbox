@@ -44,7 +44,7 @@ public class Maven2LayoutProvider
         extends AbstractLayoutProvider<MavenArtifactCoordinates>
 {
 
-    public static final String ALIAS = "Maven 2";
+    public static final String ALIAS = MavenArtifactCoordinates.LAYOUT_NAME;
 
     public static final String USER_AGENT_PREFIX = "Maven";
 

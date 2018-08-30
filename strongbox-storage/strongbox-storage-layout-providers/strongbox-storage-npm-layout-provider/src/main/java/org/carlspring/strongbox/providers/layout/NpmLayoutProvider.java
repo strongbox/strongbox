@@ -34,9 +34,9 @@ public class NpmLayoutProvider
 {
     private static final Logger logger = LoggerFactory.getLogger(NpmLayoutProvider.class);
 
-    public static final String ALIAS = "npm";
+    public static final String ALIAS = NpmArtifactCoordinates.LAYOUT_NAME;
 
-    public static final String USER_AGENT_PREFIX = "npm";
+    public static final String USER_AGENT_PREFIX = ALIAS;
 
     @Inject
     private HeaderMappingRegistry headerMappingRegistry;
