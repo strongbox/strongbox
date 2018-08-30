@@ -8,10 +8,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 /**
  * @author Przemyslaw Fusik
@@ -52,6 +55,30 @@ public class AuthenticatorsRegistry
     private void setArray(Authenticator[] elements)
     {
         array = Arrays.copyOf(elements, elements.length);
+    }
+
+    /**
+     * Replaces the authenticator of the same class
+     * or adds given authenticator to the end of the authenticator lists
+     */
+    public synchronized void put(Authenticator authenticator)
+    {
+        List<Authenticator> elements = new ArrayList<>(Arrays.asList(getArray()));
+        Optional<Authenticator> opt = elements.stream()
+                                              .filter(e -> e.getClass() == authenticator.getClass())
+                                              .findFirst();
+
+        if (opt.isPresent())
+        {
+            int index = elements.indexOf(opt.get());
+            elements.set(index, authenticator);
+        }
+        else
+        {
+            elements.add(authenticator);
+        }
+
+        reloadInternally(elements);
     }
 
     /**

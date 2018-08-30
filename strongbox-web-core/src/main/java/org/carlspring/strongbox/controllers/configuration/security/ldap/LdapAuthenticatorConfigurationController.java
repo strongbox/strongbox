@@ -6,9 +6,9 @@ import org.carlspring.strongbox.controllers.configuration.security.ldap.support.
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapMessages;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserDnPatternsResponseEntityBody;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserSearchResponseEntityBody;
-import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsSupplier;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapConfigurationTester;
-import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsUpdater;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsSupplier;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsMutator;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
@@ -77,7 +77,7 @@ public class LdapAuthenticatorConfigurationController
     private SpringSecurityLdapInternalsSupplier springSecurityLdapInternalsSupplier;
 
     @Inject
-    private SpringSecurityLdapInternalsUpdater springSecurityLdapInternalsUpdater;
+    private SpringSecurityLdapInternalsMutator springSecurityLdapInternalsMutator;
 
     @Inject
     private SpringSecurityLdapConfigurationTester springSecurityLdapInternalsTester;
@@ -90,11 +90,6 @@ public class LdapAuthenticatorConfigurationController
                                                 BindingResult bindingResult,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
-        {
-            return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, accept);
-        }
-
         if (bindingResult.hasErrors())
         {
             throw new RequestBodyValidationException(FAILED_PUT_LDAP_TEST, bindingResult);
@@ -121,11 +116,6 @@ public class LdapAuthenticatorConfigurationController
                                                BindingResult bindingResult,
                                                @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
-        {
-            return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, accept);
-        }
-
         if (bindingResult.hasErrors())
         {
             throw new RequestBodyValidationException(FAILED_PUT_LDAP, bindingResult);
@@ -133,7 +123,7 @@ public class LdapAuthenticatorConfigurationController
 
         try
         {
-            springSecurityLdapInternalsUpdater.updateLdapConfigurationSettings(form);
+            springSecurityLdapInternalsMutator.saveLdapConfiguration(form);
         }
         catch (Exception e)
         {
@@ -327,7 +317,7 @@ public class LdapAuthenticatorConfigurationController
         }
         try
         {
-            springSecurityLdapInternalsUpdater.updateUserDnPatterns(userDnPatterns);
+            springSecurityLdapInternalsMutator.updateUserDnPatterns(userDnPatterns);
         }
         catch (Exception e)
         {
@@ -365,7 +355,7 @@ public class LdapAuthenticatorConfigurationController
         }
         try
         {
-            springSecurityLdapInternalsUpdater.updateUserDnPatterns(userDnPatterns);
+            springSecurityLdapInternalsMutator.updateUserDnPatterns(userDnPatterns);
         }
         catch (Exception e)
         {
@@ -429,7 +419,7 @@ public class LdapAuthenticatorConfigurationController
             return ResponseEntity.noContent()
                                  .build();
         }
-        springSecurityLdapInternalsUpdater.updateUserSearchFilter(abstractLdapAuthenticator, searchBase, searchFilter);
+        springSecurityLdapInternalsMutator.updateUserSearchFilter(abstractLdapAuthenticator, searchBase, searchFilter);
 
         return getSuccessfulResponseEntity("User search filter updated.", acceptHeader);
     }
@@ -492,7 +482,7 @@ public class LdapAuthenticatorConfigurationController
                     "Configured ldapAuthoritiesPopulator is not supported. LDAP has to be configured with DefaultLdapAuthoritiesPopulator.",
                     acceptHeader);
         }
-        springSecurityLdapInternalsUpdater.updateGroupSearchFilter(
+        springSecurityLdapInternalsMutator.updateGroupSearchFilter(
                 (DefaultLdapAuthoritiesPopulator) ldapAuthoritiesPopulator, searchBase, searchFilter);
 
         return getSuccessfulResponseEntity("Group search filter updated.", acceptHeader);
