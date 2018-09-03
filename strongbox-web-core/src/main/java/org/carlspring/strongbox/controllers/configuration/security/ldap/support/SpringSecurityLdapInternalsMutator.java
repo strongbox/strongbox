@@ -71,4 +71,9 @@ public class SpringSecurityLdapInternalsMutator
             }
         });
     }
+
+    public void dropLdapConfiguration()
+    {
+        authenticatorsRegistry.drop(LdapAuthenticator.class);
+    }
 }

@@ -24,6 +24,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.startsWith;
 
 /**
  * @author Przemyslaw Fusik
@@ -82,13 +83,15 @@ public class LdapAuthenticatorConfigurationControllerTest
                .get(getContextBaseUrl())
                .peek()
                .then()
-               .body("[0].rolesMapping.Developers", equalTo("REPOSITORY_MANAGER"))
-               .body("[0].rolesMapping.Contributors", equalTo("USER_ROLE"))
-               .body("[1].userDnPatterns[0]", equalTo("uid={0},ou=Users"))
-               .body("[2].groupSearchFilter.searchBase", equalTo("ou=Groups"))
-               .body("[2].groupSearchFilter.searchFilter", equalTo("(uniqueMember={0})"))
-               .body("[3].userSearchFilter.searchBase", equalTo("ou=people"))
-               .body("[3].userSearchFilter.searchFilter", equalTo("(uid={0})"))
+               .body("[0].url", startsWith("ldap://127.0.0.1"))
+               .body("[1].managerDn", equalTo("uid=admin,ou=system"))
+               .body("[2].rolesMapping.Developers", equalTo("REPOSITORY_MANAGER"))
+               .body("[2].rolesMapping.Contributors", equalTo("USER_ROLE"))
+               .body("[3].userDnPatterns[0]", equalTo("uid={0},ou=Users"))
+               .body("[4].groupSearchFilter.searchBase", equalTo("ou=Groups"))
+               .body("[4].groupSearchFilter.searchFilter", equalTo("(uniqueMember={0})"))
+               .body("[5].userSearchFilter.searchBase", equalTo("ou=people"))
+               .body("[5].userSearchFilter.searchFilter", equalTo("(uid={0})"))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -244,6 +247,40 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test
+    public void shouldBeAbleToDropConfiguration()
+    {
+        shouldReturnProperLdapConfiguration();
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .when()
+               .delete(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value());
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl())
+               .peek()
+               .then()
+               .body("message", equalTo("LDAP is not configured"))
+               .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void shouldBeAbleToPutNewConfiguration()
+    {
+        shouldReturnProperLdapConfiguration();
+
+        shouldBeAbleToDropConfiguration();
+
+        shouldUpdateFullLdapConfiguration();
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
     public void shouldUpdateFullLdapConfiguration()
     {
         LdapSearchForm groupSearchForm = new LdapSearchForm();
@@ -282,13 +319,69 @@ public class LdapAuthenticatorConfigurationControllerTest
                .get(getContextBaseUrl())
                .peek()
                .then()
-               .body("[0].rolesMapping.ArtifactsManager", equalTo("ARTIFACTS_MANAGER"))
-               .body("[0].rolesMapping.LogsManager", equalTo("LOGS_MANAGER"))
-               .body("[1].userDnPatterns[0]", equalTo("uid={0},ou=AllUsers"))
-               .body("[2].groupSearchFilter.searchBase", equalTo("ou=People"))
-               .body("[2].groupSearchFilter.searchFilter", equalTo("(people={0})"))
-               .body("[3].userSearchFilter.searchBase", equalTo("ou=Employee"))
-               .body("[3].userSearchFilter.searchFilter", equalTo("(employee={0})"))
+               .body("[0].url", equalTo("ldap://127.0.0.1:33389/"))
+               .body("[1].managerDn", equalTo(""))
+               .body("[2].rolesMapping.ArtifactsManager", equalTo("ARTIFACTS_MANAGER"))
+               .body("[2].rolesMapping.LogsManager", equalTo("LOGS_MANAGER"))
+               .body("[3].userDnPatterns[0]", equalTo("uid={0},ou=AllUsers"))
+               .body("[4].groupSearchFilter.searchBase", equalTo("ou=People"))
+               .body("[4].groupSearchFilter.searchFilter", equalTo("(people={0})"))
+               .body("[5].userSearchFilter.searchBase", equalTo("ou=Employee"))
+               .body("[5].userSearchFilter.searchFilter", equalTo("(employee={0})"))
+               .statusCode(HttpStatus.OK.value());
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void shouldUpdateFullLdapConfigurationWithManagerDn()
+    {
+        LdapSearchForm groupSearchForm = new LdapSearchForm();
+        groupSearchForm.setSearchBase("ou=People");
+        groupSearchForm.setSearchFilter("(people={0})");
+
+        Map<String, String> rolesMapping = new HashMap<>();
+        rolesMapping.put("ArtifactsManager", "ARTIFACTS_MANAGER");
+        rolesMapping.put("LogsManager", "LOGS_MANAGER");
+
+        List<String> userDnPatterns = new ArrayList<>();
+        userDnPatterns.add("uid={0},ou=AllUsers");
+
+        LdapSearchForm userSearchForm = new LdapSearchForm();
+        userSearchForm.setSearchBase("ou=Employee");
+        userSearchForm.setSearchFilter("(employee={0})");
+
+        LdapConfigurationForm form = new LdapConfigurationForm();
+        form.setGroupSearch(groupSearchForm);
+        form.setRolesMapping(rolesMapping);
+        form.setUserDnPatterns(userDnPatterns);
+        form.setUserSearch(userSearchForm);
+        form.setManagerDn("uid=admin,ou=system");
+        form.setManagerPassword("secret");
+        form.setUrl("ldap://127.0.0.1:33389/dc=carlspring,dc=com");
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value());
+
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl())
+               .peek()
+               .then()
+               .body("[0].url", equalTo("ldap://127.0.0.1:33389/"))
+               .body("[1].managerDn", equalTo("uid=admin,ou=system"))
+               .body("[2].rolesMapping.ArtifactsManager", equalTo("ARTIFACTS_MANAGER"))
+               .body("[2].rolesMapping.LogsManager", equalTo("LOGS_MANAGER"))
+               .body("[3].userDnPatterns[0]", equalTo("uid={0},ou=AllUsers"))
+               .body("[4].groupSearchFilter.searchBase", equalTo("ou=People"))
+               .body("[4].groupSearchFilter.searchFilter", equalTo("(people={0})"))
+               .body("[5].userSearchFilter.searchBase", equalTo("ou=Employee"))
+               .body("[5].userSearchFilter.searchFilter", equalTo("(employee={0})"))
                .statusCode(HttpStatus.OK.value());
     }
 

@@ -7,8 +7,8 @@ import org.carlspring.strongbox.controllers.configuration.security.ldap.support.
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserDnPatternsResponseEntityBody;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserSearchResponseEntityBody;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapConfigurationTester;
-import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsSupplier;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsMutator;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsSupplier;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -63,7 +62,11 @@ public class LdapAuthenticatorConfigurationController
 
     private static final String ERROR_PUT_LDAP = "LDAP configuration update succeeded";
 
+    private static final String ERROR_DROP_LDAP = "LDAP configuration drop succeeded";
+
     private static final String SUCCESS_PUT_LDAP = "Failed to update LDAP configuration.";
+
+    private static final String SUCCESS_DROP_LDAP = "Failed to drop LDAP configuration.";
 
     private static final String LDAP_TEST_PASSED = "LDAP configuration test passed";
 
@@ -85,10 +88,9 @@ public class LdapAuthenticatorConfigurationController
     @ApiOperation(value = "Tests LDAP configuration settings")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP configuration test has passed.") })
     @PutMapping(value = "/test", produces = { MediaType.APPLICATION_JSON_VALUE })
-    @ResponseBody
     public ResponseEntity testLdapConfiguration(@RequestBody @Validated LdapConfigurationTestForm form,
                                                 BindingResult bindingResult,
-                                                @RequestHeader(HttpHeaders.ACCEPT) String accept)
+                                                @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         if (bindingResult.hasErrors())
         {
@@ -102,19 +104,18 @@ public class LdapAuthenticatorConfigurationController
         }
         catch (Exception e)
         {
-            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_PUT_LDAP_TEST, e, accept);
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_PUT_LDAP_TEST, e, acceptHeader);
         }
 
-        return getSuccessfulResponseEntity(result ? LDAP_TEST_PASSED : LDAP_TEST_FAILED, accept);
+        return getSuccessfulResponseEntity(result ? LDAP_TEST_PASSED : LDAP_TEST_FAILED, acceptHeader);
     }
 
     @ApiOperation(value = "Update the LDAP configuration settings")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP configuration updated successfully.") })
     @PutMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
-    @ResponseBody
     public ResponseEntity putLdapConfiguration(@RequestBody @Validated LdapConfigurationForm form,
                                                BindingResult bindingResult,
-                                               @RequestHeader(HttpHeaders.ACCEPT) String accept)
+                                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         if (bindingResult.hasErrors())
         {
@@ -127,10 +128,27 @@ public class LdapAuthenticatorConfigurationController
         }
         catch (Exception e)
         {
-            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_PUT_LDAP, e, accept);
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_PUT_LDAP, e, acceptHeader);
         }
 
-        return getSuccessfulResponseEntity(SUCCESS_PUT_LDAP, accept);
+        return getSuccessfulResponseEntity(SUCCESS_PUT_LDAP, acceptHeader);
+    }
+
+    @ApiOperation(value = "Drops LDAP configuration")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP configuration dropped.") })
+    @DeleteMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity dropLdapConfiguration(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    {
+        try
+        {
+            springSecurityLdapInternalsMutator.dropLdapConfiguration();
+        }
+        catch (Exception e)
+        {
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_DROP_LDAP, e, acceptHeader);
+        }
+
+        return getSuccessfulResponseEntity(SUCCESS_DROP_LDAP, acceptHeader);
     }
 
     @ApiOperation(value = "Returns LDAP configuration")
@@ -144,12 +162,16 @@ public class LdapAuthenticatorConfigurationController
             return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, acceptHeader);
         }
 
+        ResponseEntity url = getUrl(acceptHeader);
+        ResponseEntity managerDn = getManagerDn(acceptHeader);
         ResponseEntity rolesMapping = getRolesMapping(acceptHeader);
         ResponseEntity groupSearchFilter = getGroupSearchFilter(acceptHeader);
         ResponseEntity userDnPatterns = getUserDnPatterns(acceptHeader);
         ResponseEntity userSearchFilter = getUserSearchFilter(acceptHeader);
 
-        return ResponseEntity.ok(ImmutableSet.of(rolesMapping.getBody(),
+        return ResponseEntity.ok(ImmutableSet.of(ImmutableMap.of("url", url.getBody()),
+                                                 ImmutableMap.of("managerDn", managerDn.getBody()),
+                                                 rolesMapping.getBody(),
                                                  userDnPatterns.getBody(),
                                                  ImmutableMap.of("groupSearchFilter", groupSearchFilter.getBody()),
                                                  ImmutableMap.of("userSearchFilter", userSearchFilter.getBody()))
@@ -396,6 +418,33 @@ public class LdapAuthenticatorConfigurationController
         LdapUserSearchResponseEntityBody body = springSecurityLdapInternalsSupplier.getUserSearchXmlHolder(
                 (FilterBasedLdapUserSearch) userSearch);
         return ResponseEntity.ok(body);
+    }
+
+    @ApiOperation(value = "Returns LDAP url")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP url") })
+    @GetMapping(value = "/url", produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getUrl(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    {
+        if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
+        {
+            return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, acceptHeader);
+        }
+
+        return ResponseEntity.ok(springSecurityLdapInternalsSupplier.getUrl());
+    }
+
+    @ApiOperation(value = "Returns user dn")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "User user dn") })
+    @GetMapping(value = "/managerDn",
+            produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getManagerDn(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    {
+        if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
+        {
+            return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, acceptHeader);
+        }
+
+        return ResponseEntity.ok(springSecurityLdapInternalsSupplier.getUserDn());
     }
 
     @ApiOperation(value = "Updates LDAP user search filter. See http://docs.spring.io/spring-security/site/docs/current/reference/html/ldap.html#using-bind-authentication")

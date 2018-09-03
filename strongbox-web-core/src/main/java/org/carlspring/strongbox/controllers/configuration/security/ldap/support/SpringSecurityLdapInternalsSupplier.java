@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.springframework.ldap.core.ContextSource;
+import org.springframework.ldap.core.support.AbstractContextSource;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
@@ -135,4 +136,13 @@ public class SpringSecurityLdapInternalsSupplier
         return (ContextSource) ReflectionUtils.getField(contextSource, getAuthenticator());
     }
 
+    public String getUrl()
+    {
+        return ((AbstractContextSource) getContextSource()).getUrls()[0];
+    }
+
+    public String getUserDn()
+    {
+        return ((AbstractContextSource) getContextSource()).getUserDn();
+    }
 }
