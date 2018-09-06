@@ -140,9 +140,7 @@ public class ArtifactLayoutDescription
         }
 
         String artifactCoordinateName;
-        if (propertyReadMethod != null
-                && (artifactCoordinateName = calculateArtifactLayoutCoordinate(propertyName,
-                                                                               propertyReadMethod)) != null)
+        if ((artifactCoordinateName = calculateArtifactLayoutCoordinate(propertyName, propertyReadMethod)) != null)
         {
             return artifactCoordinateName;
         }
