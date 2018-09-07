@@ -1,0 +1,140 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "http://npmjsmt.pojo/feed",
+    "definitions": 
+    {
+        "time": 
+        {
+            "type": "object",
+            "properties": 
+            {
+                "modified": 
+                {
+                    "type": "string",
+                    "format": "date-time"
+                },
+
+                "created": 
+                {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            },
+
+            "additionalProperties": 
+            {
+                "type": "string",
+                "format": "date-time"
+            }
+        },
+
+        "users": 
+        {
+            "type": "object",
+            "additionalProperties": 
+            {
+                "type": "boolean"
+            }
+        },
+
+        "feed": 
+        {
+            "type": "object",
+            "patternProperties": 
+            {
+                "^_": 
+                {
+                    "description": "Any property starting with _ is valid.",
+                    "additionalProperties": true,
+                    "additionalItems": true
+                }
+            },
+
+            "properties": 
+            {
+                "name": 
+                {
+                    "type": "string"
+                },
+
+                "description": 
+                {
+                    "type": "string"
+                },
+
+                "distTags": 
+                {
+                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/version"
+                },
+
+                "versions": 
+                {
+                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/versions"
+                },
+
+                "readme": 
+                {
+                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/readme"
+                },
+
+                "maintainers": 
+                {
+                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/maintainers"
+                },
+
+                "time": 
+                {
+                    "$ref": "#definitions/time"
+                },
+
+                "homepage": 
+                {
+                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/homepage"
+                },
+
+                "keywords": 
+                {
+                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/keywords"
+                },
+
+                "repository": 
+                {
+                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/repository"
+                },
+
+                "author": 
+                {
+                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/person"
+                },
+
+                "bugs": 
+                {
+                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/bugs"
+                },
+
+                "license": 
+                {
+                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/license"
+                },
+
+                "readmeFilename": 
+                {
+                    "type": "string"
+                },
+
+                "users": 
+                {
+                    "$ref": "#definitions/users"
+                }
+            }
+        }
+    },
+
+    "properties": 
+    {
+        "feed": 
+        {
+            "$ref": "#/definitions/feed"
+        }
+    }
+}
