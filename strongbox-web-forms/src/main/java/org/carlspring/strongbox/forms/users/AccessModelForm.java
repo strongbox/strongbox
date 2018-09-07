@@ -22,15 +22,18 @@ public class AccessModelForm
         implements Serializable
 {
 
-    @ValidAccessModelPath(message = "The repository privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}'.")
+    @ValidAccessModelPath(message = "The repository privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}'.",
+                          regexp = "/storages/{storageId}/{repositoryId}/")
     @ValidAccessModelPrivilege(message = "The repository privileges map values must be specified.")
     private List<PathPrivilege> repositoryPrivileges;
 
-    @ValidAccessModelPath(message = "The URL to privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}'.")
+    @ValidAccessModelPath(message = "The URL to privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}/{path}'.",
+                          regexp = "/storages/{storageId}/repositoryId/{path:.+}")
     @ValidAccessModelPrivilege(message = "The URL to privileges map values must be specified.")
     private List<PathPrivilege> urlToPrivileges;
 
-    @ValidAccessModelPath(message = "The wildcard privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}'.")
+    @ValidAccessModelPath(message = "The wildcard privileges map keys must follow the pattern '/storages/{storageId}/{repositoryId}/{path}'.",
+                          regexp = "/storages/{storageId}/repositoryId/{path:**}")
     @ValidAccessModelPrivilege(message = "The wildcard privileges map values must be specified.")
     private List<PathPrivilege> wildCardPrivileges;
 

@@ -20,17 +20,16 @@ public class ValidAccessModelPathValidator
         implements ConstraintValidator<ValidAccessModelPath, List<PathPrivilege>>
 {
 
-    private static final String KEY_PATTERN =
-            "/storages/{storageId}/{repositoryId}/{path:" + CustomAntPathMatcher.TWO_STARS_ANALOGUE + "}";
-
     @Inject
     @Named("customAntPathMatcher")
     private CustomAntPathMatcher antPathMatcher;
 
+    private ValidAccessModelPath constraint;
+
     @Override
     public void initialize(ValidAccessModelPath constraintAnnotation)
     {
-        // Empty method, not used.
+        this.constraint = constraintAnnotation;
     }
 
     @Override
@@ -46,7 +45,7 @@ public class ValidAccessModelPathValidator
         for (PathPrivilege authority : pathAuthorities)
         {
             String key = authority.getPath();
-            boolean matches = antPathMatcher.doMatch(KEY_PATTERN, key, true, uriTemplateVariables);
+            boolean matches = antPathMatcher.doMatch(constraint.regexp(), key, true, uriTemplateVariables);
             if (!matches)
             {
                 return false;

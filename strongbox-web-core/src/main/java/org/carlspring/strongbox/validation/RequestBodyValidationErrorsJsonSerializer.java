@@ -27,7 +27,9 @@ public class RequestBodyValidationErrorsJsonSerializer
         for (final Map.Entry<String, List<String>> entry : value.entrySet())
         {
             gen.writeStartObject();
-            gen.writeFieldName(entry.getKey());
+            gen.writeFieldName("name");
+            gen.writeString( entry.getKey());
+            gen.writeFieldName("messages");
             gen.writeStartArray();
             for (final String entryValue : entry.getValue())
             {

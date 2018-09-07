@@ -23,5 +23,5 @@ public @interface ValidAccessModelPath
 
     Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+    String regexp();
 }
