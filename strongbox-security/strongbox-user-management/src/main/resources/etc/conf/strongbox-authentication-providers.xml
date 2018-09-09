@@ -1,15 +1,23 @@
-<?xml version="1.0" standalone="yes"?>
-<authentication-providers>
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <authenticators>
-        <authenticator class-name="org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticator"/>
-        <authenticator class-name="org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthenticator"/>
-        <authenticator class-name="org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthenticator"/>
-    </authenticators>
+    <context:annotation-config />
+    <cache:annotation-driven />
 
-    <extra-beans>
-        <extra-bean
-                class-name="org.carlspring.strongbox.authentication.api.impl.xml.CacheManagerAuthenticationCache"/>
-    </extra-beans>
+    <bean class="org.carlspring.strongbox.authentication.api.impl.xml.CacheManagerAuthenticationCache"/>
 
-</authentication-providers>
+    <util:list id="authenticators">
+        <bean class="org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticator" />
+        <bean class="org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthenticator" />
+        <bean class="org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthenticator" />
+    </util:list>
+
+</beans>

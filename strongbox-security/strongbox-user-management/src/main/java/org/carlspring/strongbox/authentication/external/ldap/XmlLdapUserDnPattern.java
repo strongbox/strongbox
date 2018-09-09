@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.authentication;
+package org.carlspring.strongbox.authentication.external.ldap;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -8,16 +8,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement(name = "extra-bean")
+@XmlRootElement(name = "user-dn-pattern")
 @XmlAccessorType(XmlAccessType.NONE)
-public class XmlAuthenticationExtraBean
+public class XmlLdapUserDnPattern
 {
 
-    @XmlAttribute(name = "class-name")
-    private String className;
+    @XmlAttribute
+    private String value;
 
-    public String getClassName()
+    public String getValue()
     {
-        return className;
+        return value;
     }
 }

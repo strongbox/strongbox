@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.authentication.ldap;
+package org.carlspring.strongbox.authentication.external.ldap;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

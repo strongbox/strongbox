@@ -2,7 +2,7 @@ package org.carlspring.strongbox.authentication.config;
 
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
-import org.carlspring.strongbox.authentication.registry.support.xml.AuthenticationProvidersFileManager;
+import org.carlspring.strongbox.authentication.external.ExternalUserProvidersFileManager;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,9 +27,9 @@ public class AuthenticationConfig
     }
 
     @Bean
-    AuthenticationProvidersFileManager authenticationProvidersFileManager()
+    ExternalUserProvidersFileManager authenticationProvidersFileManager()
     {
-        return new AuthenticationProvidersFileManager();
+        return new ExternalUserProvidersFileManager();
     }
     
 }
