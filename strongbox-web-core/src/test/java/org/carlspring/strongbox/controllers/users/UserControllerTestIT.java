@@ -60,6 +60,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Pablo Tirado
  */
+@Ignore
 @IntegrationTest
 @RunWith(SpringRunner.class)
 @Transactional
