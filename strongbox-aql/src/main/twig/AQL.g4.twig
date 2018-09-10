@@ -1,9 +1,5 @@
 grammar AQL;
 
-@header {
-    package org.carlspring.strongbox.aql.grammar;
-}
-
 query
 :
     queryExp+ orderExp? pageExp? EOF
@@ -27,7 +23,7 @@ orderValue
     | VERSION
     | TAG
     | AGE
-    | IDENTIFIER
+    | layoutCoordinateKeyword
 ;
 
 orderDirection
@@ -46,7 +42,7 @@ queryExp
 
 tokenExp
 :
-    tokenKey COLON tokenValue
+    LAYOUT COLON layoutValue | tokenKey COLON tokenValue
 ;
 
 tokenPrefix
@@ -59,13 +55,18 @@ tokenPrefix
 tokenKey
 :
     tokenKeyword
-    | IDENTIFIER
+    | layoutCoordinateKeyword
+;
+
+layoutValue:
+    {% for layout, layoutDesc in layoutMap -%}
+        {{ (loop.first) ? 'LAYOUT_' ~ (layoutDesc.layoutAlias | upper) : (" | " ~ 'LAYOUT_' ~ layoutDesc.layoutAlias | upper) }}       
+    {%- endfor %}
 ;
 
 tokenValue
 :
-    IDENTIFIER
-    | VALUE
+    VALUE
     | STRING
 ;
 
@@ -79,6 +80,21 @@ tokenKeyword
     | FROM
     | TO
     | AGE
+;
+
+layoutCoordinateKeyword
+:
+    {% for layout, layoutDesc in layoutMap -%}
+        
+        {{ (loop.first) ? "" : (" | ") }}
+        
+        {% for layoutCoordinate in layoutDesc.artifactCoordinates -%}
+            
+            {% set layoutCoordinateRuleName = 'LAYOUT_COORDINATE_' ~ (layout | upper) ~ "_" ~ (layoutCoordinate | upper) %}
+            
+            {{ (loop.first) ? layoutCoordinateRuleName : (" | " ~ layoutCoordinateRuleName) }}
+        {%- endfor %}
+    {%- endfor %}
 ;
 
 logicalOp
@@ -101,6 +117,7 @@ or
     | DOUBLE_PIPE
 ;
 
+{#
 fragment A : [aA];
 fragment B : [bB];
 fragment C : [cC];
@@ -127,60 +144,92 @@ fragment W : [wW];
 fragment X : [xX];
 fragment Y : [yY];
 fragment Z : [zZ];
+#}
+
+{% for layout, layoutDesc in layoutMap -%}
+    {{ 'LAYOUT_' ~ (layoutDesc.layoutAlias | upper) }}:  
+
+    '{{layoutDesc.layoutAlias}}'
+
+{#
+    {% for l in split(layoutDesc.layoutAlias, '') -%}
+        {{ (l | upper) ~ ' ' }}
+    {%- endfor %}
+#}
+
+    {{ ';\n\n' }}
+{%- endfor %}
+
+{% for layout, layoutDesc in layoutMap -%}
+    {% for layoutCoordinate in layoutDesc.artifactCoordinates -%}
+    
+        {{ 'LAYOUT_COORDINATE_' ~ (layout | upper) ~ "_" ~ (layoutCoordinate | upper) }}:  
+        
+        '{{ layoutCoordinate }}'
+
+{#
+        {% for l in split(layoutCoordinate, '') -%}
+            {{ (l | upper) ~ ' ' }}
+        {%- endfor %}
+#}
+
+        {{ ';\n\n' }}
+    {%- endfor %}
+{%- endfor %}
 
 STORAGE
 :
-    S T O R A G E
+    'storage'
 ;
 
 REPOSITORY
 :
-    R E P O S I T O R Y
+    'repository'
 ;
 
 LAYOUT
 :
-    L A Y O U T
+    'layout'
 ;
 
 VERSION
 :
-    V E R S I O N
+    'version'
 ;
 
 TAG
 :
-    T A G
+    'tag'
 ;
 
 FROM
 :
-    F R O M
+    'from'
 ;
 
 TO
 :
-    T O
+    'to'
 ;
 
 AGE
 :
-    A G E
+    'age'
 ;
 
 ASC
 :
-    A S C
+    'asc'
 ;
 
 DESC
 :
-    D E S C
+    'desc'
 ;
 
 PAGE_SKIP
 :
-    S K I P
+    'skip'
 ;
 
 AMP
@@ -195,7 +244,7 @@ DOUBLE_AMP
 
 AND
 :
-    A N D
+    'and'
 ;
 
 PIPE
@@ -210,7 +259,7 @@ DOUBLE_PIPE
 
 OR
 :
-    O R
+    'or'
 ;
 
 PLUS
@@ -242,11 +291,6 @@ ROUND_BRACKET_RIGHT
 NUMBER
 :
     [0-9]+
-;
-
-IDENTIFIER
-:
-    [a-zA-Z] [-_a-zA-Z0-9]+
 ;
 
 VALUE

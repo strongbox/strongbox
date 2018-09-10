@@ -25,9 +25,12 @@ import org.springframework.util.Assert;
 @SuppressWarnings("serial")
 @XmlRootElement(name = "npmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
-@ArtifactLayout("npm")
+@ArtifactCoordinatesLayout(name = NpmArtifactCoordinates.LAYOUT_NAME, alias = NpmArtifactCoordinates.LAYOUT_ALIAS)
 public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtifactCoordinates, Version>
 {
+    public static final String LAYOUT_NAME = "npm";
+    public static final String LAYOUT_ALIAS = LAYOUT_NAME;
+    
     public static final String NPM_VERSION_REGEX = "(\\d+)\\.(\\d+)(?:\\.)?(\\d*)(\\.|-|\\+)?([0-9A-Za-z-.]*)?";
     public static final String NPM_NAME_REGEX = "[a-z0-9][\\w-.]*";
     public static final String NPM_EXTENSION_REGEX = "(tgz|json)";
@@ -59,6 +62,7 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         setExtension(extension);
     }
 
+    @ArtifactLayoutCoordinate
     public String getScope()
     {
         return getCoordinate(SCOPE);
@@ -74,6 +78,7 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         setCoordinate(SCOPE, scope);
     }
 
+    @ArtifactLayoutCoordinate
     public String getName()
     {
         return getCoordinate(NAME);
@@ -125,7 +130,9 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         setCoordinate(EXTENSION, extension);
     }
 
-    public String getExtension() {
+    @ArtifactLayoutCoordinate
+    public String getExtension()
+    {
         return getCoordinate(EXTENSION);
     }
     

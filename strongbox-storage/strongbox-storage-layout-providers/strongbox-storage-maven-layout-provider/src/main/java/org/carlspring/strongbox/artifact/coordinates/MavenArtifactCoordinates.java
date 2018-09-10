@@ -18,19 +18,18 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 /**
  * @author carlspring
  */
-import org.apache.maven.artifact.versioning.ComparableVersion;
-
-/**
- * @author carlspring
- */
 @Entity
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
-@ArtifactLayout("maven")
+@ArtifactCoordinatesLayout(name = MavenArtifactCoordinates.LAYOUT_NAME, alias = MavenArtifactCoordinates.LAYOUT_ALIAS)
 public class MavenArtifactCoordinates
         extends AbstractArtifactCoordinates<MavenArtifactCoordinates, ComparableVersion>
 {
 
+    public static final String LAYOUT_NAME = "Maven 2";
+    
+    public static final String LAYOUT_ALIAS = "maven";
+    
     private static final String GROUPID = "groupId";
 
     private static final String ARTIFACTID = "artifactId";
@@ -127,6 +126,7 @@ public class MavenArtifactCoordinates
         return new MavenRepositoryArtifact(getGroupId(), getArtifactId(), getVersion(), getExtension(), getClassifier());
     }
 
+    @ArtifactLayoutCoordinate
     @XmlAttribute(name = "groupId")
     public String getGroupId()
     {
@@ -139,6 +139,7 @@ public class MavenArtifactCoordinates
         setCoordinate(GROUPID, this.groupId);
     }
 
+    @ArtifactLayoutCoordinate
     @XmlAttribute(name = "artifactId")
     public String getArtifactId()
     {
@@ -177,6 +178,7 @@ public class MavenArtifactCoordinates
         setCoordinate(VERSION, this.version);
     }
 
+    @ArtifactLayoutCoordinate
     @XmlAttribute(name = "classifier")
     public String getClassifier()
     {
@@ -189,6 +191,7 @@ public class MavenArtifactCoordinates
         setCoordinate(CLASSIFIER, this.classifier);
     }
 
+    @ArtifactLayoutCoordinate
     @XmlAttribute(name = "extension")
     public String getExtension()
     {
@@ -227,4 +230,5 @@ public class MavenArtifactCoordinates
                ", version='" + version + '\'' + ", classifier='" + classifier + '\'' + ", extension='" + extension +
                '\'' + ", as path: " + toPath() + '}';
     }
+
 }

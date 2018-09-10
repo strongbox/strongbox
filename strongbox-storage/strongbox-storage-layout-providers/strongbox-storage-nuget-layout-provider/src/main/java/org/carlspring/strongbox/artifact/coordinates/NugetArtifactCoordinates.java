@@ -20,10 +20,13 @@ import org.springframework.util.Assert;
 @Entity
 @XmlRootElement(name = "nugetArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
-@ArtifactLayout("nuget")
+@ArtifactCoordinatesLayout(name = NugetArtifactCoordinates.LAYOUT_NAME, alias = NugetArtifactCoordinates.LAYOUT_ALIAS)
 public class NugetArtifactCoordinates
         extends AbstractArtifactCoordinates<NugetArtifactCoordinates, Version>
 {
+    public static final String LAYOUT_NAME = "NuGet";
+    public static final String LAYOUT_ALIAS = "nuget";
+    
     public static final String ID = "id";
     public static final String VERSION = "version";
     public static final String EXTENSION = "extension";
@@ -47,6 +50,7 @@ public class NugetArtifactCoordinates
 
     @Override
     @XmlAttribute(name="id")
+    @ArtifactLayoutCoordinate
     public String getId()
     {
         return getCoordinate(ID);
@@ -71,6 +75,7 @@ public class NugetArtifactCoordinates
         setCoordinate(VERSION, version);
     }
 
+    @ArtifactLayoutCoordinate
     @XmlAttribute(name="type")
     public String getType()
     {

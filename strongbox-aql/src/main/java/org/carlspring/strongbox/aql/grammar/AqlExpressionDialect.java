@@ -2,7 +2,7 @@ package org.carlspring.strongbox.aql.grammar;
 
 import java.util.Optional;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactLayoutLocator;
 import org.carlspring.strongbox.data.criteria.DefaultExpressionDialect;
 import org.carlspring.strongbox.data.criteria.Expression;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
@@ -39,7 +39,7 @@ public class AqlExpressionDialect extends DefaultExpressionDialect
     @Override
     public String parseValue(String value)
     {
-        Assert.state(state == 1, "You should process property.");
+        Assert.state(state == 1, "You should process property first.");
 
         state = state | 2;
         String result = super.parseValue(value);
@@ -57,6 +57,7 @@ public class AqlExpressionDialect extends DefaultExpressionDialect
                                               .orElseThrow(() -> new QueryParserException(
                                                       String.format("Unknown layout [%s].",
                                                                     value)))
+                                              .getArtifactCoordinatesClass()
                                               .getSimpleName();
 
         }

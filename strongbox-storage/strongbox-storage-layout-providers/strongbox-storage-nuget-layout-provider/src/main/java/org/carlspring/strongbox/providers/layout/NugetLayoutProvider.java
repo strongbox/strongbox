@@ -47,9 +47,9 @@ public class NugetLayoutProvider
 {
     private static final Logger logger = LoggerFactory.getLogger(NugetLayoutProvider.class);
 
-    public static final String ALIAS = "NuGet";
+    public static final String ALIAS = NugetArtifactCoordinates.LAYOUT_NAME;
 
-    public static final String USER_AGENT_PREFIX = "NuGet";
+    public static final String USER_AGENT_PREFIX = ALIAS;
 
     @Inject
     private HeaderMappingRegistry headerMappingRegistry;
