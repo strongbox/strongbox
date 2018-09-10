@@ -81,7 +81,7 @@
                     <dependency>
                         <groupId>org.jtwig</groupId>
                         <artifactId>jtwig-core</artifactId>
-                        <version>5.86.1.RELEASE</version>
+                        <version>${version.jtwig}</version>
                         <exclusions>
                             <exclusion> 
                                 <groupId>com.googlecode.concurrentlinkedhashmap</groupId>   
