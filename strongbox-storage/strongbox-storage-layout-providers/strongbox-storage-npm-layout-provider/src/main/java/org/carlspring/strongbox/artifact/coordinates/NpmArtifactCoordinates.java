@@ -131,7 +131,8 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
     }
 
     @ArtifactLayoutCoordinate
-    public String getExtension() {
+    public String getExtension()
+    {
         return getCoordinate(EXTENSION);
     }
     
