@@ -20,7 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { DataServiceConfig.class,
@@ -74,7 +80,8 @@ public class UserServiceTest
         logger.debug("Found stored user\n\t" + foundEntity + "\n");
 
         assertEquals(testUserName, foundEntity.getUsername());
-        assertNotEquals("Expected a hashed password, received plain-text!", "test-password", foundEntity.getPassword()); // password should NOT be saved as "plain"
+        assertNotEquals("Expected a hashed password, received plain-text!", "test-password",
+                        foundEntity.getPassword()); // password should NOT be saved as "plain"
         assertNotNull("User contains empty password!", foundEntity.getPassword());
         assertTrue(foundEntity.isEnabled());
         assertEquals("some-security-token", foundEntity.getSecurityTokenKey());
@@ -115,7 +122,8 @@ public class UserServiceTest
         logger.debug("Found stored updated user\n\t" + updatedEntity + "\n");
 
         assertEquals(testUserName, updatedEntity.getUsername());
-        assertNotEquals("Expected current password to have changed.",addedEntity.getPassword(), updatedEntity.getPassword());
+        assertNotEquals("Expected current password to have changed.", addedEntity.getPassword(),
+                        updatedEntity.getPassword());
         assertNotNull("Expected password to be other than null", updatedEntity.getPassword());
         assertFalse("User should have been disabled, but is still enabled!", updatedEntity.isEnabled());
         assertEquals("after", updatedEntity.getSecurityTokenKey());
@@ -210,7 +218,8 @@ public class UserServiceTest
 
         logger.debug("Updated user found: \n\t" + updatedEntity + "\n");
 
-        assertNotEquals("User password should have been encrypted!",addedEntity.getPassword(), updatedEntity.getPassword());
+        assertNotEquals("User password should have been encrypted!", addedEntity.getPassword(),
+                        updatedEntity.getPassword());
         assertNotNull("User password was updated to null", updatedEntity.getPassword());
         assertTrue(updatedEntity.isEnabled());
         assertEquals("Expected no user roles to have been updated!", 0, updatedEntity.getRoles().size());
@@ -245,9 +254,6 @@ public class UserServiceTest
 
         logger.debug(accessModel.toString());
 
-        assertNotNull(accessModel.getWildCardPrivilegesMap());
-        assertFalse(accessModel.getWildCardPrivilegesMap().isEmpty());
-
         // Make sure that the privileges were correctly assigned for the example paths
         Collection<String> privileges;
 
@@ -256,17 +262,39 @@ public class UserServiceTest
 
         assertNotNull(privileges);
         assertFalse(privileges.isEmpty());
+        assertThat(privileges.size(), CoreMatchers.equalTo(2));
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+        assertTrue(privileges.contains("ARTIFACTS_DELETE"));
 
         privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
                                                    "com/carlspring/foo/1.2/foo-1.2.jar");
 
         assertNotNull(privileges);
         assertFalse(privileges.isEmpty());
+        assertThat(privileges.size(), CoreMatchers.equalTo(2));
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
         assertTrue(privileges.contains("ARTIFACTS_VIEW"));
-    }
 
+        privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
+                                                   "com/mycorp/foo/1.2/foo-1.2.jar");
+
+        assertNotNull(privileges);
+        assertFalse(privileges.isEmpty());
+        assertThat(privileges.size(), CoreMatchers.equalTo(1));
+        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+
+        privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
+                                                   "com/mycorp/");
+
+        assertNotNull(privileges);
+        assertFalse(privileges.isEmpty());
+        assertThat(privileges.size(), CoreMatchers.equalTo(5));
+        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+        assertTrue(privileges.contains("ARTIFACTS_VIEW"));
+        assertTrue(privileges.contains("ARTIFACTS_DEPLOY"));
+        assertTrue(privileges.contains("ARTIFACTS_DELETE"));
+        assertTrue(privileges.contains("ARTIFACTS_COPY"));
+    }
 
     @Test
     public void testDeleteUser()
@@ -292,7 +320,8 @@ public class UserServiceTest
         userService.delete(testUserName);
 
         User deletedEntity = userService.findByUserName(testUserName);
-        assertNull("User " + testUserName + " is still present in the database. Delete operation failed!", deletedEntity);
+        assertNull("User " + testUserName + " is still present in the database. Delete operation failed!",
+                   deletedEntity);
     }
 
 }

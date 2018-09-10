@@ -3,7 +3,7 @@ package org.carlspring.strongbox.forms.users;
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
-import org.carlspring.strongbox.users.dto.UserPathPermissionDto;
+import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
 import org.carlspring.strongbox.users.dto.UserPathPermissionsDto;
 import org.carlspring.strongbox.users.dto.UserRepositoryDto;
 import org.carlspring.strongbox.users.dto.UserStorageDto;
@@ -120,8 +120,8 @@ public class AccessModelForm
                 userRepository.setRepositoryId(repositoryId);
 
                 UserPathPermissionsDto userPathPermissions = userRepository.setIfAbsent(new UserPathPermissionsDto());
-                UserPathPermissionDto userPathPermission = userPathPermissions.putIfAbsent(path,
-                                                                                           new UserPathPermissionDto());
+                UserPathPrivilegesDto userPathPermission = userPathPermissions.putIfAbsent(path,
+                                                                                           new UserPathPrivilegesDto());
 
                 userPathPermission.setPath(path);
                 userPathPermission.setPermission(pathPrivilegesToPermission(accessModelAuthority.getPrivileges()));
@@ -147,8 +147,8 @@ public class AccessModelForm
                 userRepository.setRepositoryId(repositoryId);
 
                 UserPathPermissionsDto userPathPermissions = userRepository.setIfAbsent(new UserPathPermissionsDto());
-                UserPathPermissionDto userPathPermission = userPathPermissions.putIfAbsent(path,
-                                                                                           new UserPathPermissionDto());
+                UserPathPrivilegesDto userPathPermission = userPathPermissions.putIfAbsent(path,
+                                                                                           new UserPathPrivilegesDto());
 
                 userPathPermission.setPath(path + "/.*");
                 userPathPermission.setPermission(pathPrivilegesToPermission(accessModelAuthority.getPrivileges()));

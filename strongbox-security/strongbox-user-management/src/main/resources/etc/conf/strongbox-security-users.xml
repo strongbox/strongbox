@@ -62,16 +62,43 @@
                 <storage id="storage0">
                     <repositories>
                         <repository id="releases">
-                            <privileges>
+                            <repository-privileges>
                                 <privilege>
                                     <name>ARTIFACTS_RESOLVE</name>
                                 </privilege>
-                            </privileges>
-                            <path-permissions>
-                                <path>com/mycorp/.*</path>
-                                <path permission="r">com/carlspring/foo/.*</path>
-                                <path permission="rw">org/carlspring/foo/.*</path>
-                            </path-permissions>
+                            </repository-privileges>
+                            <path-privileges>
+                                <path-privilege path="com/carlspring" wildcard="true">
+                                    <privileges>
+                                        <privilege>
+                                            <name>ARTIFACTS_VIEW</name>
+                                        </privilege>
+                                    </privileges>
+                                </path-privilege>
+                                <path-privilege path="org/carlspring" wildcard="true">
+                                    <privileges>
+                                        <privilege>
+                                            <name>ARTIFACTS_DELETE</name>
+                                        </privilege>
+                                    </privileges>
+                                </path-privilege>
+                                <path-privilege path="com/mycorp">
+                                    <privileges>
+                                        <privilege>
+                                            <name>ARTIFACTS_VIEW</name>
+                                        </privilege>
+                                        <privilege>
+                                            <name>ARTIFACTS_DEPLOY</name>
+                                        </privilege>
+                                        <privilege>
+                                            <name>ARTIFACTS_DELETE</name>
+                                        </privilege>
+                                        <privilege>
+                                            <name>ARTIFACTS_COPY</name>
+                                        </privilege>
+                                    </privileges>
+                                </path-privilege>
+                            </path-privileges>
                         </repository>
                     </repositories>
                 </storage>

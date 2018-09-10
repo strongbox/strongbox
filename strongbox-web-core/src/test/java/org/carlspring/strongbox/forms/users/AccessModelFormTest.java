@@ -3,7 +3,7 @@ package org.carlspring.strongbox.forms.users;
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
-import org.carlspring.strongbox.users.dto.UserPathPermissionDto;
+import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
 import org.carlspring.strongbox.users.dto.UserPathPermissionsDto;
 import org.carlspring.strongbox.users.dto.UserRepositoryDto;
 import org.carlspring.strongbox.users.dto.UserStorageDto;
@@ -78,10 +78,10 @@ public class AccessModelFormTest
             if ("releases".equals(userRepository.getRepositoryId()))
             {
                 Assert.assertThat(userPathPermissions, CoreMatchers.notNullValue());
-                Set<UserPathPermissionDto> permissions = userPathPermissions.getPathPermissions();
+                Set<UserPathPrivilegesDto> permissions = userPathPermissions.getPathPermissions();
                 Assert.assertThat(permissions.size(), CoreMatchers.equalTo(4));
 
-                for (UserPathPermissionDto permission : permissions)
+                for (UserPathPrivilegesDto permission : permissions)
                 {
                     Assert.assertThat(permission.getPath(), CoreMatchers.anyOf(CoreMatchers.equalTo("com/apache/foo"),
                                                                                CoreMatchers.equalTo("org/apache/foo"),
