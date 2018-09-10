@@ -8,8 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * With this class you can get all avaliable Layouts from classpath.
+ * 
+ * 
  * @author sbespalov
- *
+ * 
+ * @see ArtifactCoordinatesLayout 
+ * @see ArtifactLayoutCoordinate
+ * @see ArtifactCoordinates
+ * 
  */
 public class ArtifactLayoutLocator
 {
