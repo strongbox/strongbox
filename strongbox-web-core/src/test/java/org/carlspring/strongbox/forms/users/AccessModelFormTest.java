@@ -1,16 +1,15 @@
 package org.carlspring.strongbox.forms.users;
 
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
+import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
-import org.carlspring.strongbox.users.dto.UserPathPermissionsDto;
 import org.carlspring.strongbox.users.dto.UserRepositoryDto;
 import org.carlspring.strongbox.users.dto.UserStorageDto;
 
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.IsCollectionContaining;
@@ -30,28 +29,50 @@ public class AccessModelFormTest
 
         AccessModelForm developer01AccessModel = new AccessModelForm();
 
-        developer01AccessModel.setWildCardPrivileges(
-            ImmutableList.of(
-                new PathPrivilege("/storages/storage0/releases/com/carlspring/foo", Privileges.r()),
-                new PathPrivilege("/storages/storage0/releases/org/carlspring/foo", Privileges.rw())
-            )
-        );
+        RepositoryAccessModelForm form = new RepositoryAccessModelForm();
+        form.setStorageId("storage0");
+        form.setRepositoryId("releases");
+        form.setPath("com/carlspring/foo");
+        form.setPrivileges(Privileges.r());
+        form.setWildcard(true);
+        developer01AccessModel.addRepositoryAccess(form);
 
-        developer01AccessModel.setUrlToPrivileges(
-            ImmutableList.of(
-                new PathPrivilege("/storages/storage0/releases/com/apache/foo", Privileges.r()),
-                new PathPrivilege("/storages/storage0/releases/org/apache/foo", Privileges.rw())
-            )
-        );
+        form = new RepositoryAccessModelForm();
+        form.setStorageId("storage0");
+        form.setRepositoryId("releases");
+        form.setPath("org/carlspring/foo");
+        form.setPrivileges(Privileges.rw());
+        form.setWildcard(true);
+        developer01AccessModel.addRepositoryAccess(form);
 
-        developer01AccessModel.setRepositoryPrivileges(
-            ImmutableList.of(
-                new PathPrivilege("/storages/storage0/releases", ImmutableSet.of("ARTIFACTS_RESOLVE", "ARTIFACTS_DEPLOY")),
-                new PathPrivilege("/storages/storage0/snapshots", ImmutableSet.of("ARTIFACTS_DEPLOY"))
-            )
-        );
+        form = new RepositoryAccessModelForm();
+        form.setStorageId("storage0");
+        form.setRepositoryId("releases");
+        form.setPath("com/apache/foo");
+        form.setPrivileges(Privileges.r());
+        developer01AccessModel.addRepositoryAccess(form);
 
-        UserAccessModelDto userAccessModel = developer01AccessModel.toDto();
+        form = new RepositoryAccessModelForm();
+        form.setStorageId("storage0");
+        form.setRepositoryId("releases");
+        form.setPath("org/apache/foo");
+        form.setPrivileges(Privileges.rw());
+        developer01AccessModel.addRepositoryAccess(form);
+
+        form = new RepositoryAccessModelForm();
+        form.setStorageId("storage0");
+        form.setRepositoryId("releases");
+        form.setPrivileges(ImmutableSet.of("ARTIFACTS_RESOLVE", "ARTIFACTS_DEPLOY"));
+        developer01AccessModel.addRepositoryAccess(form);
+
+        form = new RepositoryAccessModelForm();
+        form.setStorageId("storage0");
+        form.setRepositoryId("snapshots");
+        form.setPrivileges(ImmutableSet.of("ARTIFACTS_DEPLOY"));
+        developer01AccessModel.addRepositoryAccess(form);
+
+        UserAccessModelDto userAccessModel = AccessModelFormToUserAccessModelDtoConverter.INSTANCE.convert(
+                developer01AccessModel);
         Assert.assertThat(userAccessModel, CoreMatchers.notNullValue());
 
         Set<UserStorageDto> userStorages = userAccessModel.getStorages();
@@ -72,13 +93,13 @@ public class AccessModelFormTest
             Assert.assertThat(userRepository.getRepositoryId(),
                               CoreMatchers.anyOf(CoreMatchers.equalTo("releases"), CoreMatchers.equalTo("snapshots")));
 
-            UserPathPermissionsDto userPathPermissions = userRepository.getPathPermissions();
-            Set<PrivilegeDto> privileges = userRepository.getPrivileges();
+
+            Set<PrivilegeDto> privileges = userRepository.getRepositoryPrivileges();
+            Set<UserPathPrivilegesDto> permissions = userRepository.getPathPrivileges();
 
             if ("releases".equals(userRepository.getRepositoryId()))
             {
-                Assert.assertThat(userPathPermissions, CoreMatchers.notNullValue());
-                Set<UserPathPrivilegesDto> permissions = userPathPermissions.getPathPermissions();
+                Assert.assertThat(permissions, CoreMatchers.notNullValue());
                 Assert.assertThat(permissions.size(), CoreMatchers.equalTo(4));
 
                 for (UserPathPrivilegesDto permission : permissions)
@@ -91,11 +112,11 @@ public class AccessModelFormTest
                                                                                        "org/carlspring/foo/.*")));
                     if (permission.getPath().startsWith("org"))
                     {
-                        Assert.assertThat(permission.getPermission(), CoreMatchers.equalTo("rw"));
+                        Assert.assertThat(permission.getPrivileges(), CoreMatchers.equalTo("rw"));
                     }
                     else
                     {
-                        Assert.assertThat(permission.getPermission(), CoreMatchers.equalTo("r"));
+                        Assert.assertThat(permission.getPrivileges(), CoreMatchers.equalTo("r"));
                     }
                 }
 
@@ -106,7 +127,7 @@ public class AccessModelFormTest
             }
             if ("snapshots".equals(userRepository.getRepositoryId()))
             {
-                Assert.assertThat(userPathPermissions, CoreMatchers.nullValue());
+                Assert.assertThat(permissions, CoreMatchers.nullValue());
                 Assert.assertThat(privileges.size(), CoreMatchers.equalTo(1));
                 Assert.assertThat(privileges, IsCollectionContaining.hasItems(
                         CoreMatchers.equalTo(new PrivilegeDto("ARTIFACTS_DEPLOY", null))));

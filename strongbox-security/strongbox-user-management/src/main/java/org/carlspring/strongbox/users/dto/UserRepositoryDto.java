@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -37,6 +38,11 @@ public class UserRepositoryDto
         return repositoryId;
     }
 
+    public void setRepositoryId(final String repositoryId)
+    {
+        this.repositoryId = repositoryId;
+    }
+
     public Set<PrivilegeDto> getRepositoryPrivileges()
     {
         return repositoryPrivileges;
@@ -45,5 +51,13 @@ public class UserRepositoryDto
     public Set<UserPathPrivilegesDto> getPathPrivileges()
     {
         return pathPrivileges;
+    }
+
+    public Optional<UserPathPrivilegesDto> getPathPrivilege(final String path,
+                                                            final boolean wildcard)
+    {
+        return pathPrivileges.stream()
+                             .filter(p -> p.getPath().equals(path) && (p.isWildcard() == wildcard))
+                             .findFirst();
     }
 }

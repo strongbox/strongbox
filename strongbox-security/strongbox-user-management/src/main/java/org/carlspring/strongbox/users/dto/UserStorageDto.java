@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -33,5 +34,15 @@ public class UserStorageDto
     public String getStorageId()
     {
         return storageId;
+    }
+
+    public void setStorageId(final String storageId)
+    {
+        this.storageId = storageId;
+    }
+
+    public Optional<UserRepositoryDto> getRepository(final String repositoryId)
+    {
+        return repositories.stream().filter(r -> r.getRepositoryId().equals(repositoryId)).findFirst();
     }
 }

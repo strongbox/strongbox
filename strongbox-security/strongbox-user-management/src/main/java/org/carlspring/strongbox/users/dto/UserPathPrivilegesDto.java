@@ -37,6 +37,11 @@ public class UserPathPrivilegesDto
         return path;
     }
 
+    public void setPath(final String path)
+    {
+        this.path = path;
+    }
+
     public boolean isWildcard()
     {
         return wildcard;
@@ -45,5 +50,10 @@ public class UserPathPrivilegesDto
     public Set<PrivilegeDto> getPrivileges()
     {
         return privileges;
+    }
+
+    public void setWildcard(final boolean wildcard)
+    {
+        this.wildcard = wildcard;
     }
 }

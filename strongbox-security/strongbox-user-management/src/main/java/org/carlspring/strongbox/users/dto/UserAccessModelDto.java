@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -25,5 +26,10 @@ public class UserAccessModelDto
     public Set<UserStorageDto> getStorages()
     {
         return storages;
+    }
+
+    public Optional<UserStorageDto> getStorage(final String storageId)
+    {
+        return storages.stream().filter(s -> s.getStorageId().equals(storageId)).findFirst();
     }
 }
