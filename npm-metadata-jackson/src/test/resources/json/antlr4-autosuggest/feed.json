@@ -1,0 +1,1665 @@
+{
+  "_id": "antlr4-autosuggest",
+  "_rev": "24-b5d92c4ddeb9bc551427e7d377867c49",
+  "name": "antlr4-autosuggest",
+  "description": "Autosuggest engine for ANTLR4 grammars",
+  "dist-tags": {
+    "latest": "0.0.28"
+  },
+  "versions": {
+    "0.0.1": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.1",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "gitHead": "939a6b81510ca7471fd187597d0511d955d34ae8",
+      "_id": "antlr4-autosuggest@0.0.1",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-6NMS6ImUnQv1y8l4OXeqNJ7q2WGwMrWlvUdGK5us+HMudwWThlPy46vdf3DAIGzOLgwKYdhuM2qX5Nv0tc/HZw==",
+        "shasum": "03fb09e0a2d8870d930500813c4451ccad82225c",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.1.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.1.tgz_1512461716860_0.6926042675040662"
+      },
+      "directories": {}
+    },
+    "0.0.2": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.2",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.adoc"
+      ],
+      "gitHead": "939a6b81510ca7471fd187597d0511d955d34ae8",
+      "_id": "antlr4-autosuggest@0.0.2",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-GtLba9FG0EGNC6K0z3oUuugvXhyOZxPxuVsT6gyfBja+g+3asxOt4kXCJTZa7/Bl5IUHoIQsqL+1n26WvvCnZw==",
+        "shasum": "d719b53617c5f912073daa859818451c91fc6ae9",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.2.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.2.tgz_1512461831809_0.4905766532756388"
+      },
+      "directories": {}
+    },
+    "0.0.3": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.3",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "gitHead": "939a6b81510ca7471fd187597d0511d955d34ae8",
+      "_id": "antlr4-autosuggest@0.0.3",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-zYXUh8AC4291O4lZZv0rzvMl7GYM7098vYTxUnk0p4IkjpKFZB7Kz87yYd5ezAvUtjNWuzx7KaMGqUHj+vzlJA==",
+        "shasum": "5962d308deda87eff786fea114495d5bbe358403",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.3.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.3.tgz_1512462707404_0.7112468015402555"
+      },
+      "directories": {}
+    },
+    "0.0.4": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.4",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "gitHead": "ed3376761af5098c6b4ede5fdc37cc9b674436ba",
+      "_id": "antlr4-autosuggest@0.0.4",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-9yyw5YLs1OQUXvZH2hHXZ8Cy1aFKXuYyOAIhK5fyDDM9p0CugmkEUT/ganhlrArYHTNrXk+ZMOa1iPKG/YAt6A==",
+        "shasum": "ef2830c76aac87cc2a00cee89156e5f4a0aede10",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.4.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.4.tgz_1512463718407_0.8466404916252941"
+      },
+      "directories": {}
+    },
+    "0.0.5": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.5",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.5",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-c1EaCNmvTADl5o8QBJh588q9nCXPFFQCsuJfMfq2roVk10lo5FOoFKWSQo0+s2iVMflvu/h8QPZAqt0USkVtCg==",
+        "shasum": "22439634b2d5c48314eecd1061d2761fe75d7dad",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.5.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.5.tgz_1512473614288_0.19994864938780665"
+      },
+      "directories": {}
+    },
+    "0.0.6": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.6",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "gitHead": "cb1ff4267c01f46be68368b8740722386ac7c319",
+      "_id": "antlr4-autosuggest@0.0.6",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-2dYSWlTCYSL2TYtxt11oIo2r77CbWGBJ8TVDHxAWYan0QdNFcTHrFm/ZQbfnFA7wJcGfK5VJ6feg8i4PP0irwA==",
+        "shasum": "f0a2d68030ff7ef4889c838b4a0ec7af5adc2523",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.6.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.6.tgz_1512474165087_0.946314353030175"
+      },
+      "directories": {}
+    },
+    "0.0.7": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.7",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.7",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-3t60foaVjNONLvlrC1ShHAA857yITB//pAJRVnDtw0pVoCxdZAy7i9zeeEGO3mKgZKcLLhZazJWtktGN7VncnA==",
+        "shasum": "521beace535055b13f270f7b5e2075e5e8607c69",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.7.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.7.tgz_1512474239528_0.8864650810137391"
+      },
+      "directories": {}
+    },
+    "0.0.8": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.8",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.8",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-m7lXitWWSQEPos85yNWESvCa11XNqAbI0PwgN6/G4jFSu/XyCrzl/0JDC3XFb9oP9pnT2JiZqKRdK298ydKH0w==",
+        "shasum": "5eddee27b831c02f7e323570b6a8caaa1483db26",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.8.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.8.tgz_1512478210857_0.6343327942304313"
+      },
+      "directories": {}
+    },
+    "0.0.10": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.10",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.10",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-C3eqQX92ju3gEDTp2B70epzZw+Ml50XgiRyx2jMG+Ya1z1CvJTD+IYN073WRiQNCanZPv0h26PaXNU1zwSrzQg==",
+        "shasum": "afcec2fbf2e6933b73c0c8a6ded7ed3b72db2599",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.10.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.10.tgz_1512592661849_0.5259585124440491"
+      },
+      "directories": {}
+    },
+    "0.0.12": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.12",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "gitHead": "3bf771d957bd3ce16887e693be2e9baa0a55fdf6",
+      "_id": "antlr4-autosuggest@0.0.12",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-zvp65t1B22sjFU+N3EjYTRU1+c0BDHH+QpuS12iOFHqczttEYbxZqqaDMcAbK2clV352wT9NUihm9f3QATqoCQ==",
+        "shasum": "0a5eede9785a99411d8ff1fd0cb3ecf91e99fe12",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.12.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.12.tgz_1512592906269_0.552006317069754"
+      },
+      "directories": {}
+    },
+    "0.0.13": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.13",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "gitHead": "48835044847f3337f617e3f4c3b1db000fd3dcd4",
+      "_id": "antlr4-autosuggest@0.0.13",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-HOYcKgXU7xk/EyFdPyHLUDrAZCPe8QsfsHUD7pEjfhd2T+e3auROudJ92ymL9kLjWYnxvvy0eaifQAC4QxWRIw==",
+        "shasum": "93c807682b3cc0c184bb874ff06c4f1e1feedfde",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.13.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.13.tgz_1512593822297_0.4397075877059251"
+      },
+      "directories": {}
+    },
+    "0.0.14": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.14",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "gitHead": "093a6f9e63d2b07c3bdf272da4269df88c12d39b",
+      "_id": "antlr4-autosuggest@0.0.14",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-CdqgIJhLo3cX/y6yTDvZq+yh/hx7EqQINAoWdF64ymKu8m4LpLQoEgME9w2CK+XUsZQxN7BKjwcfkJl9xPAQjQ==",
+        "shasum": "ce159dba47e8b3f7b09f954f11f8e525463fccf3",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.14.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.14.tgz_1512595559600_0.3518706171307713"
+      },
+      "directories": {}
+    },
+    "0.0.16": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.16",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.16",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-R1btSy1lvFOA/ErIHEd0M9YD49DD4sNEgN28WlFp4GKVAtmmNoRxpJWH0buOlJpESnF1bDsChgK7Uidiq5l3rQ==",
+        "shasum": "d8a2e944a1da0526feb594b27acb0ff752ca1679",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.16.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.16.tgz_1512595817774_0.5566257711034268"
+      },
+      "directories": {}
+    },
+    "0.0.17": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.17",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.17",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-Ajlw4+avVh+B+4PpUu0WS3mjkBKNGMt3ZjyzqSuWtRdty2M2puMnn13MBfmfCI6c0h7laHpN4MqbYAP8gdC8zg==",
+        "shasum": "294617c39bb76e49e45e02f95e68b8f4accb9eb4",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.17.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.17.tgz_1512595999231_0.5438739960081875"
+      },
+      "directories": {}
+    },
+    "0.0.18": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.18",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.18",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-FZYck+7wRQ6GseHmTlyrFrgpVMXBe7LhZ7eEPxvM7lxMhu3QoYsDQBNBKTrIZ6l4AJ4dTjTiKuxSMxnlmCdCQQ==",
+        "shasum": "34c46b37b2e5bcf0f6025a08cec50c56a4d6e4bf",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.18.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.18.tgz_1512596164930_0.9932197437155992"
+      },
+      "directories": {}
+    },
+    "0.0.19": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.19",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.19",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-FAbhUJkvSWV2gT3YibtnYErT5D8xGgZk1WUd3yqJDGeAQ0jlmHCz+4Mp7+Lr186sqv2y/oktI9IBHzdWekaLEw==",
+        "shasum": "bf2b28a0d5e50ac81be593bef5f3f8a7f873c82f",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.19.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.19.tgz_1512596377186_0.00683921854943037"
+      },
+      "directories": {}
+    },
+    "0.0.20": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.20",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.20",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.2.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-bx9wTR5npwl+t2JSUFu3OTQnR2RGAAk9LPUQBXWJjt4QnZnAtU7IGCWBkhMyQXXuEDdKQmyuj2BNudHsG7F42Q==",
+        "shasum": "5f143df22960ea7ad076ca4558a5e6c247b46612",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.20.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.20.tgz_1512661677605_0.30961574986577034"
+      },
+      "directories": {}
+    },
+    "0.0.21": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.21",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.21",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-zUyx8u70Q37+Ba857tA52e4An/iV+NKiLln0BSaQ1gqrMoReRqtXXtoLo/RcouioN3ntPZdlOJQdnKhcG/4B0g==",
+        "shasum": "1842d166271ff30eccc9756ef777e90d88f889da",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.21.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.21.tgz_1512721839787_0.9459895703475922"
+      },
+      "directories": {}
+    },
+    "0.0.22": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.22",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.22",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.2.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-L6hLnQkMWtH3ICcz4bA343w0Clh2nkYiZImmweGBodi9uCTKRATk5IDcEzAE1PYD6/Q0+bPOdrJwa4OHr8R5PA==",
+        "shasum": "3a10492329d38f65dd44027c91c70fb9dc0ef9d1",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.22.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.22.tgz_1514815280654_0.3421195561531931"
+      },
+      "directories": {}
+    },
+    "0.0.23": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.23",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "coverage": "nyc -x 'spec/**/*.js' jasmine",
+        "codacy-coverage": "nyc -x 'spec/**/*.js' --reporter=lcov jasmine && cat ./coverage/lcov.info | ./node_modules/.bin/codacy-coverage && rm -rf ./coverage",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "codacy-coverage": "^2.0.3",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "nyc": "^11.4.1",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.23",
+      "_npmVersion": "5.5.1",
+      "_nodeVersion": "8.2.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-wuMyLCHd8FzsYBzmj2Rj8tftdh17u8uaO0Ufbt4zCk7MSfThElpxoOKPZBEAlhD9ej8WdH/T5OgbjmyGnlDkyw==",
+        "shasum": "709cc771b5a0b4a1e8d31665d59fe88336a19a5e",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.23.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.23.tgz_1514898117743_0.9974055632483214"
+      },
+      "directories": {}
+    },
+    "0.0.27": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.27",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "coverage": "nyc -x 'spec/**/*.js' jasmine",
+        "codacy-coverage": "nyc -x 'spec/**/*.js' --reporter=lcov jasmine && cat ./coverage/lcov.info | ./node_modules/.bin/codacy-coverage && rm -rf ./coverage",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "codacy-coverage": "^2.0.3",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "nyc": "^11.4.1",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.27",
+      "_npmVersion": "5.6.0",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-sAj+dqhyrJNk1FT515qbvn7oA91wO3hxeppaNkLbvpPUclPDAeGEOV1CXwgjxz7bl9HiQtaEkwQCSGTVmyXlWg==",
+        "shasum": "30d3d78965b0127344f5320fe2ec299e08c26bc3",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.27.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest-0.0.27.tgz_1515527771368_0.7518987767398357"
+      },
+      "directories": {}
+    },
+    "0.0.28": {
+      "name": "antlr4-autosuggest",
+      "version": "0.0.28",
+      "description": "Autosuggest engine for ANTLR4 grammars",
+      "main": "antlr4-autosuggest.js",
+      "scripts": {
+        "test": "DEBUG=\"*\" jasmine",
+        "coverage": "nyc -x 'spec/**/*.js' jasmine",
+        "codacy-coverage": "nyc -x 'spec/**/*.js' --reporter=lcov jasmine && cat ./coverage/lcov.info | ./node_modules/.bin/codacy-coverage && rm -rf ./coverage",
+        "build": "webpack && cp README.md LICENSE package.json dist/"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+      },
+      "keywords": [
+        "antl4",
+        "autosuggest",
+        "autocomplete",
+        "antlr",
+        "grammar",
+        "parser",
+        "lexer"
+      ],
+      "author": {
+        "name": "Oran Epelbaum"
+      },
+      "license": "MIT",
+      "bugs": {
+        "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+      },
+      "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+      "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-loader": "^7.1.2",
+        "babel-preset-env": "^1.6.1",
+        "codacy-coverage": "^2.0.3",
+        "eslint": "^4.12.1",
+        "jasmine": "^2.8.0",
+        "jshint": "^2.9.5",
+        "nyc": "^11.4.1",
+        "webpack": "^3.10.0",
+        "webpack-node-externals": "^1.6.0"
+      },
+      "dependencies": {
+        "antlr4": "^4.7.0",
+        "debug": "^3.1.0"
+      },
+      "files": [
+        "dist",
+        "README.md"
+      ],
+      "_id": "antlr4-autosuggest@0.0.28",
+      "_npmVersion": "5.6.0",
+      "_nodeVersion": "8.9.1",
+      "_npmUser": {
+        "name": "oranoran",
+        "email": "oran@epelbaum.me"
+      },
+      "dist": {
+        "integrity": "sha512-nwbi1dXjt9tb7rPHqMcrhcdVmEmeND0qppv3DTVeUd5F0BVJLQrSJEI60zrPrzrjNEwBObeSgxN7LdHQUsiu5g==",
+        "shasum": "1010bf9f675b6abd4b7876442a8a7c07a16939f8",
+        "tarball": "https://registry.npmjs.org/antlr4-autosuggest/-/antlr4-autosuggest-0.0.28.tgz",
+        "fileCount": 4,
+        "unpackedSize": 35840,
+        "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJbFufKCRA9TVsSAnZWagAA9w8P/3t//yFmtonfHxdrt405\nx2L9ZtrGkfw4M+ZZ1ONxT9ka0EChOxYs9C/rxuAOxfX7Y4r/PZcOml9cJmA8\n8zPf9WjVLYUqXXuHebsOmRxw6mdeEK4iR3Ri7j4qKi3K2b+fBO+b9kVgNIFd\n7u8UCCw/bw8h2aorfx6spknRZ03BJRGFsv2UmRLgdr0litawTSmNLetQ0Pe3\n0ZJ++6ASvubrVInAQG6EqOGzC9Y26Cpdc9QxZujfA07jQoL5Z9W18KTTlDiE\ns2564arj59wJoyHOjO8vje/rPKbBUquRwcsk1HiaDe/TJ8/+ByResCbnnZvz\nPxBYybpFcQ4R3liEC8nDNCKH5azv1pafsRwCTJ9E/W3tK343Usz8I23gM4WF\nAPUqaF/N5hG0SITPb9hag/8DjBM6wg/DGS3nuI+WWN2a8VgiEEADHbQWL7FQ\nvrGZIPgljWzOg0Uy7zwQdtWGkBmrSm3oDOhT9NH4QErJy4/qdVIqWMqoFGCV\nKXScrX+kjdVkdtH/SDKQl654LZ77uo9mI6W6K0xz/PLJlGuJ/mP8ha8a4YYw\n93jbEMib+iTP77TEWb1CdQK3bp54x+HJ8R1LiaBb6QnJE2GTmnzQnlmd6iM5\nBaAS62KQJaCY1VJGEtnffGzF3JCGEDIG866CDFZouBFr0lpEk3owcsGJD6ex\nJXMx\r\n=0wku\r\n-----END PGP SIGNATURE-----\r\n"
+      },
+      "maintainers": [
+        {
+          "name": "oranoran",
+          "email": "oran@epelbaum.me"
+        }
+      ],
+      "directories": {},
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/antlr4-autosuggest_0.0.28_1528227785745_0.17215173981841025"
+      }
+    }
+  },
+  "readme": "JavaScript autosuggest engine for ANTLR4 grammars\n=================================================\nOran Epelbaum\n\n[<img src=\"https://travis-ci.org/oranoran/antlr4-autosuggest-js.svg?branch=master\">](https://travis-ci.org/oranoran/antlr4-autosuggest-js ) [<img src=\"https://api.codacy.com/project/badge/Grade/b5195e72e90043f79d9c3cbf7e80bd1e\">](https://www.codacy.com/app/oranoran/antlr4-autosuggest-js?utm_content=oranoran/antlr4-autosuggest-js&utm_campaign=Badge_Grade ) [![npm version](https://badge.fury.io/js/antlr4-autosuggest.svg)](https://badge.fury.io/js/antlr4-autosuggest) [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/b5195e72e90043f79d9c3cbf7e80bd1e)](https://www.codacy.com/app/oranoran/antlr4-autosuggest-js)\n\nGetting the antlr-autosuggest JavaScript Module\n-----------------------------------------------\n```bash\nnpm install --save antlr4-autosuggest\n```\n\nExample\n-------\n\n```javascript\n// Load the lexer and parser modules generated by antlr4\nconst lexerModule = require('./myGrammarLexer');\nconst parserModule = require('./myGrammarParser');\n\n// Create an autosuggester, providing it with the lexer and parser classes\nconst autosuggest = require('antlr4-autosuggest');\nconst autosuggester = autosuggest.autosuggester(lexerModule.myGrammarLexer, parserModule.myGrammarParser);\n\n// Suggest completions for the string \"ABC\"\nlet suggestions = autosuggester.autosuggest(\"ABC\");\n```\n\nHow It Works\n------------\nSee explanation in the [Java project](https://github.com/oranoran/antlr4-autosuggest/).\n\nBuilding\n--------\n* Clone the antlr-autosuggest-js repository.\n* Install Node and NPM (tested with 8)\n* Run the command `npm test`.\n\nCredits\n-------\nWritten by Oran Epelbaum at Intigua.\nWhen starting to write this, studied the following blog posts (though much has changed since):\n\n* [RAPID7](https://blog.rapid7.com/2015/06/29/how-to-implement-antlr4-autocomplete/): How to Implement ANTLR4 Autocomplete\n* [TOMASETTI](https://tomassetti.me/autocompletion-editor-antlr/): Building autocompletion for an editor based on ANTLR by Federico Tomassetti\n",
+  "maintainers": [
+    {
+      "name": "oranoran",
+      "email": "oran@epelbaum.me"
+    }
+  ],
+  "time": {
+    "modified": "2018-06-05T19:43:08.760Z",
+    "created": "2017-12-05T08:15:17.760Z",
+    "0.0.1": "2017-12-05T08:15:17.760Z",
+    "0.0.2": "2017-12-05T08:17:11.868Z",
+    "0.0.3": "2017-12-05T08:31:48.293Z",
+    "0.0.4": "2017-12-05T08:48:39.311Z",
+    "0.0.5": "2017-12-05T11:33:35.260Z",
+    "0.0.6": "2017-12-05T11:42:45.913Z",
+    "0.0.7": "2017-12-05T11:44:00.443Z",
+    "0.0.8": "2017-12-05T12:50:11.760Z",
+    "0.0.10": "2017-12-06T20:37:42.767Z",
+    "0.0.12": "2017-12-06T20:41:47.245Z",
+    "0.0.13": "2017-12-06T20:57:03.186Z",
+    "0.0.14": "2017-12-06T21:26:00.490Z",
+    "0.0.16": "2017-12-06T21:30:17.909Z",
+    "0.0.17": "2017-12-06T21:33:20.191Z",
+    "0.0.18": "2017-12-06T21:36:05.831Z",
+    "0.0.19": "2017-12-06T21:39:37.292Z",
+    "0.0.20": "2017-12-07T15:47:58.513Z",
+    "0.0.21": "2017-12-08T08:30:40.912Z",
+    "0.0.22": "2018-01-01T14:01:21.542Z",
+    "0.0.23": "2018-01-02T13:01:58.729Z",
+    "0.0.27": "2018-01-09T19:56:12.374Z",
+    "0.0.28": "2018-06-05T19:43:05.814Z"
+  },
+  "homepage": "https://github.com/oranoran/antlr4-autosuggest-js#readme",
+  "keywords": [
+    "antl4",
+    "autosuggest",
+    "autocomplete",
+    "antlr",
+    "grammar",
+    "parser",
+    "lexer"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oranoran/antlr4-autosuggest-js.git"
+  },
+  "author": {
+    "name": "Oran Epelbaum"
+  },
+  "bugs": {
+    "url": "https://github.com/oranoran/antlr4-autosuggest-js/issues"
+  },
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "users": {
+    "oranoran": true,
+    "debashish": true
+  },
+  "_attachments": {}
+}
