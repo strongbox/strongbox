@@ -65,7 +65,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Pablo Tirado
  */
-@Ignore
 @IntegrationTest
 @RunWith(SpringRunner.class)
 @Transactional
@@ -105,25 +104,27 @@ public class UserControllerTestIT
                .body("user.username", equalTo(username))
                .body("user.authorities", notNullValue())
                .body("user.authorities", hasSize(greaterThan(0)))
-               .body("user.accessModel.repositoryPrivileges", notNullValue())
-               .body("user.accessModel.repositoryPrivileges", hasSize(greaterThan(0)))
+               .body("user.accessModel.repositoriesAccess", notNullValue())
+               .body("user.accessModel.repositoriesAccess", hasSize(greaterThan(0)))
                .body("assignableRoles", nullValue());
 
 
         // assignableRoles should be present only if there is ?assignableRoles=true in the request.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl() + "/{name}?assignableRoles=true", username)
+               .get(getContextBaseUrl() + "/{name}?formFields=true", username)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("user.username", equalTo(username))
                .body("user.authorities", notNullValue())
                .body("user.authorities", hasSize(greaterThan(0)))
-               .body("user.accessModel.repositoryPrivileges", notNullValue())
-               .body("user.accessModel.repositoryPrivileges", hasSize(greaterThan(0)))
+               .body("user.accessModel.repositoriesAccess", notNullValue())
+               .body("user.accessModel.repositoriesAccess", hasSize(greaterThan(0)))
                .body("assignableRoles", notNullValue())
-               .body("assignableRoles", hasSize(greaterThan(0)));
+               .body("assignableRoles", hasSize(greaterThan(0)))
+               .body("assignablePrivileges", notNullValue())
+               .body("assignablePrivileges", hasSize(greaterThan(0)));
     }
 
     private void userNotFound(String acceptHeader)
@@ -766,12 +767,13 @@ public class UserControllerTestIT
 
         Optional<RepositoryAccessModelOutput> repositoryAccess = updatedModel.getRepositoriesAccess()
                                                                              .stream()
-                                                                             .filter(a -> a.getPath().equals(
-                                                                                     "org/carlspring/strongbox"))
+                                                                             .filter(a -> "org/carlspring/strongbox".equals(
+                                                                                     a.getPath()))
                                                                              .findFirst();
 
         assertNotNull(repositoryAccess);
         assertTrue(repositoryAccess.isPresent());
+        logger.info("$$$$$$$$$$$$$$$$$$$$$$$$$" + repositoryAccess.get().getPrivileges());
         assertTrue(repositoryAccess.get().getPrivileges().contains(mockPrivilege));
     }
 

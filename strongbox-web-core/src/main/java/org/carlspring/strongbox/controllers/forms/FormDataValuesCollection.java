@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.forms;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -8,20 +9,20 @@ import java.util.List;
 public class FormDataValuesCollection
 {
 
-    private List<FormDataValues<?>> formDataValues;
+    private Collection<FormDataValues<?>> formDataValues;
 
 
-    public FormDataValuesCollection(final List<FormDataValues<?>> formDataValues)
+    public FormDataValuesCollection(final Collection<FormDataValues<?>> formDataValues)
     {
         this.formDataValues = formDataValues;
     }
 
-    public List<FormDataValues<?>> getFormDataValues()
+    public Collection<FormDataValues<?>> getFormDataValues()
     {
         return formDataValues;
     }
 
-    public void setFormDataValues(final List<FormDataValues<?>> formDataValues)
+    public void setFormDataValues(final Collection<FormDataValues<?>> formDataValues)
     {
         this.formDataValues = formDataValues;
     }

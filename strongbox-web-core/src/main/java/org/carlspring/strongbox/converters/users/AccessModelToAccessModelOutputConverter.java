@@ -48,7 +48,7 @@ public enum AccessModelToAccessModelOutputConverter
                                                                                                   pathPrivilege.getPath(),
                                                                                                   pathPrivilege.isWildcard());
 
-                    repositoryAccess.getPrivileges().addAll(repository.getRepositoryPrivileges());
+                    repositoryAccess.getPrivileges().addAll(pathPrivilege.getPrivileges());
                 }
             }
         }

@@ -21,6 +21,9 @@ public class AccessModelPathPrivileges
 
     private final String path;
 
+    /**
+     *  If true, allows to set privileges within path and all subdirectories
+     */
     private final boolean wildcard;
 
     private final Set<String> privileges;
