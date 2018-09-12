@@ -184,22 +184,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.jsonschema2pojo</groupId>
-                <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-                <configuration>
-                    <sourceDirectory>${project.basedir}/src/main/resources/META-INF</sourceDirectory>
-                    <targetPackage>org.carlspring.strongbox.npm.metadata</targetPackage>
-                    <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
@@ -232,6 +216,11 @@
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.carlspring.strongbox</groupId>
+            <artifactId>npm-metadata-jackson</artifactId>
         </dependency>
 
         <dependency>
