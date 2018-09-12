@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Assert;
 import org.junit.Test;
@@ -94,42 +95,50 @@ public class AccessModelFormTest
                               CoreMatchers.anyOf(CoreMatchers.equalTo("releases"), CoreMatchers.equalTo("snapshots")));
 
 
-            Set<PrivilegeDto> privileges = userRepository.getRepositoryPrivileges();
-            Set<UserPathPrivilegesDto> permissions = userRepository.getPathPrivileges();
+            Set<PrivilegeDto> repositoryPrivileges = userRepository.getRepositoryPrivileges();
+            Set<UserPathPrivilegesDto> pathPrivileges = userRepository.getPathPrivileges();
 
             if ("releases".equals(userRepository.getRepositoryId()))
             {
-                Assert.assertThat(permissions, CoreMatchers.notNullValue());
-                Assert.assertThat(permissions.size(), CoreMatchers.equalTo(4));
+                Assert.assertThat(pathPrivileges, CoreMatchers.notNullValue());
+                Assert.assertThat(pathPrivileges.size(), CoreMatchers.equalTo(4));
 
-                for (UserPathPrivilegesDto permission : permissions)
+                for (UserPathPrivilegesDto pathPrivilege : pathPrivileges)
                 {
-                    Assert.assertThat(permission.getPath(), CoreMatchers.anyOf(CoreMatchers.equalTo("com/apache/foo"),
-                                                                               CoreMatchers.equalTo("org/apache/foo"),
-                                                                               CoreMatchers.equalTo(
-                                                                                       "com/carlspring/foo/.*"),
-                                                                               CoreMatchers.equalTo(
-                                                                                       "org/carlspring/foo/.*")));
-                    if (permission.getPath().startsWith("org"))
+                    Assert.assertThat(pathPrivilege.getPath(),
+                                      CoreMatchers.anyOf(CoreMatchers.equalTo("com/apache/foo"),
+                                                         CoreMatchers.equalTo("org/apache/foo"),
+                                                         CoreMatchers.equalTo("com/carlspring/foo"),
+                                                         CoreMatchers.equalTo("org/carlspring/foo")));
+                    if (pathPrivilege.getPath().startsWith("org"))
                     {
-                        Assert.assertThat(permission.getPrivileges(), CoreMatchers.equalTo("rw"));
+                        Assert.assertThat(pathPrivilege.getPrivileges().size(), CoreMatchers.equalTo(5));
                     }
                     else
                     {
-                        Assert.assertThat(permission.getPrivileges(), CoreMatchers.equalTo("r"));
+                        Assert.assertThat(pathPrivilege.getPrivileges().size(), CoreMatchers.equalTo(2));
+                    }
+
+                    if (pathPrivilege.getPath().contains("carlspring"))
+                    {
+                        Assert.assertThat(pathPrivilege.isWildcard(), CoreMatchers.equalTo(true));
+                    }
+                    else
+                    {
+                        Assert.assertThat(pathPrivilege.isWildcard(), CoreMatchers.equalTo(false));
                     }
                 }
 
-                Assert.assertThat(privileges.size(), CoreMatchers.equalTo(2));
-                Assert.assertThat(privileges, IsCollectionContaining.hasItems(
+                Assert.assertThat(repositoryPrivileges.size(), CoreMatchers.equalTo(2));
+                Assert.assertThat(repositoryPrivileges, IsCollectionContaining.hasItems(
                         CoreMatchers.equalTo(new PrivilegeDto("ARTIFACTS_RESOLVE", null)),
                         CoreMatchers.equalTo(new PrivilegeDto("ARTIFACTS_DEPLOY", null))));
             }
             if ("snapshots".equals(userRepository.getRepositoryId()))
             {
-                Assert.assertThat(permissions, CoreMatchers.nullValue());
-                Assert.assertThat(privileges.size(), CoreMatchers.equalTo(1));
-                Assert.assertThat(privileges, IsCollectionContaining.hasItems(
+                Assert.assertThat(pathPrivileges, Matchers.emptyCollectionOf(UserPathPrivilegesDto.class));
+                Assert.assertThat(repositoryPrivileges.size(), CoreMatchers.equalTo(1));
+                Assert.assertThat(repositoryPrivileges, IsCollectionContaining.hasItems(
                         CoreMatchers.equalTo(new PrivilegeDto("ARTIFACTS_DEPLOY", null))));
             }
         }
