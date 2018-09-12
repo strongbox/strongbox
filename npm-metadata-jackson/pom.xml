@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.npmjsmt</groupId>
+        <groupId>org.carlspring.strongbox</groupId>
         <artifactId>npm-metadata-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../npm-metadata-parent</relativePath>
@@ -13,7 +13,7 @@
     <artifactId>npm-metadata-jackson</artifactId>
     <packaging>jar</packaging>
 
-    <url>https://github.com/sbespalov/npm-metadata</url>
+    <url>https://github.com/strongbox/npm-metadata</url>
     <licenses>
         <license>
             <name>Apache 2.0</name>
@@ -30,9 +30,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:sbespalov/npm-metedata.git</connection>
-        <url>scm:git:git@github.com:sbespalov/npm-metedata.git</url>
-        <developerConnection>scm:git:git@github.com:sbespalov/npm-metedata.git</developerConnection>
+        <connection>scm:git:git@github.com:strongbox/npm-metedata.git</connection>
+        <url>scm:git:git@github.com:strongbox/npm-metedata.git</url>
+        <developerConnection>scm:git:git@github.com:strongbox/npm-metedata.git</developerConnection>
     </scm>
 
     <build>
@@ -81,7 +81,7 @@
                 <artifactId>jsonschema2pojo-maven-plugin</artifactId>
                 <configuration>
                     <sourceDirectory>${project.build.directory}/META-INF</sourceDirectory>
-                    <targetPackage>org.npmjsmt.pojo</targetPackage>
+                    <targetPackage>org.carlspring.strongbox.npm.metadata</targetPackage>
                     <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
                 </configuration>
                 <executions>

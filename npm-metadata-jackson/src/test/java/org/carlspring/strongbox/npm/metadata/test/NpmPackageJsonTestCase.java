@@ -1,13 +1,12 @@
-package org.npmjsmt.test;
+package org.carlspring.strongbox.npm.metadata.test;
 
 import static org.junit.Assert.assertEquals;
 
+import org.carlspring.strongbox.npm.metadata.Feed;
+import org.carlspring.strongbox.npm.metadata.Package;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.npmjsmt.pojo.Feed;
-import org.npmjsmt.pojo.Package;
 
 public class NpmPackageJsonTestCase
 {
