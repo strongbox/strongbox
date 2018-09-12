@@ -36,6 +36,7 @@
     </scm>
 
     <modules>
+        <module>npm-metadata-parent</module>
         <module>npm-metadata-schema</module>
         <module>npm-metadata-jackson</module>
     </modules>
