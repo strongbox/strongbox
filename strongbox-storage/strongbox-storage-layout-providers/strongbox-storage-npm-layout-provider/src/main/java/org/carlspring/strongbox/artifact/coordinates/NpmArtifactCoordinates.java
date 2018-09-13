@@ -211,15 +211,18 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         return new NpmArtifactCoordinates(null, name, version, extension);
     }
 
-    public static NpmArtifactCoordinates of(String name,
+    public static NpmArtifactCoordinates of(String packageId,
                                             String version)
     {
-        if (name.contains("/"))
+        if (packageId.contains("/"))
         {
-            String[] nameSplit = name.split("/");
+            String[] nameSplit = packageId.split("/");
             return new NpmArtifactCoordinates(nameSplit[0], nameSplit[1], version, "tgz");
         }
-        return new NpmArtifactCoordinates(null, name, version, "tgz");
+        return new NpmArtifactCoordinates(null, packageId, version, "tgz");
     }
 
+    public static String caclulatePackageId(String packageScope, String packageName) {
+        return packageScope == null ? packageName : String.format("%s/%s", packageScope, packageName);
+    }
 }
