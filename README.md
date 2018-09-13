@@ -1,8 +1,8 @@
-# Introducion
+# Introduction
 
-This project is set of POJOs which is relevant for various `NPM` metadata files, like `package.json`. 
-It use native [JSON Schema](http://json-schema.org/) to define and then generate Java classes.
-It also use [Jackson](https://github.com/FasterXML/jackson) as default JSON parser. 
+This project is a set of POJOs which are relevant for various `NPM` metadata files, such as `package.json`. 
+It uses native [JSON Schema](http://json-schema.org/) to define and then generate Java classes.
+It also uses [Jackson](https://github.com/FasterXML/jackson) as default the JSON parser. 
 
 # How to use
 
