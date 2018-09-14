@@ -37,7 +37,7 @@
             }
         },
 
-        "feed": 
+        "packageFeed": 
         {
             "type": "object",
             "patternProperties": 
@@ -62,9 +62,9 @@
                     "type": "string"
                 },
 
-                "distTags": 
+                "dist-tags": 
                 {
-                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/version"
+                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/distTags"
                 },
 
                 "versions": 
@@ -132,9 +132,9 @@
 
     "properties": 
     {
-        "feed": 
+        "packageFeed": 
         {
-            "$ref": "#/definitions/feed"
+            "$ref": "#/definitions/packageFeed"
         }
     }
 }

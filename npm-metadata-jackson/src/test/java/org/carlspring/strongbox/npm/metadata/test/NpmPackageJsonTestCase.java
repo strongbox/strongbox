@@ -2,8 +2,8 @@ package org.carlspring.strongbox.npm.metadata.test;
 
 import static org.junit.Assert.assertEquals;
 
-import org.carlspring.strongbox.npm.metadata.Feed;
 import org.carlspring.strongbox.npm.metadata.Package;
+import org.carlspring.strongbox.npm.metadata.PackageFeed;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,8 +29,8 @@ public class NpmPackageJsonTestCase
     {
         ObjectMapper mapper = new ObjectMapper();
 
-        Feed feedDef = mapper.readValue(getClass().getResourceAsStream("/json/antlr4-autosuggest/feed.json"),
-                                        Feed.class);
+        PackageFeed feedDef = mapper.readValue(getClass().getResourceAsStream("/json/antlr4-autosuggest/feed.json"),
+                                               PackageFeed.class);
 
         assertEquals("antlr4-autosuggest", feedDef.getName());
     }
