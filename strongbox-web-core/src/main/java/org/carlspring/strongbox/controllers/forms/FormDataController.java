@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.controllers.forms;
 
-import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.NugetRepositoryConfigurationForm;
@@ -13,6 +12,7 @@ import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.util.FieldSpy;
 
 import javax.inject.Inject;
@@ -43,10 +43,10 @@ public class FormDataController
     private static final String ASSIGNABLE_ROLES_LIST = "List of all assignable roles.";
 
     @Inject
-    private AuthorizationConfigService authorizationConfigService;
+    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
+    private AuthoritiesProvider authoritiesProvider;
 
     @ApiOperation(value = "Used to retrieve all assignable user roles")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ASSIGNABLE_ROLES_LIST) })
@@ -56,7 +56,7 @@ public class FormDataController
     public ResponseEntity getAssignableRoles()
     {
         return ResponseEntity.ok(new FormDataValuesCollection(ImmutableList.of(
-                FormDataValues.fromCollection("assignableRoles", this.authorizationConfigService.get().getRoles()))));
+                FormDataValues.fromCollection("assignableRoles", authoritiesProvider.getAssignableRoles()))));
     }
 
     @ApiOperation(value = "Used to retrieve all assignable user roles")
