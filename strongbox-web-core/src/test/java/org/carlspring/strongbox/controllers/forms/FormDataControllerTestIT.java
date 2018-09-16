@@ -33,11 +33,11 @@ public class FormDataControllerTestIT
     }
 
     @Test
-    public void testGetAssignableRoles()
+    public void testGetUserFields()
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl() + "/assignableRoles")
+               .get(getContextBaseUrl() + "/userFields")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
