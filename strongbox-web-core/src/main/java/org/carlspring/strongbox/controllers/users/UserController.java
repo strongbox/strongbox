@@ -6,6 +6,7 @@ import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
 import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
+import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
@@ -13,6 +14,7 @@ import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -121,9 +123,9 @@ public class UserController
     @ResponseBody
     public ResponseEntity getUser(@ApiParam(value = "The name of the user", required = true)
                                   @PathVariable String username,
-                                  @RequestParam(value = "assignableRoles",
+                                  @RequestParam(value = "formFields",
                                                 required = false,
-                                                defaultValue = "false") Boolean includeAssignableRoles,
+                                                defaultValue = "false") Boolean includeFormFields,
                                   @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         User user = userService.findByUserName(username);
@@ -135,9 +137,10 @@ public class UserController
         UserOutput userOutput = UserOutput.fromUser(user);
         UserResponseEntity responseEntity = new UserResponseEntity(userOutput);
 
-        if (includeAssignableRoles)
+        if (includeFormFields)
         {
             responseEntity.setAssignableRoles(authoritiesProvider.getAssignableRoles());
+            responseEntity.setAssignablePrivileges(Arrays.asList(Privileges.values()));
         }
 
         return ResponseEntity.ok(responseEntity);

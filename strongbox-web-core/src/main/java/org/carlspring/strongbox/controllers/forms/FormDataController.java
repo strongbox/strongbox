@@ -12,6 +12,7 @@ import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.util.FieldSpy;
 
@@ -40,27 +41,26 @@ public class FormDataController
         extends BaseController
 {
 
-    private static final String ASSIGNABLE_ROLES_LIST = "List of all assignable roles.";
-
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private AuthoritiesProvider authoritiesProvider;
 
-    @ApiOperation(value = "Used to retrieve all assignable user roles")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ASSIGNABLE_ROLES_LIST) })
+    @ApiOperation(value = "Used to retrieve all assignable user roles and privileges")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Collection of all assignable user roles and privileges") })
     @PreAuthorize("hasAuthority('CREATE_USER') or hasAuthority('UPDATE_USER')")
-    @GetMapping(value = "/assignableRoles",
+    @GetMapping(value = "/userFields",
             produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity getAssignableRoles()
+    public ResponseEntity getUserFields()
     {
         return ResponseEntity.ok(new FormDataValuesCollection(ImmutableList.of(
-                FormDataValues.fromCollection("assignableRoles", authoritiesProvider.getAssignableRoles()))));
+                FormDataValues.fromCollection("assignableRoles", authoritiesProvider.getAssignableRoles()),
+                FormDataValues.fromCollection("assignablePrivileges", Arrays.asList(Privileges.values())))));
     }
 
-    @ApiOperation(value = "Used to retrieve all assignable user roles")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ASSIGNABLE_ROLES_LIST) })
+    @ApiOperation(value = "Used to retrieve collection of storage form data")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Collection of storage form data") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE') or hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
     @GetMapping(value = "/storages",
             produces = { MediaType.APPLICATION_JSON_VALUE })
