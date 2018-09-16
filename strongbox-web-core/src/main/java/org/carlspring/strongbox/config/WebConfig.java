@@ -209,8 +209,8 @@ public class WebConfig
         registry.addConverter(new RoleFormToRoleConverter());
         registry.addConverter(new RoleListFormToRoleListConverter());
         registry.addConverter(new PrivilegeListFormToPrivilegeListConverter());
-        registry.addConverter(new UserFormToUserDtoConverter());
-        registry.addConverter(new AccessModelFormToUserAccessModelDtoConverter());
+        registry.addConverter(UserFormToUserDtoConverter.INSTANCE);
+        registry.addConverter(AccessModelFormToUserAccessModelDtoConverter.INSTANCE);
         registry.addConverter(ProxyConfigurationFormConverter.INSTANCE);
         registry.addConverter(new RuleSetFormToRuleSetConverter());
         registry.addConverter(new RoutingRuleFormToRoutingRuleConverter());

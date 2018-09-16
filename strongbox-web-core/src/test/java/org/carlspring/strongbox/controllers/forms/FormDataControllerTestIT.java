@@ -46,11 +46,63 @@ public class FormDataControllerTestIT
     }
 
     @Test
-    public void testGetStoragesFormData()
+    public void testGetStorageFields()
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl() + "/storages")
+               .get(getContextBaseUrl() + "/storageFields")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("formDataValues", notNullValue())
+               .body("formDataValues", hasSize(greaterThan(0)));
+    }
+
+    @Test
+    public void testGetStorageNames()
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl() + "/storageNames")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("formDataValues", notNullValue())
+               .body("formDataValues", hasSize(greaterThan(0)));
+    }
+
+    @Test
+    public void testFilteredGetStorageNames()
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl() + "/storageNames?filter=prox")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("formDataValues", notNullValue())
+               .body("formDataValues", hasSize(greaterThan(0)));
+    }
+
+    @Test
+    public void testGetRepositoryNames()
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl() + "/repositoryNames?storageId=storage0")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("formDataValues", notNullValue())
+               .body("formDataValues", hasSize(greaterThan(0)));
+    }
+
+    @Test
+    public void testFilteredGetRepositoryNames()
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl() + "/repositoryNames?storageId=storage0&filter=SHOT")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())

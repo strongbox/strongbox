@@ -9,101 +9,55 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
  * @author Alex Oreshkevich
  * @author Pablo Tirado
+ * @author Przemyslaw Fusik
  */
 @XmlRootElement(name = "repository")
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.NONE)
 public class UserRepositoryDto
 {
 
-    @XmlElement(name = "privilege")
-    @XmlElementWrapper(name = "privileges")
-    private Set<PrivilegeDto> privileges = new LinkedHashSet<>();
-
-    @XmlAttribute(name = "id",
-            required = true)
+    @XmlAttribute(name = "id", required = true)
     private String repositoryId;
 
-    @XmlElement(name = "path-permissions")
-    private UserPathPermissionsDto pathPermissions;
+    @XmlElement(name = "privilege")
+    @XmlElementWrapper(name = "repository-privileges")
+    private Set<PrivilegeDto> repositoryPrivileges = new LinkedHashSet<>();
 
-    public UserRepositoryDto()
-    {
-    }
-
-    @Override
-    public boolean equals(final Object o)
-    {
-        if (this == o) return true;
-        if (!(o instanceof UserRepositoryDto))
-        {
-            return false;
-        }
-        final UserRepositoryDto that = (UserRepositoryDto) o;
-        return java.util.Objects.equals(repositoryId, that.repositoryId);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return java.util.Objects.hash(repositoryId);
-    }
-
-    public Set<PrivilegeDto> getPrivileges()
-    {
-        return privileges;
-    }
-
-    public void setPrivileges(Set<PrivilegeDto> privileges)
-    {
-        this.privileges = privileges;
-    }
-
-    public UserPathPermissionsDto getPathPermissions()
-    {
-        return pathPermissions;
-    }
-
-    public void setPathPermissions(UserPathPermissionsDto pathPermissions)
-    {
-        this.pathPermissions = pathPermissions;
-    }
+    @XmlElement(name = "path-privilege")
+    @XmlElementWrapper(name = "path-privileges")
+    private Set<UserPathPrivilegesDto> pathPrivileges = new LinkedHashSet<>();
 
     public String getRepositoryId()
     {
         return repositoryId;
     }
 
-    public void setRepositoryId(String repositoryId)
+    public void setRepositoryId(final String repositoryId)
     {
         this.repositoryId = repositoryId;
     }
 
-    @Override
-    public String toString()
+    public Set<PrivilegeDto> getRepositoryPrivileges()
     {
-        final StringBuilder sb = new StringBuilder("UserRepository{");
-        sb.append("privileges=")
-          .append(privileges);
-        sb.append(", repositoryId='")
-          .append(repositoryId)
-          .append('\'');
-        sb.append(", pathPermissions=")
-          .append(pathPermissions);
-        sb.append('}');
-        return sb.toString();
+        return repositoryPrivileges;
     }
 
-    public UserPathPermissionsDto setIfAbsent(final UserPathPermissionsDto userPathPermissions)
+    public Set<UserPathPrivilegesDto> getPathPrivileges()
     {
-        if (pathPermissions == null)
-        {
-            setPathPermissions(userPathPermissions);
-        }
-        return pathPermissions;
+        return pathPrivileges;
+    }
+
+    public Optional<UserPathPrivilegesDto> getPathPrivilege(final String path,
+                                                            final boolean wildcard)
+    {
+        return pathPrivileges.stream()
+                             .filter(p -> p.getPath().equals(path) && (p.isWildcard() == wildcard))
+                             .findFirst();
     }
 }

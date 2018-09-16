@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.controllers.users;
 
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.forms.users.PathPrivilege;
 import org.carlspring.strongbox.controllers.users.support.AccessModelOutput;
+import org.carlspring.strongbox.controllers.users.support.RepositoryAccessModelOutput;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
+import org.carlspring.strongbox.converters.users.AccessModelToAccessModelOutputConverter;
 import org.carlspring.strongbox.forms.users.AccessModelForm;
+import org.carlspring.strongbox.forms.users.RepositoryAccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.Privileges;
@@ -15,7 +17,9 @@ import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableSet;
@@ -24,6 +28,7 @@ import org.apache.commons.collections.SetUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -60,7 +65,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Pablo Tirado
  */
-@Ignore
 @IntegrationTest
 @RunWith(SpringRunner.class)
 @Transactional
@@ -100,25 +104,27 @@ public class UserControllerTestIT
                .body("user.username", equalTo(username))
                .body("user.authorities", notNullValue())
                .body("user.authorities", hasSize(greaterThan(0)))
-               .body("user.accessModel.repositoryPrivileges", notNullValue())
-               .body("user.accessModel.repositoryPrivileges", hasSize(greaterThan(0)))
+               .body("user.accessModel.repositoriesAccess", notNullValue())
+               .body("user.accessModel.repositoriesAccess", hasSize(greaterThan(0)))
                .body("assignableRoles", nullValue());
 
 
         // assignableRoles should be present only if there is ?assignableRoles=true in the request.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl() + "/{name}?assignableRoles=true", username)
+               .get(getContextBaseUrl() + "/{name}?formFields=true", username)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("user.username", equalTo(username))
                .body("user.authorities", notNullValue())
                .body("user.authorities", hasSize(greaterThan(0)))
-               .body("user.accessModel.repositoryPrivileges", notNullValue())
-               .body("user.accessModel.repositoryPrivileges", hasSize(greaterThan(0)))
+               .body("user.accessModel.repositoriesAccess", notNullValue())
+               .body("user.accessModel.repositoriesAccess", hasSize(greaterThan(0)))
                .body("assignableRoles", notNullValue())
-               .body("assignableRoles", hasSize(greaterThan(0)));
+               .body("assignableRoles", hasSize(greaterThan(0)))
+               .body("assignablePrivileges", notNullValue())
+               .body("assignablePrivileges", hasSize(greaterThan(0)));
     }
 
     private void userNotFound(String acceptHeader)
@@ -687,19 +693,26 @@ public class UserControllerTestIT
         UserForm test = buildUser(username, "password");
         test.setAccessModel(new AccessModelForm());
 
-        test.getAccessModel()
-            .getRepositoryPrivileges()
-            .add(new PathPrivilege("/storages/storage0/releases", Lists.newArrayList("ARTIFACTS_RESOLVE")));
+        RepositoryAccessModelForm form = new RepositoryAccessModelForm();
+        form.setStorageId("storage0");
+        form.setRepositoryId("releases");
+        form.setPrivileges(Lists.newArrayList("ARTIFACTS_RESOLVE"));
+        test.getAccessModel().addRepositoryAccess(form);
 
-        test.getAccessModel()
-            .getWildCardPrivileges()
-            .add(new PathPrivilege("/storages/storage0/releases/com/mycorp/.*",
-                                   Lists.newArrayList("ARTIFACTS_RESOLVE")));
+        form = new RepositoryAccessModelForm();
+        form.setStorageId("storage0");
+        form.setRepositoryId("releases");
+        form.setWildcard(true);
+        form.setPath("com/mycorp/");
+        form.setPrivileges(Lists.newArrayList("ARTIFACTS_RESOLVE"));
+        test.getAccessModel().addRepositoryAccess(form);
 
-        test.getAccessModel()
-            .getUrlToPrivileges()
-            .add(new PathPrivilege("/storages/storage0/releases/com/mycorp2/.*",
-                                   Lists.newArrayList("ARTIFACTS_RESOLVE")));
+        form = new RepositoryAccessModelForm();
+        form.setStorageId("storage0");
+        form.setRepositoryId("releases");
+        form.setPath("com/mycorp2/");
+        form.setPrivileges(Lists.newArrayList("ARTIFACTS_RESOLVE"));
+        test.getAccessModel().addRepositoryAccess(form);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -723,17 +736,23 @@ public class UserControllerTestIT
 
         logger.debug(accessModel.toString());
 
-        assertFalse(accessModel.getWildCardPrivileges().isEmpty());
-        assertFalse(accessModel.getRepositoryPrivileges().isEmpty());
+        assertFalse(accessModel.getRepositoriesAccess().isEmpty());
+
+        AccessModelForm accessModelForm = buildFromAccessModel(accessModel);
 
         // modify access model and save it
-        final String mockUrl = "/storages/storage0/act-releases-1/org/carlspring/strongbox";
         final String mockPrivilege = Privileges.ARTIFACTS_DELETE.toString();
-        accessModel.getUrlToPrivileges().add(new PathPrivilege(mockUrl, Collections.singletonList(mockPrivilege)));
+
+        form = new RepositoryAccessModelForm();
+        form.setStorageId("storage0");
+        form.setRepositoryId("act-releases-1");
+        form.setPath("org/carlspring/strongbox");
+        form.setPrivileges(Collections.singleton(mockPrivilege));
+        accessModelForm.addRepositoryAccess(form);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
-               .body(accessModel)
+               .body(accessModelForm)
                .put(getContextBaseUrl() + "/{username}/access-model", username)
                .peek() // Use peek() to print the output
                .then()
@@ -746,14 +765,16 @@ public class UserControllerTestIT
 
         logger.debug(updatedModel.toString());
 
-        Optional<PathPrivilege> authority = updatedModel.getUrlToPrivileges()
-                                                        .stream()
-                                                        .filter(a -> a.getPath().equals(mockUrl))
-                                                        .findFirst();
+        Optional<RepositoryAccessModelOutput> repositoryAccess = updatedModel.getRepositoriesAccess()
+                                                                             .stream()
+                                                                             .filter(a -> "org/carlspring/strongbox".equals(
+                                                                                     a.getPath()))
+                                                                             .findFirst();
 
-        assertNotNull(authority);
-        assertTrue(authority.isPresent());
-        assertTrue(authority.get().getPrivileges().contains(mockPrivilege));
+        assertNotNull(repositoryAccess);
+        assertTrue(repositoryAccess.isPresent());
+        logger.info("$$$$$$$$$$$$$$$$$$$$$$$$$" + repositoryAccess.get().getPrivileges());
+        assertTrue(repositoryAccess.get().getPrivileges().contains(mockPrivilege));
     }
 
     @Test
@@ -769,13 +790,17 @@ public class UserControllerTestIT
 
         logger.debug(accessModel.toString());
 
-        assertFalse(accessModel.getWildCardPrivileges().isEmpty());
-        assertFalse(accessModel.getRepositoryPrivileges().isEmpty());
+        assertFalse(accessModel.getRepositoriesAccess().isEmpty());
 
         // modify access model and save it
-        final String mockUrl = "/storagesNotValid/storage0/act-releases-1/org/carlspring/strongbox";
 
-        accessModel.getUrlToPrivileges().add(new PathPrivilege(mockUrl, Collections.emptyList()));
+        RepositoryAccessModelForm form = new RepositoryAccessModelForm();
+        form.setStorageId("storage0");
+        form.setRepositoryId("act-releases-1");
+        form.setPath("org/carlspring/strongbox");
+        form.setPrivileges(Collections.emptyList());
+        accessModel.addRepositoryAccess(form);
+
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(accessModel)
@@ -802,14 +827,17 @@ public class UserControllerTestIT
 
         logger.debug(accessModel.toString());
 
-        assertFalse(accessModel.getRepositoryPrivileges().isEmpty());
-        assertFalse(accessModel.getWildCardPrivileges().isEmpty());
+        assertFalse(accessModel.getRepositoriesAccess().isEmpty());
 
         // modify access model and save it
-        final String mockUrl = "/storages/storage0/act-releases-1/org/carlspring/strongbox";
         final String mockPrivilege = Privileges.ARTIFACTS_DELETE.toString();
 
-        accessModel.getUrlToPrivileges().add(new PathPrivilege(mockUrl, Collections.singletonList(mockPrivilege)));
+        RepositoryAccessModelForm form = new RepositoryAccessModelForm();
+        form.setStorageId("storage0");
+        form.setRepositoryId("act-releases-1");
+        form.setPath("org/carlspring/strongbox");
+        form.setPrivileges(Collections.singletonList(mockPrivilege));
+        accessModel.addRepositoryAccess(form);
 
         String username = "userNotFound";
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -868,13 +896,6 @@ public class UserControllerTestIT
 
     private UserForm buildUser(String name,
                                String password,
-                               Set<String> roles)
-    {
-        return buildUser(name, password, null, roles);
-    }
-
-    private UserForm buildUser(String name,
-                               String password,
                                String securityTokenKey,
                                Set<String> roles)
     {
@@ -897,7 +918,8 @@ public class UserControllerTestIT
         dto.setSecurityTokenKey(user.getSecurityTokenKey());
         dto.setEnabled(user.isEnabled());
         dto.setRoles(user.getRoles());
-        dto.setAccessModel(buildFromAccessModel(new AccessModelOutput(user.getAccessModel())));
+        dto.setAccessModel(
+                buildFromAccessModel(AccessModelToAccessModelOutputConverter.INSTANCE.convert(user.getAccessModel())));
         dto.setSecurityTokenKey(user.getSecurityTokenKey());
 
         if (operation != null)
@@ -914,9 +936,7 @@ public class UserControllerTestIT
         if (accessModel != null)
         {
             dto = new AccessModelForm();
-            dto.setRepositoryPrivileges(accessModel.getRepositoryPrivileges());
-            dto.setUrlToPrivileges(accessModel.getUrlToPrivileges());
-            dto.setWildCardPrivileges(accessModel.getWildCardPrivileges());
+            BeanUtils.copyProperties(accessModel, dto);
         }
         return dto;
     }

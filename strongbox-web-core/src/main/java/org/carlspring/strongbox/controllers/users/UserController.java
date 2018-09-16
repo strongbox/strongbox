@@ -8,6 +8,7 @@ import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.service.UserService;
@@ -303,7 +304,8 @@ public class UserController
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);
         }
 
-        userService.updateAccessModel(username, accessModelForm.toDto());
+        UserAccessModelDto accessModel = conversionService.convert(accessModelForm, UserAccessModelDto.class);
+        userService.updateAccessModel(username, accessModel);
 
         return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE_USER, accept);
     }

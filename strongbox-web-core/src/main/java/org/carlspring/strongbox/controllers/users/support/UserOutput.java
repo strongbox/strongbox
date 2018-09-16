@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.users.support;
 
+import org.carlspring.strongbox.converters.users.AccessModelToAccessModelOutputConverter;
 import org.carlspring.strongbox.users.domain.User;
 
 import java.io.Serializable;
@@ -98,7 +99,7 @@ public class UserOutput
         output.setRoles(user.getRoles());
         output.setAuthorities(user.getAuthorities());
         output.setUsername(user.getUsername());
-        output.setAccessModel(new AccessModelOutput(user.getAccessModel()));
+        output.setAccessModel(AccessModelToAccessModelOutputConverter.INSTANCE.convert(user.getAccessModel()));
         output.setSecurityTokenKey(user.getSecurityTokenKey());
         return output;
     }
