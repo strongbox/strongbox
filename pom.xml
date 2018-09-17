@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>npm-metadata-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
         <relativePath>npm-metadata-parent</relativePath>
     </parent>
 
