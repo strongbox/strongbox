@@ -67,14 +67,53 @@
                                     <artifactId>npm-metadata-schema</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <outputDirectory>${project.basedir}/target/generated-resources</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                             <includes>**/*.schema.json</includes>
-                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <outputDirectory>${project.basedir}/target/generated-resources</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <scripts>
+                                <script><![CDATA[
+                                        new File( "$project.basedir/target/META-INF").mkdirs();
+                                        
+                                        def replaceRef(schemaFileName){
+                                            new File( "$project.basedir/target/META-INF/$schemaFileName" ).withWriter { w ->
+                                              new File( "$project.basedir/target/generated-resources/META-INF/$schemaFileName" ).eachLine { line ->
+                                                w << line.replaceAll( "http://strongbox.carlspring.org/npm/metadata/common", "file://$project.basedir/target/generated-resources/META-INF/common.schema.json" ) + System.getProperty("line.separator")
+                                              }
+                                            }
+                                        }
+                                        
+                                        replaceRef("package.schema.json");
+                                        replaceRef("package-feed.schema.json");
+                                        
+                                ]]></script>
+                            </scripts>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-all</artifactId>
+                        <version>${groovy.version}</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.jsonschema2pojo</groupId>

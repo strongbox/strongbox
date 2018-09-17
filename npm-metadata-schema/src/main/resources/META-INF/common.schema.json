@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$id": "http://npmjsmt.pojo/common",
+    "$id": "http://strongbox.carlspring.org/npm/metadata/common",
     "definitions": 
     {
         "person": 

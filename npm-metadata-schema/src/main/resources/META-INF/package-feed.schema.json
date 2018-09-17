@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$id": "http://npmjsmt.pojo/feed",
+    "$id": "http://strongbox.carlspring.org/npm/metadata/feed",
     "definitions": 
     {
         "time": 
@@ -64,22 +64,22 @@
 
                 "dist-tags": 
                 {
-                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/distTags"
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/distTags"
                 },
 
                 "versions": 
                 {
-                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/versions"
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/versions"
                 },
 
                 "readme": 
                 {
-                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/readme"
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/readme"
                 },
 
                 "maintainers": 
                 {
-                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/maintainers"
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/maintainers"
                 },
 
                 "time": 
@@ -89,32 +89,32 @@
 
                 "homepage": 
                 {
-                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/homepage"
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/homepage"
                 },
 
                 "keywords": 
                 {
-                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/keywords"
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/keywords"
                 },
 
                 "repository": 
                 {
-                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/repository"
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/repository"
                 },
 
                 "author": 
                 {
-                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/person"
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/person"
                 },
 
                 "bugs": 
                 {
-                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/bugs"
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/bugs"
                 },
 
                 "license": 
                 {
-                    "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/license"
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/license"
                 },
 
                 "readmeFilename": 

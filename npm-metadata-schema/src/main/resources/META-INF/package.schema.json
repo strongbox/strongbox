@@ -1,12 +1,12 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$id": "http://npmjsmt.pojo/package",
+    "$id": "http://strongbox.carlspring.org/npm/metadata/package",
     "title": "JSON schema for NPM package.json files",
     "properties": 
     {
         "package": 
         {
-            "$ref": "file:///home/sbespalov/projects/strongbox/npm-metadata/npm-metadata-schema/src/main/resources/META-INF/common.schema.json#definitions/package"
+            "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/package"
         }
     }
 }
