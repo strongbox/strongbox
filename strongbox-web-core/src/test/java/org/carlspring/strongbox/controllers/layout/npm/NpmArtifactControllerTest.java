@@ -70,16 +70,16 @@ public class NpmArtifactControllerTest
     }
 
     @Test
-    public void testPackageCommonFlow()
+    public void testViewPackage()
         throws Exception
     {
-        NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("@carlspring/npm-test-release", "1.0.0");
+        NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("@carlspring/npm-test-view", "1.0.0");
         NpmPackageGenerator packageGenerator = NpmPackageGenerator.newInstance();
         Path publishJsonPath = packageGenerator.of(coordinates).buildPublishJson();
-        Path packagePath = packageGenerator.getPackagePath();
 
         byte[] publishJsonContent = Files.readAllBytes(publishJsonPath);
 
+        //Publish
         given().header("User-Agent", "npm/*")
                .header("Content-Type", "application/json")
                .body(publishJsonContent)
@@ -90,6 +90,60 @@ public class NpmArtifactControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
+        // View OK
+        given().header("User-Agent", "npm/*")
+               .header("Content-Type", "application/json")
+               .when()
+               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
+                       coordinates.getId() + "/" + coordinates.getVersion())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value());
+        
+        // View 404
+        given().header("User-Agent", "npm/*")
+               .header("Content-Type", "application/json")
+               .when()
+               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
+                       coordinates.getId() + "/1.0.1")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value());
+    }
+    
+    @Test
+    public void testPackageCommonFlow()
+        throws Exception
+    {
+        NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("@carlspring/npm-test-release", "1.0.0");
+        NpmPackageGenerator packageGenerator = NpmPackageGenerator.newInstance();
+        Path publishJsonPath = packageGenerator.of(coordinates).buildPublishJson();
+        Path packagePath = packageGenerator.getPackagePath();
+
+        byte[] publishJsonContent = Files.readAllBytes(publishJsonPath);
+
+        //Publish
+        given().header("User-Agent", "npm/*")
+               .header("Content-Type", "application/json")
+               .body(publishJsonContent)
+               .when()
+               .put(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
+                    coordinates.getId())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value());
+
+        //View
+        given().header("User-Agent", "npm/*")
+               .header("Content-Type", "application/json")
+               .when()
+               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
+                       coordinates.getId())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value());
+        
+        //Download
         given().header("User-Agent", "npm/*")
                .header("Content-Type", "application/json")
                .when()

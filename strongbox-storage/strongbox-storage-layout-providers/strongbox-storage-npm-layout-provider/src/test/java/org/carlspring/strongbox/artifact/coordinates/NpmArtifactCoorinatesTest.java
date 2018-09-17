@@ -47,7 +47,6 @@ public class NpmArtifactCoorinatesTest
         assertEquals("8.0.51", c.getVersion());
         assertEquals("json", c.getExtension());
     }
-
     
     @Test(expected = IllegalArgumentException.class)
     public void testVersionAssertion()

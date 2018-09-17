@@ -2,6 +2,8 @@ package org.carlspring.strongbox.config;
 
 import java.nio.file.FileSystem;
 import java.nio.file.spi.FileSystemProvider;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import javax.inject.Inject;
 
@@ -17,7 +19,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +43,12 @@ public class NpmLayoutProviderConfig
     @Bean
     public ObjectMapper npmJackasonMapper()
     {
-        return new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
+        //2018-06-05T19:43:08.760Z
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        objectMapper.setDateFormat(df);
+        
+        return objectMapper;
     }
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)

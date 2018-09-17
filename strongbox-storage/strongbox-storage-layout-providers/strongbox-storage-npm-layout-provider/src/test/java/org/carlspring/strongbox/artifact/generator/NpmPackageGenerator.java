@@ -1,33 +1,37 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import org.carlspring.commons.io.RandomInputStream;
-import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.data.PropertyUtils;
-import org.carlspring.strongbox.npm.metadata.Package;
-
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.npm.metadata.Dist;
+import org.carlspring.strongbox.npm.metadata.PackageVersion;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
 public class NpmPackageGenerator
 {
 
     private NpmArtifactCoordinates coordinates;
-    private Package packageJson = new Package();
+    private PackageVersion packageJson = new PackageVersion();
     private Path basePath = Paths.get(PropertyUtils.getHomeDirectory() + "/tmp");
     private Path packagePath;
     private Path publishJsonPath;
@@ -41,6 +45,8 @@ public class NpmPackageGenerator
     private NpmPackageGenerator()
     {
         super();
+        
+        packageJson.setDist(new Dist());
     }
 
     public NpmPackageGenerator of(NpmArtifactCoordinates c)
@@ -59,7 +65,7 @@ public class NpmPackageGenerator
         return this;
     }
 
-    public Package getPackageJson()
+    public PackageVersion getPackageJson()
     {
         return packageJson;
     }
@@ -95,7 +101,29 @@ public class NpmPackageGenerator
             gzipOut.close();
         }
 
+        calculateChecksum();
+        
         return packagePath;
+    }
+
+    private void calculateChecksum()
+        throws IOException
+    {
+        MessageDigest crypt;
+        try
+        {
+            crypt = MessageDigest.getInstance("SHA-1");
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            throw new UndeclaredThrowableException(e);
+        }
+        
+        crypt.reset();
+        crypt.update(Files.readAllBytes(packagePath));
+        
+        String shasum = Base64.getEncoder().encodeToString(crypt.digest());
+        packageJson.getDist().setShasum(shasum);
     }
 
     private void writePackageJson(TarArchiveOutputStream tarOut)
@@ -171,10 +199,16 @@ public class NpmPackageGenerator
             // version
             jGenerator.writeStringField("name", packageJson.getName());
             jGenerator.writeStringField("version", packageJson.getVersion());
+            
+            // dist
+            jGenerator.writeFieldName("dist");
+            jGenerator.writeStartObject();
+            jGenerator.writeStringField("shasum", packageJson.getDist().getShasum());
+            jGenerator.writeEndObject();
 
             jGenerator.writeEndObject();
             jGenerator.writeEndObject();
-
+            
             // _attachments
             jGenerator.writeFieldName("_attachments");
 
