@@ -9,16 +9,15 @@ import java.util.List;
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement(name = "roles-mapping")
+@XmlRootElement(name = "user-dn-patterns")
 @XmlAccessorType(XmlAccessType.NONE)
-public class XmlLdapRolesMapping
+public class LdapUserDnPatterns
 {
+    @XmlElement(name = "user-dn-pattern")
+    private List<LdapUserDnPattern> userDnPattern;
 
-    @XmlElement(name = "role-mapping")
-    private List<XmlLdapRoleMapping> rolesMapping;
-
-    public List<XmlLdapRoleMapping> getRolesMapping()
+    public List<LdapUserDnPattern> getUserDnPattern()
     {
-        return rolesMapping;
+        return userDnPattern;
     }
 }

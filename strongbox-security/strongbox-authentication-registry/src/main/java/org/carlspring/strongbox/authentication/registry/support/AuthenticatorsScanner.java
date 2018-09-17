@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
+import org.carlspring.strongbox.authentication.external.ExternalUserProviders;
+import org.carlspring.strongbox.authentication.external.ExternalUserProvidersFileManager;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.slf4j.Logger;
@@ -34,6 +36,9 @@ public class AuthenticatorsScanner
     @Inject
     private ApplicationContext parentApplicationContext;
 
+    @Inject
+    private ExternalUserProvidersFileManager externalUserProvidersFileManager;
+
     public AuthenticatorsScanner(AuthenticatorsRegistry registry)
     {
         this.registry = registry;
@@ -51,6 +56,9 @@ public class AuthenticatorsScanner
         {
             applicationContext.setParent(parentApplicationContext);
             applicationContext.setClassLoader(requiredClassLoader);
+
+            ExternalUserProviders externalUserProviders = externalUserProvidersFileManager.read();
+
             applicationContext.load(getAuthenticationConfigurationResource());
             applicationContext.refresh();
         }

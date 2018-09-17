@@ -10,10 +10,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "user-dn-pattern")
 @XmlAccessorType(XmlAccessType.NONE)
-public class XmlLdapUserDnPattern
+public class LdapUserDnPattern
 {
 
-    @XmlAttribute
+    @XmlAttribute(required = true)
     private String value;
 
     public String getValue()

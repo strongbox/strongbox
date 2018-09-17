@@ -1,0 +1,25 @@
+<external-user-providers>
+    <providers>
+        <ldap url="ldap://127.0.0.1:33389/dc=carlspring,dc=com" ldif="classpath:ldap/strongbox.ldif">
+            <roles-mapping>
+                <role-mapping ldap-role="Developers"
+                              strongbox-role="REPOSITORY_MANAGER"/>
+                <role-mapping ldap-role="Contributors"
+                              strongbox-role="USER_ROLE"/>
+            </roles-mapping>
+            <authenticator>
+                <user-search search-base="ou=people"
+                             search-filter="(uid={0})"/>
+                <user-dn-patterns>
+                    <user-dn-pattern value="uid={0},ou=Users"/>
+                </user-dn-patterns>
+            </authenticator>
+            <authorities-populator group-search-base="ou=Groups"
+                                   search-subtree="true"
+                                   group-search-filter="(uniqueMember={0})"
+                                   group-role-attribute="cn"
+                                   role-prefix=""
+                                   convert-to-upper-case="false"/>
+        </ldap>
+    </providers>
+</external-user-providers>

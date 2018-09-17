@@ -7,8 +7,7 @@
                           strongbox-role="USER_ROLE"/>
         </roles-mapping>
         <authenticator>
-            <user-search search-base="ou=people"
-                         search-filter="(uid={0})"/>
+            <user-search search-base="ou=people" search-filter="(uid={0})"/>
             <user-dn-patterns>
                 <user-dn-pattern value="uid={0},ou=Users"/>
             </user-dn-patterns>

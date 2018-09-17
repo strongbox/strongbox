@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlAttribute;
  * @author Przemyslaw Fusik
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class XmlLdapAuthoritiesPopulator
+public class LdapAuthoritiesPopulator
 {
 
     @XmlAttribute(name = "group-search-base")

@@ -1,11 +1,10 @@
 package org.carlspring.strongbox.authentication.external;
 
-import org.carlspring.strongbox.authentication.external.ldap.XmlLdapConfiguration;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Set;
 
 /**
  * @author Przemyslaw Fusik
@@ -14,11 +13,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ExternalUserProviders
 {
-    @XmlElement(name = "ldap")
-    private XmlLdapConfiguration ldapConfiguration;
 
-    public XmlLdapConfiguration getLdapConfiguration()
+    @XmlElementWrapper(name = "providers")
+    private Set<ExternalUserProvider> providers;
+
+    public Set<ExternalUserProvider> getProviders()
     {
-        return ldapConfiguration;
+        return providers;
     }
 }

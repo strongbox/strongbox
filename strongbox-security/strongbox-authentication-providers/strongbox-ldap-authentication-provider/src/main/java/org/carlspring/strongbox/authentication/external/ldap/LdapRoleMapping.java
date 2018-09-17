@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "role-mapping")
 @XmlAccessorType(XmlAccessType.NONE)
-public class XmlLdapRoleMapping
+public class LdapRoleMapping
 {
 
     @XmlAttribute(name = "ldap-role")

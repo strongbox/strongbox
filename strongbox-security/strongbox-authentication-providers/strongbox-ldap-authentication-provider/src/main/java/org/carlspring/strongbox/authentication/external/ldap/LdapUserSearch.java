@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlAttribute;
  * @author Przemyslaw Fusik
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class XmlLdapUserSearch
+public class LdapUserSearch
 {
 
     @XmlAttribute(name = "search-base")

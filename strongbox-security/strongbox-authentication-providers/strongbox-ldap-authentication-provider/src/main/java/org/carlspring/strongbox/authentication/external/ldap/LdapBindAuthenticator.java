@@ -8,21 +8,21 @@ import javax.xml.bind.annotation.XmlElement;
  * @author Przemyslaw Fusik
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class XmlLdapBindAuthenticator
+public class LdapBindAuthenticator
 {
 
     @XmlElement(name = "user-search")
-    private XmlLdapUserSearch userSearch;
+    private LdapUserSearch userSearch;
 
     @XmlElement(name = "user-dn-patterns")
-    private XmlLdapUserDnPatterns userDnPatterns;
+    private LdapUserDnPatterns userDnPatterns;
 
-    public XmlLdapUserSearch getUserSearch()
+    public LdapUserSearch getUserSearch()
     {
         return userSearch;
     }
 
-    public XmlLdapUserDnPatterns getUserDnPatterns()
+    public LdapUserDnPatterns getUserDnPatterns()
     {
         return userDnPatterns;
     }
