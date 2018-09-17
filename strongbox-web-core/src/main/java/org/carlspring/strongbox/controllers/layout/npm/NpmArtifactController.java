@@ -101,6 +101,7 @@ public class NpmArtifactController extends BaseArtifactController
     @Inject
     private NpmPackageSupplier npmPackageSupplier;
     
+    
     @RequestMapping(path = { "{storageId}/{repositoryId}/npm" }, method = RequestMethod.GET)
     public ResponseEntity<String> greet()
     {
@@ -198,7 +199,6 @@ public class NpmArtifactController extends BaseArtifactController
 
         response.setContentType(MediaType.APPLICATION_JSON);
         response.getOutputStream().write(npmJackasonMapper.writeValueAsBytes(packageFeed));
-
     }
 
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}", method = { RequestMethod.GET})
@@ -326,9 +326,9 @@ public class NpmArtifactController extends BaseArtifactController
                                  PackageVersion packageDef,
                                  Path packageTgzTmp)
         throws IOException,
-        ProviderImplementationException,
-        NoSuchAlgorithmException,
-        ArtifactCoordinatesValidationException
+               ProviderImplementationException,
+               NoSuchAlgorithmException,
+               ArtifactCoordinatesValidationException
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, coordinates);
         try (InputStream is = new BufferedInputStream(Files.newInputStream(packageTgzTmp)))
@@ -400,8 +400,7 @@ public class NpmArtifactController extends BaseArtifactController
                     break;
                 case FIELD_NAME_ATTACHMENTS:
                     Assert.isTrue(jp.nextToken() == JsonToken.START_OBJECT,
-                                  String.format(
-                                                "Failed to parse npm package source for illegal type [%s] of attachment.",
+                                  String.format("Failed to parse npm package source for illegal type [%s] of attachment.",
                                                 jp.currentToken().name()));
 
                     String packageAttachmentName = jp.nextFieldName();
@@ -524,7 +523,9 @@ public class NpmArtifactController extends BaseArtifactController
                 IOUtils.copy(tarIn, writer, "UTF-8");
                 return writer.toString();
             }
+            
             return null;
         }
     }
+    
 }
