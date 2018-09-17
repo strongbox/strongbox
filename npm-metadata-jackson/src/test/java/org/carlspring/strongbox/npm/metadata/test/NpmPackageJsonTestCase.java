@@ -2,8 +2,8 @@ package org.carlspring.strongbox.npm.metadata.test;
 
 import static org.junit.Assert.assertEquals;
 
-import org.carlspring.strongbox.npm.metadata.Package;
 import org.carlspring.strongbox.npm.metadata.PackageFeed;
+import org.carlspring.strongbox.npm.metadata.PackageVersion;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,8 +17,8 @@ public class NpmPackageJsonTestCase
     {
         ObjectMapper mapper = new ObjectMapper();
 
-        Package packageDef = mapper.readValue(getClass().getResourceAsStream("/json/types/node/package.json"),
-                                              Package.class);
+        PackageVersion packageDef = mapper.readValue(getClass().getResourceAsStream("/json/types/node/package.json"),
+                                                     PackageVersion.class);
 
         assertEquals("definitely-typed", packageDef.getName());
     }

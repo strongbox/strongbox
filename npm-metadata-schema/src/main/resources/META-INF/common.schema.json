@@ -345,7 +345,7 @@
             "$ref": "#definitions/person"
         },
 
-        "package": 
+        "packageVersion": 
         {
             "type": "object",
             "patternProperties": 
@@ -663,7 +663,7 @@
             "type": "object",
             "additionalProperties": 
             {
-                "$ref": "#definitions/package"
+                "$ref": "#definitions/packageVersion"
             }
         }
     }

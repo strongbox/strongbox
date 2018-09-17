@@ -98,7 +98,7 @@
                                             }
                                         }
                                         
-                                        replaceRef("package.schema.json");
+                                        replaceRef("package-version.schema.json");
                                         replaceRef("package-feed.schema.json");
                                         
                                 ]]></script>
