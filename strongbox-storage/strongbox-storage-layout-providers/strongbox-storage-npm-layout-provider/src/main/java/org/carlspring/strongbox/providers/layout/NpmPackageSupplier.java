@@ -58,9 +58,11 @@ public class NpmPackageSupplier implements Function<Path, NpmPackageDesc>
         PackageVersion npmPackage = new PackageVersion();
         npmPackageDesc.setNpmPackage(npmPackage);
 
-        npmPackage.setName(c.getName());
+        npmPackage.setAdditionalProperty("_id", String.format("%s@%s", c.getId(), c.getVersion()));
+        
+        npmPackage.setName(c.getId());
         npmPackage.setVersion(c.getVersion());
-
+        
         Dist dist = new Dist();
         npmPackage.setDist(dist);
 
