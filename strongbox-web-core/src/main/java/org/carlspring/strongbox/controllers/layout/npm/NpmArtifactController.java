@@ -92,8 +92,8 @@ public class NpmArtifactController extends BaseArtifactController
     private ArtifactManagementService npmArtifactManagementService;
 
     @Inject
-    @Qualifier("npmJackasonMapper")
-    private ObjectMapper npmJackasonMapper;
+    @Qualifier("npmJacksonMapper")
+    private ObjectMapper npmJacksonMapper;
 
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
@@ -136,7 +136,7 @@ public class NpmArtifactController extends BaseArtifactController
         PackageVersion npmPackage = packageDesc.getNpmPackage();
         
         response.setContentType(MediaType.APPLICATION_JSON);
-        response.getOutputStream().write(npmJackasonMapper.writeValueAsBytes(npmPackage));
+        response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(npmPackage));
     }
     
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}", method = { RequestMethod.GET})
@@ -198,7 +198,7 @@ public class NpmArtifactController extends BaseArtifactController
         });
 
         response.setContentType(MediaType.APPLICATION_JSON);
-        response.getOutputStream().write(npmJackasonMapper.writeValueAsBytes(packageFeed));
+        response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(packageFeed));
     }
 
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}", method = { RequestMethod.GET})
@@ -375,7 +375,7 @@ public class NpmArtifactController extends BaseArtifactController
         try (InputStream tmpIn = new BufferedInputStream(Files.newInputStream(packageSourceTmp)))
         {
             JsonParser jp = jfactory.createParser(tmpIn);
-            jp.setCodec(npmJackasonMapper);
+            jp.setCodec(npmJacksonMapper);
 
             Assert.isTrue(jp.nextToken() == JsonToken.START_OBJECT, "npm package source should be JSON object.");
 
@@ -492,7 +492,7 @@ public class NpmArtifactController extends BaseArtifactController
         PackageVersion packageVersion;
         try
         {
-            packageVersion = npmJackasonMapper.readValue(packageJsonSource, PackageVersion.class);
+            packageVersion = npmJacksonMapper.readValue(packageJsonSource, PackageVersion.class);
         }
         catch (JsonProcessingException e)
         {
