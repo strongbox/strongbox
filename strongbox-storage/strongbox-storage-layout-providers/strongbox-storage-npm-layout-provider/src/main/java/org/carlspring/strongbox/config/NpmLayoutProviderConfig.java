@@ -41,7 +41,7 @@ public class NpmLayoutProviderConfig
     protected StorageProviderRegistry storageProviderRegistry;
 
     @Bean
-    public ObjectMapper npmJackasonMapper()
+    public ObjectMapper npmJacksonMapper()
     {
         ObjectMapper objectMapper = new ObjectMapper();
         //2018-06-05T19:43:08.760Z
