@@ -21,7 +21,7 @@ import org.springframework.core.io.Resource;
 public abstract class XmlFileManager<T>
 {
 
-    private final GenericParser<T> parser;
+    public final GenericParser<T> parser;
 
     public XmlFileManager()
     {
@@ -30,19 +30,19 @@ public abstract class XmlFileManager<T>
 
     public XmlFileManager(Class... classes)
     {
-        Set<Class<?>> set = new HashSet<>();
-        set.add((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+        Set<Class<?>> contextClasses = new HashSet<>();
+        contextClasses.add((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
         Stream.of(classes).forEach(
                 clazz ->
                 {
                     ServiceLoader<?> loader = ServiceLoader.load(clazz);
                     loader.forEach(impl ->
                                    {
-                                       set.add(impl.getClass());
+                                       contextClasses.add(impl.getClass());
                                    });
                 }
         );
-        parser = new GenericParser<>(set.toArray(new Class[0]));
+        parser = new GenericParser<>(contextClasses.toArray(new Class[0]));
     }
 
     public abstract String getPropertyKey();

@@ -64,4 +64,19 @@ public class AuthenticationConfigTest
                    }));
     }
 
+    @Test
+    public void registryShouldContainLdapAuthenticator()
+    {
+        assertThat(Lists.newArrayList(authenticatorsRegistry),
+                   CoreMatchers.hasItem(new CustomMatcher<Authenticator>("registryShouldContainLdapAuthenticator")
+                   {
+                       @Override
+                       public boolean matches(Object o)
+                       {
+                           return ((Authenticator) o).getName()
+                                                     .equals("org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator");
+                       }
+                   }));
+    }
+
 }

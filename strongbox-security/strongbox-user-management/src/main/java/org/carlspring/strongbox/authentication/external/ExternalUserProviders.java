@@ -2,6 +2,7 @@ package org.carlspring.strongbox.authentication.external;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Set;
@@ -14,11 +15,16 @@ import java.util.Set;
 public class ExternalUserProviders
 {
 
-    @XmlElementWrapper(name = "providers")
+    @XmlElementRef
     private Set<ExternalUserProvider> providers;
 
     public Set<ExternalUserProvider> getProviders()
     {
         return providers;
+    }
+
+    public void setProviders(final Set<ExternalUserProvider> providers)
+    {
+        this.providers = providers;
     }
 }

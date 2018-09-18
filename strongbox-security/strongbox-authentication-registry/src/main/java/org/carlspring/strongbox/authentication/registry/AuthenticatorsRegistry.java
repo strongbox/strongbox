@@ -11,12 +11,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * @author Przemyslaw Fusik
