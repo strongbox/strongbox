@@ -224,29 +224,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test
-    public void userSearchFilterShouldBeUpdatable()
-    {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               // below line is a workaround URI placeholders in RestAssuredMockMvc
-               .put(getContextBaseUrl() + "/userSearchFilter/ou=guys/(uid={0})", "{0}")
-               .peek()
-               .then()
-               .body(containsString("User search filter updated."))
-               .statusCode(HttpStatus.OK.value());
-
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(getContextBaseUrl() + "/userSearchFilter")
-               .peek()
-               .then()
-               .body("searchFilter", equalTo("(uid={0})"))
-               .body("searchBase", equalTo("ou=guys"))
-               .statusCode(HttpStatus.OK.value());
-    }
-
-    @WithMockUser(authorities = "ADMIN")
-    @Test
     public void shouldBeAbleToDropConfiguration()
     {
         shouldReturnProperLdapConfiguration();
@@ -556,64 +533,6 @@ public class LdapAuthenticatorConfigurationControllerTest
                .then()
                .body("errors[0]['groupSearch.searchFilter'][0]", equalTo("must not be empty"))
                .statusCode(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @WithMockUser(authorities = "ADMIN")
-    @Test
-    public void groupSearchFilterShouldBeUpdatable()
-    {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               // below line is a workaround URI placeholders in RestAssuredMockMvc
-               .put(getContextBaseUrl() + "/groupSearchFilter/ou=guys/(participiant={0})", "{0}")
-               .peek()
-               .then()
-               .body(containsString("Group search filter updated."))
-               .statusCode(HttpStatus.OK.value());
-
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(getContextBaseUrl() + "/groupSearchFilter")
-               .peek()
-               .then()
-               .body("searchBase", equalTo("ou=guys"))
-               .body("searchFilter", equalTo("(participiant={0})"))
-               .statusCode(HttpStatus.OK.value());
-    }
-
-    @WithMockUser(authorities = "ADMIN")
-    @Test
-    public void userDnPatternsAreRemovable()
-    {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               // below line is a workaround URI placeholders in RestAssuredMockMvc
-               .delete(getContextBaseUrl() + "/userDnPatterns/uid={0},ou=Users", "{0}")
-               .peek()
-               .then()
-               .body(containsString("User DN pattern uid={0},ou=Users removed from the userDnPatterns"))
-               .statusCode(HttpStatus.OK.value());
-    }
-
-    @WithMockUser(authorities = "ADMIN")
-    @Test
-    public void userDnPatternsAreAdditable()
-    {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               // below line is a workaround URI placeholders in RestAssuredMockMvc
-               .post(getContextBaseUrl() + "/userDnPatterns/uid={0},ou=Guys", "{0}")
-               .peek()
-               .then()
-               .body(containsString("User DN pattern uid={0},ou=Guys added to the userDnPatterns"))
-               .statusCode(HttpStatus.OK.value());
-
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(getContextBaseUrl() + "/userDnPatterns")
-               .peek()
-               .then()
-               .body("userDnPatterns[0]", equalTo("uid={0},ou=Users"))
-               .body("userDnPatterns[1]", equalTo("uid={0},ou=Guys"))
-               .statusCode(HttpStatus.OK.value());
     }
 
 }

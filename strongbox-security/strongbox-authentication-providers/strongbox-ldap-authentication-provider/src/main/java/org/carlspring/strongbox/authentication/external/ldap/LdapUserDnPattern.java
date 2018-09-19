@@ -20,4 +20,9 @@ public class LdapUserDnPattern
     {
         return value;
     }
+
+    public void setValue(final String value)
+    {
+        this.value = value;
+    }
 }

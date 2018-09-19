@@ -27,6 +27,11 @@ public class LdapRolesMapping
         return rolesMapping;
     }
 
+    public void setRolesMapping(final List<LdapRoleMapping> rolesMapping)
+    {
+        this.rolesMapping = rolesMapping;
+    }
+
     public Map<String, String> asMap()
     {
         if (CollectionUtils.isEmpty(rolesMapping))

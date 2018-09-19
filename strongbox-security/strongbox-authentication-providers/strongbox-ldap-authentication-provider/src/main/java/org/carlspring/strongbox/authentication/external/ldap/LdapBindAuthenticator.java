@@ -22,8 +22,18 @@ public class LdapBindAuthenticator
         return userSearch;
     }
 
+    public void setUserSearch(final LdapUserSearch userSearch)
+    {
+        this.userSearch = userSearch;
+    }
+
     public LdapUserDnPatterns getUserDnPatterns()
     {
         return userDnPatterns;
+    }
+
+    public void setUserDnPatterns(final LdapUserDnPatterns userDnPatterns)
+    {
+        this.userDnPatterns = userDnPatterns;
     }
 }

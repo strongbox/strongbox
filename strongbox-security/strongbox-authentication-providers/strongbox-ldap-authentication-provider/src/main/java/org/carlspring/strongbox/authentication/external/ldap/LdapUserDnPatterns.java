@@ -13,11 +13,17 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.NONE)
 public class LdapUserDnPatterns
 {
+
     @XmlElement(name = "user-dn-pattern")
     private List<LdapUserDnPattern> userDnPattern;
 
     public List<LdapUserDnPattern> getUserDnPattern()
     {
         return userDnPattern;
+    }
+
+    public void setUserDnPattern(final List<LdapUserDnPattern> userDnPattern)
+    {
+        this.userDnPattern = userDnPattern;
     }
 }

@@ -24,8 +24,18 @@ public class LdapRoleMapping
         return ldapRole;
     }
 
+    public void setLdapRole(final String ldapRole)
+    {
+        this.ldapRole = ldapRole;
+    }
+
     public String getStrongboxRole()
     {
         return strongboxRole;
+    }
+
+    public void setStrongboxRole(final String strongboxRole)
+    {
+        this.strongboxRole = strongboxRole;
     }
 }

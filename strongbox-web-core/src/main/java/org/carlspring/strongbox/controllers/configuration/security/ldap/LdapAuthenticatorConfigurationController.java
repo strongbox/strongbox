@@ -22,12 +22,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.ldap.authentication.AbstractLdapAuthenticator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
@@ -162,19 +163,25 @@ public class LdapAuthenticatorConfigurationController
             return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, acceptHeader);
         }
 
-        ResponseEntity url = getUrl(acceptHeader);
-        ResponseEntity managerDn = getManagerDn(acceptHeader);
-        ResponseEntity rolesMapping = getRolesMapping(acceptHeader);
-        ResponseEntity groupSearchFilter = getGroupSearchFilter(acceptHeader);
-        ResponseEntity userDnPatterns = getUserDnPatterns(acceptHeader);
-        ResponseEntity userSearchFilter = getUserSearchFilter(acceptHeader);
+        Object url = ObjectUtils.defaultIfNull(getUrl(acceptHeader).getBody(),
+                                               StringUtils.EMPTY);
+        Object managerDn = ObjectUtils.defaultIfNull(getManagerDn(acceptHeader).getBody(),
+                                                     StringUtils.EMPTY);
+        Object rolesMapping = ObjectUtils.defaultIfNull(getRolesMapping(acceptHeader).getBody(),
+                                                        StringUtils.EMPTY);
+        Object groupSearchFilter = ObjectUtils.defaultIfNull(getGroupSearchFilter(acceptHeader).getBody(),
+                                                             StringUtils.EMPTY);
+        Object userDnPatterns = ObjectUtils.defaultIfNull(getUserDnPatterns(acceptHeader).getBody(),
+                                                          StringUtils.EMPTY);
+        Object userSearchFilter = ObjectUtils.defaultIfNull(getUserSearchFilter(acceptHeader).getBody(),
+                                                            StringUtils.EMPTY);
 
-        return ResponseEntity.ok(ImmutableSet.of(ImmutableMap.of("url", url.getBody()),
-                                                 ImmutableMap.of("managerDn", managerDn.getBody()),
-                                                 rolesMapping.getBody(),
-                                                 userDnPatterns.getBody(),
-                                                 ImmutableMap.of("groupSearchFilter", groupSearchFilter.getBody()),
-                                                 ImmutableMap.of("userSearchFilter", userSearchFilter.getBody()))
+        return ResponseEntity.ok(ImmutableSet.of(ImmutableMap.of("url", url),
+                                                 ImmutableMap.of("managerDn", managerDn),
+                                                 rolesMapping,
+                                                 userDnPatterns,
+                                                 ImmutableMap.of("groupSearchFilter", groupSearchFilter),
+                                                 ImmutableMap.of("userSearchFilter", userSearchFilter))
         );
     }
 
@@ -313,82 +320,6 @@ public class LdapAuthenticatorConfigurationController
         return ResponseEntity.ok(body);
     }
 
-    @ApiOperation(value = "Removes the provided user DN pattern from the userDnPatterns.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "User DN pattern removal from the userDnPatterns succeeded"),
-                            @ApiResponse(code = 400, message = "LDAP is not enabled or pattern does not match any existing userDnPatterns"),
-                            @ApiResponse(code = 500, message = "Failed to remove user DN pattern!") })
-    @DeleteMapping(value = "/userDnPatterns/{pattern}",
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity deleteUserDnPattern(@PathVariable String pattern,
-                                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
-    {
-        if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
-        {
-            return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, acceptHeader);
-        }
-        List<String> userDnPatterns = springSecurityLdapInternalsSupplier.getUserDnPatterns();
-        if (userDnPatterns == null)
-        {
-            return ResponseEntity.noContent()
-                                 .build();
-        }
-        if (!userDnPatterns.remove(pattern))
-        {
-            return getBadRequestResponseEntity("Pattern does not match any existing userDnPatterns", acceptHeader);
-        }
-        try
-        {
-            springSecurityLdapInternalsMutator.updateUserDnPatterns(userDnPatterns);
-        }
-        catch (Exception e)
-        {
-            String message = "Failed to remove user DN pattern!";
-            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, message, e, acceptHeader);
-        }
-
-        String message = String.format("User DN pattern %s removed from the userDnPatterns", pattern);
-        return getSuccessfulResponseEntity(message, acceptHeader);
-    }
-
-    @ApiOperation(value = "Adds the provided user DN pattern to the userDnPatterns.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "User DN pattern addition to the userDnPatterns succeeded"),
-                            @ApiResponse(code = 400, message = "LDAP is not enabled or if userDnPatterns collection haven't changed"),
-                            @ApiResponse(code = 500, message = "User DN pattern addition to the userDnPatterns failed with server error") })
-    @PostMapping(value = "/userDnPatterns/{pattern}",
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addUserDnPattern(@PathVariable String pattern,
-                                           @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
-    {
-        if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
-        {
-            return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, acceptHeader);
-        }
-        List<String> userDnPatterns = springSecurityLdapInternalsSupplier.getUserDnPatterns();
-        if (userDnPatterns == null)
-        {
-            return ResponseEntity.noContent()
-                                 .build();
-        }
-        if (!userDnPatterns.add(pattern))
-        {
-            return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, acceptHeader);
-        }
-        try
-        {
-            springSecurityLdapInternalsMutator.updateUserDnPatterns(userDnPatterns);
-        }
-        catch (Exception e)
-        {
-            String message = "User DN pattern addition failed. Check server logs for more information.";
-            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, message, e, acceptHeader);
-        }
-
-        String message = String.format("User DN pattern %s added to the userDnPatterns", pattern);
-        return getSuccessfulResponseEntity(message, acceptHeader);
-    }
-
     @ApiOperation(value = "Returns user search filter. See http://docs.spring.io/spring-security/site/docs/current/reference/html/ldap.html#using-bind-authentication")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "User search filter."),
                             @ApiResponse(code = 204, message = "User search filter was not provided."),
@@ -447,32 +378,6 @@ public class LdapAuthenticatorConfigurationController
         return ResponseEntity.ok(springSecurityLdapInternalsSupplier.getUserDn());
     }
 
-    @ApiOperation(value = "Updates LDAP user search filter. See http://docs.spring.io/spring-security/site/docs/current/reference/html/ldap.html#using-bind-authentication")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "User search filter updated."),
-                            @ApiResponse(code = 204, message = "AbstractLdapAuthenticator was not provided."),
-                            @ApiResponse(code = 400, message = "LDAP is not enabled.") })
-    @PutMapping(value = "/userSearchFilter/{searchBase}/{searchFilter}",
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity updateUserSearchFilter(@PathVariable String searchBase,
-                                                 @PathVariable String searchFilter,
-                                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
-    {
-        if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
-        {
-            return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, acceptHeader);
-        }
-        AbstractLdapAuthenticator abstractLdapAuthenticator = springSecurityLdapInternalsSupplier.getAuthenticator();
-        if (abstractLdapAuthenticator == null)
-        {
-            return ResponseEntity.noContent()
-                                 .build();
-        }
-        springSecurityLdapInternalsMutator.updateUserSearchFilter(abstractLdapAuthenticator, searchBase, searchFilter);
-
-        return getSuccessfulResponseEntity("User search filter updated.", acceptHeader);
-    }
-
     @ApiOperation(value = "Returns group search filter. See http://docs.spring.io/spring-security/site/docs/current/reference/html/ldap.html#loading-authorities")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Group search filter."),
                             @ApiResponse(code = 204, message = "Group search filter was not provided."),
@@ -502,39 +407,6 @@ public class LdapAuthenticatorConfigurationController
         LdapGroupSearchResponseEntityBody body = springSecurityLdapInternalsSupplier.ldapGroupSearchHolder(
                 (DefaultLdapAuthoritiesPopulator) populator);
         return ResponseEntity.ok(body);
-    }
-
-    @ApiOperation(value = "Updates LDAP group search filter. See http://docs.spring.io/spring-security/site/docs/current/reference/html/ldap.html#loading-authorities")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Group search filter updated."),
-                            @ApiResponse(code = 204, message = "LdapAuthoritiesPopulator was not provided."),
-                            @ApiResponse(code = 400, message = "LDAP is not enabled or ldapAuthoritiesPopulator class is not supported via this method.") })
-    @PutMapping(value = "/groupSearchFilter/{searchBase}/{searchFilter}",
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity updateGroupSearchFilter(@PathVariable String searchBase,
-                                                  @PathVariable String searchFilter,
-                                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
-    {
-        if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
-        {
-            return getBadRequestResponseEntity(LdapMessages.NOT_CONFIGURED, acceptHeader);
-        }
-        LdapAuthoritiesPopulator ldapAuthoritiesPopulator = springSecurityLdapInternalsSupplier.getAuthoritiesPopulator();
-        if (ldapAuthoritiesPopulator == null)
-        {
-            return ResponseEntity.noContent()
-                                 .build();
-        }
-        if (!(ldapAuthoritiesPopulator instanceof DefaultLdapAuthoritiesPopulator))
-        {
-            return getBadRequestResponseEntity(
-                    "Configured ldapAuthoritiesPopulator is not supported. LDAP has to be configured with DefaultLdapAuthoritiesPopulator.",
-                    acceptHeader);
-        }
-        springSecurityLdapInternalsMutator.updateGroupSearchFilter(
-                (DefaultLdapAuthoritiesPopulator) ldapAuthoritiesPopulator, searchBase, searchFilter);
-
-        return getSuccessfulResponseEntity("Group search filter updated.", acceptHeader);
     }
 
 }

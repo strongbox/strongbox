@@ -8,11 +8,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Throwables;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.security.config.ldap.LdapServerBeanDefinitionParser;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.LdapUtils;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
@@ -29,6 +32,8 @@ import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopul
 public class LdapConfiguration
         extends ExternalUserProvider
 {
+
+    private static final int DEFAULT_PORT = 33389;
 
     @XmlAttribute(required = true)
     private String url;
@@ -48,10 +53,58 @@ public class LdapConfiguration
     @XmlElement(name = "authorities-populator")
     private LdapAuthoritiesPopulator authoritiesPopulator;
 
+    public String getUrl()
+    {
+        return url;
+    }
+
+    public void setUrl(final String url)
+    {
+        this.url = url;
+    }
+
+    public LdapRolesMapping getRolesMapping()
+    {
+        return rolesMapping;
+    }
+
+    public void setRolesMapping(final LdapRolesMapping rolesMapping)
+    {
+        this.rolesMapping = rolesMapping;
+    }
+
+    public LdapBindAuthenticator getAuthenticator()
+    {
+        return authenticator;
+    }
+
+    public void setAuthenticator(final LdapBindAuthenticator authenticator)
+    {
+        this.authenticator = authenticator;
+    }
+
+    public LdapAuthoritiesPopulator getAuthoritiesPopulator()
+    {
+        return authoritiesPopulator;
+    }
+
+    public void setAuthoritiesPopulator(final LdapAuthoritiesPopulator authoritiesPopulator)
+    {
+        this.authoritiesPopulator = authoritiesPopulator;
+    }
+
     @Override
     public void registerInApplicationContext(final GenericApplicationContext applicationContext)
     {
-        DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(url);
+        final DefaultSpringSecurityContextSource contextSource;
+        if (StringUtils.isNotBlank(ldif))
+        {
+            contextSource = registerLdapContainer(applicationContext);
+        }
+        else
+        {
+            contextSource = new DefaultSpringSecurityContextSource(url);
+        }
         contextSource.afterPropertiesSet();
         registerSingleton(applicationContext, contextSource);
 
@@ -91,21 +144,73 @@ public class LdapConfiguration
                                                                                                defaultLdapAuthoritiesPopulator);
         ldapAuthenticationProvider.setAuthoritiesMapper(authoritiesMapper);
 
-        if (StringUtils.isNotBlank(ldif))
-        {
-            ApacheDSContainer container;
-            try
-            {
-                container = new ApacheDSContainer(LdapUtils.parseRootDnFromUrl(url), ldif);
-                container.afterPropertiesSet();
-            }
-            catch (Exception ex)
-            {
-                throw Throwables.propagate(ex);
-            }
-            registerSingleton(applicationContext, container);
-        }
 
         registerSingleton(applicationContext, ldapAuthenticationProvider);
+    }
+
+    private DefaultSpringSecurityContextSource registerLdapContainer(final GenericApplicationContext applicationContext)
+    {
+        String root = LdapUtils.parseRootDnFromUrl(url);
+        String port = getDefaultPort();
+
+        ApacheDSContainer container;
+        try
+        {
+            container = new ApacheDSContainer(root, ldif);
+            container.setPort(Integer.valueOf(port));
+            container.afterPropertiesSet();
+        }
+        catch (Exception ex)
+        {
+            throw Throwables.propagate(ex);
+        }
+        registerSingleton(applicationContext, container);
+
+        DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:" +
+                                                                                                  port + "/" + root);
+        contextSource.setUserDn("uid=admin,ou=system");
+        contextSource.setPassword("secret");
+
+        return contextSource;
+    }
+
+    /**
+     * @see LdapServerBeanDefinitionParser#getDefaultPort
+     */
+    private String getDefaultPort()
+    {
+        ServerSocket serverSocket = null;
+        try
+        {
+            try
+            {
+                serverSocket = new ServerSocket(DEFAULT_PORT);
+            }
+            catch (IOException e)
+            {
+                try
+                {
+                    serverSocket = new ServerSocket(0);
+                }
+                catch (IOException e2)
+                {
+                    return String.valueOf(DEFAULT_PORT);
+                }
+            }
+            return String.valueOf(serverSocket.getLocalPort());
+        }
+        finally
+        {
+            if (serverSocket != null)
+            {
+                try
+                {
+                    serverSocket.close();
+                }
+                catch (IOException e)
+                {
+                }
+            }
+        }
     }
 }
