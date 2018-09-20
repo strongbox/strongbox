@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.layout;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.function.Function;
@@ -18,6 +19,8 @@ import org.carlspring.strongbox.npm.metadata.PackageVersion;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactTagService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,12 +30,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class NpmPackageSupplier implements Function<Path, NpmPackageDesc>
 {
+    
+    private static final Logger logger = LoggerFactory.getLogger(NpmPackageSupplier.class);
+    
     @Inject
     private NpmLayoutProvider layoutProvider;
 
     @Inject
     private ArtifactTagService artifactTagService;
-
+    
     @Override
     public NpmPackageDesc apply(Path path)
     {
@@ -100,6 +106,10 @@ public class NpmPackageSupplier implements Function<Path, NpmPackageDesc>
         try
         {
             dist.setShasum(new String(Files.readAllBytes(shasumPath), "UTF-8").trim());
+        } 
+        catch (NoSuchFileException e) 
+        {
+            logger.warn(String.format("Checksum file not found [%s].", shasumPath));
         }
         catch (IOException e)
         {

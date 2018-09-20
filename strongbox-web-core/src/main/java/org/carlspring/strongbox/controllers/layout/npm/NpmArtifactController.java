@@ -31,6 +31,7 @@ import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.npm.NpmSearchRequest;
 import org.carlspring.strongbox.npm.metadata.DistTags;
 import org.carlspring.strongbox.npm.metadata.PackageFeed;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
@@ -42,6 +43,7 @@ import org.carlspring.strongbox.providers.layout.NpmPackageDesc;
 import org.carlspring.strongbox.providers.layout.NpmPackageSupplier;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.repository.NpmRepositoryFeatures.RepositorySearchEventListener;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
@@ -101,6 +103,9 @@ public class NpmArtifactController extends BaseArtifactController
     @Inject
     private NpmPackageSupplier npmPackageSupplier;
     
+    @Inject
+    private RepositorySearchEventListener repositorySearchEventListener;
+    
     
     @RequestMapping(path = { "{storageId}/{repositoryId}/npm" }, method = RequestMethod.GET)
     public ResponseEntity<String> greet()
@@ -123,6 +128,11 @@ public class NpmArtifactController extends BaseArtifactController
     {
         String packageId = NpmArtifactCoordinates.caclulatePackageId(packageScope, packageName);
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageId, packageVersion);
+        
+        NpmSearchRequest npmSearchRequest = new NpmSearchRequest();
+        npmSearchRequest.setPackageId(packageId);
+        npmSearchRequest.setVersion(packageVersion);
+        repositorySearchEventListener.setNpmSearchRequest(npmSearchRequest);
         
         RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, c.toPath());
         if (repositoryPath == null)
@@ -151,6 +161,10 @@ public class NpmArtifactController extends BaseArtifactController
         throws Exception
     {
         String packageId = NpmArtifactCoordinates.caclulatePackageId(packageScope, packageName);
+        
+        NpmSearchRequest npmSearchRequest = new NpmSearchRequest();
+        npmSearchRequest.setPackageId(packageId);
+        repositorySearchEventListener.setNpmSearchRequest(npmSearchRequest);
         
         Repository repository = getRepository(storageId, repositoryId);
 

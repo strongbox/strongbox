@@ -264,7 +264,7 @@ public class NugetRepositoryFeatures
     public class RepositorySearchEventListener
     {
 
-        private NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
+        private NugetSearchRequest nugetSearchRequest;
 
         public NugetSearchRequest getNugetSearchRequest()
         {
@@ -279,6 +279,11 @@ public class NugetRepositoryFeatures
         @EventListener
         public void handle(RemoteRepositorySearchEvent event)
         {
+            if (nugetSearchRequest == null)
+            {
+                return;
+            }
+            
             Storage storage = getConfiguration().getStorage(event.getSorageId());
             Repository repository = storage.getRepository(event.getRepositoryId());
             RemoteRepository remoteRepository = repository.getRemoteRepository();
