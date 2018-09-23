@@ -21,17 +21,18 @@ import org.springframework.core.io.Resource;
 public abstract class XmlFileManager<T>
 {
 
-    public final GenericParser<T> parser;
+    private final GenericParser<T> parser;
 
     public XmlFileManager()
     {
-        parser = new GenericParser<>((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+        this(new Class[0]);
     }
 
     public XmlFileManager(Class... classes)
     {
         Set<Class<?>> contextClasses = new HashSet<>();
-        contextClasses.add((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+        contextClasses.add(
+                (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
         Stream.of(classes).forEach(
                 clazz ->
                 {
