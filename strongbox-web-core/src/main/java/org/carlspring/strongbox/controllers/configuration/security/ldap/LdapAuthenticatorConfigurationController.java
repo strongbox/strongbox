@@ -6,9 +6,9 @@ import org.carlspring.strongbox.controllers.configuration.security.ldap.support.
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapMessages;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserDnPatternsResponseEntityBody;
 import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapUserSearchResponseEntityBody;
-import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapConfigurationTester;
-import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsMutator;
-import org.carlspring.strongbox.controllers.configuration.security.ldap.support.SpringSecurityLdapInternalsSupplier;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapConfigurationTester;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapConfigurationMutator;
+import org.carlspring.strongbox.controllers.configuration.security.ldap.support.LdapConfigurationInternalsSupplier;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
@@ -78,13 +78,13 @@ public class LdapAuthenticatorConfigurationController
     private static final String SUCCESS_ADD_ROLE_MAPPING = "LDAP role mapping configuration update succeeded";
 
     @Inject
-    private SpringSecurityLdapInternalsSupplier springSecurityLdapInternalsSupplier;
+    private LdapConfigurationInternalsSupplier springSecurityLdapInternalsSupplier;
 
     @Inject
-    private SpringSecurityLdapInternalsMutator springSecurityLdapInternalsMutator;
+    private LdapConfigurationMutator springSecurityLdapInternalsMutator;
 
     @Inject
-    private SpringSecurityLdapConfigurationTester springSecurityLdapInternalsTester;
+    private LdapConfigurationTester springSecurityLdapInternalsTester;
 
     @ApiOperation(value = "Tests LDAP configuration settings")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP configuration test has passed.") })

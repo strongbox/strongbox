@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,5 +26,14 @@ public class LdapUserDnPatterns
     public void setUserDnPattern(final List<LdapUserDnPattern> userDnPattern)
     {
         this.userDnPattern = userDnPattern;
+    }
+
+    public void add(final LdapUserDnPattern pattern)
+    {
+        if (userDnPattern == null)
+        {
+            userDnPattern = new ArrayList<>();
+        }
+        userDnPattern.add(pattern);
     }
 }

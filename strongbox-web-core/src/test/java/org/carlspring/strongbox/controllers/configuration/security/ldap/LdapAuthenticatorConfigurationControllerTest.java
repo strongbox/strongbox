@@ -4,7 +4,8 @@ import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsSc
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
-import org.carlspring.strongbox.forms.configuration.security.ldap.LdapSearchForm;
+import org.carlspring.strongbox.forms.configuration.security.ldap.LdapGroupSearchForm;
+import org.carlspring.strongbox.forms.configuration.security.ldap.LdapUserSearchForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
@@ -22,7 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 
@@ -42,14 +42,14 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     private static LdapConfigurationTestForm validLdapConfigurationTestForm()
     {
-        LdapSearchForm groupSearchForm = new LdapSearchForm();
+        LdapGroupSearchForm groupSearchForm = new LdapGroupSearchForm();
         groupSearchForm.setSearchBase("ou=Groups");
         groupSearchForm.setSearchFilter("(uniqueMember={0})");
 
         List<String> userDnPatterns = new ArrayList<>();
         userDnPatterns.add("uid={0},ou=Users");
 
-        LdapSearchForm userSearchForm = new LdapSearchForm();
+        LdapUserSearchForm userSearchForm = new LdapUserSearchForm();
         userSearchForm.setSearchBase("ou=people");
         userSearchForm.setSearchFilter("(uid={0})");
 
@@ -260,7 +260,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     @Test
     public void shouldUpdateFullLdapConfiguration()
     {
-        LdapSearchForm groupSearchForm = new LdapSearchForm();
+        LdapGroupSearchForm groupSearchForm = new LdapGroupSearchForm();
         groupSearchForm.setSearchBase("ou=People");
         groupSearchForm.setSearchFilter("(people={0})");
 
@@ -271,7 +271,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         List<String> userDnPatterns = new ArrayList<>();
         userDnPatterns.add("uid={0},ou=AllUsers");
 
-        LdapSearchForm userSearchForm = new LdapSearchForm();
+        LdapUserSearchForm userSearchForm = new LdapUserSearchForm();
         userSearchForm.setSearchBase("ou=Employee");
         userSearchForm.setSearchFilter("(employee={0})");
 
@@ -312,7 +312,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     @Test
     public void shouldUpdateFullLdapConfigurationWithManagerDn()
     {
-        LdapSearchForm groupSearchForm = new LdapSearchForm();
+        LdapGroupSearchForm groupSearchForm = new LdapGroupSearchForm();
         groupSearchForm.setSearchBase("ou=People");
         groupSearchForm.setSearchFilter("(people={0})");
 
@@ -323,7 +323,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         List<String> userDnPatterns = new ArrayList<>();
         userDnPatterns.add("uid={0},ou=AllUsers");
 
-        LdapSearchForm userSearchForm = new LdapSearchForm();
+        LdapUserSearchForm userSearchForm = new LdapUserSearchForm();
         userSearchForm.setSearchBase("ou=Employee");
         userSearchForm.setSearchFilter("(employee={0})");
 
@@ -407,7 +407,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         List<String> userDnPatterns = new ArrayList<>();
         userDnPatterns.add("uid={0},ou=AllUsers");
 
-        LdapSearchForm userSearchForm = new LdapSearchForm();
+        LdapUserSearchForm userSearchForm = new LdapUserSearchForm();
         userSearchForm.setSearchBase("ou=Employee");
         userSearchForm.setSearchFilter("(employee={0})");
 
@@ -508,7 +508,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     @Test
     public void validationShouldWorkOnLdapFullConfiguration()
     {
-        LdapSearchForm groupSearchForm = new LdapSearchForm();
+        LdapGroupSearchForm groupSearchForm = new LdapGroupSearchForm();
         groupSearchForm.setSearchBase("ou=People");
 
         Map<String, String> rolesMapping = new HashMap<>();

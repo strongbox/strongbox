@@ -26,12 +26,19 @@ public class LdapConfigurationForm
 
     private List<String> userDnPatterns;
 
-    @Valid
-    private LdapSearchForm userSearch;
+    /**
+     * If set to true, a subtree scope search will be performed. If false a single-level
+     * search is used.
+     */
+    private boolean searchSubtree;
 
     @NotNull
     @Valid
-    private LdapSearchForm groupSearch;
+    private LdapUserSearchForm userSearch;
+
+    @NotNull
+    @Valid
+    private LdapGroupSearchForm groupSearch;
 
     public Map<String, String> getRolesMapping()
     {
@@ -53,22 +60,22 @@ public class LdapConfigurationForm
         this.userDnPatterns = userDnPatterns;
     }
 
-    public LdapSearchForm getUserSearch()
+    public LdapUserSearchForm getUserSearch()
     {
         return userSearch;
     }
 
-    public void setUserSearch(final LdapSearchForm userSearch)
+    public void setUserSearch(final LdapUserSearchForm userSearch)
     {
         this.userSearch = userSearch;
     }
 
-    public LdapSearchForm getGroupSearch()
+    public LdapGroupSearchForm getGroupSearch()
     {
         return groupSearch;
     }
 
-    public void setGroupSearch(final LdapSearchForm groupSearch)
+    public void setGroupSearch(final LdapGroupSearchForm groupSearch)
     {
         this.groupSearch = groupSearch;
     }
@@ -102,4 +109,5 @@ public class LdapConfigurationForm
     {
         this.managerPassword = managerPassword;
     }
+
 }

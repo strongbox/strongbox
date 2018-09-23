@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @author Przemyslaw Fusik
  */
 @Component
-public class SpringSecurityLdapConfigurationTester
+public class LdapConfigurationTester
         extends LdapAuthenticationProviderCreator
 {
 

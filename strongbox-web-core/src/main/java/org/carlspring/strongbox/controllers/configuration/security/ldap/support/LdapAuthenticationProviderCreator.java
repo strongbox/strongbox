@@ -2,9 +2,7 @@ package org.carlspring.strongbox.controllers.configuration.security.ldap.support
 
 import org.carlspring.strongbox.authentication.support.AuthoritiesExternalToInternalMapper;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
-import org.carlspring.strongbox.forms.configuration.security.ldap.LdapSearchForm;
-
-import javax.annotation.PostConstruct;
+import org.carlspring.strongbox.forms.configuration.security.ldap.LdapGroupSearchForm;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -59,13 +57,18 @@ abstract class LdapAuthenticationProviderCreator
     private DefaultLdapAuthoritiesPopulator prepareAuthoritiesPopulator(final LdapConfigurationForm configuration,
                                                                         final ContextSource contextSource)
     {
-        LdapSearchForm groupSearch = configuration.getGroupSearch();
+        LdapGroupSearchForm groupSearch = configuration.getGroupSearch();
         DefaultLdapAuthoritiesPopulator ldapAuthoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource,
                                                                                                        groupSearch.getSearchBase());
         ldapAuthoritiesPopulator.setSearchSubtree(true);
         ldapAuthoritiesPopulator.setGroupSearchFilter(groupSearch.getSearchFilter());
         ldapAuthoritiesPopulator.setRolePrefix(StringUtils.EMPTY);
         ldapAuthoritiesPopulator.setConvertToUpperCase(false);
+        String groupRoleAttr = groupSearch.getGroupRoleAttribute();
+        if (StringUtils.isNotBlank(groupRoleAttr))
+        {
+            ldapAuthoritiesPopulator.setGroupRoleAttribute(groupRoleAttr);
+        }
         return ldapAuthoritiesPopulator;
     }
 

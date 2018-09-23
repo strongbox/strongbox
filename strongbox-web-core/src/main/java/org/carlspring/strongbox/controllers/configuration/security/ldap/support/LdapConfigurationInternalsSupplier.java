@@ -29,7 +29,7 @@ import org.springframework.util.ReflectionUtils;
  * @author Przemyslaw Fusik
  */
 @Component
-public class SpringSecurityLdapInternalsSupplier
+public class LdapConfigurationInternalsSupplier
 {
 
     @Inject
