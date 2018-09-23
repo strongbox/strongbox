@@ -9,6 +9,8 @@ import org.carlspring.strongbox.forms.configuration.security.ldap.LdapUserSearch
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,9 +18,12 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import io.restassured.http.ContentType;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -250,6 +255,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void shouldBeAbleToPutNewConfiguration()
+            throws IOException
     {
         shouldReturnProperLdapConfiguration();
 
@@ -261,7 +267,12 @@ public class LdapAuthenticatorConfigurationControllerTest
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void shouldUpdateFullLdapConfiguration()
+            throws IOException
     {
+        Resource backup = new ClassPathResource("etc/conf/strongbox-external-user-providers.xml");
+        File temp = File.createTempFile("backup-strongbox-external-user-providers.xml", ".tmp");
+        FileUtils.copyFile(backup.getFile(), temp);
+
         LdapGroupSearchForm groupSearchForm = new LdapGroupSearchForm();
         groupSearchForm.setSearchBase("ou=People");
         groupSearchForm.setSearchFilter("(people={0})");
@@ -308,12 +319,19 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("[5].userSearchFilter.searchBase", equalTo("ou=Employee"))
                .body("[5].userSearchFilter.searchFilter", equalTo("(employee={0})"))
                .statusCode(HttpStatus.OK.value());
+
+        FileUtils.copyFile(temp, backup.getFile());
     }
 
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void shouldUpdateFullLdapConfigurationWithManagerDn()
+            throws IOException
     {
+        Resource backup = new ClassPathResource("etc/conf/strongbox-external-user-providers.xml");
+        File temp = File.createTempFile("backup-strongbox-external-user-providers.xml", ".tmp");
+        FileUtils.copyFile(backup.getFile(), temp);
+
         LdapGroupSearchForm groupSearchForm = new LdapGroupSearchForm();
         groupSearchForm.setSearchBase("ou=People");
         groupSearchForm.setSearchFilter("(people={0})");
@@ -362,6 +380,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("[5].userSearchFilter.searchBase", equalTo("ou=Employee"))
                .body("[5].userSearchFilter.searchFilter", equalTo("(employee={0})"))
                .statusCode(HttpStatus.OK.value());
+
+        FileUtils.copyFile(temp, backup.getFile());
     }
 
     @WithMockUser(authorities = "ADMIN")
@@ -533,7 +553,6 @@ public class LdapAuthenticatorConfigurationControllerTest
                .put(getContextBaseUrl())
                .peek()
                .then()
-               .body("errors[0]['groupSearch.searchFilter'][0]", equalTo("must not be empty"))
                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
