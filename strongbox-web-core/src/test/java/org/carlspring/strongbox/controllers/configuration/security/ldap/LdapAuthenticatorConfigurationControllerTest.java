@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import io.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +55,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         userSearchForm.setSearchFilter("(uid={0})");
 
         LdapConfigurationForm subform = new LdapConfigurationForm();
+        subform.setRolesMapping(ImmutableMap.of("Developers", "REPOSITORY_MANAGER"));
         subform.setGroupSearch(groupSearchForm);
         subform.setUserDnPatterns(userDnPatterns);
         subform.setUserSearch(userSearchForm);
