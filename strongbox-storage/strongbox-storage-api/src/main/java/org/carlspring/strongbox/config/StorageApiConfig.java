@@ -23,7 +23,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
                  "org.carlspring.strongbox.storage",
                  "org.carlspring.strongbox.xml",
                  "org.carlspring.strongbox.dependency",
-                 "org.carlspring.strongbox.domain"
+                 "org.carlspring.strongbox.domain",
+                 "org.carlspring.strongbox.booters"
 })
 @EnableAsync
 public class StorageApiConfig

@@ -16,6 +16,8 @@ public final class CacheName
 
         public static final String TAGS = "tags";
         
+        public static final String ARTIFACT_ENTRIES = "artifactEntries";
+
     }
 
     public static final class Repository

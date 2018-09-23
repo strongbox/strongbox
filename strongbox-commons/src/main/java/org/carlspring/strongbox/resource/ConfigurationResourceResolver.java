@@ -22,6 +22,37 @@ public class ConfigurationResourceResolver
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationResourceResolver.class);
 
 
+    static
+    {
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+        for (Object o : System.getenv().keySet())
+        {
+            String key = (String) o;
+            String value = System.getenv(key);
+
+            System.out.println(key + " = " + value);
+        }
+
+        for (Object o : System.getProperties().keySet())
+        {
+            String key = (String) o;
+            String value = System.getProperty(key);
+
+            System.out.println(key + " = " + value);
+        }
+
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+    }
+
     public static Resource getConfigurationResource(String propertyKey,
                                                     String propertyDefaultValue)
             throws IOException
@@ -50,7 +81,9 @@ public class ConfigurationResourceResolver
         if (System.getProperty(propertyKey) != null)
         {
             filename = System.getProperty(propertyKey);
+
             logger.info(String.format("Using provided resource path [%s]", filename));
+
             return new FileSystemResource(Paths.get(filename).toAbsolutePath().toString());
         } 
         
@@ -60,15 +93,15 @@ public class ConfigurationResourceResolver
             (!configurationPath.startsWith("classpath") && !(Files.exists(Paths.get(configurationPath)))))
         {
             logger.info(String.format(
-                    "Configuration resource not exists [%s], will try to resolve with configured location [%s].",
+                    "Configuration resource [%s] does not exist, will try to resolve with configured location [%s].",
                     configurationPath, propertyKey));
+
             configurationPath = null;
         }
         
         if (configurationPath != null)
         {
-            if (configurationPath.toLowerCase()
-                                 .startsWith("classpath"))
+            if (configurationPath.toLowerCase().startsWith("classpath"))
             {
                 // Load the resource from the classpath
                 resource = new ClassPathResource(configurationPath);

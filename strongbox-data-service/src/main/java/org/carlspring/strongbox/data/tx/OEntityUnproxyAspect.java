@@ -1,9 +1,6 @@
 package org.carlspring.strongbox.data.tx;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -11,8 +8,6 @@ import javax.persistence.PersistenceContext;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
-import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -20,13 +15,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-
 @Aspect
 @Component
 @Order(OEntityUnproxyAspect.ORDER)
 public class OEntityUnproxyAspect
 {
+
     public static final int ORDER = 110;
 
     private static final Logger logger = LoggerFactory.getLogger(OEntityUnproxyAspect.class);
@@ -53,11 +47,13 @@ public class OEntityUnproxyAspect
     public Object transactional(ProceedingJoinPoint jp)
         throws Throwable
     {
-        logger.debug("Transactional metod execution start.");
+        logger.debug("Transactional method execution start.");
+
         Object result = jp.proceed();
-        logger.debug("Transactional metod execution end.");
+
+        logger.debug("Transactional method execution end.");
+
         return new DetachQueryTemplate(entityManager).unproxy(result);
     }
-
 
 }

@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.data.domain;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.MappedSuperclass;
@@ -10,8 +9,6 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.orientechnologies.orient.core.annotation.OId;
 import com.orientechnologies.orient.core.annotation.OVersion;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -27,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
  */
 @MappedSuperclass
 @Inheritance
-public abstract class GenericEntity<T extends GenericEntity<T>>
+public abstract class GenericEntity
         implements Serializable
 {
     /**
@@ -63,12 +60,6 @@ public abstract class GenericEntity<T extends GenericEntity<T>>
     }
 
     @XmlTransient
-    public Long getEntityVersion()
-    {
-        return entityVersion;
-    }
-
-    @XmlTransient
     public String getUuid()
     {
         return uuid;
@@ -79,10 +70,6 @@ public abstract class GenericEntity<T extends GenericEntity<T>>
         this.uuid = uuid;
     }
 
-    public T detach(EntityManager entityManager) {
-        return ((OObjectDatabaseTx)entityManager.getDelegate()).detach(this, true);
-    }
-    
     @Override
     public boolean equals(Object obj)
     {

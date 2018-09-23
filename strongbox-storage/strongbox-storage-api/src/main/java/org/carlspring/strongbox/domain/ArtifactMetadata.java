@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * @author carlspring
  */
-public class ArtifactMetadata extends GenericEntity<ArtifactMetadata>
+public class ArtifactMetadata extends GenericEntity
         implements Serializable
 {
 

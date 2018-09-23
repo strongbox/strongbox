@@ -101,9 +101,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
 
         });
 
-        S result = getDelegate().save(entity);
-        
-        return (S) result.detach(entityManager);
+        return getDelegate().save(entity);
     }
 
     private Set<CascadeType> exposeCascadeType(Annotation a)
@@ -178,6 +176,18 @@ public abstract class CommonCrudService<T extends GenericEntity>
     public <S extends T> S save(S entity)
     {
         return cascadeEntitySave(entity);
+    }
+
+    @Override
+    public T lockOne(String id)
+    {
+        String sQuery = String.format("SELECT * FROM %s LOCK RECORD", id);
+        OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
+        oQuery.setLimit(1);
+
+        List<T> resultList = getDelegate().command(oQuery).execute();
+
+        return !resultList.isEmpty() ? resultList.iterator().next() : null;
     }
 
     @Override
@@ -329,7 +339,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
     
     protected T detach(T entity)
     {
-        return (T) entity.detach(entityManager);
+        return getDelegate().detachAll(entity, true);
     }
 
 }
