@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration.security.ldap.support;
 
 import org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator;
+import org.carlspring.strongbox.authentication.external.ExternalUserProvider;
 import org.carlspring.strongbox.authentication.external.ExternalUserProviders;
 import org.carlspring.strongbox.authentication.external.ExternalUserProvidersFileManager;
 import org.carlspring.strongbox.authentication.external.ldap.LdapAuthoritiesPopulator;
@@ -17,6 +18,7 @@ import org.carlspring.strongbox.forms.configuration.security.ldap.LdapUserSearch
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,6 +48,23 @@ public class LdapConfigurationMutator
     public void dropLdapConfiguration()
     {
         authenticatorsRegistry.drop(LdapAuthenticator.class);
+        ExternalUserProviders externalUserProviders = getExternalUserProviders();
+        dropLdapConfiguration(externalUserProviders);
+    }
+
+    private void dropLdapConfiguration(final ExternalUserProviders externalUserProviders)
+    {
+        if (!CollectionUtils.isEmpty(externalUserProviders.getProviders()))
+        {
+            for (Iterator<ExternalUserProvider> it = externalUserProviders.getProviders().iterator(); it.hasNext(); )
+            {
+                ExternalUserProvider provider = it.next();
+                if (provider instanceof LdapConfiguration)
+                {
+                    it.remove();
+                }
+            }
+        }
     }
 
     public void saveLdapConfiguration(LdapConfigurationForm configuration)
@@ -185,5 +204,5 @@ public class LdapConfigurationMutator
         return target;
     }
 
-    
+
 }

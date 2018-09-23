@@ -232,7 +232,12 @@ public class LdapAuthenticatorConfigurationControllerTest
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void shouldBeAbleToDropConfiguration()
+            throws IOException
     {
+        Resource backup = new ClassPathResource("etc/conf/strongbox-external-user-providers.xml");
+        File temp = File.createTempFile("backup-strongbox-external-user-providers.xml", ".tmp");
+        FileUtils.copyFile(backup.getFile(), temp);
+
         shouldReturnProperLdapConfiguration();
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -250,6 +255,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .then()
                .body("message", equalTo("LDAP is not configured"))
                .statusCode(HttpStatus.BAD_REQUEST.value());
+
+        FileUtils.copyFile(temp, backup.getFile());
     }
 
     @WithMockUser(authorities = "ADMIN")
