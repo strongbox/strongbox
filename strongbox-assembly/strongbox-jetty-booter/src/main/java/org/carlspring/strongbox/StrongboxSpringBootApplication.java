@@ -5,23 +5,15 @@ import org.carlspring.strongbox.config.ConnectionConfigOrientDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
 
 /**
  * @author carlspring
  */
-@SpringBootApplication(scanBasePackages = { "org.carlspring.strongbox.config",
-                                            "com.carlspring.strongbox.config" },
-                       exclude = { DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
-/*
-@ComponentScan(basePackages = { "org.carlspring.strongbox.config",
-                                "com.carlspring.strongbox.config"} )
-*/
-// @EnableAutoConfiguration(exclude={ DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
+@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
+                                   HibernateJpaAutoConfiguration.class })
 public class StrongboxSpringBootApplication
 {
 

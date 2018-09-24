@@ -66,7 +66,6 @@ public class Maven2LayoutProvider
     @PostConstruct
     public void register()
     {
-        layoutProviderRegistry.addProvider(ALIAS, this);
         headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
 
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
@@ -149,6 +148,12 @@ public class Maven2LayoutProvider
     public Set<String> getDefaultArtifactCoordinateValidators()
     {
         return mavenRepositoryFeatures.getDefaultArtifactCoordinateValidators();
+    }
+
+    @Override
+    public String getAlias()
+    {
+        return ALIAS;
     }
 
     @Override

@@ -44,7 +44,6 @@ public class RawLayoutProvider
     @PostConstruct
     public void register()
     {
-        layoutProviderRegistry.addProvider(ALIAS, this);
         headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
 
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
@@ -76,6 +75,12 @@ public class RawLayoutProvider
     public Set<String> getDefaultArtifactCoordinateValidators()
     {
         return rawRepositoryFeatures.getDefaultArtifactCoordinateValidators();
+    }
+
+    @Override
+    public String getAlias()
+    {
+        return ALIAS;
     }
 
 }

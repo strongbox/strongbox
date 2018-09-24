@@ -32,4 +32,6 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     Set<String> getDefaultArtifactCoordinateValidators();
 
+    String getAlias();
+
 }

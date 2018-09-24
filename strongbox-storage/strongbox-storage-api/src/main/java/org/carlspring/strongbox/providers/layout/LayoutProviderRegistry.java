@@ -10,6 +10,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -31,49 +32,15 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
-    public LayoutProviderRegistry()
-    {
-    }
+    @Inject
+    private List<LayoutProvider> layoutProviders;
     
     @Override
     @PostConstruct
     public void initialize()
     {
+        layoutProviders.stream().forEach(lp -> addProvider(lp.getAlias(), lp));
         logger.info("Initialized the layout provider registry.");
-    }
-
-    @Override
-    public Map<String, LayoutProvider> getProviders()
-    {
-        return super.getProviders();
-    }
-
-    @Override
-    public void setProviders(Map<String, LayoutProvider> providers)
-    {
-        super.setProviders(providers);
-    }
-
-    @Override
-    public LayoutProvider getProvider(String alias)
-    {
-        return super.getProvider(alias);
-    }
-
-    @Override
-    public LayoutProvider addProvider(String alias, LayoutProvider provider)
-    {
-        LayoutProvider layoutProvider = super.addProvider(alias, provider);
-
-        configurationManagementService.setRepositoryArtifactCoordinateValidators();
-
-        return layoutProvider;
-    }
-
-    @Override
-    public void removeProvider(String alias)
-    {
-        super.removeProvider(alias);
     }
 
     public static LayoutProvider getLayoutProvider(Repository repository,
