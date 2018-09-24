@@ -33,14 +33,15 @@ public class AuthoritiesExternalToInternalMapper
     @Inject
     private AuthoritiesProvider authoritiesProvider;
 
-    @JsonProperty("roles-mapping")
+    @JsonProperty
     private ConcurrentMap<String, String> rolesMapping;
 
     @Override
     public Collection<? extends GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> externalAuthorities)
     {
         logger.debug(String.format("Map authorities [%s]", externalAuthorities));
-        Collection<? extends GrantedAuthority> result = mapRoles(externalAuthorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+        Collection<? extends GrantedAuthority> result = mapRoles(
+                externalAuthorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         logger.debug(String.format("Authorities mapped authorities [%s]", result));
         return result;
     }
@@ -61,13 +62,12 @@ public class AuthoritiesExternalToInternalMapper
                 authorities.addAll(authoritiesProvider.getAuthoritiesByRoleName(internalRole));
             }
         }
-        
+
         return authorities;
     }
 
     @Override
     public void afterPropertiesSet()
-            throws Exception
     {
         Assert.notEmpty(rolesMapping, "rolesMapping property not set");
     }

@@ -8,10 +8,15 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+
 
 /**
  * @author Przemyslaw Fusik
@@ -31,7 +36,7 @@ public class AuthenticatorsRegistry
      */
     public AuthenticatorsRegistry()
     {
-        setArray(new Authenticator[0]);
+        reloadInternally(Collections.emptyList());
     }
 
     /**
@@ -49,9 +54,28 @@ public class AuthenticatorsRegistry
         return array;
     }
 
-    private void setArray(Authenticator[] elements)
+    /**
+     * Replaces the authenticator of the same class
+     * or adds given authenticator to the end of the authenticator lists
+     */
+    public synchronized void put(Authenticator authenticator)
     {
-        array = Arrays.copyOf(elements, elements.length);
+        List<Authenticator> elements = new ArrayList<>(Arrays.asList(getArray()));
+        Optional<Authenticator> opt = elements.stream()
+                                              .filter(e -> e.getClass().isAssignableFrom(authenticator.getClass()))
+                                              .findFirst();
+
+        if (opt.isPresent())
+        {
+            int index = elements.indexOf(opt.get());
+            elements.set(index, authenticator);
+        }
+        else
+        {
+            elements.add(authenticator);
+        }
+
+        reloadInternally(elements);
     }
 
     /**
@@ -71,13 +95,12 @@ public class AuthenticatorsRegistry
     public synchronized void reorder(int first,
                                      int second)
     {
-        Authenticator[] elements = getArray();
-        elements = Arrays.copyOf(elements, elements.length);
-        final Authenticator firstA = elements[first];
-        final Authenticator secondA = elements[second];
-        elements[first] = secondA;
-        elements[second] = firstA;
-        setArray(elements);
+        List<Authenticator> elements = new ArrayList<>(Arrays.asList(getArray()));
+        final Authenticator firstA = elements.get(first);
+        final Authenticator secondA = elements.get(second);
+        elements.set(first, secondA);
+        elements.set(second, firstA);
+        reloadInternally(elements);
     }
 
     public int size()
@@ -92,8 +115,7 @@ public class AuthenticatorsRegistry
 
     private void reloadInternally(Collection<? extends Authenticator> c)
     {
-        final Authenticator[] elements = c.toArray(new Authenticator[0]);
-        setArray(elements);
+        array = c.toArray(new Authenticator[0]);
     }
 
     @Override
@@ -114,6 +136,18 @@ public class AuthenticatorsRegistry
     public Iterator<Authenticator> iterator()
     {
         return new COWIterator(getArray(), 0);
+    }
+
+    public synchronized void drop(final Class<? extends Authenticator> authenticatorClass)
+    {
+        List<Authenticator> elements = new ArrayList<>(Arrays.asList(getArray()));
+        elements.stream().filter(e -> e.getClass().isAssignableFrom(authenticatorClass))
+                .findFirst()
+                .ifPresent(e ->
+                           {
+                               elements.remove(e);
+                               reloadInternally(elements);
+                           });
     }
 
     static final class COWIterator

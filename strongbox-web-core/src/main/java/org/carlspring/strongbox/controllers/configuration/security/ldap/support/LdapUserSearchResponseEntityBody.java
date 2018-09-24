@@ -8,15 +8,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement(name = "user-search")
-@XmlAccessorType(XmlAccessType.NONE)
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class LdapUserSearchResponseEntityBody
 {
 
-    @XmlElement(name = "search-base")
     private String searchBase;
 
-    @XmlElement(name = "search-filter")
     private String searchFilter;
 
     LdapUserSearchResponseEntityBody searchBase(String searchBase)
@@ -29,5 +27,15 @@ public class LdapUserSearchResponseEntityBody
     {
         this.searchFilter = searchFilter;
         return this;
+    }
+
+    public String getSearchBase()
+    {
+        return searchBase;
+    }
+
+    public String getSearchFilter()
+    {
+        return searchFilter;
     }
 }

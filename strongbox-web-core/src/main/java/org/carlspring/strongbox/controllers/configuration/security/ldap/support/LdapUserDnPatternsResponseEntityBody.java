@@ -9,12 +9,11 @@ import java.util.List;
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement(name = "user-dn-patterns")
-@XmlAccessorType(XmlAccessType.NONE)
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class LdapUserDnPatternsResponseEntityBody
 {
 
-    @XmlElement(name = "user-dn-pattern")
     private List<String> userDnPatterns;
 
     LdapUserDnPatternsResponseEntityBody()
@@ -24,5 +23,10 @@ public class LdapUserDnPatternsResponseEntityBody
     public LdapUserDnPatternsResponseEntityBody(List<String> userDnPatterns)
     {
         this.userDnPatterns = userDnPatterns;
+    }
+
+    public List<String> getUserDnPatterns()
+    {
+        return userDnPatterns;
     }
 }
