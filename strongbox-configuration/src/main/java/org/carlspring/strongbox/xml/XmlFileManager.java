@@ -70,7 +70,20 @@ public abstract class XmlFileManager<T>
 
     public T read()
     {
-        try (InputStream inputStream = new BufferedInputStream(getResource().getInputStream()))
+        Resource resource;
+        try
+        {
+            resource = getResource();
+            if (!resource.exists())
+            {
+                return null;
+            }
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        try (InputStream inputStream = new BufferedInputStream(resource.getInputStream()))
         {
             return parser.parse(inputStream);
         }
