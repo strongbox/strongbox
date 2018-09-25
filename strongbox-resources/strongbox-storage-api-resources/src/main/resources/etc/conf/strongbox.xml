@@ -296,7 +296,9 @@
                             data-store="file-system"
                             layout="npm"
                             type="proxy">
-                    <remote-repository url="https://registry.npmjs.org/"/>
+                    <remote-repository url="https://registry.npmjs.org/">
+                        <npm-remote-repository-configuration last-cnahge-id="0"/>
+                    </remote-repository>
                 </repository>
             </repositories>
         </storage>

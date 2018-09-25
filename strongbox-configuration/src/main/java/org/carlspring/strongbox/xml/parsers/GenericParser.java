@@ -4,6 +4,7 @@ import org.carlspring.strongbox.url.ClasspathURLStreamHandler;
 import org.carlspring.strongbox.url.ClasspathURLStreamHandlerFactory;
 import org.carlspring.strongbox.xml.CustomTagService;
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfigurationTagService;
+import org.carlspring.strongbox.xml.repository.remote.RemoteRepositoryConfigurationTagService;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -68,6 +69,7 @@ public class GenericParser<T>
     {
         this.classes.addAll(CustomTagService.getInstance().getImplementations());
         this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
+        this.classes.addAll(RemoteRepositoryConfigurationTagService.getInstance().getImplementations());
     }
 
     public GenericParser(boolean useServiceLoader)
@@ -76,6 +78,7 @@ public class GenericParser<T>
         {
             this.classes.addAll(CustomTagService.getInstance().getImplementations());
             this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
+            this.classes.addAll(RemoteRepositoryConfigurationTagService.getInstance().getImplementations());
         }
     }
 
@@ -87,6 +90,7 @@ public class GenericParser<T>
         {
             this.classes.addAll(CustomTagService.getInstance().getImplementations());
             this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
+            this.classes.addAll(RemoteRepositoryConfigurationTagService.getInstance().getImplementations());
         }
     }
 
@@ -96,6 +100,7 @@ public class GenericParser<T>
 
         this.classes.addAll(CustomTagService.getInstance().getImplementations());
         this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
+        this.classes.addAll(RemoteRepositoryConfigurationTagService.getInstance().getImplementations());
     }
 
     public T parse(URL url)
