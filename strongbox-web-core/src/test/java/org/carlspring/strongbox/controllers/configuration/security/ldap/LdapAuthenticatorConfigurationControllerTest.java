@@ -406,7 +406,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
-               .body("errors[0]['configuration.url'][0]", equalTo("must not be empty"));
+               .body("errors[0]['name']", equalTo("configuration.url"))
+               .body("errors[0]['messages'][0]", equalTo("must not be empty"));
     }
 
     @WithMockUser(authorities = "ADMIN")
@@ -424,7 +425,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
-               .body("errors[0]['configuration.url'][0]", equalTo("must be a valid URI"));
+               .body("errors[0]['name']", equalTo("configuration.url"))
+               .body("errors[0]['messages'][0]", equalTo("must be a valid URI"));
     }
 
     @WithMockUser(authorities = "ADMIN")
