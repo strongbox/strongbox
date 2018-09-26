@@ -1,0 +1,72 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "http://strongbox.carlspring.org/npm/metadata/changes",
+    "definitions": 
+    {
+        "revision":
+        {
+            "rev":
+            {
+                "type": "string"
+            }
+        },
+
+        "change":
+        {
+            "type": "object",
+            "properties": 
+            {
+                "seq":
+                {
+                    "type": "integer"
+                },
+                "id":
+                {
+                    "type": "string"
+                },
+                "changes":
+                {
+                    "type": "array",
+                    "items": 
+                    {
+                        "$ref": "#/definitions/revision"
+                    }
+                },
+                "doc":
+                {
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/packageVersion"
+                }
+            }
+        },
+                
+        "results":
+        {
+            "type": "array",
+            "items": 
+            {
+                "$ref": "#/definitions/change"
+            }
+        },
+        
+        "changesFeed": 
+        {
+            "type": "object",
+            "properties": 
+            {
+
+                "results": 
+                {
+                    "$ref": "#/definitions/results"
+                }            
+            }
+        }
+    },
+
+    "properties": 
+    {
+        "changesFeed": 
+        {
+            "$ref": "#/definitions/changesFeed"
+        }
+    }
+}
