@@ -1,12 +1,18 @@
 package org.carlspring.strongbox.config;
 
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
 import java.nio.file.FileSystem;
 import java.nio.file.spi.FileSystemProvider;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import javax.inject.Inject;
+import javax.inject.Qualifier;
 
+import org.carlspring.strongbox.npm.metadata.jackson.NpmJacksonMapperFactory;
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemFactory;
@@ -41,14 +47,10 @@ public class NpmLayoutProviderConfig
     protected StorageProviderRegistry storageProviderRegistry;
 
     @Bean
+    @NpmObjectMapper
     public ObjectMapper npmJacksonMapper()
     {
-        ObjectMapper objectMapper = new ObjectMapper();
-        //2018-06-05T19:43:08.760Z
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        objectMapper.setDateFormat(df);
-        
-        return objectMapper;
+        return NpmJacksonMapperFactory.createObjectMapper();
     }
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)
@@ -91,6 +93,13 @@ public class NpmLayoutProviderConfig
                                                  RepositoryLayoutFileSystemProvider provider)
     {
         return new NpmFileSystem(repository, storageFileSystem, provider);
+    }
+    
+    @Documented
+    @Qualifier
+    @Retention(RUNTIME)
+    public static @interface NpmObjectMapper {
+        
     }
 
 }

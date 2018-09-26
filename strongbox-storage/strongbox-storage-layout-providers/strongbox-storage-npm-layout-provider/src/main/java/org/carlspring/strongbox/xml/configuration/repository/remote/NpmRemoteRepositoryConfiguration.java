@@ -15,7 +15,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 public class NpmRemoteRepositoryConfiguration extends CustomRemoteRepositoryConfiguration
 {
 
-    private Long lastCnahgeId = 0L;
+    private Long lastChangeId = 0L;
+    private String replicateUrl;
 
     NpmRemoteRepositoryConfiguration()
     {
@@ -23,12 +24,18 @@ public class NpmRemoteRepositoryConfiguration extends CustomRemoteRepositoryConf
 
     NpmRemoteRepositoryConfiguration(MutableNpmRemoteRepositoryConfiguration delegate)
     {
-        this.lastCnahgeId = delegate.getLastCnahgeId();
+        this.lastChangeId = delegate.getLastChangeId();
+        this.replicateUrl = delegate.getReplicateUrl();
     }
 
-    public Long getLastCnahgeId()
+    public Long getLastChangeId()
     {
-        return lastCnahgeId;
+        return lastChangeId;
+    }
+
+    public String getReplicateUrl()
+    {
+        return replicateUrl;
     }
 
 }

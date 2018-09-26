@@ -12,22 +12,35 @@ import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryCon
 @XmlRootElement(name = "npm-remote-repository-configuration")
 public class MutableNpmRemoteRepositoryConfiguration extends MutableRemoteRepositoryConfiguration
 {
-    @XmlAttribute(name = "last-cnahge-id")
-    private Long lastCnahgeId=0L;
+    @XmlAttribute(name = "last-change-id")
+    private Long lastChangeId = 0L;
+
+    @XmlAttribute(name = "replicate-url")
+    private String replicateUrl;
 
     public MutableNpmRemoteRepositoryConfiguration()
     {
         super();
     }
 
-    public Long getLastCnahgeId()
+    public Long getLastChangeId()
     {
-        return lastCnahgeId;
+        return lastChangeId;
     }
 
-    public void setLastCnahgeId(Long lastCnahgeId)
+    public void setLastChangeId(Long lastCnahgeId)
     {
-        this.lastCnahgeId = lastCnahgeId;
+        this.lastChangeId = lastCnahgeId;
+    }
+
+    public String getReplicateUrl()
+    {
+        return replicateUrl;
+    }
+
+    public void setReplicateUrl(String replicateUrl)
+    {
+        this.replicateUrl = replicateUrl;
     }
 
     @Override
@@ -36,5 +49,4 @@ public class MutableNpmRemoteRepositoryConfiguration extends MutableRemoteReposi
         return new NpmRemoteRepositoryConfiguration(this);
     }
 
-    
 }
