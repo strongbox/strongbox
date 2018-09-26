@@ -34,7 +34,7 @@
                 },
                 "doc":
                 {
-                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/packageVersion"
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/packageFeed"
                 }
             }
         },

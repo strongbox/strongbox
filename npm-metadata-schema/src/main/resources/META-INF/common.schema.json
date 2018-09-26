@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$id": "http://strongbox.carlspring.org/npm/metadata/common",
+    "$id": "",
     "definitions": 
     {
         "person": 
@@ -664,6 +664,132 @@
             "additionalProperties": 
             {
                 "$ref": "#definitions/packageVersion"
+            }
+        },
+
+        "time": 
+        {
+            "type": "object",
+            "properties": 
+            {
+                "modified": 
+                {
+                    "type": "string",
+                    "format": "date-time"
+                },
+
+                "created": 
+                {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            },
+
+            "additionalProperties": 
+            {
+                "type": "string",
+                "format": "date-time"
+            }
+        },
+
+        "users": 
+        {
+            "type": "object",
+            "additionalProperties": 
+            {
+                "type": "boolean"
+            }
+        },
+
+        "packageFeed": 
+        {
+            "type": "object",
+            "patternProperties": 
+            {
+                "^_": 
+                {
+                    "description": "Any property starting with _ is valid.",
+                    "additionalProperties": true,
+                    "additionalItems": true
+                }
+            },
+
+            "properties": 
+            {
+                "name": 
+                {
+                    "type": "string"
+                },
+
+                "description": 
+                {
+                    "type": "string"
+                },
+
+                "dist-tags": 
+                {
+                    "$ref": "#definitions/distTags"
+                },
+
+                "versions": 
+                {
+                    "$ref": "#definitions/versions"
+                },
+
+                "readme": 
+                {
+                    "$ref": "#definitions/readme"
+                },
+
+                "maintainers": 
+                {
+                    "$ref": "#definitions/maintainers"
+                },
+
+                "time": 
+                {
+                    "$ref": "#definitions/time"
+                },
+
+                "homepage": 
+                {
+                    "$ref": "#definitions/homepage"
+                },
+
+                "keywords": 
+                {
+                    "$ref": "#definitions/keywords"
+                },
+
+                "repository": 
+                {
+                    "$ref": "#definitions/repository"
+                },
+
+                "author": 
+                {
+                    "$ref": "#definitions/person"
+                },
+
+                "bugs": 
+                {
+                    "$ref": "#definitions/bugs"
+                },
+
+                "license": 
+                {
+                    "$ref": "#definitions/license"
+                },
+
+                "readmeFilename": 
+                {
+                    "type": "string"
+                },
+
+                "users": 
+                {
+                    "$ref": "#definitions/users"
+                }
             }
         }
     }
