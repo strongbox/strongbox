@@ -44,16 +44,17 @@ Welcome to the Strongbox artifact repository manager's home.
 * Logging:
   * Retrieve logs over HTTP
 
-# What's in the works (Q2/2018):
+# What's in the works (Q3/2018):
 * Layout providers
   * NPM layout provider
   * Raw layout provider
 * Web UI
+* Spring Bootification
+
+# Upcoming:
 * Logging:
   * Log tailing over HTTP
 * Deploy as a transaction
-
-# Upcoming:
 * RPM distribution
 * Debian/Ubuntu distribution
 

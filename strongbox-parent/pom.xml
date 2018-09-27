@@ -59,7 +59,8 @@
         <version.carlspring.commons.io>1.0-SNAPSHOT</version.carlspring.commons.io>
         <version.carlspring.commons.http>1.0-SNAPSHOT</version.carlspring.commons.http>
         <version.carlspring.logback.config>1.0-SNAPSHOT</version.carlspring.logback.config>
-
+        <version.carlspring.npm.metadata>1.0-SNAPSHOT</version.carlspring.npm.metadata>
+        
         <version.apache.directory>1.5.5</version.apache.directory>
         <version.groovy>2.4.7</version.groovy>
         <version.guava>25.0-jre</version.guava>
@@ -376,6 +377,12 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            
+            <dependency>
+                <groupId>org.carlspring.strongbox</groupId>
+                <artifactId>npm-metadata-jackson</artifactId>
+                <version>${version.carlspring.npm.metadata}</version>
+            </dependency>
 
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
@@ -534,7 +541,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.16.1</version>
+                <version>1.18</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -818,7 +825,7 @@
             <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
-                <version>2.10.0</version>
+                <version>2.12.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-fileupload</groupId>
@@ -1345,7 +1352,7 @@
 
                         <configuration>
                             <rules>
-                                <dependencyConvergence />
+                                <dependencyConvergence/>
                             </rules>
                         </configuration>
                         <executions>

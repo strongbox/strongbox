@@ -35,7 +35,7 @@ pipeline {
             steps {
                 withMavenPlus(timestamps: true, mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534')
                 {
-                    sh "mvn -U clean install -Pdependency-convergence-check -Dintegration.tests -Dprepare.revision -Dmaven.test.failure.ignore=true"
+                    sh "mvn -U clean install -T2C -Pdependency-convergence-check -Dintegration.tests -Dprepare.revision -Dmaven.test.failure.ignore=true"
                 }
             }
         }

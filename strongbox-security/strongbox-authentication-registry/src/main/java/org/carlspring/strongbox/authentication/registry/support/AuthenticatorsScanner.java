@@ -1,6 +1,9 @@
 package org.carlspring.strongbox.authentication.registry.support;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
+import org.carlspring.strongbox.authentication.external.ExternalUserProvider;
+import org.carlspring.strongbox.authentication.external.ExternalUserProviders;
+import org.carlspring.strongbox.authentication.external.ExternalUserProvidersFileManager;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 
@@ -8,9 +11,11 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Throwables;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -28,9 +33,12 @@ public class AuthenticatorsScanner
     private static final Logger logger = LoggerFactory.getLogger(AuthenticatorsScanner.class);
 
     private final AuthenticatorsRegistry registry;
-    
+
     @Inject
     private ApplicationContext parentApplicationContext;
+
+    @Inject
+    private ExternalUserProvidersFileManager externalUserProvidersFileManager;
 
 
     public AuthenticatorsScanner(AuthenticatorsRegistry registry)
@@ -51,6 +59,7 @@ public class AuthenticatorsScanner
         {
             applicationContext.setParent(parentApplicationContext);
             applicationContext.setClassLoader(requiredClassLoader);
+            loadExternalUserProvidersConfiguration(applicationContext);
             applicationContext.load(getAuthenticationConfigurationResource());
             applicationContext.refresh();
         }
@@ -67,6 +76,19 @@ public class AuthenticatorsScanner
                      authenticators.stream().map(Authenticator::getName).collect(Collectors.toList()));
 
         registry.reload(authenticators);
+    }
+
+    private void loadExternalUserProvidersConfiguration(final GenericXmlApplicationContext applicationContext)
+    {
+        ExternalUserProviders externalUserProviders = externalUserProvidersFileManager.read();
+        if (externalUserProviders != null)
+        {
+            Set<ExternalUserProvider> providers = externalUserProviders.getProviders();
+            if (CollectionUtils.isNotEmpty(providers))
+            {
+                providers.stream().forEach(p -> p.registerInApplicationContext(applicationContext));
+            }
+        }
     }
 
     private List<Authenticator> getAuthenticators(ApplicationContext applicationContext)
@@ -94,7 +116,7 @@ public class AuthenticatorsScanner
         return ConfigurationResourceResolver.getConfigurationResource("strongbox.authentication.providers.xml",
                                                                       "etc/conf/strongbox-authentication-providers.xml");
     }
-    
+
     @EventListener({ ContextRefreshedEvent.class })
     void contextRefreshedEvent(ContextRefreshedEvent e)
     {

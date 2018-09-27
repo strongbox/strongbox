@@ -9,9 +9,11 @@ import org.springframework.core.convert.converter.Converter;
  * @author Pablo Tirado
  * @author Przemyslaw Fusik
  */
-public class UserFormToUserDtoConverter
+public enum UserFormToUserDtoConverter
         implements Converter<UserForm, UserDto>
 {
+
+    INSTANCE;
 
     @Override
     public UserDto convert(UserForm userForm)
@@ -23,7 +25,8 @@ public class UserFormToUserDtoConverter
         user.setRoles(userForm.getRoles());
         if (userForm.getAccessModel() != null)
         {
-            user.setUserAccessModel(userForm.getAccessModel().toDto());
+            user.setUserAccessModel(
+                    AccessModelFormToUserAccessModelDtoConverter.INSTANCE.convert(userForm.getAccessModel()));
         }
 
         user.setSecurityTokenKey(userForm.getSecurityTokenKey());

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.Marshaller;
 
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
@@ -196,7 +197,17 @@ public class WebConfig
     @Bean
     public CommonsRequestLoggingFilter commonsRequestLoggingFilter()
     {
-        CommonsRequestLoggingFilter result = new CommonsRequestLoggingFilter();
+        CommonsRequestLoggingFilter result = new CommonsRequestLoggingFilter() {
+
+            @Override
+            protected String createMessage(HttpServletRequest request,
+                                           String prefix,
+                                           String suffix)
+            {
+                return super.createMessage(request, String.format("%smethod=%s;", prefix, request.getMethod()), suffix);
+            }
+            
+        };
         result.setIncludeQueryString(true);
         result.setIncludeHeaders(true);
         result.setIncludeClientInfo(true);
@@ -209,8 +220,8 @@ public class WebConfig
         registry.addConverter(new RoleFormToRoleConverter());
         registry.addConverter(new RoleListFormToRoleListConverter());
         registry.addConverter(new PrivilegeListFormToPrivilegeListConverter());
-        registry.addConverter(new UserFormToUserDtoConverter());
-        registry.addConverter(new AccessModelFormToUserAccessModelDtoConverter());
+        registry.addConverter(UserFormToUserDtoConverter.INSTANCE);
+        registry.addConverter(AccessModelFormToUserAccessModelDtoConverter.INSTANCE);
         registry.addConverter(ProxyConfigurationFormConverter.INSTANCE);
         registry.addConverter(new RuleSetFormToRuleSetConverter());
         registry.addConverter(new RoutingRuleFormToRoutingRuleConverter());

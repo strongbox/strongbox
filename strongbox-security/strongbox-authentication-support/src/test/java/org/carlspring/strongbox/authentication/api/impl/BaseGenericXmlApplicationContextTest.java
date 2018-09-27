@@ -1,10 +1,16 @@
 package org.carlspring.strongbox.authentication.api.impl;
 
 
+import org.carlspring.strongbox.authentication.external.ExternalUserProvider;
+import org.carlspring.strongbox.authentication.external.ExternalUserProviders;
+import org.carlspring.strongbox.authentication.external.ExternalUserProvidersFileManager;
+
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Set;
 import java.util.stream.Stream;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -23,6 +29,10 @@ public abstract class BaseGenericXmlApplicationContextTest
     @Inject
     private ApplicationContext parentApplicationContext;
 
+    @Inject
+    private ExternalUserProvidersFileManager externalUserProvidersFileManager;
+
+
     @Before
     public void initAppContext()
             throws IOException
@@ -31,6 +41,7 @@ public abstract class BaseGenericXmlApplicationContextTest
         {
             appCtx = new GenericXmlApplicationContext();
             appCtx.setParent(parentApplicationContext);
+            loadExternalUserProvidersConfiguration(appCtx);
             appCtx.load(getAuthenticationConfigurationResource());
             appCtx.refresh();
         }
@@ -53,6 +64,19 @@ public abstract class BaseGenericXmlApplicationContextTest
         {
             Stream.of(appCtx.getBeanDefinitionNames())
                   .forEach(getLogger()::debug);
+        }
+    }
+
+    private void loadExternalUserProvidersConfiguration(final GenericXmlApplicationContext applicationContext)
+    {
+        ExternalUserProviders externalUserProviders = externalUserProvidersFileManager.read();
+        if (externalUserProviders != null)
+        {
+            Set<ExternalUserProvider> providers = externalUserProviders.getProviders();
+            if (CollectionUtils.isNotEmpty(providers))
+            {
+                providers.stream().forEach(p -> p.registerInApplicationContext(applicationContext));
+            }
         }
     }
 

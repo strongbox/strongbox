@@ -8,6 +8,10 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
+import java.util.HashSet;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.springframework.core.io.Resource;
 
@@ -21,7 +25,25 @@ public abstract class XmlFileManager<T>
 
     public XmlFileManager()
     {
-        parser = new GenericParser<>((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+        this(new Class[0]);
+    }
+
+    public XmlFileManager(Class... classes)
+    {
+        Set<Class<?>> contextClasses = new HashSet<>();
+        contextClasses.add(
+                (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+        Stream.of(classes).forEach(
+                clazz ->
+                {
+                    ServiceLoader<?> loader = ServiceLoader.load(clazz);
+                    loader.forEach(impl ->
+                                   {
+                                       contextClasses.add(impl.getClass());
+                                   });
+                }
+        );
+        parser = new GenericParser<>(contextClasses.toArray(new Class[0]));
     }
 
     public abstract String getPropertyKey();
@@ -48,7 +70,20 @@ public abstract class XmlFileManager<T>
 
     public T read()
     {
-        try (InputStream inputStream = new BufferedInputStream(getResource().getInputStream()))
+        Resource resource;
+        try
+        {
+            resource = getResource();
+            if (!resource.exists())
+            {
+                return null;
+            }
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        try (InputStream inputStream = new BufferedInputStream(resource.getInputStream()))
         {
             return parser.parse(inputStream);
         }

@@ -1,11 +1,9 @@
 package org.carlspring.strongbox.controllers.users.support;
 
-import org.carlspring.strongbox.forms.users.PathPrivilege;
-import org.carlspring.strongbox.users.domain.AccessModel;
-
-import java.util.*;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Przemyslaw Fusik
@@ -13,67 +11,26 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class AccessModelOutput
 {
 
-    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-    private List<PathPrivilege> repositoryPrivileges = new ArrayList<>();
+    private List<RepositoryAccessModelOutput> repositoriesAccess = new ArrayList<>();
 
-    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-    private List<PathPrivilege> urlToPrivileges = new ArrayList<>();
-
-    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
-    private List<PathPrivilege> wildCardPrivileges = new ArrayList<>();
-
-    public AccessModelOutput()
+    public List<RepositoryAccessModelOutput> getRepositoriesAccess()
     {
-
+        return repositoriesAccess;
     }
 
-    public AccessModelOutput(final AccessModel accessModel)
+    public void setRepositoriesAccess(final List<RepositoryAccessModelOutput> repositoriesAccess)
     {
-        if (accessModel != null)
-        {
-            for (Map.Entry<String, Collection<String>> entry : accessModel.getRepositoryPrivileges().entrySet())
-            {
-                repositoryPrivileges.add(new PathPrivilege(entry.getKey(), entry.getValue()));
-            }
-
-            for (Map.Entry<String, Collection<String>> entry : accessModel.getUrlToPrivilegesMap().entrySet())
-            {
-                urlToPrivileges.add(new PathPrivilege(entry.getKey(), entry.getValue()));
-            }
-
-            for (Map.Entry<String, Collection<String>> entry : accessModel.getWildCardPrivilegesMap().entrySet())
-            {
-                wildCardPrivileges.add(new PathPrivilege(entry.getKey(), entry.getValue()));
-            }
-        }
+        this.repositoriesAccess = repositoriesAccess;
     }
 
-    public List<PathPrivilege> getRepositoryPrivileges()
+    public Optional<RepositoryAccessModelOutput> getRepositoryAccess(final String storageId,
+                                                                     final String repositoryId,
+                                                                     final String path,
+                                                                     final boolean wildcard)
     {
-        return repositoryPrivileges;
-    }
-
-    public List<PathPrivilege> getUrlToPrivileges()
-    {
-        return urlToPrivileges;
-    }
-
-    public List<PathPrivilege> getWildCardPrivileges()
-    {
-        return wildCardPrivileges;
-    }
-
-    @Override
-    public String toString()
-    {
-        final StringBuilder sb = new StringBuilder("AccessModelOutput {\n");
-        sb.append(" repositoryPrivileges=")
-          .append(repositoryPrivileges);
-        sb.append(",\n urlToPrivileges=")
-          .append(urlToPrivileges);
-        sb.append(",\n wildCardPrivileges=")
-          .append(wildCardPrivileges);
-        sb.append("\n}");
-        return sb.toString();
+        return repositoriesAccess.stream().filter(ra -> Objects.equals(ra.getStorageId(), storageId) &&
+                                                        Objects.equals(ra.getRepositoryId(), repositoryId) &&
+                                                        Objects.equals(ra.getPath(), path) &&
+                                                        ra.isWildcard() == wildcard).findFirst();
     }
 }

@@ -16,6 +16,7 @@
 
     <util:list id="authenticators">
         <bean class="org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticator" />
+        <bean class="org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator"/>
         <bean class="org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticator" />
     </util:list>
 
