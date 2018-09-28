@@ -49,7 +49,7 @@ public class BaseCronJobWithMavenIndexingTestCase
 
     protected CronTaskEvent receivedEvent;
 
-    protected AtomicBoolean receivedExpectedEvent;
+    protected AtomicBoolean receivedExpectedEvent = new AtomicBoolean(false);
 
     protected String expectedJobName;
     
