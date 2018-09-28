@@ -262,8 +262,20 @@
 
         "license": 
         {
-            "type": "string",
-            "description": "You should specify a license for your package so that people know how they are permitted to use it, and any restrictions you're placing on it."
+            "type":  "object",
+            "properties": 
+            {
+                "type": 
+                {
+                    "type": "string"
+                },
+
+                "url": 
+                {
+                    "type": "string",
+                    "format": "uri"
+                }
+            }
         },
 
         "version": 
@@ -406,20 +418,7 @@
                     "type": "array",
                     "items": 
                     {
-                        "type": "object",
-                        "properties": 
-                        {
-                            "type": 
-                            {
-                                "type": "string"
-                            },
-
-                            "url": 
-                            {
-                                "type": "string",
-                                "format": "uri"
-                            }
-                        }
+                        "$ref": "#definitions/license"
                     }
                 },
 
@@ -461,12 +460,7 @@
 
                 "bin": 
                 {
-                    "type": 
-                    [
-                        "string",
-                        "object"
-                    ],
-
+                    "type": "object",
                     "additionalProperties": 
                     {
                         "type": "string"
@@ -475,12 +469,7 @@
 
                 "man": 
                 {
-                    "type": 
-                    [
-                        "array",
-                        "string"
-                    ],
-
+                    "type": "array",
                     "description": "Specify either a single file or an array of filenames to put in place for the man program to find.",
                     "items": 
                     {
