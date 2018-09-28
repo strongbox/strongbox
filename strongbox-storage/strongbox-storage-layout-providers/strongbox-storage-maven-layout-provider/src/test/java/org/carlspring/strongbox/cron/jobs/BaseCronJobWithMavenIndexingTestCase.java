@@ -11,6 +11,7 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import javax.inject.Inject;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import org.springframework.beans.BeansException;
@@ -28,7 +29,7 @@ public class BaseCronJobWithMavenIndexingTestCase
         extends TestCaseWithMavenArtifactGenerationAndIndexing implements ApplicationContextAware, ApplicationListener<CronTaskEvent>
 {
 
-    public static final long CRON_TASK_CHECK_INTERVAL = 500L;
+    protected static final long EVENT_TIMEOUT_SECONDS = 10L;
 
     @Inject
     protected CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
@@ -48,7 +49,7 @@ public class BaseCronJobWithMavenIndexingTestCase
 
     protected CronTaskEvent receivedEvent;
 
-    protected boolean receivedExpectedEvent;
+    protected AtomicBoolean receivedExpectedEvent;
 
     protected String expectedJobName;
     
@@ -125,37 +126,9 @@ public class BaseCronJobWithMavenIndexingTestCase
     {
         if (event.getType() == expectedEventType && expectedJobName.equals(event.getName()))
         {
-            receivedExpectedEvent = true;
+            receivedExpectedEvent.set(true);
             receivedEvent = event;
         }
-    }
-
-    public boolean expectEvent()
-            throws InterruptedException
-    {
-        return expectEvent(10000, CRON_TASK_CHECK_INTERVAL);
-    }
-
-    /**
-     * Waits for an event to occur.
-     *
-     * @param maxWaitTime   The maximum wait time (in milliseconds)
-     * @param checkInterval The interval (in milliseconds) at which to check for the occurrence of the event
-     */
-    public boolean expectEvent(long maxWaitTime,
-                               long checkInterval)
-            throws InterruptedException
-    {
-        int totalWait = 0;
-        while (!receivedExpectedEvent &&
-               (maxWaitTime > 0 && totalWait <= maxWaitTime || // If a maxWaitTime has been defined,
-                maxWaitTime == 0))                            // otherwise, default to forever
-        {
-            Thread.sleep(checkInterval);
-            totalWait += checkInterval;
-        }
-
-        return receivedExpectedEvent;
     }
 
     public CronTaskConfigurationDto addCronTaskConfiguration(String key,
