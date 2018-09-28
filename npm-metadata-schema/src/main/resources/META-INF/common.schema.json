@@ -26,8 +26,7 @@
 
                 "url": 
                 {
-                    "type": "string",
-                    "format": "uri"
+                    "type": "string"
                 },
 
                 "email": 
@@ -247,8 +246,7 @@
                 "url": 
                 {
                     "type": "string",
-                    "description": "The url to your project's issue tracker.",
-                    "format": "uri"
+                    "description": "The url to your project's issue tracker."
                 },
 
                 "email": 
@@ -272,8 +270,7 @@
 
                 "url": 
                 {
-                    "type": "string",
-                    "format": "uri"
+                    "type": "string"
                 }
             }
         },
@@ -302,8 +299,7 @@
 
                 "url": 
                 {
-                    "type": "string",
-                    "format": "uri"
+                    "type": "string"
                 }
             }
         },
@@ -348,8 +344,7 @@
         "homepage": 
         {
             "description": "The url to the project homepage.",
-            "type": "string",
-            "format": "uri"
+            "type": "string"
         },
 
         "author": 

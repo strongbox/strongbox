@@ -2,7 +2,7 @@ package org.carlspring.strongbox.npm.metadata.jackson;
 
 import java.io.IOException;
 
-import org.carlspring.strongbox.npm.metadata.Engines;
+import org.carlspring.strongbox.npm.metadata.Scripts;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,11 +11,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class EnginesDeserializer extends JsonDeserializer<Engines>
+public class ScriptsDeserializer extends JsonDeserializer<Scripts>
 {
 
     @Override
-    public Engines deserialize(JsonParser jp,
+    public Scripts deserialize(JsonParser jp,
                                DeserializationContext c)
         throws IOException,
         JsonProcessingException
@@ -28,15 +28,10 @@ public class EnginesDeserializer extends JsonDeserializer<Engines>
 
         if (value.startsWith("{"))
         {
-            return codec.treeToValue(node, Engines.class);
+            return codec.treeToValue(node, Scripts.class);
         }
 
-        Engines engines = new Engines();
-        // TODO: we should replace this {packageName} placeholer with package
-        // name.
-        engines.setAdditionalProperty(value, null);
-
-        return engines;
+        return null;
     }
 
 }

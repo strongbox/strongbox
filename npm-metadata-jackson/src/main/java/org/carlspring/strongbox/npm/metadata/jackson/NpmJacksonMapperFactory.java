@@ -4,11 +4,13 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import org.carlspring.strongbox.npm.metadata.Bin;
+import org.carlspring.strongbox.npm.metadata.Bugs;
 import org.carlspring.strongbox.npm.metadata.Directories;
 import org.carlspring.strongbox.npm.metadata.Engines;
 import org.carlspring.strongbox.npm.metadata.License;
 import org.carlspring.strongbox.npm.metadata.Person;
 import org.carlspring.strongbox.npm.metadata.Repository;
+import org.carlspring.strongbox.npm.metadata.Scripts;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +35,8 @@ public class NpmJacksonMapperFactory
         module.addDeserializer(Engines.class, new EnginesDeserializer());
         module.addDeserializer(Person.class, new PersonDeserializer());
         module.addDeserializer(Directories.class, new DirectoriesDeserializer());
+        module.addDeserializer(Scripts.class, new ScriptsDeserializer());
+        module.addDeserializer(Bugs.class, new BugsDeserializer());
         
         objectMapper.registerModule(module);
 

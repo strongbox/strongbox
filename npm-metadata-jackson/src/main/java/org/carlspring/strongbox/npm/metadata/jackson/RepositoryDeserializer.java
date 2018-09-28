@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.npm.metadata.jackson;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -54,14 +53,14 @@ public class RepositoryDeserializer extends JsonDeserializer<Repository>
         {
             Repository repository = new Repository();
             repository.setType(vcsProtocol);
-            repository.setUrl(URI.create(repositoryValue));
+            repository.setType(repositoryValue);
 
             return repository;
         }
 
         Repository repository = new Repository();
         repository.setType("npm");
-        repository.setUrl(URI.create(repositoryValue));
+        repository.setUrl(repositoryValue);
 
         return repository;
     }

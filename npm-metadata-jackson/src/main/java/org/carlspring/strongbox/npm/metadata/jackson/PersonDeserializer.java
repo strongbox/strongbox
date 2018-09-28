@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.npm.metadata.jackson;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,7 +57,7 @@ public class PersonDeserializer extends JsonDeserializer<Person>
 
         person.setName(name);
         person.setEmail(name);
-        person.setUrl(URI.create(www));
+        person.setUrl(www);
 
         return person;
     }

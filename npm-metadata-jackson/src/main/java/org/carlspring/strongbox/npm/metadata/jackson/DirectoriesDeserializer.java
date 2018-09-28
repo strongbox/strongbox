@@ -2,7 +2,6 @@ package org.carlspring.strongbox.npm.metadata.jackson;
 
 import java.io.IOException;
 
-import org.carlspring.strongbox.npm.metadata.Bin;
 import org.carlspring.strongbox.npm.metadata.Directories;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -32,7 +31,7 @@ public class DirectoriesDeserializer extends JsonDeserializer<Directories>
             return codec.treeToValue(node, Directories.class);
         }
 
-        return new Directories();
+        return null;
     }
 
 }

@@ -1,10 +1,8 @@
 package org.carlspring.strongbox.npm.metadata.jackson;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.carlspring.strongbox.npm.metadata.Bin;
-import org.carlspring.strongbox.npm.metadata.Repository;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
