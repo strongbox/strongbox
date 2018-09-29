@@ -64,4 +64,5 @@ To accept, please:
 | Guido Grazioli               |                                          | London, United Kingdom                  | 2018-01-15 |
 | Maxim Antonov                |                                          | Moscow, Russian Federation              | 2018-01-14 |
 | Aditya Srinivasan            |                                          | Washington DC, USA                      | 2018-02-02 |
-| Sevastyan Pigarev			         | 										                               | Barnaul, Russian Federation				         | 2018-03-27 |
+| Sevastyan Pigarev			   | 										  | Barnaul, Russian Federation				| 2018-03-27 |
+| Michael Altenburger          | 										  | Vienna, Austria         				| 2018-09-29 |
