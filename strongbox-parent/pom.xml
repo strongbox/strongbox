@@ -1135,6 +1135,12 @@
                 <groupId>org.jtwig</groupId>
                 <artifactId>jtwig-spring-boot-starter</artifactId>
                 <version>${version.jtwig}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-tree</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
