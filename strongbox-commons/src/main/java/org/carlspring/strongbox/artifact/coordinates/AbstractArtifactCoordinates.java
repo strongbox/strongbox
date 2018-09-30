@@ -44,11 +44,9 @@ public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoor
 
     public void dump()
     {
-        for (String coordinateName : coordinates.keySet())
+        for (Map.Entry<String, String> coordinateEntry : coordinates.entrySet())
         {
-            String coordinateValue = coordinates.get(coordinateName);
-
-            System.out.println(coordinateName + " : " + coordinateValue);
+            System.out.println(coordinateEntry.getKey() + " : " + coordinateEntry.getValue());
         }
     }
 

@@ -1,9 +1,7 @@
 package org.carlspring.strongbox.booters;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
@@ -28,7 +26,6 @@ import java.util.Map;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -55,9 +52,6 @@ public class StorageBooter
     @Inject
     private GroupRepositorySetCollector groupRepositorySetCollector;
 
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-
     private Path lockFile = Paths.get(ConfigurationResourceResolver.getVaultDirectory()).resolve("storage-booter.lock");
 
 
@@ -79,6 +73,11 @@ public class StorageBooter
             initializeStorages(configuration.getStorages());
 
             Collection<Repository> repositories = getRepositoriesHierarchy(configuration.getStorages());
+
+            if (!repositories.isEmpty())
+            {
+                logger.info(" -> Initializing repositories...");
+            }
 
             for (Repository repository : repositories)
             {
@@ -107,7 +106,7 @@ public class StorageBooter
         logger.debug("Removed lock file '" + lockFile.toAbsolutePath().toString() + "'.");
     }
 
-    public void createTempDir()
+    public static void createTempDir()
             throws IOException
     {
         String tempDirLocation = System.getProperty("java.io.tmpdir",
@@ -164,8 +163,8 @@ public class StorageBooter
     private Path initializeStorages(final Map<String, Storage> storages)
             throws IOException
     {
-        logger.debug("Running Strongbox storage booter...");
-        logger.debug(" -> Creating storage directory skeleton...");
+        logger.info("Running Strongbox storage booter...");
+        logger.info(" -> Creating storage directory skeleton...");
 
         String basedir;
         if (System.getProperty("strongbox.storage.booter.basedir") != null)
@@ -201,18 +200,15 @@ public class StorageBooter
     private void initializeRepository(Repository repository)
             throws IOException, RepositoryManagementStrategyException
     {
-        logger.debug("  * Initializing '" + repository.getId() + "'...");
+        logger.info("  * Initializing " + repository.getStorage().getId() + ":" + repository.getId() + "...");
 
         if (layoutProviderRegistry.getProvider(repository.getLayout()) == null)
         {
-            logger.error(String.format("Failed to resolve layout [%s] for repository [%s].", repository.getLayout(),
+            logger.error(String.format("Failed to resolve layout [%s] for repository [%s].",
+                                       repository.getLayout(),
                                        repository.getId()));
             return;
         }
-
-        final RepositoryPath repositoryBasedir = repositoryPathResolver.resolve(repository);
-
-        logger.debug("  * Repository path resolved '" + repositoryBasedir.toAbsolutePath().toString() + "'...");
 
         repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
 
@@ -232,6 +228,7 @@ public class StorageBooter
                 addRepositoriesByChildrenFirst(repositoriesHierarchy, repository);
             }
         }
+
         return repositoriesHierarchy.values();
     }
 
@@ -241,10 +238,13 @@ public class StorageBooter
         if (!repository.isGroupRepository())
         {
             repositoriesHierarchy.putIfAbsent(repository.getId(), repository);
+
             return;
         }
-        groupRepositorySetCollector.collect(repository, true).stream().forEach(
-                r -> addRepositoriesByChildrenFirst(repositoriesHierarchy, r));
+
+        groupRepositorySetCollector.collect(repository, true)
+                                   .stream().forEach(r -> addRepositoriesByChildrenFirst(repositoriesHierarchy, r));
+
         repositoriesHierarchy.putIfAbsent(repository.getId(), repository);
     }
 

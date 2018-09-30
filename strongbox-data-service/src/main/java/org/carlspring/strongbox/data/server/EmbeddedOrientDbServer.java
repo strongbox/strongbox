@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.data.server;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.ConnectionConfig;
 import org.carlspring.strongbox.config.ConnectionConfigOrientDB;
 import org.carlspring.strongbox.data.domain.GenericEntityHook;
@@ -39,7 +40,6 @@ import com.orientechnologies.orient.server.network.protocol.http.command.get.OSe
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.carlspring.strongbox.data.PropertyUtils.getVaultDirectory;
 
 /**
  * An embedded configuration of OrientDb server.
@@ -78,7 +78,8 @@ public class EmbeddedOrientDbServer
 
     public JarFile getStudioClasspathLocation() throws IOException
     {
-        URL systemResource = OServer.class.getResource(String.format("/META-INF/resources/webjars/orientdb-studio/%s", ORIENTDB_STUDIO_VERSION));
+        URL systemResource = OServer.class.getResource(String.format("/META-INF/resources/webjars/orientdb-studio/%s",
+                                                                     ORIENTDB_STUDIO_VERSION));
         JarURLConnection connection = (JarURLConnection) systemResource.openConnection();
 
         return connection.getJarFile();
@@ -132,12 +133,15 @@ public class EmbeddedOrientDbServer
         Path studioPath = Paths.get(getStudioPath()).resolve("studio");
         if (Files.exists(studioPath))
         {
-            logger.info(String.format("OrientDB Studio already available at [%s], skip initialization.%nIf you want to force initialize Studio please remove its folder above.",
+            logger.info(String.format("OrientDB Studio is already available at [%s], skipping initialization. %n" +
+                                      "If you want to force the initialization of OrientDB Studio, please remove it's " +
+                                      "folder shown above.",
                                       studioPath.toAbsolutePath().toString()));
             return;
         }
 
-        logger.info(String.format("Initialize OrientDB Studio at [%s].", studioPath.toAbsolutePath().toString()));
+        logger.info(String.format("Initialized OrientDB Studio at [%s].", studioPath.toAbsolutePath().toString()));
+
         Files.createDirectories(studioPath);
         
         String root = String.format("META-INF/resources/webjars/orientdb-studio/%s/", ORIENTDB_STUDIO_VERSION);
@@ -179,7 +183,7 @@ public class EmbeddedOrientDbServer
     {
         String database = connectionConfig.getDatabase();
 
-        logger.info(String.format("Initialize Embedded OrientDB server for [%s]", database));
+        logger.info(String.format("Initialized Embedded OrientDB server for [%s]", database));
 
         server = OServerMain.create();
         serverConfiguration = new OServerConfiguration();
@@ -259,12 +263,12 @@ public class EmbeddedOrientDbServer
 
     private String getDatabasePath()
     {
-        return getVaultDirectory() + "/db";
+        return PropertiesBooter.getVaultDirectory() + "/db";
     }
 
     private String getStudioPath()
     {
-        return Paths.get(getVaultDirectory() + "/www").toAbsolutePath().normalize().toString();
+        return Paths.get(PropertiesBooter.getVaultDirectory() + "/www").toAbsolutePath().normalize().toString();
     }
 
     

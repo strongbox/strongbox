@@ -15,10 +15,13 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
     private static final Logger logger = LoggerFactory.getLogger(ConnectionConfigOrientDB.class);
 
     public static final String PROPERTY_PROFILE = "strongbox.orientdb.profile";
+
     public static final String PROPERTY_STUDIO_ENABLED = "strongbox.orientdb.studio.enabled";
     
     public static final String PROFILE_MEMORY = "orientdb_MEMORY";
+
     public static final String PROFILE_EMBEDDED = "orientdb_EMBEDDED";
+
     public static final String PROFILE_REMOTE = "orientdb_REMOTE";
 
     @Value("${strongbox.orientdb.protocol:}")
@@ -142,7 +145,7 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
                               return;
                           }
 
-                          logger.info(String.format("Use default value for OrientDB connection property [%s].", p));
+                          logger.debug(String.format("Using default value for OrientDB connection property [%s].", p));
 
                           System.setProperty((String) p, properties.getProperty((String) p));
                       });

@@ -18,7 +18,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.npm.metadata.Dist;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
 
@@ -31,11 +31,17 @@ public class NpmPackageGenerator
 {
 
     private NpmArtifactCoordinates coordinates;
+
     private PackageVersion packageJson = new PackageVersion();
-    private Path basePath = Paths.get(PropertyUtils.getHomeDirectory() + "/tmp");
+
+    private Path basePath = Paths.get(PropertiesBooter.getTempDirectory());
+
     private Path packagePath;
+
     private Path publishJsonPath;
+
     private ObjectMapper mapper = new ObjectMapper();
+
 
     public static NpmPackageGenerator newInstance()
     {
@@ -45,7 +51,7 @@ public class NpmPackageGenerator
     private NpmPackageGenerator()
     {
         super();
-        
+
         packageJson.setDist(new Dist());
     }
 
@@ -102,7 +108,7 @@ public class NpmPackageGenerator
         }
 
         calculateChecksum();
-        
+
         return packagePath;
     }
 
@@ -118,10 +124,10 @@ public class NpmPackageGenerator
         {
             throw new UndeclaredThrowableException(e);
         }
-        
+
         crypt.reset();
         crypt.update(Files.readAllBytes(packagePath));
-        
+
         String shasum = Base64.getEncoder().encodeToString(crypt.digest());
         packageJson.getDist().setShasum(shasum);
     }
@@ -145,7 +151,7 @@ public class NpmPackageGenerator
 
     private void writeContent(TarArchiveOutputStream tarOut)
         throws IOException,
-        UnsupportedEncodingException
+               UnsupportedEncodingException
     {
         Path indexJsPath = packagePath.getParent().resolve("index.js");
         try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(indexJsPath, StandardOpenOption.CREATE)))
@@ -199,7 +205,7 @@ public class NpmPackageGenerator
             // version
             jGenerator.writeStringField("name", packageJson.getName());
             jGenerator.writeStringField("version", packageJson.getVersion());
-            
+
             // dist
             jGenerator.writeFieldName("dist");
             jGenerator.writeStartObject();
@@ -208,7 +214,7 @@ public class NpmPackageGenerator
 
             jGenerator.writeEndObject();
             jGenerator.writeEndObject();
-            
+
             // _attachments
             jGenerator.writeFieldName("_attachments");
 

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.resource;
 
-import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,40 +22,8 @@ public class ConfigurationResourceResolver
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationResourceResolver.class);
 
 
-    static
-    {
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-
-        for (Object o : System.getenv().keySet())
-        {
-            String key = (String) o;
-            String value = System.getenv(key);
-
-            System.out.println(key + " = " + value);
-        }
-
-        for (Object o : System.getProperties().keySet())
-        {
-            String key = (String) o;
-            String value = System.getProperty(key);
-
-            System.out.println(key + " = " + value);
-        }
-
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-    }
-
     public static Resource getConfigurationResource(String propertyKey,
                                                     String propertyDefaultValue)
-            throws IOException
     {
         final String configurationPath = ConfigurationResourceResolver.getHomeDirectory() + "/" + propertyDefaultValue;
 
@@ -73,7 +41,6 @@ public class ConfigurationResourceResolver
     public static Resource getConfigurationResource(String configurationPath,
                                                     String propertyKey,
                                                     String propertyDefaultValue)
-            throws IOException
     {
         String filename;
         Resource resource;
@@ -82,7 +49,7 @@ public class ConfigurationResourceResolver
         {
             filename = System.getProperty(propertyKey);
 
-            logger.info(String.format("Using provided resource path [%s]", filename));
+            // logger.info(String.format("Using provided resource path [%s]", filename));
 
             return new FileSystemResource(Paths.get(filename).toAbsolutePath().toString());
         } 
@@ -135,28 +102,29 @@ public class ConfigurationResourceResolver
 
     public static String getHomeDirectory()
     {
-        return PropertyUtils.getHomeDirectory();
+        return PropertiesBooter.getHomeDirectory();
     }
 
     public static String getVaultDirectory()
     {
-        return PropertyUtils.getVaultDirectory();
+        return PropertiesBooter.getVaultDirectory();
     }
 
     public static String getTempDirectory()
             throws IOException
     {
-        final String tempDirectory = PropertyUtils.getTempDirectory();
+        final String tempDirectory = PropertiesBooter.getTempDirectory();
         final Path tempDirectoryPath = Paths.get(tempDirectory);
         if (Files.notExists(tempDirectoryPath))
         {
             Files.createDirectories(tempDirectoryPath);
         }
+
         return tempDirectory;
     }
 
     public static String getEtcDirectory()
     {
-        return PropertyUtils.getEtcDirectory();
+        return PropertiesBooter.getEtcDirectory();
     }
 }

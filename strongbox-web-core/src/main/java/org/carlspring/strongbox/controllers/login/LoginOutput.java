@@ -23,6 +23,7 @@ public class LoginOutput
     @XmlElement()
     private LinkedHashSet<String> authorities;
 
+
     public LoginOutput()
     {
     }
@@ -31,7 +32,30 @@ public class LoginOutput
                        Collection<? extends GrantedAuthority> authorities)
     {
         this.token = token;
-        this.authorities = authorities.stream().map(GrantedAuthority::getAuthority).sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+        this.authorities = authorities.stream()
+                                      .map(GrantedAuthority::getAuthority)
+                                      .sorted()
+                                      .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public String getToken()
+    {
+        return token;
+    }
+
+    public void setToken(String token)
+    {
+        this.token = token;
+    }
+
+    public LinkedHashSet<String> getAuthorities()
+    {
+        return authorities;
+    }
+
+    public void setAuthorities(LinkedHashSet<String> authorities)
+    {
+        this.authorities = authorities;
     }
 
 }

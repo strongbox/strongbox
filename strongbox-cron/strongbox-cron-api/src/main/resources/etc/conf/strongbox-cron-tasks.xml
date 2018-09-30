@@ -2,7 +2,7 @@
 <cron-tasks-configuration>
 
     <cron-task-configuration>
-        <name>Clear Every Repository Trash Cron Job</name>
+        <name>Clear Each Repository's Trash Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
@@ -26,7 +26,7 @@
     </cron-task-configuration>
 
     <cron-task-configuration>
-        <name>Regenerate Artifacts Checksums Cron Job</name>
+        <name>Re-generate Artifacts Checksums Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
@@ -73,7 +73,7 @@
     -->
 
     <cron-task-configuration>
-        <name>Rebuild All Maven Repositories Metadata Files Cron Job</name>
+        <name>Re-build All Maven Repositories Metadata Files Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>

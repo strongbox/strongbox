@@ -277,6 +277,28 @@
                             </artifactItems>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>unpack-web-ui</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-web-ui</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                    <includes>*</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -298,7 +320,6 @@
                         <configuration>
                             <classifier>spring-boot</classifier>
                             <mainClass>org.carlspring.strongbox.StrongboxSpringBootApplication</mainClass>
-
                         </configuration>
                     </execution>
                 </executions>

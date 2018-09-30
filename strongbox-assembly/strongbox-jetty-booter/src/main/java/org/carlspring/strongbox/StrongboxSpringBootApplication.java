@@ -1,6 +1,10 @@
 package org.carlspring.strongbox;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.config.ConnectionConfigOrientDB;
+
+import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +24,11 @@ public class StrongboxSpringBootApplication
     private static final Logger logger = LoggerFactory.getLogger(StrongboxSpringBootApplication.class);
 
     public static void main(String[] args)
+            throws IOException
     {
+        PropertiesBooter.initialize();
+        StorageBooter.createTempDir();
+
         if (System.getProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE) == null)
         {
             logger.info(String.format("OrientDB profile not set, will use [%s] profile as default",
