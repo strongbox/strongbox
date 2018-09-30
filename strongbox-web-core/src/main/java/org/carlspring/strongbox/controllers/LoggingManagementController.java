@@ -288,7 +288,7 @@ public class LoggingManagementController
             model.addAttribute("directories", directoryListing.getDirectories());
             model.addAttribute("files", directoryListing.getFiles());
 
-            return new ModelAndView("classpath:/views/directoryListing.twig.html", model);
+            return new ModelAndView("directoryListing", model);
         }
         catch (Exception e)
         {
