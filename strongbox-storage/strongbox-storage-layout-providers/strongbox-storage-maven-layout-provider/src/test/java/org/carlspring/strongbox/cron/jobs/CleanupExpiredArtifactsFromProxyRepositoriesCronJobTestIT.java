@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Throwables;
 import org.apache.commons.lang.time.DateUtils;
@@ -32,6 +33,8 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
 
 /**
@@ -145,7 +148,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                              properties.put("minSizeInBytes", Long.valueOf(sizeInBytes - 1).toString());
                          });
 
-        assertTrue("Failed to execute task!", expectEvent());
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
     }
 
 }

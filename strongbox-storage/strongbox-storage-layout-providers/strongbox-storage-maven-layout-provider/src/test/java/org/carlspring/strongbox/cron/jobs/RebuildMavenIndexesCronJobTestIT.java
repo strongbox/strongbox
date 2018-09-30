@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -170,7 +172,7 @@ public class RebuildMavenIndexesCronJobTestIT
         addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, REPOSITORY_RELEASES_1,
                          properties -> properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_INDEXES));
 
-        assertTrue("Failed to execute task!", expectEvent());
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
     }
 
     @Test
@@ -213,7 +215,7 @@ public class RebuildMavenIndexesCronJobTestIT
 
         addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, REPOSITORY_RELEASES_1);
 
-        assertTrue("Failed to execute task!", expectEvent());
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
     }
 
 }

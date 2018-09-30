@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import static org.awaitility.Awaitility.await;
 import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
 import static org.junit.Assert.assertTrue;
 
@@ -7,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -202,7 +204,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                              properties.put("forceRegeneration", "false");
                          });
 
-        assertTrue("Failed to execute task!", expectEvent());
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
     }
 
     @Test
@@ -265,7 +267,7 @@ public class RegenerateMavenChecksumCronJobTestIT
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE0, REPOSITORY_SNAPSHOTS,
                          properties -> properties.put("forceRegeneration", "false"));
 
-        assertTrue("Failed to execute task!", expectEvent());
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
     }
 
     @Test
@@ -326,7 +328,7 @@ public class RegenerateMavenChecksumCronJobTestIT
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE0, null,
                          properties -> properties.put("forceRegeneration", "false"));
 
-        assertTrue("Failed to execute task!", expectEvent());
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
     }
 
     @Test
@@ -386,7 +388,7 @@ public class RegenerateMavenChecksumCronJobTestIT
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, null, null,
                          properties -> properties.put("forceRegeneration", "false"));
 
-        assertTrue("Failed to execute task!", expectEvent());
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
     }
 
 }

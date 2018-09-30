@@ -97,6 +97,7 @@
         <version.reflections>0.9.11</version.reflections>
         <version.liquibase-slf4j>2.0.0</version.liquibase-slf4j>
         <version.jtwig>5.86.1.RELEASE</version.jtwig>
+        <version.awaitility>3.1.2</version.awaitility>
         <!-- Version properties. -->
     </properties>
 
@@ -1139,6 +1140,11 @@
                         <artifactId>hazelcast</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${version.awaitility}</version>
             </dependency>
         
         </dependencies>
