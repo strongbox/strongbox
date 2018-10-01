@@ -192,6 +192,7 @@
                             </artifactItems>
                         </configuration>
                     </execution>
+                    <!--
                     <execution>
                         <id>copy-web-core</id>
                         <phase>process-resources</phase>
@@ -240,6 +241,7 @@
                             </artifactItems>
                         </configuration>
                     </execution>
+                    -->
                 </executions>
             </plugin>
 
@@ -263,11 +265,8 @@
                     <daemons>
                         <daemon>
                             <id>strongbox</id>
-                            <mainClass>org.carlspring.strongbox.StrongboxSpringBootApplication</mainClass>
+                            <mainClass>org.springframework.boot.loader.JarLauncher</mainClass>
 
-                            <commandLineArguments>
-                                <commandLineArgument>-Djetty.port=48080</commandLineArgument>
-                            </commandLineArguments>
                             <platforms>
                                 <platform>jsw</platform>
                             </platforms>
@@ -412,171 +411,15 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-jetty-booter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-security-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-core</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>strongbox-testing-storage</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-api</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>strongbox-testing-storage</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-maven-layout-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-nuget-layout-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-p2-layout-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-raw-layout-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-client</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-web-core</artifactId>
             <version>${project.version}</version>
-            <!--<scope>provided</scope>-->
-            <exclusions>
-                <exclusion>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>strongbox-testing-web</artifactId>
-                </exclusion>
-            </exclusions>
+            <classifier>spring-boot</classifier>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-cron-rest</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>strongbox-testing-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>strongbox-testing-storage</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-api-resources</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-web-resources</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!--
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-web-core</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-web-ui</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-cron-rest</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <!--
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-webapp</artifactId>
-            <version>${project.version}</version>
-            <type>war</type>
-        </dependency>
-        -->
-        <!--
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-web-resources</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        -->
 
         <dependency>
             <groupId>org.carlspring.maven</groupId>
             <artifactId>maven-commons</artifactId>
         </dependency>
-
-        <!--
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-webapp</artifactId>
-            <version>${version.jetty}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-start</artifactId>
-            <version>${version.jetty}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${version.jetty}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-util</artifactId>
-            <version>${version.jetty}</version>
-        </dependency>
-        -->
 
         <dependency>
             <groupId>org.codehaus.mojo.appassembler</groupId>

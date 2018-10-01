@@ -51,7 +51,7 @@
     -->
 
     <!-- Strongbox packages -->
-    <logger name="org.carlspring.strongbox" level="DEBUG"/>
+    <logger name="org.carlspring.strongbox" level="INFO"/>
     <logger name="org.carlspring.strongbox.security.authentication" level="INFO"/>
     <logger name="org.carlspring.strongbox.security.vote" level="INFO"/>
     <logger name="org.carlspring.strongbox.data" level="WARN"/>

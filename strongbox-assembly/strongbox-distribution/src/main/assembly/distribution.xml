@@ -15,6 +15,13 @@
             <directory>target/assembly/strongbox-${project.version}/lib</directory>
             <outputDirectory>strongbox-${project.version}/lib</outputDirectory>
             <fileMode>0755</fileMode>
+            <includes>
+                <include>appassembler*.jar</include>
+                <include>jna*jar</include>
+                <include>libwrapper*</include>
+                <include>strongbox-web-core-*-spring-boot.jar</include>
+                <include>wrapper*</include>
+            </includes>
         </fileSet>
         <fileSet>
             <directory>target/assembly/strongbox-${project.version}/logs</directory>
