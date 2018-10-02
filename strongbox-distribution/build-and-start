@@ -2,7 +2,7 @@
 
 mvn clean install -Plog-file-debug
 
-cd strongbox-distribution/target/
+cd target/
 tar -zxf *gz
 cd strongbox-distribution-*/strongbox-*/
 ./bin/strongbox start

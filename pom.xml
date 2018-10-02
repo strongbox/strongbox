@@ -81,7 +81,7 @@
         <module>strongbox-aql</module>
         <module>strongbox-web-forms</module>
         <module>strongbox-web-core</module>
-        <module>strongbox-assembly</module>
+        <module>strongbox-distribution</module>
     </modules>
 
     <profiles>
