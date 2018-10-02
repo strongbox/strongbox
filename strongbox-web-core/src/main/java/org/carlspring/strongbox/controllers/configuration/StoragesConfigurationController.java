@@ -4,6 +4,7 @@ import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
@@ -14,6 +15,7 @@ import org.carlspring.strongbox.storage.Views;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import java.io.IOException;
@@ -90,10 +92,13 @@ public class StoragesConfigurationController
 
     private final ConversionService conversionService;
 
+    private final ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+
     public StoragesConfigurationController(ConfigurationManagementService configurationManagementService,
                                            StorageManagementService storageManagementService,
                                            RepositoryManagementService repositoryManagementService,
                                            ConversionService conversionService,
+                                           ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService,
                                            Optional<RepositoryIndexManager> repositoryIndexManager)
     {
         super(configurationManagementService);
@@ -101,6 +106,7 @@ public class StoragesConfigurationController
         this.repositoryManagementService = repositoryManagementService;
         this.conversionService = conversionService;
         this.repositoryIndexManager = repositoryIndexManager;
+        this.proxyRepositoryConnectionPoolConfigurationService = proxyRepositoryConnectionPoolConfigurationService;
     }
 
     @ApiOperation(value = "Add/update a storage.")
@@ -251,6 +257,13 @@ public class StoragesConfigurationController
             logger.debug("Creating repository " + storageId + ":" + repositoryId + "...");
 
             configurationManagementService.saveRepository(storageId, repository);
+
+            if (repository != null && RepositoryTypeEnum.PROXY.getType().equals(repository.getType()))
+            {
+                proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
+                        repository.getRemoteRepository()
+                                .getUrl(), repository.getHttpConnectionPool().getAllocatedConnections());
+            }
 
             final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
             if (!Files.exists(repositoryPath))

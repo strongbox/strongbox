@@ -1,12 +1,11 @@
 package org.carlspring.strongbox.controllers.configuration;
 
+import org.apache.http.pool.PoolStats;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
-import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
-import org.carlspring.strongbox.forms.configuration.RepositoryForm;
-import org.carlspring.strongbox.forms.configuration.StorageForm;
+import org.carlspring.strongbox.forms.configuration.*;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
@@ -23,6 +22,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpServerErrorException;
+
+import javax.inject.Inject;
+
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -36,6 +38,9 @@ import static org.junit.Assert.assertTrue;
 public class StoragesConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
+
+    @Inject
+    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     static ProxyConfigurationForm createProxyConfiguration()
     {
@@ -180,7 +185,6 @@ public class StoragesConfigurationControllerTestIT
                      "localhost",
                      repository1.getProxyConfiguration().getHost());
 
-
         deleteRepository(storageId, "repository0");
         deleteRepository(storageId, "repository1");
     }
@@ -206,17 +210,27 @@ public class StoragesConfigurationControllerTestIT
         r0_1.setImplementation("file-system");
         r0_1.setStatus("In Service");
 
+        Integer maxConnectionsRepository2 = 30;
+
         RepositoryForm r0_2 = new RepositoryForm();
         r0_2.setId("repository0_2");
         r0_2.setAllowsForceDeletion(true);
         r0_2.setTrashEnabled(true);
         r0_2.setProxyConfiguration(createProxyConfiguration());
         r0_2.setLayout(Maven2LayoutProvider.ALIAS);
-        r0_2.setType("hosted");
+        r0_2.setType("proxy");
         r0_2.setPolicy("release");
         r0_2.setImplementation("file-system");
         r0_2.setStatus("In Service");
         r0_2.setGroupRepositories(ImmutableSet.of("repository0"));
+        r0_2.setHttpConnectionPool(maxConnectionsRepository2);
+
+        String secondRepositoryUrl = "http://abc.def";
+
+        RemoteRepositoryForm remoteRepositoryForm = new RemoteRepositoryForm();
+        remoteRepositoryForm.setUrl(secondRepositoryUrl);
+        remoteRepositoryForm.setCheckIntervalSeconds(1000);
+        r0_2.setRemoteRepository(remoteRepositoryForm);
 
         addRepository(r0_1, storage0);
         addRepository(r0_2, storage0);
@@ -250,6 +264,11 @@ public class StoragesConfigurationControllerTestIT
                      "localhost",
                      repository1.getProxyConfiguration().getHost());
 
+        PoolStats poolStatsRepository2 = proxyRepositoryConnectionPoolConfigurationService.getPoolStats(secondRepositoryUrl);
+
+        assertEquals("Max connections for proxy repository not set accordingly!",
+                maxConnectionsRepository2.intValue(),
+                poolStatsRepository2.getMax());
 
         deleteRepository(storage0.getId(), r0_1.getId());
         deleteRepository(storage0.getId(), r0_2.getId());

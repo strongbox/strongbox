@@ -38,6 +38,11 @@ public class RemoteRepositoryForm
         return url;
     }
 
+    public void setUrl(String url)
+    {
+        this.url = url;
+    }
+
     public boolean isDownloadRemoteIndexes()
     {
         return downloadRemoteIndexes;
@@ -71,6 +76,10 @@ public class RemoteRepositoryForm
     public Integer getCheckIntervalSeconds()
     {
         return checkIntervalSeconds;
+    }
+
+    public void setCheckIntervalSeconds(Integer checkIntervalSeconds) {
+        this.checkIntervalSeconds = checkIntervalSeconds;
     }
 
     public boolean isAllowsDirectoryBrowsing()
