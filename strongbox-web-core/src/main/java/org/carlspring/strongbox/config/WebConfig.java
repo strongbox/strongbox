@@ -184,8 +184,12 @@ public class WebConfig
                 .addResourceLocations("/docs/")
                 .setCachePeriod(3600);
 
-        registry.addResourceHandler("/**")
-                .addResourceLocations("/")
+        registry.addResourceHandler("*.html")
+                .addResourceLocations("classpath:/")
+                .setCachePeriod(3600);
+
+        registry.addResourceHandler("/static/assets/**")
+                .addResourceLocations("classpath:/static/assets/")
                 .setCachePeriod(3600)
                 .resourceChain(true)
                 .addResolver(new GzipResourceResolver())

@@ -294,7 +294,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                                    <includes>*</includes>
+                                    <includes>**</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -933,7 +933,7 @@
 
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${dir.strongbox.home}/webapp</outputDirectory>
-                                            <includes>*</includes>
+                                            <includes>**</includes>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
