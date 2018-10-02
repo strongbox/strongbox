@@ -36,7 +36,6 @@
     <inceptionYear>2018</inceptionYear>
 
     <modules>
-        <module>strongbox-jetty-booter</module>
         <module>strongbox-distribution</module>
     </modules>
 
