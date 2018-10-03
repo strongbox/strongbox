@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.apache.http.pool.PoolStats;
+
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.*;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
@@ -264,11 +265,12 @@ public class StoragesConfigurationControllerTestIT
                      "localhost",
                      repository1.getProxyConfiguration().getHost());
 
-        PoolStats poolStatsRepository2 = proxyRepositoryConnectionPoolConfigurationService.getPoolStats(secondRepositoryUrl);
+        PoolStats poolStatsRepository2 = proxyRepositoryConnectionPoolConfigurationService.getPoolStats(
+                secondRepositoryUrl);
 
         assertEquals("Max connections for proxy repository not set accordingly!",
-                maxConnectionsRepository2.intValue(),
-                poolStatsRepository2.getMax());
+                     maxConnectionsRepository2.intValue(),
+                     poolStatsRepository2.getMax());
 
         deleteRepository(storage0.getId(), r0_1.getId());
         deleteRepository(storage0.getId(), r0_2.getId());

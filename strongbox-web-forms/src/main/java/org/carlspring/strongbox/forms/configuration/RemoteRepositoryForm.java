@@ -78,7 +78,8 @@ public class RemoteRepositoryForm
         return checkIntervalSeconds;
     }
 
-    public void setCheckIntervalSeconds(Integer checkIntervalSeconds) {
+    public void setCheckIntervalSeconds(Integer checkIntervalSeconds)
+    {
         this.checkIntervalSeconds = checkIntervalSeconds;
     }
 
