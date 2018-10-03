@@ -1,23 +1,24 @@
 package org.carlspring.strongbox.config;
 
-import static org.carlspring.strongbox.config.HazelcastConfiguration.newDefaultMapConfig;
-
-import java.nio.file.Path;
-
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
+
+import java.nio.file.Path;
+
+import com.hazelcast.config.Config;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
-
-import com.hazelcast.config.Config;
+import org.springframework.context.annotation.Profile;
+import static org.carlspring.strongbox.config.HazelcastConfiguration.newDefaultMapConfig;
 
 /**
  * @author Przemyslaw Fusik
  */
+@Profile("MockedRestArtifactResolverTestConfig")
 @Configuration
 @Import({ Maven2LayoutProviderTestConfig.class })
 public class MockedRestArtifactResolverTestConfig
