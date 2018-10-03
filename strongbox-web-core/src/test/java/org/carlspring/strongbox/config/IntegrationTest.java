@@ -1,27 +1,28 @@
 package org.carlspring.strongbox.config;
 
-import static org.mockito.Matchers.any;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
+import org.carlspring.strongbox.StrongboxSpringBootApplication;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.rest.common.RestAssuredTestExecutionListener;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import org.mockito.Mockito;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.web.WebAppConfiguration;
+import static org.mockito.Matchers.any;
 
 
 /**
@@ -32,10 +33,9 @@ import org.springframework.test.context.web.WebAppConfiguration;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ContextConfiguration(classes = { RestAssuredConfig.class,
-                                  WebConfig.class,
-                                  MockedRemoteRepositoriesHeartbeatConfig.class,
-                                  IntegrationTest.TestConfig.class })
+@SpringBootTest(classes = { StrongboxSpringBootApplication.class,
+                            MockedRemoteRepositoriesHeartbeatConfig.class,
+                            IntegrationTest.TestConfig.class })
 @WebAppConfiguration("classpath:")
 @WithUserDetails(value = "admin")
 @TestExecutionListeners(listeners = { RestAssuredTestExecutionListener.class,

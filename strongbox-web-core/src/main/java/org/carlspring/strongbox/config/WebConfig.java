@@ -14,6 +14,7 @@ import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessMode
 import org.carlspring.strongbox.converters.users.UserFormToUserDtoConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
+import org.carlspring.strongbox.web.DirectoryTraversalFilter;
 import org.carlspring.strongbox.web.HeaderMappingFilter;
 
 import javax.inject.Inject;
@@ -45,7 +46,9 @@ import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
+import org.springframework.web.filter.RequestContextFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -91,15 +94,54 @@ public class WebConfig
     @Inject
     private ObjectMapper objectMapper;
 
-    public WebConfig()
+    WebConfig()
     {
         logger.debug("Initialized web configuration.");
     }
 
     @Bean
-    public HeaderMappingFilter headerMappingFilter()
+    RequestContextListener requestContextListener()
+    {
+        return new RequestContextListener();
+    }
+
+    @Bean
+    RequestContextFilter requestContextFilter()
+    {
+        return new RequestContextFilter();
+    }
+
+    @Bean
+    CommonsRequestLoggingFilter commonsRequestLoggingFilter()
+    {
+        CommonsRequestLoggingFilter result = new CommonsRequestLoggingFilter()
+        {
+
+            @Override
+            protected String createMessage(HttpServletRequest request,
+                                           String prefix,
+                                           String suffix)
+            {
+                return super.createMessage(request, String.format("%smethod=%s;", prefix, request.getMethod()), suffix);
+            }
+
+        };
+        result.setIncludeQueryString(true);
+        result.setIncludeHeaders(true);
+        result.setIncludeClientInfo(true);
+        return result;
+    }
+
+    @Bean
+    HeaderMappingFilter headerMappingFilter()
     {
         return new HeaderMappingFilter();
+    }
+
+    @Bean
+    DirectoryTraversalFilter directoryTraversalFilter()
+    {
+        return new DirectoryTraversalFilter();
     }
 
     @Override
@@ -194,27 +236,6 @@ public class WebConfig
                 .resourceChain(true)
                 .addResolver(new GzipResourceResolver())
                 .addResolver(new PathResourceResolver());
-    }
-
-    @Bean
-    public CommonsRequestLoggingFilter commonsRequestLoggingFilter()
-    {
-        CommonsRequestLoggingFilter result = new CommonsRequestLoggingFilter()
-        {
-
-            @Override
-            protected String createMessage(HttpServletRequest request,
-                                           String prefix,
-                                           String suffix)
-            {
-                return super.createMessage(request, String.format("%smethod=%s;", prefix, request.getMethod()), suffix);
-            }
-
-        };
-        result.setIncludeQueryString(true);
-        result.setIncludeHeaders(true);
-        result.setIncludeClientInfo(true);
-        return result;
     }
 
     @Override

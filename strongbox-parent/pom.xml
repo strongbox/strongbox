@@ -81,7 +81,7 @@
         <version.lucene>4.8.1</version.lucene>
         <version.logback>1.2.3</version.logback>
         <version.maven>3.3.9</version.maven>
-        <version.mockito>2.0.2-beta</version.mockito>
+        <version.mockito>2.22.0</version.mockito>
         <version.orientdb>3.0.0</version.orientdb>
         <version.quartz>2.3.0</version.quartz>
         <version.servlet.api>3.1.0</version.servlet.api>
@@ -865,12 +865,6 @@
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-launcher</artifactId>
                 <version>${version.junit-platform}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>${version.mockito}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
