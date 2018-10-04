@@ -19,6 +19,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Optional;
 
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
@@ -51,7 +52,7 @@ public class IndexedMavenRepositoryManagementStrategy
     private RepositoryPathResolver repositoryPathResolver;
 
     @Inject
-    private ApplicationStartupCronTasksInitiator applicationStartupCronTasksInitiator;
+    private Optional<ApplicationStartupCronTasksInitiator> applicationStartupCronTasksInitiator;
 
     @Override
     protected void createRepositoryInternal(Storage storage, Repository repository)
