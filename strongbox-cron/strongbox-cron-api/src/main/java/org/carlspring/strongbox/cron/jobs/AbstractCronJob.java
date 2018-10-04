@@ -8,17 +8,20 @@ import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.UnableToInterruptJobException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 /**
  * @author carlspring
  */
+@DisallowConcurrentExecution
 public abstract class AbstractCronJob
         extends QuartzJobBean
         implements InterruptableJob
@@ -26,77 +29,78 @@ public abstract class AbstractCronJob
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected CronTaskConfigurationDto configuration;
-
     @Inject
     private CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
 
     @Inject
-    private CronTaskConfigurationService cronTaskConfigurationService;
+    private JobManager manager;
 
     @Inject
-    private JobManager manager;
+    private Environment environment;
+
+    @Inject
+    protected CronTaskConfigurationService cronTaskConfigurationService;
 
     private String status = CronJobStatusEnum.SLEEPING.getStatus();
 
-
     public abstract void executeTask(CronTaskConfigurationDto config)
-            throws Throwable;
+        throws Throwable;
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext)
-            throws JobExecutionException
+        throws JobExecutionException
     {
-        logger.info("Executing cron job task ...");
 
+        String jobKey = jobExecutionContext.getJobDetail().getKey().getName();
+        
+        CronTaskConfigurationDto configuration = cronTaskConfigurationService.getTaskConfigurationDto(jobKey);
+        configuration = configuration == null ? (CronTaskConfigurationDto) jobExecutionContext.getJobDetail().getJobDataMap().get("config")
+                : configuration;
         if (configuration == null)
         {
-            configuration = cronTaskConfigurationService.getTaskConfigurationDto(jobExecutionContext.getJobDetail()
-                                                                                                    .getKey()
-                                                                                                    .getName());
+            logger.info(String.format("Configuration not found for [%s].", jobKey));
+
+            return;
         }
+
+        if (!enabled(configuration, environment))
+        {
+            logger.info(String.format("Cron job [%s] disabled, skip execution.", configuration.getName()));
+
+            return;
+        }
+
+        logger.info(String.format("Cron job [%s] enabled, executing.", configuration.getName()));
 
         setStatus(CronJobStatusEnum.EXECUTING.getStatus());
         cronTaskEventListenerRegistry.dispatchCronTaskExecutingEvent(configuration.getName());
 
-        CronTaskConfigurationDto config = (CronTaskConfigurationDto) jobExecutionContext.getMergedJobDataMap().get("config");
-
         try
         {
-            executeTask(config);
+            executeTask(configuration);
             logger.info(String.format("Cron job task [%s] execution completed.", configuration.getName()));
         }
         catch (Throwable e)
         {
             logger.error(String.format("Failed to execute cron job task [%s].", configuration.getName()), e);
         }
-        manager.addExecutedJob(config.getName(), true);
+        manager.addExecutedJob(configuration.getName(), true);
 
         cronTaskEventListenerRegistry.dispatchCronTaskExecutedEvent(configuration.getName());
         setStatus(CronJobStatusEnum.SLEEPING.getStatus());
 
-        if (configuration.isOneTimeExecution())
-        {
-            try
-            {
-                cronTaskConfigurationService.deleteConfiguration(configuration.getName());
-            }
-            catch (Exception e)
-            {
-                logger.error(String.format("Failed to delete cron job task [%s].", configuration.getName()), e);
-            }
-        }
     }
 
     @Override
     public void interrupt()
-            throws UnableToInterruptJobException
+        throws UnableToInterruptJobException
     {
     }
 
-    public void beforeScheduleCallback(CronTaskConfigurationDto config)
-            throws Exception
+    public boolean enabled(CronTaskConfigurationDto configuration,
+                           Environment env)
     {
+        return !env.acceptsProfiles("test");
     }
 
     public String getStatus()

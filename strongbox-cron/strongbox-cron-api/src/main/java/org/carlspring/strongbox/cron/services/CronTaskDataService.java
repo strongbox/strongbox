@@ -13,6 +13,8 @@ import java.util.List;
 public interface CronTaskDataService
 {
 
+    boolean taskConfigurationexists(String cronTaskConfigurationName);
+    
     CronTaskConfigurationDto getTaskConfigurationDto(String cronTaskConfigurationName);
 
     CronTasksConfigurationDto getTasksConfigurationDto();

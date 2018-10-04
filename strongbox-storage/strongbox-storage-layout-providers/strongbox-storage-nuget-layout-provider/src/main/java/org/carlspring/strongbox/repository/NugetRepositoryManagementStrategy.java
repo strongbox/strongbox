@@ -3,6 +3,7 @@ package org.carlspring.strongbox.repository;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteFeedCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -23,7 +24,7 @@ public class NugetRepositoryManagementStrategy
     private static final Logger logger = LoggerFactory.getLogger(NugetRepositoryManagementStrategy.class);
 
     @Inject
-    private CronTaskConfigurationService cronTaskConfigurationService;
+    private CronTaskDataService cronTaskDataService;
 
     
     @Override
@@ -44,20 +45,10 @@ public class NugetRepositoryManagementStrategy
                                                     String repositoryId)
         throws RepositoryManagementStrategyException
     {
-        boolean shouldDownloadRemoteRepositoryFeed = shouldDownloadRemoteRepositoryFeed();
-
-        logger.debug(String.format("%s/%s: shouldDownloadRemoteRepositoryFeed-[%s]",
-                                   storageId,
-                                   repositoryId,
-                                   shouldDownloadRemoteRepositoryFeed));
-
-        if (!shouldDownloadRemoteRepositoryFeed)
-        {
-            return;
-        }
-    	
+        String downloadRemoteFeedCronJobName = "Remote feed download for " + storageId + ":" + repositoryId;
+        
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
-        configuration.setName("Remote feed download for " + storageId + ":" + repositoryId);
+        configuration.setName(downloadRemoteFeedCronJobName);
         configuration.addProperty("jobClass", DownloadRemoteFeedCronJob.class.getName());
         configuration.addProperty("cronExpression", "0 0 0 * * ?"); // Execute once daily at 00:00:00
         configuration.addProperty("storageId", storageId);
@@ -66,7 +57,7 @@ public class NugetRepositoryManagementStrategy
 
         try
         {
-            cronTaskConfigurationService.saveConfiguration(configuration);
+            cronTaskDataService.save(configuration);
         }
         catch (Exception e)
         {
@@ -76,10 +67,4 @@ public class NugetRepositoryManagementStrategy
         }
     }
     
-    public static boolean shouldDownloadRemoteRepositoryFeed()
-    {
-        return System.getProperty("strongbox.nuget.download.feed") == null ||
-               Boolean.parseBoolean(System.getProperty("strongbox.nuget.download.feed"));
-    }
-
 }

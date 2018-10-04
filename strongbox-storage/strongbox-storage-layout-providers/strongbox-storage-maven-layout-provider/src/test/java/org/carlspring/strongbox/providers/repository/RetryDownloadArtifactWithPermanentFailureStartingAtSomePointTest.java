@@ -21,7 +21,7 @@ import static org.junit.Assert.assertFalse;
 /**
  * @author Przemyslaw Fusik
  */
-@ActiveProfiles("MockedRestArtifactResolverTestConfig")
+@ActiveProfiles({"MockedRestArtifactResolverTestConfig","test"})
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
 public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest

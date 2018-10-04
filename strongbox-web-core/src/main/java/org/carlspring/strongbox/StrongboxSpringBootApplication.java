@@ -12,6 +12,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * @author carlspring
@@ -37,7 +38,8 @@ public class StrongboxSpringBootApplication
             System.setProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE, ConnectionConfigOrientDB.PROFILE_EMBEDDED);
         }
 
-        SpringApplication.run(StrongboxSpringBootApplication.class, args);
+        ConfigurableApplicationContext applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class, args);
+        applicationContext.start();
     }
 
 }

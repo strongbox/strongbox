@@ -214,9 +214,10 @@ public class CronTaskController
                                  MediaType.APPLICATION_XML })
     public ResponseEntity getGroovyScriptsName()
     {
-        GroovyScriptNamesDto groovyScriptNames = cronTaskConfigurationService.getGroovyScriptsName();
-
-        return ResponseEntity.ok(groovyScriptNames);
+        //TODO:
+        //GroovyScriptNamesDto groovyScriptNames = cronTaskConfigurationService.getGroovyScriptsName();
+        
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
     private void storeGroovyCronTask(InputStream is,

@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -19,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Alex Oreshkevich
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = { DataServiceConfig.class,
                                   UsersConfig.class })
 public class AuthorizationConfigServiceTest

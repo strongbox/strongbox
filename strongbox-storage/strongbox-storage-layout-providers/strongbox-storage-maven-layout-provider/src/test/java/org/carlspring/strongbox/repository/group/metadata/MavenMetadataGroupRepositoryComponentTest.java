@@ -28,6 +28,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -35,6 +36,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Przemyslaw Fusik
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class MavenMetadataGroupRepositoryComponentTest
         extends BaseMavenGroupRepositoryComponentTest

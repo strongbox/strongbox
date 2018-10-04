@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
  * @author sbespalov
  *
  */
-@ActiveProfiles("MockedRestArtifactResolverTestConfig")
+@ActiveProfiles({"MockedRestArtifactResolverTestConfig","test"})
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
 public class ParallelDownloadRemoteArtifactTest

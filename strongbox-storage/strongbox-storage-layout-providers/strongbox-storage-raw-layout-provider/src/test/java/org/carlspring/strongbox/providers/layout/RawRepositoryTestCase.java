@@ -13,6 +13,7 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -21,6 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @ContextConfiguration(classes = RawLayoutProviderTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
+@ActiveProfiles(profiles = "test")
 public class RawRepositoryTestCase
         extends TestCaseWithRepositoryManagement
 {

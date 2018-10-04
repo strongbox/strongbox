@@ -4,13 +4,14 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.repository.NpmRepositoryFeatures;
+import org.springframework.core.env.Environment;
 
 /**
  * @author Sergey Bespalov
  *
  */
 public class FetchRemoteChangesFeedCronJob
-        extends OnePerRepositoryJavaCronJob
+        extends JavaCronJob
 {
 
     @Inject
@@ -26,4 +27,26 @@ public class FetchRemoteChangesFeedCronJob
         features.fetchRemoteChangesFeed(storageId, repositoryId);
     }
 
+    public static String calculateJobName(String storageId,
+                                          String repositoryId)
+    {
+        return String.format("Fetch Remote Changes feed for %s:%s", storageId, repositoryId);
+    }
+    
+    @Override
+    public boolean enabled(CronTaskConfigurationDto configuration, Environment env)
+    {
+        if (!super.enabled(configuration, env))
+        {
+            return false;
+        }
+        
+        return shouldDownloadRemoteChangesFeed();
+    }
+
+    public static boolean shouldDownloadRemoteChangesFeed()
+    {
+        return System.getProperty("strongbox.npm.remote.changes.enabled") == null ||
+                Boolean.parseBoolean(System.getProperty("strongbox.npm.remote.changes.enabled"));
+    }
 }

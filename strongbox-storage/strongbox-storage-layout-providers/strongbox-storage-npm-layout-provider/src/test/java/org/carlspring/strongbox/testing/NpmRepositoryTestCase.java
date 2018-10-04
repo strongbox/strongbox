@@ -12,12 +12,14 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author carlspring
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@ActiveProfiles(profiles = "test")
 public class NpmRepositoryTestCase
         extends TestCaseWithRepositoryManagement
 {

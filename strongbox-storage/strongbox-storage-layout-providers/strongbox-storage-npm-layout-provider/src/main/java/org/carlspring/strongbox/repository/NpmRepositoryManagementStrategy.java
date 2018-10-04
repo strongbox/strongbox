@@ -4,7 +4,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.FetchRemoteChangesFeedCronJob;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ public class NpmRepositoryManagementStrategy
     private static final Logger logger = LoggerFactory.getLogger(NpmRepositoryManagementStrategy.class);
 
     @Inject
-    private CronTaskConfigurationService cronTaskConfigurationService;
+    private CronTaskDataService cronTaskDataService;
 
     @Override
     protected void createRepositoryInternal(Storage storage,
@@ -39,20 +39,8 @@ public class NpmRepositoryManagementStrategy
                                                         String repositoryId)
         throws RepositoryManagementStrategyException
     {
-        boolean shouldFetchRemoteChangesFeed = shouldDownloadRemoteChangesFeed();
-
-        logger.info(String.format("%s/%s: shouldDownloadRemoteChangesFeed-[%s]",
-                                  storageId,
-                                  repositoryId,
-                                  shouldFetchRemoteChangesFeed));
-
-        if (!shouldFetchRemoteChangesFeed)
-        {
-            return;
-        }
-
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
-        configuration.setName("Fetch Remote Changes feed for " + storageId + ":" + repositoryId);
+        configuration.setName(FetchRemoteChangesFeedCronJob.calculateJobName(storageId, repositoryId));
         configuration.addProperty("jobClass", FetchRemoteChangesFeedCronJob.class.getName());
         configuration.addProperty("cronExpression", "0 0 * ? * * *"); // Execute every hour
         configuration.addProperty("storageId", storageId);
@@ -61,7 +49,7 @@ public class NpmRepositoryManagementStrategy
 
         try
         {
-            cronTaskConfigurationService.saveConfiguration(configuration);
+            cronTaskDataService.save(configuration);
         }
         catch (Exception e)
         {
@@ -69,12 +57,6 @@ public class NpmRepositoryManagementStrategy
 
             throw new RepositoryManagementStrategyException(e.getMessage(), e);
         }
-    }
-
-    public static boolean shouldDownloadRemoteChangesFeed()
-    {
-        return System.getProperty("strongbox.npm.remote.changes.enabled") == null ||
-                Boolean.parseBoolean(System.getProperty("strongbox.npm.remote.changes.enabled"));
     }
 
 }

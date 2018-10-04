@@ -160,6 +160,11 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                                                                                                                                   .getCustomConfiguration();
 
         NpmRemoteRepositoryConfiguration configuration = (NpmRemoteRepositoryConfiguration) remoteRepository.getCustomConfiguration();
+        if (configuration == null)
+        {
+            logger.warn(String.format("Remote npm configuration not found for [%s]/[%s]", storageId, repositoryId));
+            return;
+        }
         Long lastCnahgeId = configuration.getLastChangeId();
         String replicateUrl = configuration.getReplicateUrl();
 
