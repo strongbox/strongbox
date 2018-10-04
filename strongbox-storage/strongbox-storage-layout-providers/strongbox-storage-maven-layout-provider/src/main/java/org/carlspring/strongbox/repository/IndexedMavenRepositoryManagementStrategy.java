@@ -2,6 +2,7 @@ package org.carlspring.strongbox.repository;
 
 import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.cron.config.ApplicationStartupCronTasksInitiator;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
 import org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob;
@@ -48,6 +49,9 @@ public class IndexedMavenRepositoryManagementStrategy
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
+
+    @Inject
+    private ApplicationStartupCronTasksInitiator applicationStartupCronTasksInitiator;
 
     @Override
     protected void createRepositoryInternal(Storage storage, Repository repository)

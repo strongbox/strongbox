@@ -178,7 +178,7 @@ public class PropertiesBooter
     public static String getTempDirectory()
     {
         final String dir = getVariable("STRONGBOX_TMP",
-                                       System.getProperty("java.io.tmp"),
+                                       System.getProperty("java.io.tmpdir"),
                                        Paths.get(getVaultDirectory()).resolve("tmp").toString());
 
         return resolvePath(dir, null);

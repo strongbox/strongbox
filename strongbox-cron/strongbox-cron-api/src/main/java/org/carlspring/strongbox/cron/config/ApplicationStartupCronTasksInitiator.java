@@ -6,19 +6,16 @@ import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-
 import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Component
-@DependsOn("storageBooter")
 public class ApplicationStartupCronTasksInitiator
 {
 
