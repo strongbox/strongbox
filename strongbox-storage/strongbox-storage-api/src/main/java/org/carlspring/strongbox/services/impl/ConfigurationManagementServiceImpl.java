@@ -201,7 +201,7 @@ public class ConfigurationManagementServiceImpl
                          repository.setStorage(storage);
                          storage.addRepository(repository);
 
-                         if (repository.hasRemoteRepositoryUrl())
+                         if (repository.isEligibleForCustomConnectionPool())
                          {
                              proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
                                      repository.getRemoteRepository()
@@ -593,7 +593,7 @@ public class ConfigurationManagementServiceImpl
                          configuration.getStorages().values().stream()
                                       .filter(storage -> MapUtils.isNotEmpty(storage.getRepositories()))
                                       .flatMap(storage -> storage.getRepositories().values().stream())
-                                      .filter(MutableRepository::hasRemoteRepositoryUrl)
+                                      .filter(MutableRepository::isEligibleForCustomConnectionPool)
                                       .forEach(
                                               repository -> proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
                                                       repository.getRemoteRepository().getUrl(),

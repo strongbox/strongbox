@@ -440,7 +440,7 @@ public class MutableRepository
         }
     }
 
-    public boolean hasRemoteRepositoryUrl()
+    public boolean isEligibleForCustomConnectionPool()
     {
         return this.getHttpConnectionPool() != null &&
                this.getRemoteRepository() != null &&
