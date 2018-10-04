@@ -440,4 +440,11 @@ public class MutableRepository
         }
     }
 
+    public boolean hasRemoteRepositoryUrl()
+    {
+        return this.getHttpConnectionPool() != null &&
+               this.getRemoteRepository() != null &&
+               this.getRemoteRepository().getUrl() != null;
+    }
+
 }

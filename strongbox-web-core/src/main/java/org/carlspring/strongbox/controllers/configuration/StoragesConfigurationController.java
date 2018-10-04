@@ -4,7 +4,6 @@ import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
@@ -15,7 +14,6 @@ import org.carlspring.strongbox.storage.Views;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import java.io.IOException;
@@ -92,13 +90,10 @@ public class StoragesConfigurationController
 
     private final ConversionService conversionService;
 
-    private final ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
-
     public StoragesConfigurationController(ConfigurationManagementService configurationManagementService,
                                            StorageManagementService storageManagementService,
                                            RepositoryManagementService repositoryManagementService,
                                            ConversionService conversionService,
-                                           ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService,
                                            Optional<RepositoryIndexManager> repositoryIndexManager)
     {
         super(configurationManagementService);
@@ -106,12 +101,11 @@ public class StoragesConfigurationController
         this.repositoryManagementService = repositoryManagementService;
         this.conversionService = conversionService;
         this.repositoryIndexManager = repositoryIndexManager;
-        this.proxyRepositoryConnectionPoolConfigurationService = proxyRepositoryConnectionPoolConfigurationService;
     }
 
     @ApiOperation(value = "Add/update a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                    message = "The storage was updated successfully."),
+            message = "The storage was updated successfully."),
                             @ApiResponse(code = 500,
                                     message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
@@ -163,7 +157,7 @@ public class StoragesConfigurationController
     @JsonView(Views.LongStorage.class)
     @ApiOperation(value = "Retrieve the configuration of a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                    message = ""),
+            message = ""),
                             @ApiResponse(code = 404,
                                     message = "Storage ${storageId} was not found.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
@@ -258,13 +252,6 @@ public class StoragesConfigurationController
 
             configurationManagementService.saveRepository(storageId, repository);
 
-            if (repository != null && RepositoryTypeEnum.PROXY.getType().equals(repository.getType()))
-            {
-                proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
-                        repository.getRemoteRepository()
-                                .getUrl(), repository.getHttpConnectionPool().getAllocatedConnections());
-            }
-
             final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
             if (!Files.exists(repositoryPath))
             {
@@ -283,7 +270,7 @@ public class StoragesConfigurationController
 
     @ApiOperation(value = "Returns the configuration of a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                    message = "The repository was updated successfully.",
+            message = "The repository was updated successfully.",
             response = MutableRepository.class),
                             @ApiResponse(code = 404,
                                     message = "Repository ${storageId}:${repositoryId} was not found!") })
@@ -322,7 +309,7 @@ public class StoragesConfigurationController
 
     @ApiOperation(value = "Deletes a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                    message = "The repository was deleted successfully."),
+            message = "The repository was deleted successfully."),
                             @ApiResponse(code = 404,
                                     message = "Repository ${storageId}:${repositoryId} was not found!"),
                             @ApiResponse(code = 500,

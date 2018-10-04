@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
@@ -36,6 +37,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRuleSet;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -88,7 +90,7 @@ public class ConfigurationManagementServiceImpl
         setConfiguration(configuration);
         return null;
     }
-    
+
     @Override
     public MutableConfiguration getMutableConfigurationClone()
     {
@@ -198,6 +200,13 @@ public class ConfigurationManagementServiceImpl
                          final MutableStorage storage = configuration.getStorage(storageId);
                          repository.setStorage(storage);
                          storage.addRepository(repository);
+
+                         if (repository.hasRemoteRepositoryUrl())
+                         {
+                             proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
+                                     repository.getRemoteRepository()
+                                               .getUrl(), repository.getHttpConnectionPool().getAllocatedConnections());
+                         }
                      });
     }
 
@@ -372,7 +381,8 @@ public class ConfigurationManagementServiceImpl
     {
         modifyInLock(configuration ->
                      {
-                         final MutableRepository repository = configuration.getStorage(storageId).getRepository(repositoryId);
+                         final MutableRepository repository = configuration.getStorage(storageId).getRepository(
+                                 repositoryId);
                          repository.addRepositoryToGroup(repositoryGroupMemberId);
                      });
     }
@@ -583,9 +593,7 @@ public class ConfigurationManagementServiceImpl
                          configuration.getStorages().values().stream()
                                       .filter(storage -> MapUtils.isNotEmpty(storage.getRepositories()))
                                       .flatMap(storage -> storage.getRepositories().values().stream())
-                                      .filter(repository -> repository.getHttpConnectionPool() != null &&
-                                                            repository.getRemoteRepository() != null &&
-                                                            repository.getRemoteRepository().getUrl() != null)
+                                      .filter(MutableRepository::hasRemoteRepositoryUrl)
                                       .forEach(
                                               repository -> proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
                                                       repository.getRemoteRepository().getUrl(),
