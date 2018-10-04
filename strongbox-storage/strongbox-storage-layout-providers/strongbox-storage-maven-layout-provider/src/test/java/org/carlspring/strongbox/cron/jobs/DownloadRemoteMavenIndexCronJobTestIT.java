@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -185,7 +187,7 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         addCronJobConfig(jobName, DownloadRemoteMavenIndexCronJob.class, STORAGE0,
                          REPOSITORY_PROXIED_RELEASES);
 
-        assertTrue("Failed to execute task!", expectEvent());
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
     }
 
 }

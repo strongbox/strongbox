@@ -1,11 +1,12 @@
-# Strongbox
+# ![strongbox](./strongbox.svg)
+
 [![Master Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox/master)](https://dev.carlspring.org/jenkins/blue/organizations/jenkins/strongbox%2Fstrongbox/activity?branch=master)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/strongbox/strongbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Help Contribute to Open Source](https://www.codetriage.com/strongbox/strongbox/badges/users.svg)](https://www.codetriage.com/strongbox/strongbox)
 
 Welcome to the Strongbox artifact repository manager's home.
 
-# What's implemented:
+## What's implemented:
 * [Repositories](https://github.com/strongbox/strongbox/wiki/Repositories):
   * Hosted
   * Proxy
@@ -44,28 +45,28 @@ Welcome to the Strongbox artifact repository manager's home.
 * Logging:
   * Retrieve logs over HTTP
 
-# What's in the works (Q3/2018):
+## What's in the works (Q3/2018):
 * Layout providers
   * NPM layout provider
   * Raw layout provider
 * Web UI
 * Spring Bootification
 
-# Upcoming:
+## Upcoming:
 * Logging:
   * Log tailing over HTTP
 * Deploy as a transaction
 * RPM distribution
 * Debian/Ubuntu distribution
 
-# What's not yet implemented:
+## What's not yet implemented:
 * Plugins
 
-# Requirements:
+## Requirements:
 * Java 1.8.x
 * Maven 3.3.9 (or higher)
 
-# Download
+## Download
 * Standalone:
   * [tar.gz](https://github.com/strongbox/strongbox-assembly/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.tar.gz), [zip](https://github.com/strongbox/strongbox-assembly/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.zip)
   * [other releases](https://github.com/strongbox/strongbox-assembly/releases)

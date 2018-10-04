@@ -28,13 +28,10 @@
 
                 <file>${strongbox.vault}/logs/${strongbox-cron-context-name}.log</file>
                 <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                
-                    <fileNamePattern>${strongbox.vault}/logs/${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                    <fileNamePattern>${strongbox.vault}/logs/${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
                     <maxFileSize>128MB</maxFileSize>
                     <maxHistory>31</maxHistory>
                     <totalSizeCap>1GB</totalSizeCap>
-
-                    <maxHistory>30</maxHistory>
                 </rollingPolicy>
 
                 <encoder>

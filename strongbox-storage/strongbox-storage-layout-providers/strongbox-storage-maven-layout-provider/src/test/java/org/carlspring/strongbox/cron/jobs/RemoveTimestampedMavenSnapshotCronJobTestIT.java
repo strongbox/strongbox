@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -9,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -216,7 +218,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                              properties.put("keepPeriod", "0");
                          });
 
-        assertTrue("Failed to execute task!", expectEvent());
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
     }
 
     @Test
@@ -260,7 +262,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                              properties.put("keepPeriod", "0");
                          });
 
-        assertTrue("Failed to execute task!", expectEvent());
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
     }
 
     @Test
@@ -307,7 +309,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                              properties.put("keepPeriod", "0");
                          });
 
-        assertTrue("Failed to execute task!", expectEvent());
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
     }
 
     @Test
@@ -348,7 +350,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                              properties.put("keepPeriod", "3");
                          });
 
-        assertTrue("Failed to execute task!", expectEvent());
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
     }
 
     private String getSnapshotArtifactVersion(File artifactFile)
