@@ -1,5 +1,22 @@
 package org.carlspring.strongbox.services.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
+
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
@@ -21,25 +38,11 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Consumer;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.google.common.base.Throwables;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 /**
  * @author mtodorov
@@ -48,7 +51,6 @@ import org.springframework.stereotype.Service;
 public class ConfigurationManagementServiceImpl
         implements ConfigurationManagementService
 {
-    private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementServiceImpl.class);
 
     private final ReadWriteLock configurationLock = new ReentrantReadWriteLock();
 
@@ -64,6 +66,9 @@ public class ConfigurationManagementServiceImpl
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
+    @Inject
+    private PlatformTransactionManager transactionManager;
+
     /**
      * Yes, this is a state object.
      * It is protected by the {@link #configurationLock} here
@@ -76,10 +81,14 @@ public class ConfigurationManagementServiceImpl
     @PostConstruct
     public void init()
     {
+        new TransactionTemplate(transactionManager).execute((s) -> doInit());
+    }
+
+    private Object doInit()
+    {
         final MutableConfiguration configuration = configurationFileManager.read();
         setConfiguration(configuration);
-        setRepositoryArtifactCoordinateValidators();
-        logger.info("Initialized the configuration management service.");
+        return null;
     }
     
     @Override
@@ -191,6 +200,13 @@ public class ConfigurationManagementServiceImpl
                          final MutableStorage storage = configuration.getStorage(storageId);
                          repository.setStorage(storage);
                          storage.addRepository(repository);
+
+                         if (repository.isEligibleForCustomConnectionPool())
+                         {
+                             proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
+                                     repository.getRemoteRepository().getUrl(),
+                                     repository.getHttpConnectionPool().getAllocatedConnections());
+                         }
                      });
     }
 
@@ -365,7 +381,8 @@ public class ConfigurationManagementServiceImpl
     {
         modifyInLock(configuration ->
                      {
-                         final MutableRepository repository = configuration.getStorage(storageId).getRepository(repositoryId);
+                         final MutableRepository repository = configuration.getStorage(storageId)
+                                                                           .getRepository(repositoryId);
                          repository.addRepositoryToGroup(repositoryGroupMemberId);
                      });
     }
@@ -428,7 +445,8 @@ public class ConfigurationManagementServiceImpl
                      }, false);
     }
 
-    private void setRepositoryArtifactCoordinateValidators()
+    @Override
+    public void setRepositoryArtifactCoordinateValidators()
     {
         modifyInLock(configuration ->
                      {
@@ -575,9 +593,7 @@ public class ConfigurationManagementServiceImpl
                          configuration.getStorages().values().stream()
                                       .filter(storage -> MapUtils.isNotEmpty(storage.getRepositories()))
                                       .flatMap(storage -> storage.getRepositories().values().stream())
-                                      .filter(repository -> repository.getHttpConnectionPool() != null &&
-                                                            repository.getRemoteRepository() != null &&
-                                                            repository.getRemoteRepository().getUrl() != null)
+                                      .filter(MutableRepository::isEligibleForCustomConnectionPool)
                                       .forEach(
                                               repository -> proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
                                                       repository.getRemoteRepository().getUrl(),

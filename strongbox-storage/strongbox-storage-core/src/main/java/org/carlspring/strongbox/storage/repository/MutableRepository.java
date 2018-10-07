@@ -440,4 +440,11 @@ public class MutableRepository
         }
     }
 
+    public boolean isEligibleForCustomConnectionPool()
+    {
+        return this.getHttpConnectionPool() != null &&
+               this.getRemoteRepository() != null &&
+               this.getRemoteRepository().getUrl() != null;
+    }
+
 }

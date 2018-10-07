@@ -105,7 +105,7 @@ public class StoragesConfigurationController
 
     @ApiOperation(value = "Add/update a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                    message = "The storage was updated successfully."),
+            message = "The storage was updated successfully."),
                             @ApiResponse(code = 500,
                                     message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
@@ -157,7 +157,7 @@ public class StoragesConfigurationController
     @JsonView(Views.LongStorage.class)
     @ApiOperation(value = "Retrieve the configuration of a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                    message = ""),
+            message = ""),
                             @ApiResponse(code = 404,
                                     message = "Storage ${storageId} was not found.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
@@ -270,7 +270,7 @@ public class StoragesConfigurationController
 
     @ApiOperation(value = "Returns the configuration of a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                    message = "The repository was updated successfully.",
+            message = "The repository was updated successfully.",
             response = MutableRepository.class),
                             @ApiResponse(code = 404,
                                     message = "Repository ${storageId}:${repositoryId} was not found!") })
@@ -309,7 +309,7 @@ public class StoragesConfigurationController
 
     @ApiOperation(value = "Deletes a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                    message = "The repository was deleted successfully."),
+            message = "The repository was deleted successfully."),
                             @ApiResponse(code = 404,
                                     message = "Repository ${storageId}:${repositoryId} was not found!"),
                             @ApiResponse(code = 500,

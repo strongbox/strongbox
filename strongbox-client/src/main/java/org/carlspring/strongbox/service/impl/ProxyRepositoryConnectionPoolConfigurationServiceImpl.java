@@ -15,7 +15,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
+
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
@@ -36,7 +38,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
 
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ProxyRepositoryConnectionPoolConfigurationServiceImpl.class);
-    
+
     private PoolingHttpClientConnectionManager poolingHttpClientConnectionManager;
     private IdleConnectionMonitorThread idleConnectionMonitorThread;
 
@@ -77,12 +79,12 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         config.property(ApacheClientProperties.CONNECTION_MANAGER_SHARED, true);
 
         java.util.logging.Logger logger = java.util.logging.Logger.getLogger("org.carlspring.strongbox.RestClient");
-        
+
         // TODO set basic authentication here instead of setting it always in client?
         /* CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
         config.property(ApacheClientProperties.CREDENTIALS_PROVIDER, credentialsProvider); */
-        
+
         return ClientBuilder.newBuilder()
                             .register(new LoggingFeature(logger, Verbosity.PAYLOAD_TEXT))
                             .withConfig(config)
@@ -120,8 +122,15 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     public void setMaxPerRepository(String repository,
                                     int max)
     {
-        HttpRoute httpRoute = getHttpRouteFromRepository(repository);
-        poolingHttpClientConnectionManager.setMaxPerRoute(httpRoute, max);
+        if (max > 0)
+        {
+            HttpRoute httpRoute = getHttpRouteFromRepository(repository);
+            poolingHttpClientConnectionManager.setMaxPerRoute(httpRoute, max);
+        }
+        else
+        {
+            LOGGER.warn("Not setting max repository connections to %s as it is no positive value", max);
+        }
     }
 
     @Override
