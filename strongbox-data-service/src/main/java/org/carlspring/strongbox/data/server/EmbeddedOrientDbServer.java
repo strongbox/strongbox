@@ -8,7 +8,6 @@ import org.carlspring.strongbox.data.domain.GenericEntityHook;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,9 +36,9 @@ import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfigur
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.config.OServerUserConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetStaticContent;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * An embedded configuration of OrientDb server.
@@ -57,6 +56,9 @@ public class EmbeddedOrientDbServer
     private OServer server;
 
     private OServerConfiguration serverConfiguration;
+
+    @Value("${" + ConnectionConfigOrientDB.PROPERTY_STUDIO_ENABLED + ":true}")
+    private boolean studioEnabled;
 
     @Inject
     private ConnectionConfig connectionConfig;
@@ -87,8 +89,7 @@ public class EmbeddedOrientDbServer
     
     private void prepareStudio() throws IOException
     {
-        String studioEnabled = System.getProperty(ConnectionConfigOrientDB.PROPERTY_STUDIO_ENABLED);
-        if (studioEnabled != null && Boolean.FALSE.toString().equals(studioEnabled))
+        if (!studioEnabled)
         {
             logger.info(String.format("OrientDB Studio disabled with [%s], skip initialization.",
                                       ConnectionConfigOrientDB.PROPERTY_STUDIO_ENABLED));
