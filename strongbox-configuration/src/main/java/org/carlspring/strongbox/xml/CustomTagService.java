@@ -16,10 +16,14 @@ public class CustomTagService
 
     private ServiceLoader<CustomTag> loader;
 
+    private List<Class> implementations = new ArrayList<>();
+
 
     private CustomTagService()
     {
         loader = ServiceLoader.load(CustomTag.class);
+
+        loadImplementations();
     }
 
     public static synchronized CustomTagService getInstance()
@@ -32,10 +36,8 @@ public class CustomTagService
         return service;
     }
 
-    public List<Class> getImplementations()
+    private void loadImplementations()
     {
-        List<Class> implementations = new ArrayList<>();
-
         if (loader.iterator().hasNext())
         {
             logger.debug("Available custom tag implementations:");
@@ -49,7 +51,10 @@ public class CustomTagService
                 implementations.add(c);
             }
         }
+    }
 
+    public List<Class> getImplementations()
+    {
         return implementations;
     }
 

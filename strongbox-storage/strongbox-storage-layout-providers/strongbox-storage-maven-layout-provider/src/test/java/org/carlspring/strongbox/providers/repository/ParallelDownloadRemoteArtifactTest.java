@@ -1,12 +1,9 @@
 package org.carlspring.strongbox.providers.repository;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import org.carlspring.strongbox.config.MockedRestArtifactResolverTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 
+import javax.inject.Inject;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,24 +16,28 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.config.MockedRestArtifactResolverTestConfig;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.Resource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author sbespalov
  *
  */
+@ActiveProfiles("MockedRestArtifactResolverTestConfig")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
 public class ParallelDownloadRemoteArtifactTest

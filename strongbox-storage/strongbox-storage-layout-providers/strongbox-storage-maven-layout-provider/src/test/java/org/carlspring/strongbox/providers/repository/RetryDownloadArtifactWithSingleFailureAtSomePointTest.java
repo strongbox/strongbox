@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.Resource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
@@ -18,6 +19,7 @@ import static org.junit.Assert.*;
 /**
  * @author Przemyslaw Fusik
  */
+@ActiveProfiles("MockedRestArtifactResolverTestConfig")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
 public class RetryDownloadArtifactWithSingleFailureAtSomePointTest

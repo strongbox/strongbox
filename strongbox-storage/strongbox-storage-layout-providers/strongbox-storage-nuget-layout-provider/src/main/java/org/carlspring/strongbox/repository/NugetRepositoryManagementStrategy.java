@@ -25,6 +25,7 @@ public class NugetRepositoryManagementStrategy
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
+    
     @Override
     protected void createRepositoryInternal(Storage storage,
                                             Repository repository)
@@ -45,10 +46,10 @@ public class NugetRepositoryManagementStrategy
     {
         boolean shouldDownloadRemoteRepositoryFeed = shouldDownloadRemoteRepositoryFeed();
 
-        logger.info(String.format("%s/%s: shouldDownloadRemoteRepositoryFeed-[%s]",
-                                  storageId,
-                                  repositoryId,
-                                  shouldDownloadRemoteRepositoryFeed));
+        logger.debug(String.format("%s/%s: shouldDownloadRemoteRepositoryFeed-[%s]",
+                                   storageId,
+                                   repositoryId,
+                                   shouldDownloadRemoteRepositoryFeed));
 
         if (!shouldDownloadRemoteRepositoryFeed)
         {

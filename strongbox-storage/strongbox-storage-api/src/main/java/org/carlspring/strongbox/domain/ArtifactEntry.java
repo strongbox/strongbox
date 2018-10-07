@@ -1,37 +1,34 @@
 package org.carlspring.strongbox.domain;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
-
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
 /**
  * @author carlspring
  */
 @Entity
-public class ArtifactEntry extends GenericEntity<ArtifactEntry>
+public class ArtifactEntry
+        extends GenericEntity
 {
 
     private String storageId;
 
     private String repositoryId;
 
-    // if you have to rename this field please update
-    // ArtifactEntryServiceImpl.findByCoordinates() implementation
+    // if you have to rename this field please update ArtifactEntryServiceImpl.findByCoordinates() implementation
     @ManyToOne(cascade = { CascadeType.DETACH,
                            CascadeType.MERGE,
                            CascadeType.PERSIST,
@@ -167,26 +164,6 @@ public class ArtifactEntry extends GenericEntity<ArtifactEntry>
     }
 
     @Override
-    public ArtifactEntry detach(EntityManager entityManager)
-    {
-        ArtifactEntry result = super.detach(entityManager);
-
-        result.artifactCoordinates = (((AbstractArtifactCoordinates) result.getArtifactCoordinates()).detach(entityManager));
-        result.artifactArchiveListing = Optional.ofNullable(result.getArtifactArchiveListing())
-                                                .map(e -> e.detach(entityManager))
-                                                .orElse(null);
-        
-        result.tagSet = Optional.ofNullable(result.getTagSet())
-                                .map(t -> t.stream()
-                                           .map(e -> ((ArtifactTagEntry) e).detach(entityManager))
-                                           .map(e -> (ArtifactTag) e)
-                                           .collect(Collectors.toSet()))
-                                .orElse(null);
-        
-        return result;
-    }
-
-    @Override
     public String toString()
     {
         final StringBuilder sb = new StringBuilder("\nArtifactEntry{");
@@ -204,6 +181,7 @@ public class ArtifactEntry extends GenericEntity<ArtifactEntry>
         sb.append(", created=").append(created);
         sb.append(", downloadCount=").append(downloadCount);
         sb.append('}').append('\n');
+
         return sb.toString();
     }
 }

@@ -277,13 +277,57 @@
                             </artifactItems>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>unpack-web-ui</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-web-ui</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                    <includes>**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>org.carlspring.strongbox.StrongboxSpringBootApplication</mainClass>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>spring-boot-repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <phase>package</phase>
+
+                        <configuration>
+                            <classifier>spring-boot</classifier>
+                            <mainClass>org.carlspring.strongbox.StrongboxSpringBootApplication</mainClass>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
 
     <dependencies>
-
         <!-- Strongbox dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -368,8 +412,14 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-web-forms</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-rest-client</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -490,7 +540,15 @@
         <!-- Theme -->
         <dependency>
             <groupId>org.jtwig</groupId>
-            <artifactId>jtwig-spring</artifactId>
+            <artifactId>jtwig-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-analysis</artifactId>
         </dependency>
         
         <!-- Spring security dependencies -->
@@ -586,8 +644,11 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <scope>test</scope>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
         </dependency>
 
         <dependency>
@@ -612,7 +673,27 @@
             <groupId>javax.transaction</groupId>
             <artifactId>javax.transaction-api</artifactId>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jetty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <profiles>
@@ -860,7 +941,7 @@
 
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${dir.strongbox.home}/webapp</outputDirectory>
-                                            <includes>*</includes>
+                                            <includes>**</includes>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>

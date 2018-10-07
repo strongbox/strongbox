@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Entity
 public class ArtifactTagEntry
-        extends GenericEntity<ArtifactTagEntry>
+        extends GenericEntity
         implements ArtifactTag
 {
 

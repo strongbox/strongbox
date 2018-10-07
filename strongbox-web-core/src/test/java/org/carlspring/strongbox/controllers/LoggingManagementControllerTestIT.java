@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class LoggingManagementControllerTestIT
 
     private static final String LOGGER_APPENDER = "CONSOLE";
 
-    private static final String LOGS_HOME_DIRECTORY = PropertyUtils.getVaultDirectory() + "/logs";
+    private static final String LOGS_HOME_DIRECTORY = PropertiesBooter.getVaultDirectory() + "/logs";
     
     
     @Test

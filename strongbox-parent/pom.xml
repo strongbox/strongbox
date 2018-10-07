@@ -81,12 +81,13 @@
         <version.lucene>4.8.1</version.lucene>
         <version.logback>1.2.3</version.logback>
         <version.maven>3.3.9</version.maven>
-        <version.mockito>2.0.2-beta</version.mockito>
+        <version.mockito>2.22.0</version.mockito>
         <version.orientdb>3.0.0</version.orientdb>
         <version.quartz>2.3.0</version.quartz>
         <version.servlet.api>3.1.0</version.servlet.api>
         <version.slf4j>1.7.24</version.slf4j>
-        <version.spring>5.0.6.RELEASE</version.spring>
+        <!--<version.spring>5.0.6.RELEASE</version.spring>-->
+        <version.spring.boot>2.0.3.RELEASE</version.spring.boot>
         <version.spring.security>5.0.5.RELEASE</version.spring.security>
         <version.rest.assured>3.0.3</version.rest.assured>
         <version.jnuget>0.8.5-SNAPSHOT</version.jnuget>
@@ -96,8 +97,9 @@
         <version.liquibase>3.5.3</version.liquibase>
         <version.reflections>0.9.11</version.reflections>
         <version.liquibase-slf4j>2.0.0</version.liquibase-slf4j>
-        <version.jtwig>5.86.1.RELEASE</version.jtwig>
         <version.awaitility>3.1.2</version.awaitility>
+        <version.asm>6.0</version.asm>
+        <version.jtwig>5.87.0.RELEASE</version.jtwig>
         <!-- Version properties. -->
     </properties>
 
@@ -215,7 +217,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.9</version>
+                    <version>3.1.1</version>
                 </plugin>
 
                 <plugin>
@@ -303,7 +305,13 @@
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${version.antlr}</version>
-                </plugin>                
+                </plugin>
+
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>2.0.5.RELEASE</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -482,9 +490,10 @@
                 <artifactId>orientdb-studio</artifactId>
                 <version>2.2.0</version>
             </dependency>
-            
             <!-- End of OrientDB dependencies -->
-            <dependency>	
+
+            <!--
+            <dependency>
                 <groupId>org.jtwig</groupId>	
                 <artifactId>jtwig-spring</artifactId>	
                 <version>${version.jtwig}</version>	
@@ -495,6 +504,23 @@
                     </exclusion>	
                 </exclusions>	
             </dependency>
+            -->
+            <dependency>
+                <groupId>org.jtwig</groupId>
+                <artifactId>jtwig-core</artifactId>
+                <version>${version.jtwig}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.googlecode.concurrentlinkedhashmap</groupId>
+                        <artifactId>concurrentlinkedhashmap-lru</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
             <dependency>
                 <groupId>io.rest-assured</groupId>
                 <artifactId>spring-mock-mvc</artifactId>
@@ -612,18 +638,23 @@
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
+                <artifactId>jersey-media-jaxb</artifactId>
+                <version>${version.jersey}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-json-jackson</artifactId>
                 <version>${version.jersey}</version>
                 <exclusions>
                     <exclusion>
-                        <!-- Exclude this transitive dependency in order 
-                            to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
+                        <!-- Exclude this transitive dependency in order
+                             to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
                         <groupId>com.fasterxml.jackson.jaxrs</groupId>
                         <artifactId>jackson-jaxrs-base</artifactId>
                     </exclusion>
                     <exclusion>
-                        <!-- Exclude this transitive dependency in order 
-                            to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
+                        <!-- Exclude this transitive dependency in order
+                             to not be exposed to: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
                         <groupId>com.fasterxml.jackson.jaxrs</groupId>
                         <artifactId>jackson-jaxrs-json-provider</artifactId>
                     </exclusion>
@@ -637,6 +668,11 @@
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
+                <version>${version.jersey}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-server</artifactId>
                 <version>${version.jersey}</version>
             </dependency>
             <dependency>
@@ -754,41 +790,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-bom</artifactId>
-                <version>${version.spring.security}</version>
-                <type>pom</type>
-                <scope>import</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-expression</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-        
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-framework-bom</artifactId>
-                <version>${version.spring}</version>
-                <type>pom</type>
-                <scope>import</scope>
-                <exclusions>
-                    <!-- Exclude Commons Logging -->
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>                
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-commons</artifactId>
-                <version>2.0.8.RELEASE</version>
-            </dependency>
-
-            <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast-client</artifactId>
                 <version>${version.hazelcast}</version>
@@ -869,12 +870,6 @@
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>${version.mockito}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${version.mockito}</version>
                 <scope>test</scope>
@@ -951,6 +946,22 @@
                 <artifactId>api</artifactId>
                 <version>0.9.33</version>
                 <exclusions>
+                    <exclusion>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-analysis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-commons</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-tree</artifactId>
+                    </exclusion>
                     <exclusion>
                         <groupId>commons-lang</groupId>
                         <artifactId>commons-lang</artifactId>
@@ -1105,6 +1116,68 @@
                     </exclusion>               
                 </exclusions>
             </dependency>
+
+            <dependency>
+                <!-- Import dependency management from Spring Boot -->
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${version.spring.boot}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jtwig</groupId>
+                <artifactId>jtwig-spring-boot-starter</artifactId>
+                <version>${version.jtwig}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-tree</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${version.asm}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-analysis</artifactId>
+                <version>${version.asm}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-jetty</artifactId>
+                <version>${version.spring.boot}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-analysis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-commons</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-tree</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-commons</artifactId>
+                <version>2.0.8.RELEASE</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.mattbertolini</groupId>
                 <artifactId>liquibase-slf4j</artifactId>
@@ -1146,7 +1219,7 @@
                 <artifactId>awaitility</artifactId>
                 <version>${version.awaitility}</version>
             </dependency>
-        
+
         </dependencies>
 
     </dependencyManagement>

@@ -1,5 +1,11 @@
 package org.carlspring.strongbox.providers.layout;
 
+import org.carlspring.strongbox.artifact.archive.ArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.Bzip2ArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.CompositeArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.TarArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.TarGzArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.ZipArchiveListingFunction;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
@@ -7,12 +13,6 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.artifact.archive.ArchiveListingFunction;
-import org.carlspring.strongbox.artifact.archive.Bzip2ArchiveListingFunction;
-import org.carlspring.strongbox.artifact.archive.CompositeArchiveListingFunction;
-import org.carlspring.strongbox.artifact.archive.TarArchiveListingFunction;
-import org.carlspring.strongbox.artifact.archive.TarGzArchiveListingFunction;
-import org.carlspring.strongbox.artifact.archive.ZipArchiveListingFunction;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -54,9 +54,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
     @Inject
     private ConfigurationManager configurationManager;
-
-    @Inject
-    protected LayoutProviderRegistry layoutProviderRegistry;
     
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;

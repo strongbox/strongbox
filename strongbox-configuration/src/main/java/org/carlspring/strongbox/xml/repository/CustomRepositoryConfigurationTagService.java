@@ -19,10 +19,14 @@ public class CustomRepositoryConfigurationTagService
 
     private ServiceLoader<RepositoryConfiguration> loader;
 
+    private List<Class> implementations = new ArrayList<>();
+
 
     private CustomRepositoryConfigurationTagService()
     {
         loader = ServiceLoader.load(RepositoryConfiguration.class);
+        
+        loadImplementations();
     }
 
     public static synchronized CustomRepositoryConfigurationTagService getInstance()
@@ -35,13 +39,11 @@ public class CustomRepositoryConfigurationTagService
         return service;
     }
 
-    public List<Class> getImplementations()
+    private void loadImplementations()
     {
-        List<Class> implementations = new ArrayList<>();
-
         if (loader.iterator().hasNext())
         {
-            logger.debug("Available custom tag implementations:");
+            logger.debug("Available custom repository tag implementations:");
 
             for (RepositoryConfiguration tag : loader)
             {
@@ -52,7 +54,10 @@ public class CustomRepositoryConfigurationTagService
                 implementations.add(c);
             }
         }
+    }
 
+    public List<Class> getImplementations()
+    {
         return implementations;
     }
 

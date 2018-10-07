@@ -1,11 +1,8 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import javax.persistence.EntityManager;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
@@ -14,11 +11,11 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
  * @author carlspring
  */
 public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoordinates<C, V>, V extends Comparable<V>>
-        extends GenericEntity<C>
+        extends GenericEntity
         implements ArtifactCoordinates<C, V>
 {
 
-    protected Map<String, String> coordinates = new LinkedHashMap<>();
+    private Map<String, String> coordinates = new LinkedHashMap<>();
     /**
      * This field is used as unique OrientDB index.
      */
@@ -47,11 +44,9 @@ public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoor
 
     public void dump()
     {
-        for (String coordinateName : coordinates.keySet())
+        for (Map.Entry<String, String> coordinateEntry : coordinates.entrySet())
         {
-            String coordinateValue = coordinates.get(coordinateName);
-
-            System.out.println(coordinateName + " : " + coordinateValue);
+            System.out.println(coordinateEntry.getKey() + " : " + coordinateEntry.getValue());
         }
     }
 
@@ -104,11 +99,6 @@ public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoor
     @Override
     public int compareTo(C that)
     {
-        if (this == that)
-        {
-            return 0;
-        }
-        
         if (that == null)
         {
             return -1;
@@ -161,15 +151,6 @@ public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoor
     public String toString()
     {
         return toPath();
-    }
-
-    @Override
-    public C detach(EntityManager entityManager)
-    {
-        C result = super.detach(entityManager);
-        result.coordinates = new HashMap<>(result.coordinates);
-        
-        return result;
     }
 
     @Override

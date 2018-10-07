@@ -35,10 +35,9 @@ public abstract class AbstractRepositoryManagementStrategy
                                  String repositoryId)
             throws IOException, RepositoryManagementStrategyException
     {
-        logger.debug(String.format("Creating repository [%s/%s]...", storageId, repositoryId));
-
         Storage storage = getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
+
         createRepositoryStructure(repository);
         createRepositoryInternal(storage, getRepository(storageId, repositoryId));
     }
@@ -52,6 +51,7 @@ public abstract class AbstractRepositoryManagementStrategy
         {
             Files.createDirectories(rootRepositoryPath);
         }
+
         final RepositoryPath trashRepositoryPath = rootRepositoryPath.resolve(RepositoryFileSystem.TRASH);
         if (!Files.exists(trashRepositoryPath))
         {

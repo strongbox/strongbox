@@ -64,7 +64,6 @@ public class NugetLayoutProvider
     @PostConstruct
     public void register()
     {
-        layoutProviderRegistry.addProvider(ALIAS, this);
         headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
 
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
@@ -96,6 +95,12 @@ public class NugetLayoutProvider
     public Set<String> getDefaultArtifactCoordinateValidators()
     {
         return nugetRepositoryFeatures.getDefaultArtifactCoordinateValidators();
+    }
+
+    @Override
+    public String getAlias()
+    {
+        return ALIAS;
     }
 
     @Override

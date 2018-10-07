@@ -5,6 +5,7 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -23,47 +24,16 @@ public class StorageProviderRegistry extends AbstractMappedProviderRegistry<Stor
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
-
-    public StorageProviderRegistry()
-    {
-    }
+    @Inject
+    private List<StorageProvider> storageProviders;
 
     @Override
     @PostConstruct
     public void initialize()
     {
+        storageProviders.stream().forEach(sp -> addProvider(sp.getAlias(), sp));
         logger.info("Initialized the storage provider registry.");
     }
 
-    @Override
-    public Map<String, StorageProvider> getProviders()
-    {
-        return super.getProviders();
-    }
-
-    @Override
-    public void setProviders(Map<String, StorageProvider> providers)
-    {
-        super.setProviders(providers);
-    }
-
-    @Override
-    public StorageProvider getProvider(String implementation)
-    {
-        return super.getProvider(implementation);
-    }
-
-    @Override
-    public StorageProvider addProvider(String implementation,
-                                       StorageProvider provider)
-    {
-        return super.addProvider(implementation, provider);
-    }
-
-    @Override
-    public void removeProvider(String alias)
-    {
-        super.removeProvider(alias);
-    }
 
 }

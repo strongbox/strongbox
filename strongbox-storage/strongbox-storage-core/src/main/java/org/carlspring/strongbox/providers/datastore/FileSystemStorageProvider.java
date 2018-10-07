@@ -23,10 +23,6 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
 
     public static final String ALIAS = StorageProviderEnum.FILESYSTEM.describe();
 
-
-    @Inject
-    private StorageProviderRegistry storageProviderRegistry;
-
     @Override
     public String getAlias()
     {
@@ -37,8 +33,6 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     @Override
     public void register()
     {
-        storageProviderRegistry.addProvider(getAlias(), this);
-
         logger.info("Registered storage provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 

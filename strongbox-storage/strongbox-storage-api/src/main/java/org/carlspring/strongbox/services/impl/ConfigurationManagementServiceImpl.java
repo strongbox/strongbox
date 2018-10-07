@@ -88,9 +88,11 @@ public class ConfigurationManagementServiceImpl
     {
         final MutableConfiguration configuration = configurationFileManager.read();
         setConfiguration(configuration);
+        setRepositoryArtifactCoordinateValidators();
+
         return null;
     }
-
+    
     @Override
     public MutableConfiguration getMutableConfigurationClone()
     {
@@ -204,8 +206,8 @@ public class ConfigurationManagementServiceImpl
                          if (repository.isEligibleForCustomConnectionPool())
                          {
                              proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
-                                     repository.getRemoteRepository()
-                                               .getUrl(), repository.getHttpConnectionPool().getAllocatedConnections());
+                                     repository.getRemoteRepository().getUrl(),
+                                     repository.getHttpConnectionPool().getAllocatedConnections());
                          }
                      });
     }
@@ -381,8 +383,8 @@ public class ConfigurationManagementServiceImpl
     {
         modifyInLock(configuration ->
                      {
-                         final MutableRepository repository = configuration.getStorage(storageId).getRepository(
-                                 repositoryId);
+                         final MutableRepository repository = configuration.getStorage(storageId)
+                                                                           .getRepository(repositoryId);
                          repository.addRepositoryToGroup(repositoryGroupMemberId);
                      });
     }

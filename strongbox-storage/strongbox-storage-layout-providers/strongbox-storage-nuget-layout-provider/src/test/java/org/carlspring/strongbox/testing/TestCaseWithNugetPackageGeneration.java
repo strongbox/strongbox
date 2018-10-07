@@ -2,7 +2,7 @@ package org.carlspring.strongbox.testing;
 
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
-import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
@@ -60,7 +60,7 @@ public class TestCaseWithNugetPackageGeneration
                JAXBException,
                IOException
     {
-        String basedir = PropertyUtils.getHomeDirectory() + "/tmp";
+        String basedir = PropertiesBooter.getHomeDirectory() + "/tmp";
         return generatePackageFile(basedir, packageId, packageVersion, dependencyList);
     }
 

@@ -40,6 +40,7 @@ public class AuthenticatorsScanner
     @Inject
     private ExternalUserProvidersFileManager externalUserProvidersFileManager;
 
+
     public AuthenticatorsScanner(AuthenticatorsRegistry registry)
     {
         this.registry = registry;
@@ -52,6 +53,7 @@ public class AuthenticatorsScanner
                 entryClassLoader);
 
         logger.debug("Reloading authenticators registry ...");
+
         final GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext();
         try
         {
@@ -64,12 +66,15 @@ public class AuthenticatorsScanner
         catch (Exception e)
         {
             logger.error("Unable to load authenticators from configuration file.", e);
+
             throw Throwables.propagate(e);
         }
 
         final List<Authenticator> authenticators = getAuthenticators(applicationContext);
-        logger.debug("Scanned authenticators: {}", authenticators.stream().map(Authenticator::getName).collect(
-                Collectors.toList()));
+
+        logger.debug("Scanned authenticators: {}",
+                     authenticators.stream().map(Authenticator::getName).collect(Collectors.toList()));
+
         registry.reload(authenticators);
     }
 
@@ -98,8 +103,10 @@ public class AuthenticatorsScanner
                 throw new IllegalAuthenticatorException(authenticatorClass + " is not assignable from " +
                                                         Authenticator.class.getName());
             }
+
             authenticators.add((Authenticator) authenticator);
         }
+
         return authenticators;
     }
 
@@ -117,6 +124,7 @@ public class AuthenticatorsScanner
         {
             return;
         }
+
         scanAndReloadRegistry();
     }
 

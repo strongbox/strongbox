@@ -1,14 +1,5 @@
 package org.carlspring.strongbox.config;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.Marshaller;
-
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.converters.PrivilegeListFormToPrivilegeListConverter;
 import org.carlspring.strongbox.converters.RoleFormToRoleConverter;
@@ -23,8 +14,19 @@ import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessMode
 import org.carlspring.strongbox.converters.users.UserFormToUserDtoConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
+import org.carlspring.strongbox.web.DirectoryTraversalFilter;
 import org.carlspring.strongbox.web.HeaderMappingFilter;
-import org.jtwig.spring.JtwigViewResolver;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.Marshaller;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jtwig.spring.boot.config.JtwigViewResolverConfigurer;
 import org.jtwig.web.servlet.JtwigRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +46,9 @@ import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
-import org.springframework.web.servlet.ViewResolver;
+import org.springframework.web.filter.RequestContextFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -54,8 +57,6 @@ import org.springframework.web.servlet.resource.GzipResourceResolver;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 import org.springframework.web.servlet.view.InternalResourceView;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 @ComponentScan({ "com.carlspring.strongbox.controllers",
@@ -93,15 +94,54 @@ public class WebConfig
     @Inject
     private ObjectMapper objectMapper;
 
-    public WebConfig()
+    WebConfig()
     {
         logger.debug("Initialized web configuration.");
     }
 
     @Bean
-    public HeaderMappingFilter headerMappingFilter()
+    RequestContextListener requestContextListener()
+    {
+        return new RequestContextListener();
+    }
+
+    @Bean
+    RequestContextFilter requestContextFilter()
+    {
+        return new RequestContextFilter();
+    }
+
+    @Bean
+    CommonsRequestLoggingFilter commonsRequestLoggingFilter()
+    {
+        CommonsRequestLoggingFilter result = new CommonsRequestLoggingFilter()
+        {
+
+            @Override
+            protected String createMessage(HttpServletRequest request,
+                                           String prefix,
+                                           String suffix)
+            {
+                return super.createMessage(request, String.format("%smethod=%s;", prefix, request.getMethod()), suffix);
+            }
+
+        };
+        result.setIncludeQueryString(true);
+        result.setIncludeHeaders(true);
+        result.setIncludeClientInfo(true);
+        return result;
+    }
+
+    @Bean
+    HeaderMappingFilter headerMappingFilter()
     {
         return new HeaderMappingFilter();
+    }
+
+    @Bean
+    DirectoryTraversalFilter directoryTraversalFilter()
+    {
+        return new DirectoryTraversalFilter();
     }
 
     @Override
@@ -186,32 +226,16 @@ public class WebConfig
                 .addResourceLocations("/docs/")
                 .setCachePeriod(3600);
 
-        registry.addResourceHandler("/**")
-                .addResourceLocations("/")
+        registry.addResourceHandler("*.html")
+                .addResourceLocations("classpath:/")
+                .setCachePeriod(3600);
+
+        registry.addResourceHandler("/static/assets/**")
+                .addResourceLocations("classpath:/static/assets/")
                 .setCachePeriod(3600)
                 .resourceChain(true)
                 .addResolver(new GzipResourceResolver())
                 .addResolver(new PathResourceResolver());
-    }
-    
-    @Bean
-    public CommonsRequestLoggingFilter commonsRequestLoggingFilter()
-    {
-        CommonsRequestLoggingFilter result = new CommonsRequestLoggingFilter() {
-
-            @Override
-            protected String createMessage(HttpServletRequest request,
-                                           String prefix,
-                                           String suffix)
-            {
-                return super.createMessage(request, String.format("%smethod=%s;", prefix, request.getMethod()), suffix);
-            }
-            
-        };
-        result.setIncludeQueryString(true);
-        result.setIncludeHeaders(true);
-        result.setIncludeClientInfo(true);
-        return result;
     }
 
     @Override
@@ -231,23 +255,27 @@ public class WebConfig
     }
 
     @Bean
-    public ViewResolver viewResolver()
+    JtwigViewResolverConfigurer jtwigViewResolverConfigurer()
     {
-        JtwigViewResolver viewResolver = new JtwigViewResolver();
-        viewResolver.setRenderer(JtwigRenderer.defaultRenderer());
-        viewResolver.setViewNames("*.twig.html");
-        viewResolver.setOrder(0);
-        
-        return viewResolver;
+        return jtwigViewResolver ->
+        {
+            jtwigViewResolver.setRenderer(JtwigRenderer.defaultRenderer());
+            jtwigViewResolver.setPrefix("classpath:/views/");
+            jtwigViewResolver.setSuffix(".twig.html");
+            jtwigViewResolver.setViewNames("directoryListing");
+            jtwigViewResolver.setOrder(0);
+        };
     }
 
-    
+
     @Bean
-    public InternalResourceViewResolver resourceViewResolver() {
+    InternalResourceViewResolver internalResourceViewResolver()
+    {
         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
         viewResolver.setViewClass(InternalResourceView.class);
+        viewResolver.setViewNames("*.html");
         viewResolver.setOrder(1);
-        
+
         return viewResolver;
     }
 }

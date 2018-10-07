@@ -1,5 +1,15 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactTagEntry;
+import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.services.ArtifactTagService;
+import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
+
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,29 +24,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-
+import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.ArtifactTagService;
-import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 /**
  * DAO implementation for {@link ArtifactEntry} entities.
@@ -57,9 +56,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     public <S extends ArtifactEntry> S save(S entity,
                                             boolean updateLastVersion)
     {
-        
-        logger.info(String.format("Saving [%s]", entity.getArtifactPath()));
-        
         //this needed to update `ArtifactEntry.path` property
         entity.setArtifactCoordinates(entity.getArtifactCoordinates());
 
@@ -448,7 +444,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         return findArtifactEntryId(storageId, repositoryId, path) != null;
     }
 
-    //TODO: implement light weight ArtifactEntryRead (without related entities)
     @Override
     public ArtifactEntry findOneArtifact(String storageId,
                                          String repositoryId,
@@ -457,6 +452,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         ORID artifactEntryId = findArtifactEntryId(storageId, repositoryId, path);
         return Optional.ofNullable(artifactEntryId)
                        .flatMap(id -> Optional.ofNullable(entityManager.find(ArtifactEntry.class, id)))
+                       .map(e -> detach(e))
                        .orElse(null);
     }
     
@@ -539,15 +535,15 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         return ArtifactEntry.class;
     }
 
-    private String generateKey(ArtifactEntry artifactEntry)
+    @Override
+    protected ArtifactEntry detach(ArtifactEntry entity)
     {
-        return Optional.ofNullable(artifactEntry)
-                       .map(e -> String.format("%s/%s/%s",
-                                               e.getStorageId(),
-                                               e.getRepositoryId(),
-                                               e.getArtifactCoordinates().toPath())
-                                       .toString())
-                       .orElse(null);
+        ArtifactEntry result = super.detach(entity);
+        result.setArtifactCoordinates(getDelegate().detachAll(entity.getArtifactCoordinates(), true));
+
+        return result;
     }
-    
+
+
+
 }

@@ -4,9 +4,8 @@ import org.carlspring.logging.exceptions.AppenderNotFoundException;
 import org.carlspring.logging.exceptions.LoggerNotFoundException;
 import org.carlspring.logging.exceptions.LoggingConfigurationException;
 import org.carlspring.logging.services.LoggingManagementService;
-import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.domain.DirectoryListing;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.DirectoryListingService;
 import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 
@@ -265,7 +264,7 @@ public class LoggingManagementController
 
         try
         {
-            Path logsBaseDir = Paths.get(PropertyUtils.getVaultDirectory(), "/logs/");
+            Path logsBaseDir = Paths.get(PropertiesBooter.getVaultDirectory(), "/logs/");
             Path requestedLogPath = Paths.get(logsBaseDir.toString(), rawPath.orElse(""));
 
             if(Files.exists(requestedLogPath) && !Files.isDirectory(requestedLogPath))
@@ -289,7 +288,7 @@ public class LoggingManagementController
             model.addAttribute("directories", directoryListing.getDirectories());
             model.addAttribute("files", directoryListing.getFiles());
 
-            return new ModelAndView("classpath:/views/directoryListing.twig.html", model);
+            return new ModelAndView("directoryListing", model);
         }
         catch (Exception e)
         {

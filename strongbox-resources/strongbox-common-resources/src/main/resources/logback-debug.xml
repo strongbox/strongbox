@@ -79,7 +79,7 @@
 
     <logger name="org.reflections" level="ERROR"/>
 
-    <logger name="org.springframework" level="ERROR"/>
+    <logger name="org.springframework" level="DEBUG"/>
     <logger name="org.springframework.web" level="DEBUG"/>
     
     <logger name="com.hazelcast" level="INFO"/>

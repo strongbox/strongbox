@@ -15,10 +15,13 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
     private static final Logger logger = LoggerFactory.getLogger(ConnectionConfigOrientDB.class);
 
     public static final String PROPERTY_PROFILE = "strongbox.orientdb.profile";
+
     public static final String PROPERTY_STUDIO_ENABLED = "strongbox.orientdb.studio.enabled";
     
     public static final String PROFILE_MEMORY = "orientdb_MEMORY";
+
     public static final String PROFILE_EMBEDDED = "orientdb_EMBEDDED";
+
     public static final String PROFILE_REMOTE = "orientdb_REMOTE";
 
     @Value("${strongbox.orientdb.protocol:}")
@@ -127,9 +130,7 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
         String profile = System.getProperty(PROPERTY_PROFILE, PROFILE_MEMORY);
         logger.info(String.format("Bootstrap OrientDB connection properties with profile [%s].",
                                   profile));
-        //TODO: we need to find out how to make this with Java API configuration for OrientDB v3
-        //System.setProperty("cache.level2.enabled", Boolean.FALSE.toString());
-        
+
         try (InputStream is = ConnectionConfigOrientDB.class
                                                       .getResourceAsStream(String.format("/META-INF/properties/%s.properties", profile)))
         {
@@ -144,7 +145,7 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
                               return;
                           }
 
-                          logger.info(String.format("Use default value for OrientDB connection property [%s].", p));
+                          logger.debug(String.format("Using default value for OrientDB connection property [%s].", p));
 
                           System.setProperty((String) p, properties.getProperty((String) p));
                       });
