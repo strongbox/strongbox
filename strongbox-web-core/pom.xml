@@ -289,7 +289,7 @@
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>strongbox-web-ui</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>1.0-SB-1192-SNAPSHOT</version>
                                     <type>zip</type>
 
                                     <overWrite>true</overWrite>
@@ -484,7 +484,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-web-ui</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-SB-1192-SNAPSHOT</version>
             <type>zip</type>
         </dependency>
         <dependency>
