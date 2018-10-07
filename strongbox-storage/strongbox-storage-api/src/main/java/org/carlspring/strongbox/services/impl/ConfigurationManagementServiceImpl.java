@@ -88,6 +88,8 @@ public class ConfigurationManagementServiceImpl
     {
         final MutableConfiguration configuration = configurationFileManager.read();
         setConfiguration(configuration);
+        setRepositoryArtifactCoordinateValidators();
+
         return null;
     }
     

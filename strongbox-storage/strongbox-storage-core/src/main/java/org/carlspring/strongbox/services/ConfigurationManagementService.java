@@ -70,6 +70,8 @@ public interface ConfigurationManagementService
                               String repositoryId,
                               String repositoryGroupMemberId);
 
+    void setRepositoryArtifactCoordinateValidators();
+
     void putInService(String storageId,
                       String repositoryId);
 
