@@ -67,7 +67,7 @@ public class AuthenticatorsScanner
         {
             logger.error("Unable to load authenticators from configuration file.", e);
 
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
 
         final List<Authenticator> authenticators = getAuthenticators(applicationContext);

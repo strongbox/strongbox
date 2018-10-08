@@ -79,7 +79,7 @@ public class OJPAObjectDatabaseTxEntityManagerFactory
         }
         catch (SQLException e)
         {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
 
         OObjectDatabaseTx db = new OObjectDatabaseTx((ODatabaseDocumentInternal) ((OrientJdbcConnection) connection).getDatabase());

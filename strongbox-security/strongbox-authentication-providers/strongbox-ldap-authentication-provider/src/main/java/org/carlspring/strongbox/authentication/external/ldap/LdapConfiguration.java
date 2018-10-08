@@ -162,7 +162,7 @@ public class LdapConfiguration
         }
         catch (Exception ex)
         {
-            throw Throwables.propagate(ex);
+            throw new RuntimeException(ex);
         }
         registerSingleton(applicationContext, container);
 

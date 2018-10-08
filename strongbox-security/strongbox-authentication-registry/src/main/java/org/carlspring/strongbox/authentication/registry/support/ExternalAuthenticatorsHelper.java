@@ -50,7 +50,7 @@ public class ExternalAuthenticatorsHelper
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
         if (!Files.exists(authenticatorsDirectory))
         {
@@ -89,7 +89,7 @@ public class ExternalAuthenticatorsHelper
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
         return authenticatorsJarPaths;
     }

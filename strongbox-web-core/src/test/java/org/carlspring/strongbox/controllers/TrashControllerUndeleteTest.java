@@ -133,7 +133,7 @@ public class TrashControllerUndeleteTest
         }
         catch (IOException | JAXBException e)
         {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
 
         super.shutdown();
