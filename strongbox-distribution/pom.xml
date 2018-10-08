@@ -336,6 +336,35 @@
                     <tarLongFileMode>posix</tarLongFileMode>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <version>2.2.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>rpm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <group>Strongbox</group>
+                    <description>Strongbox distribution version ${project.version}.</description>
+                    <defineStatements>
+                        <defineStatement>_binaries_in_noarch_packages_terminate_build 0</defineStatement>
+                    </defineStatements>
+                    <mappings>
+                        <mapping>
+                            <directory>/opt/strongbox</directory>
+                            <sources>
+                                <source>
+                                    <location>${project.build.directory}/generated-resources/appassembler/jsw/strongbox</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                    </mappings>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
