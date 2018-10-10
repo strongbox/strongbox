@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assume;
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -50,10 +51,10 @@ public class CronTaskConfigurationControllerTest
     }
 
     @Test
-    public void downloadRemoteMavenIndexCronJobShouldHaveWorkingPreCreateCallback()
+    public void putDownloadRemoteMavenIndexCronJob()
             throws Exception
     {
-        Assume.assumeTrue(context.containsBean("repositoryIndexManager"));
+        Assert.assertTrue(context.containsBean("repositoryIndexManager"));
 
         List<CronTaskConfigurationDto> configurationList = getDownloadRemoteMavenIndexOfCarlspringCronJobs();
 
@@ -61,11 +62,8 @@ public class CronTaskConfigurationControllerTest
         CronTaskConfigurationDto configuration = configurationList.get(0);
         assertThat(configuration.getProperties().keySet().size(), CoreMatchers.equalTo(4));
         assertThat(configuration.getProperties().get("cronExpression"), CoreMatchers.equalTo("0 0 5 * * ?"));
-        assertThat(configuration.getName(),
-                   CoreMatchers.not(CoreMatchers.equalTo("This is completely new name for this job")));
-
+        
         configuration.addProperty("cronExpression", "0 0 0 * * ?");
-        configuration.setName("This is completely new name for this job");
 
         client.put2(getContextBaseUrl() + "/cron", configuration,
                     MediaType.APPLICATION_JSON_VALUE);
@@ -75,7 +73,6 @@ public class CronTaskConfigurationControllerTest
         configuration = configurationList.get(0);
         assertThat(configuration.getProperties().keySet().size(), CoreMatchers.equalTo(4));
         assertThat(configuration.getProperties().get("cronExpression"), CoreMatchers.equalTo("0 0 0 * * ?"));
-        assertThat(configuration.getName(), CoreMatchers.equalTo("This is completely new name for this job"));
     }
 
     private List<CronTaskConfigurationDto> getDownloadRemoteMavenIndexOfCarlspringCronJobs()
@@ -107,6 +104,7 @@ public class CronTaskConfigurationControllerTest
     }
 
     @Test
+    @Ignore
     public void testGroovyCronTaskConfiguration()
             throws Exception
     {
@@ -132,7 +130,9 @@ public class CronTaskConfigurationControllerTest
         configuration.setName(cronName1);
         configuration.addProperty("cronExpression", cronExpression);
         configuration.addProperty("jobClass", MyTask.class.getName());
-
+        configuration.setOneTimeExecution(false);
+        
+        
         MockMvcResponse response = client.put2(getContextBaseUrl() + url,
                                                configuration,
                                                MediaType.APPLICATION_JSON_VALUE);

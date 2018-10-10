@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.config.MockedRestArtifactResolverTestConfig;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,15 +17,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertFalse;
 
 /**
  * @author Przemyslaw Fusik
  */
 @ActiveProfiles({"MockedRestArtifactResolverTestConfig","test"})
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
+@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
         extends RetryDownloadArtifactTestBase
 {

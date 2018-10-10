@@ -1,11 +1,14 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.config.MockedRestArtifactResolverTestConfig;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,14 +17,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
 
 /**
  * @author Przemyslaw Fusik
  */
 @ActiveProfiles({"MockedRestArtifactResolverTestConfig", "test"})
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
+@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
         extends RetryDownloadArtifactTestBase
 {

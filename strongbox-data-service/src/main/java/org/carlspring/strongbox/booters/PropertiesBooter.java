@@ -12,7 +12,7 @@ public class PropertiesBooter
 
     static
     {
-        initialize();
+        //initialize();
     }
 
 

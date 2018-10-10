@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
-import org.carlspring.strongbox.StrongboxSpringBootApplication;
+import org.carlspring.strongbox.app.StrongboxSpringBootApplication;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
@@ -36,7 +36,8 @@ import static org.mockito.ArgumentMatchers.any;
 @Retention(RetentionPolicy.RUNTIME)
 @SpringBootTest(classes = { StrongboxSpringBootApplication.class,
                             MockedRemoteRepositoriesHeartbeatConfig.class,
-                            IntegrationTest.TestConfig.class })
+                            IntegrationTest.TestConfig.class,
+                            RestAssuredConfig.class})
 @WebAppConfiguration("classpath:")
 @WithUserDetails(value = "admin")
 @ActiveProfiles(profiles = "test")

@@ -2,12 +2,10 @@ package org.carlspring.strongbox.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -35,7 +33,6 @@ import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.npm.NpmSearchRequest;
 import org.carlspring.strongbox.npm.metadata.Change;
-import org.carlspring.strongbox.npm.metadata.ChangesFeed;
 import org.carlspring.strongbox.npm.metadata.PackageFeed;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
 import org.carlspring.strongbox.npm.metadata.Versions;
@@ -65,16 +62,17 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class NpmRepositoryFeatures implements RepositoryFeatures
 {
-
-    private static final String RESULTS_MARKER = "{\"results\":[";
-
-    private static final String CHANGE_MARKER = "{\"seq\":";
 
     private static final int CHANGES_BATCH_SIZE = 500;
 
@@ -172,10 +170,10 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         do
         {
             lastCnahgeId = nextChangeId;
-            nextChangeId = lastCnahgeId + fetchRemoteChangesFeed(repository, replicateUrl, lastCnahgeId + 1);
-
-            mutableConfiguration.setLastChangeId(lastCnahgeId);
+            mutableConfiguration.setLastChangeId(nextChangeId);
             configurationManagementService.saveRepository(storageId, mutableRepository);
+            
+            nextChangeId = Long.valueOf(fetchRemoteChangesFeed(repository, replicateUrl, lastCnahgeId + 1));
         } while (nextChangeId > lastCnahgeId);
     }
 
@@ -216,59 +214,37 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         RemoteRepository remoteRepository = repository.getRemoteRepository();
         NpmRemoteRepositoryConfiguration repositoryConfiguration = (NpmRemoteRepositoryConfiguration) remoteRepository.getCustomConfiguration();
 
+        JsonFactory jfactory = new JsonFactory();
+
         try (InputStream is = request.invoke(InputStream.class))
         {
 
-            InputStreamReader inputStreamReader = new InputStreamReader(is);
+            JsonParser jp = jfactory.createParser(is);
+            jp.setCodec(npmJacksonMapper);
+
+            Assert.isTrue(jp.nextToken() == JsonToken.START_OBJECT, "npm changes feed should be JSON object.");
+            Assert.isTrue(jp.nextFieldName().equals("results"), "npm changes feed should contains `results` field.");
+            Assert.isTrue(jp.nextToken() == JsonToken.START_ARRAY, "npm changes feed `results` should be array.");
 
             StringBuffer sb = new StringBuffer();
-            char[] b = new char[1024];
-            while (inputStreamReader.read(b) > 0)
+            while (jp.nextToken() != null)
             {
-                sb.append(b);
-
-                if (sb.length() >= 13 && sb.substring(0, 12).equals(RESULTS_MARKER))
+                JsonToken nextToken = jp.currentToken();
+                if (nextToken == JsonToken.END_ARRAY)
                 {
-                    sb.delete(0, 12);
+                    break;
                 }
 
-                if (sb.length() <= CHANGE_MARKER.length())
-                {
-                    continue;
-                }
+                JsonNode node = jp.readValueAsTree();
+                sb.append(node.toString());
 
-                int markerIdx = sb.indexOf(CHANGE_MARKER, CHANGE_MARKER.length() - 1);
-                if (markerIdx < 0)
-                {
-                    continue;
-                }
-
-                int seqIdValueStartIdx = sb.indexOf(":", markerIdx) + 1;
-                int seqIdValueEndIdx = sb.indexOf(",", markerIdx);
-                if (seqIdValueEndIdx < 0) {
-                    continue;
-                }
-
-                String seqIdValue = sb.substring(seqIdValueStartIdx, seqIdValueEndIdx);
-                try
-                {
-                    Long.valueOf(seqIdValue);
-                }
-                catch (NumberFormatException|StringIndexOutOfBoundsException e)
-                {
-                    // `seq` should be a number, if not then it probably `dependency` or something other 
-                    continue;
-                }
-
-                result++;
-
-                String changeValue = sb.substring(0, markerIdx - 1);
-                sb = new StringBuffer(sb.substring(markerIdx, sb.length()));
+                String changeValue = sb.toString();
 
                 Change change;
                 try
                 {
                     change = npmJacksonMapper.readValue(changeValue, Change.class);
+                    parseFeed(repository, change.getDoc());
                 }
                 catch (Exception e)
                 {
@@ -277,43 +253,19 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                                                repositoryConfiguration.getLastChangeId(),
                                                changeValue),
                                  e);
-                    continue;
+
+                    return result;
                 }
 
-                parseFeed(repository, change.getDoc());
+                result = change.getSeq();
+                sb = new StringBuffer();
             }
 
-            StringBuffer changesFeedValue = sb.insert(0, RESULTS_MARKER);
-
-            ChangesFeed сhangesFeed;
-            try
-            {
-                сhangesFeed = npmJacksonMapper.readValue(changesFeedValue.toString(), ChangesFeed.class);
-            }
-            catch (Exception e)
-            {
-                logger.error(String.format("Failed to parse NPM cnahges feed [%s] since [%s]: %n %s",
-                                           repositoryConfiguration.getReplicateUrl(),
-                                           repositoryConfiguration.getLastChangeId(),
-                                           changesFeedValue),
-                             e);
-
-                return result;
-            }
-
-            List<Change> changesList = сhangesFeed.getResults();
-            if (changesList.size() == 0)
-            {
-                return result;
-            }
-
-            result++;
-            parseFeed(repository, changesList.iterator().next().getDoc());
-
-            logger.debug(String.format("Fetched remote cnages for  [%s] since [%s].",
-                                       repositoryConfiguration.getReplicateUrl(),
-                                       repositoryConfiguration.getLastChangeId()));
         }
+
+        logger.debug(String.format("Fetched remote cnages for  [%s] since [%s].",
+                                   repositoryConfiguration.getReplicateUrl(),
+                                   repositoryConfiguration.getLastChangeId()));
 
         return result;
     }
@@ -342,7 +294,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             WebTarget service = restClient.target(remoteRepository.getUrl());
             service = service.path(packageId);
 
-            packageFeed = service.request().buildGet().invoke(PackageFeed.class);
+            InputStream inputStream = service.request().buildGet().invoke(InputStream.class);
+            packageFeed = npmJacksonMapper.readValue(inputStream, PackageFeed.class);
 
             logger.debug(String.format("Downloaded NPM changes feed for [%s].", remoteRepository.getUrl()));
 
