@@ -9,12 +9,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -305,6 +309,14 @@ public class RepositoryPath
     public RepositoryPath wrap(Path path)
     {
         return new RepositoryPath(path, fileSystem);
+    }
+
+    public boolean isOld()
+            throws IOException
+    {
+        final Instant twentyFourHoursAgo = Instant.now().minus(24, ChronoUnit.HOURS);
+        final FileTime lastModifiedTime = Files.getLastModifiedTime(this);
+        return lastModifiedTime.toInstant().isBefore(twentyFourHoursAgo);
     }
     
     public String toString()

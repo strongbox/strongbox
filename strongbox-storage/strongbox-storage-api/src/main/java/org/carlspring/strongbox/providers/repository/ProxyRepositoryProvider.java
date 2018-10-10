@@ -1,16 +1,6 @@
 package org.carlspring.strongbox.providers.repository;
 
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -19,6 +9,15 @@ import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -64,7 +63,7 @@ public class ProxyRepositoryProvider
         throws IOException
     {
         RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(repositoryPath);
-        if (targetPath == null)
+        if (targetPath == null || targetPath.isOld())
         {
             targetPath = resolvePathForceFetch(repositoryPath);
         }
