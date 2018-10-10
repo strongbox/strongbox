@@ -40,7 +40,7 @@ public final class ClassLoaderFactory
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
 
         return new URLClassLoader(urls, parent);

@@ -135,7 +135,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                 }
                 catch (IOException e)
                 {
-                    throw Throwables.propagate(e);
+                    throw new RuntimeException(e);
                 }
 
             }

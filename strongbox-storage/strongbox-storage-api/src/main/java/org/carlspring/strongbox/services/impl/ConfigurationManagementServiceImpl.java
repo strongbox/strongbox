@@ -105,7 +105,7 @@ public class ConfigurationManagementServiceImpl
         }
         catch (Exception e)
         {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
         finally
         {

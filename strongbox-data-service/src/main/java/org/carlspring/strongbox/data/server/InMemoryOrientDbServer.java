@@ -63,20 +63,6 @@ public class InMemoryOrientDbServer
     }
 
     @Override
-    public void onCreateClass(ODatabaseInternal iDatabase,
-                              OClass iClass)
-    {
-        iDatabase.registerHook(genericEntityHook);
-    }
-
-    @Override
-    public void onDropClass(ODatabaseInternal iDatabase,
-                            OClass iClass)
-    {
-        iDatabase.registerHook(genericEntityHook);
-    }
-
-    @Override
     public void onLocalNodeConfigurationRequest(ODocument iConfiguration)
     {
     }

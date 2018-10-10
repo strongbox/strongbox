@@ -88,7 +88,7 @@ public class CronTaskController
                 if (config.contains("jobClass"))
                 {
                     Class c = Class.forName(config.getProperty("jobClass"));
-                    Object classInstance = c.newInstance();
+                    Object classInstance = c.getConstructor().newInstance();
 
                     logger.debug("> " + c.getSuperclass().getCanonicalName());
 

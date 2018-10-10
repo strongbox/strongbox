@@ -158,7 +158,7 @@ public class MavenMetadataManager
                      }
                      catch (Exception ex)
                      {
-                         throw Throwables.propagate(ex);
+                         throw new RuntimeException(ex);
                      }
                  }
         );
@@ -356,7 +356,7 @@ public class MavenMetadataManager
             }
             catch (IOException e)
             {
-                throw Throwables.propagate(e);
+                throw new RuntimeException(e);
             }
             storeMetadata(metadataBasePath, null, mergeMetadata, MetadataType.ARTIFACT_ROOT_LEVEL);
         });

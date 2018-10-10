@@ -63,7 +63,7 @@ public class CustomJerseyMediaTypeProvider
     public MediaType fromString(String header)
     {
 
-        Assert.notNull(header);
+        Assert.notNull(header, "header should not be null");
 
         try
         {

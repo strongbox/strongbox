@@ -40,7 +40,7 @@ public class MavenArtifactDeletedEventListener
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 }

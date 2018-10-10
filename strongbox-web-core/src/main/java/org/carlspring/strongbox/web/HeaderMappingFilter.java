@@ -389,7 +389,7 @@ public class HeaderMappingFilter
 
         public String getRealPath(String path)
         {
-            return target.getRealPath(path);
+            return target.getSession().getServletContext().getRealPath(path);
         }
 
         public HttpSession getSession(boolean create)
@@ -454,7 +454,7 @@ public class HeaderMappingFilter
 
         public boolean isRequestedSessionIdFromUrl()
         {
-            return target.isRequestedSessionIdFromUrl();
+            return target.isRequestedSessionIdFromURL();
         }
 
         public boolean authenticate(HttpServletResponse response)

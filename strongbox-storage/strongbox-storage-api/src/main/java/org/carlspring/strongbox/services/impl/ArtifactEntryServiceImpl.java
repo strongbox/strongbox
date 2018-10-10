@@ -93,7 +93,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     private <S extends ArtifactEntry> void updateLastVersionTag(S entity)
     {
         ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
-        Assert.notNull(coordinates);
+        Assert.notNull(coordinates, "coordinates should not be null");
         
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
         Set<ArtifactTag> tagSet = new HashSet<>();

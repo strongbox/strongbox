@@ -163,7 +163,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         }
         catch (IOException | JAXBException e)
         {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -225,7 +225,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
         return files.toArray(new File[0]);
     }

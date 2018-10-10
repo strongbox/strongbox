@@ -17,6 +17,7 @@ import java.io.InputStream;
 import com.google.common.base.Throwables;
 import org.junit.After;
 import org.junit.Before;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.core.io.ClassPathResource;
@@ -79,14 +80,14 @@ public abstract class RetryDownloadArtifactTestBase
         Mockito.when(restResponse.getResponse()).thenReturn(response);
 
         final RestArtifactResolver artifactResolver = Mockito.mock(RestArtifactResolver.class);
-        Mockito.when(artifactResolver.get(Matchers.any(String.class))).thenReturn(restResponse);
-        Mockito.when(artifactResolver.get(Matchers.any(String.class), Matchers.any(Long.class))).thenReturn(
+        Mockito.when(artifactResolver.get(ArgumentMatchers.any(String.class))).thenReturn(restResponse);
+        Mockito.when(artifactResolver.get(ArgumentMatchers.any(String.class), ArgumentMatchers.any(Long.class))).thenReturn(
                 restResponse);
-        Mockito.when(artifactResolver.head(Matchers.any(String.class))).thenReturn(restResponse);
+        Mockito.when(artifactResolver.head(ArgumentMatchers.any(String.class))).thenReturn(restResponse);
         Mockito.when(artifactResolver.getConfiguration()).thenReturn(configuration);
         Mockito.when(artifactResolver.isAlive()).thenReturn(true);
 
-        Mockito.when(artifactResolverFactory.newInstance(Matchers.any(RemoteRepository.class)))
+        Mockito.when(artifactResolverFactory.newInstance(ArgumentMatchers.any(RemoteRepository.class)))
                .thenReturn(artifactResolver);
     }
 
@@ -104,7 +105,7 @@ public abstract class RetryDownloadArtifactTestBase
             }
             catch (final IOException e)
             {
-                throw Throwables.propagate(e);
+                throw new RuntimeException(e);
             }
         }
 
