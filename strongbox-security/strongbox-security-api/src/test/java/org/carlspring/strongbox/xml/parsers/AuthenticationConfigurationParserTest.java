@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -40,7 +41,7 @@ public class AuthenticationConfigurationParserTest
         //noinspection unchecked
         AuthenticationConfiguration configuration = (AuthenticationConfiguration) parser.parse(xmlFile.toURI().toURL());
 
-        assertTrue(configuration != null, "Failed to parse the authorization configuration!");
+        assertNotNull(configuration, "Failed to parse the authorization configuration!");
     }
 
     @Test

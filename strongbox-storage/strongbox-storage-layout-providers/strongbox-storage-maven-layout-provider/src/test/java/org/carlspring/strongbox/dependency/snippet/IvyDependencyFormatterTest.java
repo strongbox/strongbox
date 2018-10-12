@@ -44,11 +44,11 @@ public class IvyDependencyFormatterTest
 
         System.out.println(snippet);
 
-        assertEquals("Failed to generate dependency!",
-                     "<dependency org=\"" + coordinates.getGroupId() + "\"" +
+        assertEquals("<dependency org=\"" + coordinates.getGroupId() + "\"" +
                      " name=\"" + coordinates.getArtifactId() + "\"" +
                      " rev=\"" + coordinates.getVersion() + "\" />\n",
-                     snippet);
+                     snippet,
+                     "Failed to generate dependency!");
     }
 
 

@@ -177,8 +177,8 @@ public class ArtifactMetadataServiceReleasesTest
 
         assertNotNull(metadataAfter);
         assertTrue(MetadataHelper.containsVersion(metadataAfter, "1.4"), "Unexpected set of versions!");
-        assertEquals("Unexpected set of versions!", "1.4", metadataAfter.getVersioning().getLatest());
-        assertEquals("Unexpected set of versions!", "1.4", metadataAfter.getVersioning().getRelease());
+        assertEquals("1.4", metadataAfter.getVersioning().getLatest(), "Unexpected set of versions!");
+        assertEquals("1.4", metadataAfter.getVersioning().getRelease(), "Unexpected set of versions!");
     }
 
     @Test

@@ -114,7 +114,7 @@ public class RawArtifactControllerTest
 
         baos.flush();
 
-        assertEquals("Deployed content mismatch!", new String(content), new String(baos.toByteArray()));
+        assertEquals(new String(content), new String(baos.toByteArray()), "Deployed content mismatch!");
 
         System.out.println("Read '" + new String(baos.toByteArray()) + "'.");
     }

@@ -56,7 +56,7 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
 
         for (String storageId : configuration.getStorages().keySet())
         {
-            assertNotNull("Storage ID was null!", storageId);
+            assertNotNull(storageId, "Storage ID was null!");
         }
 
         assertTrue(configuration.getStorages().size() > 0, "Unexpected number of storages!");
