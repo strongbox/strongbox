@@ -20,7 +20,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -29,7 +29,6 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.web.context.WebApplicationContext;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.Assert.assertTrue;
 
 /**
  * General settings for the testing sub-system.
@@ -69,7 +68,7 @@ public abstract class NugetRestAssuredBaseTest
 
     private String contextBaseUrl;
 
-    @Before
+    @BeforeEach
     public void init()
             throws Exception
     {

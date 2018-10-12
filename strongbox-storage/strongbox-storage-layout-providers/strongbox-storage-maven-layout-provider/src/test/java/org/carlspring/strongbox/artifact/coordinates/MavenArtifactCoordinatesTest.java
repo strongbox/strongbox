@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import static org.junit.Assert.assertThat;
-
 import org.carlspring.maven.commons.util.ArtifactUtils;
+
+import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Przemyslaw Fusik

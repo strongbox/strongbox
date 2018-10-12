@@ -24,24 +24,24 @@ import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.hamcrest.CoreMatchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author carlspring
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class MavenProxyRepositoryProviderTestIT
@@ -56,8 +56,8 @@ public class MavenProxyRepositoryProviderTestIT
     @Inject
     private MavenMetadataManager mavenMetadataManager;
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void cleanup()
             throws Exception
     {
@@ -228,7 +228,7 @@ public class MavenProxyRepositoryProviderTestIT
                                     "+g:org.carlspring.maven +a:derby-maven-plugin +v:1.10");
     }
 
-    @Ignore // Broken while Docker is being worked on, as there is no running instance of the Strongbox service.
+    @Disabled // Broken while Docker is being worked on, as there is no running instance of the Strongbox service.
     @Test
     public void testStrongboxAtCarlspringDotOrg()
             throws ProviderImplementationException,
@@ -242,7 +242,7 @@ public class MavenProxyRepositoryProviderTestIT
         try (InputStream is = artifactResolutionService.getInputStream(path))
         {
 
-            assertNotNull("Failed to resolve org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml!", is);
+            assertNotNull(is, "Failed to resolve org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml!");
             System.out.println(ByteStreams.toByteArray(is));
         }
     }

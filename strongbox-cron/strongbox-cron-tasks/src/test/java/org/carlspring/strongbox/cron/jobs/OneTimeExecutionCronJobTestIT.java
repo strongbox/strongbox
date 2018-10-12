@@ -4,20 +4,20 @@ import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertTrue;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author carlspring
  */
 @CronTaskTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @EnableRuleMigrationSupport
 public class OneTimeExecutionCronJobTestIT
         extends BaseCronTestCase
@@ -52,7 +52,7 @@ public class OneTimeExecutionCronJobTestIT
     {
         addOneTimeExecutionCronJobConfig(expectedCronTaskName);
 
-        assertTrue("Failed to execute task within a reasonable time!", expectEvent(60000, 500));
+        assertTrue(expectEvent(60000, 500), "Failed to execute task within a reasonable time!");
     }
 
 }

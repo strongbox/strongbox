@@ -15,13 +15,13 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.*;
 import static org.hamcrest.Matchers.*;
@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.*;
  * @author Aditya Srinivasan
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ArtifactCoordinateValidatorsManagementControllerTest
         extends MavenRestAssuredBaseTest
 {
@@ -316,7 +316,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                      containsInAnyOrder("redeployment-validator", "maven-snapshot-version-validator"));
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {

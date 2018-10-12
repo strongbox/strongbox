@@ -6,42 +6,33 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.services.StorageManagementService;
+import org.carlspring.strongbox.services.*;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.testing.TestCaseWithRepository;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertTrue;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author carlspring
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = RawLayoutProviderTestConfig.class)
 public class RawLayoutProviderTest
         extends TestCaseWithRepository
@@ -66,7 +57,7 @@ public class RawLayoutProviderTest
     @Inject
     ArtifactResolutionService artifactResolutionService;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -82,7 +73,7 @@ public class RawLayoutProviderTest
     }
 
 
-    @Before
+    @BeforeEach
     public void setUp()
             throws Exception
     {
@@ -99,7 +90,7 @@ public class RawLayoutProviderTest
         }
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {
@@ -128,8 +119,8 @@ public class RawLayoutProviderTest
 
         
         File artifactFile = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + STORAGE + "/" + REPOSITORY + "/" + path);
-        assertTrue("Failed to deploy artifact!", artifactFile.exists());
-        assertTrue("Failed to deploy artifact!", artifactFile.length() > 0);
+        assertTrue(artifactFile.exists(), "Failed to deploy artifact!");
+        assertTrue(artifactFile.length() > 0, "Failed to deploy artifact!");
 
         // Attempt to re-deploy the artifact
         try
@@ -166,7 +157,7 @@ public class RawLayoutProviderTest
                 total += len;
             }
 
-            assertTrue("Failed to resolve artifact!", total > 0);
+            assertTrue(total > 0, "Failed to resolve artifact!");
         }
     }
 

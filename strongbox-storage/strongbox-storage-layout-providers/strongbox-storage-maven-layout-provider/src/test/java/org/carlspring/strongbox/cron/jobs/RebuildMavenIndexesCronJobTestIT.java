@@ -1,15 +1,5 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
@@ -20,26 +10,35 @@ import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.junit.After;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Kate Novik.
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @EnableRuleMigrationSupport
 public class RebuildMavenIndexesCronJobTestIT
@@ -85,7 +84,7 @@ public class RebuildMavenIndexesCronJobTestIT
     @Inject
     private ArtifactSearchService artifactSearchService;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -102,13 +101,13 @@ public class RebuildMavenIndexesCronJobTestIT
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void isIndexingEnabled()
     {
         Assume.assumeTrue(repositoryIndexManager.isPresent());
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -131,7 +130,7 @@ public class RebuildMavenIndexesCronJobTestIT
                          "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws Exception
     {

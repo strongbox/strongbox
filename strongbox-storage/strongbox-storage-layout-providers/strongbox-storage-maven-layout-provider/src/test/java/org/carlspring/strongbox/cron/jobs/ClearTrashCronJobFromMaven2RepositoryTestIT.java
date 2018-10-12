@@ -11,9 +11,9 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
@@ -23,38 +23,33 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Kate Novik.
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @EnableRuleMigrationSupport
 public class ClearTrashCronJobFromMaven2RepositoryTestIT
@@ -99,7 +94,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     private RepositoryPathResolver repositoryPathResolver;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -116,7 +111,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -156,7 +151,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
                          "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
     {
         try
@@ -175,16 +170,16 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     {
         File[] dirs = getDirs();
 
-        assertTrue("There is no path to the repository trash!", dirs != null);
-        assertEquals("The repository trash isn't empty!", 0, dirs.length);
+        assertNotNull(dirs, "There is no path to the repository trash!");
+        assertEquals(0, dirs.length, "The repository trash isn't empty!");
 
         RepositoryPath path = repositoryPathResolver.resolve(new Repository(repository1), "org/carlspring/strongbox/clear/strongbox-test-one/1.0");
         RepositoryFiles.delete(path, false);
 
         dirs = getDirs();
 
-        assertTrue("There is no path to the repository trash!", dirs != null);
-        assertEquals("The repository trash is empty!", 1, dirs.length);
+        assertNotNull(dirs, "There is no path to the repository trash!");
+        assertEquals(1, dirs.length, "The repository trash is empty!");
 
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
@@ -194,8 +189,8 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
                 File[] dirs1 = getDirs();
 
-                assertTrue("There is no path to the repository trash!", dirs1 != null);
-                assertEquals("The repository trash isn't empty!", 0, dirs1.length);
+                assertNotNull(dirs1, "There is no path to the repository trash!");
+                assertEquals(0, dirs1.length, "The repository trash isn't empty!");
 
                 removeRepositories();
             }
@@ -248,8 +243,8 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             final File basedirTrash1 = RepositoryFiles.trash(repositoryPathResolver.resolve(new Repository(repository2))).toFile();
             File[] dirs1 = basedirTrash1.listFiles();
 
-            assertTrue("There is no path to the repository trash!", dirs1 != null);
-            assertEquals("The repository trash isn't empty!", 0, dirs1.length);
+            assertNotNull(dirs1, "There is no path to the repository trash!");
+            assertEquals(0, dirs1.length, "The repository trash isn't empty!");
 
             LayoutProvider layoutProvider1 = layoutProviderRegistry.getProvider(repository2.getLayout());
             RepositoryPath path1 = repositoryPathResolver.resolve(new Repository(repository2), "org/carlspring/strongbox/clear/strongbox-test-two/1.0");
@@ -258,8 +253,8 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             final File basedirTrash2 = RepositoryFiles.trash(repositoryPathResolver.resolve(new Repository(repository3))).toFile();
             File[] dirs2 = basedirTrash2.listFiles();
 
-            assertTrue("There is no path to the repository trash!", dirs2 != null);
-            assertEquals("The repository trash isn't empty!", 0, dirs2.length);
+            assertNotNull(dirs2, "There is no path to the repository trash!");
+            assertEquals(0, dirs2.length, "The repository trash isn't empty!");
 
             RepositoryPath path2 = repositoryPathResolver.resolve(new Repository(repository3), "org/carlspring/strongbox/clear/strongbox-test-one/1.0");
             RepositoryFiles.delete(path2, false);
@@ -267,10 +262,10 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             dirs1 = basedirTrash1.listFiles();
             dirs2 = basedirTrash1.listFiles();
 
-            assertTrue("There is no path to the repository trash!", dirs1 != null);
-            assertEquals("The repository trash is empty!", 1, dirs1.length);
-            assertTrue("There is no path to the repository trash!", dirs2 != null);
-            assertEquals("The repository trash is empty!", 1, dirs2.length);
+            assertNotNull(dirs1, "There is no path to the repository trash!");
+            assertEquals(1, dirs1.length, "The repository trash is empty!");
+            assertNotNull(dirs2, "There is no path to the repository trash!");
+            assertEquals(1, dirs2.length, "The repository trash is empty!");
 
             // Checking if job was executed
             String jobName = expectedJobName;
@@ -279,10 +274,10 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
                 File[] dirs11 = basedirTrash1.listFiles();
                 File[] dirs22 = basedirTrash2.listFiles();
 
-                assertTrue("There is no path to the repository trash!", dirs11 != null);
-                assertEquals("The repository trash isn't empty!", 0, dirs11.length);
-                assertTrue("There is no path to the repository trash!", dirs22 != null);
-                assertEquals("The repository trash isn't empty!", 0, dirs22.length);
+                assertNotNull(dirs11, "There is no path to the repository trash!");
+                assertEquals(0, dirs11.length, "The repository trash isn't empty!");
+                assertNotNull(dirs22, "There is no path to the repository trash!");
+                assertEquals(0, dirs22.length, "The repository trash isn't empty!");
 
                 removeRepositories();
             });

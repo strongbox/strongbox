@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.controllers.configuration.security.authorization;
 
+import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
+import org.carlspring.strongbox.authorization.dto.RoleDto;
+import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.PrivilegeForm;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
-import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -16,29 +16,23 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_ADD_ROLE;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_ASSIGN_PRIVILEGES;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_DELETE_ROLE;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_ADD_ROLE;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_ASSIGN_PRIVILEGES;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_DELETE_ROLE;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.*;
 import static org.hamcrest.CoreMatchers.containsString;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class AuthorizationConfigControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -48,13 +42,13 @@ public class AuthorizationConfigControllerTestIT
 
     private AuthorizationConfigDto config;
 
-    @Before
+    @BeforeEach
     public void beforeEveryTest()
     {
         config = authorizationConfigService.getDto();
     }
 
-    @After
+    @AfterEach
     public void afterEveryTest()
     {
         authorizationConfigService.setAuthorizationConfig(config);

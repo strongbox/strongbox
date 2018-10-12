@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -33,7 +33,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.context.WebApplicationContext;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.Assert.assertTrue;
 
 /**
  * General settings for the testing sub-system.
@@ -60,14 +59,14 @@ public abstract class MavenRestAssuredBaseTest
     
     private String contextBaseUrl;
     
-    @Before
+    @BeforeEach
     public void init()
             throws Exception
     {
         client.setUserAgent("Maven/*");
     }
     
-    @After
+    @AfterEach
     public void shutdown()
     {
     }

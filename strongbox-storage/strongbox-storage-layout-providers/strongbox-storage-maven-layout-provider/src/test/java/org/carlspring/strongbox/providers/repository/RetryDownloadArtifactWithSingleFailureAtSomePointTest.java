@@ -7,20 +7,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.hamcrest.CoreMatchers;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Przemyslaw Fusik
  */
 @ActiveProfiles("MockedRestArtifactResolverTestConfig")
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
 public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
         extends RetryDownloadArtifactTestBase
@@ -30,7 +32,7 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
 
     private boolean exceptionAlreadyThrown;
     
-    @Before
+    @BeforeEach
     public void setup()
             throws Exception
     {

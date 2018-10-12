@@ -7,15 +7,14 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PasswordValidatorTest
 {
@@ -24,7 +23,7 @@ public class PasswordValidatorTest
 
     private static Validator validator;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();

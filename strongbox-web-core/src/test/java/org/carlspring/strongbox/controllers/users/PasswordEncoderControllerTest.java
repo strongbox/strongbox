@@ -5,19 +5,19 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Przemyslaw Fusik
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @Transactional
 public class PasswordEncoderControllerTest
         extends RestAssuredBaseTest
@@ -38,7 +38,7 @@ public class PasswordEncoderControllerTest
                                               .extract()
                                               .asString();
 
-        Assert.assertTrue(passwordEncoder.matches("password", encodedPassword));
+        assertTrue(passwordEncoder.matches("password", encodedPassword));
     }
 
 

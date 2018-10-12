@@ -1,21 +1,5 @@
 package org.carlspring.strongbox.repository.group.metadata;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -25,16 +9,29 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Optional;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Przemyslaw Fusik
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class MavenMetadataGroupRepositoryComponentTest
         extends BaseMavenGroupRepositoryComponentTest
@@ -85,7 +82,7 @@ public class MavenMetadataGroupRepositoryComponentTest
         String path = "com/artifacts/to/delete/releases/delete-group/1.2.1/delete-group-1.2.1.jar";
         File artifactFile = new File(repository.getBasedir(), path);
 
-        assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
+        assertTrue(artifactFile.exists(), "Failed to locate artifact file " + artifactFile.getAbsolutePath());
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
         RepositoryFiles.delete(repositoryPath, false);
@@ -104,7 +101,7 @@ public class MavenMetadataGroupRepositoryComponentTest
                     }
                 });
 
-        assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
+        assertFalse(artifactFile.exists(), "Failed to delete artifact file " + artifactFile.getAbsolutePath());
 
 
         // author of changes

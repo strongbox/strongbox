@@ -20,11 +20,7 @@ import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.storage.repository.*;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
@@ -40,12 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
@@ -63,8 +54,8 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Assume;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author carlspring
@@ -422,7 +413,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
 
         try (final InputStream is = artifactResolutionService.getInputStream(repositoryPath))
         {
-            assertNotNull("Failed to resolve " + path + "!", is);
+            assertNotNull(is, "Failed to resolve " + path + "!");
 
             if (RepositoryFiles.isMetadata(repositoryPath))
             {

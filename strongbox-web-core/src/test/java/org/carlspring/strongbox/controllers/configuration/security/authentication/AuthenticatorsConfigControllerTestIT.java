@@ -16,17 +16,17 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import org.hamcrest.CoreMatchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.CustomMatchers.equalByToString;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -37,7 +37,7 @@ import static org.hamcrest.CoreMatchers.is;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class AuthenticatorsConfigControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -50,7 +50,7 @@ public class AuthenticatorsConfigControllerTestIT
     @Inject
     private AuthenticatorsRegistry authenticatorsRegistry;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         Iterator<Authenticator> iterator = authenticatorsRegistry.iterator();
@@ -58,7 +58,7 @@ public class AuthenticatorsConfigControllerTestIT
         authenticatorsRegistry.reload(registryList);
     }
 
-    @After
+    @AfterEach
     public void afterEveryTest() {
         authenticatorsRegistry.reload(originalRegistryList);
     }

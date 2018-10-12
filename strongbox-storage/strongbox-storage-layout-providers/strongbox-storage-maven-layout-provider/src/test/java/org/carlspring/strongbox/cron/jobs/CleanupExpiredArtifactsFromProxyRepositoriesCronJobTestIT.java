@@ -22,27 +22,28 @@ import org.apache.commons.lang.time.DateUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Przemyslaw Fusik
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @EnableRuleMigrationSupport
 public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
@@ -68,8 +69,8 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
     @Inject
     private ArtifactEntryService artifactEntryService;
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void cleanup()
             throws Exception
     {

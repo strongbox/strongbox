@@ -18,9 +18,9 @@ import java.util.Random;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * @author Przemyslaw Fusik
@@ -67,7 +67,7 @@ public class BaseMavenGroupRepositoryComponentTest
 
     protected static final String REPOSITORY_GROUP_H = "group-repo-h";
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -136,7 +136,7 @@ public class BaseMavenGroupRepositoryComponentTest
         return repository;
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -208,7 +208,7 @@ public class BaseMavenGroupRepositoryComponentTest
     {
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {

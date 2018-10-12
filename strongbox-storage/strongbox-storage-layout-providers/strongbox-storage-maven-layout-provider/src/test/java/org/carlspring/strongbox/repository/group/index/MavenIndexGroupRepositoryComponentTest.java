@@ -1,16 +1,5 @@
 package org.carlspring.strongbox.repository.group.index;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -26,17 +15,27 @@ import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.util.IndexContextHelper;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Optional;
+import java.util.Set;
+
 import org.hamcrest.Matchers;
 import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Przemyslaw Fusik
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class MavenIndexGroupRepositoryComponentTest
         extends BaseMavenGroupRepositoryComponentTest

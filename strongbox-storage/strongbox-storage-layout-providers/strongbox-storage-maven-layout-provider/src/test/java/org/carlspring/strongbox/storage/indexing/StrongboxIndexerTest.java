@@ -1,13 +1,17 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import static org.junit.Assert.assertThat;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.util.IndexContextHelper;
 
+import javax.inject.Inject;
 import java.nio.file.Files;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-
-import javax.inject.Inject;
 
 import org.apache.lucene.search.Query;
 import org.apache.maven.index.FlatSearchRequest;
@@ -16,28 +20,23 @@ import org.apache.maven.index.Indexer;
 import org.apache.maven.index.MAVEN;
 import org.apache.maven.index.expr.SourcedSearchExpression;
 import org.apache.maven.index.expr.UserInputSearchExpression;
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.util.IndexContextHelper;
 import org.hamcrest.CoreMatchers;
-import org.junit.After;
 import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Przemyslaw Fusik
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class StrongboxIndexerTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
@@ -67,17 +66,17 @@ public class StrongboxIndexerTest
     @Inject
     private Optional<Indexer> indexer;
 
-    @Before
-    public void isIndexingEnabled()
-    {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
-    }
-
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    @BeforeEach
+    public void isIndexingEnabled()
+    {
+        Assume.assumeTrue(repositoryIndexManager.isPresent());
     }
 
     public static Set<MutableRepository> getRepositoriesToClean()
@@ -88,7 +87,7 @@ public class StrongboxIndexerTest
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
             throws Exception
     {
@@ -244,7 +243,7 @@ public class StrongboxIndexerTest
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws Exception
     {

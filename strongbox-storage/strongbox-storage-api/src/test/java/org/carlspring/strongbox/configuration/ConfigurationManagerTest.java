@@ -18,19 +18,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.carlspring.strongbox.testing.TestCaseWithRepository.STORAGE0;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = StorageApiTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ConfigurationManagerTest
@@ -51,7 +51,7 @@ public class ConfigurationManagerTest
     private ArtifactResolutionService artifactResolutionService;
 
 
-    @Before
+    @BeforeEach
     public void setUp()
             throws Exception
     {
@@ -80,15 +80,15 @@ public class ConfigurationManagerTest
             // assertTrue("No repositories were parsed!", !configuration.getStorages().get(storageId).getRepositories().isEmpty());
         }
 
-        assertTrue("Unexpected number of storages!", configuration.getStorages().size() > 0);
-        assertNotNull("Incorrect version!", configuration.getVersion());
-        assertEquals("Incorrect port number!", 48080, configuration.getPort());
-        assertTrue("Repository should have required authentication!",
-                   configuration.getStorages()
+        assertTrue(configuration.getStorages().size() > 0, "Unexpected number of storages!");
+        assertNotNull(configuration.getVersion(), "Incorrect version!");
+        assertEquals(48080, configuration.getPort(), "Incorrect port number!");
+        assertTrue(configuration.getStorages()
                                 .get("storage0")
                                 .getRepositories()
                                 .get("snapshots")
-                                .isSecured());
+                                .isSecured(),
+                   "Repository should have required authentication!");
 
         assertTrue(configuration.getStorages()
                                 .get("storage0")
@@ -137,7 +137,7 @@ public class ConfigurationManagerTest
 
         parser.store(configuration, outputFile.getCanonicalPath());
 
-        assertTrue("Failed to store the produced XML!", outputFile.length() > 0);
+        assertTrue(outputFile.length() > 0, "Failed to store the produced XML!");
     }
 
     @Test
@@ -164,17 +164,17 @@ public class ConfigurationManagerTest
 
         parser.store(configuration, outputFile.getCanonicalPath());
 
-        assertTrue("Failed to store the produced XML!", outputFile.length() > 0);
+        assertTrue(outputFile.length() > 0, "Failed to store the produced XML!");
 
         MutableConfiguration c = parser.parse(outputFile.toURI().toURL());
 
-        assertEquals("Failed to read repository groups!",
-                     2,
+        assertEquals(2,
                      c.getStorages().get("storage0")
                       .getRepositories()
                       .get("grp-snapshots")
                       .getGroupRepositories()
-                      .size());
+                      .size(),
+                     "Failed to read repository groups!");
     }
 
     @Test

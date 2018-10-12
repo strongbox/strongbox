@@ -1,18 +1,5 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import static org.awaitility.Awaitility.await;
-import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
@@ -21,25 +8,37 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.awaitility.Awaitility.await;
+import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Kate Novik.
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @EnableRuleMigrationSupport
 public class RegenerateMavenChecksumCronJobTestIT
@@ -81,7 +80,7 @@ public class RegenerateMavenChecksumCronJobTestIT
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -97,7 +96,7 @@ public class RegenerateMavenChecksumCronJobTestIT
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -131,7 +130,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                          "org.carlspring.strongbox.checksum:strongbox-checksum:1.0:jar");
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {
@@ -170,27 +169,27 @@ public class RegenerateMavenChecksumCronJobTestIT
 
                 try
                 {
-                    assertTrue("The checksum file for artifact doesn't exist!",
-                               new File(snapshotArtifact_1.getPath().toString() + ".sha1").exists());
-                    assertTrue("The checksum file for artifact is empty!",
-                               new File(snapshotArtifact_1.getPath().toString() + ".sha1").length() > 0);
+                    assertTrue(new File(snapshotArtifact_1.getPath().toString() + ".sha1").exists(),
+                               "The checksum file for artifact doesn't exist!");
+                    assertTrue(new File(snapshotArtifact_1.getPath().toString() + ".sha1").length() > 0,
+                               "The checksum file for artifact is empty!");
 
-                    assertTrue("The checksum file for artifact doesn't exist!",
-                               new File(snapshotArtifact_1.getPath().toString() + ".md5").exists());
-                    assertTrue("The checksum file for artifact is empty!",
-                               new File(snapshotArtifact_1.getPath().toString() + ".md5").length() > 0);
+                    assertTrue(new File(snapshotArtifact_1.getPath().toString() + ".md5").exists(),
+                               "The checksum file for artifact doesn't exist!");
+                    assertTrue(new File(snapshotArtifact_1.getPath().toString() + ".md5").length() > 0,
+                               "The checksum file for artifact is empty!");
 
-                    assertTrue("The checksum file for pom file doesn't exist!",
-                               new File(snapshotArtifact_1.getPath().toString().replaceAll("jar", "pom") +
-                                        ".sha1").exists());
-                    assertTrue("The checksum file for pom file is empty!",
-                               new File(snapshotArtifact_1.getPath().toString().replaceAll("jar", "pom") +
-                                        ".md5").length() > 0);
+                    assertTrue(new File(snapshotArtifact_1.getPath().toString().replaceAll("jar", "pom") +
+                                        ".sha1").exists(),
+                               "The checksum file for pom file doesn't exist!");
+                    assertTrue(new File(snapshotArtifact_1.getPath().toString().replaceAll("jar", "pom") +
+                                        ".md5").length() > 0,
+                               "The checksum file for pom file is empty!");
 
-                    assertTrue("The checksum file for metadata file doesn't exist!",
-                               new File(artifactPath, "/maven-metadata.xml.md5").exists());
-                    assertTrue("The checksum file for metadata file is empty!",
-                               new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0);
+                    assertTrue(new File(artifactPath, "/maven-metadata.xml.md5").exists(),
+                               "The checksum file for metadata file doesn't exist!");
+                    assertTrue(new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0,
+                               "The checksum file for metadata file is empty!");
                 }
                 catch (Exception e)
                 {
@@ -237,27 +236,27 @@ public class RegenerateMavenChecksumCronJobTestIT
             {
                 try
                 {
-                    assertTrue("The checksum file for artifact doesn't exist!",
-                               new File(snapshotArtifact_2.getPath().toString() + ".sha1").exists());
-                    assertTrue("The checksum file for artifact is empty!",
-                               new File(snapshotArtifact_2.getPath().toString() + ".sha1").length() > 0);
+                    assertTrue(new File(snapshotArtifact_2.getPath().toString() + ".sha1").exists(),
+                               "The checksum file for artifact doesn't exist!");
+                    assertTrue(new File(snapshotArtifact_2.getPath().toString() + ".sha1").length() > 0,
+                               "The checksum file for artifact is empty!");
 
-                    assertTrue("The checksum file for artifact doesn't exist!",
-                               new File(snapshotArtifact_2.getPath().toString() + ".md5").exists());
-                    assertTrue("The checksum file for artifact is empty!",
-                               new File(snapshotArtifact_2.getPath().toString() + ".md5").length() > 0);
+                    assertTrue(new File(snapshotArtifact_2.getPath().toString() + ".md5").exists(),
+                               "The checksum file for artifact doesn't exist!");
+                    assertTrue(new File(snapshotArtifact_2.getPath().toString() + ".md5").length() > 0,
+                               "The checksum file for artifact is empty!");
 
-                    assertTrue("The checksum file for pom file doesn't exist!",
-                               new File(snapshotArtifact_2.getPath().toString().replaceAll("jar", "pom") +
-                                        ".sha1").exists());
-                    assertTrue("The checksum file for pom file is empty!",
-                               new File(snapshotArtifact_2.getPath().toString().replaceAll("jar", "pom") +
-                                        ".sha1").length() > 0);
+                    assertTrue(new File(snapshotArtifact_2.getPath().toString().replaceAll("jar", "pom") +
+                                        ".sha1").exists(),
+                               "The checksum file for pom file doesn't exist!");
+                    assertTrue(new File(snapshotArtifact_2.getPath().toString().replaceAll("jar", "pom") +
+                                        ".sha1").length() > 0,
+                               "The checksum file for pom file is empty!");
 
-                    assertTrue("The checksum file for metadata file doesn't exist!",
-                               new File(artifactPath, "/maven-metadata.xml.md5").exists());
-                    assertTrue("The checksum file for metadata file is empty!",
-                               new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0);
+                    assertTrue(new File(artifactPath, "/maven-metadata.xml.md5").exists(),
+                               "The checksum file for metadata file doesn't exist!");
+                    assertTrue(new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0,
+                               "The checksum file for metadata file is empty!");
                 }
                 catch (Exception e)
                 {
@@ -291,7 +290,8 @@ public class RegenerateMavenChecksumCronJobTestIT
         deleteIfExists(new File(artifactPath, "/maven-metadata.xml.md5"));
         deleteIfExists(new File(artifactPath, "/maven-metadata.xml.sha1"));
 
-        assertTrue("The checksum file for artifact exist!", !new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists());
+        assertTrue(!new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists(),
+                   "The checksum file for artifact exist!");
 
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -300,25 +300,25 @@ public class RegenerateMavenChecksumCronJobTestIT
                 try
                 {
 
-                    assertTrue("The checksum file for artifact doesn't exist!",
-                               new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").exists());
-                    assertTrue("The checksum file for artifact is empty!",
-                               new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").length() > 0);
+                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").exists(),
+                               "The checksum file for artifact doesn't exist!");
+                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").length() > 0,
+                               "The checksum file for artifact is empty!");
 
-                    assertTrue("The checksum file for artifact doesn't exist!",
-                               new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists());
-                    assertTrue("The checksum file for artifact is empty!",
-                               new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").length() > 0);
+                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists(),
+                               "The checksum file for artifact doesn't exist!");
+                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").length() > 0,
+                               "The checksum file for artifact is empty!");
 
-                    assertTrue("The checksum file for pom file doesn't exist!",
-                               new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.sha1").exists());
-                    assertTrue("The checksum file for pom file is empty!",
-                               new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.md5").length() > 0);
+                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.sha1").exists(),
+                               "The checksum file for pom file doesn't exist!");
+                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.md5").length() > 0,
+                               "The checksum file for pom file is empty!");
 
-                    assertTrue("The checksum file for metadata file doesn't exist!",
-                               new File(artifactPath, "/maven-metadata.xml.md5").exists());
-                    assertTrue("The checksum file for metadata file is empty!",
-                               new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0);
+                    assertTrue(new File(artifactPath, "/maven-metadata.xml.md5").exists(),
+                               "The checksum file for metadata file doesn't exist!");
+                    assertTrue(new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0,
+                               "The checksum file for metadata file is empty!");
                 }
                 catch (Exception e)
                 {
@@ -352,7 +352,8 @@ public class RegenerateMavenChecksumCronJobTestIT
         deleteIfExists(new File(artifactPath, "/maven-metadata.xml.md5"));
         deleteIfExists(new File(artifactPath, "/maven-metadata.xml.sha1"));
 
-        assertTrue("The checksum file for artifact exist!", !new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists());
+        assertTrue(!new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists(),
+                   "The checksum file for artifact exist!");
 
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -360,25 +361,25 @@ public class RegenerateMavenChecksumCronJobTestIT
             {
                 try
                 {
-                    assertTrue("The checksum file for artifact doesn't exist!",
-                               new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").exists());
-                    assertTrue("The checksum file for artifact is empty!",
-                               new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").length() > 0);
+                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").exists(),
+                               "The checksum file for artifact doesn't exist!");
+                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").length() > 0,
+                               "The checksum file for artifact is empty!");
 
-                    assertTrue("The checksum file for artifact doesn't exist!",
-                               new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists());
-                    assertTrue("The checksum file for artifact is empty!",
-                               new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").length() > 0);
+                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists(),
+                               "The checksum file for artifact doesn't exist!");
+                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").length() > 0,
+                               "The checksum file for artifact is empty!");
 
-                    assertTrue("The checksum file for pom file doesn't exist!",
-                               new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.sha1").exists());
-                    assertTrue("The checksum file for pom file is empty!",
-                               new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.md5").length() > 0);
+                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.sha1").exists(),
+                               "The checksum file for pom file doesn't exist!");
+                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.md5").length() > 0,
+                               "The checksum file for pom file is empty!");
 
-                    assertTrue("The checksum file for metadata file doesn't exist!",
-                               new File(artifactPath, "/maven-metadata.xml.md5").exists());
-                    assertTrue("The checksum file for metadata file is empty!",
-                               new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0);
+                    assertTrue(new File(artifactPath, "/maven-metadata.xml.md5").exists(),
+                               "The checksum file for metadata file doesn't exist!");
+                    assertTrue(new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0,
+                               "The checksum file for metadata file is empty!");
                 }
                 catch (Exception e)
                 {

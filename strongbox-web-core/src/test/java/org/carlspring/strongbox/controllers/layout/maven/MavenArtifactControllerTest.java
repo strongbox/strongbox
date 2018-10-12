@@ -1,43 +1,5 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.inject.Inject;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -61,28 +23,52 @@ import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
+
+import javax.inject.Inject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import com.google.common.base.Throwables;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.response.ExtractableResponse;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.AfterClass;
 import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-
-import com.google.common.base.Throwables;
-
-import io.restassured.http.Header;
-import io.restassured.http.Headers;
-import io.restassured.response.ExtractableResponse;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test cases for {@link MavenArtifactController}.
@@ -91,7 +77,7 @@ import io.restassured.response.ExtractableResponse;
  * @author Martin Todorov
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class MavenArtifactControllerTest
         extends MavenRestAssuredBaseTest
 {
@@ -116,24 +102,24 @@ public class MavenArtifactControllerTest
     
     private MavenArtifactDeployer defaultMavenArtifactDeployer;
     
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
+    @AfterAll
+    public static void down()
+    {
+        deleteTestResources();
+    }
+
+    @BeforeEach
     public void setUp()
     {
         MockitoAnnotations.initMocks(this);
         defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
-    }
-
-    @AfterClass
-    public static void down()
-    {
-        deleteTestResources();
     }
 
     private static void deleteTestResources()

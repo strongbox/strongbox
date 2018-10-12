@@ -1,14 +1,5 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
@@ -19,20 +10,27 @@ import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.google.common.base.Throwables;
+import org.junit.Assume;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Alex Oreshkevich
  * @author Martin Todorov
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class MavenSearchControllerTest
         extends MavenRestAssuredBaseTest
 {

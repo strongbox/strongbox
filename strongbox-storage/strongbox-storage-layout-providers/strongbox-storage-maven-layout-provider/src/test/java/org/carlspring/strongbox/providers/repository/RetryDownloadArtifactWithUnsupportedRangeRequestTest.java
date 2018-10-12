@@ -6,24 +6,24 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Przemyslaw Fusik
  */
 @ActiveProfiles("MockedRestArtifactResolverTestConfig")
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
 @EnableRuleMigrationSupport
 public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
@@ -37,7 +37,7 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
     
     private OneTimeBrokenArtifactInputStream brokenArtifactInputStream;
 
-    @Before
+    @BeforeEach
     public void setup()
             throws Exception
     {

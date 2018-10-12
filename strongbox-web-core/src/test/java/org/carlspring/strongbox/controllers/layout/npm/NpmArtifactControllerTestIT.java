@@ -7,40 +7,35 @@ import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matchers;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
-
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.junit.jupiter.api.Assertions.*;
 
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class NpmArtifactControllerTestIT
         extends NpmRestAssuredBaseTest
 {
@@ -61,7 +56,7 @@ public class NpmArtifactControllerTestIT
     @Inject
     private ArtifactEntryService artifactEntryService;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
         throws Exception
     {
@@ -78,7 +73,7 @@ public class NpmArtifactControllerTestIT
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void init()
         throws Exception
     {
@@ -105,7 +100,7 @@ public class NpmArtifactControllerTestIT
         createRepository(STORAGE0, repository2);
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {

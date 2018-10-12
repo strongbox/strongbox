@@ -13,22 +13,17 @@ import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import org.hamcrest.CoreMatchers;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { DataServiceConfig.class,
                                   UsersConfig.class })
 public class UserServiceTest
@@ -39,7 +34,7 @@ public class UserServiceTest
     @Inject
     UserService userService;
 
-    @Before
+    @BeforeEach
     public void setup()
     {
         assertNotNull(userService);
@@ -51,12 +46,12 @@ public class UserServiceTest
         // Load the user
         User user = userService.findByUserName("developer01");
 
-        assertNotNull("Unable to find user by name developer01", user);
-        assertNotNull("User authorities were not set!", user.getAuthorities());
-        assertTrue("Expected user authorities to be grater than 0!", user.getAuthorities().size() > 0);
+        assertNotNull(user, "Unable to find user by name developer01");
+        assertNotNull(user.getAuthorities(), "User authorities were not set!");
+        assertTrue(user.getAuthorities().size() > 0, "Expected user authorities to be grater than 0!");
 
         User nullUser = userService.findByUserName(null);
-        assertNull("User should have been null", nullUser);
+        assertNull(nullUser, "User should have been null");
     }
 
     @Test
@@ -75,16 +70,16 @@ public class UserServiceTest
 
         User foundEntity = userService.findByUserName(testUserName);
 
-        assertNotNull("Unable to locate user " + testUserName + ". Save operation failed!", foundEntity);
+        assertNotNull(foundEntity, "Unable to locate user " + testUserName + ". Save operation failed!");
 
         logger.debug("Found stored user\n\t" + foundEntity + "\n");
 
         assertEquals(testUserName, foundEntity.getUsername());
-        assertNotEquals("Expected a hashed password, received plain-text!", "test-password",
-                        foundEntity.getPassword()); // password should NOT be saved as "plain"
-        assertNotNull("User contains empty password!", foundEntity.getPassword());
+        assertNotEquals("test-password", foundEntity.getPassword(),
+                        "Expected a hashed password, received plain-text!"); // password should NOT be saved as "plain"
+        assertNotNull(foundEntity.getPassword(), "User contains empty password!");
         assertTrue(foundEntity.isEnabled());
-        assertEquals("some-security-token", foundEntity.getSecurityTokenKey());
+        assertEquals(foundEntity.getSecurityTokenKey(), "some-security-token");
     }
 
     @Test
@@ -102,7 +97,7 @@ public class UserServiceTest
         userService.add(userAdd);
 
         User addedEntity = userService.findByUserName(testUserName);
-        assertNotNull("Unable to locate user " + testUserName + ". Save operation failed!", addedEntity);
+        assertNotNull(addedEntity, "Unable to locate user " + testUserName + ". Save operation failed!");
 
         logger.debug("Found stored user\n\t" + addedEntity + "\n");
 
@@ -117,15 +112,15 @@ public class UserServiceTest
         userService.updateByUsername(userUpdate);
 
         User updatedEntity = userService.findByUserName(testUserName);
-        assertNotNull("Unable to locate updated user " + testUserName + ". Update operation failed!", updatedEntity);
+        assertNotNull(updatedEntity, "Unable to locate updated user " + testUserName + ". Update operation failed!");
 
         logger.debug("Found stored updated user\n\t" + updatedEntity + "\n");
 
         assertEquals(testUserName, updatedEntity.getUsername());
-        assertNotEquals("Expected current password to have changed.", addedEntity.getPassword(),
-                        updatedEntity.getPassword());
-        assertNotNull("Expected password to be other than null", updatedEntity.getPassword());
-        assertFalse("User should have been disabled, but is still enabled!", updatedEntity.isEnabled());
+        assertNotEquals(addedEntity.getPassword(), updatedEntity.getPassword(),
+                        "Expected current password to have changed.");
+        assertNotNull(updatedEntity.getPassword(), "Expected password to be other than null");
+        assertFalse(updatedEntity.isEnabled(), "User should have been disabled, but is still enabled!");
         assertEquals("after", updatedEntity.getSecurityTokenKey());
     }
 
@@ -146,7 +141,7 @@ public class UserServiceTest
         userService.add(userAdd);
 
         User addedEntity = userService.findByUserName(testUserName);
-        assertNotNull("Unable to locate user " + testUserName + ". Save operation failed!", addedEntity);
+        assertNotNull(addedEntity, "Unable to locate user " + testUserName + ". Save operation failed!");
 
         logger.debug("Found stored initial user\n\t" + addedEntity + "\n");
 
@@ -160,7 +155,7 @@ public class UserServiceTest
         userService.updateByUsername(userNullPassUpdate);
 
         User updatedEntity = userService.findByUserName(testUserName);
-        assertNotNull("Unable to locate updated user " + testUserName + ". Update operation failed!", updatedEntity);
+        assertNotNull(updatedEntity, "Unable to locate updated user " + testUserName + ". Update operation failed!");
 
         logger.debug("Found stored updated with empty pass user\n\t" + updatedEntity + "\n");
 
@@ -176,7 +171,7 @@ public class UserServiceTest
         userService.updateByUsername(userBlankPassUpdate);
 
         updatedEntity = userService.findByUserName(testUserName);
-        assertNotNull("Unable to locate updated user " + testUserName + ". Update operation failed!", updatedEntity);
+        assertNotNull(updatedEntity, "Unable to locate updated user " + testUserName + ". Update operation failed!");
 
         logger.debug("Found stored updated with empty pass user\n\t" + updatedEntity + "\n");
 
@@ -198,7 +193,7 @@ public class UserServiceTest
         userService.add(userAdd);
 
         User addedEntity = userService.findByUserName(testUserName);
-        assertNotNull("Unable to locate user " + testUserName + ". Save operation failed!", addedEntity);
+        assertNotNull(addedEntity, "Unable to locate user " + testUserName + ". Save operation failed!");
 
         logger.debug("Found stored user\n\t" + addedEntity + "\n");
 
@@ -214,7 +209,7 @@ public class UserServiceTest
         userService.updateAccountDetailsByUsername(userUpdate);
 
         User updatedEntity = userService.findByUserName(testUserName);
-        assertNotNull("Unable to locate updated user " + testUserName + ". Update operation failed!", updatedEntity);
+        assertNotNull(updatedEntity, "Unable to locate updated user " + testUserName + ". Update operation failed!");
 
         logger.debug("Updated user found: \n\t" + updatedEntity + "\n");
 
@@ -222,7 +217,7 @@ public class UserServiceTest
                         updatedEntity.getPassword());
         assertNotNull("User password was updated to null", updatedEntity.getPassword());
         assertTrue(updatedEntity.isEnabled());
-        assertEquals("Expected no user roles to have been updated!", 0, updatedEntity.getRoles().size());
+        assertEquals(0, updatedEntity.getRoles().size(), "Expected no user roles to have been updated!");
         assertEquals("after", updatedEntity.getSecurityTokenKey());
     }
 
@@ -247,7 +242,7 @@ public class UserServiceTest
         // Load the user
         User user = userService.findByUserName("developer01");
 
-        assertNotNull("Unable to find user by name developer01", user);
+        assertNotNull(user, "Unable to find user by name developer01");
 
         // Display the access model
         AccessModel accessModel = user.getAccessModel();
@@ -311,7 +306,7 @@ public class UserServiceTest
         userService.add(userAdd);
 
         User addedEntity = userService.findByUserName(testUserName);
-        assertNotNull("Unable to locate user " + testUserName + ". Delete operation failed!", addedEntity);
+        assertNotNull(addedEntity, "Unable to locate user " + testUserName + ". Delete operation failed!");
 
         logger.debug("Found stored user\n\t" + addedEntity + "\n");
 
@@ -320,8 +315,8 @@ public class UserServiceTest
         userService.delete(testUserName);
 
         User deletedEntity = userService.findByUserName(testUserName);
-        assertNull("User " + testUserName + " is still present in the database. Delete operation failed!",
-                   deletedEntity);
+        assertNull(deletedEntity,
+                   "User " + testUserName + " is still present in the database. Delete operation failed!");
     }
 
 }

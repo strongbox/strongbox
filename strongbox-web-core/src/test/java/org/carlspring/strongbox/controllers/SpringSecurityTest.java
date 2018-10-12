@@ -9,9 +9,9 @@ import javax.inject.Inject;
 
 import io.restassured.http.ContentType;
 import org.hamcrest.CoreMatchers;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,7 +19,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.containsString;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class SpringSecurityTest
         extends RestAssuredBaseTest
 {
@@ -78,7 +78,7 @@ public class SpringSecurityTest
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testJWTAuth()
     {
         // TODO: Rewrite this test case.
@@ -119,7 +119,7 @@ public class SpringSecurityTest
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testJWTExpire()
             throws InterruptedException
     {

@@ -1,15 +1,5 @@
 package org.carlspring.strongbox.services;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.xml.bind.JAXBException;
-
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
@@ -20,19 +10,28 @@ import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.junit.After;
+
+import javax.xml.bind.JAXBException;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class MavenRepositoryManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
@@ -48,7 +47,7 @@ public class MavenRepositoryManagementServiceImplTest
 
     private static final String REPOSITORY_RELEASES_MERGE_2 = "rmsi-releases-merge-2";
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -66,7 +65,7 @@ public class MavenRepositoryManagementServiceImplTest
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -87,7 +86,7 @@ public class MavenRepositoryManagementServiceImplTest
                                       "6.2.3");
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException, SearchException
     {

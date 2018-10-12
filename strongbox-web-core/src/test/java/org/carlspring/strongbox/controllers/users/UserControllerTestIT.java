@@ -25,48 +25,32 @@ import java.util.function.Consumer;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.SetUtils;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.controllers.users.UserController.FAILED_CREATE_USER;
-import static org.carlspring.strongbox.controllers.users.UserController.FAILED_GENERATE_SECURITY_TOKEN;
-import static org.carlspring.strongbox.controllers.users.UserController.FAILED_UPDATE_ACCESS_MODEL;
-import static org.carlspring.strongbox.controllers.users.UserController.NOT_FOUND_USER;
-import static org.carlspring.strongbox.controllers.users.UserController.OWN_USER_DELETE_FORBIDDEN;
-import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSFUL_CREATE_USER;
-import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSFUL_DELETE_USER;
-import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSFUL_UPDATE_USER;
-import static org.carlspring.strongbox.controllers.users.UserController.USER_DELETE_FORBIDDEN;
+import static org.carlspring.strongbox.controllers.users.UserController.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Transactional
 public class UserControllerTestIT
         extends RestAssuredBaseTest
@@ -670,7 +654,7 @@ public class UserControllerTestIT
                .body(containsString(OWN_USER_DELETE_FORBIDDEN));
     }
 
-    @Ignore // disabled temporarily
+    @Disabled // disabled temporarily
     @Test
     @WithMockUser(username = "another-admin", authorities = "DELETE_USER")
     public void testDeletingRootAdminShouldBeForbidden()

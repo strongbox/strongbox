@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import org.apache.http.pool.PoolStats;
-
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.*;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
@@ -11,31 +9,29 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
+import javax.inject.Inject;
 import java.util.List;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.http.pool.PoolStats;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.HttpServerErrorException;
-
-import javax.inject.Inject;
-
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class StoragesConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {

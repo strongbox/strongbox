@@ -4,24 +4,27 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class EnvironmentInfoControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -46,22 +49,22 @@ public class EnvironmentInfoControllerTestIT
                                                             {
                                                             });
 
-        assertNotNull("Failed to get all environment info list!", returnedMap);
+        assertNotNull(returnedMap, "Failed to get all environment info list!");
 
         List<?> environmentVariables = returnedMap.get("environment");
 
-        assertNotNull("Failed to get environment variables list!", environmentVariables);
-        assertFalse("Returned environment variables are empty", environmentVariables.isEmpty());
+        assertNotNull(environmentVariables, "Failed to get environment variables list!");
+        assertFalse(environmentVariables.isEmpty(), "Returned environment variables are empty");
 
         List<?> systemProperties = returnedMap.get("system");
 
-        assertNotNull("Failed to get system properties list!", systemProperties);
-        assertFalse("Returned system properties are empty", systemProperties.isEmpty());
+        assertNotNull(systemProperties, "Failed to get system properties list!");
+        assertFalse(systemProperties.isEmpty(), "Returned system properties are empty");
 
         List<?> jvmArguments = returnedMap.get("jvm");
 
-        assertNotNull("Failed to get JVM arguments list!", jvmArguments);
-        assertFalse("Returned JVM arguments are empty", jvmArguments.isEmpty());
+        assertNotNull(jvmArguments, "Failed to get JVM arguments list!");
+        assertFalse(jvmArguments.isEmpty(), "Returned JVM arguments are empty");
     }
 
     @Test
@@ -87,8 +90,8 @@ public class EnvironmentInfoControllerTestIT
         List<EnvironmentInfo> sortedEnvironmentVariables = new ArrayList<>(environmentVariables);
         sortedEnvironmentVariables.sort(environmentInfoComparator);
 
-        assertNotNull("Failed to get environment variables list!", environmentVariables);
-        assertEquals("Environment variables list is not sorted!", environmentVariables, sortedEnvironmentVariables);
+        assertNotNull(environmentVariables, "Failed to get environment variables list!");
+        assertEquals(environmentVariables, sortedEnvironmentVariables, "Environment variables list is not sorted!");
 
         // System properties
         JsonNode systemNode = root.path("system");
@@ -96,8 +99,8 @@ public class EnvironmentInfoControllerTestIT
         List<EnvironmentInfo> sortedSystemProperties = new ArrayList<>(systemProperties);
         sortedSystemProperties.sort(environmentInfoComparator);
 
-        assertNotNull("Failed to get system properties list!", systemProperties);
-        assertEquals("System properties list is not sorted!", systemProperties, sortedSystemProperties);
+        assertNotNull(systemProperties, "Failed to get system properties list!");
+        assertEquals(systemProperties, sortedSystemProperties, "System properties list is not sorted!");
 
         // JVM arguments
         JsonNode jvmNode = root.path("jvm");
@@ -107,8 +110,8 @@ public class EnvironmentInfoControllerTestIT
         List<String> sortedJvmArguments = new ArrayList<>(jvmArguments);
         sortedJvmArguments.sort(stringComparator);
 
-        assertNotNull("Failed to get JVM arguments list!", jvmArguments);
-        assertEquals("JVM arguments list is not sorted!", jvmArguments, sortedJvmArguments);
+        assertNotNull(jvmArguments, "Failed to get JVM arguments list!");
+        assertEquals(jvmArguments, sortedJvmArguments, "JVM arguments list is not sorted!");
     }
 
 }

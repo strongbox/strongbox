@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.io;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
@@ -28,17 +13,29 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.artifact.Artifact;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class ArtifactOutputStreamTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
@@ -57,7 +54,7 @@ public class ArtifactOutputStreamTest
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -67,7 +64,7 @@ public class ArtifactOutputStreamTest
                          "org.carlspring.foo:temp-file-test:1.2.3");
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {

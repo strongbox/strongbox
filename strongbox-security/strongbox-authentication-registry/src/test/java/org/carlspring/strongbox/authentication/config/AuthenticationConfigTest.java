@@ -10,16 +10,16 @@ import javax.inject.Inject;
 import com.google.common.collect.Lists;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.CustomMatcher;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertThat;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Przemyslaw Fusik
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
 public class AuthenticationConfigTest
 {

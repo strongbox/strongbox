@@ -1,9 +1,6 @@
 package org.carlspring.strongbox.artifact.generation;
 
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
@@ -13,15 +10,16 @@ import java.io.FileInputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.apache.maven.artifact.Artifact;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author mtodorov
  */
-@Ignore
+@Disabled
 public class MavenArtifactGeneratorTest
         extends MavenTestCaseWithArtifactGeneration
 {
@@ -51,13 +49,13 @@ public class MavenArtifactGeneratorTest
         File artifactPomFileSHA1 = new File(BASEDIR,
                                             "org/carlspring/strongbox/testing/test-foo/1.2.3/test-foo-1.2.3.pom.sha1");
 
-        assertTrue("Failed to generate JAR file!", artifactJarFile.exists());
-        assertTrue("Failed to generate JAR MD5 file!", artifactJarFileMD5.exists());
-        assertTrue("Failed to generate JAR SHA1 file!", artifactJarFileSHA1.exists());
+        assertTrue(artifactJarFile.exists(), "Failed to generate JAR file!");
+        assertTrue(artifactJarFileMD5.exists(), "Failed to generate JAR MD5 file!");
+        assertTrue(artifactJarFileSHA1.exists(), "Failed to generate JAR SHA1 file!");
 
-        assertTrue("Failed to generate POM file!", artifactPomFile.exists());
-        assertTrue("Failed to generate POM MD5 file!", artifactPomFileMD5.exists());
-        assertTrue("Failed to generate POM SHA1 file!", artifactPomFileSHA1.exists());
+        assertTrue(artifactPomFile.exists(), "Failed to generate POM file!");
+        assertTrue(artifactPomFileMD5.exists(), "Failed to generate POM MD5 file!");
+        assertTrue(artifactPomFileSHA1.exists(), "Failed to generate POM SHA1 file!");
 
         String expectedJarMD5 = calculateChecksum(artifactJarFile, "MD5");
         String expectedJarSHA1 = calculateChecksum(artifactJarFile, "SHA1");

@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
@@ -24,25 +9,39 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.maven.artifact.Artifact;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Kate Novik.
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @EnableRuleMigrationSupport
 public class RemoveTimestampedMavenSnapshotCronJobTestIT
@@ -84,7 +83,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -100,7 +99,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -164,7 +163,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         rebuildArtifactsMetadata();
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws Exception
     {
@@ -201,8 +200,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             {
                 if (jobName.equals(jobName1) && statusExecuted)
                 {
-                    assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
-                                 file.listFiles(new JarFilenameFilter()).length);
+                    assertEquals(1, file.listFiles(new JarFilenameFilter()).length,
+                                 "Amount of timestamped snapshots doesn't equal 1.");
                     assertTrue(getSnapshotArtifactVersion(file).endsWith("-3"));
                 }
             }
@@ -245,8 +244,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             {
                 if (jobName.equals(jobName1) && statusExecuted)
                 {
-                    assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
-                                 file.listFiles(new JarFilenameFilter()).length);
+                    assertEquals(1, file.listFiles(new JarFilenameFilter()).length,
+                                 "Amount of timestamped snapshots doesn't equal 1.");
                     assertTrue(getSnapshotArtifactVersion(file).endsWith("-2"));
                 }
             }
@@ -292,8 +291,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             {
                 if (jobName.equals(jobName1) && statusExecuted)
                 {
-                    assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
-                                 file.listFiles(new JarFilenameFilter()).length);
+                    assertEquals(1, file.listFiles(new JarFilenameFilter()).length,
+                                 "Amount of timestamped snapshots doesn't equal 1.");
                     assertTrue(getSnapshotArtifactVersion(file).endsWith("-5"));
                 }
             }
@@ -333,8 +332,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             {
                 if (jobName.equals(jobName1) && statusExecuted)
                 {
-                    assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
-                                 file.listFiles(new JarFilenameFilter()).length);
+                    assertEquals(1, file.listFiles(new JarFilenameFilter()).length,
+                                 "Amount of timestamped snapshots doesn't equal 1.");
                     assertTrue(getSnapshotArtifactVersion(file).endsWith("-1"));
                 }
             }

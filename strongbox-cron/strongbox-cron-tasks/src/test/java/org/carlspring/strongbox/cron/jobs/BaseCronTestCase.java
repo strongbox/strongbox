@@ -15,8 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author carlspring
@@ -56,7 +55,7 @@ abstract class BaseCronTestCase implements ApplicationListener<CronTaskEvent>, A
 
         CronTaskConfigurationDto configuration = cronTaskConfigurationService.getTaskConfigurationDto(cronTaskConfiguration.getName());
 
-        assertNotNull("Failed to save cron configuration!", configuration);
+        assertNotNull(configuration, "Failed to save cron configuration!");
 
         return configuration;
     }

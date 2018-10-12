@@ -6,9 +6,9 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
@@ -20,20 +20,18 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class Maven2LayoutProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
@@ -51,14 +49,14 @@ public class Maven2LayoutProviderTest
     private MavenRepositoryFactory mavenRepositoryFactory;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -79,7 +77,7 @@ public class Maven2LayoutProviderTest
         );
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {

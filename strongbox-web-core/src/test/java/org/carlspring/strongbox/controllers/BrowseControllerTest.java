@@ -1,17 +1,5 @@
 package org.carlspring.strongbox.controllers;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
@@ -21,23 +9,31 @@ import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * @author Guido Grazioli
  */
 
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class BrowseControllerTest
         extends MavenRestAssuredBaseTest
 {
@@ -49,7 +45,7 @@ public class BrowseControllerTest
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup()
             throws Exception
     {

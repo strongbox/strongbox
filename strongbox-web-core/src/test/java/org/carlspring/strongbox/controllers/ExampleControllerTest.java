@@ -4,11 +4,11 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.ExampleForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.*;
@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.*;
  * @author Steve Todorov
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ExampleControllerTest
         extends RestAssuredBaseTest
 {

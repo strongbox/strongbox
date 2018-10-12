@@ -21,17 +21,17 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class KeyStoreManagerIntegrationTestIT
 {
@@ -73,7 +73,7 @@ public class KeyStoreManagerIntegrationTestIT
     KeyStoreManager keyStoreManager;
 
 
-    @Before
+    @BeforeEach
     public void init()
             throws IOException,
                    CertificateException,
@@ -102,7 +102,7 @@ public class KeyStoreManagerIntegrationTestIT
                                                             InetAddress.getLocalHost(),
                                                             LDAPS_PORT);
 
-        assertEquals("localhost should have three certificates in the chain", 1, ks.size());
+        assertEquals(1, ks.size(), "localhost should have three certificates in the chain");
 
         Map<String, Certificate> certs = keyStoreManager.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())
@@ -116,7 +116,7 @@ public class KeyStoreManagerIntegrationTestIT
         keyStoreManager.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT);
         certs = keyStoreManager.listCertificates(f, newPassword.toCharArray());
 
-        assertEquals("Expected empty certs.", 0, certs.size());
+        assertEquals(0, certs.size(), "Expected empty certs.");
     }
 
     @Test
@@ -142,7 +142,7 @@ public class KeyStoreManagerIntegrationTestIT
                                                                "google.com",
                                                                443);
 
-        assertEquals("localhost should have one certificate in the chain", 1, ks.size());
+        assertEquals(1, ks.size(), "localhost should have one certificate in the chain");
 
         Map<String, Certificate> certs = keyStoreManager.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())
@@ -159,7 +159,7 @@ public class KeyStoreManagerIntegrationTestIT
         assertTrue(certs.isEmpty());
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void testHttpProxy()
             throws IOException,
@@ -184,7 +184,7 @@ public class KeyStoreManagerIntegrationTestIT
                                                                  "google.com",
                                                                  443);
 
-        assertEquals("google.com should have three certificate in the chain", 3, ks.size());
+        assertEquals(3, ks.size(), "google.com should have three certificate in the chain");
 
         Map<String, Certificate> certs = keyStoreManager.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())

@@ -9,39 +9,26 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.Plugin;
-import org.apache.maven.artifact.repository.metadata.Snapshot;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
-import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.artifact.repository.metadata.*;
 import org.apache.maven.project.artifact.PluginArtifact;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -77,14 +64,7 @@ public class MetadataHelperTest
     private PluginArtifact pluginArtifact;
 
 
-    @Before
-    public void setUp()
-    {
-        initMocks(this);
-        metadataMerger = new MetadataMerger();
-    }
-
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeAll()
             throws IOException
     {
@@ -92,11 +72,18 @@ public class MetadataHelperTest
         crateJarFile();
     }
 
-    @AfterClass
+    @AfterAll
     public static void down()
     {
         deleteTestResources();
 
+    }
+
+    @BeforeEach
+    public void setUp()
+    {
+        initMocks(this);
+        metadataMerger = new MetadataMerger();
     }
 
     private static void deleteTestResources()
@@ -221,30 +208,30 @@ public class MetadataHelperTest
         Metadata metadata = metadataMerger.updateMetadataAtVersionLevel(artifact, null);
 
         // Then
-        Assert.assertEquals(GROUP_ID, metadata.getGroupId());
-        Assert.assertEquals(ARTIFACT_ID, metadata.getArtifactId());
-        Assert.assertEquals(SNAPSHOT_VERSION, metadata.getVersion());
+        assertEquals(GROUP_ID, metadata.getGroupId());
+        assertEquals(ARTIFACT_ID, metadata.getArtifactId());
+        assertEquals(SNAPSHOT_VERSION, metadata.getVersion());
 
-        Assert.assertNotNull(metadata.getVersioning());
-        Assert.assertNotNull(metadata.getVersioning().getSnapshot());
-        Assert.assertEquals(1, metadata.getVersioning().getSnapshot().getBuildNumber());
-        Assert.assertNotNull(metadata.getVersioning().getSnapshot().getTimestamp());
-        Assert.assertNotNull(metadata.getVersioning().getLastUpdated());
-        Assert.assertEquals(3, metadata.getVersioning().getSnapshotVersions().size());
+        assertNotNull(metadata.getVersioning());
+        assertNotNull(metadata.getVersioning().getSnapshot());
+        assertEquals(1, metadata.getVersioning().getSnapshot().getBuildNumber());
+        assertNotNull(metadata.getVersioning().getSnapshot().getTimestamp());
+        assertNotNull(metadata.getVersioning().getLastUpdated());
+        assertEquals(3, metadata.getVersioning().getSnapshotVersions().size());
 
-        Assert.assertEquals(JAVADOC, metadata.getVersioning().getSnapshotVersions().get(0).getClassifier());
-        Assert.assertEquals(JAR, metadata.getVersioning().getSnapshotVersions().get(0).getExtension());
-        Assert.assertNotNull(metadata.getVersioning().getSnapshotVersions().get(0).getUpdated());
+        assertEquals(JAVADOC, metadata.getVersioning().getSnapshotVersions().get(0).getClassifier());
+        assertEquals(JAR, metadata.getVersioning().getSnapshotVersions().get(0).getExtension());
+        assertNotNull(metadata.getVersioning().getSnapshotVersions().get(0).getUpdated());
 
-        Assert.assertEquals(JAR, metadata.getVersioning().getSnapshotVersions().get(1).getExtension());
-        Assert.assertNotNull(metadata.getVersioning().getSnapshotVersions().get(1).getUpdated());
+        assertEquals(JAR, metadata.getVersioning().getSnapshotVersions().get(1).getExtension());
+        assertNotNull(metadata.getVersioning().getSnapshotVersions().get(1).getUpdated());
 
-        Assert.assertEquals(POM, metadata.getVersioning().getSnapshotVersions().get(2).getExtension());
-        Assert.assertNotNull(metadata.getVersioning().getSnapshotVersions().get(2).getUpdated());
+        assertEquals(POM, metadata.getVersioning().getSnapshotVersions().get(2).getExtension());
+        assertNotNull(metadata.getVersioning().getSnapshotVersions().get(2).getUpdated());
 
-        Assert.assertTrue(metadata.getVersioning().getSnapshotVersions().get(0).getVersion()
+        assertTrue(metadata.getVersioning().getSnapshotVersions().get(0).getVersion()
                                   .equals(metadata.getVersioning().getSnapshotVersions().get(1).getVersion()));
-        Assert.assertTrue(metadata.getVersioning().getSnapshotVersions().get(1).getVersion()
+        assertTrue(metadata.getVersioning().getSnapshotVersions().get(1).getVersion()
                                   .equals(metadata.getVersioning().getSnapshotVersions().get(2).getVersion()));
     }
 
@@ -259,30 +246,30 @@ public class MetadataHelperTest
         metadata = metadataMerger.updateMetadataAtVersionLevel(artifact, metadata);
 
         // Then
-        Assert.assertEquals(GROUP_ID, metadata.getGroupId());
-        Assert.assertEquals(ARTIFACT_ID, metadata.getArtifactId());
-        Assert.assertEquals(SNAPSHOT_VERSION, metadata.getVersion());
+        assertEquals(GROUP_ID, metadata.getGroupId());
+        assertEquals(ARTIFACT_ID, metadata.getArtifactId());
+        assertEquals(SNAPSHOT_VERSION, metadata.getVersion());
 
-        Assert.assertNotNull(metadata.getVersioning());
-        Assert.assertNotNull(metadata.getVersioning().getSnapshot());
-        Assert.assertEquals(2, metadata.getVersioning().getSnapshot().getBuildNumber());
-        Assert.assertNotNull(metadata.getVersioning().getSnapshot().getTimestamp());
-        Assert.assertNotNull(metadata.getVersioning().getLastUpdated());
-        Assert.assertEquals(6, metadata.getVersioning().getSnapshotVersions().size());
+        assertNotNull(metadata.getVersioning());
+        assertNotNull(metadata.getVersioning().getSnapshot());
+        assertEquals(2, metadata.getVersioning().getSnapshot().getBuildNumber());
+        assertNotNull(metadata.getVersioning().getSnapshot().getTimestamp());
+        assertNotNull(metadata.getVersioning().getLastUpdated());
+        assertEquals(6, metadata.getVersioning().getSnapshotVersions().size());
 
-        Assert.assertEquals(JAVADOC, metadata.getVersioning().getSnapshotVersions().get(3).getClassifier());
-        Assert.assertEquals(JAR, metadata.getVersioning().getSnapshotVersions().get(3).getExtension());
-        Assert.assertNotNull(metadata.getVersioning().getSnapshotVersions().get(3).getUpdated());
+        assertEquals(JAVADOC, metadata.getVersioning().getSnapshotVersions().get(3).getClassifier());
+        assertEquals(JAR, metadata.getVersioning().getSnapshotVersions().get(3).getExtension());
+        assertNotNull(metadata.getVersioning().getSnapshotVersions().get(3).getUpdated());
 
-        Assert.assertEquals(JAR, metadata.getVersioning().getSnapshotVersions().get(4).getExtension());
-        Assert.assertNotNull(metadata.getVersioning().getSnapshotVersions().get(4).getUpdated());
+        assertEquals(JAR, metadata.getVersioning().getSnapshotVersions().get(4).getExtension());
+        assertNotNull(metadata.getVersioning().getSnapshotVersions().get(4).getUpdated());
 
-        Assert.assertEquals(POM, metadata.getVersioning().getSnapshotVersions().get(5).getExtension());
-        Assert.assertNotNull(metadata.getVersioning().getSnapshotVersions().get(5).getUpdated());
+        assertEquals(POM, metadata.getVersioning().getSnapshotVersions().get(5).getExtension());
+        assertNotNull(metadata.getVersioning().getSnapshotVersions().get(5).getUpdated());
 
-        Assert.assertTrue(metadata.getVersioning().getSnapshotVersions().get(3).getVersion()
+        assertTrue(metadata.getVersioning().getSnapshotVersions().get(3).getVersion()
                                   .equals(metadata.getVersioning().getSnapshotVersions().get(4).getVersion()));
-        Assert.assertTrue(metadata.getVersioning().getSnapshotVersions().get(4).getVersion()
+        assertTrue(metadata.getVersioning().getSnapshotVersions().get(4).getVersion()
                                   .equals(metadata.getVersioning().getSnapshotVersions().get(5).getVersion()));
     }
 
@@ -298,16 +285,16 @@ public class MetadataHelperTest
         Metadata metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, null);
 
         // Then
-        Assert.assertEquals(GROUP_ID, metadata.getGroupId());
-        Assert.assertEquals(ARTIFACT_ID, metadata.getArtifactId());
+        assertEquals(GROUP_ID, metadata.getGroupId());
+        assertEquals(ARTIFACT_ID, metadata.getArtifactId());
 
-        Assert.assertNotNull(metadata.getVersioning());
-        Assert.assertEquals(VERSION, metadata.getVersioning().getLatest());
-        Assert.assertEquals(VERSION, metadata.getVersioning().getRelease());
-        Assert.assertNotNull(metadata.getVersioning().getLastUpdated());
+        assertNotNull(metadata.getVersioning());
+        assertEquals(VERSION, metadata.getVersioning().getLatest());
+        assertEquals(VERSION, metadata.getVersioning().getRelease());
+        assertNotNull(metadata.getVersioning().getLastUpdated());
 
-        Assert.assertEquals(1, metadata.getVersioning().getVersions().size());
-        Assert.assertEquals(VERSION, metadata.getVersioning().getVersions().get(0));
+        assertEquals(1, metadata.getVersioning().getVersions().size());
+        assertEquals(VERSION, metadata.getVersioning().getVersions().get(0));
     }
 
     @Test
@@ -320,14 +307,14 @@ public class MetadataHelperTest
         // When
         metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, metadata);
 
-        Assert.assertEquals(GROUP_ID, metadata.getGroupId());
-        Assert.assertEquals(ARTIFACT_ID, metadata.getArtifactId());
-        Assert.assertEquals(VERSION, metadata.getVersioning().getLatest());
-        Assert.assertEquals(VERSION, metadata.getVersioning().getRelease());
-        Assert.assertEquals(2, metadata.getVersioning().getVersions().size());
-        Assert.assertTrue(metadata.getVersioning().getVersions().contains(VERSION));
-        Assert.assertTrue(metadata.getVersioning().getVersions().contains(PRE_VERSION));
-        Assert.assertNotNull(metadata.getVersioning().getLastUpdated());
+        assertEquals(GROUP_ID, metadata.getGroupId());
+        assertEquals(ARTIFACT_ID, metadata.getArtifactId());
+        assertEquals(VERSION, metadata.getVersioning().getLatest());
+        assertEquals(VERSION, metadata.getVersioning().getRelease());
+        assertEquals(2, metadata.getVersioning().getVersions().size());
+        assertTrue(metadata.getVersioning().getVersions().contains(VERSION));
+        assertTrue(metadata.getVersioning().getVersions().contains(PRE_VERSION));
+        assertNotNull(metadata.getVersioning().getLastUpdated());
     }
 
     @Test
@@ -341,13 +328,13 @@ public class MetadataHelperTest
         metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, metadata);
 
         // Then
-        Assert.assertEquals(GROUP_ID, metadata.getGroupId());
-        Assert.assertEquals(ARTIFACT_ID, metadata.getArtifactId());
-        Assert.assertEquals(PRE_VERSION, metadata.getVersioning().getLatest());
-        Assert.assertEquals(PRE_VERSION, metadata.getVersioning().getRelease());
-        Assert.assertEquals(1, metadata.getVersioning().getVersions().size());
-        Assert.assertTrue(metadata.getVersioning().getVersions().contains(PRE_VERSION));
-        Assert.assertNotNull(metadata.getVersioning().getLastUpdated());
+        assertEquals(GROUP_ID, metadata.getGroupId());
+        assertEquals(ARTIFACT_ID, metadata.getArtifactId());
+        assertEquals(PRE_VERSION, metadata.getVersioning().getLatest());
+        assertEquals(PRE_VERSION, metadata.getVersioning().getRelease());
+        assertEquals(1, metadata.getVersioning().getVersions().size());
+        assertTrue(metadata.getVersioning().getVersions().contains(PRE_VERSION));
+        assertNotNull(metadata.getVersioning().getLastUpdated());
 
     }
 
@@ -361,14 +348,14 @@ public class MetadataHelperTest
         // When
         metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, metadata);
 
-        Assert.assertEquals(GROUP_ID, metadata.getGroupId());
-        Assert.assertEquals(ARTIFACT_ID, metadata.getArtifactId());
-        Assert.assertEquals(SNAPSHOT_VERSION, metadata.getVersioning().getLatest());
-        Assert.assertEquals(PRE_VERSION, metadata.getVersioning().getRelease());
-        Assert.assertEquals(2, metadata.getVersioning().getVersions().size());
-        Assert.assertTrue(metadata.getVersioning().getVersions().contains(SNAPSHOT_VERSION));
-        Assert.assertTrue(metadata.getVersioning().getVersions().contains(PRE_VERSION));
-        Assert.assertNotNull(metadata.getVersioning().getLastUpdated());
+        assertEquals(GROUP_ID, metadata.getGroupId());
+        assertEquals(ARTIFACT_ID, metadata.getArtifactId());
+        assertEquals(SNAPSHOT_VERSION, metadata.getVersioning().getLatest());
+        assertEquals(PRE_VERSION, metadata.getVersioning().getRelease());
+        assertEquals(2, metadata.getVersioning().getVersions().size());
+        assertTrue(metadata.getVersioning().getVersions().contains(SNAPSHOT_VERSION));
+        assertTrue(metadata.getVersioning().getVersions().contains(PRE_VERSION));
+        assertNotNull(metadata.getVersioning().getLastUpdated());
     }
 
     @Test
@@ -385,11 +372,11 @@ public class MetadataHelperTest
         Metadata metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) pluginArtifact, null);
 
         // Then
-        Assert.assertNotNull(metadata.getPlugins());
-        Assert.assertEquals(1, metadata.getPlugins().size());
-        Assert.assertEquals("maven-dependency-plugin", metadata.getPlugins().get(0).getArtifactId());
-        Assert.assertEquals("Apache Maven Dependency Plugin", metadata.getPlugins().get(0).getName());
-        Assert.assertEquals("dependency", metadata.getPlugins().get(0).getPrefix());
+        assertNotNull(metadata.getPlugins());
+        assertEquals(1, metadata.getPlugins().size());
+        assertEquals("maven-dependency-plugin", metadata.getPlugins().get(0).getArtifactId());
+        assertEquals("Apache Maven Dependency Plugin", metadata.getPlugins().get(0).getName());
+        assertEquals("dependency", metadata.getPlugins().get(0).getPrefix());
     }
 
     @Test
@@ -406,10 +393,10 @@ public class MetadataHelperTest
         metadata = metadataMerger.updateMetadataAtGroupLevel(pluginArtifact, metadata);
 
         // Then
-        Assert.assertEquals(2, metadata.getPlugins().size());
-        Assert.assertEquals("maven-dependency-plugin", metadata.getPlugins().get(1).getArtifactId());
-        Assert.assertEquals("Apache Maven Dependency Plugin", metadata.getPlugins().get(1).getName());
-        Assert.assertEquals("dependency", metadata.getPlugins().get(1).getPrefix());
+        assertEquals(2, metadata.getPlugins().size());
+        assertEquals("maven-dependency-plugin", metadata.getPlugins().get(1).getArtifactId());
+        assertEquals("Apache Maven Dependency Plugin", metadata.getPlugins().get(1).getName());
+        assertEquals("dependency", metadata.getPlugins().get(1).getPrefix());
     }
 
     @Test
@@ -423,10 +410,10 @@ public class MetadataHelperTest
         metadata = metadataMerger.updateMetadataAtGroupLevel(pluginArtifact, metadata);
 
         // Then
-        Assert.assertEquals(1, metadata.getPlugins().size());
-        Assert.assertEquals(ANOTHER_ARTIFACT_ID, metadata.getPlugins().get(0).getArtifactId());
-        Assert.assertEquals("", metadata.getPlugins().get(0).getName());
-        Assert.assertEquals("", metadata.getPlugins().get(0).getPrefix());
+        assertEquals(1, metadata.getPlugins().size());
+        assertEquals(ANOTHER_ARTIFACT_ID, metadata.getPlugins().get(0).getArtifactId());
+        assertEquals("", metadata.getPlugins().get(0).getName());
+        assertEquals("", metadata.getPlugins().get(0).getPrefix());
     }
 
     private Metadata createGroupLevelMetadata()

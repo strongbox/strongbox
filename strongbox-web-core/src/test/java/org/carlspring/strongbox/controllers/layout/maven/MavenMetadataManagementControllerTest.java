@@ -1,24 +1,5 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -29,17 +10,34 @@ import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static junit.framework.TestCase.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class MavenMetadataManagementControllerTest
         extends MavenRestAssuredBaseTest
 {
@@ -60,14 +58,14 @@ public class MavenMetadataManagementControllerTest
     private MavenRepositoryFactory mavenRepositoryFactory;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -118,7 +116,7 @@ public class MavenMetadataManagementControllerTest
                                           5);
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {

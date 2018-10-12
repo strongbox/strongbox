@@ -11,9 +11,8 @@ import java.util.Collection;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import io.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -22,7 +21,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.web.context.WebApplicationContext;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * General settings for the testing sub-system.
@@ -58,7 +57,7 @@ public abstract class RestAssuredBaseTest
 
     private RestAssuredMockMvcConfig restAssuredMockMvcConfig;
 
-    @Before
+    @BeforeEach
     public void init()
             throws Exception
     {
@@ -142,7 +141,7 @@ public abstract class RestAssuredBaseTest
 
     protected void assertPathExists(String url)
     {
-        assertTrue("Path " + url + " doesn't exist.", pathExists(url));
+        assertTrue(pathExists(url), "Path " + url + " doesn't exist.");
     }
 
 }

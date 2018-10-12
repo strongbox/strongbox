@@ -14,8 +14,8 @@ import com.google.common.collect.ImmutableSet;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Przemyslaw Fusik
@@ -74,24 +74,24 @@ public class AccessModelFormTest
 
         UserAccessModelDto userAccessModel = AccessModelFormToUserAccessModelDtoConverter.INSTANCE.convert(
                 developer01AccessModel);
-        Assert.assertThat(userAccessModel, CoreMatchers.notNullValue());
+        assertThat(userAccessModel, CoreMatchers.notNullValue());
 
         Set<UserStorageDto> userStorages = userAccessModel.getStorages();
-        Assert.assertThat(userStorages, CoreMatchers.notNullValue());
-        Assert.assertThat(userStorages.size(), CoreMatchers.equalTo(1));
+        assertThat(userStorages, CoreMatchers.notNullValue());
+        assertThat(userStorages.size(), CoreMatchers.equalTo(1));
 
         UserStorageDto userStorage = userStorages.iterator().next();
-        Assert.assertThat(userStorage, CoreMatchers.notNullValue());
+        assertThat(userStorage, CoreMatchers.notNullValue());
 
-        Assert.assertThat(userStorage.getStorageId(), CoreMatchers.equalTo("storage0"));
+        assertThat(userStorage.getStorageId(), CoreMatchers.equalTo("storage0"));
 
         Set<UserRepositoryDto> userRepositories = userStorage.getRepositories();
-        Assert.assertThat(userRepositories, CoreMatchers.notNullValue());
-        Assert.assertThat(userRepositories.size(), CoreMatchers.equalTo(2));
+        assertThat(userRepositories, CoreMatchers.notNullValue());
+        assertThat(userRepositories.size(), CoreMatchers.equalTo(2));
 
         for (UserRepositoryDto userRepository : userRepositories)
         {
-            Assert.assertThat(userRepository.getRepositoryId(),
+            assertThat(userRepository.getRepositoryId(),
                               CoreMatchers.anyOf(CoreMatchers.equalTo("releases"), CoreMatchers.equalTo("snapshots")));
 
 
@@ -100,45 +100,45 @@ public class AccessModelFormTest
 
             if ("releases".equals(userRepository.getRepositoryId()))
             {
-                Assert.assertThat(pathPrivileges, CoreMatchers.notNullValue());
-                Assert.assertThat(pathPrivileges.size(), CoreMatchers.equalTo(4));
+                assertThat(pathPrivileges, CoreMatchers.notNullValue());
+                assertThat(pathPrivileges.size(), CoreMatchers.equalTo(4));
 
                 for (UserPathPrivilegesDto pathPrivilege : pathPrivileges)
                 {
-                    Assert.assertThat(pathPrivilege.getPath(),
+                    assertThat(pathPrivilege.getPath(),
                                       CoreMatchers.anyOf(CoreMatchers.equalTo("com/apache/foo"),
                                                          CoreMatchers.equalTo("org/apache/foo"),
                                                          CoreMatchers.equalTo("com/carlspring/foo"),
                                                          CoreMatchers.equalTo("org/carlspring/foo")));
                     if (pathPrivilege.getPath().startsWith("org"))
                     {
-                        Assert.assertThat(pathPrivilege.getPrivileges().size(), CoreMatchers.equalTo(5));
+                        assertThat(pathPrivilege.getPrivileges().size(), CoreMatchers.equalTo(5));
                     }
                     else
                     {
-                        Assert.assertThat(pathPrivilege.getPrivileges().size(), CoreMatchers.equalTo(2));
+                        assertThat(pathPrivilege.getPrivileges().size(), CoreMatchers.equalTo(2));
                     }
 
                     if (pathPrivilege.getPath().contains("carlspring"))
                     {
-                        Assert.assertThat(pathPrivilege.isWildcard(), CoreMatchers.equalTo(true));
+                        assertThat(pathPrivilege.isWildcard(), CoreMatchers.equalTo(true));
                     }
                     else
                     {
-                        Assert.assertThat(pathPrivilege.isWildcard(), CoreMatchers.equalTo(false));
+                        assertThat(pathPrivilege.isWildcard(), CoreMatchers.equalTo(false));
                     }
                 }
 
-                Assert.assertThat(repositoryPrivileges.size(), CoreMatchers.equalTo(2));
-                Assert.assertThat(repositoryPrivileges, IsCollectionContaining.hasItems(
+                assertThat(repositoryPrivileges.size(), CoreMatchers.equalTo(2));
+                assertThat(repositoryPrivileges, IsCollectionContaining.hasItems(
                         CoreMatchers.equalTo(new PrivilegeDto("ARTIFACTS_RESOLVE", null)),
                         CoreMatchers.equalTo(new PrivilegeDto("ARTIFACTS_DEPLOY", null))));
             }
             if ("snapshots".equals(userRepository.getRepositoryId()))
             {
-                Assert.assertThat(pathPrivileges, Matchers.emptyCollectionOf(UserPathPrivilegesDto.class));
-                Assert.assertThat(repositoryPrivileges.size(), CoreMatchers.equalTo(1));
-                Assert.assertThat(repositoryPrivileges, IsCollectionContaining.hasItems(
+                assertThat(pathPrivileges, Matchers.emptyCollectionOf(UserPathPrivilegesDto.class));
+                assertThat(repositoryPrivileges.size(), CoreMatchers.equalTo(1));
+                assertThat(repositoryPrivileges, IsCollectionContaining.hasItems(
                         CoreMatchers.equalTo(new PrivilegeDto("ARTIFACTS_DEPLOY", null))));
             }
         }

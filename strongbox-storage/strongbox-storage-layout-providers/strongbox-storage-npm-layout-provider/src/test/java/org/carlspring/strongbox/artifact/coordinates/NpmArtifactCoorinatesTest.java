@@ -1,9 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author sbespalov
@@ -48,16 +46,20 @@ public class NpmArtifactCoorinatesTest
         assertEquals("json", c.getExtension());
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testVersionAssertion()
     {
-        NpmArtifactCoordinates.parse("@types/node/8.beta1/node-8.beta1.tgz");
+        assertThrows(IllegalArgumentException.class, () -> {
+            NpmArtifactCoordinates.parse("@types/node/8.beta1/node-8.beta1.tgz");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNameAssertion()
     {
-        NpmArtifactCoordinates.parse("@types/NODE/8.0.51/node-8.0.51.tgz");
+        assertThrows(IllegalArgumentException.class, () -> {
+            NpmArtifactCoordinates.parse("@types/NODE/8.0.51/node-8.0.51.tgz");
+        });
     }
 
 }

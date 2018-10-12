@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.client.CloseableRestResponse;
-import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.google.common.base.Throwables;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.core.io.ClassPathResource;
@@ -39,7 +39,7 @@ public abstract class RetryDownloadArtifactTestBase
     @Inject
     ArtifactEntryService artifactEntryService;
 
-    @Before
+    @BeforeEach
     public void timeoutRetryFeatureRatherQuicklyForTestPurposes()
             throws Exception
     {
@@ -51,8 +51,8 @@ public abstract class RetryDownloadArtifactTestBase
         configurationManagementService.set(remoteRepositoryRetryArtifactDownloadConfiguration);
     }
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void cleanup()
             throws Exception
     {

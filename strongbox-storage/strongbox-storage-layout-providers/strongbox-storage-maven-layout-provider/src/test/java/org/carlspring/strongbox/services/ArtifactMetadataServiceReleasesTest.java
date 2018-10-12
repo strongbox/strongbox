@@ -2,7 +2,6 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -27,22 +26,19 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author carlspring
  * @author stodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class ArtifactMetadataServiceReleasesTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
@@ -62,14 +58,14 @@ public class ArtifactMetadataServiceReleasesTest
     private RepositoryPathResolver repositoryPathResolver;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -134,12 +130,12 @@ public class ArtifactMetadataServiceReleasesTest
 
         Versioning versioning = metadata.getVersioning();
 
-        assertEquals("Incorrect artifactId!", artifact.getArtifactId(), metadata.getArtifactId());
-        assertEquals("Incorrect groupId!", artifact.getGroupId(), metadata.getGroupId());
+        assertEquals(artifact.getArtifactId(), metadata.getArtifactId(), "Incorrect artifactId!");
+        assertEquals(artifact.getGroupId(), metadata.getGroupId(), "Incorrect groupId!");
         // TODO: Fix this as part of SB-333:
-        //Assert.assertEquals("Incorrect latest release version!", artifact.getVersion(), versioning.getRelease());
-        assertEquals("Incorrect latest release version!", "1.5", versioning.getRelease());
-        assertEquals("Incorrect number of versions stored in metadata!", 6, versioning.getVersions().size());
+        //assertEquals("Incorrect latest release version!", artifact.getVersion(), versioning.getRelease());
+        assertEquals("1.5", versioning.getRelease(), "Incorrect latest release version!");
+        assertEquals(6, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
 
         Metadata nestedMetadata1 = artifactMetadataService.getMetadata(STORAGE0,
                                                                        REPOSITORY_RELEASES,
@@ -170,7 +166,7 @@ public class ArtifactMetadataServiceReleasesTest
         Metadata metadataBefore = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_RELEASES, artifactPath);
 
         assertNotNull(metadataBefore);
-        assertTrue("Unexpected set of versions!", MetadataHelper.containsVersion(metadataBefore, "1.3"));
+        assertTrue(MetadataHelper.containsVersion(metadataBefore, "1.3"), "Unexpected set of versions!");
 
         artifactMetadataService.addVersion(STORAGE0,
                                            REPOSITORY_RELEASES, artifactPath,
@@ -180,7 +176,7 @@ public class ArtifactMetadataServiceReleasesTest
         Metadata metadataAfter = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_RELEASES, artifactPath);
 
         assertNotNull(metadataAfter);
-        assertTrue("Unexpected set of versions!", MetadataHelper.containsVersion(metadataAfter, "1.4"));
+        assertTrue(MetadataHelper.containsVersion(metadataAfter, "1.4"), "Unexpected set of versions!");
         assertEquals("Unexpected set of versions!", "1.4", metadataAfter.getVersioning().getLatest());
         assertEquals("Unexpected set of versions!", "1.4", metadataAfter.getVersioning().getRelease());
     }
@@ -201,7 +197,7 @@ public class ArtifactMetadataServiceReleasesTest
         Metadata metadataBefore = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_RELEASES, artifactPath);
 
         assertNotNull(metadataBefore);
-        assertTrue("Unexpected set of versions!", MetadataHelper.containsVersion(metadataBefore, "1.3"));
+        assertTrue(MetadataHelper.containsVersion(metadataBefore, "1.3"), "Unexpected set of versions!");
 
         artifactMetadataService.removeVersion(STORAGE0,
                                               REPOSITORY_RELEASES,
@@ -212,7 +208,7 @@ public class ArtifactMetadataServiceReleasesTest
         Metadata metadataAfter = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_RELEASES, artifactPath);
 
         assertNotNull(metadataAfter);
-        assertFalse("Unexpected set of versions!", MetadataHelper.containsVersion(metadataAfter, "1.3"));
+        assertFalse(MetadataHelper.containsVersion(metadataAfter, "1.3"), "Unexpected set of versions!");
     }
 
     @Test
@@ -243,7 +239,7 @@ public class ArtifactMetadataServiceReleasesTest
         assertEquals("Incorrect groupId!", pluginArtifact.getGroupId(), metadata.getGroupId());
         assertEquals("Incorrect latest release version!", pluginArtifact.getVersion(), versioning.getRelease());
 
-        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
+        assertEquals(1, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
     }
 
     @Test
@@ -278,12 +274,12 @@ public class ArtifactMetadataServiceReleasesTest
 
         assertNotNull(metadata);
 
-        assertEquals("Incorrect latest release version!",
-                     mergeMetadata.getVersioning().getRelease(),
-                     metadata.getVersioning().getRelease());
-        assertEquals("Incorrect number of versions stored in metadata!",
-                     3,
-                     metadata.getVersioning().getVersions().size());
+        assertEquals(mergeMetadata.getVersioning().getRelease(),
+                     metadata.getVersioning().getRelease(),
+                     "Incorrect latest release version!");
+        assertEquals(3,
+                     metadata.getVersioning().getVersions().size(),
+                     "Incorrect number of versions stored in metadata!");
     }
 
     /**

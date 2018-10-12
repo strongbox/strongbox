@@ -8,10 +8,9 @@ import org.carlspring.strongbox.users.domain.Privileges;
 import java.io.IOException;
 
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -27,14 +26,16 @@ import org.springframework.security.ldap.authentication.LdapAuthenticationProvid
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Przemyslaw Fusik
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
-@Ignore
+@Disabled
 public class LdapAuthenticationProviderTest
         extends BaseGenericXmlApplicationContextTest
 {
@@ -50,11 +51,11 @@ public class LdapAuthenticationProviderTest
         LdapTemplate template = new LdapTemplate(contextSource);
         Object ldapObject = template.lookup("uid=przemyslaw.fusik,ou=Users");
 
-        Assert.assertThat(ldapObject, CoreMatchers.notNullValue());
-        Assert.assertThat(ldapObject, CoreMatchers.instanceOf(DirContextAdapter.class));
+        assertThat(ldapObject, CoreMatchers.notNullValue());
+        assertThat(ldapObject, CoreMatchers.instanceOf(DirContextAdapter.class));
         DirContextAdapter dirContextAdapter = (DirContextAdapter) ldapObject;
-        Assert.assertThat(dirContextAdapter.getDn().toString(), CoreMatchers.equalTo("uid=przemyslaw.fusik,ou=Users"));
-        Assert.assertThat(dirContextAdapter.getNameInNamespace(),
+        assertThat(dirContextAdapter.getDn().toString(), CoreMatchers.equalTo("uid=przemyslaw.fusik,ou=Users"));
+        assertThat(dirContextAdapter.getNameInNamespace(),
                           CoreMatchers.equalTo("uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com"));
     }
 
@@ -66,18 +67,18 @@ public class LdapAuthenticationProviderTest
         Authentication authentication = LdapAuthenticationProvider.authenticate(
                 new UsernamePasswordAuthenticationToken("przemyslaw.fusik", "password"));
 
-        Assert.assertThat(authentication, CoreMatchers.notNullValue());
-        Assert.assertThat(authentication, CoreMatchers.instanceOf(UsernamePasswordAuthenticationToken.class));
-        Assert.assertThat(authentication.getPrincipal(), CoreMatchers.instanceOf(LdapUserDetailsImpl.class));
+        assertThat(authentication, CoreMatchers.notNullValue());
+        assertThat(authentication, CoreMatchers.instanceOf(UsernamePasswordAuthenticationToken.class));
+        assertThat(authentication.getPrincipal(), CoreMatchers.instanceOf(LdapUserDetailsImpl.class));
         LdapUserDetails ldapUserDetails = (LdapUserDetailsImpl) authentication.getPrincipal();
 
-        Assert.assertThat(ldapUserDetails.getDn(),
+        assertThat(ldapUserDetails.getDn(),
                           CoreMatchers.equalTo("uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com"));
-        Assert.assertThat(ldapUserDetails.getPassword(),
+        assertThat(ldapUserDetails.getPassword(),
                           CoreMatchers.equalTo("password"));
-        Assert.assertThat(ldapUserDetails.getUsername(),
+        assertThat(ldapUserDetails.getUsername(),
                           CoreMatchers.equalTo("przemyslaw.fusik"));
-        Assert.assertThat(authentication.getAuthorities(),
+        assertThat(authentication.getAuthorities(),
                           CoreMatchers.hasItems(
                                   CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_CREATE_REPO),
                                   CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_DELETE_REPO),
@@ -86,12 +87,14 @@ public class LdapAuthenticationProviderTest
         );
     }
 
-    @Test(expected = BadCredentialsException.class)
+    @Test
     public void ldapAuthenticationProviderShouldInvalidedOnWrongPassword()
     {
-        LdapAuthenticationProvider LdapAuthenticationProvider = appCtx.getBean(LdapAuthenticationProvider.class);
-        LdapAuthenticationProvider.authenticate(
-                new UsernamePasswordAuthenticationToken("przemyslaw.fusik", "not-a-password"));
+        assertThrows(BadCredentialsException.class,() -> {
+            LdapAuthenticationProvider LdapAuthenticationProvider = appCtx.getBean(LdapAuthenticationProvider.class);
+            LdapAuthenticationProvider.authenticate(
+                    new UsernamePasswordAuthenticationToken("przemyslaw.fusik", "not-a-password"));
+        });
     }
 
     @Override

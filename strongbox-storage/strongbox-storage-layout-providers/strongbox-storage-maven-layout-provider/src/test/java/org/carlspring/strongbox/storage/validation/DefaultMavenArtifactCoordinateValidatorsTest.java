@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.storage.validation;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
@@ -11,17 +11,17 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { Maven2LayoutProviderTestConfig.class})
 public class DefaultMavenArtifactCoordinateValidatorsTest
 {
@@ -34,7 +34,7 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
     private ConfigurationManager configurationManager;
 
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         File xmlDir = new File(CONFIGURATION_BASEDIR);

@@ -1,15 +1,5 @@
 package org.carlspring.strongbox.nuget.filter;
 
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
-import javax.xml.bind.JAXBException;
-
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
@@ -21,16 +11,26 @@ import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
 public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGeneration
 {
@@ -43,14 +43,14 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGene
     @PersistenceContext
     private EntityManager entityManager;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
         throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
         throws Exception
     {
@@ -69,7 +69,7 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGene
         repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
         throws IOException,
         JAXBException
@@ -104,7 +104,7 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGene
         selector.select("count(*)");
 
         QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
-        Assert.assertEquals(Long.valueOf(1), queryTemplate.select(selector));
+        assertEquals(Long.valueOf(1), queryTemplate.select(selector));
     }
 
 }

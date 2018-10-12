@@ -1,18 +1,5 @@
 package org.carlspring.strongbox.dependency.snippet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -29,17 +16,26 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
-import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.Assume;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author carlspring
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class MavenDependencyFormatterTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
@@ -62,14 +58,14 @@ public class MavenDependencyFormatterTest
     private SnippetGenerator snippetGenerator;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
             throws Exception
     {
@@ -87,7 +83,7 @@ public class MavenDependencyFormatterTest
         reIndex(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox");
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {

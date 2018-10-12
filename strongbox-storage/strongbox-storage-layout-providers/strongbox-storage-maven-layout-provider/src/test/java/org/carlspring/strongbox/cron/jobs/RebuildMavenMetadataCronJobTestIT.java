@@ -20,30 +20,28 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Kate Novik.
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @EnableRuleMigrationSupport
 public class RebuildMavenMetadataCronJobTestIT
@@ -56,17 +54,20 @@ public class RebuildMavenMetadataCronJobTestIT
 
     private static final String REPOSITORY_SNAPSHOTS = "rmmcj-snapshots";
 
-    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                       "/storages/" + STORAGE0 + "/" +
-                                                                       REPOSITORY_RELEASES);
+    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(
+            ConfigurationResourceResolver.getVaultDirectory() +
+            "/storages/" + STORAGE0 + "/" +
+            REPOSITORY_RELEASES);
 
-    private static final File REPOSITORY_SNAPSHOTS_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                      "/storages/" + STORAGE0 + "/" +
-                                                                      REPOSITORY_SNAPSHOTS);
+    private static final File REPOSITORY_SNAPSHOTS_BASEDIR = new File(
+            ConfigurationResourceResolver.getVaultDirectory() +
+            "/storages/" + STORAGE0 + "/" +
+            REPOSITORY_SNAPSHOTS);
 
-    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                       "/storages/" + STORAGE1 + "/" +
-                                                                       REPOSITORY_RELEASES);
+    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(
+            ConfigurationResourceResolver.getVaultDirectory() +
+            "/storages/" + STORAGE1 + "/" +
+            REPOSITORY_RELEASES);
 
     private static final String[] CLASSIFIERS = { "javadoc",
                                                   "sources",
@@ -98,7 +99,7 @@ public class RebuildMavenMetadataCronJobTestIT
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -115,7 +116,7 @@ public class RebuildMavenMetadataCronJobTestIT
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -150,7 +151,7 @@ public class RebuildMavenMetadataCronJobTestIT
                                      "org.carlspring.strongbox.metadata:strongbox-metadata:1.0:jar");
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {
@@ -181,10 +182,10 @@ public class RebuildMavenMetadataCronJobTestIT
                     assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata.getArtifactId());
                     assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata.getGroupId());
 
-                    assertNotNull("No versioning information could be found in the metadata!", versioning.getVersions()
-                                                                                                         .size());
-                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions()
-                                                                                                  .size());
+                    assertNotNull(versioning.getVersions(),
+                                  "No versioning information could be found in the metadata!");
+                    assertEquals(1, versioning.getVersions()
+                                              .size(), "Incorrect number of versions stored in metadata!");
                 }
                 catch (Exception e)
                 {
@@ -227,15 +228,15 @@ public class RebuildMavenMetadataCronJobTestIT
                     assertEquals("Incorrect artifactId!", artifact2.getArtifactId(), metadata2.getArtifactId());
                     assertEquals("Incorrect groupId!", artifact2.getGroupId(), metadata2.getGroupId());
 
-                    assertNotNull("No versioning information could be found in the metadata!", versioning1.getVersions()
-                                                                                                          .size());
-                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning1.getVersions()
-                                                                                                   .size());
+                    assertNotNull(versioning1.getVersions()
+                            , "No versioning information could be found in the metadata!");
+                    assertEquals(1, versioning1.getVersions()
+                                               .size(), "Incorrect number of versions stored in metadata!");
 
-                    assertNotNull("No versioning information could be found in the metadata!", versioning2.getVersions()
-                                                                                                          .size());
-                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions()
-                                                                                                   .size());
+                    assertNotNull(versioning2.getVersions()
+                            , "No versioning information could be found in the metadata!");
+                    assertEquals(1, versioning2.getVersions()
+                                               .size(), "Incorrect number of versions stored in metadata!");
                 }
                 catch (Exception e)
                 {
@@ -271,21 +272,21 @@ public class RebuildMavenMetadataCronJobTestIT
                     Versioning versioning1 = metadata1.getVersioning();
                     Versioning versioning2 = metadata1.getVersioning();
 
-                    assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata1.getArtifactId());
-                    assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata1.getGroupId());
+                    assertEquals(artifact1.getArtifactId(), metadata1.getArtifactId(), "Incorrect artifactId!");
+                    assertEquals(artifact1.getGroupId(), metadata1.getGroupId(), "Incorrect groupId!");
 
-                    assertEquals("Incorrect artifactId!", artifact3.getArtifactId(), metadata2.getArtifactId());
-                    assertEquals("Incorrect groupId!", artifact3.getGroupId(), metadata2.getGroupId());
+                    assertEquals(artifact3.getArtifactId(), metadata2.getArtifactId(), "Incorrect artifactId!");
+                    assertEquals(artifact3.getGroupId(), metadata2.getGroupId(), "Incorrect groupId!");
 
-                    assertNotNull("No versioning information could be found in the metadata!", versioning1.getVersions()
-                                                                                                          .size());
-                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning1.getVersions()
-                                                                                                   .size());
+                    assertNotNull(versioning1.getVersions(),
+                                  "No versioning information could be found in the metadata!");
+                    assertEquals(1, versioning1.getVersions()
+                                               .size(), "Incorrect number of versions stored in metadata!");
 
-                    assertNotNull("No versioning information could be found in the metadata!", versioning2.getVersions()
-                                                                                                          .size());
-                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions()
-                                                                                                   .size());
+                    assertNotNull(versioning2.getVersions(),
+                                  "No versioning information could be found in the metadata!");
+                    assertEquals(1, versioning2.getVersions()
+                                               .size(), "Incorrect number of versions stored in metadata!");
                 }
                 catch (Exception e)
                 {
@@ -321,21 +322,21 @@ public class RebuildMavenMetadataCronJobTestIT
                     Versioning versioning1 = metadata1.getVersioning();
                     Versioning versioning2 = metadata1.getVersioning();
 
-                    assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata1.getArtifactId());
-                    assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata1.getGroupId());
+                    assertEquals(artifact1.getArtifactId(), metadata1.getArtifactId(), "Incorrect artifactId!");
+                    assertEquals(artifact1.getGroupId(), metadata1.getGroupId(), "Incorrect groupId!");
 
-                    assertEquals("Incorrect artifactId!", artifact4.getArtifactId(), metadata2.getArtifactId());
-                    assertEquals("Incorrect groupId!", artifact4.getGroupId(), metadata2.getGroupId());
+                    assertEquals(artifact4.getArtifactId(), metadata2.getArtifactId(), "Incorrect artifactId!");
+                    assertEquals(artifact4.getGroupId(), metadata2.getGroupId(), "Incorrect groupId!");
 
-                    assertNotNull("No versioning information could be found in the metadata!", versioning1.getVersions()
-                                                                                                          .size());
-                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning1.getVersions()
-                                                                                                   .size());
+                    assertNotNull(versioning1.getVersions(),
+                                  "No versioning information could be found in the metadata!");
+                    assertEquals(1, versioning1.getVersions()
+                                               .size(), "Incorrect number of versions stored in metadata!");
 
-                    assertNotNull("No versioning information could be found in the metadata!", versioning2.getVersions()
-                                                                                                          .size());
-                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions()
-                                                                                                   .size());
+                    assertNotNull(versioning2.getVersions(),
+                                  "No versioning information could be found in the metadata!");
+                    assertEquals(1, versioning2.getVersions()
+                                               .size(), "Incorrect number of versions stored in metadata!");
                 }
                 catch (Exception e)
                 {

@@ -7,31 +7,29 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertNotNull;
-import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.FAILED_UPDATE;
-import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.FAILED_UPDATE_FORM_ERROR;
-import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.SUCCESSFUL_UPDATE;
+import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.*;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ProxyConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         setContextBaseUrl("/api/configuration/strongbox/proxy-configuration");

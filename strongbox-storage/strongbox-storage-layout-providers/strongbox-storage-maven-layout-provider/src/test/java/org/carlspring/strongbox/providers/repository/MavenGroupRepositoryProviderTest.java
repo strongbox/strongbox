@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.providers.repository;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
-import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -28,24 +13,37 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
-import org.hamcrest.CoreMatchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.hamcrest.CoreMatchers;
+import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @EnableRuleMigrationSupport
 public class MavenGroupRepositoryProviderTest
@@ -84,14 +82,14 @@ public class MavenGroupRepositoryProviderTest
     }};
 
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
             throws Exception
     {
@@ -172,7 +170,7 @@ public class MavenGroupRepositoryProviderTest
         generateMavenMetadata(STORAGE0, REPOSITORY_RELEASES_2);
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws Exception
     {
@@ -281,7 +279,7 @@ public class MavenGroupRepositoryProviderTest
         return repositories;
     }
 
-    @After
+    @AfterEach
     public void tearDown()
             throws Exception
     {

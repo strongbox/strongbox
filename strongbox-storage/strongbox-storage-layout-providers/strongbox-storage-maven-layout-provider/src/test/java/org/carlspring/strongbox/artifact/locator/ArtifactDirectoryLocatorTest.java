@@ -1,7 +1,13 @@
 package org.carlspring.strongbox.artifact.locator;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
+import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.util.TestFileUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -10,28 +16,20 @@ import java.io.PrintStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 
-
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.util.TestFileUtils;
-
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class ArtifactDirectoryLocatorTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
@@ -44,7 +42,7 @@ public class ArtifactDirectoryLocatorTest
 
     private static PrintStream tempSysOut;
 
-    @Before
+    @BeforeEach
     public void setUp()
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
@@ -142,7 +140,7 @@ public class ArtifactDirectoryLocatorTest
         tempSysOut = System.out;
     }
 
-    @After
+    @AfterEach
     public void tearDown()
             throws Exception
     {
