@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author carlspring
@@ -43,15 +44,15 @@ public class LeiningenDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             LeiningenDependencyFormatter.ALIAS);
-        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
         String snippet = formatter.getDependencySnippet(coordinates);
 
         System.out.println(snippet);
 
-        assertEquals("Failed to generate dependency!",
-                     "[org.carlspring.strongbox/maven-snippet \"1.0\"]\n",
-                     snippet);
+        assertEquals("[org.carlspring.strongbox/maven-snippet \"1.0\"]\n",
+                     snippet,
+                     "Failed to generate dependency!");
     }
 
     @Test
@@ -60,7 +61,7 @@ public class LeiningenDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             LeiningenDependencyFormatter.ALIAS);
-        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
         coordinates.setExtension("zip");
 
@@ -68,9 +69,9 @@ public class LeiningenDependencyFormatterTest
 
         System.out.println(snippet);
 
-        assertEquals("Failed to generate dependency!",
-                     "[org.carlspring.strongbox/maven-snippet \"1.0\" :extension \"zip\"]\n",
-                     snippet);
+        assertEquals("[org.carlspring.strongbox/maven-snippet \"1.0\" :extension \"zip\"]\n",
+                     snippet,
+                     "Failed to generate dependency!");
     }
 
     @Test
@@ -79,7 +80,7 @@ public class LeiningenDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             LeiningenDependencyFormatter.ALIAS);
-        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
         coordinates.setExtension("zip");
         coordinates.setClassifier("jdk12");
@@ -88,9 +89,9 @@ public class LeiningenDependencyFormatterTest
 
         System.out.println(snippet);
 
-        assertEquals("Failed to generate dependency!",
-                     "[org.carlspring.strongbox/maven-snippet \"1.0\" :extension \"zip\" :classifier \"jdk12\"]\n",
-                     snippet);
+        assertEquals("[org.carlspring.strongbox/maven-snippet \"1.0\" :extension \"zip\" :classifier \"jdk12\"]\n",
+                     snippet,
+                     "Failed to generate dependency!");
     }
 
     @Test
@@ -99,7 +100,7 @@ public class LeiningenDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             LeiningenDependencyFormatter.ALIAS);
-        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
         coordinates.setClassifier("jdk12");
 
@@ -107,9 +108,9 @@ public class LeiningenDependencyFormatterTest
 
         System.out.println(snippet);
 
-        assertEquals("Failed to generate dependency!",
-                     "[org.carlspring.strongbox/maven-snippet \"1.0\" :classifier \"jdk12\"]\n",
-                     snippet);
+        assertEquals("[org.carlspring.strongbox/maven-snippet \"1.0\" :classifier \"jdk12\"]\n",
+                     snippet,
+                     "Failed to generate dependency!");
     }
 
 

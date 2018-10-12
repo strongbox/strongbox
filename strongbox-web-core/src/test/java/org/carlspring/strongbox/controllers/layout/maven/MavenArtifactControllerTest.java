@@ -387,8 +387,8 @@ public class MavenArtifactControllerTest
         logger.debug("SHA-1 [Remote]: " + sha1Remote);
         logger.debug("SHA-1 [Local ]: " + sha1Local);
 
-        assertEquals("MD5 checksums did not match!", md5Local, md5Remote);
-        assertEquals("SHA-1 checksums did not match!", sha1Local, sha1Remote);
+        assertEquals(md5Local, md5Remote, "MD5 checksums did not match!");
+        assertEquals(sha1Local, sha1Remote, "SHA-1 checksums did not match!");
     }
 
     @Test
@@ -512,8 +512,8 @@ public class MavenArtifactControllerTest
         output.write(baos.toByteArray());
         output.close();
 
-        assertEquals("Glued partial fetches did not match MD5 checksum!", md5Remote, md5Local);
-        assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
+        assertEquals(md5Remote, md5Local, "Glued partial fetches did not match MD5 checksum!");
+        assertEquals(sha1Remote, sha1Local, "Glued partial fetches did not match SHA-1 checksum!");
     }
 
     @Test
@@ -543,8 +543,8 @@ public class MavenArtifactControllerTest
                     STORAGE0,
                     REPOSITORY_RELEASES2);
 
-        assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
-                   destArtifactFile.exists());
+        assertTrue(destArtifactFile.exists(),
+                   "Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!");
     }
 
     @Test
@@ -563,8 +563,8 @@ public class MavenArtifactControllerTest
             removeDir(artifactFileRestoredFromTrash.toPath());
         }
 
-        assertFalse("Unexpected artifact in repository '" + destRepositoryBasedir + "'!",
-                    artifactFileRestoredFromTrash.exists());
+        assertFalse(artifactFileRestoredFromTrash.exists(),
+                    "Unexpected artifact in repository '" + destRepositoryBasedir + "'!");
 
         client.copy(artifactPath,
                     STORAGE0,
@@ -572,8 +572,8 @@ public class MavenArtifactControllerTest
                     STORAGE0,
                     REPOSITORY_RELEASES2);
 
-        assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
-                   artifactFileRestoredFromTrash.exists());
+        assertTrue(artifactFileRestoredFromTrash.exists(),
+                   "Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!");
     }
 
     @Test
@@ -585,13 +585,13 @@ public class MavenArtifactControllerTest
         File deletedArtifact = new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                                         artifactPath).getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
-                   deletedArtifact.exists());
+        assertTrue(deletedArtifact.exists(),
+                   "Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!");
 
         client.delete(STORAGE0, REPOSITORY_RELEASES1, artifactPath);
 
-        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
-                    deletedArtifact.exists());
+        assertFalse(deletedArtifact.exists(),
+                    "Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!");
     }
 
     @Test
@@ -603,13 +603,13 @@ public class MavenArtifactControllerTest
         File deletedArtifact = new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                                         artifactPath).getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
-                   deletedArtifact.exists());
+        assertTrue(deletedArtifact.exists(),
+                   "Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!");
 
         client.delete(STORAGE0, REPOSITORY_RELEASES1, artifactPath);
 
-        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
-                    deletedArtifact.exists());
+        assertFalse(deletedArtifact.exists(),
+                    "Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!");
     }
 
     @Test
@@ -617,7 +617,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe/";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertTrue("Wrong response", response.statusCode() == 404);
+        assertTrue(response.statusCode() == 404, "Wrong response");
     }
 
     @Test
@@ -625,7 +625,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertTrue("Wrong response", response.statusCode() == 404);
+        assertTrue(response.statusCode() == 404, "Wrong response");
     }
 
     @Test
@@ -633,7 +633,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe/who.jar";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertTrue("Wrong response", response.statusCode() == 404);
+        assertTrue(response.statusCode() == 404, "Wrong response");
     }
 
     @Test
@@ -641,7 +641,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin/1.8/derby-maven-plugin-6.9.jar";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertTrue("Wrong response", response.statusCode() == 404);
+        assertTrue(response.statusCode() == 404, "Wrong response");
     }
 
     @Test
@@ -653,7 +653,7 @@ public class MavenArtifactControllerTest
         File artifact = new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(), artifactPath)
                                 .getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + artifact.getAbsolutePath() + "'!", artifact.exists());
+        assertTrue(artifact.exists(), "Failed to locate artifact file '" + artifact.getAbsolutePath() + "'!");
 
         String basePath = "/api/browse/" + STORAGE0 + "/" + REPOSITORY_RELEASES1;
 
@@ -671,10 +671,10 @@ public class MavenArtifactControllerTest
         String directoryListingContent = directoryListing.asString();
         String fileListingContent = fileListing.asString();
 
-        assertFalse(".trash directory should not be visible in directory listing!",
-                    repositoryRootContent.contains(".trash"));
-        assertTrue(".trash directory should not be browsable!",
-                   trashDirectoryListing.response().getStatusCode() == 404);
+        assertFalse(repositoryRootContent.contains(".trash"),
+                    ".trash directory should not be visible in directory listing!");
+        assertTrue(trashDirectoryListing.response().getStatusCode() == 404,
+                   ".trash directory should not be browsable!");
 
         logger.debug(directoryListingContent);
 
@@ -686,10 +686,10 @@ public class MavenArtifactControllerTest
 
         Assume.assumeTrue(repositoryIndexManager.isPresent());
 
-        assertFalse(".index directory should not be visible in directory listing!",
-                    repositoryRootContent.contains(".index"));
-        assertTrue(".index directory should be browsable!",
-                   indexDirectoryListing.response().getStatusCode() == 200);
+        assertFalse(repositoryRootContent.contains(".index"),
+                    ".index directory should not be visible in directory listing!");
+        assertTrue(indexDirectoryListing.response().getStatusCode() == 200,
+                   ".index directory should be browsable!");
     }
 
     @Test
@@ -957,9 +957,9 @@ public class MavenArtifactControllerTest
             logger.debug(result.getArtifactCoordinates() + "(" + artifactPath + ")");
         }
 
-        assertEquals("Incorrect number of results yielded from search against Maven Index!",
-                     3,
-                     results.getResults().size());
+        assertEquals(3,
+                     results.getResults().size(),
+                     "Incorrect number of results yielded from search against Maven Index!");
 
         // When
         String path = "org/carlspring/strongbox/delete-metadata/metadata-foo/1.2.2";
@@ -973,8 +973,8 @@ public class MavenArtifactControllerTest
         // Re-run the search and check, if the results are now different
         results = artifactSearchService.search(request);
 
-        assertTrue("Failed to delete artifacts from Maven Index!!", results.getResults()
-                                                                           .isEmpty());
+        assertTrue(results.getResults()
+                          .isEmpty(), "Failed to delete artifacts from Maven Index!!");
         assertTrue(!metadata.getVersioning()
                             .getVersions()
                             .contains("1.2.2"));
@@ -1052,7 +1052,7 @@ public class MavenArtifactControllerTest
                                 .get(artifactPath)
                                 .getStatusCode();
 
-        assertEquals("Access was wrongly restricted for user with custom access model", 200, statusCode);
+        assertEquals(200, statusCode, "Access was wrongly restricted for user with custom access model");
     }
 
     @Test

@@ -86,7 +86,7 @@ public class MavenIndexGroupRepositoryComponentTest
 
         RepositoryFiles.delete(artifactFile, false);
 
-        assertFalse("Failed to delete artifact file " + artifactFile.toAbsolutePath(), Files.exists(artifactFile));
+        assertFalse(Files.exists(artifactFile), "Failed to delete artifact file " + artifactFile.toAbsolutePath());
 
         assertFalse(artifactSearchService.contains(request));
     }

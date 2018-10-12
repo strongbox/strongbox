@@ -133,7 +133,7 @@ public class ArtifactMetadataServiceReleasesTest
         assertEquals(artifact.getArtifactId(), metadata.getArtifactId(), "Incorrect artifactId!");
         assertEquals(artifact.getGroupId(), metadata.getGroupId(), "Incorrect groupId!");
         // TODO: Fix this as part of SB-333:
-        //assertEquals("Incorrect latest release version!", artifact.getVersion(), versioning.getRelease());
+        //assertEquals(artifact.getVersion(), versioning.getRelease(), "Incorrect latest release version!");
         assertEquals("1.5", versioning.getRelease(), "Incorrect latest release version!");
         assertEquals(6, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
 
@@ -235,9 +235,9 @@ public class ArtifactMetadataServiceReleasesTest
 
         Versioning versioning = metadata.getVersioning();
 
-        assertEquals("Incorrect artifactId!", pluginArtifact.getArtifactId(), metadata.getArtifactId());
-        assertEquals("Incorrect groupId!", pluginArtifact.getGroupId(), metadata.getGroupId());
-        assertEquals("Incorrect latest release version!", pluginArtifact.getVersion(), versioning.getRelease());
+        assertEquals(pluginArtifact.getArtifactId(), metadata.getArtifactId(), "Incorrect artifactId!");
+        assertEquals(pluginArtifact.getGroupId(), metadata.getGroupId(), "Incorrect groupId!");
+        assertEquals(pluginArtifact.getVersion(), versioning.getRelease(), "Incorrect latest release version!");
 
         assertEquals(1, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
     }

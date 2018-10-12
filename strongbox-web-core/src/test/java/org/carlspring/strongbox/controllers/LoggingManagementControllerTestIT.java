@@ -18,6 +18,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -339,7 +340,7 @@ public class LoggingManagementControllerTestIT
         
         try
         {
-            assertTrue("The log files should be in the HTML response body!", shouldContainLogFilesInHtmlTableElement);
+            assertTrue(shouldContainLogFilesInHtmlTableElement, "The log files should be in the HTML response body!");
         }
         finally
         {
@@ -388,7 +389,7 @@ public class LoggingManagementControllerTestIT
         try
         {
             //Assertion Test
-            assertTrue("The log files should be in the HTML response body!", shouldContainLogFilesInHtmlTableElement);
+            assertTrue(shouldContainLogFilesInHtmlTableElement, "The log files should be in the HTML response body!");
         }
         finally
         {

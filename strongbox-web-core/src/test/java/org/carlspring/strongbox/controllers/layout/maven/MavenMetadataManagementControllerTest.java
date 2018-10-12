@@ -32,9 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @IntegrationTest
 @ExtendWith(SpringExtension.class)
@@ -139,7 +137,7 @@ public class MavenMetadataManagementControllerTest
         String metadataPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS +
                               "/org/carlspring/strongbox/metadata/strongbox-metadata/maven-metadata.xml";
 
-        assertFalse("Metadata already exists!", client.pathExists(metadataPath));
+        assertFalse(client.pathExists(metadataPath), "Metadata already exists!");
 
         String url = getContextBaseUrl() + metadataPath;
 
@@ -156,8 +154,8 @@ public class MavenMetadataManagementControllerTest
         InputStream is = client.getResource(metadataPath);
         Metadata metadata = artifactMetadataService.getMetadata(is);
 
-        assertNotNull("Incorrect metadata!", metadata.getVersioning());
-        assertNotNull("Incorrect metadata!", metadata.getVersioning().getLatest());
+        assertNotNull(metadata.getVersioning(), "Incorrect metadata!");
+        assertNotNull(metadata.getVersioning().getLatest(), "Incorrect metadata!");
     }
 
     @Test
@@ -193,27 +191,27 @@ public class MavenMetadataManagementControllerTest
         String metadataPath2Snapshot = metadataUrl + "/foo/bar/strongbox-metadata-foo/2.1-SNAPSHOT/maven-metadata.xml";
         String metadataPath3 = metadataUrl + "/foo/bar/strongbox-metadata-foo-bar/maven-metadata.xml";
 
-        assertFalse("Metadata already exists!", client.pathExists(metadataPath1));
-        assertFalse("Metadata already exists!", client.pathExists(metadataPath2));
-        assertFalse("Metadata already exists!", client.pathExists(metadataPath3));
+        assertFalse(client.pathExists(metadataPath1), "Metadata already exists!");
+        assertFalse(client.pathExists(metadataPath2), "Metadata already exists!");
+        assertFalse(client.pathExists(metadataPath3), "Metadata already exists!");
 
         client.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/metadata/foo/bar");
 
-        assertFalse("Failed to rebuild snapshot metadata!", client.pathExists(metadataPath1));
-        assertTrue("Failed to rebuild snapshot metadata!", client.pathExists(metadataPath2));
-        assertTrue("Failed to rebuild snapshot metadata!", client.pathExists(metadataPath3));
+        assertFalse(client.pathExists(metadataPath1), "Failed to rebuild snapshot metadata!");
+        assertTrue(client.pathExists(metadataPath2), "Failed to rebuild snapshot metadata!");
+        assertTrue(client.pathExists(metadataPath3), "Failed to rebuild snapshot metadata!");
 
         InputStream is = client.getResource(metadataPath2);
         Metadata metadata2 = artifactMetadataService.getMetadata(is);
 
-        assertNotNull("Incorrect metadata!", metadata2.getVersioning());
-        assertNotNull("Incorrect metadata!", metadata2.getVersioning().getLatest());
+        assertNotNull(metadata2.getVersioning(), "Incorrect metadata!");
+        assertNotNull(metadata2.getVersioning().getLatest(), "Incorrect metadata!");
 
         is = client.getResource(metadataPath3);
         Metadata metadata3 = artifactMetadataService.getMetadata(is);
 
-        assertNotNull("Incorrect metadata!", metadata3.getVersioning());
-        assertNotNull("Incorrect metadata!", metadata3.getVersioning().getLatest());
+        assertNotNull(metadata3.getVersioning(), "Incorrect metadata!");
+        assertNotNull(metadata3.getVersioning().getLatest(), "Incorrect metadata!");
 
         // Test the deletion of a timestamped SNAPSHOT artifact
         is = client.getResource(metadataPath2Snapshot);
@@ -245,15 +243,15 @@ public class MavenMetadataManagementControllerTest
         logger.info("\n\tpreviousLatestTimestamp " + previousLatestTimestamp + "\n\ttimestamp " + timestamp +
                     "\n\tbuildNumber " + buildNumber);
 
-        assertNotNull("Incorrect metadata!", metadata2SnapshotAfter.getVersioning());
-        assertFalse("Failed to remove timestamped SNAPSHOT version!",
-                    MetadataHelper.containsVersion(metadata2SnapshotAfter, latestTimestamp));
-        assertEquals("Incorrect metadata!", timestamp,
-                     metadata2SnapshotAfter.getVersioning().getSnapshot().getTimestamp());
-        assertEquals("Incorrect metadata!", Integer.parseInt(buildNumber),
-                     metadata2SnapshotAfter.getVersioning().getSnapshot().getBuildNumber());
-        assertEquals("Incorrect metadata!", previousLatestTimestamp,
-                     metadata2AfterSnapshotVersions.get(metadata2AfterSnapshotVersions.size() - 1).getVersion());
+        assertNotNull(metadata2SnapshotAfter.getVersioning(), "Incorrect metadata!");
+        assertFalse(MetadataHelper.containsVersion(metadata2SnapshotAfter, latestTimestamp),
+                    "Failed to remove timestamped SNAPSHOT version!");
+        assertEquals(timestamp, metadata2SnapshotAfter.getVersioning().getSnapshot().getTimestamp(),
+                     "Incorrect metadata!");
+        assertEquals(Integer.parseInt(buildNumber), metadata2SnapshotAfter.getVersioning().getSnapshot().getBuildNumber(),
+                     "Incorrect metadata!");
+        assertEquals(previousLatestTimestamp, metadata2AfterSnapshotVersions.get(metadata2AfterSnapshotVersions.size() - 1).getVersion(),
+                     "Incorrect metadata!");
     }
 
     @Test
@@ -265,19 +263,19 @@ public class MavenMetadataManagementControllerTest
 
         String artifactPath = "org/carlspring/strongbox/metadata/strongbox-metadata";
 
-        assertFalse("Metadata already exists!", client.pathExists(metadataPath));
+        assertFalse(client.pathExists(metadataPath), "Metadata already exists!");
 
         // create new metadata
         client.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES, null);
 
-        assertTrue("Failed to rebuild release metadata!", client.pathExists(metadataPath));
+        assertTrue(client.pathExists(metadataPath), "Failed to rebuild release metadata!");
 
         InputStream is = client.getResource(metadataPath);
         Metadata metadataBefore = artifactMetadataService.getMetadata(is);
 
-        assertNotNull("Incorrect metadata!", metadataBefore.getVersioning());
-        assertNotNull("Incorrect metadata!", metadataBefore.getVersioning().getLatest());
-        assertEquals("Incorrect metadata!", "3.2", metadataBefore.getVersioning().getLatest());
+        assertNotNull(metadataBefore.getVersioning(), "Incorrect metadata!");
+        assertNotNull(metadataBefore.getVersioning().getLatest(), "Incorrect metadata!");
+        assertEquals("3.2", metadataBefore.getVersioning().getLatest(), "Incorrect metadata!");
 
         client.removeVersionFromMetadata(STORAGE0,
                                          REPOSITORY_RELEASES,
@@ -289,10 +287,10 @@ public class MavenMetadataManagementControllerTest
         is = client.getResource(metadataPath);
         Metadata metadataAfter = artifactMetadataService.getMetadata(is);
 
-        assertNotNull("Incorrect metadata!", metadataAfter.getVersioning());
-        assertFalse("Unexpected set of versions!", MetadataHelper.containsVersion(metadataAfter, "3.2"));
-        assertNotNull("Incorrect metadata!", metadataAfter.getVersioning().getLatest());
-        assertEquals("Incorrect metadata!", "3.1", metadataAfter.getVersioning().getLatest());
+        assertNotNull(metadataAfter.getVersioning(), "Incorrect metadata!");
+        assertFalse(MetadataHelper.containsVersion(metadataAfter, "3.2"), "Unexpected set of versions!");
+        assertNotNull(metadataAfter.getVersioning().getLatest(), "Incorrect metadata!");
+        assertEquals("3.1", metadataAfter.getVersioning().getLatest(), "Incorrect metadata!");
     }
 
 }

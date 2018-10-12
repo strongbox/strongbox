@@ -28,6 +28,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.context.WebApplicationContext;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -100,7 +101,7 @@ public abstract class NpmRestAssuredBaseTest
 
     protected void assertPathExists(String url)
     {
-        assertTrue("Path " + url + " doesn't exist.", pathExists(url));
+        assertTrue(pathExists(url), "Path " + url + " doesn't exist.");
     }
 
     @Override
@@ -158,7 +159,7 @@ public abstract class NpmRestAssuredBaseTest
         mdos.flush();
         mdos.close();
 
-        assertTrue("Resolved a zero-length artifact!", total > 0);
+        assertTrue(total > 0, "Resolved a zero-length artifact!");
     }
 
 }

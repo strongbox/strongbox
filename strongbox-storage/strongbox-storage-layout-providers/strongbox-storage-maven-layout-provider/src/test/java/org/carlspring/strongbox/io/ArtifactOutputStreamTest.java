@@ -31,6 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author mtodorov
@@ -92,13 +94,13 @@ public class ArtifactOutputStreamTest
         IOUtils.copy(bais, afos);
         afos.close();
         
-        assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
+        assertTrue(Files.exists(artifactPathTemp), "Failed to create temporary artifact file!");
 
         
 
         artifactPathTemp.getFileSystem().provider().moveFromTemporaryDirectory(artifactPathTemp);
         
-        assertTrue("Failed to the move temporary artifact file to original location!", Files.exists(artifactPath));
+        assertTrue(Files.exists(artifactPath), "Failed to the move temporary artifact file to original location!");
     }
 
     @Test
@@ -122,14 +124,14 @@ public class ArtifactOutputStreamTest
         IOUtils.copy(bais, afos);
         afos.close();
         
-        assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
+        assertTrue(Files.exists(artifactPathTemp), "Failed to create temporary artifact file!");
 
         
 
-        assertFalse("Should not have move temporary the artifact file to original location!",
-                    Files.exists(artifactPath));
-        assertTrue("Should not have move temporary the artifact file to original location!",
-                   Files.exists(artifactPathTemp));
+        assertFalse(Files.exists(artifactPath),
+                    "Should not have move temporary the artifact file to original location!");
+        assertTrue(Files.exists(artifactPathTemp),
+                   "Should not have move temporary the artifact file to original location!");
     }
 
 }

@@ -179,8 +179,8 @@ public class RebuildMavenMetadataCronJobTestIT
 
                     Versioning versioning = metadata.getVersioning();
 
-                    assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata.getArtifactId());
-                    assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata.getGroupId());
+                    assertEquals(artifact1.getArtifactId(), metadata.getArtifactId(), "Incorrect artifactId!");
+                    assertEquals(artifact1.getGroupId(), metadata.getGroupId(), "Incorrect groupId!");
 
                     assertNotNull(versioning.getVersions(),
                                   "No versioning information could be found in the metadata!");
@@ -222,11 +222,11 @@ public class RebuildMavenMetadataCronJobTestIT
                     Versioning versioning1 = metadata1.getVersioning();
                     Versioning versioning2 = metadata1.getVersioning();
 
-                    assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata1.getArtifactId());
-                    assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata1.getGroupId());
+                    assertEquals(artifact1.getArtifactId(), metadata1.getArtifactId(), "Incorrect artifactId!");
+                    assertEquals(artifact1.getGroupId(), metadata1.getGroupId(), "Incorrect groupId!");
 
-                    assertEquals("Incorrect artifactId!", artifact2.getArtifactId(), metadata2.getArtifactId());
-                    assertEquals("Incorrect groupId!", artifact2.getGroupId(), metadata2.getGroupId());
+                    assertEquals(artifact2.getArtifactId(), metadata2.getArtifactId(), "Incorrect artifactId!");
+                    assertEquals(artifact2.getGroupId(), metadata2.getGroupId(), "Incorrect groupId!");
 
                     assertNotNull(versioning1.getVersions()
                             , "No versioning information could be found in the metadata!");

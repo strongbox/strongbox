@@ -335,7 +335,7 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         assertNotNull(metadata);
 
-        assertEquals("Incorrect latest release version!", "1.3-SNAPSHOT", metadata.getVersioning().getLatest());
+        assertEquals("1.3-SNAPSHOT", metadata.getVersioning().getLatest(), "Incorrect latest release version!");
         assertEquals(3, metadata.getVersioning().getVersions().size(),
                      "Incorrect number of versions stored in metadata!");
     }

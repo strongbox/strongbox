@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author mtodorov
@@ -83,7 +84,7 @@ public class ArtifactSearchServiceImplTest
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
         final int x = features.reIndex(STORAGE0, REPOSITORYID, "org/carlspring/strongbox/strongbox-utils");
 
-        assertTrue("Incorrect number of artifacts found!", x >= 3);
+        assertTrue(x >= 3, "Incorrect number of artifacts found!");
 
         SearchRequest request = new SearchRequest(STORAGE0,
                                                   REPOSITORYID,

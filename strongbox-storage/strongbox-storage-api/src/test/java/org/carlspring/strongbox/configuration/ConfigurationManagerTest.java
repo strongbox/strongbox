@@ -76,8 +76,8 @@ public class ConfigurationManagerTest
 
         for (String storageId : configuration.getStorages().keySet())
         {
-            assertNotNull("Storage ID was null!", storageId);
-            // assertTrue("No repositories were parsed!", !configuration.getStorages().get(storageId).getRepositories().isEmpty());
+            assertNotNull(storageId, "Storage ID was null!");
+            // assertTrue(!configuration.getStorages().get(storageId).getRepositories().isEmpty(), "No repositories were parsed!");
         }
 
         assertTrue(configuration.getStorages().size() > 0, "Unexpected number of storages!");

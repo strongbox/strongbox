@@ -103,7 +103,7 @@ public class MavenRepositoryManagementServiceImplTest
     {
         File repositoryBaseDir = new File(STORAGES_BASEDIR, STORAGE0 + "/" + REPOSITORY_RELEASES_1);
 
-        assertTrue("Failed to create repository '" + REPOSITORY_RELEASES_1 + "'!", repositoryBaseDir.exists());
+        assertTrue(repositoryBaseDir.exists(), "Failed to create repository '" + REPOSITORY_RELEASES_1 + "'!");
     }
 
     @Test
@@ -113,14 +113,14 @@ public class MavenRepositoryManagementServiceImplTest
         File basedir = new File(STORAGES_BASEDIR + "/" + STORAGE0);
         File repositoryDir = new File(basedir, REPOSITORY_RELEASES_2);
 
-        assertTrue("Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!",
-                   repositoryDir.exists());
+        assertTrue(repositoryDir.exists(),
+                   "Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!");
 
         closeIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES_2 + ":" + IndexTypeEnum.LOCAL.getType());
 
         getRepositoryManagementService().removeRepository(STORAGE0, REPOSITORY_RELEASES_2);
 
-        assertFalse("Failed to remove the repository!", repositoryDir.exists());
+        assertFalse(repositoryDir.exists(), "Failed to remove the repository!");
     }
 
     @Test
@@ -164,7 +164,7 @@ public class MavenRepositoryManagementServiceImplTest
                                     "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.3 +p:jar",
                                     MavenIndexerSearchProvider.ALIAS);
 
-        assertTrue("Failed to merge!", artifactSearchService.contains(request));
+        assertTrue(artifactSearchService.contains(request), "Failed to merge!");
     }
 
 }

@@ -27,6 +27,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author mtodorov
@@ -104,7 +106,7 @@ public class Maven2LayoutProviderTest
         String path = "com/artifacts/to/delete/releases/delete-foo/1.2.1/delete-foo-1.2.1.jar";
         File artifactFile = new File(repository.getBasedir(), path);
 
-        assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
+        assertTrue(artifactFile.exists(), "Failed to locate artifact file " + artifactFile.getAbsolutePath());
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
         RepositoryFiles.delete(repositoryPath, false);
@@ -123,7 +125,7 @@ public class Maven2LayoutProviderTest
                     }
                 });
 
-        assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
+        assertFalse(artifactFile.exists(), "Failed to delete artifact file " + artifactFile.getAbsolutePath());
     }
 
     @Test
@@ -137,7 +139,7 @@ public class Maven2LayoutProviderTest
         String path = "com/artifacts/to/delete/releases/delete-foo/1.2.2";
         File artifactFile = new File(repository.getBasedir(), path);
 
-        assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
+        assertTrue(artifactFile.exists(), "Failed to locate artifact file " + artifactFile.getAbsolutePath());
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
         RepositoryFiles.delete(repositoryPath, false);
@@ -156,7 +158,7 @@ public class Maven2LayoutProviderTest
                     }
                 });        
         
-        assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
+        assertFalse(artifactFile.exists(), "Failed to delete artifact file " + artifactFile.getAbsolutePath());
     }
 
 }

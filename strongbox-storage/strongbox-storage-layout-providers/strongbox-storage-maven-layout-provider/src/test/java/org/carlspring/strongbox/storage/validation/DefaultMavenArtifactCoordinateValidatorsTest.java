@@ -59,15 +59,15 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
             assertNotNull("Storage ID was null!", storageId);
         }
 
-        assertTrue("Unexpected number of storages!", configuration.getStorages().size() > 0);
-        assertNotNull("Incorrect version!", configuration.getVersion());
-        assertEquals("Incorrect port number!", 48080, configuration.getPort());
-        assertTrue("Repository should have required authentication!",
-                   configuration.getStorages()
+        assertTrue(configuration.getStorages().size() > 0, "Unexpected number of storages!");
+        assertNotNull(configuration.getVersion(), "Incorrect version!");
+        assertEquals(48080, configuration.getPort(), "Incorrect port number!");
+        assertTrue(configuration.getStorages()
                                 .get("storage0")
                                 .getRepositories()
                                 .get("snapshots")
-                                .isSecured());
+                                .isSecured(),
+                   "Repository should have required authentication!");
 
         assertTrue(configuration.getStorages()
                                 .get("storage0")

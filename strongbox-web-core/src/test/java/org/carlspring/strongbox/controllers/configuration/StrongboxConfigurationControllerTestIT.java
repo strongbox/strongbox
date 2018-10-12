@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static junit.framework.TestCase.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Pablo Tirado
@@ -51,7 +51,7 @@ public class StrongboxConfigurationControllerTestIT
 
         final MutableConfiguration c = getConfigurationFromRemote();
 
-        assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
+        assertNotNull(c.getStorage("storage3"), "Failed to create storage3!");
     }
 
     public MutableConfiguration getConfigurationFromRemote() throws JsonParseException, JsonMappingException, IOException

@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static junit.framework.TestCase.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Guido Grazioli
@@ -113,9 +113,9 @@ public class BrowseControllerTest
 
         DirectoryListing returned = new ObjectMapper().readValue(jsonResponse, DirectoryListing.class);
               
-        assertNotNull("Failed to get storage list!", returned);
-        assertNotNull("Failed to get storage list!", returned.getDirectories());
-        assertFalse("Returned storage size does not match", returned.getDirectories().isEmpty());
+        assertNotNull(returned, "Failed to get storage list!");
+        assertNotNull(returned.getDirectories(), "Failed to get storage list!");
+        assertFalse(returned.getDirectories().isEmpty(), "Returned storage size does not match");
         
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
@@ -127,7 +127,7 @@ public class BrowseControllerTest
                                      .extract()
                                      .asString();
        
-        assertTrue("Returned HTML is incorrect", htmlResponse.contains("storage0"));
+        assertTrue(htmlResponse.contains("storage0"), "Returned HTML is incorrect");
     }
 
     @Test
@@ -144,12 +144,12 @@ public class BrowseControllerTest
 
         DirectoryListing returned = new ObjectMapper().readValue(jsonResponse, DirectoryListing.class);
         
-        assertNotNull("Failed to get repository list!", returned);
-        assertNotNull("Failed to get repository list!", returned.getDirectories());
-        assertTrue("Returned repositories do not match", !returned.getDirectories().isEmpty());
-        assertTrue("Repository not found", returned.getDirectories()
-                                                   .stream()
-                                                   .anyMatch(p -> p.getName().equals(REPOSITORY)));
+        assertNotNull(returned, "Failed to get repository list!");
+        assertNotNull(returned.getDirectories(), "Failed to get repository list!");
+        assertTrue(!returned.getDirectories().isEmpty(), "Returned repositories do not match");
+        assertTrue(returned.getDirectories()
+                           .stream()
+                           .anyMatch(p -> p.getName().equals(REPOSITORY)), "Repository not found");
         
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
@@ -161,7 +161,7 @@ public class BrowseControllerTest
                                      .extract()
                                      .asString();
 
-        assertTrue("Returned HTML is incorrect", htmlResponse.contains(REPOSITORY));
+        assertTrue(htmlResponse.contains(REPOSITORY), "Returned HTML is incorrect");
 }
                                  
 
@@ -200,8 +200,8 @@ public class BrowseControllerTest
         
         DirectoryListing returned = new ObjectMapper().readValue(jsonResponse, DirectoryListing.class);
         
-        assertTrue("Invalid files returned", returned.getFiles().size() == 6
-                        && returned.getFiles().get(0).getName().equals("test-browsing-1.1.jar"));                                                        
+        assertTrue(returned.getFiles().size() == 6
+                   && returned.getFiles().get(0).getName().equals("test-browsing-1.1.jar"), "Invalid files returned");
     
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
@@ -212,7 +212,7 @@ public class BrowseControllerTest
         String link = getContextBaseUrl() + "/storages/"
                       + STORAGE0 + "/" + REPOSITORY + "/org/carlspring/strongbox/browsing/test-browsing/1.1/test-browsing-1.1.jar";
 
-        assertTrue("Expected to have found [ " + link + " ] in the response html", htmlResponse.contains(link));
+        assertTrue(htmlResponse.contains(link), "Expected to have found [ " + link + " ] in the response html");
 
     }
 
