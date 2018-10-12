@@ -98,9 +98,11 @@ public class RebuildMavenMetadataCronJobTestIT
     }
 
     @BeforeEach
-    public void initialize()
+    public void initialize(TestInfo testInfo)
             throws Exception
     {
+        expectedJobName = testInfo.getDisplayName();
+
         createRepository(STORAGE0, REPOSITORY_SNAPSHOTS, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 
         artifact1 = createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR.getAbsolutePath(),
@@ -143,10 +145,9 @@ public class RebuildMavenMetadataCronJobTestIT
     }
 
     @Test
-    public void testRebuildArtifactsMetadata(TestInfo testInfo)
+    public void testRebuildArtifactsMetadata()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -183,10 +184,9 @@ public class RebuildMavenMetadataCronJobTestIT
     }
 
     @Test
-    public void testRebuildMetadataInRepository(TestInfo testInfo)
+    public void testRebuildMetadataInRepository()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -234,10 +234,9 @@ public class RebuildMavenMetadataCronJobTestIT
     }
 
     @Test
-    public void testRebuildMetadataInStorage(TestInfo testInfo)
+    public void testRebuildMetadataInStorage()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -285,10 +284,9 @@ public class RebuildMavenMetadataCronJobTestIT
     }
 
     @Test
-    public void testRebuildMetadataInStorages(TestInfo testInfo)
+    public void testRebuildMetadataInStorages()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {

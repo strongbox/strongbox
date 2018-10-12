@@ -56,9 +56,11 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
     @BeforeEach
     @AfterEach
-    public void cleanup()
+    public void cleanup(TestInfo testInfo)
             throws Exception
     {
+        expectedJobName = testInfo.getDisplayName();
+
         deleteDirectoryRelativeToVaultDirectory(
                 "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
 
@@ -66,7 +68,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
     }
 
     @Test
-    public void expiredArtifactsCleanupCronJobShouldCleanupDatabaseAndStorage(TestInfo testInfo)
+    public void expiredArtifactsCleanupCronJobShouldCleanupDatabaseAndStorage()
             throws Exception
     {
         final String storageId = "storage-common-proxies";
@@ -99,7 +101,6 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
         artifactEntryService.save(artifactEntry);
 
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {

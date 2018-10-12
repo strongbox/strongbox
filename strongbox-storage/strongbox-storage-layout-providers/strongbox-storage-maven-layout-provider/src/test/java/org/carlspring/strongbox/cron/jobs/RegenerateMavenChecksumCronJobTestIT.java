@@ -78,9 +78,11 @@ public class RegenerateMavenChecksumCronJobTestIT
     }
 
     @BeforeEach
-    public void initialize()
+    public void initialize(TestInfo testInfo)
             throws Exception
     {
+        expectedJobName = testInfo.getDisplayName();
+
         createRepository(STORAGE0, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.toString(),
@@ -122,10 +124,9 @@ public class RegenerateMavenChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateArtifactChecksum(TestInfo testInfo)
+    public void testRegenerateArtifactChecksum()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/strongbox-checksum-one";
@@ -191,10 +192,9 @@ public class RegenerateMavenChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateChecksumInRepository(TestInfo testInfo)
+    public void testRegenerateChecksumInRepository()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/strongbox-checksum-second";
@@ -255,10 +255,9 @@ public class RegenerateMavenChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateChecksumInStorage(TestInfo testInfo)
+    public void testRegenerateChecksumInStorage()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org/carlspring/strongbox/checksum/strongbox-checksum";
@@ -318,10 +317,9 @@ public class RegenerateMavenChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateChecksumInStorages(TestInfo testInfo)
+    public void testRegenerateChecksumInStorages()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_2 + "/org/carlspring/strongbox/checksum/strongbox-checksum";

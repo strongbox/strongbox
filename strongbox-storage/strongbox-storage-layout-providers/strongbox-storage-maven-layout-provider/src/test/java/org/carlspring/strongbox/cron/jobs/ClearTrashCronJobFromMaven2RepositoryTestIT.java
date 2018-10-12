@@ -95,9 +95,11 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     }
 
     @BeforeEach
-    public void initialize()
+    public void initialize(TestInfo testInfo)
             throws Exception
     {
+        expectedJobName = testInfo.getDisplayName();
+
         MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
@@ -148,7 +150,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     }
 
     @Test
-    public void testRemoveTrashInRepository(TestInfo testInfo)
+    public void testRemoveTrashInRepository()
             throws Exception
     {
         File[] dirs = getDirs();
@@ -164,7 +166,6 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         assertNotNull(dirs, "There is no path to the repository trash!");
         assertEquals(1, dirs.length, "The repository trash is empty!");
 
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -212,7 +213,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     }
 
     @Test
-    public void testRemoveTrashAllRepositories(TestInfo testInfo)
+    public void testRemoveTrashAllRepositories()
             throws Exception
     {
 
@@ -252,7 +253,6 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             assertEquals(1, dirs2.length, "The repository trash is empty!");
 
             // Checking if job was executed
-            expectedJobName = testInfo.getDisplayName();
             final String jobName = expectedJobName;
             jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
             {

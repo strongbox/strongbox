@@ -81,9 +81,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     }
 
     @BeforeEach
-    public void initialize()
+    public void initialize(TestInfo testInfo)
             throws Exception
     {
+        expectedJobName = testInfo.getDisplayName();
+
         //Create repository rtmscj-snapshots in storage0
         createRepository(STORAGE0, REPOSITORY_SNAPSHOTS_1, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 
@@ -166,10 +168,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     }
 
     @Test
-    public void testRemoveTimestampedSnapshot(TestInfo testInfo)
+    public void testRemoveTimestampedSnapshot()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-timestamped-first";
@@ -205,10 +206,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     }
 
     @Test
-    public void testRemoveTimestampedSnapshotInRepository(TestInfo testInfo)
+    public void testRemoveTimestampedSnapshotInRepository()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-timestamped-second";
@@ -250,10 +250,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     }
 
     @Test
-    public void testRemoveTimestampedSnapshotInStorage(TestInfo testInfo)
+    public void testRemoveTimestampedSnapshotInStorage()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_2 + "/org/carlspring/strongbox/strongbox-timestamped-first";
@@ -298,10 +297,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     }
 
     @Test
-    public void testRemoveTimestampedSnapshotInStorages(TestInfo testInfo)
+    public void testRemoveTimestampedSnapshotInStorages()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_3 + "/org/carlspring/strongbox/strongbox-timestamped-first";

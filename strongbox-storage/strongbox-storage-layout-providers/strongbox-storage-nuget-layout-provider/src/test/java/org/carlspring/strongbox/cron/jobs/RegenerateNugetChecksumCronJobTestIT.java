@@ -86,9 +86,11 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     @BeforeEach
-    public void initialize()
+    public void initialize(TestInfo testInfo)
             throws Exception
     {
+        expectedJobName = testInfo.getDisplayName();
+
         createStorage(STORAGE1);
 
         createRepository(STORAGE1, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy());
@@ -152,10 +154,9 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateNugetPackageChecksum(TestInfo testInfo)
+    public void testRegenerateNugetPackageChecksum()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org.carlspring.strongbox.checksum-second";
@@ -199,10 +200,9 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateNugetChecksumInRepository(TestInfo testInfo)
+    public void testRegenerateNugetChecksumInRepository()
         throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         deleteIfExists(
@@ -244,10 +244,9 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateNugetChecksumInStorage(TestInfo testInfo)
+    public void testRegenerateNugetChecksumInStorage()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org.carlspring.strongbox.checksum-second";
@@ -288,10 +287,9 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateNugetChecksumInStorages(TestInfo testInfo)
+    public void testRegenerateNugetChecksumInStorages()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_2 + "/org.carlspring.strongbox.checksum-one";

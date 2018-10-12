@@ -3,6 +3,7 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,12 @@ public class OneTimeExecutionCronJobTestIT
         extends BaseCronTestCase
 {
 
+    @BeforeEach
+    void initialize(TestInfo testInfo)
+    {
+        expectedCronTaskName = testInfo.getDisplayName();
+    }
+
     public void addOneTimeExecutionCronJobConfig(String name)
             throws Exception
     {
@@ -32,10 +39,9 @@ public class OneTimeExecutionCronJobTestIT
     }
 
     @Test
-    public void testOneTimeExecutionCronJob(TestInfo testInfo)
+    public void testOneTimeExecutionCronJob()
             throws Exception
     {
-        expectedCronTaskName = testInfo.getDisplayName();
         addOneTimeExecutionCronJobConfig(expectedCronTaskName);
 
         assertTrue(expectEvent(60000, 500), "Failed to execute task within a reasonable time!");

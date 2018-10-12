@@ -88,9 +88,11 @@ public class RebuildMavenIndexesCronJobTestIT
     }
 
     @BeforeEach
-    public void initialize()
+    public void initialize(TestInfo testInfo)
             throws Exception
     {
+        expectedJobName = testInfo.getDisplayName();
+
         createStorage(STORAGE1);
 
         createRepository(STORAGE0, REPOSITORY_RELEASES_1, true);
@@ -122,10 +124,9 @@ public class RebuildMavenIndexesCronJobTestIT
     }
 
     @Test
-    public void testRebuildArtifactsIndexes(TestInfo testInfo)
+    public void testRebuildArtifactsIndexes()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         // Checking if job was executed
@@ -158,10 +159,9 @@ public class RebuildMavenIndexesCronJobTestIT
     }
 
     @Test
-    public void testRebuildIndexesInRepository(TestInfo testInfo)
+    public void testRebuildIndexesInRepository()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {

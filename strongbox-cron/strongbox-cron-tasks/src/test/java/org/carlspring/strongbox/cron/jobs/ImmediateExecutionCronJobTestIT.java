@@ -6,6 +6,7 @@ import org.carlspring.strongbox.cron.services.JobManager;
 
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,12 @@ public class ImmediateExecutionCronJobTestIT
     @Inject
     private JobManager jobManager;
 
+    @BeforeEach
+    void initialize(TestInfo testInfo)
+    {
+        expectedCronTaskName = testInfo.getDisplayName();
+    }
+
     public void addImmediateExecutionCronJobConfig(String name)
             throws Exception
     {
@@ -38,10 +45,9 @@ public class ImmediateExecutionCronJobTestIT
     }
 
     @Test
-    public void testImmediateExecutionCronJob(TestInfo testInfo)
+    public void testImmediateExecutionCronJob()
             throws Exception
     {
-        expectedCronTaskName = testInfo.getDisplayName();
         String jobName = expectedCronTaskName;
 
         // Checking if job was executed

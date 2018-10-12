@@ -62,9 +62,11 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     }
 
     @BeforeEach
-    public void initialize()
+    public void initialize(TestInfo testInfo)
             throws Exception
     {
+        expectedJobName = testInfo.getDisplayName();
+
         Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         createRepository(STORAGE0, REPOSITORY_RELEASES, true);
@@ -115,10 +117,9 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     }
 
     @Test
-    public void testDownloadRemoteIndexAndExecuteSearch(TestInfo testInfo)
+    public void testDownloadRemoteIndexAndExecuteSearch()
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
 
         // Checking if job was executed
