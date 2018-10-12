@@ -72,6 +72,8 @@
         <version.jsr305>3.0.2</version.jsr305>
         <version.findbugs.annotations>3.0.1</version.findbugs.annotations>
         <version.junit>5.3.0</version.junit>
+        <version.junit-platform>1.3.0</version.junit-platform>
+        <version.junit-platform.surefire>1.0.0</version.junit-platform.surefire>
         <version.jersey>2.23.1</version.jersey>
         <version.jetty>9.4.6.v20170531</version.jetty>
         <version.lucene>4.8.1</version.lucene>
@@ -161,7 +163,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.20</version>
+                    <version>2.21.0</version>
                     <inherited>true</inherited>
                     <configuration>
                         <argLine>-Xmx1024m -Xms512m -Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-springsource-proxies.*=false -Dstrongbox.download.indexes=false -Dstrongbox.download.indexes.storage-sbt-proxies.*=false</argLine>
@@ -185,7 +187,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.20</version>
+                    <version>2.21.0</version>
 
                     <configuration>
                         <argLine>-Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-springsource-proxies.*=false -Dstrongbox.download.indexes=false -Dstrongbox.download.indexes.storage-sbt-proxies.*=false</argLine>
@@ -204,9 +206,9 @@
 
                     <dependencies>
                         <dependency>
-                            <groupId>org.apache.maven.surefire</groupId>
-                            <artifactId>surefire-junit47</artifactId>
-                            <version>2.20</version>
+                            <groupId>org.junit.platform</groupId>
+                            <artifactId>junit-platform-surefire-provider</artifactId>
+                            <version>${version.junit-platform.surefire}</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -852,6 +854,13 @@
                 <version>${version.junit}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-runner</artifactId>
+                <version>${version.junit-platform}</version>
+                <scope>test</scope>
+            </dependency>
+
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
