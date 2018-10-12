@@ -18,7 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.base.Throwables;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
@@ -109,7 +109,7 @@ public class MavenSearchControllerTest
     public void testIndexSearches()
             throws Exception
     {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         testSearches("+g:org.carlspring.strongbox.searches +a:test-project",
                      MavenIndexerSearchProvider.ALIAS);
@@ -146,7 +146,7 @@ public class MavenSearchControllerTest
     public void testDumpIndex()
             throws Exception
     {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         // /storages/storage0/releases/.index/local
         // this index is present but artifacts are missing

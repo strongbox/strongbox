@@ -52,11 +52,7 @@ import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Assume;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -684,7 +680,7 @@ public class MavenArtifactControllerTest
 
         assertTrue(invalidPath.response().getStatusCode() == 404);
 
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         assertFalse(repositoryRootContent.contains(".index"),
                     ".index directory should not be visible in directory listing!");
@@ -915,7 +911,7 @@ public class MavenArtifactControllerTest
     public void testUpdateMetadataOnDeleteReleaseVersionDirectory()
             throws Exception
     {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         // Given
         String groupId = "org.carlspring.strongbox.delete-metadata";

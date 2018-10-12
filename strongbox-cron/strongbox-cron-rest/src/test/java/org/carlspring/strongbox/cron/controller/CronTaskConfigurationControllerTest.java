@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
@@ -51,7 +51,7 @@ public class CronTaskConfigurationControllerTest
     public void downloadRemoteMavenIndexCronJobShouldHaveWorkingPreCreateCallback()
             throws Exception
     {
-        Assume.assumeTrue(context.containsBean("repositoryIndexManager"));
+        Assumptions.assumeTrue(context.containsBean("repositoryIndexManager"));
 
         List<CronTaskConfigurationDto> configurationList = getDownloadRemoteMavenIndexOfCarlspringCronJobs();
 

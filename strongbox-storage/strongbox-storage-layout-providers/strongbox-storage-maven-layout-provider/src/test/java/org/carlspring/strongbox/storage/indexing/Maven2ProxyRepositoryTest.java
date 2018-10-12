@@ -16,11 +16,7 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.Assume;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -86,7 +82,7 @@ public class Maven2ProxyRepositoryTest
     public void testRepositoryIndexFetching()
             throws ArtifactTransportException, IOException
     {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
 

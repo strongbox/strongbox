@@ -21,11 +21,7 @@ import org.apache.maven.index.MAVEN;
 import org.apache.maven.index.expr.SourcedSearchExpression;
 import org.apache.maven.index.expr.UserInputSearchExpression;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assume;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -76,7 +72,7 @@ public class StrongboxIndexerTest
     @BeforeEach
     public void isIndexingEnabled()
     {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
     }
 
     public static Set<MutableRepository> getRepositoriesToClean()

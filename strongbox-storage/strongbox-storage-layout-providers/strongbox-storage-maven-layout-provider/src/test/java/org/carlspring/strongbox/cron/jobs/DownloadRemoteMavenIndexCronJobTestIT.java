@@ -16,8 +16,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Assume;
 import org.junit.Rule;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -84,7 +84,7 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     public void initialize()
             throws Exception
     {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         createRepository(STORAGE0, REPOSITORY_RELEASES, true);
 

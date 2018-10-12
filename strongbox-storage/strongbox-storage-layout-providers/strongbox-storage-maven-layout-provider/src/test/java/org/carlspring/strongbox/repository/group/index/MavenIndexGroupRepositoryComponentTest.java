@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.hamcrest.Matchers;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -52,7 +52,7 @@ public class MavenIndexGroupRepositoryComponentTest
     protected void postInitializeInternally()
             throws IOException
     {
-        Assume.assumeTrue(artifactIndexesService.isPresent());
+        Assumptions.assumeTrue(artifactIndexesService.isPresent());
 
         artifactIndexesService.get().rebuildIndexes();
     }

@@ -14,11 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.Assume;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -72,7 +68,7 @@ public class MavenIndexerSearchProviderTest
     @BeforeEach
     public void isIndexingEnabled()
     {
-        Assume.assumeTrue(mavenIndexerSearchProvider.isPresent());
+        Assumptions.assumeTrue(mavenIndexerSearchProvider.isPresent());
     }
 
     public static Set<MutableRepository> getRepositoriesToClean()

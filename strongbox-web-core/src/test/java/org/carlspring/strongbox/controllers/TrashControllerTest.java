@@ -19,11 +19,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.http.HttpHeaders;
-import org.junit.Assume;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -143,7 +139,7 @@ public class TrashControllerTest
                    "Should have moved the artifact to the trash during a force delete operation, " +
                            "when allowsForceDeletion is not enabled!");
 
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         final Path repositoryIndexDir = Paths.get(BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.index");
         assertTrue(Files.exists(repositoryIndexDir),

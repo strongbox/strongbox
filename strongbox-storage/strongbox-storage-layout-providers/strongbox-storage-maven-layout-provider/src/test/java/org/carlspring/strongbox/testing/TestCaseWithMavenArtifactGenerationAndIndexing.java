@@ -51,7 +51,7 @@ import org.apache.maven.index.ArtifactInfo;
 import org.apache.maven.index.context.IndexUtils;
 import org.apache.maven.index.context.IndexingContext;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -431,7 +431,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                             String query)
             throws SearchException
     {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         boolean isContained = indexContainsArtifact(storageId, repositoryId, query);
 

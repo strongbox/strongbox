@@ -159,7 +159,7 @@ public class UserServiceTest
 
         logger.debug("Found stored updated with empty pass user\n\t" + updatedEntity + "\n");
 
-        assertEquals("User password has changed!", addedEntity.getPassword(), updatedEntity.getPassword());
+        assertEquals(addedEntity.getPassword(), updatedEntity.getPassword(), "User password has changed!");
 
         // 3. Update the user with blank password (i.e. contains only whitespace)
         logger.debug("Updating user with blank pass...");
@@ -175,7 +175,7 @@ public class UserServiceTest
 
         logger.debug("Found stored updated with empty pass user\n\t" + updatedEntity + "\n");
 
-        assertEquals("User password has changed!", addedEntity.getPassword(), updatedEntity.getPassword());
+        assertEquals(addedEntity.getPassword(), updatedEntity.getPassword(), "User password has changed!");
     }
 
     @Test
@@ -213,9 +213,9 @@ public class UserServiceTest
 
         logger.debug("Updated user found: \n\t" + updatedEntity + "\n");
 
-        assertNotEquals("User password should have been encrypted!", addedEntity.getPassword(),
-                        updatedEntity.getPassword());
-        assertNotNull("User password was updated to null", updatedEntity.getPassword());
+        assertNotEquals(addedEntity.getPassword(), updatedEntity.getPassword(),
+                        "User password should have been encrypted!");
+        assertNotNull(updatedEntity.getPassword(), "User password was updated to null");
         assertTrue(updatedEntity.isEnabled());
         assertEquals(0, updatedEntity.getRoles().size(), "Expected no user roles to have been updated!");
         assertEquals("after", updatedEntity.getSecurityTokenKey());

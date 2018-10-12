@@ -21,11 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.Assume;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -187,7 +183,7 @@ public class MavenDependencyFormatterTest
     @Test
     public void testSearchExactWithDependencySnippet()
     {
-        Assume.assumeTrue(mavenIndexerSearchProvider.isPresent());
+        Assumptions.assumeTrue(mavenIndexerSearchProvider.isPresent());
 
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
         final int x = features.reIndex(STORAGE0,
