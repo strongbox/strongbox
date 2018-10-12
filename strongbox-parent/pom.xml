@@ -71,11 +71,8 @@
         <version.jcl>1.7.25</version.jcl>
         <version.jsr305>3.0.2</version.jsr305>
         <version.findbugs.annotations>3.0.1</version.findbugs.annotations>
-        <version.junit>4.12</version.junit>
-        <version.junit-jupiter-api>5.1.0</version.junit-jupiter-api>
-        <version.junit-jupiter-engine>5.1.0</version.junit-jupiter-engine>
-        <version.junit-vintage>5.1.0</version.junit-vintage>
-        <version.junit-platform>1.1.0</version.junit-platform>
+        <version.junit-jupiter-api>5.3.0</version.junit-jupiter-api>
+        <version.junit-vintage>5.3.0</version.junit-vintage>
         <version.jersey>2.23.1</version.jersey>
         <version.jetty>9.4.6.v20170531</version.jetty>
         <version.lucene>4.8.1</version.lucene>
@@ -845,27 +842,9 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${version.junit}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-engine</artifactId>
-                <version>${version.junit.jupiter-engine}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.junit.vintage</groupId>
                 <artifactId>junit-vintage-engine</artifactId>
-                <version>${version.junit.vintage}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.platform</groupId>
-                <artifactId>junit-platform-launcher</artifactId>
-                <version>${version.junit-platform}</version>
+                <version>${version.junit-vintage}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
