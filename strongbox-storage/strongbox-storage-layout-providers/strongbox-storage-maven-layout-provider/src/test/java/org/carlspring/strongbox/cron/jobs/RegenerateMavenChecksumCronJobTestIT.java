@@ -17,16 +17,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -40,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@EnableRuleMigrationSupport
 public class RegenerateMavenChecksumCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
@@ -66,16 +57,6 @@ public class RegenerateMavenChecksumCronJobTestIT
     private static MavenArtifact snapshotArtifact_1;
 
     private static MavenArtifact snapshotArtifact_2;
-
-    @Rule
-    public TestRule watcher = new TestWatcher()
-    {
-        @Override
-        protected void starting(final Description description)
-        {
-            expectedJobName = description.getMethodName();
-        }
-    };
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
@@ -141,10 +122,11 @@ public class RegenerateMavenChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateArtifactChecksum()
+    public void testRegenerateArtifactChecksum(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/strongbox-checksum-one";
 
@@ -209,10 +191,11 @@ public class RegenerateMavenChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateChecksumInRepository()
+    public void testRegenerateChecksumInRepository(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/strongbox-checksum-second";
 
@@ -272,10 +255,11 @@ public class RegenerateMavenChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateChecksumInStorage()
+    public void testRegenerateChecksumInStorage(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org/carlspring/strongbox/checksum/strongbox-checksum";
 
@@ -334,10 +318,11 @@ public class RegenerateMavenChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateChecksumInStorages()
+    public void testRegenerateChecksumInStorages(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_2 + "/org/carlspring/strongbox/checksum/strongbox-checksum";
 

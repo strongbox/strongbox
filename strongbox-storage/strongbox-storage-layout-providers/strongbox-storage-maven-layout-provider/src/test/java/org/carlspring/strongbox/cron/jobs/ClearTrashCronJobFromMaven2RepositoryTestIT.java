@@ -28,16 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -51,7 +43,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@EnableRuleMigrationSupport
 public class ClearTrashCronJobFromMaven2RepositoryTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
@@ -76,15 +67,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     private static MutableRepository repository1;
     private static MutableRepository repository2;
     private static MutableRepository repository3;
-    @Rule
-    public TestRule watcher = new TestWatcher()
-    {
-        @Override
-        protected void starting(final Description description)
-        {
-            expectedJobName = description.getMethodName();
-        }
-    };
+
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
     @Inject
@@ -165,7 +148,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     }
 
     @Test
-    public void testRemoveTrashInRepository()
+    public void testRemoveTrashInRepository(TestInfo testInfo)
             throws Exception
     {
         File[] dirs = getDirs();
@@ -181,6 +164,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         assertNotNull(dirs, "There is no path to the repository trash!");
         assertEquals(1, dirs.length, "The repository trash is empty!");
 
+        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -228,7 +212,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     }
 
     @Test
-    public void testRemoveTrashAllRepositories()
+    public void testRemoveTrashAllRepositories(TestInfo testInfo)
             throws Exception
     {
 
@@ -268,7 +252,8 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             assertEquals(1, dirs2.length, "The repository trash is empty!");
 
             // Checking if job was executed
-            String jobName = expectedJobName;
+            expectedJobName = testInfo.getDisplayName();
+            final String jobName = expectedJobName;
             jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
             {
                 File[] dirs11 = basedirTrash1.listFiles();

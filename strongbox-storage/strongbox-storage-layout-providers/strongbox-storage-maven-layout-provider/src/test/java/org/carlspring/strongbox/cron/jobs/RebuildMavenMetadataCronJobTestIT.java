@@ -20,16 +20,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -43,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@EnableRuleMigrationSupport
 public class RebuildMavenMetadataCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
@@ -82,16 +73,6 @@ public class RebuildMavenMetadataCronJobTestIT
     private static MavenArtifact artifact3;
 
     private static MavenArtifact artifact4;
-
-    @Rule
-    public TestRule watcher = new TestWatcher()
-    {
-        @Override
-        protected void starting(final Description description)
-        {
-            expectedJobName = description.getMethodName();
-        }
-    };
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
@@ -162,10 +143,11 @@ public class RebuildMavenMetadataCronJobTestIT
     }
 
     @Test
-    public void testRebuildArtifactsMetadata()
+    public void testRebuildArtifactsMetadata(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             if (jobName1.equals(jobName) && statusExecuted)
@@ -201,10 +183,11 @@ public class RebuildMavenMetadataCronJobTestIT
     }
 
     @Test
-    public void testRebuildMetadataInRepository()
+    public void testRebuildMetadataInRepository(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             if (jobName1.equals(jobName) && statusExecuted)
@@ -251,10 +234,11 @@ public class RebuildMavenMetadataCronJobTestIT
     }
 
     @Test
-    public void testRebuildMetadataInStorage()
+    public void testRebuildMetadataInStorage(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             if (jobName1.equals(jobName) && statusExecuted)
@@ -301,10 +285,11 @@ public class RebuildMavenMetadataCronJobTestIT
     }
 
     @Test
-    public void testRebuildMetadataInStorages()
+    public void testRebuildMetadataInStorages(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             if (jobName1.equals(jobName) && statusExecuted)

@@ -22,15 +22,11 @@ import org.apache.commons.lang.time.DateUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -45,23 +41,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@EnableRuleMigrationSupport
 public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-    
-    @Rule
-    public TestRule watcher = new TestWatcher()
-    {
-        @Override
-        protected void starting(final Description description)
-        {
-            expectedJobName = description.getMethodName();
-        }
-    };
 
     @Inject
     private ProxyRepositoryProvider proxyRepositoryProvider;
@@ -81,7 +66,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
     }
 
     @Test
-    public void expiredArtifactsCleanupCronJobShouldCleanupDatabaseAndStorage()
+    public void expiredArtifactsCleanupCronJobShouldCleanupDatabaseAndStorage(TestInfo testInfo)
             throws Exception
     {
         final String storageId = "storage-common-proxies";
@@ -114,6 +99,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
         artifactEntryService.save(artifactEntry);
 
+        expectedJobName = testInfo.getDisplayName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {

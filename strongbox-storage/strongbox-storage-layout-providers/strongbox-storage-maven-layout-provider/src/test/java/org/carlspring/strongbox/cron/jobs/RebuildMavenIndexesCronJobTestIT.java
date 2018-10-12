@@ -17,13 +17,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -36,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@EnableRuleMigrationSupport
 public class RebuildMavenIndexesCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
@@ -60,16 +54,6 @@ public class RebuildMavenIndexesCronJobTestIT
                                                                        REPOSITORY_RELEASES_1);
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_INDEXES = "org/carlspring/strongbox/indexes/strongbox-test-one";
-
-    @Rule
-    public TestRule watcher = new TestWatcher()
-    {
-        @Override
-        protected void starting(final Description description)
-        {
-            expectedJobName = description.getMethodName();
-        }
-    };
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
@@ -138,10 +122,11 @@ public class RebuildMavenIndexesCronJobTestIT
     }
 
     @Test
-    public void testRebuildArtifactsIndexes()
+    public void testRebuildArtifactsIndexes(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         // Checking if job was executed
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
@@ -173,10 +158,11 @@ public class RebuildMavenIndexesCronJobTestIT
     }
 
     @Test
-    public void testRebuildIndexesInRepository()
+    public void testRebuildIndexesInRepository(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             if (jobName1.equals(jobName) && statusExecuted)

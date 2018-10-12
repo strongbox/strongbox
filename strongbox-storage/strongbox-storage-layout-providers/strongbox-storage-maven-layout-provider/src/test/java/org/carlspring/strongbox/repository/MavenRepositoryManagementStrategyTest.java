@@ -1,8 +1,11 @@
 package org.carlspring.strongbox.repository;
 
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.carlspring.strongbox.repository.IndexedMavenRepositoryManagementStrategy.shouldDownloadAllRemoteRepositoryIndexes;
 import static org.carlspring.strongbox.repository.IndexedMavenRepositoryManagementStrategy.shouldDownloadRepositoryIndex;
@@ -14,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author carlspring
  */
 @ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class MavenRepositoryManagementStrategyTest
 {
 

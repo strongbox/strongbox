@@ -6,18 +6,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.ExpectedException;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Przemyslaw Fusik
@@ -25,14 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @ActiveProfiles("MockedRestArtifactResolverTestConfig")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
-@EnableRuleMigrationSupport
 public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
         extends RetryDownloadArtifactTestBase
 {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private boolean exceptionAlreadyThrown;
     
     private OneTimeBrokenArtifactInputStream brokenArtifactInputStream;
@@ -59,12 +53,13 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
         assertFalse(Files.exists(destinationPath));
         assertFalse(exceptionAlreadyThrown);
 
-        //then
-        thrown.expect(IOException.class);
-        thrown.expectMessage(containsString("does not support range requests."));
+        IOException exception = assertThrows(IOException.class, () -> {
+            // when
+            assertStreamNotNull(storageId, repositoryId, path);
+        });
 
-        // when
-        assertStreamNotNull(storageId, repositoryId, path);
+        //then
+        assertThat(exception.getMessage(), containsString("does not support range requests."));
 
     }
 

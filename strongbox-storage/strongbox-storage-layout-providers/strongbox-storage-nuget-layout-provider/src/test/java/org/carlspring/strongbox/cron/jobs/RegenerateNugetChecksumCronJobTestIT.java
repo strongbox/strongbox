@@ -23,16 +23,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
@@ -43,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @ContextConfiguration(classes = NugetLayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
-@EnableRuleMigrationSupport
 public class RegenerateNugetChecksumCronJobTestIT
         extends BaseCronJobWithNugetIndexingTestCase
 {
@@ -67,16 +58,6 @@ public class RegenerateNugetChecksumCronJobTestIT
     private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                        "/storages/" + STORAGE2 + "/" +
                                                                        REPOSITORY_RELEASES);
-
-    @Rule
-    public TestRule watcher = new TestWatcher()
-    {
-        @Override
-        protected void starting(final Description description)
-        {
-            expectedJobName = description.getMethodName();
-        }
-    };
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
@@ -171,10 +152,11 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateNugetPackageChecksum()
+    public void testRegenerateNugetPackageChecksum(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org.carlspring.strongbox.checksum-second";
 
@@ -217,10 +199,11 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateNugetChecksumInRepository()
+    public void testRegenerateNugetChecksumInRepository(TestInfo testInfo)
         throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         deleteIfExists(
                                  new File(REPOSITORY_ALPHA_BASEDIR,
@@ -261,10 +244,11 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateNugetChecksumInStorage()
+    public void testRegenerateNugetChecksumInStorage(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org.carlspring.strongbox.checksum-second";
 
@@ -304,10 +288,11 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateNugetChecksumInStorages()
+    public void testRegenerateNugetChecksumInStorages(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_2 + "/org.carlspring.strongbox.checksum-one";
 

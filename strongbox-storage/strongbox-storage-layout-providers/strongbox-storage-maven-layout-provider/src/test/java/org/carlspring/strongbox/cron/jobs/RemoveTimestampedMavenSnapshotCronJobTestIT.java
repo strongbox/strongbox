@@ -20,16 +20,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.artifact.Artifact;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -43,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@EnableRuleMigrationSupport
 public class RemoveTimestampedMavenSnapshotCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
@@ -67,16 +58,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                                                                         REPOSITORY_SNAPSHOTS_1);
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED = "org/carlspring/strongbox/strongbox-timestamped-first";
-
-    @Rule
-    public TestRule watcher = new TestWatcher()
-    {
-        @Override
-        protected void starting(final Description description)
-        {
-            expectedJobName = description.getMethodName();
-        }
-    };
 
     private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
@@ -185,10 +166,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     }
 
     @Test
-    public void testRemoveTimestampedSnapshot()
+    public void testRemoveTimestampedSnapshot(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-timestamped-first";
 
@@ -223,10 +205,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     }
 
     @Test
-    public void testRemoveTimestampedSnapshotInRepository()
+    public void testRemoveTimestampedSnapshotInRepository(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-timestamped-second";
 
@@ -267,10 +250,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     }
 
     @Test
-    public void testRemoveTimestampedSnapshotInStorage()
+    public void testRemoveTimestampedSnapshotInStorage(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_2 + "/org/carlspring/strongbox/strongbox-timestamped-first";
 
@@ -314,10 +298,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     }
 
     @Test
-    public void testRemoveTimestampedSnapshotInStorages()
+    public void testRemoveTimestampedSnapshotInStorages(TestInfo testInfo)
             throws Exception
     {
-        String jobName = expectedJobName;
+        expectedJobName = testInfo.getDisplayName();
+        final String jobName = expectedJobName;
 
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_3 + "/org/carlspring/strongbox/strongbox-timestamped-first";
 

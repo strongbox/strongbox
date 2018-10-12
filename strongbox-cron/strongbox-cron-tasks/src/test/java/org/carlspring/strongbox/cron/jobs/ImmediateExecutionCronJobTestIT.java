@@ -6,13 +6,9 @@ import org.carlspring.strongbox.cron.services.JobManager;
 
 import javax.inject.Inject;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -21,20 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @CronTaskTest
 @ExtendWith(SpringExtension.class)
-@EnableRuleMigrationSupport
 public class ImmediateExecutionCronJobTestIT
         extends BaseCronTestCase
 {
-
-    @Rule
-    public TestRule watcher = new TestWatcher()
-    {
-        @Override
-        protected void starting(final Description description)
-        {
-            expectedCronTaskName = description.getMethodName();
-        }
-    };
 
     @Inject
     private JobManager jobManager;
@@ -53,9 +38,10 @@ public class ImmediateExecutionCronJobTestIT
     }
 
     @Test
-    public void testImmediateExecutionCronJob()
+    public void testImmediateExecutionCronJob(TestInfo testInfo)
             throws Exception
     {
+        expectedCronTaskName = testInfo.getDisplayName();
         String jobName = expectedCronTaskName;
 
         // Checking if job was executed
