@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.Resource;
@@ -24,6 +25,7 @@ import static org.junit.Assert.assertFalse;
 @ActiveProfiles("MockedRestArtifactResolverTestConfig")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
+@EnableRuleMigrationSupport
 public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
         extends RetryDownloadArtifactTestBase
 {

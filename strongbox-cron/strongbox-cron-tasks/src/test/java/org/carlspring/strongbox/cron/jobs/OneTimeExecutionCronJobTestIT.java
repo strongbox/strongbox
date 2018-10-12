@@ -5,6 +5,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -17,6 +18,7 @@ import static org.junit.Assert.assertTrue;
  */
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
+@EnableRuleMigrationSupport
 public class OneTimeExecutionCronJobTestIT
         extends BaseCronTestCase
 {

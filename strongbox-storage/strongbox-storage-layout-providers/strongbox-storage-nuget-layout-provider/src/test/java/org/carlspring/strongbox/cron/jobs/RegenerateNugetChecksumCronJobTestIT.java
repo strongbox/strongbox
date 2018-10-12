@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.*;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -38,6 +39,7 @@ import static org.junit.Assert.*;
  */
 @ContextConfiguration(classes = NugetLayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
+@EnableRuleMigrationSupport
 public class RegenerateNugetChecksumCronJobTestIT
         extends BaseCronJobWithNugetIndexingTestCase
 {

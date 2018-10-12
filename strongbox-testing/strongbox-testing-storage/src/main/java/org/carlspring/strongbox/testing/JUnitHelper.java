@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.testing;
 
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+@EnableRuleMigrationSupport
 public class JUnitHelper extends TestWatcher
 {
 
