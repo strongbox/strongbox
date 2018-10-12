@@ -23,11 +23,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
-import com.carmatechnologies.commons.testing.logging.api.LogLevel;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.hamcrest.CoreMatchers;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,13 +69,6 @@ public class MavenGroupRepositoryProviderTest
     
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-
-    @Rule
-    public final ExpectedLogs logs = new ExpectedLogs()
-    {{
-        captureFor(GroupRepositoryProvider.class, LogLevel.DEBUG);
-    }};
-
 
     @BeforeAll
     public static void cleanUp()
