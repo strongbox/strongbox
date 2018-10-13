@@ -18,6 +18,8 @@ public enum RepositoryFileAttributeType
     ARTIFACT("artifact"),
     
     ARTIFACT_PATH("artifactPath"),
+
+    EXPIRED("expired"),
     
     RESOURCE_URL("resourceUrl"),
     

@@ -1,26 +1,7 @@
 package org.carlspring.strongbox.providers.repository;
 
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
@@ -35,6 +16,22 @@ import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCol
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,20 +132,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         }
         return null;
     }
-    
-    /**
-     * Returns the artifact associated to artifactPath if repository type isn't GROUP or
-     * returns the product of calling getInputStream recursively otherwise.
-     *
-     * @param storageId    The storage id
-     * @param repositoryId The repository
-     * @param artifactPath The path to the artifact
-     * @return
-     * @throws NoSuchAlgorithmException
-     * @throws IOException
-     * @throws ArtifactTransportException
-     */
-    protected RepositoryPath resolvePathFromGroupMemberOrTraverse(RepositoryPath repositoryPath)
+
+    private RepositoryPath resolvePathFromGroupMemberOrTraverse(RepositoryPath repositoryPath)
         throws IOException
     {
         Repository repository = repositoryPath.getRepository();

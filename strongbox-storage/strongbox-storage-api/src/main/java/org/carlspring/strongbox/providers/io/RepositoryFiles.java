@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.providers.io;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -9,10 +13,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 
 public abstract class RepositoryFiles
 {
@@ -45,6 +45,12 @@ public abstract class RepositoryFiles
         throws IOException
     {
         return (Boolean) Files.getAttribute(path, formatAttributes(RepositoryFileAttributeType.ARTIFACT));
+    }
+
+    public static Boolean hasExpired(RepositoryPath path)
+            throws IOException
+    {
+        return (Boolean) Files.getAttribute(path, formatAttributes(RepositoryFileAttributeType.EXPIRED));
     }
 
     public static ArtifactCoordinates readCoordinates(RepositoryPath path)

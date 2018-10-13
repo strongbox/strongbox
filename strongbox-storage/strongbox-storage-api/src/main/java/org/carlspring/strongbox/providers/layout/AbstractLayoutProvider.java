@@ -13,6 +13,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -57,6 +58,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
+
+    @Inject
+    protected RepositoryProviderRegistry repositoryProviderRegistry;
 
     public abstract Set<String> getDefaultArtifactCoordinateValidators();
 
@@ -174,7 +178,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                 value = repositoryPath.getRepository().getId();
 
                 break;
-                
+            case EXPIRED:
+                value = false;
+
+                break;
             }
             if (value != null)
             {
@@ -218,5 +225,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             }
         }
         return Collections.emptySet();
+    }
+
+    @Override
+    public void handleRepositoryPathExpiration(final RepositoryPath repositoryPath)
+    {
+        // implement by the specific provider, if needed
     }
 }

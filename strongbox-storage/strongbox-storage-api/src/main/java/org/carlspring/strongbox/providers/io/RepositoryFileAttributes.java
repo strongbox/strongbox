@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
-import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.*;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 import java.net.URL;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -8,7 +8,17 @@ import java.nio.file.attribute.FileTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.ARTIFACT;
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.ARTIFACT_PATH;
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.CHECKSUM;
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.COORDINATES;
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.EXPIRED;
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.METADATA;
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.REPOSITORY_ID;
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.RESOURCE_URL;
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.STORAGE_ID;
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.TEMP;
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.TRASH;
 
 public class RepositoryFileAttributes implements BasicFileAttributes
 {
@@ -104,6 +114,11 @@ public class RepositoryFileAttributes implements BasicFileAttributes
     public boolean isArtifact()
     {
         return Boolean.TRUE.equals(attributes.get(ARTIFACT));
+    }
+
+    public boolean hasExpired()
+    {
+        return Boolean.TRUE.equals(attributes.get(EXPIRED));
     }
     
     public boolean getResourceUrl()

@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
@@ -61,7 +62,6 @@ public class Maven2LayoutProvider
 
     @Inject
     private MavenRepositoryFeatures mavenRepositoryFeatures;
-
 
     @PostConstruct
     public void register()
@@ -103,21 +103,22 @@ public class Maven2LayoutProvider
             switch (attributeType)
             {
                 case ARTIFACT:
-                    value = (Boolean) value && !isMavenMetadata(repositoryPath) && !isIndex(repositoryPath);
+                    value = BooleanUtils.isTrue((Boolean) value) && !isMavenMetadata(repositoryPath) &&
+                            !isIndex(repositoryPath);
 
-                    if (value != null)
-                    {
-                        result.put(attributeType, value);
-                    }
+                    result.put(attributeType, value);
 
                     break;
                 case METADATA:
-                    value = (Boolean) value || isMavenMetadata(repositoryPath);
+                    value = BooleanUtils.isTrue((Boolean) value) || isMavenMetadata(repositoryPath);
 
-                    if (value != null)
-                    {
-                        result.put(attributeType, value);
-                    }
+                    result.put(attributeType, value);
+
+                    break;
+                case EXPIRED:
+                    value = BooleanUtils.isTrue((Boolean) value) || isMavenMetadata(repositoryPath);
+
+                    result.put(attributeType, value);
 
                     break;
                 default:
@@ -312,4 +313,9 @@ public class Maven2LayoutProvider
         return Collections.emptySet();
     }
 
+    @Override
+    public void handleRepositoryPathExpiration(final RepositoryPath repositoryPath)
+    {
+        // TODO
+    }
 }

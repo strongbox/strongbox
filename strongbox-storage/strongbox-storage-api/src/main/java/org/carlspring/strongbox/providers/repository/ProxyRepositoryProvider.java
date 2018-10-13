@@ -6,6 +6,7 @@ import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
@@ -40,7 +41,7 @@ public class ProxyRepositoryProvider
 
     @Inject
     private HostedRepositoryProvider hostedRepositoryProvider;
-    
+
     @Inject
     private ApplicationEventPublisher eventPublisher;
 
@@ -63,11 +64,12 @@ public class ProxyRepositoryProvider
         throws IOException
     {
         RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(repositoryPath);
-        if (targetPath == null || targetPath.isOld())
+
+        if (targetPath == null || RepositoryFiles.hasExpired(targetPath))
         {
             targetPath = resolvePathForceFetch(repositoryPath);
         }
-        
+
         return targetPath;
     }
 
@@ -76,7 +78,7 @@ public class ProxyRepositoryProvider
     {
         try
         {
-            return (RepositoryPath) proxyRepositoryArtifactResolver.fetchRemoteResource(repositoryPath);
+            return proxyRepositoryArtifactResolver.fetchRemoteResource(repositoryPath);
         }
         catch (IOException e)
         {
@@ -86,14 +88,14 @@ public class ProxyRepositoryProvider
             throw e;
         }
     }
-    
+
     @Override
     protected OutputStream getOutputStreamInternal(RepositoryPath repositoryPath)
             throws IOException
     {
         return Files.newOutputStream(repositoryPath);
     }
-    
+
     @Override
     public List<Path> search(String storageId,
                              String repositoryId,
@@ -125,7 +127,7 @@ public class ProxyRepositoryProvider
     {
         ArtifactEntry artifactEntry = super.provideArtifactEntry(repositoryPath);
         ArtifactEntry remoteArtifactEntry = artifactEntry.getObjectId() == null ? new RemoteArtifactEntry() : (RemoteArtifactEntry) artifactEntry;
-        
+
         return remoteArtifactEntry;
     }
 
@@ -134,10 +136,10 @@ public class ProxyRepositoryProvider
     {
         RemoteArtifactEntry remoteArtifactEntry = (RemoteArtifactEntry) artifactEntry;
         boolean result = super.shouldStoreArtifactEntry(artifactEntry) || !remoteArtifactEntry.getIsCached();
-        
+
         remoteArtifactEntry.setIsCached(true);
-        
+
         return result;
     }
-    
+
 }
