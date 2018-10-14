@@ -75,18 +75,18 @@ public class LoggingManagementController
     {
         return Optional.ofNullable(directoryListingService).orElseGet(() -> {
             String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
+
             return directoryListingService = new DirectoryListingServiceImpl(String.format("%s/api/logging", baseUrl));
         });
     }
     
-    @ApiOperation(value = "Used to add new logger.",
-            position = 0)
+    @ApiOperation(value = "Used to add new logger.", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was added successfully."),
                             @ApiResponse(code = 400, message = "Could not add a new logger.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_ADD_LOGGER','CONFIGURE_LOGS')")
     @PutMapping(value = "/logger",
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addLogger(@ApiParam(value = "The logger name", required = true)
                                     @RequestParam("logger") String loggerPackage,
                                     @ApiParam(value = "The logger level", required = true)
@@ -116,8 +116,8 @@ public class LoggingManagementController
                             @ApiResponse(code = 404, message = "Logger was not found.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_UPDATE_LOGGER','CONFIGURE_LOGS')")
     @PostMapping(value = "/logger",
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                 produces = { MediaType.TEXT_PLAIN_VALUE,
+                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity updateLogger(@ApiParam(value = "The logger name", required = true)
                                        @RequestParam("logger") String loggerPackage,
                                        @ApiParam(value = "The logger level", required = true)
@@ -149,8 +149,8 @@ public class LoggingManagementController
                             @ApiResponse(code = 404, message = "Logger was not found.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_DELETE_LOGGER','CONFIGURE_LOGS')")
     @DeleteMapping(value = "/logger",
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                   produces = { MediaType.TEXT_PLAIN_VALUE,
+                                MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity deleteLogger(@ApiParam(value = "The logger name", required = true)
                                        @RequestParam("logger") String loggerPackage,
                                        @RequestHeader(HttpHeaders.ACCEPT) String accept)
@@ -181,8 +181,7 @@ public class LoggingManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download log data.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOG','CONFIGURE_LOGS')")
-    @GetMapping(value = "/log/{path}",
-            produces = TEXT_PLAIN_VALUE)
+    @GetMapping(value = "/log/{path}", produces = TEXT_PLAIN_VALUE)
     public ResponseEntity downloadLog(@PathVariable String path,
                                       @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws Exception
@@ -206,8 +205,7 @@ public class LoggingManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger configuration was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download logback configuration.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOGBACK_CFG','CONFIGURE_LOGS')")
-    @GetMapping(value = "/logback",
-            produces = MediaType.APPLICATION_XML_VALUE)
+    @GetMapping(value = "/logback", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity downloadLogbackConfiguration(@RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws Exception
     {
@@ -229,9 +227,9 @@ public class LoggingManagementController
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_UPLOAD_LOGBACK_CFG','CONFIGURE_LOGS')")
     @PostMapping(value = "/logback",
-            consumes = APPLICATION_XML_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                 consumes = APPLICATION_XML_VALUE,
+                 produces = { MediaType.TEXT_PLAIN_VALUE,
+                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity uploadLogbackConfiguration(HttpServletRequest request,
                                                      @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
@@ -253,13 +251,12 @@ public class LoggingManagementController
                             @ApiResponse(code = 500, message = "Server error.") })
     @PreAuthorize("hasAuthority('VIEW_LOGS')")
     @GetMapping(value = { "/logs/{urlPath:.+}" },
-            produces = {MediaType.TEXT_PLAIN_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+                produces = {MediaType.TEXT_PLAIN_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public Object generateLogDirectoryListing(@PathVariable("urlPath") Optional<String> rawPath,
                                               ModelMap model,
                                               HttpServletRequest request,
                                               @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String acceptHeader)
     {
-
         logger.debug("Requested directory listing of logs " + ROOT_CONTEXT + "/logs/{}", rawPath.orElse(""));
 
         try
