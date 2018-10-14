@@ -45,7 +45,7 @@ Welcome to the Strongbox artifact repository manager's home.
 * Logging:
   * Retrieve logs over HTTP
 
-## What's in the works (Q3/2018):
+## What's in the works (Q4/2018):
 * Layout providers
   * NPM layout provider
   * Raw layout provider
