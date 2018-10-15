@@ -7,6 +7,8 @@ import org.springframework.util.StringUtils;
 /**
  * @author carlspring
  */
+//TODO: SB-1266
+@Deprecated
 public class PropertiesBooter
 {
 
