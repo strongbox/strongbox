@@ -8,6 +8,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashSet;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -64,7 +65,7 @@ public abstract class XmlFileManager<T>
         }
         catch (JAXBException | IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UndeclaredThrowableException(e);
         }
     }
 
@@ -81,7 +82,7 @@ public abstract class XmlFileManager<T>
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UndeclaredThrowableException(e);
         }
         try (InputStream inputStream = new BufferedInputStream(resource.getInputStream()))
         {
@@ -89,7 +90,7 @@ public abstract class XmlFileManager<T>
         }
         catch (JAXBException | IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UndeclaredThrowableException(e);
         }
     }
 

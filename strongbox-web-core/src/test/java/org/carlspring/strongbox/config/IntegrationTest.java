@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.web.WebAppConfiguration;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 
 
 /**

@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -97,7 +98,7 @@ public class BrowseControllerTest
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UndeclaredThrowableException(e);
         }
         super.shutdown();
     }

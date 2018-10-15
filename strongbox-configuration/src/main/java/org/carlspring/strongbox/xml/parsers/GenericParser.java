@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -243,7 +244,7 @@ public class GenericParser<T>
             catch (Exception e)
             {
                 logger.error(e.getMessage(), e);
-                throw new RuntimeException(e);
+                throw new UndeclaredThrowableException(e);
             }
         }
 

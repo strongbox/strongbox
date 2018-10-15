@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.UndeclaredThrowableException;
 
 import com.google.common.base.Throwables;
 import org.junit.After;
@@ -105,7 +106,7 @@ public abstract class RetryDownloadArtifactTestBase
             }
             catch (final IOException e)
             {
-                throw new RuntimeException(e);
+                throw new UndeclaredThrowableException(e);
             }
         }
 

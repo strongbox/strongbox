@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers.layout.maven;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -117,7 +118,7 @@ public class MavenArtifactIndexControllerTest
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UndeclaredThrowableException(e);
         }
         super.shutdown();
     }

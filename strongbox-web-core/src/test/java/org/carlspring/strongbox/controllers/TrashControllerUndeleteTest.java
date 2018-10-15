@@ -6,6 +6,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -133,7 +134,7 @@ public class TrashControllerUndeleteTest
         }
         catch (IOException | JAXBException e)
         {
-            throw new RuntimeException(e);
+            throw new UndeclaredThrowableException(e);
         }
 
         super.shutdown();

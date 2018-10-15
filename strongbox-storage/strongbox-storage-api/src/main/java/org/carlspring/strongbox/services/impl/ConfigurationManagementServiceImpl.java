@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services.impl;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +106,7 @@ public class ConfigurationManagementServiceImpl
         }
         catch (Exception e)
         {
-            throw new RuntimeException(e);
+            throw new UndeclaredThrowableException(e);
         }
         finally
         {

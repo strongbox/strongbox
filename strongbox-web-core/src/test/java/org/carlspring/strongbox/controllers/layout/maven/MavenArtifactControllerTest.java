@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -329,7 +330,7 @@ public class MavenArtifactControllerTest
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new UndeclaredThrowableException(e);
         }
         super.shutdown();
     }

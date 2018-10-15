@@ -13,6 +13,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -135,7 +136,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                 }
                 catch (IOException e)
                 {
-                    throw new RuntimeException(e);
+                    throw new UndeclaredThrowableException(e);
                 }
 
             }

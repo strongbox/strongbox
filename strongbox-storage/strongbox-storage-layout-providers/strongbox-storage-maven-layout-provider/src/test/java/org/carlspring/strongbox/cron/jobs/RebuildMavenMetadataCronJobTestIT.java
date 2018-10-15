@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -186,7 +187,7 @@ public class RebuildMavenMetadataCronJobTestIT
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException(e);
+                    throw new UndeclaredThrowableException(e);
                 }
             }
         });
@@ -237,7 +238,7 @@ public class RebuildMavenMetadataCronJobTestIT
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException(e);
+                    throw new UndeclaredThrowableException(e);
                 }
             }
         });
@@ -287,7 +288,7 @@ public class RebuildMavenMetadataCronJobTestIT
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException(e);
+                    throw new UndeclaredThrowableException(e);
                 }
             }
         });
@@ -337,7 +338,7 @@ public class RebuildMavenMetadataCronJobTestIT
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException(e);
+                    throw new UndeclaredThrowableException(e);
                 }
             }
         });
