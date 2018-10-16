@@ -24,9 +24,14 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
@@ -63,6 +68,9 @@ public class Maven2LayoutProvider
     @Inject
     private MavenRepositoryFeatures mavenRepositoryFeatures;
 
+    @Inject
+    private List<MavenExpiredRepositoryPathHandler> expiredRepositoryPathHandlers;
+
     @PostConstruct
     public void register()
     {
@@ -86,7 +94,7 @@ public class Maven2LayoutProvider
 
     public boolean isMavenMetadata(RepositoryPath path)
     {
-        return path.getFileName().toString().equals("maven-metadata.xml");
+        return MetadataHelper.MAVEN_METADATA_XML.equals(path.getFileName().toString());
     }
 
     @Override
@@ -116,7 +124,12 @@ public class Maven2LayoutProvider
 
                     break;
                 case EXPIRED:
-                    value = BooleanUtils.isTrue((Boolean) value) || isMavenMetadata(repositoryPath);
+                    value = BooleanUtils.isTrue((Boolean) value) || (isMavenMetadata(repositoryPath)
+                                                                     &&
+                                                                     !RepositoryFiles.wasModifiedAfter(repositoryPath,
+                                                                                                       Instant.now()
+                                                                                                              .minus(1,
+                                                                                                                     ChronoUnit.MINUTES)));
 
                     result.put(attributeType, value);
 
@@ -314,8 +327,29 @@ public class Maven2LayoutProvider
     }
 
     @Override
-    public void handleRepositoryPathExpiration(final RepositoryPath repositoryPath)
+    public RepositoryPath handleRepositoryPathExpiration(final RepositoryPath repositoryPath)
     {
-        // TODO
+        return expiredRepositoryPathHandlers.stream()
+                                            .filter(handler -> handler.supports(repositoryPath))
+                                            .map(handleExpiration(repositoryPath))
+                                            .filter(Objects::nonNull)
+                                            .findFirst()
+                                            .orElse(null);
+    }
+
+    private Function<MavenExpiredRepositoryPathHandler, RepositoryPath> handleExpiration(final RepositoryPath repositoryPath)
+    {
+        return handler ->
+        {
+            try
+            {
+                return handler.handleExpiration(repositoryPath);
+            }
+            catch (IOException e)
+            {
+                logger.error(String.format("Expired path [%s] inproperly handled.", repositoryPath), e);
+                return null;
+            }
+        };
     }
 }

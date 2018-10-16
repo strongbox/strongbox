@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
@@ -45,6 +47,14 @@ public abstract class RepositoryFiles
         throws IOException
     {
         return (Boolean) Files.getAttribute(path, formatAttributes(RepositoryFileAttributeType.ARTIFACT));
+    }
+
+    public static boolean wasModifiedAfter(RepositoryPath path,
+                                           Instant timeLinePoint)
+            throws IOException
+    {
+        final FileTime lastModifiedTime = Files.getLastModifiedTime(path);
+        return lastModifiedTime.toInstant().isAfter(timeLinePoint);
     }
 
     public static Boolean hasExpired(RepositoryPath path)

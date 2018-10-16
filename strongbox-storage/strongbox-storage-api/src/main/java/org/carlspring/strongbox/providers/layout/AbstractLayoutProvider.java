@@ -228,8 +228,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     }
 
     @Override
-    public void handleRepositoryPathExpiration(final RepositoryPath repositoryPath)
+    public RepositoryPath handleRepositoryPathExpiration(final RepositoryPath repositoryPath)
     {
         // implement by the specific provider, if needed
+        return repositoryPath;
     }
 }
