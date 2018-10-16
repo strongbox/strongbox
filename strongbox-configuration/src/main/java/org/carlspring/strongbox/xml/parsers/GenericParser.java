@@ -68,18 +68,14 @@ public class GenericParser<T>
 
     public GenericParser()
     {
-        this.classes.addAll(CustomTagService.getInstance().getImplementations());
-        this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
-        this.classes.addAll(RemoteRepositoryConfigurationTagService.getInstance().getImplementations());
+        init();
     }
 
     public GenericParser(boolean useServiceLoader)
     {
         if (useServiceLoader)
         {
-            this.classes.addAll(CustomTagService.getInstance().getImplementations());
-            this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
-            this.classes.addAll(RemoteRepositoryConfigurationTagService.getInstance().getImplementations());
+            init();
         }
     }
 
@@ -89,9 +85,7 @@ public class GenericParser<T>
 
         if (useServiceLoader)
         {
-            this.classes.addAll(CustomTagService.getInstance().getImplementations());
-            this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
-            this.classes.addAll(RemoteRepositoryConfigurationTagService.getInstance().getImplementations());
+            init();
         }
     }
 
@@ -99,11 +93,16 @@ public class GenericParser<T>
     {
         Collections.addAll(this.classes, classes);
 
+        init();
+    }
+
+    private void init()
+    {
         this.classes.addAll(CustomTagService.getInstance().getImplementations());
         this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
         this.classes.addAll(RemoteRepositoryConfigurationTagService.getInstance().getImplementations());
     }
-
+    
     public T parse(URL url)
             throws IOException, JAXBException
     {

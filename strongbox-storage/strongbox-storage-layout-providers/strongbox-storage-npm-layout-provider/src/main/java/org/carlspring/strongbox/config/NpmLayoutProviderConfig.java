@@ -6,8 +6,6 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.nio.file.FileSystem;
 import java.nio.file.spi.FileSystemProvider;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 import javax.inject.Inject;
 import javax.inject.Qualifier;
@@ -98,7 +96,8 @@ public class NpmLayoutProviderConfig
     @Documented
     @Qualifier
     @Retention(RUNTIME)
-    public static @interface NpmObjectMapper {
+    public static @interface NpmObjectMapper 
+    {
         
     }
 

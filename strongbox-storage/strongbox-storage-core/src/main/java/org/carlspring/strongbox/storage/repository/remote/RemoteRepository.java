@@ -4,8 +4,6 @@ import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
-import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
 import org.carlspring.strongbox.xml.repository.remote.CustomRemoteRepositoryConfiguration;
 import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryConfiguration;
 

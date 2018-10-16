@@ -10,7 +10,7 @@ import org.springframework.core.env.Environment;
  * @author Sergey Bespalov
  *
  */
-public class FetchRemoteChangesFeedCronJob
+public class FetchRemoteNpmChangesFeedCronJob
         extends JavaCronJob
 {
 
@@ -47,6 +47,6 @@ public class FetchRemoteChangesFeedCronJob
     public static boolean shouldDownloadRemoteChangesFeed()
     {
         return System.getProperty("strongbox.npm.remote.changes.enabled") == null ||
-                Boolean.parseBoolean(System.getProperty("strongbox.npm.remote.changes.enabled"));
+               Boolean.parseBoolean(System.getProperty("strongbox.npm.remote.changes.enabled"));
     }
 }

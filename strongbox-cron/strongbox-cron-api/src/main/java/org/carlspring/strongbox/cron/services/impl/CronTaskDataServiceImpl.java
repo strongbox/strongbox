@@ -1,14 +1,7 @@
 package org.carlspring.strongbox.cron.services.impl;
 
-import org.carlspring.strongbox.cron.config.CronTasksConfigurationFileManager;
-import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
-import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.exceptions.CronTaskConfigurationException;
-import org.carlspring.strongbox.cron.services.CronTaskDataService;
-import org.carlspring.strongbox.cron.services.support.CronTaskConfigurationSearchCriteria;
-
-import javax.inject.Inject;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Iterator;
 import java.lang.reflect.UndeclaredThrowableException;
 
 import java.util.Iterator;
@@ -22,9 +15,17 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.base.Throwables;
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.cron.config.CronTasksConfigurationFileManager;
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
+import org.carlspring.strongbox.cron.exceptions.CronTaskConfigurationException;
+import org.carlspring.strongbox.cron.services.CronTaskDataService;
+import org.carlspring.strongbox.cron.services.support.CronTaskConfigurationSearchCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -59,11 +60,11 @@ public class CronTaskDataServiceImpl
         CronTasksConfigurationDto cronTasksConfiguration = cronTasksConfigurationFileManager.read();
         for (Iterator<CronTaskConfigurationDto> iterator = cronTasksConfiguration.getCronTaskConfigurations().iterator(); iterator.hasNext();)
         {
-            CronTaskConfigurationDto configuration = iterator.next();
+            CronTaskConfigurationDto c = iterator.next();
 
-            logger.debug("Saving cron configuration {}", configuration);
+            logger.debug("Saving cron configuration {}", c);
 
-            String jobClass = configuration.getProperty("jobClass");
+            String jobClass = c.getProperty("jobClass");
             if (jobClass != null && !jobClass.trim().isEmpty())
             {
                 try
@@ -74,7 +75,6 @@ public class CronTaskDataServiceImpl
                 {
                     logger.warn(String.format("Skip configuration, job class not found [%s].", jobClass));
                     iterator.remove();
-                    continue;
                 }
             }
 
@@ -82,7 +82,7 @@ public class CronTaskDataServiceImpl
         
         this.configuration = cronTasksConfiguration;
     }
-
+    
     @Override
     public CronTasksConfigurationDto getTasksConfigurationDto()
     {

@@ -85,9 +85,9 @@ class CronTaskConfigurationServiceImpl
     }
 
     public void deleteConfiguration(String cronTaskConfigurationName)
-        throws SchedulerException,
-        CronTaskNotFoundException,
-        ClassNotFoundException
+            throws SchedulerException,
+                   CronTaskNotFoundException,
+                   ClassNotFoundException
     {
         logger.debug("Deleting cron task configuration {}", cronTaskConfigurationName);
 

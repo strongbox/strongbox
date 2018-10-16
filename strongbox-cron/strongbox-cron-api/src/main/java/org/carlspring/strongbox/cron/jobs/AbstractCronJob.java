@@ -54,8 +54,11 @@ public abstract class AbstractCronJob
         String jobKey = jobExecutionContext.getJobDetail().getKey().getName();
         
         CronTaskConfigurationDto configuration = cronTaskConfigurationService.getTaskConfigurationDto(jobKey);
-        configuration = configuration == null ? (CronTaskConfigurationDto) jobExecutionContext.getJobDetail().getJobDataMap().get("config")
-                : configuration;
+        
+        if (configuration == null)
+        {
+            configuration = (CronTaskConfigurationDto) jobExecutionContext.getJobDetail().getJobDataMap().get("config");
+        }
         if (configuration == null)
         {
             logger.info(String.format("Configuration not found for [%s].", jobKey));
@@ -100,7 +103,7 @@ public abstract class AbstractCronJob
     public boolean enabled(CronTaskConfigurationDto configuration,
                            Environment env)
     {
-        return !env.acceptsProfiles("test");
+        return configuration.isOneTimeExecution() || !env.acceptsProfiles("test");
     }
 
     public String getStatus()

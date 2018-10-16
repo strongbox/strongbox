@@ -80,7 +80,7 @@ public class CronJobSchedulerServiceImpl
         }
         catch (SchedulerException e)
         {
-            logger.error(String.format("Failed to add Cron Job:\n [%s]", cronTaskConfiguration), e);
+            logger.error(String.format("Failed to add Cron Job:%n [%s]", cronTaskConfiguration), e);
 
             return;
         }
@@ -106,12 +106,10 @@ public class CronJobSchedulerServiceImpl
     @Override
     public void deleteJob(String cronTaskConfigurationName)
     {
-        TriggerKey triggerKey = TriggerKey.triggerKey(cronTaskConfigurationName);
         JobKey jobKey = JobKey.jobKey(cronTaskConfigurationName);
 
         try
         {
-            scheduler.unscheduleJob(triggerKey);
             scheduler.deleteJob(jobKey);
         }
         catch (SchedulerException e)

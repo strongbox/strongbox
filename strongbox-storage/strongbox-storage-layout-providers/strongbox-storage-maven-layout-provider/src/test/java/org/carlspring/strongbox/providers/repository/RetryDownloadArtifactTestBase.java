@@ -164,7 +164,8 @@ public abstract class RetryDownloadArtifactTestBase
             return new TestArtifactEventListenerRegistry();
         }    
         
-        public static class TestArtifactEventListenerRegistry extends ArtifactEventListenerRegistry {
+        public static class TestArtifactEventListenerRegistry extends ArtifactEventListenerRegistry 
+        {
 
             @Override
             public void dispatchArtifactFetchedFromRemoteEvent(Path path)

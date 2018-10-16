@@ -15,6 +15,7 @@ public class DownloadRemoteMavenIndexCronJob
         extends JavaCronJob
 {
 
+    public static final String STRONGBOX_DOWNLOAD_INDEXES = "strongbox.download.indexes";
     @Inject
     private IndexedMavenRepositoryFeatures features;
 
@@ -55,15 +56,15 @@ public class DownloadRemoteMavenIndexCronJob
 
     public static boolean shouldDownloadAllRemoteRepositoryIndexes()
     {
-        return System.getProperty("strongbox.download.indexes") == null ||
-                Boolean.parseBoolean(System.getProperty("strongbox.download.indexes"));
+        return System.getProperty(STRONGBOX_DOWNLOAD_INDEXES) == null ||
+                Boolean.parseBoolean(System.getProperty(STRONGBOX_DOWNLOAD_INDEXES));
     }
 
     public static boolean shouldDownloadRepositoryIndex(String storageId,
                                                         String repositoryId)
     {
-        return (System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId) == null ||
-                Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + "."
+        return (System.getProperty(STRONGBOX_DOWNLOAD_INDEXES + "." + storageId + "." + repositoryId) == null ||
+                Boolean.parseBoolean(System.getProperty(STRONGBOX_DOWNLOAD_INDEXES + "." + storageId + "."
                         + repositoryId)))
                 &&
                 isIncludedDespiteWildcard(storageId, repositoryId);
@@ -73,9 +74,9 @@ public class DownloadRemoteMavenIndexCronJob
                                                     String repositoryId)
     {
         return // is excluded by wildcard
-        !Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + ".*")) &&
+        !Boolean.parseBoolean(System.getProperty(STRONGBOX_DOWNLOAD_INDEXES + "." + storageId + ".*")) &&
         // and is explicitly included
-                Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + "."
+                Boolean.parseBoolean(System.getProperty(STRONGBOX_DOWNLOAD_INDEXES + "." + storageId + "."
                         + repositoryId));
     }
 

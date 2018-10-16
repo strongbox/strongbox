@@ -18,19 +18,14 @@ public class MutableNpmRemoteRepositoryConfiguration extends MutableRemoteReposi
     @XmlAttribute(name = "replicate-url")
     private String replicateUrl;
 
-    public MutableNpmRemoteRepositoryConfiguration()
-    {
-        super();
-    }
-
     public Long getLastChangeId()
     {
         return lastChangeId;
     }
 
-    public void setLastChangeId(Long lastCnahgeId)
+    public void setLastChangeId(Long lastChangeId)
     {
-        this.lastChangeId = lastCnahgeId;
+        this.lastChangeId = lastChangeId;
     }
 
     public String getReplicateUrl()

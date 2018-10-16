@@ -12,10 +12,6 @@ import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryCon
 public class MutableMavenRemoteRepositoryConfiguration extends MutableRemoteRepositoryConfiguration
 {
 
-    public MutableMavenRemoteRepositoryConfiguration()
-    {
-    }
-
     @Override
     public CustomRemoteRepositoryConfiguration getImmutable()
     {

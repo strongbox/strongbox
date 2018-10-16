@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +44,6 @@ import org.carlspring.strongbox.testing.NpmRepositoryTestCase;
 import org.carlspring.strongbox.xml.configuration.repository.remote.MutableNpmRemoteRepositoryConfiguration;
 import org.carlspring.strongbox.xml.configuration.repository.remote.NpmRemoteRepositoryConfiguration;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -116,7 +118,7 @@ public class FetchChangesFeedCronJobTestIT
         throws Exception
     {
 
-        String jobName = FetchRemoteChangesFeedCronJob.calculateJobName(STORAGE, REPOSITORY);
+        String jobName = FetchRemoteNpmChangesFeedCronJob.calculateJobName(STORAGE, REPOSITORY);
         jobManager.registerExecutionListener(jobName, (jobName1,
                                                        statusExecuted) -> {
             if (!jobName1.equals(jobName) || !statusExecuted)
@@ -179,18 +181,18 @@ public class FetchChangesFeedCronJobTestIT
                 entityManager);
         List<RemoteArtifactEntry> artifactEntryList = queryTemplate.select(selector);
 
-        Assert.assertEquals(1, artifactEntryList.size());
+        assertEquals(1, artifactEntryList.size());
 
         RemoteArtifactEntry artifactEntry = artifactEntryList.iterator().next();
-        Assert.assertFalse(artifactEntry.getIsCached());
+        assertFalse(artifactEntry.getIsCached());
 
         Repository repository = configurationManagementService.getConfiguration().getRepository(STORAGE, REPOSITORY);
         NpmRemoteRepositoryConfiguration customConfiguration = (NpmRemoteRepositoryConfiguration) repository.getRemoteRepository()
                                                                                                             .getCustomConfiguration();
-        Assert.assertEquals(Long.valueOf(330), customConfiguration.getLastChangeId());
+        assertEquals(Long.valueOf(330), customConfiguration.getLastChangeId());
     }
 
-    public static class TestFetchRemoteChangesFeedCronJob extends FetchRemoteChangesFeedCronJob
+    public static class TestFetchRemoteChangesFeedCronJob extends FetchRemoteNpmChangesFeedCronJob
     {
 
         @Override

@@ -3,7 +3,7 @@ package org.carlspring.strongbox.repository;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
-import org.carlspring.strongbox.cron.jobs.FetchRemoteChangesFeedCronJob;
+import org.carlspring.strongbox.cron.jobs.FetchRemoteNpmChangesFeedCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -40,8 +40,8 @@ public class NpmRepositoryManagementStrategy
         throws RepositoryManagementStrategyException
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
-        configuration.setName(FetchRemoteChangesFeedCronJob.calculateJobName(storageId, repositoryId));
-        configuration.addProperty("jobClass", FetchRemoteChangesFeedCronJob.class.getName());
+        configuration.setName(FetchRemoteNpmChangesFeedCronJob.calculateJobName(storageId, repositoryId));
+        configuration.addProperty("jobClass", FetchRemoteNpmChangesFeedCronJob.class.getName());
         configuration.addProperty("cronExpression", "0 0 * ? * * *"); // Execute every hour
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
