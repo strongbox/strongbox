@@ -1,0 +1,13 @@
+[Unit]
+Description=Strongbox
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/strongbox/bin/strongbox start
+ExecStop=/usr/local/strongbox/bin/strongbox stop
+ExecReload=/usr/local/strongbox/bin/strongbox restart
+User=strongbox
+
+[Install]
+WantedBy=multi-user.target
