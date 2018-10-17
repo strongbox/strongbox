@@ -61,6 +61,7 @@ public class HazelcastConfiguration
         final Config config = new Config().setInstanceName("strongbox")
                                           .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
                                           .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS))
+                                          .addMapConfig(newDefaultMapConfig(CacheName.Artifact.CHECKSUM))
                                           .addMapConfig(authenticationCacheConfig(CacheName.User.AUTHENTICATIONS));
         config.getGroupConfig().setName("strongbox").setPassword("password");
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);

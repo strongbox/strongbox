@@ -94,22 +94,23 @@ public class MavenMetadataExpiredRepositoryPathHandler
                                               final String checksumAlgorithm)
             throws IOException
     {
-        final String checksum = checksumCacheManager.getArtifactChecksum(repositoryPath.toString(), checksumAlgorithm);
-        if (checksum == null)
+        final String currentChecksum = checksumCacheManager.getArtifactChecksum(repositoryPath, checksumAlgorithm);
+        if (currentChecksum == null)
         {
-            proxyRepositoryProvider.resolvePathForceFetch(
-                    repositoryPath.resolveSibling(repositoryPath.getFileName().toString() + "." + checksumAlgorithm));
-            final String newRemoteChecksum = checksumCacheManager.getArtifactChecksum(repositoryPath.toString(),
-                                                                                      checksumAlgorithm);
-
-            if (newRemoteChecksum == null)
-            {
-                return I_DONT_KNOW;
-            }
-
-            return checksum.equals(newRemoteChecksum) ? NO_LEAVE_IT : YES_FETCH;
+            return I_DONT_KNOW;
         }
-        return I_DONT_KNOW;
+
+        proxyRepositoryProvider.resolvePathForceFetch(
+                repositoryPath.resolveSibling(repositoryPath.getFileName().toString() + "." + checksumAlgorithm));
+        final String newRemoteChecksum = checksumCacheManager.getArtifactChecksum(repositoryPath,
+                                                                                  checksumAlgorithm);
+
+        if (newRemoteChecksum == null)
+        {
+            return I_DONT_KNOW;
+        }
+
+        return currentChecksum.equals(newRemoteChecksum) ? NO_LEAVE_IT : YES_FETCH;
     }
 
     enum Decision

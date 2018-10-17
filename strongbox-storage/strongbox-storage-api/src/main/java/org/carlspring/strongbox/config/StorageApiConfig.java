@@ -2,7 +2,6 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
-import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 
 import javax.inject.Inject;
@@ -32,16 +31,6 @@ public class StorageApiConfig
 
     @Inject
     private List<ArtifactCoordinatesValidator> versionValidators;
-
-    @Bean(name = "checksumCacheManager")
-    ChecksumCacheManager checksumCacheManager()
-    {
-        ChecksumCacheManager checksumCacheManager = new ChecksumCacheManager();
-        checksumCacheManager.setCachedChecksumExpiredCheckInterval(300000);
-        checksumCacheManager.setCachedChecksumLifetime(60000);
-
-        return checksumCacheManager;
-    }
 
     @Bean(name = "versionValidators")
     LinkedHashSet<ArtifactCoordinatesValidator> versionValidators()

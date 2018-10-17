@@ -1,23 +1,5 @@
 package org.carlspring.strongbox.services;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
-import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -34,7 +16,6 @@ import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryO
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
@@ -42,6 +23,22 @@ import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesV
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
+
+import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -211,90 +208,36 @@ public class ArtifactManagementService
         {
             artifactEventListenerRegistry.dispatchArtifactUploadingEvent(repositoryPath);
         }
-        
+
         long totalAmountOfBytes = IOUtils.copy(is, os);
 
-        URI repositoryPathId = repositoryPath.toUri();
         Map<String, String> digestMap = aos.getDigestMap();
         if (Boolean.FALSE.equals(checksumAttribute) && !digestMap.isEmpty())
         {
             // Store artifact digests in cache if we have them.
-            addChecksumsToCacheManager(digestMap, repositoryPathId);
+            addChecksumsToCacheManager(digestMap, repositoryPath);
         }
 
         if (Boolean.TRUE.equals(checksumAttribute))
         {
-            byte[] checksumValue = ((ByteArrayOutputStream) aos.getCacheOutputStream()).toByteArray();
-            if (checksumValue != null && checksumValue.length > 0)
-            {
-                // Validate checksum with artifact digest cache.
-                validateUploadedChecksumAgainstCache(checksumValue, repositoryPathId);
-            }
+            String checksumValue = ((ByteArrayOutputStream) aos.getCacheOutputStream()).toString(StandardCharsets.UTF_8.name());
+            String algorithm = FilenameUtils.getExtension(repositoryPath.toString());
+            String fileBaseName = FilenameUtils.getBaseName(repositoryPath.toString());
+
+            checksumCacheManager.addArtifactChecksum(repositoryPath.resolveSibling(fileBaseName),
+                                                     algorithm,
+                                                     checksumValue);
         }
-        
+
         return totalAmountOfBytes;
     }
 
-    private void validateUploadedChecksumAgainstCache(byte[] checksum,
-                                                      URI artifactPathId)
-    {
-        logger.debug("Received checksum: " + new String(checksum, StandardCharsets.UTF_8));
-
-        String artifactPath = artifactPathId.toString();
-        String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf('.'));
-        String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1, artifactPath.length());
-
-        if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
-        {
-            logger.error(String.format("The checksum for %s [%s] is invalid!",
-                                       artifactPath,
-                                       new String(checksum, StandardCharsets.UTF_8)));
-        }
-
-        checksumCacheManager.removeArtifactChecksum(artifactBasePath, checksumExtension);
-    }
-
-    private boolean matchesChecksum(byte[] pChecksum,
-                                    String artifactBasePath,
-                                    String checksumExtension)
-    {
-        String checksum = new String(pChecksum, StandardCharsets.UTF_8);
-        ArtifactChecksum artifactChecksum = checksumCacheManager.getArtifactChecksum(artifactBasePath);
-
-        if (artifactChecksum == null)
-        {
-            return false;
-        }
-
-        Map<Boolean, Set<String>> matchingMap = artifactChecksum.getChecksums()
-                                                                .entrySet()
-                                                                .stream()
-                                                                .collect(Collectors.groupingBy(e -> e.getValue()
-                                                                                                     .equals(checksum),
-                                                                                               Collectors.mapping(
-                                                                                                       e -> e.getKey(),
-                                                                                                       Collectors.toSet())));
-
-        Set<String> matched = matchingMap.get(Boolean.TRUE);
-        Set<String> unmatched = matchingMap.get(Boolean.FALSE);
-
-        logger.debug(String.format("Artifact checksum matchings: artifact-[%s]; ext-[%s]; matched-[%s];" +
-                                   " unmatched-[%s]; checksum-[%s]",
-                                   artifactBasePath,
-                                   checksumExtension,
-                                   matched,
-                                   unmatched,
-                                   checksum));
-
-        return matched != null && !matched.isEmpty();
-    }
-
     private void addChecksumsToCacheManager(Map<String, String> digestMap,
-                                            URI artifactPath)
+                                            RepositoryPath artifactPath)
     {
         digestMap.entrySet()
                  .stream()
-                 .forEach(e -> checksumCacheManager.addArtifactChecksum(artifactPath.toString(), e.getKey(), e.getValue()));
+                 .forEach(e -> checksumCacheManager.addArtifactChecksum(artifactPath, e.getKey(), e.getValue()));
     }
 
     private boolean performRepositoryAcceptanceValidation(RepositoryPath path)

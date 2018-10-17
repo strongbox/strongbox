@@ -15,6 +15,7 @@ public final class CacheName
     {
 
         public static final String TAGS = "tags";
+        public static final String CHECKSUM = "checksum";
 
     }
 
