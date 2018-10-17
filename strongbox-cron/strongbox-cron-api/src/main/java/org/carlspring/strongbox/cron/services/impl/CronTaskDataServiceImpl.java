@@ -9,6 +9,7 @@ import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.cron.services.support.CronTaskConfigurationSearchCriteria;
 
 import javax.inject.Inject;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,7 +62,7 @@ public class CronTaskDataServiceImpl
         }
         catch (Exception e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         finally
         {

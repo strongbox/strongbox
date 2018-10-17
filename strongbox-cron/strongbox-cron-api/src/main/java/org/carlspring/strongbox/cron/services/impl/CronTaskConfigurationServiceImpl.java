@@ -60,7 +60,7 @@ class CronTaskConfigurationServiceImpl
         if (configuration.contains("jobClass"))
         {
             Class c = Class.forName(configuration.getProperty("jobClass"));
-            Object classInstance = c.newInstance();
+            Object classInstance = c.getConstructor().newInstance();
 
             logger.debug("> " + c.getSuperclass().getCanonicalName());
 

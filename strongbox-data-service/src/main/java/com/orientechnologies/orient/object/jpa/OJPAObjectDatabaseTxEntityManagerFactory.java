@@ -9,6 +9,7 @@ import javax.persistence.Query;
 import javax.persistence.SynchronizationType;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
@@ -79,7 +80,7 @@ public class OJPAObjectDatabaseTxEntityManagerFactory
         }
         catch (SQLException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
 
         OObjectDatabaseTx db = new OObjectDatabaseTx((ODatabaseDocumentInternal) ((OrientJdbcConnection) connection).getDatabase());

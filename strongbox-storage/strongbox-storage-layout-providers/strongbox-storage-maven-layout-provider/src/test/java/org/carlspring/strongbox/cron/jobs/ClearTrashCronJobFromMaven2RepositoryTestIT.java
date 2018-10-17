@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -163,7 +164,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         }
         catch (IOException | JAXBException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
     }
 
@@ -225,7 +226,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         return files.toArray(new File[0]);
     }

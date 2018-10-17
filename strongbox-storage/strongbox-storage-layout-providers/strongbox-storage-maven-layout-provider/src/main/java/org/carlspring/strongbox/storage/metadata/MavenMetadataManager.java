@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
@@ -158,7 +159,7 @@ public class MavenMetadataManager
                      }
                      catch (Exception ex)
                      {
-                         throw Throwables.propagate(ex);
+                         throw new RuntimeException(ex);
                      }
                  }
         );
@@ -356,7 +357,7 @@ public class MavenMetadataManager
             }
             catch (IOException e)
             {
-                throw Throwables.propagate(e);
+                throw new UndeclaredThrowableException(e);
             }
             storeMetadata(metadataBasePath, null, mergeMetadata, MetadataType.ARTIFACT_ROOT_LEVEL);
         });

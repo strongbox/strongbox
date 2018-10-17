@@ -27,7 +27,7 @@ public class GroovyCronJob
         {
             Class scriptClass = new GroovyClassLoader().parseClass(
                     new GroovyCodeSource(Paths.get(getScriptPath()).toUri()));
-            Object scriptInstance = scriptClass.newInstance();
+            Object scriptInstance = scriptClass.getConstructor().newInstance();
             //noinspection unchecked
             scriptClass.getDeclaredMethod("execute", new Class[]{}).invoke(scriptInstance);
         }

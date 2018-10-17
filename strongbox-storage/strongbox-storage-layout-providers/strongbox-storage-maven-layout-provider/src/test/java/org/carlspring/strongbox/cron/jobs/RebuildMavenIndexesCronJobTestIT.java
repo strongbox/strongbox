@@ -4,6 +4,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -164,7 +165,7 @@ public class RebuildMavenIndexesCronJobTestIT
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException(e);
+                    throw new UndeclaredThrowableException(e);
                 }
             }
         });
@@ -208,7 +209,7 @@ public class RebuildMavenIndexesCronJobTestIT
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException(e);
+                    throw new UndeclaredThrowableException(e);
                 }
             }
         });

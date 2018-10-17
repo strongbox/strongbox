@@ -646,7 +646,7 @@ public class NugetArtifactController extends BaseArtifactController
 
         try (InputStream streamContentIs = new BufferedInputStream(Files.newInputStream(streamContentPath)))
         {
-            MultipartStream multipartStream = new MultipartStream(streamContentIs, boundary);
+            MultipartStream multipartStream = new MultipartStream(streamContentIs, boundary, 4096, null);
             multipartStream.skipPreamble();
             String header = multipartStream.readHeaders();
 

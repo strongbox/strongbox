@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -192,7 +193,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException(e);
+                    throw new UndeclaredThrowableException(e);
                 }
             }
         });
@@ -259,7 +260,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException(e);
+                    throw new UndeclaredThrowableException(e);
                 }
             }
         });
@@ -320,7 +321,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException(e);
+                    throw new UndeclaredThrowableException(e);
                 }
             }
         });
@@ -380,7 +381,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException(e);
+                    throw new UndeclaredThrowableException(e);
                 }
             }
         });

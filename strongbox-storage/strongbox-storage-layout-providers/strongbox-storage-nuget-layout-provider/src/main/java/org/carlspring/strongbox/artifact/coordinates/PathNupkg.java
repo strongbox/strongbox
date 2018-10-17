@@ -41,8 +41,8 @@ public class PathNupkg implements Nupkg
         UnsupportedEncodingException,
         IOException
     {
-        Assert.notNull(path);
-        Assert.notNull(path.getArtifactEntry());
+        Assert.notNull(path, "path should not be null");
+        Assert.notNull(path.getArtifactEntry(), "artifact entry should not be null");
         
         this.path = path;
         this.artifactCoordinates = (NugetArtifactCoordinates) path.getArtifactEntry().getArtifactCoordinates();

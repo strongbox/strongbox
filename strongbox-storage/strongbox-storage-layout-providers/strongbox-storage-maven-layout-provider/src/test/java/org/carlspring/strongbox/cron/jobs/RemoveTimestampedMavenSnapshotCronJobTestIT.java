@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -206,7 +207,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
             catch (Exception e)
             {
-                throw new RuntimeException(e);
+                throw new UndeclaredThrowableException(e);
             }
         });
 
@@ -250,7 +251,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
             catch (Exception e)
             {
-                throw new RuntimeException(e);
+                throw new UndeclaredThrowableException(e);
             }
         });
 
@@ -297,7 +298,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
             catch (Exception e)
             {
-                throw new RuntimeException(e);
+                throw new UndeclaredThrowableException(e);
             }
         });
 
@@ -338,7 +339,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
             catch (Exception e)
             {
-                throw new RuntimeException(e);
+                throw new UndeclaredThrowableException(e);
             }
         });
 

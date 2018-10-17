@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.util;
 
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -40,7 +41,7 @@ public final class ClassLoaderFactory
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
 
         return new URLClassLoader(urls, parent);
