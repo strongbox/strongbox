@@ -27,6 +27,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.config.NpmLayoutProviderConfig.NpmObjectMapper;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
@@ -94,7 +95,7 @@ public class NpmArtifactController extends BaseArtifactController
     private ArtifactManagementService npmArtifactManagementService;
 
     @Inject
-    @Qualifier("npmJacksonMapper")
+    @NpmObjectMapper
     private ObjectMapper npmJacksonMapper;
 
     @Inject

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
-import org.carlspring.strongbox.StrongboxSpringBootApplication;
+import org.carlspring.strongbox.app.StrongboxSpringBootApplication;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.web.WebAppConfiguration;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,9 +36,11 @@ import static org.mockito.ArgumentMatchers.any;
 @Retention(RetentionPolicy.RUNTIME)
 @SpringBootTest(classes = { StrongboxSpringBootApplication.class,
                             MockedRemoteRepositoriesHeartbeatConfig.class,
-                            IntegrationTest.TestConfig.class })
+                            IntegrationTest.TestConfig.class,
+                            RestAssuredConfig.class})
 @WebAppConfiguration("classpath:")
 @WithUserDetails(value = "admin")
+@ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { RestAssuredTestExecutionListener.class,
                                       CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public @interface IntegrationTest

@@ -1,19 +1,27 @@
 package org.carlspring.strongbox.cron.services.impl;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
-import org.carlspring.strongbox.cron.domain.GroovyScriptNamesDto;
-import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
-import org.carlspring.strongbox.cron.quartz.CronTask;
-import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
+import java.util.Set;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.quartz.*;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNamesDto;
+import org.carlspring.strongbox.cron.jobs.GroovyCronJob;
+import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.Job;
+import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
 
 /**
@@ -24,116 +32,94 @@ public class CronJobSchedulerServiceImpl
         implements CronJobSchedulerService
 {
 
-    private final Logger logger = LoggerFactory.getLogger(CronJobSchedulerServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(CronJobSchedulerServiceImpl.class);
 
     @Inject
-    private SchedulerFactoryBean schedulerFactoryBean;
-
-    private Map<String, CronTask> jobsMap = new HashMap<>();
-
+    private Scheduler scheduler;
 
     @Override
     public void scheduleJob(CronTaskConfigurationDto cronTaskConfiguration)
-            throws ClassNotFoundException, SchedulerException
     {
-        Scheduler scheduler = schedulerFactoryBean.getScheduler();
-        String cronExpression = cronTaskConfiguration.getProperty("cronExpression");
-
-        if (jobsMap.containsKey(cronTaskConfiguration.getName()))
+        String jobClassName = cronTaskConfiguration.getProperty("jobClass");
+        Class<? extends Job> jobClass;
+        try
         {
-            CronTask cronTask = jobsMap.get(cronTaskConfiguration.getName());
-            JobDetail jobDetail = cronTask.getJobDetail();
-            Trigger oldTrigger = cronTask.getTrigger();
+            jobClass = (Class<? extends Job>) Class.forName(jobClassName);
+        }
+        catch (ClassNotFoundException e1)
+        {
+            logger.error(String.format("Failed to shcedule cron job [%s]", jobClassName));
 
-            Trigger newTrigger = TriggerBuilder.newTrigger()
-                                               .withIdentity(cronTaskConfiguration.getName())
-                                               .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
-                                               .build();
+            return;
+        }
 
-            scheduler.addJob(jobDetail, true, true);
-            scheduler.rescheduleJob(oldTrigger.getKey(), newTrigger);
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("config", cronTaskConfiguration);
 
-            cronTask.setTrigger(newTrigger);
-            cronTask.setScriptName(cronTaskConfiguration.getProperty("fileName"));
+        JobKey jobKey = JobKey.jobKey(cronTaskConfiguration.getName());
+        JobDetail jobDetail = JobBuilder.newJob(jobClass)
+                                        .withIdentity(jobKey)
+                                        .setJobData(jobDataMap)
+                                        .storeDurably()
+                                        .build();
+
+        TriggerKey triggerKey = TriggerKey.triggerKey(cronTaskConfiguration.getName());
+        TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger()
+                                                               .withIdentity(triggerKey)
+                                                               .forJob(jobDetail);
+        if (cronTaskConfiguration.isOneTimeExecution())
+        {
+            triggerBuilder.startNow();
         }
         else
         {
-            CronTask cronTask = new CronTask();
-
-            JobDataMap jobDataMap = new JobDataMap();
-            jobDataMap.put("config", cronTaskConfiguration);
-            jobDataMap.put("schedulerFactoryBean", schedulerFactoryBean);
-            jobDataMap.put("cronTask", cronTask);
-
-            //noinspection unchecked
-            Class<? extends Job> jobClass = (Class<? extends Job>) Class.forName(cronTaskConfiguration.getProperty("jobClass"));
-
-            JobDetail jobDetail = JobBuilder.newJob(jobClass)
-                                            .withIdentity(cronTaskConfiguration.getName())
-                                            .setJobData(jobDataMap).build();
-
-            Trigger trigger = TriggerBuilder.newTrigger()
-                                            .withIdentity(cronTaskConfiguration.getName())
-                                            .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression)).build();
-
-            scheduler.scheduleJob(jobDetail, trigger);
-
-            cronTask.setJobDetail(jobDetail);
-            cronTask.setTrigger(trigger);
-            cronTask.setScriptName(cronTaskConfiguration.getProperty("fileName"));
-
-            jobsMap.put(cronTaskConfiguration.getName(), cronTask);
+            String cronExpression = cronTaskConfiguration.getProperty("cronExpression");
+            triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
         }
+        Trigger trigger = triggerBuilder.build();
 
-        if (!scheduler.isStarted())
+        try
         {
-            logger.debug("Scheduler started");
+            doScheduleJob(cronTaskConfiguration, jobKey, jobDetail, trigger);
+        }
+        catch (SchedulerException e)
+        {
+            logger.error(String.format("Failed to add Cron Job:%n [%s]", cronTaskConfiguration), e);
 
-            scheduler.start();
+            return;
         }
 
         logger.debug("Job '" + cronTaskConfiguration.getName() + "' scheduled.");
     }
 
-    @Override
-    public void executeJob(CronTaskConfigurationDto cronTaskConfiguration)
-            throws SchedulerException
+    private void doScheduleJob(CronTaskConfigurationDto cronTaskConfiguration,
+                               JobKey jobKey,
+                               JobDetail jobDetail,
+                               Trigger trigger)
+        throws SchedulerException
     {
-        Scheduler scheduler = schedulerFactoryBean.getScheduler();
-
-        if (jobsMap.containsKey(cronTaskConfiguration.getName()))
+        scheduler.addJob(jobDetail, true);
+        if (cronTaskConfiguration.shouldExecuteImmediately() && !cronTaskConfiguration.isOneTimeExecution())
         {
-            CronTask cronTask = jobsMap.get(cronTaskConfiguration.getName());
-            JobDetail jobDetail = cronTask.getJobDetail();
+            scheduler.triggerJob(jobKey);
+        }
 
-            scheduler.triggerJob(jobDetail.getKey());
-        }
-        else
-        {
-            throw new SchedulerException("Could not find cron task with key " + cronTaskConfiguration.getName() + "!");
-        }
+        scheduler.scheduleJob(trigger);
     }
 
     @Override
     public void deleteJob(String cronTaskConfigurationName)
-            throws ClassNotFoundException, SchedulerException, CronTaskNotFoundException
     {
-        Scheduler scheduler = schedulerFactoryBean.getScheduler();
-        if (!jobsMap.containsKey(cronTaskConfigurationName))
+        JobKey jobKey = JobKey.jobKey(cronTaskConfigurationName);
+
+        try
         {
-            logger.warn("Could not find cron task under the specified name! Existing jobs map: {}, lookup name: {}", jobsMap,
-                        cronTaskConfigurationName);
-            return;
+            scheduler.deleteJob(jobKey);
         }
-
-        CronTask cronTask = jobsMap.get(cronTaskConfigurationName);
-        JobDetail jobDetail = cronTask.getJobDetail();
-        Trigger trigger = cronTask.getTrigger();
-
-        scheduler.unscheduleJob(trigger.getKey());
-        scheduler.deleteJob(jobDetail.getKey());
-
-        jobsMap.remove(cronTaskConfigurationName);
+        catch (SchedulerException e)
+        {
+            logger.error(String.format("Failed to delete cron job [%s]", jobKey));
+        }
 
         logger.debug("Job '" + cronTaskConfigurationName + "' un-scheduled.");
     }
@@ -142,13 +128,38 @@ public class CronJobSchedulerServiceImpl
     public GroovyScriptNamesDto getGroovyScriptsName()
     {
         GroovyScriptNamesDto groovyScriptNames = new GroovyScriptNamesDto();
-        for (CronTask struct : jobsMap.values())
+
+        Set<JobKey> jobKeySet;
+        try
         {
-            if (struct.getScriptName() != null && !struct.getScriptName().isEmpty() &&
-                struct.getScriptName().endsWith(".groovy"))
+            jobKeySet = scheduler.getJobKeys(GroupMatcher.anyJobGroup());
+        }
+        catch (SchedulerException e)
+        {
+            return groovyScriptNames;
+        }
+
+        for (JobKey jobKey : jobKeySet)
+        {
+            JobDetail jobDetail;
+
+            try
             {
-                groovyScriptNames.addName(struct.getScriptName());
+                jobDetail = scheduler.getJobDetail(jobKey);
             }
+            catch (SchedulerException e)
+            {
+                continue;
+            }
+
+            JobDataMap jobDataMap = jobDetail.getJobDataMap();
+            if (!GroovyCronJob.class.getName().equals(jobDataMap.get("jobClass")))
+            {
+                continue;
+            }
+
+            String groovyScriptName = (String) jobDetail.getJobDataMap().get("fileName");
+            groovyScriptNames.addName(groovyScriptName);
         }
 
         return groovyScriptNames;

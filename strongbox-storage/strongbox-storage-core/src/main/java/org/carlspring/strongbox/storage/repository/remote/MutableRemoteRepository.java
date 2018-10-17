@@ -1,12 +1,16 @@
 package org.carlspring.strongbox.storage.repository.remote;
 
+import static org.carlspring.strongbox.configuration.MutableRemoteRepositoriesConfiguration.DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
+
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
 
-import static org.carlspring.strongbox.configuration.MutableRemoteRepositoriesConfiguration.DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
+import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryConfiguration;
 
 /**
  * @author mtodorov
@@ -47,6 +51,9 @@ public class MutableRemoteRepository
     @XmlAttribute(name = "auto-import-remote-ssl-certificate")
     private boolean autoImportRemoteSSLCertificate;
 
+    @XmlElementRef
+    private MutableRemoteRepositoryConfiguration customConfiguration;
+    
     public MutableRemoteRepository()
     {
     }
@@ -150,4 +157,15 @@ public class MutableRemoteRepository
     {
         return allowsDirectoryBrowsing;
     }
+
+    public MutableRemoteRepositoryConfiguration getCustomConfiguration()
+    {
+        return customConfiguration;
+    }
+
+    public void setCustomConfiguration(MutableRemoteRepositoryConfiguration customConfiguration)
+    {
+        this.customConfiguration = customConfiguration;
+    }
+    
 }

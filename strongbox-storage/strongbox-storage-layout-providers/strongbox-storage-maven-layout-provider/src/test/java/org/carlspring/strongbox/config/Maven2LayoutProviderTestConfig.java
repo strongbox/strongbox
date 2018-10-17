@@ -3,6 +3,7 @@ package org.carlspring.strongbox.config;
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
+import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.storage.indexing.downloader.ResourceFetcherFactory;
@@ -26,6 +27,7 @@ import static org.mockito.Matchers.any;
 @Import({ TestingCoreConfig.class,
           EventsConfig.class,
           DataServiceConfig.class,
+          CronTasksConfig.class,
           CommonConfig.class,
           StorageCoreConfig.class,
           StorageApiConfig.class,
