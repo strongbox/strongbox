@@ -1,0 +1,3 @@
+groupadd strongbox
+useradd -d /usr/local/strongbox -g strongbox strongbox
+chown -R strongbox:strongbox /usr/local/strongbox/

@@ -352,14 +352,77 @@
                     </defineStatements>
                     <mappings>
                         <mapping>
-                            <directory>/opt/strongbox</directory>
+                            <filemode>0755</filemode>
+                            <directory>/usr/local/strongbox/bin</directory>
                             <sources>
                                 <source>
-                                    <location>${project.build.directory}/generated-resources/appassembler/jsw/strongbox</location>
+                                    <location>${project.build.directory}/assembly/strongbox-${project.version}/bin</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/usr/local/strongbox/etc</directory>
+                            <sources>
+                                <source>
+                                    <location>${project.build.directory}/assembly/strongbox-${project.version}/etc</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/usr/local/strongbox/lib</directory>
+                            <sources>
+                                <source>
+                                    <location>${project.build.directory}/assembly/strongbox-${project.version}/lib</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/usr/local/strongbox/logs</directory>
+                            <sources>
+                                <source>
+                                    <location>${project.build.directory}/assembly/strongbox-${project.version}/logs</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/usr/local/strongbox/tmp</directory>
+                            <sources>
+                                <source>
+                                    <location>${project.build.directory}/assembly/strongbox-${project.version}/tmp</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/usr/local/strongbox/webapp</directory>
+                            <sources>
+                                <source>
+                                    <location>${project.build.directory}/assembly/strongbox-${project.version}/webapp</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/usr/bin</directory>
+                            <sources>
+                                <softlinkSource>
+                                    <location>/usr/local/strongbox/bin/strongbox</location>
+                                </softlinkSource>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/etc/systemd/system</directory>
+                            <directoryIncluded>false</directoryIncluded>
+                            <sources>
+                                <source>
+                                    <location>${project.basedir}/src/main/resources/strongbox.service</location>
                                 </source>
                             </sources>
                         </mapping>
                     </mappings>
+                    <postinstallScriptlet>
+                        <scriptFile>src/main/resources/postinstall</scriptFile>
+                        <fileEncoding>utf-8</fileEncoding>
+                        <filter>true</filter>
+                    </postinstallScriptlet>
                 </configuration>
             </plugin>
         </plugins>
