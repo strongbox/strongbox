@@ -7,8 +7,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 
-import com.google.common.base.Throwables;
-
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
