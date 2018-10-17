@@ -104,12 +104,6 @@ public class CronTaskDataServiceImpl
     }
 
     @Override
-    public boolean taskConfigurationexists(String cronTaskConfigurationName)
-    {
-        return getTaskConfigurationDto(cronTaskConfigurationName) != null;
-    }
-
-    @Override
     public CronTaskConfigurationDto getTaskConfigurationDto(String cronTaskConfigurationName)
     {
         final Lock readLock = cronTasksConfigurationLock.readLock();
