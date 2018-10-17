@@ -47,11 +47,6 @@ class CronTaskConfigurationServiceImpl
             }
             
             cronJobSchedulerService.scheduleJob(dto);
-            
-            if (dto.shouldExecuteImmediately())
-            {
-                cronJobSchedulerService.executeJob(dto);
-            }
         }
     }
 
@@ -60,25 +55,13 @@ class CronTaskConfigurationServiceImpl
     {
         logger.debug("CronTaskConfigurationService.saveConfiguration()");
 
-        Class c = Class.forName(configuration.getProperty("jobClass"));
-        Object classInstance = c.newInstance();
+        //TODO: validate configuration properties
+        
+        cronTaskDataService.save(configuration);
 
-        logger.debug("> " + c.getSuperclass().getCanonicalName());
-
-        if (!(classInstance instanceof AbstractCronJob))
+        if (configuration.contains("jobClass"))
         {
-            throw new CronTaskException(c + " does not extend " + AbstractCronJob.class);
-        }
-
-        if (!configuration.isOneTimeExecution())
-        {
-            cronTaskDataService.save(configuration);
-        }   
-
-        cronJobSchedulerService.scheduleJob(configuration);
-        if (configuration.isOneTimeExecution() || configuration.shouldExecuteImmediately())
-        {
-			cronJobSchedulerService.executeJob(configuration);
+            cronJobSchedulerService.scheduleJob(configuration);
         }
 
         cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(configuration.getName());

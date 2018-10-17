@@ -6,6 +6,7 @@ import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.domain.GroovyScriptNamesDto;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
 import org.carlspring.strongbox.cron.jobs.GroovyCronJob;
+import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 
@@ -46,6 +47,9 @@ public class CronTaskController
 {
     @Inject
     CronTaskConfigurationService cronTaskConfigurationService;
+    
+    @Inject
+    CronJobSchedulerService cronJobSchedulerService;
 
     @ApiOperation(value = "Used to save the configuration", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration was saved successfully."),
@@ -214,10 +218,9 @@ public class CronTaskController
                                  MediaType.APPLICATION_XML })
     public ResponseEntity getGroovyScriptsName()
     {
-        //TODO:
-        //GroovyScriptNamesDto groovyScriptNames = cronTaskConfigurationService.getGroovyScriptsName();
-        
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        GroovyScriptNamesDto groovyScriptNames = cronJobSchedulerService.getGroovyScriptsName();
+
+        return ResponseEntity.ok(groovyScriptNames);
     }
 
     private void storeGroovyCronTask(InputStream is,

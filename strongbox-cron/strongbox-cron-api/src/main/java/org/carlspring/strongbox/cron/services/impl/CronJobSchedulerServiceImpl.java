@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.cron.services.impl;
 
-import java.util.Collections;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNamesDto;
+import org.carlspring.strongbox.cron.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
@@ -17,6 +19,7 @@ import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -50,14 +53,14 @@ public class CronJobSchedulerServiceImpl
             return;
         }
 
-        String cronExpression = cronTaskConfiguration.getProperty("cronExpression");
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("config", cronTaskConfiguration);
-        
+
         JobKey jobKey = JobKey.jobKey(cronTaskConfiguration.getName());
         JobDetail jobDetail = JobBuilder.newJob(jobClass)
                                         .withIdentity(jobKey)
                                         .setJobData(jobDataMap)
+                                        .storeDurably()
                                         .build();
 
         TriggerKey triggerKey = TriggerKey.triggerKey(cronTaskConfiguration.getName());
@@ -70,13 +73,14 @@ public class CronJobSchedulerServiceImpl
         }
         else
         {
+            String cronExpression = cronTaskConfiguration.getProperty("cronExpression");
             triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
         }
         Trigger trigger = triggerBuilder.build();
 
         try
         {
-            scheduler.scheduleJob(jobDetail, Collections.singleton(trigger), true);
+            doScheduleJob(cronTaskConfiguration, jobKey, jobDetail, trigger);
         }
         catch (SchedulerException e)
         {
@@ -88,19 +92,19 @@ public class CronJobSchedulerServiceImpl
         logger.debug("Job '" + cronTaskConfiguration.getName() + "' scheduled.");
     }
 
-    @Override
-    public void executeJob(CronTaskConfigurationDto cronTaskConfiguration)
+    private void doScheduleJob(CronTaskConfigurationDto cronTaskConfiguration,
+                               JobKey jobKey,
+                               JobDetail jobDetail,
+                               Trigger trigger)
+        throws SchedulerException
     {
-        JobKey jobKey = JobKey.jobKey(cronTaskConfiguration.getName());
-
-        try
+        scheduler.addJob(jobDetail, true);
+        if (cronTaskConfiguration.shouldExecuteImmediately() && !cronTaskConfiguration.isOneTimeExecution())
         {
             scheduler.triggerJob(jobKey);
         }
-        catch (SchedulerException e)
-        {
-            logger.error(String.format("Failed to shcedule cron job [%s]", jobKey));
-        }
+
+        scheduler.scheduleJob(trigger);
     }
 
     @Override
@@ -118,6 +122,47 @@ public class CronJobSchedulerServiceImpl
         }
 
         logger.debug("Job '" + cronTaskConfigurationName + "' un-scheduled.");
+    }
+
+    @Override
+    public GroovyScriptNamesDto getGroovyScriptsName()
+    {
+        GroovyScriptNamesDto groovyScriptNames = new GroovyScriptNamesDto();
+
+        Set<JobKey> jobKeySet;
+        try
+        {
+            jobKeySet = scheduler.getJobKeys(GroupMatcher.anyJobGroup());
+        }
+        catch (SchedulerException e)
+        {
+            return groovyScriptNames;
+        }
+
+        for (JobKey jobKey : jobKeySet)
+        {
+            JobDetail jobDetail;
+
+            try
+            {
+                jobDetail = scheduler.getJobDetail(jobKey);
+            }
+            catch (SchedulerException e)
+            {
+                continue;
+            }
+
+            JobDataMap jobDataMap = jobDetail.getJobDataMap();
+            if (!GroovyCronJob.class.getName().equals(jobDataMap.get("jobClass")))
+            {
+                continue;
+            }
+
+            String groovyScriptName = (String) jobDetail.getJobDataMap().get("fileName");
+            groovyScriptNames.addName(groovyScriptName);
+        }
+
+        return groovyScriptNames;
     }
 
 }
