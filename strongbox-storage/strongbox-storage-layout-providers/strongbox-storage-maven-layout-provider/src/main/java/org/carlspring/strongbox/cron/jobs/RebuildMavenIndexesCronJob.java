@@ -8,9 +8,10 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.springframework.core.env.Environment;
 
 import javax.inject.Inject;
+
+import org.springframework.core.env.Environment;
 
 /**
  * @author Kate Novik.

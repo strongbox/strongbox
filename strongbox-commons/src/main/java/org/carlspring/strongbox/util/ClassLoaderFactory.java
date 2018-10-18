@@ -8,7 +8,6 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.Collection;
 
-import com.google.common.base.Throwables;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.util.Assert;
 

@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.xml.configuration.repository.remote;
 
+import org.carlspring.strongbox.xml.repository.remote.CustomRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryConfiguration;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.carlspring.strongbox.xml.repository.remote.CustomRemoteRepositoryConfiguration;
-import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryConfiguration;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "raw-remote-repository-configuration")

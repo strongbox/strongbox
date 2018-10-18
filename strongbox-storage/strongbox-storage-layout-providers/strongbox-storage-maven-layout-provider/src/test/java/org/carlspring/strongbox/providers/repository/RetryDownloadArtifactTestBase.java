@@ -1,14 +1,5 @@
 package org.carlspring.strongbox.providers.repository;
 
-import static org.carlspring.strongbox.config.HazelcastConfiguration.newDefaultMapConfig;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
 import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
@@ -25,12 +16,12 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.file.Path;
 
-import com.google.common.base.Throwables;
+import com.hazelcast.config.Config;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,9 +29,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-
-import com.google.common.base.Throwables;
-import com.hazelcast.config.Config;
+import static org.carlspring.strongbox.config.HazelcastConfiguration.newDefaultMapConfig;
 
 /**
  * @author Przemyslaw Fusik

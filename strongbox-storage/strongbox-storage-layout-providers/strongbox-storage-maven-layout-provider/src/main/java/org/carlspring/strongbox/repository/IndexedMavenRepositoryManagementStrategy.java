@@ -1,10 +1,5 @@
 package org.carlspring.strongbox.repository;
 
-import java.io.IOException;
-import java.nio.file.Files;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
@@ -18,6 +13,10 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;

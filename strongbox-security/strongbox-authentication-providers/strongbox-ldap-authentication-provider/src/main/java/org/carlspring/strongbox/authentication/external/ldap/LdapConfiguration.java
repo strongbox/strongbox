@@ -3,16 +3,11 @@ package org.carlspring.strongbox.authentication.external.ldap;
 import org.carlspring.strongbox.authentication.external.ExternalUserProvider;
 import org.carlspring.strongbox.authentication.support.AuthoritiesExternalToInternalMapper;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.stream.Collectors;
 
-import com.google.common.base.Throwables;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.security.config.ldap.LdapServerBeanDefinitionParser;

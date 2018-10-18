@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
-import java.io.UnsupportedEncodingException;
+import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthentication;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.util.Base64;
 
-import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -14,7 +15,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-import java.util.Base64;
 
 /**
  * @author Przemyslaw Fusik
