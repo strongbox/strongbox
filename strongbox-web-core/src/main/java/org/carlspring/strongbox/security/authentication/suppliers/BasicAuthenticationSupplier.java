@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import java.util.Base64;
 
 /**
  * @author Przemyslaw Fusik
@@ -89,7 +89,7 @@ class BasicAuthenticationSupplier implements AuthenticationSupplier
         byte[] decoded;
         try
         {
-            decoded = Base64.decode(base64Token);
+            decoded = Base64.getDecoder().decode(base64Token);
         }
         catch (IllegalArgumentException e)
         {

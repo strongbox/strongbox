@@ -28,6 +28,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
@@ -37,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Kate Novik.
  */
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class MavenChecksumServiceTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.config.MockedRestArtifactResolverTestConfig;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 
 import javax.inject.Inject;
@@ -26,16 +26,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 /**
  * @author sbespalov
  *
  */
-@ActiveProfiles("MockedRestArtifactResolverTestConfig")
+@ActiveProfiles({"MockedRestArtifactResolverTestConfig","test"})
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
+@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class ParallelDownloadRemoteArtifactTest
         extends RetryDownloadArtifactTestBase
 {

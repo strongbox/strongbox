@@ -11,6 +11,7 @@ import org.carlspring.strongbox.xml.configuration.repository.MutableMavenReposit
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -131,7 +132,7 @@ public class TrashControllerUndeleteTest
         }
         catch (IOException | JAXBException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
 
         super.shutdown();

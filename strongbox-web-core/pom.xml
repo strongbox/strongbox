@@ -306,7 +306,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>org.carlspring.strongbox.StrongboxSpringBootApplication</mainClass>
+                    <mainClass>org.carlspring.strongbox.app.StrongboxSpringBootApplication</mainClass>
                 </configuration>
 
                 <executions>
@@ -319,7 +319,7 @@
 
                         <configuration>
                             <classifier>spring-boot</classifier>
-                            <mainClass>org.carlspring.strongbox.StrongboxSpringBootApplication</mainClass>
+                            <mainClass>org.carlspring.strongbox.app.StrongboxSpringBootApplication</mainClass>
                         </configuration>
                     </execution>
                 </executions>

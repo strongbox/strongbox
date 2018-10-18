@@ -12,12 +12,12 @@ import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import com.google.common.base.Throwables;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -91,7 +91,7 @@ public class MavenSearchControllerTest
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         
         super.shutdown();

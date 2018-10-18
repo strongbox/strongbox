@@ -10,6 +10,7 @@ import java.io.File;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author mtodorov
  */
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class ResourcesBooterTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing

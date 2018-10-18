@@ -30,6 +30,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -41,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 public class NugetRemoteRepositoryTest
         extends TestCaseWithRepository
 {

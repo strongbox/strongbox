@@ -25,6 +25,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -33,6 +34,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @author Przemyslaw Fusik
  */
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class StrongboxIndexerTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing

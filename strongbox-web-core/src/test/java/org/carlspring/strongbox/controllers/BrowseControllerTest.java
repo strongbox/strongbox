@@ -13,11 +13,11 @@ import org.carlspring.strongbox.xml.configuration.repository.MutableMavenReposit
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Throwables;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,7 +93,7 @@ public class BrowseControllerTest
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         super.shutdown();
     }

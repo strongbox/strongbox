@@ -19,7 +19,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author carlspring
@@ -112,11 +111,7 @@ public class BaseCronJobWithMavenIndexingTestCase
 
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
 
-        CronTaskConfigurationDto configuration = cronTaskConfigurationService.getTaskConfigurationDto(jobName);
-
-        assertNotNull(configuration, "Failed to save cron configuration!");
-
-        addCronTaskConfiguration(jobName, configuration);
+        addCronTaskConfiguration(jobName, cronTaskConfiguration);
 
         return cronTaskConfiguration;
     }

@@ -32,6 +32,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,7 +43,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.google.common.base.Throwables;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.response.ExtractableResponse;
@@ -64,7 +64,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 /**
  * Test cases for {@link MavenArtifactController}.
@@ -105,17 +105,17 @@ public class MavenArtifactControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @AfterAll
-    public static void down()
-    {
-        deleteTestResources();
-    }
-
     @BeforeEach
     public void setUp()
     {
         MockitoAnnotations.initMocks(this);
         defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
+    }
+
+    @AfterAll
+    public static void down()
+    {
+        deleteTestResources();
     }
 
     private static void deleteTestResources()
@@ -311,7 +311,7 @@ public class MavenArtifactControllerTest
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         super.shutdown();
     }

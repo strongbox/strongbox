@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @ContextConfiguration(classes = NugetLayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 public class RegenerateNugetChecksumCronJobTestIT
         extends BaseCronJobWithNugetIndexingTestCase
 {

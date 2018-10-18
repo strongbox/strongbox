@@ -12,12 +12,14 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * @author carlspring
  */
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 public class NpmRepositoryTestCase
         extends TestCaseWithRepositoryManagement
 {

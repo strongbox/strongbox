@@ -11,6 +11,7 @@ import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -89,7 +90,7 @@ public class AuthorizationConfigServiceImpl
         }
         catch (Exception e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         finally
         {

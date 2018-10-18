@@ -32,7 +32,7 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
     public static final String LAYOUT_ALIAS = LAYOUT_NAME;
     
     public static final String NPM_VERSION_REGEX = "(\\d+)\\.(\\d+)(?:\\.)?(\\d*)(\\.|-|\\+)?([0-9A-Za-z-.]*)?";
-    public static final String NPM_NAME_REGEX = "[a-z0-9][\\w-.]*";
+    public static final String NPM_NAME_REGEX = "[a-zA-Z0-9][\\w-.]*";
     public static final String NPM_EXTENSION_REGEX = "(tgz|json)";
     public static final String NPM_PACKAGE_PATH_REGEX = "(@?" + NPM_NAME_REGEX + ")/(" + NPM_NAME_REGEX + ")/("
             + NPM_VERSION_REGEX + ")/" + NPM_NAME_REGEX + "(-(" + NPM_VERSION_REGEX + "))?\\." + NPM_EXTENSION_REGEX;
@@ -88,7 +88,8 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
     {
         Matcher matcher = NPM_NAME_PATTERN.matcher(name);
         Assert.isTrue(matcher.matches(),
-                      "The artifact's name should follow the NPM specification  (https://docs.npmjs.com/files/package.json#name).");
+                      String.format("The artifact's name [%s] should follow the NPM specification  (https://docs.npmjs.com/files/package.json#name).",
+                                    name));
 
         setCoordinate(NAME, name);
     }

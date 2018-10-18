@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @IntegrationTest
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AccountControllerTest
         extends RestAssuredBaseTest

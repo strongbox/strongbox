@@ -16,7 +16,7 @@
                                                min-attempts-interval-seconds="5"/>
     </remote-repositories-configuration>
 
-    <cors-configuration allowed-credentials="true" max-age="600">
+    <cors-configuration allowed-credentials="true" max-age="600">nom
         <allowed-origins>
             <allowed-origin>*</allowed-origin>
         </allowed-origins>
@@ -296,7 +296,9 @@
                             data-store="file-system"
                             layout="npm"
                             type="proxy">
-                    <remote-repository url="https://registry.npmjs.org/"/>
+                    <remote-repository url="https://registry.npmjs.org/">
+                        <npm-remote-repository-configuration last-change-id="0" replicate-url="https://replicate.npmjs.com/"/>
+                    </remote-repository>
                 </repository>
             </repositories>
         </storage>

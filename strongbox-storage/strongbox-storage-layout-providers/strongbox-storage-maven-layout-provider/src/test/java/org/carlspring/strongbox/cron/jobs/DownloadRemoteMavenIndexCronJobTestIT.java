@@ -12,12 +12,14 @@ import org.carlspring.strongbox.storage.search.SearchRequest;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -29,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class DownloadRemoteMavenIndexCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
@@ -163,7 +166,7 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException(e);
+                    throw new UndeclaredThrowableException(e);
                 }
             }
         });

@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @see https://dev.carlspring.org/youtrack/issue/SB-711
  */
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = StorageApiTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ArtifactEntryServiceTest

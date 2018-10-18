@@ -5,6 +5,7 @@ import org.carlspring.strongbox.util.ClassLoaderFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,7 +51,7 @@ public class ExternalAuthenticatorsHelper
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         if (!Files.exists(authenticatorsDirectory))
         {
@@ -89,7 +90,7 @@ public class ExternalAuthenticatorsHelper
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         return authenticatorsJarPaths;
     }

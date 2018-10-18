@@ -18,6 +18,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 public class Maven2ProxyRepositoryTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {

@@ -24,6 +24,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author stodorov
  */
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class ArtifactMetadataServiceSnapshotsTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing

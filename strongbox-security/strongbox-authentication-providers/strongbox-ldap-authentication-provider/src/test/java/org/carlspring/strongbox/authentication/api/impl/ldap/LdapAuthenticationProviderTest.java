@@ -25,6 +25,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@ActiveProfiles(profiles = "test")
 @Disabled
 public class LdapAuthenticationProviderTest
         extends BaseGenericXmlApplicationContextTest

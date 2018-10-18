@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.config.MockedRestArtifactResolverTestConfig;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Przemyslaw Fusik
  */
-@ActiveProfiles("MockedRestArtifactResolverTestConfig")
+@ActiveProfiles({"MockedRestArtifactResolverTestConfig","test"})
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = MockedRestArtifactResolverTestConfig.class)
+@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
         extends RetryDownloadArtifactTestBase
 {

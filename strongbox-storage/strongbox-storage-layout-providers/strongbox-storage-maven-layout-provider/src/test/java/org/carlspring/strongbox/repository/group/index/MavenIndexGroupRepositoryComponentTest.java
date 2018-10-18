@@ -26,6 +26,7 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Przemyslaw Fusik
  */
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class MavenIndexGroupRepositoryComponentTest
         extends BaseMavenGroupRepositoryComponentTest

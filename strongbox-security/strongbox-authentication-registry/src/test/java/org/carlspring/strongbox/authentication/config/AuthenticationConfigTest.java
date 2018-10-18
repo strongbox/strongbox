@@ -12,6 +12,7 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.CustomMatcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,6 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @author Przemyslaw Fusik
  */
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = TestConfig.class)
 public class AuthenticationConfigTest
 {

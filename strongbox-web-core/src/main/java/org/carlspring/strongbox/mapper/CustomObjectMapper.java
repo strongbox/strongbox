@@ -4,9 +4,11 @@ import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfiguration
 import org.carlspring.strongbox.forms.configuration.NugetRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.RawRepositoryConfigurationForm;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import org.carlspring.strongbox.xml.configuration.repository.NpmRepositoryConfiguration;
 import org.carlspring.strongbox.xml.configuration.repository.NugetRepositoryConfiguration;
 import org.carlspring.strongbox.xml.configuration.repository.RawRepositoryConfiguration;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
@@ -54,6 +56,7 @@ public class CustomObjectMapper
         registerSubtypes(new NamedType(MavenRepositoryConfiguration.class, Maven2LayoutProvider.ALIAS));
         registerSubtypes(new NamedType(NugetRepositoryConfiguration.class, NugetLayoutProvider.ALIAS));
         registerSubtypes(new NamedType(RawRepositoryConfiguration.class, RawLayoutProvider.ALIAS));
+        registerSubtypes(new NamedType(NpmRepositoryConfiguration.class, NpmLayoutProvider.ALIAS));
 
     }
 

@@ -58,7 +58,7 @@ public class NpmArtifactCoorinatesTest
     public void testNameAssertion()
     {
         assertThrows(IllegalArgumentException.class, () -> {
-            NpmArtifactCoordinates.parse("@types/NODE/8.0.51/node-8.0.51.tgz");
+            NpmArtifactCoordinates.parse("@types/_node/8.0.51/node-8.0.51.tgz");
         });
     }
 

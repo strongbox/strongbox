@@ -15,22 +15,24 @@ import java.util.stream.Collectors;
 
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Alex Oreshkevich
  */
 @CronTaskRestTest
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 public class CronTaskConfigurationControllerTest
         extends RestAssuredBaseTest
 {
@@ -41,17 +43,17 @@ public class CronTaskConfigurationControllerTest
 
     @Override
     public void init()
-            throws Exception
+        throws Exception
     {
         super.init();
         setContextBaseUrl(getContextBaseUrl() + "/api/configuration/crontasks");
     }
 
     @Test
-    public void downloadRemoteMavenIndexCronJobShouldHaveWorkingPreCreateCallback()
-            throws Exception
+    public void putDownloadRemoteMavenIndexCronJob()
+        throws Exception
     {
-        Assumptions.assumeTrue(context.containsBean("repositoryIndexManager"));
+        assertTrue(context.containsBean("repositoryIndexManager"));
 
         List<CronTaskConfigurationDto> configurationList = getDownloadRemoteMavenIndexOfCarlspringCronJobs();
 
@@ -59,11 +61,8 @@ public class CronTaskConfigurationControllerTest
         CronTaskConfigurationDto configuration = configurationList.get(0);
         assertThat(configuration.getProperties().keySet().size(), CoreMatchers.equalTo(4));
         assertThat(configuration.getProperties().get("cronExpression"), CoreMatchers.equalTo("0 0 5 * * ?"));
-        assertThat(configuration.getName(),
-                   CoreMatchers.not(CoreMatchers.equalTo("This is completely new name for this job")));
 
         configuration.addProperty("cronExpression", "0 0 0 * * ?");
-        configuration.setName("This is completely new name for this job");
 
         client.put2(getContextBaseUrl() + "/cron", configuration,
                     MediaType.APPLICATION_JSON_VALUE);
@@ -73,7 +72,6 @@ public class CronTaskConfigurationControllerTest
         configuration = configurationList.get(0);
         assertThat(configuration.getProperties().keySet().size(), CoreMatchers.equalTo(4));
         assertThat(configuration.getProperties().get("cronExpression"), CoreMatchers.equalTo("0 0 0 * * ?"));
-        assertThat(configuration.getName(), CoreMatchers.equalTo("This is completely new name for this job"));
     }
 
     private List<CronTaskConfigurationDto> getDownloadRemoteMavenIndexOfCarlspringCronJobs()
@@ -85,16 +83,21 @@ public class CronTaskConfigurationControllerTest
                                                                         .peek()
                                                                         .as(CronTasksConfigurationDto.class);
 
-        return cronTasksConfiguration.getCronTaskConfigurations().stream().filter(
-                p -> "org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob".equals(
-                        p.getRequiredProperty("jobClass"))).filter(
-                p -> "storage-common-proxies".equals(p.getProperty("storageId"))).filter(
-                p -> "carlspring".equals(p.getProperty("repositoryId"))).collect(Collectors.toList());
+        return cronTasksConfiguration.getCronTaskConfigurations()
+                                     .stream()
+                                     .filter(
+                                             p -> "org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob".equals(
+                                                                                                                              p.getRequiredProperty("jobClass")))
+                                     .filter(
+                                             p -> "storage-common-proxies".equals(p.getProperty("storageId")))
+                                     .filter(
+                                             p -> "carlspring".equals(p.getProperty("repositoryId")))
+                                     .collect(Collectors.toList());
     }
 
     @Test
     public void testJavaCronTaskConfiguration()
-            throws Exception
+        throws Exception
     {
         saveJavaConfig("0 11 11 11 11 ? 2100");
 
@@ -106,7 +109,7 @@ public class CronTaskConfigurationControllerTest
 
     @Test
     public void testGroovyCronTaskConfiguration()
-            throws Exception
+        throws Exception
     {
         saveGroovyConfig("0 11 11 11 11 ? 2100", cronName2);
         uploadGroovyScript();
@@ -119,7 +122,8 @@ public class CronTaskConfigurationControllerTest
     }
 
     public void saveJavaConfig(String cronExpression)
-            throws UnsupportedEncodingException, JAXBException
+        throws UnsupportedEncodingException,
+        JAXBException
     {
         logger.debug("Cron Expression: " + cronExpression);
 
@@ -130,6 +134,7 @@ public class CronTaskConfigurationControllerTest
         configuration.setName(cronName1);
         configuration.addProperty("cronExpression", cronExpression);
         configuration.addProperty("jobClass", MyTask.class.getName());
+        configuration.setOneTimeExecution(false);
 
         MockMvcResponse response = client.put2(getContextBaseUrl() + url,
                                                configuration,
@@ -145,7 +150,7 @@ public class CronTaskConfigurationControllerTest
 
         /**
          * Retrieve saved config
-         * */
+         */
         response = getCronConfig(cronName1);
 
         assertEquals(OK, response.getStatusCode(), "Failed to get cron task config! " + response.getStatusLine());
@@ -155,7 +160,8 @@ public class CronTaskConfigurationControllerTest
 
     public void saveGroovyConfig(String cronExpression,
                                  String name)
-            throws UnsupportedEncodingException, JAXBException
+        throws UnsupportedEncodingException,
+        JAXBException
     {
         logger.debug("Cron Expression: " + cronExpression);
 
@@ -178,7 +184,7 @@ public class CronTaskConfigurationControllerTest
     }
 
     public void uploadGroovyScript()
-            throws Exception
+        throws Exception
     {
         String fileName = "GroovyTask.groovy";
         File file = new File("target/test-classes/groovy/" + fileName);
@@ -218,7 +224,8 @@ public class CronTaskConfigurationControllerTest
         return given().contentType(MediaType.APPLICATION_JSON_VALUE)
                       .param("name", name)
                       .when()
-                      .delete(getContextBaseUrl() + "/cron").peek();
+                      .delete(getContextBaseUrl() + "/cron")
+                      .peek();
     }
 
     private MockMvcResponse getCronConfig(String name)
@@ -226,7 +233,8 @@ public class CronTaskConfigurationControllerTest
         return given().contentType(MediaType.APPLICATION_JSON_VALUE)
                       .param("name", name)
                       .when()
-                      .get(getContextBaseUrl() + "/cron").peek();
+                      .get(getContextBaseUrl() + "/cron")
+                      .peek();
     }
 
 }

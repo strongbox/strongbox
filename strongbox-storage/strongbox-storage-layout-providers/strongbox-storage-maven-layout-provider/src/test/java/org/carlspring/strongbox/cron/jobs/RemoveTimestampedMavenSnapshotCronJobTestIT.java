@@ -12,6 +12,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -35,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Disabled //FIXME
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class RemoveTimestampedMavenSnapshotCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
@@ -191,7 +194,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
             catch (Exception e)
             {
-                throw new RuntimeException(e);
+                throw new UndeclaredThrowableException(e);
             }
         });
 
@@ -235,7 +238,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
             catch (Exception e)
             {
-                throw new RuntimeException(e);
+                throw new UndeclaredThrowableException(e);
             }
         });
 
@@ -282,7 +285,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
             catch (Exception e)
             {
-                throw new RuntimeException(e);
+                throw new UndeclaredThrowableException(e);
             }
         });
 
@@ -323,7 +326,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
             catch (Exception e)
             {
-                throw new RuntimeException(e);
+                throw new UndeclaredThrowableException(e);
             }
         });
 

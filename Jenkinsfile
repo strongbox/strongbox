@@ -3,6 +3,7 @@
 def REPO_NAME  = 'strongbox/strongbox'
 def SERVER_ID  = 'carlspring-oss-snapshots'
 def SERVER_URL = 'https://dev.carlspring.org/nexus/content/repositories/carlspring-oss-snapshots/'
+def SONAR_VERSION = '3.5.0.1254'
 
 // Notification settings for "master" and "branch/pr"
 def notifyMaster = [notifyAdmins: true, recipients: [culprits(), requestor()]]
@@ -50,7 +51,7 @@ pipeline {
                             withSonarQubeEnv('sonar')
                             {
                                 // requires SonarQube Scanner for Maven 3.2+
-                                sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar " +
+                                sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:${SONAR_VERSION}:sonar " +
                                    "-Dintegration.tests " +
                                    "-Dprepare.revision" +
                                    "-Ddownloader.quick.query.timestamp=false " +
@@ -66,7 +67,7 @@ pipeline {
                                 {
                                     def PR_NUMBER = env.CHANGE_ID
                                     echo "Triggering sonar analysis in comment-only mode for PR: ${PR_NUMBER}."
-                                    sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar " +
+                                    sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:${SONAR_VERSION}:sonar " +
                                        "-Dintegration.tests " +
                                        "-Dprepare.revision " +
                                        "-Dsonar.github.repository=${REPO_NAME} " +

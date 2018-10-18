@@ -13,6 +13,7 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -21,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  */
 @ContextConfiguration(classes = RawLayoutProviderTestConfig.class)
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
 public class RawRepositoryTestCase
         extends TestCaseWithRepositoryManagement
 {

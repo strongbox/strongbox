@@ -12,10 +12,10 @@ import org.carlspring.strongbox.xml.configuration.repository.MutableMavenReposit
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import com.google.common.base.Throwables;
 import io.restassured.http.Header;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.CoreMatchers;
@@ -114,7 +114,7 @@ public class MavenArtifactIndexControllerTest
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         super.shutdown();
     }

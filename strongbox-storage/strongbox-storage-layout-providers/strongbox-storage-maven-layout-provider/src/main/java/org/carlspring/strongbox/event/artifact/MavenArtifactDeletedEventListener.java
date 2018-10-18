@@ -5,6 +5,7 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 
 import com.google.common.base.Throwables;
 
@@ -40,7 +41,7 @@ public class MavenArtifactDeletedEventListener
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
     }
 }
