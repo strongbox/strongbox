@@ -19,8 +19,6 @@ import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -56,16 +54,10 @@ public class RawRestAssuredBaseTest
 
     private String contextBaseUrl;
 
-    @BeforeEach
     public void init()
             throws Exception
     {
         client.setUserAgent("Raw/*");
-    }
-
-    @AfterEach
-    public void shutdown()
-    {
     }
 
     public String getContextBaseUrl()

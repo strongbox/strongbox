@@ -56,6 +56,7 @@ public class NpmArtifactControllerTest
         return repositories;
     }
 
+    @Override
     @BeforeEach
     public void init()
         throws Exception

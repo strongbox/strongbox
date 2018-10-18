@@ -23,6 +23,7 @@ import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
@@ -71,6 +72,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     }
 
     @Override
+    @BeforeEach
     public void init()
         throws Exception
     {

@@ -73,6 +73,7 @@ public class NpmArtifactControllerTestIT
         return repositories;
     }
 
+    @Override
     @BeforeEach
     public void init()
         throws Exception
