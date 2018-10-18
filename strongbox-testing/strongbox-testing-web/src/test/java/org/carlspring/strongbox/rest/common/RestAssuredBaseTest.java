@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -57,7 +56,6 @@ public abstract class RestAssuredBaseTest
 
     private RestAssuredMockMvcConfig restAssuredMockMvcConfig;
 
-    @BeforeEach
     public void init()
             throws Exception
     {

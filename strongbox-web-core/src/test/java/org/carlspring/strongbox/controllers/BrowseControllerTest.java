@@ -18,7 +18,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -60,6 +62,7 @@ public class BrowseControllerTest
     }
     
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {
@@ -85,6 +88,7 @@ public class BrowseControllerTest
     } 
     
     @Override
+    @AfterEach
     public void shutdown()
     {
         try

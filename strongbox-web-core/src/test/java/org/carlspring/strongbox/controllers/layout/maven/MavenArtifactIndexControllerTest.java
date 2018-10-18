@@ -19,10 +19,7 @@ import java.util.Set;
 import io.restassured.http.Header;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -74,6 +71,7 @@ public class MavenArtifactIndexControllerTest
     }
 
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {
@@ -105,6 +103,7 @@ public class MavenArtifactIndexControllerTest
     }
 
     @Override
+    @AfterEach
     public void shutdown()
     {
         try

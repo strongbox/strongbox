@@ -222,6 +222,7 @@ public class MavenArtifactControllerTest
     }
 
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {
@@ -301,6 +302,7 @@ public class MavenArtifactControllerTest
     }
 
     @Override
+    @AfterEach
     public void shutdown()
     {
         try

@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.SetUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,6 +67,7 @@ public class UserControllerTestIT
     private PlatformTransactionManager transactionManager;
 
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {

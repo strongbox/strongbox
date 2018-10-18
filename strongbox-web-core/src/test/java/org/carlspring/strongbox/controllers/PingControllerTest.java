@@ -4,6 +4,7 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 
 import org.apache.http.HttpHeaders;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ public class PingControllerTest
 {
 
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {

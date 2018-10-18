@@ -18,7 +18,9 @@ import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
@@ -63,6 +65,7 @@ public class TrashControllerUndeleteTest
     }
 
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {
@@ -121,6 +124,7 @@ public class TrashControllerUndeleteTest
     }
 
     @Override
+    @AfterEach
     public void shutdown()
     {
         try

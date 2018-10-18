@@ -18,7 +18,9 @@ import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
@@ -53,6 +55,7 @@ public class MavenSearchControllerTest
     }
 
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {
@@ -83,6 +86,7 @@ public class MavenSearchControllerTest
     }
 
     @Override
+    @AfterEach
     public void shutdown()
     {
         try

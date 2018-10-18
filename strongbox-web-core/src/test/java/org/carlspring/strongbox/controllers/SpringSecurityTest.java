@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import io.restassured.http.ContentType;
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,7 @@ public class SpringSecurityTest
     private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {

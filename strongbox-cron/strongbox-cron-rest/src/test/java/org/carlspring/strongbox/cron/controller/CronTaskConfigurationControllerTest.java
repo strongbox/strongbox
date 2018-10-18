@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,7 @@ public class CronTaskConfigurationControllerTest
     private final String cronName2 = "CRJG001";
 
     @Override
+    @BeforeEach
     public void init()
         throws Exception
     {

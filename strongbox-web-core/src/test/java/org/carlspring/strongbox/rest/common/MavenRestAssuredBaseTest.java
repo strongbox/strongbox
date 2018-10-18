@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -59,15 +57,13 @@ public abstract class MavenRestAssuredBaseTest
     private RepositoryPathResolver repositoryPathResolver;
     
     private String contextBaseUrl;
-    
-    @BeforeEach
+
     public void init()
             throws Exception
     {
         client.setUserAgent("Maven/*");
     }
-    
-    @AfterEach
+
     public void shutdown()
     {
     }

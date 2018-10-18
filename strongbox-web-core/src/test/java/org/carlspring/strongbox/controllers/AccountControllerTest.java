@@ -14,6 +14,7 @@ import java.util.HashSet;
 
 import org.apache.http.HttpHeaders;
 import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runners.MethodSorters;
@@ -48,6 +49,7 @@ public class AccountControllerTest
     private UserService userService;
     
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {
