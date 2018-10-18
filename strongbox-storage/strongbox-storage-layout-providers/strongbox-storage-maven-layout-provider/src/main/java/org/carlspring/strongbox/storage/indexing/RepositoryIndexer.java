@@ -7,6 +7,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.search.SearchResult;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,7 +89,8 @@ public class RepositoryIndexer
             final ArtifactContextProducer artifactContextProducer = applicationContext.getBean(
                     ArtifactContextProducer.class, artifactPath);
             ArtifactContext artifactContext = artifactContextProducer.getArtifactContext(indexingContext,
-                                                                                         artifactPath.toAbsolutePath().toFile());
+                                                                                         new File(
+                                                                                                 artifactPath.toAbsolutePath().toUri().getPath()));
 
             if (artifactContext == null)
             {
@@ -128,7 +130,7 @@ public class RepositoryIndexer
     }
 
     public Set<SearchResult> search(final ArtifactInfo artifactInfo)
-        throws IOException
+            throws IOException
     {
         return search(artifactInfo.getGroupId(),
                       artifactInfo.getArtifactId(),
@@ -148,32 +150,38 @@ public class RepositoryIndexer
 
         if (groupId != null)
         {
-            booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.GROUP_ID, new SourcedSearchExpression(groupId)), MUST);
+            booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.GROUP_ID, new SourcedSearchExpression(groupId)),
+                                   MUST);
         }
 
         if (artifactId != null)
         {
-        	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.ARTIFACT_ID, new SourcedSearchExpression(artifactId)), MUST);
+            booleanQueryBuiler.add(
+                    getIndexer().constructQuery(MAVEN.ARTIFACT_ID, new SourcedSearchExpression(artifactId)), MUST);
         }
 
         if (version != null)
         {
-        	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.VERSION, new SourcedSearchExpression(version)), MUST);
+            booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.VERSION, new SourcedSearchExpression(version)),
+                                   MUST);
         }
 
         if (extension != null)
         {
-        	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.EXTENSION, new SourcedSearchExpression(extension)), MUST);
+            booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.EXTENSION, new SourcedSearchExpression(extension)),
+                                   MUST);
         }
         else
         {
             // Fallback to jar
-        	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.PACKAGING, new SourcedSearchExpression("jar")), MUST);
+            booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.PACKAGING, new SourcedSearchExpression("jar")),
+                                   MUST);
         }
 
         if (classifier != null)
         {
-        	booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.CLASSIFIER, new SourcedSearchExpression(classifier)), MUST);
+            booleanQueryBuiler.add(
+                    getIndexer().constructQuery(MAVEN.CLASSIFIER, new SourcedSearchExpression(classifier)), MUST);
         }
 
         final BooleanQuery booleanQuery = booleanQueryBuiler.build();
@@ -184,8 +192,8 @@ public class RepositoryIndexer
                                    indexingContext.getIndexDirectory().toString() });
 
 
-
-        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(booleanQuery, indexingContext));
+        final FlatSearchResponse response = getIndexer().searchFlat(
+                new FlatSearchRequest(booleanQuery, indexingContext));
 
         logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
@@ -265,7 +273,8 @@ public class RepositoryIndexer
                                    indexingContext.getId(),
                                    indexingContext.getIndexDirectory().toString() });
 
-        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(booleanQuery, indexingContext));
+        final FlatSearchResponse response = getIndexer().searchFlat(
+                new FlatSearchRequest(booleanQuery, indexingContext));
 
         logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
@@ -289,10 +298,10 @@ public class RepositoryIndexer
         for (ArtifactInfo artifactInfo : artifactInfos)
         {
             MavenArtifact artifact = new MavenRepositoryArtifact(artifactInfo.getGroupId(),
-                                                               artifactInfo.getArtifactId(),
-                                                               artifactInfo.getVersion(),
-                                                               artifactInfo.getFileExtension(),
-                                                               artifactInfo.getClassifier());
+                                                                 artifactInfo.getArtifactId(),
+                                                                 artifactInfo.getVersion(),
+                                                                 artifactInfo.getFileExtension(),
+                                                                 artifactInfo.getClassifier());
 
             MavenArtifactCoordinates artifactCoordinates = new MavenArtifactCoordinates(artifact);
             String url = getURLForArtifact(storageId, repositoryId, artifactCoordinates.toPath());

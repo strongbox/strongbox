@@ -7,6 +7,7 @@ import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurati
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
@@ -68,7 +69,7 @@ public class IndexDownloader
                                                                           request.getRemoteRepositoryURL(),
                                                                           proxyRepositoryConnectionPoolConfigurationService.getHttpClient()));
 
-        updateRequest.setIndexTempDir(RepositoryFiles.temporary(repositoryPathResolver.resolve(request.getRepository())).toFile());
+        updateRequest.setIndexTempDir(new File(RepositoryFiles.temporary(repositoryPathResolver.resolve(request.getRepository())).toUri().getPath()));
 
         IndexUpdateResult updateResult = indexUpdater.fetchAndUpdateIndex(updateRequest);
 

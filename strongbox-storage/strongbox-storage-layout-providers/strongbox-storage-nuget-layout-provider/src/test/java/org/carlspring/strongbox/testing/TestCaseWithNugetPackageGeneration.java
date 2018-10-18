@@ -4,6 +4,8 @@ import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 
@@ -28,17 +30,20 @@ public class TestCaseWithNugetPackageGeneration
 
     @Inject
     protected ArtifactManagementService artifactManagementService;
-    
+
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
+
     public void generateRepositoryPackages(String storageId,
                                            String repositoryId,
                                            String packageId,
                                            int count)
-        throws NoSuchAlgorithmException,
-               NugetFormatException,
-               JAXBException,
-               IOException,
-               ProviderImplementationException, 
-               ArtifactCoordinatesValidationException
+            throws NoSuchAlgorithmException,
+                   NugetFormatException,
+                   JAXBException,
+                   IOException,
+                   ProviderImplementationException,
+                   ArtifactCoordinatesValidationException
     {
         for (int i = 0; i < count; i++)
         {
@@ -47,7 +52,10 @@ public class TestCaseWithNugetPackageGeneration
             Path packageFilePath = generatePackageFile(packageId, packageVersion);
             try (InputStream is = new BufferedInputStream(Files.newInputStream(packageFilePath)))
             {
-                artifactManagementService.validateAndStore(storageId, repositoryId, coordinates.toPath(), is);
+                RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId,
+                                                                               coordinates.toPath());
+
+                artifactManagementService.validateAndStore(repositoryPath, is);
             }
         }
     }
@@ -55,10 +63,10 @@ public class TestCaseWithNugetPackageGeneration
     public Path generatePackageFile(String packageId,
                                     String packageVersion,
                                     String... dependencyList)
-        throws NoSuchAlgorithmException,
-               NugetFormatException,
-               JAXBException,
-               IOException
+            throws NoSuchAlgorithmException,
+                   NugetFormatException,
+                   JAXBException,
+                   IOException
     {
         String basedir = PropertiesBooter.getHomeDirectory() + "/tmp";
         return generatePackageFile(basedir, packageId, packageVersion, dependencyList);
@@ -68,10 +76,10 @@ public class TestCaseWithNugetPackageGeneration
                                     String packageId,
                                     String packageVersion,
                                     String... dependencyList)
-        throws NugetFormatException,
-               JAXBException,
-               IOException,
-               NoSuchAlgorithmException
+            throws NugetFormatException,
+                   JAXBException,
+                   IOException,
+                   NoSuchAlgorithmException
     {
         String packageFileName = packageId + "." + packageVersion + ".nupkg";
 
@@ -90,10 +98,10 @@ public class TestCaseWithNugetPackageGeneration
                                      String id,
                                      String version,
                                      String... dependencyList)
-        throws IOException,
-               NoSuchAlgorithmException,
-               NugetFormatException,
-               JAXBException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   NugetFormatException,
+                   JAXBException
     {
         NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir);
         generator.generateNugetPackage(id, version, dependencyList);
@@ -103,10 +111,10 @@ public class TestCaseWithNugetPackageGeneration
                                           String id,
                                           String version,
                                           String... dependencyList)
-        throws IOException,
-               NoSuchAlgorithmException,
-               NugetFormatException,
-               JAXBException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   NugetFormatException,
+                   JAXBException
     {
         NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir);
 

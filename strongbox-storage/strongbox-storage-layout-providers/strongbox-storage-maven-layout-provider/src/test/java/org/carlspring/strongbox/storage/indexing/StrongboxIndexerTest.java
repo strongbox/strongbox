@@ -16,12 +16,16 @@ import org.apache.maven.index.Indexer;
 import org.apache.maven.index.MAVEN;
 import org.apache.maven.index.expr.SourcedSearchExpression;
 import org.apache.maven.index.expr.UserInputSearchExpression;
+
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.util.IndexContextHelper;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assume;
@@ -69,6 +73,9 @@ public class StrongboxIndexerTest
     @Inject
     private Optional<Indexer> indexer;
 
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
+
     @Before
     public void isIndexingEnabled()
     {
@@ -110,8 +117,10 @@ public class StrongboxIndexerTest
         Indexer indexer = this.indexer.get();
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_1,
-                                                   "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar",
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY_RELEASES_1,
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
+
+        artifactManagementService.validateAndStore(repositoryPath,
                                                    jarArtifact.getInputStream());
 
         String contextId = IndexContextHelper.getContextId(STORAGE0, REPOSITORY_RELEASES_1,
@@ -131,8 +140,10 @@ public class StrongboxIndexerTest
         Indexer indexer = this.indexer.get();
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_1,
-                                                   "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar",
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY_RELEASES_1,
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
+
+        artifactManagementService.validateAndStore(repositoryPath,
                                                    jarArtifact.getInputStream());
 
         String contextId = IndexContextHelper.getContextId(STORAGE0, REPOSITORY_RELEASES_1,
@@ -210,8 +221,10 @@ public class StrongboxIndexerTest
         Indexer indexer = this.indexer.get();
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_1,
-                                                   "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip",
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY_RELEASES_1,
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
+
+        artifactManagementService.validateAndStore(repositoryPath,
                                                    zipArtifact.getInputStream());
 
         String contextId = IndexContextHelper.getContextId(STORAGE0, REPOSITORY_RELEASES_1,
@@ -231,8 +244,10 @@ public class StrongboxIndexerTest
         Indexer indexer = this.indexer.get();
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_1,
-                                                   "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip",
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY_RELEASES_1,
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
+
+        artifactManagementService.validateAndStore(repositoryPath,
                                                    zipArtifact.getInputStream());
 
         String contextId = IndexContextHelper.getContextId(STORAGE0, REPOSITORY_RELEASES_1,

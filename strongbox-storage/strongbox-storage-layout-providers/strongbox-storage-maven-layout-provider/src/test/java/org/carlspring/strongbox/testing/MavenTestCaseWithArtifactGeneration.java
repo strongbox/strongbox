@@ -465,7 +465,7 @@ public class MavenTestCaseWithArtifactGeneration
     public void changeCreationDate(MavenArtifact artifact)
             throws IOException
     {
-        File directory = artifact.getPath().getParent().toFile();
+        File directory = new File(artifact.getPath().getParent().toUri().getPath());
 
         //noinspection ConstantConditions
         for (final File fileEntry : directory.listFiles())

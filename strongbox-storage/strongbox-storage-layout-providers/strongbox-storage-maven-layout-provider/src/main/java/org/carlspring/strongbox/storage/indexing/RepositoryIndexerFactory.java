@@ -8,6 +8,7 @@ import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -86,8 +87,8 @@ public class RepositoryIndexerFactory
         return indexerConfiguration.getIndexer()
                                    .createIndexingContext(storageId + ":" + repositoryId + ":" + indexType,
                                                           repositoryId,
-                                                          repositoryBasedir.toFile(),
-                                                          indexDir.toFile(),
+                                                          new File(repositoryBasedir.toUri().getPath()),
+                                                          new File(indexDir.toUri().getPath()),
                                                           null,
                                                           null,
                                                           true, // if context should be searched in non-targeted mode.

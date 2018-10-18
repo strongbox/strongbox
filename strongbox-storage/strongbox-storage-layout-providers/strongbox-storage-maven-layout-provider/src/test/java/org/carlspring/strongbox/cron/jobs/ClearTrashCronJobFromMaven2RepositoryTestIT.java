@@ -246,7 +246,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         {
             removeNotMavenRepositories(currentConfiguration);
 
-            final File basedirTrash1 = RepositoryFiles.trash(repositoryPathResolver.resolve(new Repository(repository2))).toFile();
+            final File basedirTrash1 = new File(RepositoryFiles.trash(repositoryPathResolver.resolve(new Repository(repository2))).toUri().getPath());
             File[] dirs1 = basedirTrash1.listFiles();
 
             assertTrue("There is no path to the repository trash!", dirs1 != null);
@@ -256,7 +256,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             RepositoryPath path1 = repositoryPathResolver.resolve(new Repository(repository2), "org/carlspring/strongbox/clear/strongbox-test-two/1.0");
             RepositoryFiles.delete(path1, false);
 
-            final File basedirTrash2 = RepositoryFiles.trash(repositoryPathResolver.resolve(new Repository(repository3))).toFile();
+            final File basedirTrash2 = new File(RepositoryFiles.trash(repositoryPathResolver.resolve(new Repository(repository3))).toUri().getPath());
             File[] dirs2 = basedirTrash2.listFiles();
 
             assertTrue("There is no path to the repository trash!", dirs2 != null);

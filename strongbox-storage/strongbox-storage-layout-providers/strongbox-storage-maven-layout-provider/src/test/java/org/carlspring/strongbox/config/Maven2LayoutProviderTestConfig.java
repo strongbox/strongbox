@@ -14,11 +14,10 @@ import java.io.IOException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.maven.index.updater.ResourceFetcher;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.*;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author Przemyslaw Fusik
@@ -58,7 +57,7 @@ public class Maven2LayoutProviderTestConfig
         final ResourceFetcherFactory resourceFetcherFactory = Mockito.mock(ResourceFetcherFactory.class);
 
         Mockito.when(resourceFetcherFactory.createIndexResourceFetcher(ArgumentMatchers.anyString(),
-                                                                       ArgumentMatchers.any(CloseableHttpClient.class)))
+                                                                       any(CloseableHttpClient.class)))
                .thenReturn(resourceFetcher);
 
         return resourceFetcherFactory;

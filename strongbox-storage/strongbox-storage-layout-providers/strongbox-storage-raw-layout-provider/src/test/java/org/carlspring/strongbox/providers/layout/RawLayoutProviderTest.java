@@ -4,6 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.config.RawLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -64,9 +65,12 @@ public class RawLayoutProviderTest
 
     @Inject
     ArtifactManagementService artifactManagementService;
-    
+
     @Inject
     ArtifactResolutionService artifactResolutionService;
+
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
 
     @BeforeClass
     public static void cleanUp()
@@ -122,23 +126,25 @@ public class RawLayoutProviderTest
     {
         String path = "foo/bar.zip";
 
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE,
+                                                                       REPOSITORY,
+                                                                       path);
+
         // Deploy the artifact
-        artifactManagementService.validateAndStore(STORAGE,
-                                                   REPOSITORY,
-                                                   path,
+        artifactManagementService.validateAndStore(repositoryPath,
                                                    createZipFile());
 
-        
-        File artifactFile = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + STORAGE + "/" + REPOSITORY + "/" + path);
+
+        File artifactFile = new File(
+                ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + STORAGE + "/" + REPOSITORY + "/" +
+                path);
         assertTrue("Failed to deploy artifact!", artifactFile.exists());
         assertTrue("Failed to deploy artifact!", artifactFile.length() > 0);
 
         // Attempt to re-deploy the artifact
         try
         {
-            artifactManagementService.validateAndStore(STORAGE,
-                                                       REPOSITORY,
-                                                       path,
+            artifactManagementService.validateAndStore(repositoryPath,
                                                        createZipFile());
         }
         catch (Exception e)
@@ -155,7 +161,6 @@ public class RawLayoutProviderTest
         }
 
         // Attempt to resolve the artifact
-        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(STORAGE, REPOSITORY, path);
         try (InputStream is = artifactResolutionService.getInputStream(repositoryPath))
         {
             int total = 0;
@@ -172,7 +177,8 @@ public class RawLayoutProviderTest
         }
     }
 
-    private void createRepository(String storageId, String repositoryId)
+    private void createRepository(String storageId,
+                                  String repositoryId)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
         MutableRepository repository = new MutableRepository(repositoryId);

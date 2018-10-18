@@ -48,6 +48,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.beans.BeansException;
@@ -217,13 +218,13 @@ public class FetchChangesFeedCronJobTestIT
         Mockito.when(mockedBuilder.buildGet()).thenReturn(mockedInvocation);
 
         WebTarget mockedWebTarget = Mockito.mock(WebTarget.class);
-        Mockito.when(mockedWebTarget.path(Matchers.anyString())).thenReturn(mockedWebTarget);
-        Mockito.when(mockedWebTarget.queryParam(Matchers.anyString(), Matchers.any()))
+        Mockito.when(mockedWebTarget.path(ArgumentMatchers.anyString())).thenReturn(mockedWebTarget);
+        Mockito.when(mockedWebTarget.queryParam(ArgumentMatchers.anyString(), ArgumentMatchers.any()))
                .thenReturn(mockedWebTarget);
 
         Mockito.when(mockedWebTarget.request()).thenReturn(mockedBuilder);
 
-        Mockito.when(mockedRestClient.target(Matchers.anyString())).thenReturn(mockedWebTarget);
+        Mockito.when(mockedRestClient.target(ArgumentMatchers.anyString())).thenReturn(mockedWebTarget);
 
         Mockito.when(proxyRepositoryConnectionPoolConfigurationService.getRestClient())
                .thenReturn(mockedRestClient);

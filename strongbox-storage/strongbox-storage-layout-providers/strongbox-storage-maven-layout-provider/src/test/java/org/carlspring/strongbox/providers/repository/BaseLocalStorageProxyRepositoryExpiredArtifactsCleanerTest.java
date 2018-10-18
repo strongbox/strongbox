@@ -20,7 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author Przemyslaw Fusik

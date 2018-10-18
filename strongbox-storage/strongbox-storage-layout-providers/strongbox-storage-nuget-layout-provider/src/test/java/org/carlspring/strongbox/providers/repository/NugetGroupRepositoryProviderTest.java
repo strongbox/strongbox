@@ -6,6 +6,8 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -80,6 +82,9 @@ public class NugetGroupRepositoryProviderTest
 
     @Inject
     private NugetRepositoryFactory nugetRepositoryFactory;
+
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
     
     @Rule
     public final ExpectedLogs logs = new ExpectedLogs()
@@ -164,10 +169,11 @@ public class NugetGroupRepositoryProviderTest
             Path packageFilePath = generatePackageFile(packageId, packageVersion);
             try (InputStream is = new BufferedInputStream(Files.newInputStream(packageFilePath)))
             {
-                artifactManagementService.validateAndStore(storageId,
-                                                           repositoryId,
-                                                           coordinates.toPath(),
-                                                           is);
+                RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                                               repositoryId,
+                                                                               coordinates.toPath());
+
+                artifactManagementService.validateAndStore(repositoryPath, is);
             }
         }
     }
