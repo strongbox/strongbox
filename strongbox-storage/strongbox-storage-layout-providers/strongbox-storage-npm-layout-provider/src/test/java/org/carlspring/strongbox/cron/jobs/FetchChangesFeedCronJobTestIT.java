@@ -40,11 +40,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.awaitility.Awaitility;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.beans.BeansException;
@@ -59,13 +59,13 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ContextConfiguration(classes = { NpmLayoutProviderCronTasksTestConfig.class })
 @ActiveProfiles(profiles = { "test", "FetchChangesFeedCronJobTestConfig" })
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class FetchChangesFeedCronJobTestIT
         extends NpmRepositoryTestCase implements ApplicationListener<CronTaskEvent>, ApplicationContextAware
 {
@@ -97,14 +97,14 @@ public class FetchChangesFeedCronJobTestIT
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
         throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
         throws IOException,
         JAXBException
@@ -112,7 +112,7 @@ public class FetchChangesFeedCronJobTestIT
         removeRepositories(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
         throws Exception
     {
