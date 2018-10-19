@@ -201,6 +201,8 @@
                 <version>2.0.0</version>
 
                 <configuration>
+                    <preWrapperConf>${project.basedir}/src/main/resources/setenv.conf</preWrapperConf>
+                    
                     <configurationDirectory>conf</configurationDirectory>
 
                     <repositoryLayout>flat</repositoryLayout>
