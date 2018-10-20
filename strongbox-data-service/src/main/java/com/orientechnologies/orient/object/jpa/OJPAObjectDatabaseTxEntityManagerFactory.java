@@ -15,7 +15,6 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.google.common.base.Throwables;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.jdbc.OrientDataSource;
 import com.orientechnologies.orient.jdbc.OrientJdbcConnection;

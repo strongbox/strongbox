@@ -27,8 +27,6 @@ import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.google.common.base.Throwables;
-
 import io.restassured.http.Header;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 

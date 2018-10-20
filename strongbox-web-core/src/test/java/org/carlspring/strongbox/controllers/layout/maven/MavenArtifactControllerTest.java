@@ -79,8 +79,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.google.common.base.Throwables;
-
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.response.ExtractableResponse;
