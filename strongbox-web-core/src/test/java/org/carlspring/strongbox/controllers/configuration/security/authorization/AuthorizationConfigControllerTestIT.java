@@ -48,7 +48,7 @@ public class AuthorizationConfigControllerTestIT
             throws Exception
     {
         super.init();
-        setContextBaseUrl(getContextBaseUrl() + getContextBaseUrl() + "/api/configuration");
+        setContextBaseUrl(getContextBaseUrl() + "/api/configuration");
         config = authorizationConfigService.getDto();
     }
 
