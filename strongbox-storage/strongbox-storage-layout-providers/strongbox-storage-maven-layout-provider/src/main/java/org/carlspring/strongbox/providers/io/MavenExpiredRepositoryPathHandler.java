@@ -1,6 +1,4 @@
-package org.carlspring.strongbox.providers.layout;
-
-import org.carlspring.strongbox.providers.io.ExpiredRepositoryPathHandler;
+package org.carlspring.strongbox.providers.io;
 
 /**
  * @author Przemyslaw Fusik

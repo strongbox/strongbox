@@ -1,7 +1,5 @@
-package org.carlspring.strongbox.providers.layout;
+package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
@@ -15,9 +13,9 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.providers.layout.MavenMetadataExpiredRepositoryPathHandler.Decision.I_DONT_KNOW;
-import static org.carlspring.strongbox.providers.layout.MavenMetadataExpiredRepositoryPathHandler.Decision.NO_LEAVE_IT;
-import static org.carlspring.strongbox.providers.layout.MavenMetadataExpiredRepositoryPathHandler.Decision.YES_FETCH;
+import static org.carlspring.strongbox.providers.io.MavenMetadataExpiredRepositoryPathHandler.Decision.I_DONT_KNOW;
+import static org.carlspring.strongbox.providers.io.MavenMetadataExpiredRepositoryPathHandler.Decision.NO_LEAVE_IT;
+import static org.carlspring.strongbox.providers.io.MavenMetadataExpiredRepositoryPathHandler.Decision.YES_FETCH;
 
 /**
  * @author Przemyslaw Fusik
@@ -55,13 +53,7 @@ public class MavenMetadataExpiredRepositoryPathHandler
 
         Repository repository = repositoryPath.getRepository();
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
-
-        if (!(provider instanceof ProxyRepositoryProvider))
-        {
-            return false;
-        }
-
-        return true;
+        return provider instanceof ProxyRepositoryProvider;
     }
 
     @Override

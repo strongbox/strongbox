@@ -66,11 +66,9 @@ public class ChecksumCacheManager
                               .stream()
                               .filter(entry -> entry.getValue()
                                                     .stream()
-                                                    .filter(value -> value.equals(algorithm))
-                                                    .findFirst()
-                                                    .isPresent())
+                                                    .anyMatch(value -> value.equals(algorithm)))
                               .findFirst()
-                              .map(entry -> entry.getKey())
+                              .map(Map.Entry::getKey)
                               .orElse(algorithm);
     }
 
@@ -87,9 +85,7 @@ public class ChecksumCacheManager
         final String checksum = artifactChecksum.getChecksum(escapedAlgorithm);
         if (checksum != null)
         {
-            logger.debug(
-                    "Found checksum '" + checksum + "' [" + escapedAlgorithm + "]" + " for '" + artifactPath +
-                    "' in cache.");
+            logger.debug(String.format("Found checksum '%s' [%s]" + " for '%s' in cache.", checksum, escapedAlgorithm, artifactPath));
         }
 
         return checksum;
@@ -100,9 +96,7 @@ public class ChecksumCacheManager
                                     final String checksum)
     {
         final String escapedAlgorithm = getAlgorithm(algorithm);
-        logger.debug(
-                "Adding checksum '" + checksum + "' [" + escapedAlgorithm + "]" + " for '" + artifactPath +
-                "' in cache.");
+        logger.debug(String.format("Adding checksum '%s' [%s]" + " for '%s' in cache.", checksum, escapedAlgorithm, artifactPath));
 
         ArtifactChecksum artifactChecksum = cache.get(artifactPath.toUri(), ArtifactChecksum.class);
         if (artifactChecksum == null)

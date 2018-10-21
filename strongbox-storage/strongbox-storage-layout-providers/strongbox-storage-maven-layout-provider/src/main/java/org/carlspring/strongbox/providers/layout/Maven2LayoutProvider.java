@@ -7,6 +7,7 @@ import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.archive.JarArchiveListingFunction;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
+import org.carlspring.strongbox.providers.io.MavenExpiredRepositoryPathHandler;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
