@@ -1,12 +1,15 @@
 package org.carlspring.strongbox.repository;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.cron.config.ApplicationStartupCronTasksInitiator;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
 import org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.Storage;
@@ -15,11 +18,6 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Optional;
 
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
@@ -40,19 +38,13 @@ public class IndexedMavenRepositoryManagementStrategy
     private RepositoryIndexerFactory repositoryIndexerFactory;
 
     @Inject
-    private ConfigurationManager configurationManager;
-
-    @Inject
-    private CronTaskConfigurationService cronTaskConfigurationService;
+    private CronTaskDataService cronTaskDataService;
 
     @Inject
     private IndexedMavenRepositoryFeatures repositoryFeatures;
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-
-    @Inject
-    private Optional<ApplicationStartupCronTasksInitiator> applicationStartupCronTasksInitiator;
 
     @Override
     protected void createRepositoryInternal(Storage storage, Repository repository)
@@ -71,17 +63,8 @@ public class IndexedMavenRepositoryManagementStrategy
                 // Create a remote index
                 createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.REMOTE.getType(), repositoryBasedir);
 
-                boolean shouldDownloadIndexes = shouldDownloadAllRemoteRepositoryIndexes();
-                boolean shouldDownloadRepositoryIndex = shouldDownloadRepositoryIndex(storageId, repositoryId);
-
-                if (shouldDownloadIndexes || shouldDownloadRepositoryIndex)
-                {
-                    // TODO: Add a check whether there is such a cron task already created for this repository
-                    // TODO: (no need to keep adding new cron tasks upon every boot)
-
-                    // Create a scheduled task for downloading the remote's index
-                    createRemoteIndexDownloaderCronTask(storageId, repositoryId);
-                }
+                // Create a scheduled task for downloading the remote's index
+                createRemoteIndexDownloaderCronTask(storageId, repositoryId);
             }
 
             // Create a local index
@@ -105,7 +88,7 @@ public class IndexedMavenRepositoryManagementStrategy
 
         try
         {
-            cronTaskConfigurationService.saveConfiguration(configuration);
+            cronTaskDataService.save(configuration);
         }
         catch (Exception e)
         {
@@ -127,7 +110,7 @@ public class IndexedMavenRepositoryManagementStrategy
 
         try
         {
-            cronTaskConfigurationService.saveConfiguration(configuration);
+            cronTaskDataService.save(configuration);
         }
         catch (Exception e)
         {
@@ -175,25 +158,4 @@ public class IndexedMavenRepositoryManagementStrategy
         }
     }
 
-    public static boolean shouldDownloadAllRemoteRepositoryIndexes()
-    {
-        return System.getProperty("strongbox.download.indexes") == null ||
-               Boolean.parseBoolean(System.getProperty("strongbox.download.indexes"));
-    }
-
-    public static boolean shouldDownloadRepositoryIndex(String storageId, String repositoryId)
-    {
-        return (System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId) == null ||
-               Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId))) &&
-               isIncludedDespiteWildcard(storageId, repositoryId);
-    }
-
-    public static boolean isIncludedDespiteWildcard(String storageId, String repositoryId)
-    {
-        return // is excluded by wildcard
-               !Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + ".*")) &&
-               // and is explicitly included
-               Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId));
-    }
-    
 }

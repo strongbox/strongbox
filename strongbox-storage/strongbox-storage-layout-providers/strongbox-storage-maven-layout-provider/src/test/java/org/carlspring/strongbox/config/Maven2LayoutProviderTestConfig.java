@@ -3,6 +3,7 @@ package org.carlspring.strongbox.config;
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
+import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.storage.indexing.downloader.ResourceFetcherFactory;
@@ -12,6 +13,7 @@ import java.io.IOException;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.maven.index.updater.ResourceFetcher;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.*;
@@ -25,6 +27,7 @@ import static org.mockito.Matchers.any;
 @Import({ TestingCoreConfig.class,
           EventsConfig.class,
           DataServiceConfig.class,
+          CronTasksConfig.class,
           CommonConfig.class,
           StorageCoreConfig.class,
           StorageApiConfig.class,
@@ -54,8 +57,8 @@ public class Maven2LayoutProviderTestConfig
     {
         final ResourceFetcherFactory resourceFetcherFactory = Mockito.mock(ResourceFetcherFactory.class);
 
-        Mockito.when(resourceFetcherFactory.createIndexResourceFetcher(Matchers.anyString(),
-                                                                       Matchers.any(CloseableHttpClient.class)))
+        Mockito.when(resourceFetcherFactory.createIndexResourceFetcher(ArgumentMatchers.anyString(),
+                                                                       ArgumentMatchers.any(CloseableHttpClient.class)))
                .thenReturn(resourceFetcher);
 
         return resourceFetcherFactory;

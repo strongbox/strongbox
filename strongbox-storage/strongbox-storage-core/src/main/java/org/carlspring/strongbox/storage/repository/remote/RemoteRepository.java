@@ -4,6 +4,9 @@ import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import org.carlspring.strongbox.xml.repository.remote.CustomRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryConfiguration;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -34,6 +37,8 @@ public class RemoteRepository
     private boolean autoImportRemoteSSLCertificate;
 
     private String url;
+    
+    private CustomRemoteRepositoryConfiguration customConfiguration;
 
     RemoteRepository()
     {
@@ -52,6 +57,7 @@ public class RemoteRepository
         this.checkIntervalSeconds = other.getCheckIntervalSeconds();
         this.allowsDirectoryBrowsing = other.allowsDirectoryBrowsing();
         this.autoImportRemoteSSLCertificate = other.isAutoImportRemoteSSLCertificate();
+        this.customConfiguration = immuteRemoteRepositoryConfiguration(other.getCustomConfiguration());
     }
 
     public String getUrl()
@@ -103,4 +109,15 @@ public class RemoteRepository
     {
         return autoImportRemoteSSLCertificate;
     }
+
+    public CustomRemoteRepositoryConfiguration getCustomConfiguration()
+    {
+        return customConfiguration;
+    }
+
+    private CustomRemoteRepositoryConfiguration immuteRemoteRepositoryConfiguration(final MutableRemoteRepositoryConfiguration source)
+    {
+        return source != null ? source.getImmutable() : null;
+    }
+
 }

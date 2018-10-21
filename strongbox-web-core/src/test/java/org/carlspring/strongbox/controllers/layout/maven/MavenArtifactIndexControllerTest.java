@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers.layout.maven;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -25,8 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.google.common.base.Throwables;
 
 import io.restassured.http.Header;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
@@ -117,7 +116,7 @@ public class MavenArtifactIndexControllerTest
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         super.shutdown();
     }

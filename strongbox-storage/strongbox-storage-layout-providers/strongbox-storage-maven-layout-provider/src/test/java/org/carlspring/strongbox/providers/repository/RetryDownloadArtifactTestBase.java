@@ -1,26 +1,39 @@
 package org.carlspring.strongbox.providers.repository;
 
+import static org.carlspring.strongbox.config.HazelcastConfiguration.newDefaultMapConfig;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+
 import org.carlspring.strongbox.client.CloseableRestResponse;
-import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RestArtifactResolver;
+import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
+import java.lang.reflect.UndeclaredThrowableException;
 
-import com.google.common.base.Throwables;
 import org.junit.After;
 import org.junit.Before;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+
+import com.hazelcast.config.Config;
 
 /**
  * @author Przemyslaw Fusik
@@ -79,14 +92,14 @@ public abstract class RetryDownloadArtifactTestBase
         Mockito.when(restResponse.getResponse()).thenReturn(response);
 
         final RestArtifactResolver artifactResolver = Mockito.mock(RestArtifactResolver.class);
-        Mockito.when(artifactResolver.get(Matchers.any(String.class))).thenReturn(restResponse);
-        Mockito.when(artifactResolver.get(Matchers.any(String.class), Matchers.any(Long.class))).thenReturn(
+        Mockito.when(artifactResolver.get(ArgumentMatchers.any(String.class))).thenReturn(restResponse);
+        Mockito.when(artifactResolver.get(ArgumentMatchers.any(String.class), ArgumentMatchers.any(Long.class))).thenReturn(
                 restResponse);
-        Mockito.when(artifactResolver.head(Matchers.any(String.class))).thenReturn(restResponse);
+        Mockito.when(artifactResolver.head(ArgumentMatchers.any(String.class))).thenReturn(restResponse);
         Mockito.when(artifactResolver.getConfiguration()).thenReturn(configuration);
         Mockito.when(artifactResolver.isAlive()).thenReturn(true);
 
-        Mockito.when(artifactResolverFactory.newInstance(Matchers.any(RemoteRepository.class)))
+        Mockito.when(artifactResolverFactory.newInstance(ArgumentMatchers.any(RemoteRepository.class)))
                .thenReturn(artifactResolver);
     }
 
@@ -104,7 +117,7 @@ public abstract class RetryDownloadArtifactTestBase
             }
             catch (final IOException e)
             {
-                throw Throwables.propagate(e);
+                throw new UndeclaredThrowableException(e);
             }
         }
 
@@ -113,4 +126,48 @@ public abstract class RetryDownloadArtifactTestBase
                 throws IOException;
 
     }
+    
+    @Profile("MockedRestArtifactResolverTestConfig")
+    @Configuration
+    public static class MockedRestArtifactResolverTestConfig
+    {
+        @Primary
+        @Bean
+        public Config hazelcastConfig()
+        {
+            final Config config = new Config().setInstanceName("mocked-hazelcast-instance")
+                                              .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
+                                              .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
+            
+            config.getGroupConfig().setName("strongbox").setPassword("password");
+            return config;
+        }
+
+        @Bean
+        @Primary
+        RestArtifactResolverFactory artifactResolverFactory()
+        {
+            return Mockito.mock(RestArtifactResolverFactory.class);
+        }
+
+        @Bean
+        @Primary
+        ArtifactEventListenerRegistry artifactEventListenerRegistry()
+        {
+            return new TestArtifactEventListenerRegistry();
+        }    
+        
+        public static class TestArtifactEventListenerRegistry extends ArtifactEventListenerRegistry 
+        {
+
+            @Override
+            public void dispatchArtifactFetchedFromRemoteEvent(Path path)
+            {
+                // this event cause java.io.EOFException within `MavenArtifactFetchedFromRemoteEventListener`
+            }
+            
+        }
+
+    }
+
 }

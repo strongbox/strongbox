@@ -149,7 +149,7 @@ public class ArtifactManagementService
         boolean updatedMetadataFile = false;
         boolean updatedArtifactFile = false;
 
-        if (Files.exists(repositoryPath))
+        if (RepositoryFiles.artifactExists(repositoryPath))
         {
             updatedMetadataFile = RepositoryFiles.isMetadata(repositoryPath);
             updatedArtifactFile = RepositoryFiles.isArtifact(repositoryPath);

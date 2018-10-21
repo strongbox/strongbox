@@ -9,12 +9,12 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.google.common.base.Throwables;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +67,7 @@ public class AuthenticatorsScanner
         {
             logger.error("Unable to load authenticators from configuration file.", e);
 
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
 
         final List<Authenticator> authenticators = getAuthenticators(applicationContext);

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services.impl;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +42,6 @@ import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import com.google.common.base.Throwables;
 
 /**
  * @author mtodorov
@@ -105,7 +104,7 @@ public class ConfigurationManagementServiceImpl
         }
         catch (Exception e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         finally
         {

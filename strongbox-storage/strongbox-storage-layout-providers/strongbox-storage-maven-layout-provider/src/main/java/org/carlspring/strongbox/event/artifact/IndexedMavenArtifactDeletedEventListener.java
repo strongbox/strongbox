@@ -8,8 +8,8 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 
-import com.google.common.base.Throwables;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -47,7 +47,7 @@ public class IndexedMavenArtifactDeletedEventListener
         }
         catch (IOException e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
     }
 }

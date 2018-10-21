@@ -1,14 +1,10 @@
 package org.carlspring.strongbox.cron.services.impl;
 
-import org.carlspring.strongbox.cron.config.CronTasksConfigurationFileManager;
-import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
-import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.exceptions.CronTaskConfigurationException;
-import org.carlspring.strongbox.cron.services.CronTaskDataService;
-import org.carlspring.strongbox.cron.services.support.CronTaskConfigurationSearchCriteria;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Iterator;
+import java.lang.reflect.UndeclaredThrowableException;
 
-import javax.inject.Inject;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,9 +15,17 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.base.Throwables;
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.cron.config.CronTasksConfigurationFileManager;
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
+import org.carlspring.strongbox.cron.exceptions.CronTaskConfigurationException;
+import org.carlspring.strongbox.cron.services.CronTaskDataService;
+import org.carlspring.strongbox.cron.services.support.CronTaskConfigurationSearchCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -39,7 +43,6 @@ public class CronTaskDataServiceImpl
 
     private final ReadWriteLock cronTasksConfigurationLock = new ReentrantReadWriteLock();
 
-    @Inject
     private CronTasksConfigurationFileManager cronTasksConfigurationFileManager;
 
     /**
@@ -47,8 +50,39 @@ public class CronTaskDataServiceImpl
      * It is protected by the {@link #cronTasksConfigurationLock} here
      * and should not be exposed to the world.
      */
-    private final CronTasksConfigurationDto configuration = new CronTasksConfigurationDto();
+    private final CronTasksConfigurationDto configuration;
 
+    @Inject
+    public CronTaskDataServiceImpl(CronTasksConfigurationFileManager cronTasksConfigurationFileManager)
+    {
+        this.cronTasksConfigurationFileManager = cronTasksConfigurationFileManager;
+        
+        CronTasksConfigurationDto cronTasksConfiguration = cronTasksConfigurationFileManager.read();
+        for (Iterator<CronTaskConfigurationDto> iterator = cronTasksConfiguration.getCronTaskConfigurations().iterator(); iterator.hasNext();)
+        {
+            CronTaskConfigurationDto c = iterator.next();
+
+            logger.debug("Saving cron configuration {}", c);
+
+            String jobClass = c.getProperty("jobClass");
+            if (jobClass != null && !jobClass.trim().isEmpty())
+            {
+                try
+                {
+                    Class.forName(jobClass);
+                }
+                catch (ClassNotFoundException e)
+                {
+                    logger.warn(String.format("Skip configuration, job class not found [%s].", jobClass));
+                    iterator.remove();
+                }
+            }
+
+        }
+        
+        this.configuration = cronTasksConfiguration;
+    }
+    
     @Override
     public CronTasksConfigurationDto getTasksConfigurationDto()
     {
@@ -61,7 +95,7 @@ public class CronTaskDataServiceImpl
         }
         catch (Exception e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         finally
         {

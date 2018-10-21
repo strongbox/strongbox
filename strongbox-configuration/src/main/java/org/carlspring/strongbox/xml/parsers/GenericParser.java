@@ -4,6 +4,7 @@ import org.carlspring.strongbox.url.ClasspathURLStreamHandler;
 import org.carlspring.strongbox.url.ClasspathURLStreamHandlerFactory;
 import org.carlspring.strongbox.xml.CustomTagService;
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfigurationTagService;
+import org.carlspring.strongbox.xml.repository.remote.RemoteRepositoryConfigurationTagService;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -17,6 +18,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,6 +30,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 /**
@@ -65,16 +68,14 @@ public class GenericParser<T>
 
     public GenericParser()
     {
-        this.classes.addAll(CustomTagService.getInstance().getImplementations());
-        this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
+        init();
     }
 
     public GenericParser(boolean useServiceLoader)
     {
         if (useServiceLoader)
         {
-            this.classes.addAll(CustomTagService.getInstance().getImplementations());
-            this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
+            init();
         }
     }
 
@@ -84,8 +85,7 @@ public class GenericParser<T>
 
         if (useServiceLoader)
         {
-            this.classes.addAll(CustomTagService.getInstance().getImplementations());
-            this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
+            init();
         }
     }
 
@@ -93,10 +93,16 @@ public class GenericParser<T>
     {
         Collections.addAll(this.classes, classes);
 
-        this.classes.addAll(CustomTagService.getInstance().getImplementations());
-        this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
+        init();
     }
 
+    private void init()
+    {
+        this.classes.addAll(CustomTagService.getInstance().getImplementations());
+        this.classes.addAll(CustomRepositoryConfigurationTagService.getInstance().getImplementations());
+        this.classes.addAll(RemoteRepositoryConfigurationTagService.getInstance().getImplementations());
+    }
+    
     public T parse(URL url)
             throws IOException, JAXBException
     {
@@ -139,7 +145,7 @@ public class GenericParser<T>
     public void store(T object,
                       Resource fileResource) throws JAXBException, IOException {
         //Check that target resource stored on FS and not under classpath for example
-        if (!fileResource.isFile())
+        if (!fileResource.isFile() || fileResource instanceof ClassPathResource)
         {
             logger.warn(String.format("Skip resource store [%s]", fileResource));
             return;
@@ -243,7 +249,7 @@ public class GenericParser<T>
             catch (Exception e)
             {
                 logger.error(e.getMessage(), e);
-                throw new RuntimeException(e);
+                throw new UndeclaredThrowableException(e);
             }
         }
 

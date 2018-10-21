@@ -11,6 +11,7 @@ import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -20,7 +21,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -89,7 +89,7 @@ public class AuthorizationConfigServiceImpl
         }
         catch (Exception e)
         {
-            throw Throwables.propagate(e);
+            throw new UndeclaredThrowableException(e);
         }
         finally
         {

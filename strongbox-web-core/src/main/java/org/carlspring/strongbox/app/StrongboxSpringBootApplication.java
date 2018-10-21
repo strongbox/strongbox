@@ -1,8 +1,8 @@
-package org.carlspring.strongbox;
+package org.carlspring.strongbox.app;
 
-import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.config.ConnectionConfigOrientDB;
+import org.carlspring.strongbox.config.WebConfig;
 
 import java.io.IOException;
 
@@ -12,12 +12,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Import;
 
 /**
  * @author carlspring
  */
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
                                    HibernateJpaAutoConfiguration.class })
+@Import(WebConfig.class)
 public class StrongboxSpringBootApplication
 {
 
@@ -26,7 +29,7 @@ public class StrongboxSpringBootApplication
     public static void main(String[] args)
             throws IOException
     {
-        PropertiesBooter.initialize();
+        //PropertiesBooter.initialize();
         StorageBooter.createTempDir();
 
         if (System.getProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE) == null)
@@ -37,7 +40,8 @@ public class StrongboxSpringBootApplication
             System.setProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE, ConnectionConfigOrientDB.PROFILE_EMBEDDED);
         }
 
-        SpringApplication.run(StrongboxSpringBootApplication.class, args);
+        ConfigurableApplicationContext applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class, args);
+        applicationContext.start();
     }
 
 }
