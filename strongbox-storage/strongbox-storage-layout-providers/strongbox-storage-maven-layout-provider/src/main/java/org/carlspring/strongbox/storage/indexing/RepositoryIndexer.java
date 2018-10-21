@@ -89,8 +89,7 @@ public class RepositoryIndexer
             final ArtifactContextProducer artifactContextProducer = applicationContext.getBean(
                     ArtifactContextProducer.class, artifactPath);
             ArtifactContext artifactContext = artifactContextProducer.getArtifactContext(indexingContext,
-                                                                                         new File(
-                                                                                                 artifactPath.toAbsolutePath().toUri().getPath()));
+                                                                                         new File(artifactPath.toAbsolutePath().toUri().getPath()));
 
             if (artifactContext == null)
             {
