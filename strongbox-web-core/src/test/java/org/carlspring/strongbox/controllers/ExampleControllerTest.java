@@ -4,6 +4,7 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.ExampleForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,15 @@ public class ExampleControllerTest
         extends RestAssuredBaseTest
 {
 
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
+    {
+        super.init();
+        setContextBaseUrl(getContextBaseUrl() + "/example-controller");
+    }
+
     @Test
     public void testGetExamplesResponse()
             throws Exception
@@ -30,7 +40,7 @@ public class ExampleControllerTest
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/example-controller/all")
+               .get(getContextBaseUrl() + "/all")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -44,7 +54,7 @@ public class ExampleControllerTest
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/example-controller/get/foo-bar")
+               .get(getContextBaseUrl() + "/get/foo-bar")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -58,7 +68,7 @@ public class ExampleControllerTest
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/example-controller/get/not-found")
+               .get(getContextBaseUrl() + "/get/not-found")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value())
@@ -72,7 +82,7 @@ public class ExampleControllerTest
         given().accept(MediaType.TEXT_PLAIN_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/example-controller/get/not-found")
+               .get(getContextBaseUrl() + "/get/not-found")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value())
@@ -86,7 +96,7 @@ public class ExampleControllerTest
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .delete("/example-controller/delete/foo-bar")
+               .delete(getContextBaseUrl() + "/delete/foo-bar")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -100,7 +110,7 @@ public class ExampleControllerTest
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .delete("/example-controller/delete/not-found")
+               .delete(getContextBaseUrl() + "/delete/not-found")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value())
@@ -118,7 +128,7 @@ public class ExampleControllerTest
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(exampleForm)
                .when()
-               .post("/example-controller/update/foo-bar")
+               .post(getContextBaseUrl() + "/update/foo-bar")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -137,7 +147,7 @@ public class ExampleControllerTest
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(exampleForm)
                .when()
-               .post("/example-controller/update/foo-bar")
+               .post(getContextBaseUrl() + "/update/foo-bar")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -151,7 +161,7 @@ public class ExampleControllerTest
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .post("/example-controller/update/foo-bar")
+               .post(getContextBaseUrl() + "/update/foo-bar")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -165,7 +175,7 @@ public class ExampleControllerTest
         given().accept(MediaType.TEXT_PLAIN_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .post("/example-controller/update/foo-bar")
+               .post(getContextBaseUrl() + "/update/foo-bar")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -184,7 +194,7 @@ public class ExampleControllerTest
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(exampleForm)
                .when()
-               .post("/example-controller/update/foo-bar")
+               .post(getContextBaseUrl() + "/update/foo-bar")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -203,7 +213,7 @@ public class ExampleControllerTest
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(exampleForm)
                .when()
-               .post("/example-controller/update/foo-bar")
+               .post(getContextBaseUrl() + "/update/foo-bar")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -217,11 +227,12 @@ public class ExampleControllerTest
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/example-controller/handle-exception")
+               .get(getContextBaseUrl() + "/handle-exception")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-               .body("message", containsString("This example message will be logged in the logs and sent to the client."));
+               .body("message",
+                     containsString("This example message will be logged in the logs and sent to the client."));
     }
 
     @Test
@@ -231,7 +242,7 @@ public class ExampleControllerTest
         given().accept(MediaType.TEXT_PLAIN_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/example-controller/handle-exception")
+               .get(getContextBaseUrl() + "/handle-exception")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
@@ -245,7 +256,7 @@ public class ExampleControllerTest
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/example-controller/unhandled-exception")
+               .get(getContextBaseUrl() + "/unhandled-exception")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
@@ -259,12 +270,12 @@ public class ExampleControllerTest
         given().accept(MediaType.TEXT_PLAIN_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/example-controller/unhandled-exception")
+               .get(getContextBaseUrl() + "/unhandled-exception")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                .body(containsString("Something bad happened."));
     }
 
-    
+
 }

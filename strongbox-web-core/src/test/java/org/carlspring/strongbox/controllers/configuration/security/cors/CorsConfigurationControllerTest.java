@@ -41,10 +41,12 @@ public class CorsConfigurationControllerTest
 
     private static final String url = "/api/configuration/cors";
 
-
+    @Override
     @BeforeEach
-    public void before()
+    public void init()
+            throws Exception
     {
+        super.init();
         initialConfiguration = new HashMap<>(((UrlBasedCorsConfigurationSource) corsConfigurationSource).getCorsConfigurations());
     }
 

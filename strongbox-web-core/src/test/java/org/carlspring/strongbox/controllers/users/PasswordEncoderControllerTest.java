@@ -5,6 +5,7 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +26,14 @@ public class PasswordEncoderControllerTest
 
     @Inject
     PasswordEncoder passwordEncoder;
+
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
+    {
+        super.init();
+    }
 
     @Test
     public void shouldEncodeProperly()

@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -27,6 +28,14 @@ public class LoginControllerTest
 
     @Inject
     private UserService userService;
+
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
+    {
+        super.init();
+    }
 
     @Test
     public void shouldReturnGeneratedToken()

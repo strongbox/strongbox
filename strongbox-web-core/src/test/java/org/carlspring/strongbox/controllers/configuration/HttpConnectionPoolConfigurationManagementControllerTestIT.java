@@ -8,7 +8,6 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -38,10 +37,12 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
     @Inject
     private ConfigurationManager configurationManager;
 
+    @Override
     @BeforeEach
-    public void setUp()
-            throws IOException
+    public void init()
+            throws Exception
     {
+        super.init();
         Path storageBasedir = Paths.get(ConfigurationResourceResolver.getVaultDirectory(), "storages", "storage0",
                                         "org", "carlspring", "strongbox", "strongbox-utils", "8.2",
                                         "strongbox-utils-8.2.jar");

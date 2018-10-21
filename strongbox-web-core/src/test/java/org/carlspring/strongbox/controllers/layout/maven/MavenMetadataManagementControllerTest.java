@@ -63,10 +63,13 @@ public class MavenMetadataManagementControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
+    @Override
     @BeforeEach
-    public void initialize()
+    public void init()
             throws Exception
     {
+        super.init();
+
         // Create repositories
         MutableRepository repositoryReleases = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repositoryReleases.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());

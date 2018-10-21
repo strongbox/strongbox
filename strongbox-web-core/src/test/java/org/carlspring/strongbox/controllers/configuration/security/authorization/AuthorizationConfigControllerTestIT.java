@@ -42,9 +42,13 @@ public class AuthorizationConfigControllerTestIT
 
     private AuthorizationConfigDto config;
 
+    @Override
     @BeforeEach
-    public void beforeEveryTest()
+    public void init()
+            throws Exception
     {
+        super.init();
+        setContextBaseUrl(getContextBaseUrl() + getContextBaseUrl() + "/api/configuration");
         config = authorizationConfigService.getDto();
     }
 
@@ -61,7 +65,7 @@ public class AuthorizationConfigControllerTestIT
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(role)
                .when()
-               .post("/api/configuration/authorization/role")
+               .post(getContextBaseUrl() + "/authorization/role")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
@@ -103,7 +107,7 @@ public class AuthorizationConfigControllerTestIT
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(customRole)
                .when()
-               .post("/api/configuration/authorization/role")
+               .post(getContextBaseUrl() + "/authorization/role")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
@@ -143,7 +147,7 @@ public class AuthorizationConfigControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .get("/api/configuration/authorization/xml")
+               .get(getContextBaseUrl() + "/authorization/xml")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()); // check http status code
@@ -168,7 +172,7 @@ public class AuthorizationConfigControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .delete("/api/configuration/authorization/role/" + roleName)
+               .delete(getContextBaseUrl() + "/authorization/role/" + roleName)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
@@ -196,7 +200,7 @@ public class AuthorizationConfigControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .delete("/api/configuration/authorization/role/" + roleName)
+               .delete(getContextBaseUrl() + "/authorization/role/" + roleName)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
@@ -231,7 +235,7 @@ public class AuthorizationConfigControllerTestIT
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(privilegeListForm)
                .when()
-               .post("/api/configuration/authorization/anonymous/privileges")
+               .post(getContextBaseUrl() + "/authorization/anonymous/privileges")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
@@ -266,7 +270,7 @@ public class AuthorizationConfigControllerTestIT
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(privilegeListForm)
                .when()
-               .post("/api/configuration/authorization/anonymous/privileges")
+               .post(getContextBaseUrl() + "/authorization/anonymous/privileges")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code

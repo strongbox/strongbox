@@ -50,9 +50,14 @@ public class AuthenticatorsConfigControllerTestIT
     @Inject
     private AuthenticatorsRegistry authenticatorsRegistry;
 
+    @Override
     @BeforeEach
-    public void setUp()
+    public void init()
+            throws Exception
     {
+        super.init();
+        setContextBaseUrl(getContextBaseUrl() + "/api/configuration");
+        
         Iterator<Authenticator> iterator = authenticatorsRegistry.iterator();
         originalRegistryList = Lists.newArrayList(iterator);
         authenticatorsRegistry.reload(registryList);
@@ -68,7 +73,7 @@ public class AuthenticatorsConfigControllerTestIT
     {
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/api/configuration/authenticators/")
+               .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
@@ -88,7 +93,7 @@ public class AuthenticatorsConfigControllerTestIT
         // Registry should have form setup in test, first
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/api/configuration/authenticators/")
+               .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
@@ -106,7 +111,7 @@ public class AuthenticatorsConfigControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .put("/api/configuration/authenticators/reorder/0/1")
+               .put(getContextBaseUrl() + "/authenticators/reorder/0/1")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -115,7 +120,7 @@ public class AuthenticatorsConfigControllerTestIT
         // Confirm they are re-ordered
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/api/configuration/authenticators/")
+               .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
@@ -133,7 +138,7 @@ public class AuthenticatorsConfigControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .put("/api/configuration/authenticators/reload")
+               .put(getContextBaseUrl() + "/authenticators/reload")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -142,7 +147,7 @@ public class AuthenticatorsConfigControllerTestIT
         // Registry should be reloaded
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/api/configuration/authenticators/")
+               .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
@@ -179,7 +184,7 @@ public class AuthenticatorsConfigControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .put("/api/configuration/authenticators/reorder/0/1")
+               .put(getContextBaseUrl() + "/authenticators/reorder/0/1")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -188,7 +193,7 @@ public class AuthenticatorsConfigControllerTestIT
         // then
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/api/configuration/authenticators/")
+               .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",

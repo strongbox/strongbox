@@ -68,8 +68,9 @@ public class TrashControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
+    @Override
     @BeforeEach
-    public void initialize()
+    public void init()
             throws Exception
     {
         super.init();

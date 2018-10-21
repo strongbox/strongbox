@@ -42,6 +42,13 @@ public class LdapAuthenticatorConfigurationControllerTest
         extends RestAssuredBaseTest
 {
 
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
+    {
+        super.init();
+    }
 
     @Inject
     private AuthenticatorsScanner scanner;

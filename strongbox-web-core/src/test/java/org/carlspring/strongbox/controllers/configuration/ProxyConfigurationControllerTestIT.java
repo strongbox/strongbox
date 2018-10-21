@@ -29,9 +29,12 @@ public class ProxyConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
+    @Override
     @BeforeEach
-    public void setUp()
+    public void init()
+            throws Exception
     {
+        super.init();
         setContextBaseUrl("/api/configuration/strongbox/proxy-configuration");
     }
 
