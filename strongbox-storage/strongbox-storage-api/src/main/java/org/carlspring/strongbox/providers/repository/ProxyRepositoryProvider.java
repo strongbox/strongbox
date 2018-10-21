@@ -70,7 +70,7 @@ public class ProxyRepositoryProvider
         {
             targetPath = resolvePathForceFetch(repositoryPath);
         }
-        if (RepositoryFiles.hasExpired(targetPath))
+        else if (RepositoryFiles.hasExpired(targetPath))
         {
             targetPath = handleRepositoryPathExpiration(repositoryPath);
         }

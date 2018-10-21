@@ -80,7 +80,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         throws IOException
     {
         RepositoryPath result = resolvePathDirectlyFromGroupPathIfPossible(repositoryPath);
-        if (result != null)
+        if (result != null && !RepositoryFiles.hasExpired(result))
         {
             return result;
         }
