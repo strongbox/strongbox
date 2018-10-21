@@ -5,6 +5,7 @@ import org.carlspring.strongbox.authentication.support.AuthoritiesExternalToInte
 
 import javax.xml.bind.annotation.*;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.net.ServerSocket;
 import java.util.stream.Collectors;
 
@@ -157,7 +158,7 @@ public class LdapConfiguration
         }
         catch (Exception ex)
         {
-            throw new RuntimeException(ex);
+            throw new UndeclaredThrowableException(ex);
         }
         registerSingleton(applicationContext, container);
 

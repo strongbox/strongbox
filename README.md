@@ -1,7 +1,7 @@
 # ![strongbox](./strongbox.svg)
 
 [![Master Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox/master)](https://dev.carlspring.org/jenkins/blue/organizations/jenkins/strongbox%2Fstrongbox/activity?branch=master)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/strongbox/strongbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![RocketChat.Community.Channel](https://chat.carlspring.org/images/join-chat.svg)](https://chat.carlspring.org/channel/community)
 [![Help Contribute to Open Source](https://www.codetriage.com/strongbox/strongbox/badges/users.svg)](https://www.codetriage.com/strongbox/strongbox)
 
 Welcome to the Strongbox artifact repository manager's home.
@@ -81,4 +81,5 @@ Please check [here](https://github.com/strongbox/strongbox/wiki/Installation) fo
 Instructions on how to build the code, can be found [here](https://github.com/strongbox/strongbox/wiki/Building-the-code).
 
 # Contributing
-Contributions and contributors are always welcome! For more details, please check [here](https://github.com/strongbox/strongbox/blob/master/CONTRIBUTING.md). We have a helpful community of developers on our [Gitter](https://gitter.im/strongbox/strongbox) channel, please feel free to drop by, if you have questions, issues, or would like to contribute!
+Contributions and contributors are always welcome! For more details, please check [here](https://github.com/strongbox/strongbox/blob/master/CONTRIBUTING.md). We have a helpful community of developers on our [channel](https://chat.carlspring.org/channel/community), please feel free to drop by, if you have questions, issues, or would like to contribute!
+

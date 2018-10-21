@@ -150,7 +150,7 @@ public class MavenMetadataManager
                      }
                      catch (Exception ex)
                      {
-                         throw new RuntimeException(ex);
+                         throw new UndeclaredThrowableException(ex);
                      }
                  }
         );
