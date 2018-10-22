@@ -14,6 +14,15 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 
+/**
+ * This utility class contains common methods to work with {@link RepositoryPath}
+ * 
+ * @author sbespalov
+ * 
+ * @see RepositoryPath
+ * @see Files
+ *
+ */
 public abstract class RepositoryFiles
 {
 
