@@ -87,11 +87,12 @@ public class RegenerateNugetChecksumCronJobTestIT
         cleanUp(getRepositoriesToClean());
     }
 
+    @Override
     @BeforeEach
-    public void initialize(TestInfo testInfo)
+    public void init(TestInfo testInfo)
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
+        super.init(testInfo);
 
         createStorage(STORAGE1);
 

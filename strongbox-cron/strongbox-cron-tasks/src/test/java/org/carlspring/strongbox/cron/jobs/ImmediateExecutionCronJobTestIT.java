@@ -27,10 +27,12 @@ public class ImmediateExecutionCronJobTestIT
     @Inject
     private JobManager jobManager;
 
+    @Override
     @BeforeEach
-    void initialize(TestInfo testInfo)
+    public void init(TestInfo testInfo)
+            throws Exception
     {
-        expectedCronTaskName = testInfo.getDisplayName();
+        super.init(testInfo);
     }
 
     public void addImmediateExecutionCronJobConfig(String name)

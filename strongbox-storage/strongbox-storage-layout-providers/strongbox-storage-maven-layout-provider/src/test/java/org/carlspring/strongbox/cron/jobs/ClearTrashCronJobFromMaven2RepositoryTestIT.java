@@ -97,11 +97,12 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         return repositories;
     }
 
+    @Override
     @BeforeEach
-    public void initialize(TestInfo testInfo)
+    public void init(TestInfo testInfo)
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
+        super.init(testInfo);
 
         MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(false);

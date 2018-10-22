@@ -64,11 +64,12 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         return repositories;
     }
 
+    @Override
     @BeforeEach
-    public void initialize(TestInfo testInfo)
+    public void init(TestInfo testInfo)
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
+        super.init(testInfo);
 
         Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 

@@ -34,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Kate Novik.
  */
-@Disabled //FIXME
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
@@ -101,11 +100,12 @@ public class RebuildMavenMetadataCronJobTestIT
         return repositories;
     }
 
+    @Override
     @BeforeEach
-    public void initialize(TestInfo testInfo)
+    public void init(TestInfo testInfo)
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
+        super.init(testInfo);
 
         createRepository(STORAGE0, REPOSITORY_SNAPSHOTS, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 

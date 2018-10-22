@@ -54,13 +54,19 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
     @Inject
     private ArtifactEntryService artifactEntryService;
 
+    @Override
+    @BeforeEach
+    public void init(TestInfo testInfo)
+            throws Exception
+    {
+        super.init(testInfo);
+    }
+
     @BeforeEach
     @AfterEach
     public void cleanup(TestInfo testInfo)
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
-
         deleteDirectoryRelativeToVaultDirectory(
                 "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
 

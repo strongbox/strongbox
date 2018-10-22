@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Kate Novik.
  */
-@Disabled //FIXME
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
@@ -91,11 +90,12 @@ public class RebuildMavenIndexesCronJobTestIT
         Assumptions.assumeTrue(repositoryIndexManager.isPresent());
     }
 
+    @Override
     @BeforeEach
-    public void initialize(TestInfo testInfo)
+    public void init(TestInfo testInfo)
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
+        super.init(testInfo);
 
         createStorage(STORAGE1);
 

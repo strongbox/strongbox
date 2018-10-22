@@ -9,11 +9,14 @@ import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
+import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -50,8 +53,13 @@ public class BaseCronJobWithMavenIndexingTestCase
     protected AtomicBoolean receivedExpectedEvent = new AtomicBoolean(false);
 
     protected String expectedJobName;
-    
-    
+
+    public void init(TestInfo testInfo)
+            throws Exception
+    {
+        Optional<Method> method = testInfo.getTestMethod();
+        expectedJobName = method.map(Method::getName).orElse(null);
+    }
 
     @Override
     public void onApplicationEvent(CronTaskEvent event)

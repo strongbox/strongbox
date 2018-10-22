@@ -7,7 +7,10 @@ import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 
 import javax.inject.Inject;
+import java.lang.reflect.Method;
+import java.util.Optional;
 
+import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -39,6 +42,13 @@ abstract class BaseCronTestCase implements ApplicationListener<CronTaskEvent>, A
     protected CronTaskEvent receivedEvent;
 
     protected boolean receivedExpectedEvent;
+
+    public void init(TestInfo testInfo)
+            throws Exception
+    {
+        Optional<Method> method = testInfo.getTestMethod();
+        expectedCronTaskName = method.map(Method::getName).orElse(null);
+    }
     
     @Override
     public void setApplicationContext(ApplicationContext applicationContext)

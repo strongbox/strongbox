@@ -84,11 +84,12 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         return repositories;
     }
 
+    @Override
     @BeforeEach
-    public void initialize(TestInfo testInfo)
+    public void init(TestInfo testInfo)
             throws Exception
     {
-        expectedJobName = testInfo.getDisplayName();
+        super.init(testInfo);
 
         //Create repository rtmscj-snapshots in storage0
         createRepository(STORAGE0, REPOSITORY_SNAPSHOTS_1, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);

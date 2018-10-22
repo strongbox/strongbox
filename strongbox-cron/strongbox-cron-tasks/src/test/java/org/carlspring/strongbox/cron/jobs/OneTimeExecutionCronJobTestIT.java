@@ -20,11 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class OneTimeExecutionCronJobTestIT
         extends BaseCronTestCase
 {
-
+    @Override
     @BeforeEach
-    void initialize(TestInfo testInfo)
+    public void init(TestInfo testInfo)
+            throws Exception
     {
-        expectedCronTaskName = testInfo.getDisplayName();
+        super.init(testInfo);
     }
 
     public void addOneTimeExecutionCronJobConfig(String name)
