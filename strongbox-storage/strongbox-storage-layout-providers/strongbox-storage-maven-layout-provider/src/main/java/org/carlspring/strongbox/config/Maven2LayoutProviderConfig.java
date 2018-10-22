@@ -7,8 +7,8 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemFactory;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemProviderFactory;
+import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
+import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
 import org.carlspring.strongbox.providers.layout.IndexedMaven2FileSystemProvider;
 import org.carlspring.strongbox.providers.layout.Maven2FileSystemProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
@@ -43,7 +43,7 @@ public class Maven2LayoutProviderConfig
     private Environment environment;
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)
-    public RepositoryFileSystemProviderFactory mavenRepositoryFileSystemProviderFactory()
+    public LayoutFileSystemProviderFactory mavenRepositoryFileSystemProviderFactory()
     {
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
@@ -78,9 +78,9 @@ public class Maven2LayoutProviderConfig
     }
 
     @Bean(FILE_SYSTEM_ALIAS)
-    public RepositoryFileSystemFactory mavenRepositoryFileSystemFactory()
+    public LayoutFileSystemFactory mavenRepositoryFileSystemFactory()
     {
-        RepositoryFileSystemProviderFactory providerFactory = mavenRepositoryFileSystemProviderFactory();
+        LayoutFileSystemProviderFactory providerFactory = mavenRepositoryFileSystemProviderFactory();
         
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());

@@ -7,8 +7,8 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemFactory;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemProviderFactory;
+import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
+import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
 import org.carlspring.strongbox.providers.layout.NugetFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.providers.layout.NugetFileSystem;
@@ -37,7 +37,7 @@ public class NugetLayoutProviderConfig
     protected StorageProviderRegistry storageProviderRegistry;
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)
-    public RepositoryFileSystemProviderFactory nugetRepositoryFileSystemProviderFactory()
+    public LayoutFileSystemProviderFactory nugetRepositoryFileSystemProviderFactory()
     {
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
@@ -57,10 +57,10 @@ public class NugetLayoutProviderConfig
     }
 
     @Bean(FILE_SYSTEM_ALIAS)
-    public RepositoryFileSystemFactory nugetRepositoryFileSystemFactory()
+    public LayoutFileSystemFactory nugetRepositoryFileSystemFactory()
     {
         return (repository) -> {
-            RepositoryFileSystemProviderFactory providerFactory = nugetRepositoryFileSystemProviderFactory();
+            LayoutFileSystemProviderFactory providerFactory = nugetRepositoryFileSystemProviderFactory();
 
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 

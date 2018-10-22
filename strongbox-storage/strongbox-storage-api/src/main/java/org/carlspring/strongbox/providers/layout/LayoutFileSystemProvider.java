@@ -1,19 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.ByteRangeInputStream;
-import org.carlspring.strongbox.providers.io.*;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.util.MessageDigestUtils;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,9 +15,33 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.ByteRangeInputStream;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
+import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class decorates {@link StorageFileSystemProvider} with common layout specific
+ * logic. <br>
+ * 
+ * @author sbespalov
+ * 
+ * @see LayoutProvider
+ */
 public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
 {
     private static final Logger logger = LoggerFactory.getLogger(LayoutFileSystemProvider.class);

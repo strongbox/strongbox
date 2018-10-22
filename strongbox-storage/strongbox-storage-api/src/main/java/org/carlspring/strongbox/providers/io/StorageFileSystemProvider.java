@@ -42,15 +42,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
 
 /**
- * This is a proxy implementation which wraps target {@link FileSystemProvider}.
+ * This class decorates storage {@link FileSystemProvider}.
  * <br>
  * Note that almost all {@link Path} operations in this implementation must
- * delegate method invocations into
- * {@link Files} utility class with {@link RepositoryPath}'s target as
- * parameters.
+ * delegate invocations into {@link Files} utility class with {@link RepositoryPath}'s target as parameters.
  *
- * TODO: we need a proper implementation against Service Provider Interface
- * (SPI) specification
+ * TODO: we need a proper implementation against Service Provider Interface (SPI) specification
  *
  * @author Sergey Bespalov
  */

@@ -8,7 +8,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
  *
  */
 @FunctionalInterface
-public interface RepositoryFileSystemProviderFactory
+public interface LayoutFileSystemProviderFactory
 {
 
     LayoutFileSystemProvider create(Repository repository);

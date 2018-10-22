@@ -11,10 +11,14 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.Set;
 
+import org.carlspring.strongbox.providers.datastore.StorageProvider;
+
 /**
- * Base class for {@link FileSystem} wrapper implementations.
+ * This class decoretes storage {@link FileSystem} implementation.
  *
  * @author Sergey Bespalov
+ * 
+ * @see StorageProvider
  */
 public abstract class StorageFileSystem
         extends FileSystem

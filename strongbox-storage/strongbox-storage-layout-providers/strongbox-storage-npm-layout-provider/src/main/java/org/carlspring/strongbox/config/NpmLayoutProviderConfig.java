@@ -13,8 +13,8 @@ import javax.inject.Qualifier;
 import org.carlspring.strongbox.npm.metadata.jackson.NpmJacksonMapperFactory;
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemFactory;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemProviderFactory;
+import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
+import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
 import org.carlspring.strongbox.providers.layout.NpmFileSystem;
 import org.carlspring.strongbox.providers.layout.NpmFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
@@ -52,7 +52,7 @@ public class NpmLayoutProviderConfig
     }
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)
-    public RepositoryFileSystemProviderFactory npmRepositoryFileSystemProviderFactory()
+    public LayoutFileSystemProviderFactory npmRepositoryFileSystemProviderFactory()
     {
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
@@ -72,9 +72,9 @@ public class NpmLayoutProviderConfig
     }
 
     @Bean(FILE_SYSTEM_ALIAS)
-    public RepositoryFileSystemFactory npmRepositoryFileSystemFactory()
+    public LayoutFileSystemFactory npmRepositoryFileSystemFactory()
     {
-        RepositoryFileSystemProviderFactory providerFactory = npmRepositoryFileSystemProviderFactory();
+        LayoutFileSystemProviderFactory providerFactory = npmRepositoryFileSystemProviderFactory();
         
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
