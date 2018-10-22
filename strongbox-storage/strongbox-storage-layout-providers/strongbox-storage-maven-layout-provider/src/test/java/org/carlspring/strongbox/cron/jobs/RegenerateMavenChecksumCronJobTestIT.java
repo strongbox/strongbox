@@ -31,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Kate Novik.
  */
-@Disabled //FIXME
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
