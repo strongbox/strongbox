@@ -221,7 +221,8 @@ public class Configuration
             Optional<String> exists = repository.getGroupRepositories()
                                                 .keySet()
                                                 .stream()
-                                                .filter(storageAndRepositoryId::equals)
+                                                .filter(groupName -> (groupName.equals(storageAndRepositoryId) ||
+                                                                      (repository.getStorage().getId().equals(storageId) && groupName.equals(repositoryId))))
                                                 .findFirst();
             if (!exists.isPresent())
             {
