@@ -85,7 +85,7 @@ public class ChecksumCacheManager
         final String checksum = artifactChecksum.getChecksum(escapedAlgorithm);
         if (checksum != null)
         {
-            logger.debug(String.format("Found checksum '%s' [%s]" + " for '%s' in cache.", checksum, escapedAlgorithm, artifactPath));
+            logger.debug(String.format("Found checksum '%s' [%s] for '%s' in cache.", checksum, escapedAlgorithm, artifactPath));
         }
 
         return checksum;
@@ -96,7 +96,7 @@ public class ChecksumCacheManager
                                     final String checksum)
     {
         final String escapedAlgorithm = getAlgorithm(algorithm);
-        logger.debug(String.format("Adding checksum '%s' [%s]" + " for '%s' in cache.", checksum, escapedAlgorithm, artifactPath));
+        logger.debug(String.format("Adding checksum '%s' [%s] for '%s' in cache.", checksum, escapedAlgorithm, artifactPath));
 
         ArtifactChecksum artifactChecksum = cache.get(artifactPath.toUri(), ArtifactChecksum.class);
         if (artifactChecksum == null)

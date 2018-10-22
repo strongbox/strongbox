@@ -77,15 +77,22 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
     @Override
     public RepositoryPath fetchPath(RepositoryPath repositoryPath)
-        throws IOException
+            throws IOException
     {
         RepositoryPath result = resolvePathDirectlyFromGroupPathIfPossible(repositoryPath);
-        if (result != null && !RepositoryFiles.hasExpired(result))
+        if (result == null || RepositoryFiles.hasExpired(result))
         {
-            return result;
+            // Both cases require to resolve the path traversal ...
+            RepositoryPath resolvedTraversal = resolvePathTraversal(repositoryPath);
+            // ... but only this case ...
+            if (result == null)
+            {
+                // ... requires reassignment
+                result = resolvedTraversal;
+            }
         }
-        
-        return resolvePathTraversal(repositoryPath);
+
+        return result;
     }
     
     protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath) throws IOException
