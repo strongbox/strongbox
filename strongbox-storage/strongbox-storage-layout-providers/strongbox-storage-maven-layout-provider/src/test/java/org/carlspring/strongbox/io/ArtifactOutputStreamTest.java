@@ -91,7 +91,7 @@ public class ArtifactOutputStreamTest
 
         TempRepositoryPath artifactPathTemp = RepositoryFiles.temporary(artifactPath);
 
-        ArtifactOutputStream afos = (ArtifactOutputStream) Files.newOutputStream(artifactPathTemp);
+        LayoutOutputStream afos = (LayoutOutputStream) Files.newOutputStream(artifactPathTemp);
         
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
@@ -122,7 +122,7 @@ public class ArtifactOutputStreamTest
 
         TempRepositoryPath artifactPathTemp = RepositoryFiles.temporary(artifactPath);
 
-        ArtifactOutputStream afos = (ArtifactOutputStream) Files.newOutputStream(artifactPathTemp);
+        LayoutOutputStream afos = (LayoutOutputStream) Files.newOutputStream(artifactPathTemp);
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
         afos.close();

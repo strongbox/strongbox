@@ -20,8 +20,8 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.LayoutInputStream;
+import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -63,7 +63,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     protected abstract AbstractLayoutProvider getLayoutProvider();
     
     @Override
-    public ArtifactInputStream newInputStream(Path path,
+    public LayoutInputStream newInputStream(Path path,
                                               OpenOption... options)
         throws IOException
     {
@@ -101,13 +101,13 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         }
     }
 
-    protected ArtifactInputStream decorateStream(RepositoryPath path,
+    protected LayoutInputStream decorateStream(RepositoryPath path,
                                                  InputStream is,
                                                  ArtifactCoordinates artifactCoordinates)
             throws NoSuchAlgorithmException, IOException
     {
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
-        ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is, digestAlgorithmSet);
+        LayoutInputStream result = new LayoutInputStream(is, digestAlgorithmSet);
         
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (Boolean.TRUE.equals(RepositoryFiles.isChecksum(path)))
@@ -137,7 +137,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     }
 
     private String getChecksum(RepositoryPath path,
-                               ArtifactInputStream is,
+                               LayoutInputStream is,
                                String digestAlgorithm) throws IOException
     {
         RepositoryPath checksumPath = getChecksumPath(path, digestAlgorithm);
@@ -188,13 +188,13 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         }
     }
 
-    protected ArtifactOutputStream decorateStream(RepositoryPath path,
+    protected LayoutOutputStream decorateStream(RepositoryPath path,
                                                   OutputStream os,
                                                   ArtifactCoordinates artifactCoordinates)
             throws NoSuchAlgorithmException, IOException
     {
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
-        ArtifactOutputStream result = new ArtifactOutputStream(os, artifactCoordinates);
+        LayoutOutputStream result = new LayoutOutputStream(os);
         
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (Boolean.TRUE.equals(RepositoryFiles.isChecksum(path)))
@@ -249,7 +249,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                               boolean force)
         throws IOException
     {
-        try (ArtifactInputStream is = newInputStream(path))
+        try (LayoutInputStream is = newInputStream(path))
         {
             Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
             digestAlgorithmSet.stream()

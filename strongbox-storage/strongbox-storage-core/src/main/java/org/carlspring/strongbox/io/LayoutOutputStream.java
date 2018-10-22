@@ -9,51 +9,44 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.carlspring.commons.io.MultipleDigestOutputStream;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This OutputStream wraps a source stream from different Storage types (File System, AWS, JDBC, etc.).
- * Note that this class is "abstract" and you don't need to instantiate it directly, see example below:
+ * This class decorates storage {@link OutputStream} with common layout specific logic.
+ * 
+ * Note that you don't need to instantiate it directly, see example below:
+ * 
  * <pre>
- * ...
- * RepositoryPath repositoryPath = layoutProvider.resolve("path/to/your/artifact/file.ext");
- * ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath); 
- * ...
+ *     RepositoryPath repositoryPath = repositoryPathResolver.resolve("path/to/your/artifact/file.ext");
+ *     ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath); 
  * </pre>
+ * 
  * @author Sergey Bespalov
  */
-public class ArtifactOutputStream extends MultipleDigestOutputStream
+public class LayoutOutputStream extends MultipleDigestOutputStream
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactOutputStream.class);
+    private static final Logger logger = LoggerFactory.getLogger(LayoutOutputStream.class);
 
     private Function<byte[], String> digestStringifier = MessageDigestUtils::convertToHexadecimalString;
-    private ArtifactCoordinates coordinates;
+
     /**
      * Used to cache source {@link OutputStream} contents if needed.
      */
     private OutputStream cacheOutputStream;
     private Function<OutputStreamFunction, ?> cacheOutputStreamTemplate = this::doWithOutputStream;
 
-    public ArtifactOutputStream(OutputStream source,
-                                ArtifactCoordinates coordinates)
+    public LayoutOutputStream(OutputStream source)
             throws NoSuchAlgorithmException
     {
         super(new BufferedOutputStream(source), new String[]{});
-        this.coordinates = coordinates;
     }
 
     public void setCacheOutputStreamTemplate(Function<OutputStreamFunction, ?> chahceOutputStreamTemplate)
     {
         this.cacheOutputStreamTemplate = chahceOutputStreamTemplate;
-    }
-
-    public ArtifactCoordinates getCoordinates()
-    {
-        return coordinates;
     }
 
     public OutputStream getCacheOutputStream()
@@ -144,8 +137,7 @@ public class ArtifactOutputStream extends MultipleDigestOutputStream
         }
         catch (IOException t)
         {
-            logger.error(String.format("Failed to operate with additional artifact stream: coordinates-[%s]",
-                                       coordinates),
+            logger.error(String.format("Failed to operate with additional artifact stream"),
                          t);
             try
             {

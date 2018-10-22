@@ -14,20 +14,21 @@ import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.apache.commons.io.input.ProxyInputStream;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.util.MessageDigestUtils;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 /**
- * Note that this class is "abstract" and you don't need to instantiate it directly, see example below:
+ * This class decorates storage {@link InputStream} with common layout specific logic.
+ * 
+ * You don't need to instantiate it directly, see example below:
+ * 
  * <pre>
- * ...
- * RepositoryPath repositoryPath = layoutProvider.resolve("path/to/your/artifact/file.ext");
- * ArtifactInputStream aos = (ArtifactInputStream) Files.newInputStream(repositoryPath); 
- * ...
+ *     RepositoryPath repositoryPath = repositlryPathResolver.resolve("path/to/your/artifact/file.ext");
+ *     ArtifactInputStream aos = (ArtifactInputStream) Files.newInputStream(repositoryPath); 
  * </pre>
  * 
  * @author mtodorov
+ * 
  */
-public class ArtifactInputStream
+public class LayoutInputStream
         extends ProxyInputStream
 {
 
@@ -35,41 +36,32 @@ public class ArtifactInputStream
                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm(),
                                                         };
 
-    private ArtifactCoordinates artifactCoordinates;
-
     private Map<String, MessageDigest> digests = new LinkedHashMap<>();
 
     private Map<String, String> hexDigests = new LinkedHashMap<>();
 
-    public ArtifactInputStream(ArtifactCoordinates coordinates,
-                               InputStream is,
-                               Set<String> checkSumDigestAlgorithmSet)
+    public LayoutInputStream(InputStream is,
+                             Set<String> checkSumDigestAlgorithmSet)
         throws NoSuchAlgorithmException
     {
         super(new BufferedInputStream(is));
-        this.artifactCoordinates = coordinates;
+        
         for (String algorithm : checkSumDigestAlgorithmSet)
         {
             addAlgorithm(algorithm);
         }
     }
 
-    public ArtifactInputStream(ArtifactCoordinates coordinates,
-                               InputStream is)
+    public LayoutInputStream(InputStream is)
         throws NoSuchAlgorithmException
     {
-        this(coordinates, is, new HashSet<String>()
+        this(is, new HashSet<String>()
         {
             {
                 add(MessageDigestAlgorithms.MD5);
                 add(MessageDigestAlgorithms.SHA_1);
             }
         });
-    }
-
-    public ArtifactCoordinates getArtifactCoordinates()
-    {
-        return artifactCoordinates;
     }
 
     public final void addAlgorithm(String algorithm)

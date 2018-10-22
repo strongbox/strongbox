@@ -15,7 +15,7 @@ import org.apache.commons.io.output.ProxyOutputStream;
 import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.TempRepositoryPath;
@@ -141,7 +141,7 @@ public class IndexedMaven2FileSystemProvider extends Maven2FileSystemProvider
     }
 
     @Override
-    protected ArtifactOutputStream decorateStream(RepositoryPath path,
+    protected LayoutOutputStream decorateStream(RepositoryPath path,
                                                   OutputStream os,
                                                   ArtifactCoordinates artifactCoordinates)
         throws NoSuchAlgorithmException,
