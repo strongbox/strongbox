@@ -86,8 +86,8 @@ public class RepositoryIndexer
     {
         try
         {
-            final ArtifactContextProducer artifactContextProducer = applicationContext.getBean(
-                    ArtifactContextProducer.class, artifactPath);
+            final ArtifactContextProducer artifactContextProducer = applicationContext.getBean(ArtifactContextProducer.class,
+                                                                                               artifactPath);
             ArtifactContext artifactContext = artifactContextProducer.getArtifactContext(indexingContext,
                                                                                          new File(artifactPath.toAbsolutePath().toUri().getPath()));
 
@@ -98,11 +98,11 @@ public class RepositoryIndexer
             final ArtifactInfo artifactInfo = artifactContext.getArtifactInfo();
 
             // preserve duplicates
-            if (CollectionUtils.isNotEmpty(
-                    search(artifactInfo)))
+            if (CollectionUtils.isNotEmpty(search(artifactInfo)))
             {
                 return;
             }
+            
             getIndexer().addArtifactToIndex(artifactContext, indexingContext);
         }
         catch (Exception e) // it's not really a critical problem, artifacts could be added to index later
@@ -155,8 +155,8 @@ public class RepositoryIndexer
 
         if (artifactId != null)
         {
-            booleanQueryBuiler.add(
-                    getIndexer().constructQuery(MAVEN.ARTIFACT_ID, new SourcedSearchExpression(artifactId)), MUST);
+            booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.ARTIFACT_ID, new SourcedSearchExpression(artifactId)),
+                                   MUST);
         }
 
         if (version != null)
@@ -179,8 +179,8 @@ public class RepositoryIndexer
 
         if (classifier != null)
         {
-            booleanQueryBuiler.add(
-                    getIndexer().constructQuery(MAVEN.CLASSIFIER, new SourcedSearchExpression(classifier)), MUST);
+            booleanQueryBuiler.add(getIndexer().constructQuery(MAVEN.CLASSIFIER, new SourcedSearchExpression(classifier)),
+                                   MUST);
         }
 
         final BooleanQuery booleanQuery = booleanQueryBuiler.build();
@@ -190,9 +190,7 @@ public class RepositoryIndexer
                                    indexingContext.getId(),
                                    indexingContext.getIndexDirectory().toString() });
 
-
-        final FlatSearchResponse response = getIndexer().searchFlat(
-                new FlatSearchRequest(booleanQuery, indexingContext));
+        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(booleanQuery, indexingContext));
 
         logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
@@ -272,8 +270,7 @@ public class RepositoryIndexer
                                    indexingContext.getId(),
                                    indexingContext.getIndexDirectory().toString() });
 
-        final FlatSearchResponse response = getIndexer().searchFlat(
-                new FlatSearchRequest(booleanQuery, indexingContext));
+        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(booleanQuery, indexingContext));
 
         logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
@@ -440,4 +437,5 @@ public class RepositoryIndexer
     {
         this.applicationContext = applicationContext;
     }
+    
 }
