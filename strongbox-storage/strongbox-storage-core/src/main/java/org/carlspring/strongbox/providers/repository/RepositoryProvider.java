@@ -14,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This interface provide functionality to operate with artifact Paths.
- * Implementation depends of {@link MutableRepository} type which can be: Hosted, Group
+ * Implementation depends of {@link Repository} type which can be: Hosted, Group
  * or Proxy.
+ * 
+ * TODO: should be replaced with `RepositoryFileSystemProvider`
  * 
  * @author carlspring
  */
