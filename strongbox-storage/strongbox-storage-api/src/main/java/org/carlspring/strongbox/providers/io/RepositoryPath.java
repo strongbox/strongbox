@@ -20,10 +20,13 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
- * "FileSystemPath".
+ * This implementation decorates storage {@link Path} implementation, which can be an "Cloud Path" or common
+ * "File System Path".
  *
  * @author Sergey Bespalov
+ * 
+ * @see RepositoryPathResolver
+ * 
  */
 public class RepositoryPath
         implements Path
