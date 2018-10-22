@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * @author sbespalov
  *
  */
-public class NugetFileSystemProvider extends RepositoryLayoutFileSystemProvider
+public class NugetFileSystemProvider extends LayoutFileSystemProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(NugetFileSystemProvider.class);

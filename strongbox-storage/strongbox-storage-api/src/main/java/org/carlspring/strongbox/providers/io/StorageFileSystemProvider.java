@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.providers.io;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -55,23 +54,23 @@ import org.springframework.util.FileSystemUtils;
  *
  * @author Sergey Bespalov
  */
-public abstract class RepositoryFileSystemProvider
+public abstract class StorageFileSystemProvider
         extends FileSystemProvider
 {
 
     public static final String STRONGBOX_SCHEME = "strongbox";
 
-    private static final Logger logger = LoggerFactory.getLogger(RepositoryFileSystemProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(StorageFileSystemProvider.class);
 
-    private FileSystemProvider storageFileSystemProvider;
+    private FileSystemProvider target;
 
     @Inject
     private RepositoryPathLock repositoryPathLock;
     
-    public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider)
+    public StorageFileSystemProvider(FileSystemProvider target)
     {
         super();
-        this.storageFileSystemProvider = storageFileSystemProvider;
+        this.target = target;
     }
 
     public String getScheme()
@@ -101,7 +100,7 @@ public abstract class RepositoryFileSystemProvider
                                               FileAttribute<?>... attrs)
         throws IOException
     {
-        return storageFileSystemProvider.newByteChannel(unwrap(path), options, attrs);
+        return getTarget().newByteChannel(unwrap(path), options, attrs);
     }
     
     @Override
@@ -110,14 +109,14 @@ public abstract class RepositoryFileSystemProvider
                                       FileAttribute<?>... attrs)
         throws IOException
     {
-        return storageFileSystemProvider.newFileChannel(unwrap(path), options, attrs);
+        return getTarget().newFileChannel(unwrap(path), options, attrs);
     }
 
     public DirectoryStream<Path> newDirectoryStream(Path dir,
                                                     Filter<? super Path> filter)
         throws IOException
     {
-        DirectoryStream<Path> ds = storageFileSystemProvider.newDirectoryStream(unwrap(dir), filter);
+        DirectoryStream<Path> ds = getTarget().newDirectoryStream(unwrap(dir), filter);
         if (!(dir instanceof RepositoryPath))
         {
             return ds;
@@ -144,7 +143,7 @@ public abstract class RepositoryFileSystemProvider
         };
     }
 
-    protected Iterator<Path> createRepositoryDsIterator(RepositoryFileSystem rfs,
+    protected Iterator<Path> createRepositoryDsIterator(LayoutFileSystem rfs,
                                                         Iterator<Path> iterator)
     {
 
@@ -182,7 +181,7 @@ public abstract class RepositoryFileSystemProvider
                                 FileAttribute<?>... attrs)
         throws IOException
     {
-        storageFileSystemProvider.createDirectory(unwrap(dir), attrs);
+        getTarget().createDirectory(unwrap(dir), attrs);
     }
 
     public void delete(Path path)
@@ -197,7 +196,7 @@ public abstract class RepositoryFileSystemProvider
     {
         if (!(path instanceof RepositoryPath))
         {
-            storageFileSystemProvider.delete(path);
+            getTarget().delete(path);
             return;
         }
 
@@ -431,7 +430,7 @@ public abstract class RepositoryFileSystemProvider
                      CopyOption... options)
         throws IOException
     {
-        storageFileSystemProvider.copy(unwrap(source), unwrap(target), options);
+        getTarget().copy(unwrap(source), unwrap(target), options);
     }
 
     public void move(Path source,
@@ -439,40 +438,40 @@ public abstract class RepositoryFileSystemProvider
                      CopyOption... options)
         throws IOException
     {
-        storageFileSystemProvider.move(unwrap(source), unwrap(target), options);
+        getTarget().move(unwrap(source), unwrap(target), options);
     }
 
     public boolean isSameFile(Path path,
                               Path path2)
         throws IOException
     {
-        return storageFileSystemProvider.isSameFile(unwrap(path), unwrap(path2));
+        return getTarget().isSameFile(unwrap(path), unwrap(path2));
     }
 
     public boolean isHidden(Path path)
         throws IOException
     {
-        return storageFileSystemProvider.isHidden(unwrap(path));
+        return getTarget().isHidden(unwrap(path));
     }
 
     public FileStore getFileStore(Path path)
         throws IOException
     {
-        return storageFileSystemProvider.getFileStore(unwrap(path));
+        return getTarget().getFileStore(unwrap(path));
     }
 
     public void checkAccess(Path path,
                             AccessMode... modes)
         throws IOException
     {
-        storageFileSystemProvider.checkAccess(unwrap(path), modes);
+        getTarget().checkAccess(unwrap(path), modes);
     }
 
     public <V extends FileAttributeView> V getFileAttributeView(Path path,
                                                                 Class<V> type,
                                                                 LinkOption... options)
     {
-        return storageFileSystemProvider.getFileAttributeView(unwrap(path), type, options);
+        return getTarget().getFileAttributeView(unwrap(path), type, options);
     }
 
     public <A extends BasicFileAttributes> A readAttributes(Path path,
@@ -485,7 +484,7 @@ public abstract class RepositoryFileSystemProvider
             throw new IOException(String.format("Requested path is not [%s].", RepositoryPath.class.getSimpleName()));
         }
 
-        BasicFileAttributes targetAttributes = storageFileSystemProvider.readAttributes(unwrap(path),
+        BasicFileAttributes targetAttributes = getTarget().readAttributes(unwrap(path),
                                                                                         BasicFileAttributes.class,
                                                                                         options);
         if (!RepositoryFileAttributes.class.isAssignableFrom(type))
@@ -508,7 +507,7 @@ public abstract class RepositoryFileSystemProvider
     {
         if (!RepositoryPath.class.isInstance(path))
         {
-            return storageFileSystemProvider.readAttributes(path, attributes, options);
+            return getTarget().readAttributes(path, attributes, options);
         }
 
         RepositoryPath repositoryPath = (RepositoryPath) path;
@@ -516,7 +515,7 @@ public abstract class RepositoryFileSystemProvider
         Map<String, Object> result = new HashMap<>();
         if (!attributes.startsWith(STRONGBOX_SCHEME))
         {
-            result.putAll(storageFileSystemProvider.readAttributes(unwrap(path), attributes, options));
+            result.putAll(getTarget().readAttributes(unwrap(path), attributes, options));
             if (!attributes.equals("*"))
             {
                 return result;
@@ -570,7 +569,7 @@ public abstract class RepositoryFileSystemProvider
                              LinkOption... options)
         throws IOException
     {
-        storageFileSystemProvider.setAttribute(unwrap(path), attribute, value, options);
+        getTarget().setAttribute(unwrap(path), attribute, value, options);
     }
 
     private Path unwrap(Path path)
@@ -578,6 +577,11 @@ public abstract class RepositoryFileSystemProvider
         return path instanceof RepositoryPath ? ((RepositoryPath) path).getTarget() : path;
     }
 
+    private FileSystemProvider getTarget()
+    {
+        return target;
+    }
+    
     public static class MoveDirectoryVisitor
             extends SimpleFileVisitor<Path>
     {
@@ -630,7 +634,7 @@ public abstract class RepositoryFileSystemProvider
                                 OpenOption... options)
             throws IOException
         {
-            super(RepositoryFileSystemProvider.super.newOutputStream(unwrap(path), options));
+            super(StorageFileSystemProvider.super.newOutputStream(unwrap(path), options));
 
             this.path = path;
         }

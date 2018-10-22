@@ -32,9 +32,9 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProvider
+public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
 {
-    private static final Logger logger = LoggerFactory.getLogger(RepositoryLayoutFileSystemProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(LayoutFileSystemProvider.class);
 
     @Inject
     private ArtifactEventListenerRegistry artifactEventListenerRegistry;
@@ -45,7 +45,7 @@ public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileS
     @Inject
     private ArtifactEntryService artifactEntryService;
     
-    public RepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
+    public LayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
     {
         super(storageFileSystemProvider);
     }

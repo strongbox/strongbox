@@ -2,7 +2,7 @@ package org.carlspring.strongbox.artifact.locator.handlers;
 
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -83,7 +83,7 @@ public class ArtifactLocationGenerateChecksumOperation
         }
 
         RepositoryPath basePath = parentPath;
-        RepositoryLayoutFileSystemProvider provider = (RepositoryLayoutFileSystemProvider) basePath.getFileSystem()
+        LayoutFileSystemProvider provider = (LayoutFileSystemProvider) basePath.getFileSystem()
                                                                                                    .provider();
         provider.storeChecksum(basePath, forceRegeneration);
     }

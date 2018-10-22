@@ -16,18 +16,18 @@ import java.util.Set;
  *
  * @author Sergey Bespalov
  */
-public abstract class FileSystemWrapper
+public abstract class StorageFileSystem
         extends FileSystem
 {
 
     private FileSystem target;
 
-    public FileSystemWrapper(FileSystem target)
+    public StorageFileSystem(FileSystem target)
     {
         this.target = target;
     }
 
-    public FileSystem getTarget()
+    protected FileSystem getTarget()
     {
         return target;
     }

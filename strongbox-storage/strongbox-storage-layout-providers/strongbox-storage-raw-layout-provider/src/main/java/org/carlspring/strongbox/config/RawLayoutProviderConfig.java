@@ -7,7 +7,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileSystemProviderFactory
 import org.carlspring.strongbox.providers.layout.RawFileSystem;
 import org.carlspring.strongbox.providers.layout.RawFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
-import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.nio.file.FileSystem;
@@ -36,7 +36,7 @@ public class RawLayoutProviderConfig
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            RepositoryLayoutFileSystemProvider result = rawFileSystemProvider(storageProvider.getFileSystemProvider());
+            LayoutFileSystemProvider result = rawFileSystemProvider(storageProvider.getFileSystemProvider());
 
             return result;
         };
@@ -67,7 +67,7 @@ public class RawLayoutProviderConfig
     @Scope("prototype")
     public RawFileSystem rawRepositoryFileSystem(Repository repository,
                                                  FileSystem storageFileSystem,
-                                                 RepositoryLayoutFileSystemProvider provider)
+                                                 LayoutFileSystemProvider provider)
     {
         return new RawFileSystem(repository, storageFileSystem, provider);
     }

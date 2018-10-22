@@ -18,7 +18,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileSystemProviderFactory
 import org.carlspring.strongbox.providers.layout.NpmFileSystem;
 import org.carlspring.strongbox.providers.layout.NpmFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
-import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -57,7 +57,7 @@ public class NpmLayoutProviderConfig
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            RepositoryLayoutFileSystemProvider result = npmFileSystemProvider(storageProvider.getFileSystemProvider());
+            LayoutFileSystemProvider result = npmFileSystemProvider(storageProvider.getFileSystemProvider());
 
             return result;
         };
@@ -88,7 +88,7 @@ public class NpmLayoutProviderConfig
     @Scope("prototype")
     public NpmFileSystem npmRepositoryFileSystem(Repository repository,
                                                  FileSystem storageFileSystem,
-                                                 RepositoryLayoutFileSystemProvider provider)
+                                                 LayoutFileSystemProvider provider)
     {
         return new NpmFileSystem(repository, storageFileSystem, provider);
     }

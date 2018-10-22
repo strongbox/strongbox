@@ -12,7 +12,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileSystemProviderFactory
 import org.carlspring.strongbox.providers.layout.NugetFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.providers.layout.NugetFileSystem;
-import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -42,7 +42,7 @@ public class NugetLayoutProviderConfig
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            RepositoryLayoutFileSystemProvider result = nugetFileSystemProvider(storageProvider.getFileSystemProvider());
+            LayoutFileSystemProvider result = nugetFileSystemProvider(storageProvider.getFileSystemProvider());
 
             return result;
         };
@@ -73,7 +73,7 @@ public class NugetLayoutProviderConfig
     @Scope("prototype")
     public NugetFileSystem nugetRepositoryFileSystem(Repository repository,
                                                                FileSystem storageFileSystem,
-                                                               RepositoryLayoutFileSystemProvider provider)
+                                                               LayoutFileSystemProvider provider)
     {
         return new NugetFileSystem(repository, storageFileSystem, provider);
     }

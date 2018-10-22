@@ -6,6 +6,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 public interface RepositoryFileSystemFactory
 {
 
-    RepositoryFileSystem create(Repository repository);
+    LayoutFileSystem create(Repository repository);
     
 }

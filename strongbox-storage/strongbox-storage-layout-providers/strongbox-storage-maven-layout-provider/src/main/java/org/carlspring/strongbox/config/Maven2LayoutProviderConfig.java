@@ -13,7 +13,7 @@ import org.carlspring.strongbox.providers.layout.IndexedMaven2FileSystemProvider
 import org.carlspring.strongbox.providers.layout.Maven2FileSystemProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.MavenFileSystem;
-import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -48,7 +48,7 @@ public class Maven2LayoutProviderConfig
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            RepositoryLayoutFileSystemProvider result;
+            LayoutFileSystemProvider result;
             if (Boolean.parseBoolean(environment.getProperty(MavenIndexerEnabledCondition.MAVEN_INDEXER_ENABLED)))
             {
                 result = indexedMavenFileSystemProvider(storageProvider.getFileSystemProvider());
@@ -72,7 +72,7 @@ public class Maven2LayoutProviderConfig
 
     @Bean
     @Scope("prototype")
-    public RepositoryLayoutFileSystemProvider indexedMavenFileSystemProvider(FileSystemProvider provider)
+    public LayoutFileSystemProvider indexedMavenFileSystemProvider(FileSystemProvider provider)
     {
         return new IndexedMaven2FileSystemProvider(provider);
     }
@@ -94,7 +94,7 @@ public class Maven2LayoutProviderConfig
     @Scope("prototype")
     public MavenFileSystem mavenRepositoryFileSystem(Repository repository,
                                                      FileSystem storageFileSystem,
-                                                     RepositoryLayoutFileSystemProvider provider)
+                                                     LayoutFileSystemProvider provider)
     {
         return new MavenFileSystem(repository, storageFileSystem, provider);
     }
