@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.providers.repository;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import org.carlspring.strongbox.client.CloseableRestResponse;
+import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.client.RestArtifactResolver;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,20 +21,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author sbespalov
@@ -45,9 +51,7 @@ public class ParallelDownloadRemoteArtifactTest
         extends RetryDownloadArtifactTestBase
 {
 
-    private RemoteArtifactInputStreamStub remoteArtifactInputStream;
-
-    public Map<InputStream, Thread> repoteRepositoryConnectionOwnerMap = new ConcurrentHashMap<>();
+    public Map<InputStream, Thread> remoteRepositoryConnectionOwnerMap = new ConcurrentHashMap<>();
 
     @Inject
     private PlatformTransactionManager transactionManager;
@@ -56,8 +60,38 @@ public class ParallelDownloadRemoteArtifactTest
     public void setup()
         throws Exception
     {
-        remoteArtifactInputStream = new RemoteArtifactInputStreamStub(jarArtifact);
-        prepareArtifactResolverContext(remoteArtifactInputStream, true);
+        prepareArtifactResolverContext(null, true);
+    }
+
+    @Override
+    void prepareArtifactResolverContext(final InputStream artifactInputStream,
+                                        final boolean rangeRquestSupported)
+            throws IOException
+    {
+
+        RemoteRepositoryRetryArtifactDownloadConfiguration configuration = configurationManager.getConfiguration()
+                                                                                               .getRemoteRepositoriesConfiguration()
+                                                                                               .getRemoteRepositoryRetryArtifactDownloadConfiguration();
+
+        final Response response = Mockito.mock(Response.class);
+        Mockito.when(response.getEntity()).thenAnswer(invocation -> new RemoteArtifactInputStreamStub(jarArtifact));
+        Mockito.when(response.readEntity(InputStream.class)).thenAnswer(invocation -> new RemoteArtifactInputStreamStub(jarArtifact));
+        Mockito.when(response.getStatus()).thenReturn(200);
+        Mockito.when(response.getHeaderString("Accept-Ranges")).thenReturn(rangeRquestSupported ? "bytes" : "none");
+
+        final CloseableRestResponse restResponse = Mockito.mock(CloseableRestResponse.class);
+        Mockito.when(restResponse.getResponse()).thenReturn(response);
+
+        final RestArtifactResolver artifactResolver = Mockito.mock(RestArtifactResolver.class);
+        Mockito.when(artifactResolver.get(ArgumentMatchers.any(String.class))).thenReturn(restResponse);
+        Mockito.when(artifactResolver.get(ArgumentMatchers.any(String.class), ArgumentMatchers.any(Long.class))).thenReturn(
+                restResponse);
+        Mockito.when(artifactResolver.head(ArgumentMatchers.any(String.class))).thenReturn(restResponse);
+        Mockito.when(artifactResolver.getConfiguration()).thenReturn(configuration);
+        Mockito.when(artifactResolver.isAlive()).thenReturn(true);
+
+        Mockito.when(artifactResolverFactory.newInstance(ArgumentMatchers.any(RemoteRepository.class)))
+               .thenReturn(artifactResolver);
     }
 
     @Test
@@ -76,7 +110,6 @@ public class ParallelDownloadRemoteArtifactTest
 
         // given
         assertFalse(Files.exists(destinationPath));
-        assertFalse(repoteRepositoryConnectionOwnerMap.containsKey(remoteArtifactInputStream));
 
         // when
         List<Throwable> result = IntStream.range(0, concurrency)
@@ -84,10 +117,10 @@ public class ParallelDownloadRemoteArtifactTest
                                           .mapToObj(i -> executeTask(storageId, repositoryId, path))
                                           .collect(Collectors.toList());
 
-        Throwable[] actual = IntStream.range(0, concurrency)
+        Throwable[] expected = IntStream.range(0, concurrency)
                                       .mapToObj(i -> (Throwable) null)
                                       .toArray(n -> new Throwable[concurrency]);
-        Throwable[] expected = result.toArray(new Throwable[concurrency]);
+        Throwable[] actual = result.toArray(new Throwable[concurrency]);
 
         // then
         assertTrue(Files.exists(destinationPath));
@@ -183,7 +216,7 @@ public class ParallelDownloadRemoteArtifactTest
             readCount++;
 
             Thread currentThread = Thread.currentThread();
-            Thread ownerThread = repoteRepositoryConnectionOwnerMap.putIfAbsent(this, currentThread);
+            Thread ownerThread = remoteRepositoryConnectionOwnerMap.putIfAbsent(this, currentThread);
 
             assertEquals(currentThread, Optional.ofNullable(ownerThread).orElse(currentThread));
         }
