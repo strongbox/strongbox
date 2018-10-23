@@ -7,7 +7,6 @@ import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.archive.JarArchiveListingFunction;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
-import org.carlspring.strongbox.providers.io.MavenExpiredRepositoryPathHandler;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
@@ -28,11 +27,8 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
@@ -68,9 +64,6 @@ public class Maven2LayoutProvider
 
     @Inject
     private MavenRepositoryFeatures mavenRepositoryFeatures;
-
-    @Inject
-    private List<MavenExpiredRepositoryPathHandler> expiredRepositoryPathHandlers;
 
     @PostConstruct
     public void register()
@@ -125,12 +118,11 @@ public class Maven2LayoutProvider
 
                     break;
                 case EXPIRED:
+                    final Instant oneMinuteAgo = Instant.now().minus(1, ChronoUnit.MINUTES);
                     value = BooleanUtils.isTrue((Boolean) value) || (isMavenMetadata(repositoryPath)
                                                                      &&
                                                                      !RepositoryFiles.wasModifiedAfter(repositoryPath,
-                                                                                                       Instant.now()
-                                                                                                              .minus(1,
-                                                                                                                     ChronoUnit.MINUTES)));
+                                                                                                       oneMinuteAgo));
 
                     result.put(attributeType, value);
 
@@ -325,32 +317,5 @@ public class Maven2LayoutProvider
             }
         }
         return Collections.emptySet();
-    }
-
-    @Override
-    public RepositoryPath handleRepositoryPathExpiration(final RepositoryPath repositoryPath)
-    {
-        return expiredRepositoryPathHandlers.stream()
-                                            .filter(handler -> handler.supports(repositoryPath))
-                                            .map(handleExpiration(repositoryPath))
-                                            .filter(Objects::nonNull)
-                                            .findFirst()
-                                            .orElse(null);
-    }
-
-    private Function<MavenExpiredRepositoryPathHandler, RepositoryPath> handleExpiration(final RepositoryPath repositoryPath)
-    {
-        return handler ->
-        {
-            try
-            {
-                return handler.handleExpiration(repositoryPath);
-            }
-            catch (IOException e)
-            {
-                logger.error(String.format("Expired path [%s] inproperly handled.", repositoryPath), e);
-                return null;
-            }
-        };
     }
 }

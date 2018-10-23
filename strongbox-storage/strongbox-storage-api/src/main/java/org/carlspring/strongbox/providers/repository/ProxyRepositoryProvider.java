@@ -8,8 +8,8 @@ import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
+import org.carlspring.strongbox.providers.repository.event.RepositoryPathExpiredEvent;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 
 import javax.inject.Inject;
@@ -72,7 +72,7 @@ public class ProxyRepositoryProvider
         }
         else if (RepositoryFiles.hasExpired(targetPath))
         {
-            targetPath = handleRepositoryPathExpiration(repositoryPath);
+            eventPublisher.publishEvent(new RepositoryPathExpiredEvent(targetPath));
         }
 
         return targetPath;
@@ -92,13 +92,6 @@ public class ProxyRepositoryProvider
 
             throw e;
         }
-    }
-
-    private RepositoryPath handleRepositoryPathExpiration(final RepositoryPath repositoryPath)
-    {
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(
-                repositoryPath.getRepository().getLayout());
-        return layoutProvider.handleRepositoryPathExpiration(repositoryPath);
     }
 
     @Override

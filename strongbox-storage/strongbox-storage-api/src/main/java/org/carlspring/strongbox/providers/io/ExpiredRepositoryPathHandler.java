@@ -13,7 +13,7 @@ public interface ExpiredRepositoryPathHandler
         return true;
     }
 
-    RepositoryPath handleExpiration(RepositoryPath repositoryPath)
+    void handleExpiration(RepositoryPath repositoryPath)
             throws IOException;
 
 }

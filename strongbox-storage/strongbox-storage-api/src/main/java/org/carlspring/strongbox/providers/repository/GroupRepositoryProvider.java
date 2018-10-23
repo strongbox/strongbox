@@ -56,13 +56,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
     @Inject
     private GroupRepositorySetCollector groupRepositorySetCollector;
-    
+
     @PersistenceContext
     private EntityManager entityManager;
-    
+
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-    
+
     @Override
     public String getAlias()
     {
@@ -80,26 +80,26 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             throws IOException
     {
         RepositoryPath result = resolvePathDirectlyFromGroupPathIfPossible(repositoryPath);
-        if (result == null || RepositoryFiles.hasExpired(result))
+        if (result != null && !RepositoryFiles.hasExpired(result))
         {
-            // Both cases require to resolve the path traversal ...
-            RepositoryPath resolvedTraversal = resolvePathTraversal(repositoryPath);
-            // ... but only this case ...
-            if (result == null)
-            {
-                // ... requires reassignment
-                result = resolvedTraversal;
-            }
+            return result;
         }
-
+        // Both cases (result == null || RepositoryFiles.hasExpired(result)) require to resolve the path traversal ...
+        RepositoryPath resolvedTraversal = resolvePathTraversal(repositoryPath);
+        // ... but only first case ...
+        if (result == null)
+        {
+            // ... requires reassignment
+            result = resolvedTraversal;
+        }
         return result;
     }
-    
+
     protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath) throws IOException
     {
         Repository groupRepository = repositoryPath.getRepository();
         Storage storage = groupRepository.getStorage();
-        
+
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories().keySet())
         {
             String sId = configurationManager.getStorageId(storage, storageAndRepositoryId);
@@ -110,21 +110,21 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             {
                 continue;
             }
-            
+
             RepositoryPath result = repositoryPathResolver.resolve(r, repositoryPath);
             if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), result))
             {
                 continue;
             }
-            
+
             result = resolvePathFromGroupMemberOrTraverse(result);
             if (result == null)
             {
                 continue;
             }
-            
+
             logger.debug(String.format("Located artifact: [%s]", result));
-            
+
             return result;
         }
         return null;
@@ -148,7 +148,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         {
             return resolvePathTraversal(repositoryPath);
         }
-        
+
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
         try
         {
@@ -271,27 +271,27 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                       Predicate predicate)
     {
         logger.debug(String.format("Count in [%s]:[%s] ...", storageId, repositoryId));
-        
+
         Storage storage = getConfiguration().getStorage(storageId);
 
         Repository groupRepository = storage.getRepository(repositoryId);
 
         Predicate p = Predicate.empty();
-        
+
         p.or(createPredicate(storageId, repositoryId, predicate));
         groupRepositorySetCollector.collect(groupRepository,
                                             true)
                                    .stream()
-                                   .forEach(r -> p.or(createPredicate(r.getStorage().getId(), r.getId(), predicate)));                                                                                            
+                                   .forEach(r -> p.or(createPredicate(r.getStorage().getId(), r.getId(), predicate)));
 
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
         selector.select("count(distinct(artifactCoordinates))").where(p);
-        
+
         QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
-        
+
         return queryTemplate.select(selector);
 
     }
 
-    
+
 }

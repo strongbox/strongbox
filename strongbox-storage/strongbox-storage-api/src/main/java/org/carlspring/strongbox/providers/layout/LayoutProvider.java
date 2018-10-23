@@ -34,6 +34,4 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     String getAlias();
 
-    RepositoryPath handleRepositoryPathExpiration(RepositoryPath repositoryPath);
-
 }

@@ -222,11 +222,4 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         }
         return Collections.emptySet();
     }
-
-    @Override
-    public RepositoryPath handleRepositoryPathExpiration(final RepositoryPath repositoryPath)
-    {
-        // implement by the specific provider, if needed
-        return repositoryPath;
-    }
 }
