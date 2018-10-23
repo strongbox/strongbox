@@ -41,7 +41,6 @@ logs/
 
 # generated
 strongbox-web-core/strongbox-vault
-strongbox-web-core/strongbox
 
 lib/*
 !strongbox-security/strongbox-authentication-registry/src/test/resources/webapp/WEB-INF/lib/strongbox-example-authentication-provider-1.0-SNAPSHOT.jar
