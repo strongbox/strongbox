@@ -2,7 +2,7 @@
 
 def REPO_NAME  = 'strongbox/strongbox'
 def SERVER_ID  = 'carlspring-oss-snapshots'
-def SERVER_URL = 'https://dev.carlspring.org/nexus/content/repositories/carlspring-oss-snapshots/'
+def SERVER_URL = 'https://repo.carlspring.org/content/repositories/carlspring-oss-snapshots/'
 def SONAR_VERSION = '3.5.0.1254'
 
 // Notification settings for "master" and "branch/pr"
