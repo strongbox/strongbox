@@ -19,9 +19,9 @@ public enum ArtifactEventTypeEnum
     EVENT_ARTIFACT_FILE_UPLOADING(2),
 
     /**
-     * Occurs when an artifact metadata file has been updated.
+     * Occurs when an artifact metadata file has been stored.
      */
-    EVENT_ARTIFACT_METADATA_UPDATED(7),
+    EVENT_ARTIFACT_METADATA_STORED(7),
 
     /**
      * Occurs when an artifact metadata file has been updated.

@@ -4,9 +4,7 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.commons.io.RandomInputStream;
-import org.carlspring.maven.commons.model.ModelWriter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.resource.ResourceCloser;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -141,7 +139,7 @@ public class MavenArtifactGenerator
         return new FileOutputStream(artifactFile);
     }
 
-    protected void createMetadata(Metadata metadata, String metadataPath)
+    public void createMetadata(Metadata metadata, String metadataPath)
             throws NoSuchAlgorithmException, IOException
     {
         File metadataFile = null;

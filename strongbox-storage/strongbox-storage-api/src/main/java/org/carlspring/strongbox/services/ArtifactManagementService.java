@@ -146,12 +146,10 @@ public class ArtifactManagementService
             throws IOException
     {
         long result;
-        boolean updatedMetadataFile = false;
         boolean updatedArtifactFile = false;
 
         if (RepositoryFiles.artifactExists(repositoryPath))
         {
-            updatedMetadataFile = RepositoryFiles.isMetadata(repositoryPath);
             updatedArtifactFile = RepositoryFiles.isArtifact(repositoryPath);
         }
         
@@ -177,10 +175,9 @@ public class ArtifactManagementService
             artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
         }
         
-        if (updatedMetadataFile)
+        if (RepositoryFiles.isMetadata(repositoryPath))
         {
-            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(repositoryPath);
-            // If this is a metadata file and it has been updated:
+            artifactEventListenerRegistry.dispatchArtifactMetadataStoredEvent(repositoryPath);
         }
 
         

@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
@@ -61,12 +60,10 @@ public class MavenMetadataExpiredRepositoryPathHandler
     public void handleExpiration(final RepositoryPath repositoryPath)
             throws IOException
     {
-        Decision refetchMetadata = determineMetadataRefetch(repositoryPath,
-                                                            EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        Decision refetchMetadata = determineMetadataRefetch(repositoryPath, "sha1");
         if (refetchMetadata == I_DONT_KNOW)
         {
-            refetchMetadata = determineMetadataRefetch(repositoryPath,
-                                                       EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+            refetchMetadata = determineMetadataRefetch(repositoryPath, "md5");
         }
         if (refetchMetadata == NO_LEAVE_IT)
         {
@@ -95,10 +92,8 @@ public class MavenMetadataExpiredRepositoryPathHandler
             return I_DONT_KNOW;
         }
 
-        proxyRepositoryProvider.resolvePathForceFetch(repositoryPath.resolveSibling(
-                repositoryPath.getFileName().toString() +
-                EncryptionAlgorithmsEnum.fromAlgorithm(checksumAlgorithm).getExtension()));
-
+        proxyRepositoryProvider.resolvePathForceFetch(
+                repositoryPath.resolveSibling(repositoryPath.getFileName().toString() + "." + checksumAlgorithm));
         final String newRemoteChecksum = checksumCacheManager.getArtifactChecksum(repositoryPath,
                                                                                   checksumAlgorithm);
 

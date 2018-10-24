@@ -43,7 +43,11 @@ public class ChecksumCacheManager
         implements DisposableBean
 {
 
-    private static final Map<String, List<String>> KNOWN_ALGORITHMS;
+    private static final String SHA1_KEY = "sha1";
+
+    private static final String MD5_KEY = "md5";
+
+    private static final Map<String, List<String>> knownAlgorithms;
 
     private static Logger logger = LoggerFactory.getLogger(ChecksumCacheManager.class);
 
@@ -58,14 +62,14 @@ public class ChecksumCacheManager
 
     private static String getAlgorithm(final String algorithm)
     {
-        return KNOWN_ALGORITHMS.entrySet()
-                               .stream()
-                               .filter(entry -> entry.getValue()
-                                                     .stream()
-                                                     .anyMatch(value -> value.equals(algorithm)))
-                               .findFirst()
-                               .map(Map.Entry::getKey)
-                               .orElse(algorithm);
+        return knownAlgorithms.entrySet()
+                              .stream()
+                              .filter(entry -> entry.getValue()
+                                                    .stream()
+                                                    .anyMatch(value -> value.equals(algorithm)))
+                              .findFirst()
+                              .map(Map.Entry::getKey)
+                              .orElse(algorithm);
     }
 
     public String getArtifactChecksum(final RepositoryPath artifactPath,
@@ -115,13 +119,13 @@ public class ChecksumCacheManager
     {
         ImmutableMap.Builder builder = ImmutableMap.builder();
 
-        builder.put(EncryptionAlgorithmsEnum.SHA1.getAlgorithm(),
-                    Arrays.asList(EncryptionAlgorithmsEnum.SHA1.getAlgorithm(),
-                                  EncryptionAlgorithmsEnum.SHA1.getExtension()));
-        builder.put(EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
-                    Arrays.asList(EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
-                                  EncryptionAlgorithmsEnum.MD5.getExtension()));
-        KNOWN_ALGORITHMS = builder.build();
+        builder.put(SHA1_KEY, Arrays.asList(SHA1_KEY,
+                                            EncryptionAlgorithmsEnum.SHA1.getAlgorithm(),
+                                            EncryptionAlgorithmsEnum.SHA1.getExtension()));
+        builder.put(MD5_KEY, Arrays.asList(MD5_KEY,
+                                           EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
+                                           EncryptionAlgorithmsEnum.MD5.getExtension()));
+        knownAlgorithms = builder.build();
     }
 
 
