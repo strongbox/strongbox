@@ -171,8 +171,8 @@ public class RebuildMavenMetadataCronJobTestIT
 
                     assertNotNull(versioning.getVersions(),
                                   "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning.getVersions()
-                                              .size(), "Incorrect number of versions stored in metadata!");
+                    assertEquals(1, versioning.getVersions().size(),
+                                 "Incorrect number of versions stored in metadata!");
                 }
                 catch (Exception e)
                 {
@@ -217,13 +217,13 @@ public class RebuildMavenMetadataCronJobTestIT
 
                     assertNotNull(versioning1.getVersions()
                             , "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning1.getVersions()
-                                               .size(), "Incorrect number of versions stored in metadata!");
+                    assertEquals(1, versioning1.getVersions().size(),
+                                 "Incorrect number of versions stored in metadata!");
 
                     assertNotNull(versioning2.getVersions()
                             , "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning2.getVersions()
-                                               .size(), "Incorrect number of versions stored in metadata!");
+                    assertEquals(1, versioning2.getVersions().size(),
+                                 "Incorrect number of versions stored in metadata!");
                 }
                 catch (Exception e)
                 {
@@ -267,13 +267,13 @@ public class RebuildMavenMetadataCronJobTestIT
 
                     assertNotNull(versioning1.getVersions(),
                                   "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning1.getVersions()
-                                               .size(), "Incorrect number of versions stored in metadata!");
+                    assertEquals(1, versioning1.getVersions().size(),
+                                 "Incorrect number of versions stored in metadata!");
 
                     assertNotNull(versioning2.getVersions(),
                                   "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning2.getVersions()
-                                               .size(), "Incorrect number of versions stored in metadata!");
+                    assertEquals(1, versioning2.getVersions().size(),
+                                 "Incorrect number of versions stored in metadata!");
                 }
                 catch (Exception e)
                 {
@@ -317,13 +317,13 @@ public class RebuildMavenMetadataCronJobTestIT
 
                     assertNotNull(versioning1.getVersions(),
                                   "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning1.getVersions()
-                                               .size(), "Incorrect number of versions stored in metadata!");
+                    assertEquals(1, versioning1.getVersions().size(),
+                                 "Incorrect number of versions stored in metadata!");
 
                     assertNotNull(versioning2.getVersions(),
                                   "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning2.getVersions()
-                                               .size(), "Incorrect number of versions stored in metadata!");
+                    assertEquals(1, versioning2.getVersions().size(),
+                                 "Incorrect number of versions stored in metadata!");
                 }
                 catch (Exception e)
                 {

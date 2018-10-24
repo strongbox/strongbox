@@ -58,7 +58,7 @@ public class LdapAuthenticationProviderTest
         DirContextAdapter dirContextAdapter = (DirContextAdapter) ldapObject;
         assertThat(dirContextAdapter.getDn().toString(), CoreMatchers.equalTo("uid=przemyslaw.fusik,ou=Users"));
         assertThat(dirContextAdapter.getNameInNamespace(),
-                          CoreMatchers.equalTo("uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com"));
+                   CoreMatchers.equalTo("uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com"));
     }
 
     @Test
@@ -74,25 +74,20 @@ public class LdapAuthenticationProviderTest
         assertThat(authentication.getPrincipal(), CoreMatchers.instanceOf(LdapUserDetailsImpl.class));
         LdapUserDetails ldapUserDetails = (LdapUserDetailsImpl) authentication.getPrincipal();
 
-        assertThat(ldapUserDetails.getDn(),
-                          CoreMatchers.equalTo("uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com"));
-        assertThat(ldapUserDetails.getPassword(),
-                          CoreMatchers.equalTo("password"));
-        assertThat(ldapUserDetails.getUsername(),
-                          CoreMatchers.equalTo("przemyslaw.fusik"));
+        assertThat(ldapUserDetails.getDn(), CoreMatchers.equalTo("uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com"));
+        assertThat(ldapUserDetails.getPassword(), CoreMatchers.equalTo("password"));
+        assertThat(ldapUserDetails.getUsername(), CoreMatchers.equalTo("przemyslaw.fusik"));
         assertThat(authentication.getAuthorities(),
-                          CoreMatchers.hasItems(
-                                  CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_CREATE_REPO),
-                                  CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_DELETE_REPO),
-                                  CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_CREATE_REPO),
-                                  CoreMatchers.equalTo(new SimpleGrantedAuthority("VIEW_USER")))
-        );
+                   CoreMatchers.hasItems(CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_CREATE_REPO),
+                                         CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_DELETE_REPO),
+                                         CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_CREATE_REPO),
+                                         CoreMatchers.equalTo(new SimpleGrantedAuthority("VIEW_USER"))));
     }
 
     @Test
     public void ldapAuthenticationProviderShouldInvalidedOnWrongPassword()
     {
-        assertThrows(BadCredentialsException.class,() -> {
+        assertThrows(BadCredentialsException.class, () -> {
             LdapAuthenticationProvider LdapAuthenticationProvider = appCtx.getBean(LdapAuthenticationProvider.class);
             LdapAuthenticationProvider.authenticate(
                     new UsernamePasswordAuthenticationToken("przemyslaw.fusik", "not-a-password"));

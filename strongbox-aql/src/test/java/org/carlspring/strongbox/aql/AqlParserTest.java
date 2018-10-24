@@ -41,7 +41,7 @@ public class AqlParserTest
         assertNotNull(predicate);
         assertFalse(predicate.isEmpty());
         assertFalse(aqlParser.hasErrors());
-        
+
         query = "storage:storage-common-proxies +repository:carlspring +invalidId:'org.carlspring'" +
                 " +artifactId:'test-artifact' asc: unknownCoordinateId";
 
@@ -70,7 +70,7 @@ public class AqlParserTest
         assertEquals(Pair.with(1, 55), errorPositionList.get(0));
         assertEquals(Pair.with(1, 115), errorPositionList.get(1));
     }
-    
+
     @Test
     @Disabled
     public void testValidQueryWithUpperLowercaseCheck()
@@ -96,35 +96,35 @@ public class AqlParserTest
         logger.info(String.format("Query [%s] parse result:\n[%s]", query, sqlQuery));
 
         assertEquals("SELECT * " +
-                            "FROM " +
-                            "ArtifactEntry " +
-                            "WHERE " +
-                            "artifactCoordinates IS NOT NULL  " +
-                            "AND ((storageId = :storageId_0) " +
-                            "AND repositoryId = :repositoryId_1 " +
-                            "OR (artifactCoordinates.coordinates.groupId = :groupId_1) " +
-                            "AND ( NOT ((artifactCoordinates.coordinates.artifactId = :artifactId_1)) OR " +
-                            " NOT (artifactCoordinates.version LIKE :version_2))) " +
-                            "ORDER BY lastUpdated ASC " +
-                            "SKIP 12 " +
-                            "LIMIT 25",
-                            sqlQuery);
+                     "FROM " +
+                     "ArtifactEntry " +
+                     "WHERE " +
+                     "artifactCoordinates IS NOT NULL  " +
+                     "AND ((storageId = :storageId_0) " +
+                     "AND repositoryId = :repositoryId_1 " +
+                     "OR (artifactCoordinates.coordinates.groupId = :groupId_1) " +
+                     "AND ( NOT ((artifactCoordinates.coordinates.artifactId = :artifactId_1)) OR " +
+                     " NOT (artifactCoordinates.version LIKE :version_2))) " +
+                     "ORDER BY lastUpdated ASC " +
+                     "SKIP 12 " +
+                     "LIMIT 25",
+                     sqlQuery);
 
         Map<String, Object> parameterMap = queryTemplate.exposeParameterMap(predicate);
 
         logger.info(String.format("Query [%s] parse parameters:\n[%s]", query, parameterMap));
 
         assertEquals(ImmutableMap.of("storageId_0",
-                                            "storage-common-proxies",
-                                            "repositoryId_1",
-                                            "carlspring",
-                                            "groupId_1",
-                                            "org.carlspring",
-                                            "version_2",
-                                            "0.%",
-                                            "artifactId_1",
-                                            "some strange group"),
-                            parameterMap);
+                                     "storage-common-proxies",
+                                     "repositoryId_1",
+                                     "carlspring",
+                                     "groupId_1",
+                                     "org.carlspring",
+                                     "version_2",
+                                     "0.%",
+                                     "artifactId_1",
+                                     "some strange group"),
+                     parameterMap);
     }
 
     @Test
