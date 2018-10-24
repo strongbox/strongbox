@@ -201,6 +201,8 @@
                 <version>2.0.0</version>
 
                 <configuration>
+                    <preWrapperConf>${project.basedir}/src/main/resources/setenv.conf</preWrapperConf>
+                    
                     <configurationDirectory>conf</configurationDirectory>
 
                     <repositoryLayout>flat</repositoryLayout>
@@ -294,8 +296,12 @@
                                     <systemProperty>logging.dir=../strongbox-vault/logs</systemProperty>
                                     <systemProperty>jetty.logs=%STRONGBOX_HOME%/logs</systemProperty>
                                     <systemProperty>java.io.tmpdir=%STRONGBOX_HOME%/tmp</systemProperty>
-                                    <systemProperty>strongbox.port=48080</systemProperty>
-                                    <systemProperty>strongbox.orientdb.port=2424</systemProperty>
+                                    <systemProperty>strongbox.port=%STRONGBOX_PORT%</systemProperty>
+                                    <systemProperty>strongbox.orientdb.port=%STRONGBOX_ORIENTDB_PORT%</systemProperty>
+                                    <systemProperty>strongbox.orientdb.profile=%STRONGBOX_ORIENTDB_PROFILE%</systemProperty>
+                                    <systemProperty>strongbox.orientdb.studio.enabled=%STRONGBOX_ORIENTDB_STUDIO_ENABLED%</systemProperty>
+                                    <systemProperty>strongbox.nuget.download.feed=%STRONGBOX_NUGET_DOWNLOAD_FEED%</systemProperty>
+                                    <systemProperty>strongbox.download.indexes=%STRONGBOX_DOWNLOAD_INDEXES%</systemProperty>
                                 </systemProperties>
                             </jvmSettings>
                         </daemon>
