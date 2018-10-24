@@ -215,13 +215,13 @@ public class RebuildMavenMetadataCronJobTestIT
                     assertEquals(artifact2.getArtifactId(), metadata2.getArtifactId(), "Incorrect artifactId!");
                     assertEquals(artifact2.getGroupId(), metadata2.getGroupId(), "Incorrect groupId!");
 
-                    assertNotNull(versioning1.getVersions()
-                            , "No versioning information could be found in the metadata!");
+                    assertNotNull(versioning1.getVersions(),
+                                  "No versioning information could be found in the metadata!");
                     assertEquals(1, versioning1.getVersions().size(),
                                  "Incorrect number of versions stored in metadata!");
 
-                    assertNotNull(versioning2.getVersions()
-                            , "No versioning information could be found in the metadata!");
+                    assertNotNull(versioning2.getVersions(),
+                                  "No versioning information could be found in the metadata!");
                     assertEquals(1, versioning2.getVersions().size(),
                                  "Incorrect number of versions stored in metadata!");
                 }
