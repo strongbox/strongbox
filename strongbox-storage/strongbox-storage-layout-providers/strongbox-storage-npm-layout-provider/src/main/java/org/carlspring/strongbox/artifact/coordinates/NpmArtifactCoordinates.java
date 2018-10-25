@@ -109,6 +109,7 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         setName(id);
     }
 
+
     @Override
     public String getVersion()
     {
