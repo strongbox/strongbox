@@ -15,7 +15,7 @@ public class PyPiArtifactCoordinateTest
     @Test
     public void testArtifactPathToCoordinatesConversion()
     {
-        PyPiArtifactCoordinates c = PyPiArtifactCoordinates.parse("distribution-1.0-1-py32-None-Any.whl\n");
+        PyPiArtifactCoordinates c = PyPiArtifactCoordinates.parse("distribution-1.0-1-py32-None-Any.whl");
 
         assertEquals("distribution", c.getDistribution());
         assertEquals("1.0", c.getVersion());

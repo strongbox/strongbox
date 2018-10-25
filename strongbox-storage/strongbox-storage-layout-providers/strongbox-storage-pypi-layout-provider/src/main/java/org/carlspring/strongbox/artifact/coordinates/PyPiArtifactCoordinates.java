@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import javax.persistence.Entity;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,16 +11,18 @@ public class PyPiArtifactCoordinates
 {
 
 
-    public static final String pypiVersionRegex = "[0-9].[0-9]";
-    public static final String pypiNameRegex = "[a-z0-9]*";
-    public static final String buildTagRegex = "-[0-9]?";
-    public static final String pythonTagRegex = "[a-z][a-z][0-9][0-9]";
-    public static final String abiTagRegex = "[a-z0-9]*";
-    public static final String platformTagRegex = "[a-z0-9]*";
-    public static final String pypiExtensionRegex = "whl";
-    public static final String pypiPackageRegex = pypiNameRegex + "-" + pypiVersionRegex + buildTagRegex  + "-" + pythonTagRegex  + "-" + abiTagRegex  + "-" + platformTagRegex + "-" + pypiExtensionRegex;
+    public static final String PYPI_VERSION_REGEX = "([0-9].[0-9])";
+    public static final String PYPI_NAME_REGEX = "([a-z0-9]*)";
+    public static final String BUILD_TAG_REGEX = "([0-9]?)";
+    public static final String PYTHON_TAG_REGEX = "([a-z][a-z][0-9][0-9])";
+    public static final String ABI_TAG_REGEX = "([a-zA-Z]*)";
+    public static final String PLATFORM_TAG_REGEX = "([a-zA-Z]*)";
+    public static final String PYPI_EXTENSION_REGEX = "whl";
+    public static final String PYPI_PACKAGE_REGEX = PYPI_NAME_REGEX + "-" + PYPI_VERSION_REGEX + "-" + BUILD_TAG_REGEX + "-" +
+                                                    PYTHON_TAG_REGEX + "-" + ABI_TAG_REGEX + "-" + PLATFORM_TAG_REGEX + "." +
+                                                    PYPI_EXTENSION_REGEX;
 
-    private static final Pattern PYPI_PATH_PATTERN = Pattern.compile(pypiPackageRegex);
+    private static final Pattern PYPI_PATH_PATTERN = Pattern.compile(PYPI_PACKAGE_REGEX);
 
     public static final String ID = "id";
 
@@ -42,9 +43,9 @@ public class PyPiArtifactCoordinates
                                    String buildTag,
                                    String pythonTag,
                                    String abiTag,
-                                   String platform_tag)
+                                   String platformTag)
     {
-        if (distribution == null || version == null || pythonTag == null || abiTag == null || platform_tag == null)
+        if (distribution == null || version == null || pythonTag == null || abiTag == null || platformTag == null)
         {
             throw new IllegalArgumentException("Id, version, pythonTag, abiTag and platformTag must be specified");
         }
@@ -53,7 +54,7 @@ public class PyPiArtifactCoordinates
         setCoordinate(BUILD_TAG, buildTag);
         setCoordinate(PYTHON_TAG, pythonTag);
         setCoordinate(ABI_TAG, abiTag);
-        setCoordinate(PLATFORM_TAG, platform_tag);
+        setCoordinate(PLATFORM_TAG, platformTag);
 
     }
 
@@ -135,15 +136,6 @@ public class PyPiArtifactCoordinates
     }
 
     @Override
-    public int hashCode()
-    {
-        int result = getId().hashCode();
-        result = 31 * result + getDistribution().hashCode();
-
-        return result;
-    }
-
-    @Override
     public Map<String, String> dropVersion()
     {
         Map<String, String> result = getCoordinates();
@@ -155,7 +147,7 @@ public class PyPiArtifactCoordinates
     {
         Matcher matcher = PYPI_PATH_PATTERN.matcher(path);
 
-        assert matcher.matches() == true;
+        matcher.matches();
 
         String distribution = matcher.group(1);
         String version = matcher.group(2);
