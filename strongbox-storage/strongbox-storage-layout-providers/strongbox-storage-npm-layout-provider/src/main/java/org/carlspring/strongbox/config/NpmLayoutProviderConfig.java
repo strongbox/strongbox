@@ -37,8 +37,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class NpmLayoutProviderConfig
 {
 
-    public static final String FILE_SYSTEM_ALIAS = "RepositoryFileSystemFactory." + NpmLayoutProvider.ALIAS;
-    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "RepositoryFileSystemProviderFactory."
+    public static final String FILE_SYSTEM_ALIAS = "LayoutFileSystemFactory." + NpmLayoutProvider.ALIAS;
+    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "LayoutFileSystemProviderFactory."
             + NpmLayoutProvider.ALIAS;
 
     @Inject

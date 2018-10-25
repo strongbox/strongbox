@@ -26,8 +26,8 @@ import org.springframework.context.annotation.Scope;
 })
 public class RawLayoutProviderConfig
 {
-    public static final String FILE_SYSTEM_ALIAS = "RepositoryFileSystemFactory." + RawLayoutProvider.ALIAS;
-    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "RepositoryFileSystemProviderFactory."
+    public static final String FILE_SYSTEM_ALIAS = "LayoutFileSystemFactory." + RawLayoutProvider.ALIAS;
+    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "LayoutFileSystemProviderFactory."
             + RawLayoutProvider.ALIAS;
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)

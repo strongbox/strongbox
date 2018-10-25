@@ -29,8 +29,8 @@ import org.springframework.context.annotation.Scope;
 public class NugetLayoutProviderConfig
 {
 
-    public static final String FILE_SYSTEM_ALIAS = "RepositoryFileSystemFactory." + NugetLayoutProvider.ALIAS;
-    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "RepositoryFileSystemProviderFactory."
+    public static final String FILE_SYSTEM_ALIAS = "LayoutFileSystemFactory." + NugetLayoutProvider.ALIAS;
+    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "LayoutFileSystemProviderFactory."
             + NugetLayoutProvider.ALIAS;
 
     @Inject

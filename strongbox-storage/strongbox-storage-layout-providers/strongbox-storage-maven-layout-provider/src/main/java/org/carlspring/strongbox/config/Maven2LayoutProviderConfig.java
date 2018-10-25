@@ -32,8 +32,8 @@ import org.springframework.core.env.Environment;
 public class Maven2LayoutProviderConfig
 {
 
-    public static final String FILE_SYSTEM_ALIAS = "RepositoryFileSystemFactory." + Maven2LayoutProvider.ALIAS;
-    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "RepositoryFileSystemProviderFactory."
+    public static final String FILE_SYSTEM_ALIAS = "LayoutFileSystemFactory." + Maven2LayoutProvider.ALIAS;
+    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "LayoutFileSystemProviderFactory."
             + Maven2LayoutProvider.ALIAS;
 
     @Inject
