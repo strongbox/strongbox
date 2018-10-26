@@ -49,13 +49,13 @@ public class PyPiArtifactCoordinates
         {
             throw new IllegalArgumentException("Id, version, pythonTag, abiTag and platformTag must be specified");
         }
+
         setCoordinate(DISTRIBUTION, distribution);
         setCoordinate(VERSION, version);
         setCoordinate(BUILD_TAG, buildTag);
         setCoordinate(PYTHON_TAG, pythonTag);
         setCoordinate(ABI_TAG, abiTag);
         setCoordinate(PLATFORM_TAG, platformTag);
-
     }
 
     @Override
@@ -67,7 +67,6 @@ public class PyPiArtifactCoordinates
     @Override
     public void setId(String id)
     {
-
         setCoordinate(ID, id);
     }
 
@@ -97,6 +96,7 @@ public class PyPiArtifactCoordinates
         {
             return null;
         }
+
         try
         {
             return Version.parse(versionLocal);
@@ -113,7 +113,6 @@ public class PyPiArtifactCoordinates
         return String.format("%s/%s/%s-%s-%s-%s-%s-%s", getDistribution(), getVersion(), getDistribution(), getVersion(), getBuildTag(), getPythonTag(), getAbiTag(), getPlatformTag());
 
     }
-
 
     public String getBuildTag()
     {
@@ -140,13 +139,13 @@ public class PyPiArtifactCoordinates
     {
         Map<String, String> result = getCoordinates();
         result.remove(VERSION);
+
         return result;
     }
 
     public static PyPiArtifactCoordinates parse(String path)
     {
         Matcher matcher = PYPI_PATH_PATTERN.matcher(path);
-
         matcher.matches();
 
         String distribution = matcher.group(1);
@@ -165,4 +164,3 @@ public class PyPiArtifactCoordinates
     }
 
 }
-
