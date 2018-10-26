@@ -110,7 +110,7 @@ public class PyPiArtifactCoordinates
     @Override
     public String toPath()
     {
-        return String.format("%s-%s-%s", getDistribution(), getVersion(), getPlatformTag());
+        return String.format("%s/%s/%s-%s-%s-%s-%s-%s", getDistribution(), getVersion(), getDistribution(), getVersion(), getBuildTag(), getPythonTag(), getAbiTag(), getPlatformTag());
 
     }
 
