@@ -1,16 +1,8 @@
 package org.carlspring.strongbox.utils;
 
-import org.carlspring.commons.http.range.ByteRange;
-import org.carlspring.commons.http.range.ByteRangeHeaderParser;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ByteRangeInputStream;
-import org.carlspring.strongbox.io.StreamUtils;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
+import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
+import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,13 +12,20 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.carlspring.commons.http.range.ByteRange;
+import org.carlspring.commons.http.range.ByteRangeHeaderParser;
+import org.carlspring.strongbox.io.ByteRangeInputStream;
+import org.carlspring.strongbox.io.StreamUtils;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
-import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
 
 public class ArtifactControllerHelper
 {
@@ -139,40 +138,6 @@ public class ArtifactControllerHelper
             String contentRange = headers.getFirst(HEADER_NAME_RANGE) != null ? headers.getFirst(HEADER_NAME_RANGE) : null;
             return contentRange != null && !"0/*".equals(contentRange) && !"0-".equals(contentRange) &&
                    !"0".equals(contentRange);
-        }
-    }
-
-    public static void setHeadersForChecksums(InputStream is,
-                                              HttpServletResponse response)
-    {
-        ArtifactInputStream ais = StreamUtils.findSource(ArtifactInputStream.class, is);
-        ais.getHexDigests().forEach((k,
-                                     v) -> response.setHeader(String.format("Checksum-%s",
-                                                                            k.toUpperCase().replaceAll("-", "")),
-                                                              v));
-
-        /*
-         * ArtifactCoordinates artifactCoordinates =
-         * ais.getArtifactCoordinates();
-         * if (artifactCoordinates != null)
-         * {
-         * response.setHeader("strongbox-layout",
-         * artifactCoordinates.getClass().getSimpleName());
-         * }
-         */
-    }
-
-    public static void setHeadersForChecksums(InputStream is,
-                                              HttpHeaders headers)
-    {
-        ArtifactInputStream ais = StreamUtils.findSource(ArtifactInputStream.class, is);
-        ais.getHexDigests()
-           .forEach((k, v) -> headers.add(String.format("Checksum-%s", k.toUpperCase().replaceAll("-", "")), v));
-
-        ArtifactCoordinates artifactCoordinates = ais.getArtifactCoordinates();
-        if (artifactCoordinates != null)
-        {
-            headers.add("strongbox-layout", artifactCoordinates.getClass().getSimpleName());
         }
     }
 

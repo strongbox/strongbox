@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * @author sbespalov
  *
  */
-public class Maven2FileSystemProvider extends RepositoryLayoutFileSystemProvider
+public class Maven2FileSystemProvider extends LayoutFileSystemProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(Maven2FileSystemProvider.class);

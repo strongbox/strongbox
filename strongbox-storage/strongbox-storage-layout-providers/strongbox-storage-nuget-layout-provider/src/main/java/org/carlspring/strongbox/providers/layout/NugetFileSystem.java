@@ -5,15 +5,15 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.LayoutFileSystem;
+import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * @author sbespalov
  *
  */
-public class NugetFileSystem extends RepositoryFileSystem
+public class NugetFileSystem extends LayoutFileSystem
 {
 
     @Inject
@@ -21,7 +21,7 @@ public class NugetFileSystem extends RepositoryFileSystem
 
     public NugetFileSystem(Repository repository,
                                       FileSystem storageFileSystem,
-                                      RepositoryFileSystemProvider provider)
+                                      StorageFileSystemProvider provider)
     {
         super(repository, storageFileSystem, provider);
     }

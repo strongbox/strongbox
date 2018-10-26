@@ -1,19 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.ByteRangeInputStream;
-import org.carlspring.strongbox.providers.io.*;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.util.MessageDigestUtils;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,12 +15,35 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
+import org.carlspring.strongbox.io.ByteRangeInputStream;
+import org.carlspring.strongbox.io.LayoutInputStream;
+import org.carlspring.strongbox.io.LayoutOutputStream;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
+import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProvider
+/**
+ * This class decorates {@link StorageFileSystemProvider} with common layout specific
+ * logic. <br>
+ * 
+ * @author sbespalov
+ * 
+ * @see LayoutProvider
+ */
+public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
 {
-    private static final Logger logger = LoggerFactory.getLogger(RepositoryLayoutFileSystemProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(LayoutFileSystemProvider.class);
 
     @Inject
     private ArtifactEventListenerRegistry artifactEventListenerRegistry;
@@ -45,7 +54,7 @@ public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileS
     @Inject
     private ArtifactEntryService artifactEntryService;
     
-    public RepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
+    public LayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
     {
         super(storageFileSystemProvider);
     }
@@ -53,7 +62,7 @@ public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileS
     protected abstract AbstractLayoutProvider getLayoutProvider();
     
     @Override
-    public ArtifactInputStream newInputStream(Path path,
+    public LayoutInputStream newInputStream(Path path,
                                               OpenOption... options)
         throws IOException
     {
@@ -66,7 +75,6 @@ public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileS
             throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
                                                           path.toString()));
         }
-        ArtifactCoordinates artifactCoordinates = RepositoryFiles.readCoordinates((RepositoryPath) path);
         
         InputStream is = super.newInputStream(path, options);
         ByteRangeInputStream bris;
@@ -83,7 +91,7 @@ public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileS
         
         try
         {
-            return decorateStream((RepositoryPath) path, bris, artifactCoordinates);
+            return decorateStream((RepositoryPath) path, bris);
         }
         catch (NoSuchAlgorithmException e)
         {
@@ -91,13 +99,12 @@ public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileS
         }
     }
 
-    protected ArtifactInputStream decorateStream(RepositoryPath path,
-                                                 InputStream is,
-                                                 ArtifactCoordinates artifactCoordinates)
+    protected LayoutInputStream decorateStream(RepositoryPath path,
+                                               InputStream is)
             throws NoSuchAlgorithmException, IOException
     {
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
-        ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is, digestAlgorithmSet);
+        LayoutInputStream result = new LayoutInputStream(is, digestAlgorithmSet);
         
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (Boolean.TRUE.equals(RepositoryFiles.isChecksum(path)))
@@ -127,7 +134,7 @@ public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileS
     }
 
     private String getChecksum(RepositoryPath path,
-                               ArtifactInputStream is,
+                               LayoutInputStream is,
                                String digestAlgorithm) throws IOException
     {
         RepositoryPath checksumPath = getChecksumPath(path, digestAlgorithm);
@@ -165,12 +172,11 @@ public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileS
         }
         
         Files.createDirectories(path.getParent());
-        ArtifactCoordinates artifactCoordinates = RepositoryFiles.readCoordinates((RepositoryPath) path);
         
         OutputStream os = super.newOutputStream(path, options);
         try
         {
-            return decorateStream((RepositoryPath) path, os, artifactCoordinates);
+            return decorateStream((RepositoryPath) path, os);
         }
         catch (NoSuchAlgorithmException e)
         {
@@ -178,13 +184,12 @@ public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileS
         }
     }
 
-    protected ArtifactOutputStream decorateStream(RepositoryPath path,
-                                                  OutputStream os,
-                                                  ArtifactCoordinates artifactCoordinates)
+    protected LayoutOutputStream decorateStream(RepositoryPath path,
+                                                OutputStream os)
             throws NoSuchAlgorithmException, IOException
     {
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
-        ArtifactOutputStream result = new ArtifactOutputStream(os, artifactCoordinates);
+        LayoutOutputStream result = new LayoutOutputStream(os);
         
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (Boolean.TRUE.equals(RepositoryFiles.isChecksum(path)))
@@ -239,7 +244,7 @@ public abstract class RepositoryLayoutFileSystemProvider extends RepositoryFileS
                               boolean force)
         throws IOException
     {
-        try (ArtifactInputStream is = newInputStream(path))
+        try (LayoutInputStream is = newInputStream(path))
         {
             Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
             digestAlgorithmSet.stream()

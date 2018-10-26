@@ -7,8 +7,7 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * @author sbespalov
  *
  */
-public class NugetFileSystemProvider extends RepositoryLayoutFileSystemProvider
+public class NugetFileSystemProvider extends LayoutFileSystemProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(NugetFileSystemProvider.class);
@@ -37,13 +36,12 @@ public class NugetFileSystemProvider extends RepositoryLayoutFileSystemProvider
     }
 
     @Override
-    protected ArtifactOutputStream decorateStream(RepositoryPath path,
-                                                  OutputStream os,
-                                                  ArtifactCoordinates artifactCoordinates)
+    protected LayoutOutputStream decorateStream(RepositoryPath path,
+                                                OutputStream os)
         throws NoSuchAlgorithmException,
         IOException
     {
-        ArtifactOutputStream result = super.decorateStream(path, os, artifactCoordinates);
+        LayoutOutputStream result = super.decorateStream(path, os);
         result.setDigestStringifier(layoutProvider::toBase64);
         return result;
     }

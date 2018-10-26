@@ -1,33 +1,36 @@
 package org.carlspring.strongbox.providers.io;
 
 import java.nio.file.FileSystem;
-import java.nio.file.PathMatcher;
 import java.util.Set;
 
-import org.carlspring.strongbox.io.FileSystemWrapper;
+import org.carlspring.strongbox.io.StorageFileSystem;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
 
 /**
- * {@link RepositoryFileSystem} is a wrapper under concrete Storage {@link FileSystem}. <br>
- * The {@link RepositoryFileSystem} root is the {@link MutableRepository}'s base directory.
+ * This class decorates {@link StorageFileSystem} with common layout specific
+ * logic. <br>
+ * Root folder is the {@link Repository} base directory.
  *
  * @author Sergey Bespalov
+ * 
+ * @see Repository
+ * @see LayoutProvider
  */
-public abstract class RepositoryFileSystem
-        extends FileSystemWrapper
+public abstract class LayoutFileSystem
+        extends StorageFileSystem
 {
 
     public static final String TRASH = ".trash";
     public static final String TEMP = ".temp";
     public static final String INDEX = ".index";
-    
-    private Repository repository;
-    private RepositoryFileSystemProvider provider;
 
-    public RepositoryFileSystem(Repository repository,
-                                FileSystem storageFileSystem,
-                                RepositoryFileSystemProvider provider)
+    private Repository repository;
+    private StorageFileSystemProvider provider;
+
+    public LayoutFileSystem(Repository repository,
+                            FileSystem storageFileSystem,
+                            StorageFileSystemProvider provider)
     {
         super(storageFileSystem);
         this.repository = repository;
@@ -39,7 +42,8 @@ public abstract class RepositoryFileSystem
         return repository;
     }
 
-    public RepositoryFileSystemProvider provider()
+    @Override
+    public StorageFileSystemProvider provider()
     {
         return provider;
     }
@@ -65,11 +69,6 @@ public abstract class RepositoryFileSystem
         return new RepositoryPath(getTarget().getPath(first, more), this);
     }
 
-    public PathMatcher getPathMatcher(String syntaxAndPattern)
-    {
-        return getTarget().getPathMatcher(syntaxAndPattern);
-    }
-    
     public abstract Set<String> getDigestAlgorithmSet();
 
 }

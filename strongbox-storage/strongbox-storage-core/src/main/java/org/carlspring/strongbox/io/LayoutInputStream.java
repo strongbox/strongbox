@@ -5,71 +5,57 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.apache.commons.io.input.ProxyInputStream;
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.util.MessageDigestUtils;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 /**
- * Note that this class is "abstract" and you don't need to instantiate it directly, see example below:
+ * This class decorates storage {@link InputStream} with common layout specific logic.
+ * 
+ * You don't need to instantiate it directly, see example below:
+ * 
  * <pre>
- * ...
- * RepositoryPath repositoryPath = layoutProvider.resolve("path/to/your/artifact/file.ext");
- * ArtifactInputStream aos = (ArtifactInputStream) Files.newInputStream(repositoryPath); 
- * ...
+ *     RepositoryPath repositoryPath = repositlryPathResolver.resolve("path/to/your/artifact/file.ext");
+ *     ArtifactInputStream aos = (ArtifactInputStream) Files.newInputStream(repositoryPath); 
  * </pre>
  * 
  * @author mtodorov
+ * 
  */
-public class ArtifactInputStream
+public class LayoutInputStream
         extends ProxyInputStream
 {
 
-    public static final String[] DEFAULT_ALGORITHMS = { EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
-                                                        EncryptionAlgorithmsEnum.SHA1.getAlgorithm(),
-                                                        };
-
-    private ArtifactCoordinates artifactCoordinates;
-
+    private static final Set<String> DEFAULT_ALGORITHM_SET = Stream.of(MessageDigestAlgorithms.MD5,
+                                                                       MessageDigestAlgorithms.SHA_1)
+                                                                   .collect(Collectors.toSet()); 
+    
     private Map<String, MessageDigest> digests = new LinkedHashMap<>();
 
     private Map<String, String> hexDigests = new LinkedHashMap<>();
 
-    public ArtifactInputStream(ArtifactCoordinates coordinates,
-                               InputStream is,
-                               Set<String> checkSumDigestAlgorithmSet)
+    public LayoutInputStream(InputStream is,
+                             Set<String> checkSumDigestAlgorithmSet)
         throws NoSuchAlgorithmException
     {
         super(new BufferedInputStream(is));
-        this.artifactCoordinates = coordinates;
+        
         for (String algorithm : checkSumDigestAlgorithmSet)
         {
             addAlgorithm(algorithm);
         }
     }
 
-    public ArtifactInputStream(ArtifactCoordinates coordinates,
-                               InputStream is)
+    public LayoutInputStream(InputStream is)
         throws NoSuchAlgorithmException
     {
-        this(coordinates, is, new HashSet<String>()
-        {
-            {
-                add(MessageDigestAlgorithms.MD5);
-                add(MessageDigestAlgorithms.SHA_1);
-            }
-        });
-    }
-
-    public ArtifactCoordinates getArtifactCoordinates()
-    {
-        return artifactCoordinates;
+        this(is, DEFAULT_ALGORITHM_SET);
     }
 
     public final void addAlgorithm(String algorithm)
