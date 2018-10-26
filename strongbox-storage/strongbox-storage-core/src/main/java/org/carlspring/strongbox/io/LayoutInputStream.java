@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -36,6 +37,14 @@ public class LayoutInputStream
                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm(),
                                                         };
 
+    private static final Set<String> DEFAULT_ALGORITHM_SET = Collections.unmodifiableSet(new HashSet<String>()
+    {
+        {
+            add(MessageDigestAlgorithms.MD5);
+            add(MessageDigestAlgorithms.SHA_1);
+        }
+    });
+    
     private Map<String, MessageDigest> digests = new LinkedHashMap<>();
 
     private Map<String, String> hexDigests = new LinkedHashMap<>();
@@ -55,13 +64,7 @@ public class LayoutInputStream
     public LayoutInputStream(InputStream is)
         throws NoSuchAlgorithmException
     {
-        this(is, new HashSet<String>()
-        {
-            {
-                add(MessageDigestAlgorithms.MD5);
-                add(MessageDigestAlgorithms.SHA_1);
-            }
-        });
+        this(is, DEFAULT_ALGORITHM_SET);
     }
 
     public final void addAlgorithm(String algorithm)

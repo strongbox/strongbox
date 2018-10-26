@@ -137,8 +137,7 @@ public class LayoutOutputStream extends MultipleDigestOutputStream
         }
         catch (IOException t)
         {
-            logger.error(String.format("Failed to operate with additional artifact stream"),
-                         t);
+            logger.error("Failed to operate with additional artifact stream", t);
             try
             {
                 cacheOutputStream.close();

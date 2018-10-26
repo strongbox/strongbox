@@ -16,13 +16,12 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
+import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.io.LayoutInputStream;
 import org.carlspring.strongbox.io.LayoutOutputStream;
-import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -76,7 +75,6 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
             throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
                                                           path.toString()));
         }
-        ArtifactCoordinates artifactCoordinates = RepositoryFiles.readCoordinates((RepositoryPath) path);
         
         InputStream is = super.newInputStream(path, options);
         ByteRangeInputStream bris;
@@ -93,7 +91,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         
         try
         {
-            return decorateStream((RepositoryPath) path, bris, artifactCoordinates);
+            return decorateStream((RepositoryPath) path, bris);
         }
         catch (NoSuchAlgorithmException e)
         {
@@ -102,8 +100,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     }
 
     protected LayoutInputStream decorateStream(RepositoryPath path,
-                                                 InputStream is,
-                                                 ArtifactCoordinates artifactCoordinates)
+                                               InputStream is)
             throws NoSuchAlgorithmException, IOException
     {
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
@@ -175,12 +172,11 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         }
         
         Files.createDirectories(path.getParent());
-        ArtifactCoordinates artifactCoordinates = RepositoryFiles.readCoordinates((RepositoryPath) path);
         
         OutputStream os = super.newOutputStream(path, options);
         try
         {
-            return decorateStream((RepositoryPath) path, os, artifactCoordinates);
+            return decorateStream((RepositoryPath) path, os);
         }
         catch (NoSuchAlgorithmException e)
         {
@@ -189,8 +185,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     }
 
     protected LayoutOutputStream decorateStream(RepositoryPath path,
-                                                  OutputStream os,
-                                                  ArtifactCoordinates artifactCoordinates)
+                                                OutputStream os)
             throws NoSuchAlgorithmException, IOException
     {
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
