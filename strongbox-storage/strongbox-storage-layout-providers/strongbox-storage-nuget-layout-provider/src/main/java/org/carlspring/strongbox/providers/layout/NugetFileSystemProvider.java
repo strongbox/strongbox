@@ -7,7 +7,6 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
@@ -38,12 +37,11 @@ public class NugetFileSystemProvider extends LayoutFileSystemProvider
 
     @Override
     protected LayoutOutputStream decorateStream(RepositoryPath path,
-                                                  OutputStream os,
-                                                  ArtifactCoordinates artifactCoordinates)
+                                                OutputStream os)
         throws NoSuchAlgorithmException,
         IOException
     {
-        LayoutOutputStream result = super.decorateStream(path, os, artifactCoordinates);
+        LayoutOutputStream result = super.decorateStream(path, os);
         result.setDigestStringifier(layoutProvider::toBase64);
         return result;
     }

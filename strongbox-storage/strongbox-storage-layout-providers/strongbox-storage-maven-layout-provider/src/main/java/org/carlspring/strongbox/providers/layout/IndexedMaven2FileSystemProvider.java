@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -13,7 +12,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.io.output.ProxyOutputStream;
 import org.apache.maven.index.ArtifactInfo;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -142,13 +140,12 @@ public class IndexedMaven2FileSystemProvider extends Maven2FileSystemProvider
 
     @Override
     protected LayoutOutputStream decorateStream(RepositoryPath path,
-                                                  OutputStream os,
-                                                  ArtifactCoordinates artifactCoordinates)
+                                                OutputStream os)
         throws NoSuchAlgorithmException,
         IOException
     {
 
-        return super.decorateStream(path, new IndexedOutputStream(path, os), artifactCoordinates);
+        return super.decorateStream(path, new IndexedOutputStream(path, os));
     }
 
     private class IndexedOutputStream extends ProxyOutputStream
