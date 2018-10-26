@@ -5,15 +5,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.apache.commons.io.input.ProxyInputStream;
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.util.MessageDigestUtils;
 
 /**
@@ -33,17 +32,9 @@ public class LayoutInputStream
         extends ProxyInputStream
 {
 
-    public static final String[] DEFAULT_ALGORITHMS = { EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
-                                                        EncryptionAlgorithmsEnum.SHA1.getAlgorithm(),
-                                                        };
-
-    private static final Set<String> DEFAULT_ALGORITHM_SET = Collections.unmodifiableSet(new HashSet<String>()
-    {
-        {
-            add(MessageDigestAlgorithms.MD5);
-            add(MessageDigestAlgorithms.SHA_1);
-        }
-    });
+    private static final Set<String> DEFAULT_ALGORITHM_SET = Stream.of(MessageDigestAlgorithms.MD5,
+                                                                       MessageDigestAlgorithms.SHA_1)
+                                                                   .collect(Collectors.toSet()); 
     
     private Map<String, MessageDigest> digests = new LinkedHashMap<>();
 
