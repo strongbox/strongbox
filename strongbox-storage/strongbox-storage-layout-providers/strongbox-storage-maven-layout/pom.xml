@@ -2,21 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../../strongbox-parent</relativePath>
+        <relativePath>../../../strongbox-parent</relativePath>
     </parent>
 
-    <artifactId>strongbox-storage-layout-providers</artifactId>
+    <artifactId>strongbox-storage-maven-layout</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Strongbox: Storage Layout Providers</name>
+    <name>Strongbox: Storage Maven Layout</name>
 
     <licenses>
         <license>
@@ -41,11 +40,8 @@
     </scm>
 
     <modules>
-        <module>strongbox-storage-maven-layout</module>
-        <module>strongbox-storage-nuget-layout-provider</module>
-        <module>strongbox-storage-p2-layout-provider</module>
-        <module>strongbox-storage-npm-layout-provider</module>
-        <module>strongbox-storage-raw-layout-provider</module>
+        <module>strongbox-storage-maven-layout-provider</module>
+        <module>strongbox-maven-metadata-api</module>
     </modules>
 
 </project>
