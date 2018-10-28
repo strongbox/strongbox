@@ -66,4 +66,4 @@ To accept, please:
 | Aditya Srinivasan            |                                          | Washington DC, USA                      | 2018-02-02 |
 | Sevastyan Pigarev			   | 										  | Barnaul, Russian Federation				| 2018-03-27 |
 | Michael Altenburger          | 										  | Vienna, Austria         				| 2018-09-29 |
-| Benjamin March               | Check24 Vergleichsportal GmbH			  | Munich, Germany         				| 2018-10-28 |
+| Benjamin March               |                             			  | Munich, Germany         				| 2018-10-28 |
