@@ -76,7 +76,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-metadata-maven-api</artifactId>
+            <artifactId>strongbox-maven-metadata-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
