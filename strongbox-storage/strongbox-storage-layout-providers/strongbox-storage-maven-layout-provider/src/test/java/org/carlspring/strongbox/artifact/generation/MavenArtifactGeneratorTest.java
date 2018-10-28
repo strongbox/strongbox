@@ -1,18 +1,13 @@
 package org.carlspring.strongbox.artifact.generation;
 
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 
+import org.apache.maven.artifact.Artifact;
 import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -59,8 +54,8 @@ public class MavenArtifactGeneratorTest
         assertTrue("Failed to generate POM MD5 file!", artifactPomFileMD5.exists());
         assertTrue("Failed to generate POM SHA1 file!", artifactPomFileSHA1.exists());
 
-        String expectedJarMD5 = calculateChecksum(artifactJarFile, "MD5");
-        String expectedJarSHA1 = calculateChecksum(artifactJarFile, "SHA1");
+        String expectedJarMD5 = MessageDigestUtils.calculateChecksum(artifactJarFile.toPath(), "MD5");
+        String expectedJarSHA1 = MessageDigestUtils.calculateChecksum(artifactJarFile.toPath(), "SHA1");
 
         String jarMd5 = MessageDigestUtils.readChecksumFile(artifactJarFileMD5.getAbsolutePath());
         String jarSha1 = MessageDigestUtils.readChecksumFile(artifactJarFileSHA1.getAbsolutePath());
@@ -75,8 +70,8 @@ public class MavenArtifactGeneratorTest
 
         assertEquals(expectedJarSHA1, jarSha1);
 
-        String expectedPomMD5 = calculateChecksum(artifactPomFile, "MD5");
-        String expectedPomSHA1 = calculateChecksum(artifactPomFile, "SHA1");
+        String expectedPomMD5 = MessageDigestUtils.calculateChecksum(artifactPomFile.toPath(), "MD5");
+        String expectedPomSHA1 = MessageDigestUtils.calculateChecksum(artifactPomFile.toPath(), "SHA1");
 
         String pomMD5 = MessageDigestUtils.readChecksumFile(artifactPomFileMD5.getAbsolutePath());
         String pomSHA1 = MessageDigestUtils.readChecksumFile(artifactPomFileSHA1.getAbsolutePath());
@@ -90,26 +85,6 @@ public class MavenArtifactGeneratorTest
         System.out.println("Generated [SHA1] (pom): " + pomSHA1);
 
         assertEquals(expectedPomSHA1, pomSHA1);
-    }
-
-    private String calculateChecksum(File file,
-                                     String type)
-            throws Exception
-    {
-        byte[] buffer = new byte[4096];
-        MessageDigest md = MessageDigest.getInstance(type);
-
-        DigestInputStream dis = new DigestInputStream(new FileInputStream(file), md);
-        try
-        {
-            while (dis.read(buffer) != -1) ;
-        }
-        finally
-        {
-            dis.close();
-        }
-
-        return MessageDigestUtils.convertToHexadecimalString(md);
     }
 
 }

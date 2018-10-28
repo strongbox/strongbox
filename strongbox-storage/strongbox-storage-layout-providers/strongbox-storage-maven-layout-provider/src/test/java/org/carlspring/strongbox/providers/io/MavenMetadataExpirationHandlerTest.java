@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.client.CloseableRestResponse;
@@ -17,17 +18,24 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -40,6 +48,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -55,7 +64,9 @@ public class MavenMetadataExpirationHandlerTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    private static final String REPOSITORY_HOSTED = "mvn-local-repo-snapshots";
+    private static final String REPOSITORY_LOCAL_SOURCE = "mvn-local-source-repo-snapshots";
+
+    private static final String REPOSITORY_HOSTED = "mvn-hosted-repo-snapshots";
 
     private static final String REPOSITORY_PROXY = "mvn-proxy-repo-snapshots";
 
@@ -66,6 +77,14 @@ public class MavenMetadataExpirationHandlerTest
     private MetadataMerger metadataMerger;
 
     private MavenArtifactGenerator mavenArtifactGenerator;
+
+    private Metadata versionLevelMetadata;
+
+    private Metadata artifactLevelMetadata;
+
+    private Artifact snapshotArtifact;
+
+    private MutableRepository localSourceRepository;
 
     @Inject
     private ProxyRepositoryProvider proxyRepositoryProvider;
@@ -82,6 +101,7 @@ public class MavenMetadataExpirationHandlerTest
     @Inject
     private ArtifactManagementService artifactManagementService;
 
+
     @BeforeClass
     public static void cleanUp()
             throws Exception
@@ -94,48 +114,27 @@ public class MavenMetadataExpirationHandlerTest
         final Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_HOSTED, Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXY, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LOCAL_SOURCE, Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
+
 
     @Before
     public void initialize()
             throws Exception
     {
-        final MutableRepository hostedRepository = createRepository(STORAGE0, REPOSITORY_HOSTED,
-                                                                    RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
+        localSourceRepository = createRepository(STORAGE0,
+                                                 REPOSITORY_LOCAL_SOURCE,
+                                                 RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
+                                                 false);
 
-        final Artifact snapshotArtifact = createTimestampedSnapshotArtifact(hostedRepository.getBasedir(), groupId,
-                                                                            artifactId, "1.0", 1);
+        createRepository(STORAGE0,
+                         REPOSITORY_HOSTED,
+                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
+                         false);
 
-        metadataMerger = new MetadataMerger();
-        mavenArtifactGenerator = new MavenArtifactGenerator(hostedRepository.getBasedir());
-
-        final Metadata versionLevelMetadata = metadataMerger.updateMetadataAtVersionLevel(snapshotArtifact, null);
-        final String versionLevelMetadataPath = ArtifactUtils.getVersionLevelMetadataPath(snapshotArtifact);
-        mavenArtifactGenerator.createMetadata(versionLevelMetadata, versionLevelMetadataPath);
-
-        final RepositoryPath versionLevelMetadataRepositoryPath = resolvePath(REPOSITORY_HOSTED, true,
-                                                                              "maven-metadata.xml");
-        /* TODO FIXME fulfill the checksums
-        try (InputStream is = hostedRepositoryProvider.getInputStream(versionLevelMetadataRepositoryPath))
-        {
-            artifactManagementService.store(versionLevelMetadataRepositoryPath, is);
-        }
-        */
-
-        final Metadata artifactLevelMetadata = metadataMerger.updateMetadataAtArtifactLevel(snapshotArtifact, null);
-        final String artifactLevelMetadataPath = ArtifactUtils.getArtifactLevelMetadataPath(snapshotArtifact);
-        mavenArtifactGenerator.createMetadata(artifactLevelMetadata, artifactLevelMetadataPath);
-
-        final RepositoryPath artifactLevelMetadataRepositoryPath = resolvePath(REPOSITORY_HOSTED, false,
-                                                                               "maven-metadata.xml");
-        /* TODO FIXME fulfill the checksums
-        try (InputStream is = hostedRepositoryProvider.getInputStream(artifactLevelMetadataRepositoryPath))
-        {
-            artifactManagementService.store(artifactLevelMetadataRepositoryPath, is);
-        }
-        */
+        mockHostedRepositoryMetadataUpdate();
 
         createProxyRepository(STORAGE0,
                               REPOSITORY_PROXY,
@@ -146,33 +145,108 @@ public class MavenMetadataExpirationHandlerTest
 
     @Test
     public void expiredMetadataShouldFetchUpdatedVersionWithinProxiedRepository()
-            throws IOException
+            throws Exception
     {
         final RepositoryPath hostedPath = resolvePath(REPOSITORY_HOSTED, true, "maven-metadata.xml");
-        assertNotNull(checksumCacheManager.getArtifactChecksum(hostedPath, "sha1"));
+        final String sha1HostedPathChecksum = checksumCacheManager.getArtifactChecksum(hostedPath,
+                                                                                       EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        assertNotNull(sha1HostedPathChecksum);
 
-        final RepositoryPath proxiedPath = resolvePath(REPOSITORY_PROXY, true, "maven-metadata.xml");
-        assertNull(checksumCacheManager.getArtifactChecksum(proxiedPath, "sha1"));
+        RepositoryPath proxiedPath = resolvePath(REPOSITORY_PROXY, true, "maven-metadata.xml");
+        String sha1ProxiedPathChecksum = checksumCacheManager.getArtifactChecksum(proxiedPath,
+                                                                                  EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        assertNull(sha1ProxiedPathChecksum);
 
         assertFalse(RepositoryFiles.artifactExists(proxiedPath));
 
-        final RepositoryPath repositoryPath = proxyRepositoryProvider.fetchPath(proxiedPath);
+        proxiedPath = proxyRepositoryProvider.fetchPath(proxiedPath);
         assertTrue(RepositoryFiles.artifactExists(proxiedPath));
 
-        assertNotNull(checksumCacheManager.getArtifactChecksum(proxiedPath, "sha1"));
+        sha1ProxiedPathChecksum = checksumCacheManager.getArtifactChecksum(proxiedPath,
+                                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        assertNotNull(sha1ProxiedPathChecksum);
+        assertThat(sha1ProxiedPathChecksum, CoreMatchers.equalTo(sha1HostedPathChecksum));
 
+        final String calculatedChecksum = MessageDigestUtils.calculateChecksum(proxiedPath,
+                                                                               EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        assertThat(sha1ProxiedPathChecksum, CoreMatchers.equalTo(calculatedChecksum));
 
-        repositoryPath.getRepository();
+        Files.setLastModifiedTime(proxiedPath, oneHourAgo());
+
+        proxiedPath = proxyRepositoryProvider.fetchPath(proxiedPath);
+        sha1ProxiedPathChecksum = checksumCacheManager.getArtifactChecksum(proxiedPath,
+                                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        assertThat(sha1ProxiedPathChecksum, CoreMatchers.equalTo(calculatedChecksum));
+
+        /*
+        TODO
+        
+        mockHostedRepositoryMetadataUpdate();
+
+        Files.setLastModifiedTime(proxiedPath, oneHourAgo());
+
+        proxiedPath = proxyRepositoryProvider.fetchPath(proxiedPath);
+        sha1ProxiedPathChecksum = checksumCacheManager.getArtifactChecksum(proxiedPath,
+                                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        assertThat(sha1ProxiedPathChecksum, CoreMatchers.equalTo(calculatedChecksum));
+        */
     }
 
     @After
     public void removeRepositories()
             throws Exception
     {
-        closeIndexersForRepository(STORAGE0, REPOSITORY_HOSTED);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_PROXY);
         removeRepositories(getRepositoriesToClean());
         cleanUp();
+    }
+
+    private void mockHostedRepositoryMetadataUpdate()
+            throws Exception
+    {
+        mockLocalRepositoryTestMetadataUpdate();
+
+        storeTestDataInHostedRepository(true, "maven-metadata.xml");
+        storeTestDataInHostedRepository(true, "maven-metadata.xml.sha1");
+        storeTestDataInHostedRepository(true, "maven-metadata.xml.md5");
+        storeTestDataInHostedRepository(false, "maven-metadata.xml");
+        storeTestDataInHostedRepository(false, "maven-metadata.xml.sha1");
+        storeTestDataInHostedRepository(false, "maven-metadata.xml.md5");
+    }
+
+    private void mockLocalRepositoryTestMetadataUpdate()
+            throws Exception
+    {
+        snapshotArtifact = snapshotArtifact != null ? snapshotArtifact :
+                           createTimestampedSnapshotArtifact(localSourceRepository.getBasedir(),
+                                                             groupId,
+                                                             artifactId,
+                                                             "1.0",
+                                                             1);
+
+        metadataMerger = new MetadataMerger();
+        mavenArtifactGenerator = new MavenArtifactGenerator(localSourceRepository.getBasedir());
+
+        versionLevelMetadata = metadataMerger.updateMetadataAtVersionLevel(snapshotArtifact, versionLevelMetadata);
+        final String versionLevelMetadataPath = ArtifactUtils.getVersionLevelMetadataPath(snapshotArtifact);
+        mavenArtifactGenerator.createMetadata(versionLevelMetadata, versionLevelMetadataPath);
+
+        artifactLevelMetadata = metadataMerger.updateMetadataAtArtifactLevel(snapshotArtifact, artifactLevelMetadata);
+        final String artifactLevelMetadataPath = ArtifactUtils.getArtifactLevelMetadataPath(snapshotArtifact);
+        mavenArtifactGenerator.createMetadata(artifactLevelMetadata, artifactLevelMetadataPath);
+    }
+
+    private void storeTestDataInHostedRepository(final boolean versionLevel,
+                                                 final String filename)
+            throws Exception
+    {
+        final RepositoryPath hostedPath = resolvePath(REPOSITORY_HOSTED, versionLevel, filename);
+
+        final RepositoryPath testDataSourcePath = resolvePath(REPOSITORY_LOCAL_SOURCE, versionLevel, filename);
+
+        try (InputStream is = Files.newInputStream(testDataSourcePath))
+        {
+            artifactManagementService.store(hostedPath, is);
+        }
     }
 
     private void mockResolvingProxiedRemoteArtifactToHostedRepository(final RestArtifactResolver artifactResolver,
@@ -182,9 +256,9 @@ public class MavenMetadataExpirationHandlerTest
         final RepositoryPath hostedRepositoryPath = resolvePath(REPOSITORY_HOSTED, versionLevel, filename);
         final Response response = Mockito.mock(Response.class);
         Mockito.when(response.getEntity()).thenAnswer(
-                invocation -> hostedRepositoryProvider.getInputStream(hostedRepositoryPath));
+                invocation -> Files.newInputStream(hostedRepositoryPath));
         Mockito.when(response.readEntity(InputStream.class)).thenAnswer(
-                invocation -> hostedRepositoryProvider.getInputStream(hostedRepositoryPath));
+                invocation -> Files.newInputStream(hostedRepositoryPath));
         Mockito.when(response.getStatus()).thenReturn(200);
 
         final CloseableRestResponse restResponse = Mockito.mock(CloseableRestResponse.class);
@@ -236,6 +310,13 @@ public class MavenMetadataExpirationHandlerTest
             repositoryPath = repositoryPath.resolve("1.0-SNAPSHOT");
         }
         return repositoryPath.resolve(filename);
+    }
+
+    private FileTime oneHourAgo()
+    {
+        LocalDateTime dateTime = LocalDateTime.now().minusHours(1);
+        Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
+        return FileTime.from(instant);
     }
 
 
