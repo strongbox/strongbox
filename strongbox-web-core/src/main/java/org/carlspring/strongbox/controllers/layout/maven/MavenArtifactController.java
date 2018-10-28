@@ -119,8 +119,7 @@ public class MavenArtifactController
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
-    @RequestMapping(value = "/copy/{path:.+}",
-                    method = RequestMethod.POST)
+    @PostMapping(value = "/copy/{path:.+}")
     public ResponseEntity copy(@ApiParam(value = "The source storageId", required = true)
                                @RequestParam(name = "srcStorageId") String srcStorageId,
                                @ApiParam(value = "The source repositoryId", required = true)
@@ -196,8 +195,7 @@ public class MavenArtifactController
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
-    @RequestMapping(value = "/{storageId}/{repositoryId}/{path:.+}",
-                    method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/{storageId}/{repositoryId}/{path:.+}")
     public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)

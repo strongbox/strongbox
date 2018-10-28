@@ -12,8 +12,10 @@ public abstract class BaseConfigurationController
 
     protected final ConfigurationManagementService configurationManagementService;
 
+
     protected BaseConfigurationController(ConfigurationManagementService configurationManagementService)
     {
         this.configurationManagementService = configurationManagementService;
     }
+
 }

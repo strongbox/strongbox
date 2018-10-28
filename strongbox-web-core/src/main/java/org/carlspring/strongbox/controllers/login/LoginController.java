@@ -24,9 +24,7 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import static org.carlspring.strongbox.controllers.login.LoginController.REQUEST_MAPPING;
 
 /**
@@ -48,16 +46,15 @@ public class LoginController
     @Inject
     private SecurityTokenProvider securityTokenProvider;
 
-    @Inject
-    private ConfigurationManagementService configurationManagementService;
 
     @ApiOperation(value = "Returns the JWT authentication token for provided username and password")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Returns generated JWT token"),
                             @ApiResponse(code = 401, message = "Invalid credentials"),
                             @ApiResponse(code = 500, message = "org.springframework.security.core.Authentication " +
-                                                               "fetched by the strongbox security implementation is not supported") })
+                                                               "fetched by the strongbox security implementation " +
+                                                               "is not supported") })
     @PreAuthorize("hasAuthority('UI_LOGIN')")
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity login(Authentication authentication) {
         return formLogin(authentication);
     }
@@ -66,9 +63,10 @@ public class LoginController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Returns generated JWT token"),
                             @ApiResponse(code = 401, message = "Invalid credentials"),
                             @ApiResponse(code = 500, message = "org.springframework.security.core.Authentication " +
-                                                               "fetched by the strongbox security implementation is not supported") })
+                                                               "fetched by the strongbox security implementation " +
+                                                               "is not supported") })
     @PreAuthorize("hasAuthority('UI_LOGIN')")
-    @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity formLogin(Authentication authentication)
     {
         if (authentication == null || !authentication.isAuthenticated())
@@ -100,6 +98,7 @@ public class LoginController
         catch (JoseException e)
         {
             logger.error("Unable to create JWT token.", e);
+
             return toResponseEntityError("Unable to create JWT token.", HttpStatus.BAD_REQUEST);
         }
 

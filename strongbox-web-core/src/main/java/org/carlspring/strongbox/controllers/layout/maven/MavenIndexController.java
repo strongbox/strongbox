@@ -3,7 +3,6 @@ package org.carlspring.strongbox.controllers.layout.maven;
 import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -23,8 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
@@ -53,7 +51,7 @@ public class MavenIndexController
                             @ApiResponse(code = 500, message = "An error occurred."),
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_INDEXES')")
-    @RequestMapping(path = "/api/maven/index", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
+    @PostMapping(path = "/api/maven/index", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
                                   @QueryParam("storageId") String storageId,
                                   @ApiParam(value = "The repositoryId", required = true)
@@ -107,4 +105,5 @@ public class MavenIndexController
                                  .body(e.getMessage());
         }
     }
+
 }

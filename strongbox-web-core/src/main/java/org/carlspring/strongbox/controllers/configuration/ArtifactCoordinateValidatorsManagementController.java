@@ -160,7 +160,7 @@ public class ArtifactCoordinateValidatorsManagementController
                             @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
     @GetMapping(value = "/validators",
                 produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity listArtifactCoordinateValidators(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    public ResponseEntity listArtifactCoordinateValidators()
     {
         return getJSONListResponseEntityBody("versionValidators",
                                              artifactCoordinatesValidatorRegistry.getArtifactCoordinatesValidators()

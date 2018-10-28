@@ -49,8 +49,6 @@ public class MavenProxyRepositoryProviderTestIT
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MavenProxyRepositoryProviderTestIT.class);
-
     @Inject
     private ArtifactEntryService artifactEntryService;
 

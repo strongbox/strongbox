@@ -17,10 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Martin Todorov
@@ -41,7 +38,7 @@ public class MavenMetadataManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
-    @RequestMapping(method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
+    @PostMapping(produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
                                   @RequestParam("storageId") String storageId,
                                   @ApiParam(value = "The repositoryId")
@@ -79,9 +76,8 @@ public class MavenMetadataManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
-                    method = RequestMethod.DELETE,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
+    @DeleteMapping(value = "{storageId}/{repositoryId}/{path:.+}",
+                   produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)

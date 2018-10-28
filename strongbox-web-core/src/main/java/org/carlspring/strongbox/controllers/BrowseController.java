@@ -3,7 +3,6 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.DirectoryListingService;
 import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 import org.carlspring.strongbox.storage.Storage;
@@ -65,8 +64,9 @@ public class BrowseController extends BaseArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(method = RequestMethod.GET,
-                    produces = {MediaType.TEXT_PLAIN_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @GetMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.TEXT_HTML_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public Object storages(ModelMap model,
                            HttpServletRequest request,
                            @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String acceptHeader)
@@ -101,9 +101,10 @@ public class BrowseController extends BaseArtifactController
                             @ApiResponse(code = 404, message = "The requested storage was not found."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value="/{storageId}",
-                    method = RequestMethod.GET,
-                    produces = {MediaType.TEXT_PLAIN_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @GetMapping(value="/{storageId}",
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.TEXT_HTML_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE})
     public Object repositories(@ApiParam(value = "The storageId", required = true) @PathVariable("storageId") String storageId,
                                HttpServletRequest request,
                                ModelMap model,
@@ -144,9 +145,10 @@ public class BrowseController extends BaseArtifactController
                             @ApiResponse(code = 404, message = "The requested storage, repository, or path was not found."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
-                    method = RequestMethod.GET,
-                    produces = {MediaType.TEXT_PLAIN_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @GetMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.TEXT_HTML_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public Object repositoryContent(@ApiParam(value = "The storageId", required = true)
                                     @PathVariable("storageId") String storageId,
                                     @ApiParam(value = "The repositoryId", required = true)

@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -35,7 +36,7 @@ public abstract class BaseArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}", method = RequestMethod.PUT)
+    @PutMapping(value = "{storageId}/{repositoryId}/{path:.+}")
     public ResponseEntity upload(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable(name = "storageId") String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)

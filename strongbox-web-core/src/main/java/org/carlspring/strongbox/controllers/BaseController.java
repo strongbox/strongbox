@@ -27,7 +27,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-
 /**
  * Provides common subroutines that will be useful for any backend controllers.
  *
@@ -75,7 +74,8 @@ public abstract class BaseController
         if (acceptHeader != null && !acceptHeader.isEmpty())
         {
             acceptHeader = acceptHeader.toLowerCase();
-            if((acceptHeader.contains(MediaType.TEXT_PLAIN_VALUE.toLowerCase()) || acceptHeader.contains(MediaType.TEXT_HTML_VALUE.toLowerCase())))
+            if((acceptHeader.contains(MediaType.TEXT_PLAIN_VALUE.toLowerCase()) ||
+                acceptHeader.contains(MediaType.TEXT_HTML_VALUE.toLowerCase())))
             {
                 return message;
             }
@@ -180,7 +180,8 @@ public abstract class BaseController
      *
      * @return ResponseEntity
      */
-    protected ResponseEntity getRuntimeExceptionResponseEntity(String message, String acceptHeader)
+    protected ResponseEntity getRuntimeExceptionResponseEntity(String message,
+                                                               String acceptHeader)
     {
         return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
                                           new RuntimeException(message),
@@ -194,7 +195,9 @@ public abstract class BaseController
      *
      * @return ResponseEntity
      */
-    protected ResponseEntity getExceptionResponseEntity(HttpStatus httpStatus, Throwable cause, String acceptHeader)
+    protected ResponseEntity getExceptionResponseEntity(HttpStatus httpStatus,
+                                                        Throwable cause,
+                                                        String acceptHeader)
     {
         return getExceptionResponseEntity(httpStatus, cause.getMessage(), cause, acceptHeader);
     }
@@ -207,7 +210,10 @@ public abstract class BaseController
      *
      * @return ResponseEntity
      */
-    protected ResponseEntity getExceptionResponseEntity(HttpStatus httpStatus, String message, Throwable cause, String acceptHeader)
+    protected ResponseEntity getExceptionResponseEntity(HttpStatus httpStatus,
+                                                        String message,
+                                                        Throwable cause,
+                                                        String acceptHeader)
     {
         logger.error(message, cause);
 

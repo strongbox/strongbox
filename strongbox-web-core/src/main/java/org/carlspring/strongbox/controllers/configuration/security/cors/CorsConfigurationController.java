@@ -110,7 +110,9 @@ public class CorsConfigurationController
             logger.error(String.format("Unable to set CORS allowed origins"), ex);
             return false;
         }
+
         corsConfiguration.setAllowedOrigins(allowedOrigins);
+
         return true;
     }
 

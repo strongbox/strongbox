@@ -39,7 +39,7 @@ public class RawArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" }, method = RequestMethod.GET)
+    @GetMapping(value = { "{storageId}/{repositoryId}/{path:.+}" })
     public void download(@ApiParam(value = "The storageId", required = true)
                          @PathVariable String storageId,
                          @ApiParam(value = "The repositoryId", required = true)
