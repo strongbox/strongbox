@@ -9,10 +9,10 @@
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../strongbox-parent</relativePath>
+        <relativePath>../../../../strongbox-parent</relativePath>
     </parent>
 
-    <artifactId>strongbox-metadata-maven-api</artifactId>
+    <artifactId>strongbox-maven-metadata-api</artifactId>
 
     <name>Strongbox: Metadata [Maven API]</name>
 
