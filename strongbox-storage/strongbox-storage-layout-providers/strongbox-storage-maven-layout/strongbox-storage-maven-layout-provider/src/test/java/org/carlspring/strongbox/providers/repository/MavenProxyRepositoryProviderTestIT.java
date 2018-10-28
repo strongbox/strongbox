@@ -131,6 +131,7 @@ public class MavenProxyRepositoryProviderTestIT
         assertTrue(layoutProvider.containsPath(repositoryPathResolver.resolve(repository, "org/carlspring/properties-injector/maven-metadata.xml")));
     }
 
+    @Ignore
     @Test
     public void whenDownloadingArtifactMetadataFileShouldBeMergedWhenExist()
             throws Exception
