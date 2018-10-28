@@ -23,7 +23,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.io.StreamUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -195,7 +195,7 @@ public class ArtifactManagementService
                                OutputStream os)
             throws IOException
     {
-        ArtifactOutputStream aos = StreamUtils.findSource(ArtifactOutputStream.class, os);
+        LayoutOutputStream aos = StreamUtils.findSource(LayoutOutputStream.class, os);
 
         Repository repository = repositoryPath.getRepository();
 

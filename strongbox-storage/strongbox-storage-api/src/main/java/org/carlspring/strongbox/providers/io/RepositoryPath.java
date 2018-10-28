@@ -20,10 +20,13 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
- * "FileSystemPath".
+ * This implementation decorates storage {@link Path} implementation, which can be an "Cloud Path" or common
+ * "File System Path".
  *
  * @author Sergey Bespalov
+ * 
+ * @see RepositoryPathResolver
+ * 
  */
 public class RepositoryPath
         implements Path
@@ -31,7 +34,7 @@ public class RepositoryPath
 
     private Path target;
     
-    private RepositoryFileSystem fileSystem;
+    private LayoutFileSystem fileSystem;
     
     protected ArtifactEntry artifactEntry;
     
@@ -42,7 +45,7 @@ public class RepositoryPath
     protected String path;
     
     public RepositoryPath(Path target,
-                          RepositoryFileSystem fileSystem)
+                          LayoutFileSystem fileSystem)
     {
         this.target = target;
         this.fileSystem = fileSystem;
@@ -58,7 +61,7 @@ public class RepositoryPath
         return artifactEntry;
     }
 
-    public RepositoryFileSystem getFileSystem()
+    public LayoutFileSystem getFileSystem()
     {
         return fileSystem;
     }
@@ -210,7 +213,7 @@ public class RepositoryPath
         }
         
         RepositoryPath result = getFileSystem().getRootDirectory().relativize(this);
-        if (result.startsWith(RepositoryFileSystem.TRASH) || result.startsWith(RepositoryFileSystem.TEMP))
+        if (result.startsWith(LayoutFileSystem.TRASH) || result.startsWith(LayoutFileSystem.TEMP))
         {
             result = result.subpath(1, result.getNameCount());
         }
@@ -236,7 +239,7 @@ public class RepositoryPath
         URI result;
         try
         {
-            result = new URI(RepositoryFileSystemProvider.STRONGBOX_SCHEME,
+            result = new URI(StorageFileSystemProvider.STRONGBOX_SCHEME,
                              null,
                              "/" + storage.getId() + "/" + repository.getId() + "/",
                              null);

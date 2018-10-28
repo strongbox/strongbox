@@ -12,7 +12,7 @@ public class RootRepositoryPath extends RepositoryPath
 {
 
     public RootRepositoryPath(Path target,
-                              RepositoryFileSystem fileSystem)
+                              LayoutFileSystem fileSystem)
     {
         super(target, fileSystem);
     }

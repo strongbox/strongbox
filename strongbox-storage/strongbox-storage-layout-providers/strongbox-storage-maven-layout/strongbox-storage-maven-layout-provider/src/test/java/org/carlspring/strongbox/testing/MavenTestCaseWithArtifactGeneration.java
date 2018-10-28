@@ -6,7 +6,7 @@ import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
+import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -168,7 +168,7 @@ public class MavenTestCaseWithArtifactGeneration
                 String path = FilenameUtils.separatorsToUnix(basePath.relativize(artifactPath).toString());
 
                 Path repositoryBasePath = basePath;
-                if (repositoryBasePath.endsWith(RepositoryFileSystem.TEMP) || repositoryBasePath.endsWith(RepositoryFileSystem.TEMP))
+                if (repositoryBasePath.endsWith(LayoutFileSystem.TEMP) || repositoryBasePath.endsWith(LayoutFileSystem.TEMP))
                 {
                     repositoryBasePath = repositoryBasePath.getParent();
                 }
@@ -177,11 +177,11 @@ public class MavenTestCaseWithArtifactGeneration
 
                 RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
 
-                if (basePath.endsWith(RepositoryFileSystem.TEMP))
+                if (basePath.endsWith(LayoutFileSystem.TEMP))
                 {
                     repositoryPath = RepositoryFiles.temporary(repositoryPath);
                 }
-                else if (basePath.endsWith(RepositoryFileSystem.TRASH))
+                else if (basePath.endsWith(LayoutFileSystem.TRASH))
                 {
                     repositoryPath = RepositoryFiles.trash(repositoryPath);
                 }
@@ -345,8 +345,8 @@ public class MavenTestCaseWithArtifactGeneration
                                      Artifact artifact)
     {
         Path repositoryBasePath = Paths.get(repositoryBasedir);
-        if (repositoryBasePath.endsWith(RepositoryFileSystem.TEMP)
-                || repositoryBasePath.endsWith(RepositoryFileSystem.TRASH))
+        if (repositoryBasePath.endsWith(LayoutFileSystem.TEMP)
+                || repositoryBasePath.endsWith(LayoutFileSystem.TRASH))
         {
             repositoryBasePath = repositoryBasePath.getParent();
         }

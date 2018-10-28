@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.repository;
 
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
+import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -52,7 +52,7 @@ public abstract class AbstractRepositoryManagementStrategy
             Files.createDirectories(rootRepositoryPath);
         }
 
-        final RepositoryPath trashRepositoryPath = rootRepositoryPath.resolve(RepositoryFileSystem.TRASH);
+        final RepositoryPath trashRepositoryPath = rootRepositoryPath.resolve(LayoutFileSystem.TRASH);
         if (!Files.exists(trashRepositoryPath))
         {
             Files.createDirectories(trashRepositoryPath);

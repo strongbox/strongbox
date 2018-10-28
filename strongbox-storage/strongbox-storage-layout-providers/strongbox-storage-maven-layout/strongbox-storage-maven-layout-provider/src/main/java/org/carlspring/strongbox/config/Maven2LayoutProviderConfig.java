@@ -7,13 +7,13 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemFactory;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemProviderFactory;
+import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
+import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
 import org.carlspring.strongbox.providers.layout.IndexedMaven2FileSystemProvider;
 import org.carlspring.strongbox.providers.layout.Maven2FileSystemProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.MavenFileSystem;
-import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -32,8 +32,8 @@ import org.springframework.core.env.Environment;
 public class Maven2LayoutProviderConfig
 {
 
-    public static final String FILE_SYSTEM_ALIAS = "RepositoryFileSystemFactory." + Maven2LayoutProvider.ALIAS;
-    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "RepositoryFileSystemProviderFactory."
+    public static final String FILE_SYSTEM_ALIAS = "LayoutFileSystemFactory." + Maven2LayoutProvider.ALIAS;
+    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "LayoutFileSystemProviderFactory."
             + Maven2LayoutProvider.ALIAS;
 
     @Inject
@@ -43,12 +43,12 @@ public class Maven2LayoutProviderConfig
     private Environment environment;
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)
-    public RepositoryFileSystemProviderFactory mavenRepositoryFileSystemProviderFactory()
+    public LayoutFileSystemProviderFactory mavenRepositoryFileSystemProviderFactory()
     {
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            RepositoryLayoutFileSystemProvider result;
+            LayoutFileSystemProvider result;
             if (Boolean.parseBoolean(environment.getProperty(MavenIndexerEnabledCondition.MAVEN_INDEXER_ENABLED)))
             {
                 result = indexedMavenFileSystemProvider(storageProvider.getFileSystemProvider());
@@ -72,15 +72,15 @@ public class Maven2LayoutProviderConfig
 
     @Bean
     @Scope("prototype")
-    public RepositoryLayoutFileSystemProvider indexedMavenFileSystemProvider(FileSystemProvider provider)
+    public LayoutFileSystemProvider indexedMavenFileSystemProvider(FileSystemProvider provider)
     {
         return new IndexedMaven2FileSystemProvider(provider);
     }
 
     @Bean(FILE_SYSTEM_ALIAS)
-    public RepositoryFileSystemFactory mavenRepositoryFileSystemFactory()
+    public LayoutFileSystemFactory mavenRepositoryFileSystemFactory()
     {
-        RepositoryFileSystemProviderFactory providerFactory = mavenRepositoryFileSystemProviderFactory();
+        LayoutFileSystemProviderFactory providerFactory = mavenRepositoryFileSystemProviderFactory();
         
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
@@ -94,7 +94,7 @@ public class Maven2LayoutProviderConfig
     @Scope("prototype")
     public MavenFileSystem mavenRepositoryFileSystem(Repository repository,
                                                      FileSystem storageFileSystem,
-                                                     RepositoryLayoutFileSystemProvider provider)
+                                                     LayoutFileSystemProvider provider)
     {
         return new MavenFileSystem(repository, storageFileSystem, provider);
     }
