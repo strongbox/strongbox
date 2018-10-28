@@ -247,7 +247,7 @@ public class UserController
         return getSuccessfulResponseEntity(SUCCESSFUL_DELETE_USER, accept);
     }
 
-    @ApiOperation(value = "Generate new security token for specified user.", position = 3)
+    @ApiOperation(value = "Generate new security token for specified user.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GENERATE_SECURITY_TOKEN),
                             @ApiResponse(code = 400, message = FAILED_GENERATE_SECURITY_TOKEN),
                             @ApiResponse(code = 404, message = NOT_FOUND_USER) })
@@ -279,7 +279,7 @@ public class UserController
         return ResponseEntity.ok(body);
     }
 
-    @ApiOperation(value = "Update custom access model for the user.", position = 3)
+    @ApiOperation(value = "Update custom access model for the user.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_UPDATE_ACCESS_MODEL),
                             @ApiResponse(code = 400, message = FAILED_UPDATE_ACCESS_MODEL),
                             @ApiResponse(code = 404, message = NOT_FOUND_USER) })

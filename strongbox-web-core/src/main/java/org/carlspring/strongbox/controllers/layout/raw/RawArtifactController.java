@@ -35,7 +35,7 @@ public class RawArtifactController
     public final static String ROOT_CONTEXT = "/storages";
 
 
-    @ApiOperation(value = "Used to retrieve an artifact", position = 1)
+    @ApiOperation(value = "Used to retrieve an artifact")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")

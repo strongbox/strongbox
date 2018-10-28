@@ -60,7 +60,7 @@ public class MavenArtifactController
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Used to retrieve an artifact", position = 1)
+    @ApiOperation(value = "Used to retrieve an artifact")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 404, message = "Requested path not found."),
                             @ApiResponse(code = 500, message = "Server error."),
@@ -114,7 +114,7 @@ public class MavenArtifactController
         provideArtifactDownloadResponse(request, response, httpHeaders, repositoryPath);
     }
 
-    @ApiOperation(value = "Copies a path from one repository to another.", position = 4)
+    @ApiOperation(value = "Copies a path from one repository to another.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!") })
@@ -190,7 +190,7 @@ public class MavenArtifactController
         return ResponseEntity.ok("The path was copied successfully.");
     }
 
-    @ApiOperation(value = "Deletes a path from a repository.", position = 3)
+    @ApiOperation(value = "Deletes a path from a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deleted."),
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!") })

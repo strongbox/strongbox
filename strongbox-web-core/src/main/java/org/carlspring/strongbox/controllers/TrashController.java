@@ -47,8 +47,7 @@ public class TrashController
     private RepositoryPathResolver repositoryPathResolver;
 
 
-    @ApiOperation(value = "Used to delete the trash for a specified repository.",
-                  position = 1)
+    @ApiOperation(value = "Used to delete the trash for a specified repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "The trash for ${storageId}:${repositoryId}' was removed successfully."),
                             @ApiResponse(code = 400,
@@ -96,8 +95,7 @@ public class TrashController
         return ResponseEntity.ok(getResponseEntityBody(message, accept));
     }
 
-    @ApiOperation(value = "Used to delete the trash for all repositories.",
-                  position = 2)
+    @ApiOperation(value = "Used to delete the trash for all repositories.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "The trash for all repositories was successfully removed."),
                             @ApiResponse(code = 400,
@@ -127,8 +125,7 @@ public class TrashController
         return ResponseEntity.ok(getResponseEntityBody(message, accept));
     }
 
-    @ApiOperation(value = "Used to undelete the trash for a path under a specified repository.",
-                  position = 3)
+    @ApiOperation(value = "Used to undelete the trash for a path under a specified repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
                             @ApiResponse(code = 400,
@@ -185,8 +182,7 @@ public class TrashController
         return ResponseEntity.ok(getResponseEntityBody(message, accept));
     }
 
-    @ApiOperation(value = "Used to undelete the trash for a specified repository.",
-                  position = 4)
+    @ApiOperation(value = "Used to undelete the trash for a specified repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
                             @ApiResponse(code = 400,
@@ -241,8 +237,7 @@ public class TrashController
         }
     }
 
-    @ApiOperation(value = "Used to undelete the trash for all repositories.",
-                  position = 5)
+    @ApiOperation(value = "Used to undelete the trash for all repositories.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "The trash for all repositories was successfully restored."),
                             @ApiResponse(code = 400,

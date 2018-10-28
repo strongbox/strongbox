@@ -71,8 +71,7 @@ public class MavenMetadataManagementController
         }
     }
 
-    @ApiOperation(value = "Used to delete metadata entries for an artifact",
-                  position = 1)
+    @ApiOperation(value = "Used to delete metadata entries for an artifact")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")

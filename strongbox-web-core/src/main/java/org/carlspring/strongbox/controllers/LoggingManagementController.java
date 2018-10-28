@@ -80,7 +80,7 @@ public class LoggingManagementController
         });
     }
     
-    @ApiOperation(value = "Used to add new logger.", position = 0)
+    @ApiOperation(value = "Used to add new logger.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was added successfully."),
                             @ApiResponse(code = 400, message = "Could not add a new logger.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_ADD_LOGGER','CONFIGURE_LOGS')")
@@ -109,7 +109,7 @@ public class LoggingManagementController
         }
     }
 
-    @ApiOperation(value = "Used to update existing logger.", position = 0)
+    @ApiOperation(value = "Used to update existing logger.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was updated successfully."),
                             @ApiResponse(code = 400, message = "Could not update logger."),
                             @ApiResponse(code = 404, message = "Logger was not found.") })

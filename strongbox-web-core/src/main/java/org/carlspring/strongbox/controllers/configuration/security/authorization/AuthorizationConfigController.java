@@ -115,7 +115,7 @@ public class AuthorizationConfigController
         return processConfig(null, acceptHeader);
     }
 
-    @ApiOperation(value = "Deletes a role by name.", position = 3)
+    @ApiOperation(value = "Deletes a role by name.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_DELETE_ROLE),
                             @ApiResponse(code = 400, message = FAILED_DELETE_ROLE) })
     @DeleteMapping(value = "/role/{name}",

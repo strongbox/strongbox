@@ -46,7 +46,7 @@ public class MavenIndexController
     private LayoutProviderRegistry layoutProviderRegistry;
 
 
-    @ApiOperation(value = "Used to rebuild the indexes in a repository or for artifact.", position = 0)
+    @ApiOperation(value = "Used to rebuild the indexes in a repository or for artifact.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The indexes were successfully rebuilt!"),
                             @ApiResponse(code = 500, message = "An error occurred."),
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId/path) does not exist!") })
