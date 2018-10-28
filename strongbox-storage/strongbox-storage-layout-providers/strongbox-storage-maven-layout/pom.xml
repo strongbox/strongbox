@@ -41,6 +41,7 @@
 
 <modules>
     <module>strongbox-storage-maven-layout-provider</module>
+    <module>strongbox-maven-metadata-api</module>
 </modules>
 
 </project>
