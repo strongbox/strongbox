@@ -24,9 +24,4 @@ public enum IndexTypeEnum
         return type;
     }
 
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
 }

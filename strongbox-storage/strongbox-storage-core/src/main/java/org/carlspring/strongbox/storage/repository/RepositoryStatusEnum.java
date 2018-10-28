@@ -25,14 +25,10 @@ public enum RepositoryStatusEnum implements Describable
         return status;
     }
 
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-
     @Override
     public String describe()
     {
         return getStatus();
     }
+
 }

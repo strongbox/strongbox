@@ -60,33 +60,6 @@ public class MavenArtifactController
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Used to deploy an artifact", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(value = "/{storageId}/{repositoryId}/{path:.+}", method = RequestMethod.PUT)
-    public ResponseEntity upload(@ApiParam(value = "The storageId", required = true)
-                                 @PathVariable(name = "storageId") String storageId,
-                                 @ApiParam(value = "The repositoryId", required = true)
-                                 @PathVariable(name = "repositoryId") String repositoryId,
-                                 @PathVariable String path,
-                                 HttpServletRequest request)
-    {
-        try
-        {
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
-            artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
-
-            return ResponseEntity.ok("The artifact was deployed successfully.");
-        }
-        catch (Exception e)
-        {
-            logger.error(e.getMessage(), e);
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
-
     @ApiOperation(value = "Used to retrieve an artifact", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 404, message = "Requested path not found."),

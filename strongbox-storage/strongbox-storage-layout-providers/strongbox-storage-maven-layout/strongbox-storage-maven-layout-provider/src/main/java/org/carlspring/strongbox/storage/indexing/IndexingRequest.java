@@ -9,6 +9,7 @@ public enum IndexingRequest
 {
 
     ADD (1),
+
     DELETE (2);
 
     private int type;
@@ -37,29 +38,14 @@ public enum IndexingRequest
         return type;
     }
 
-    public void setType(int type)
-    {
-        this.type = type;
-    }
-
     public MutableRepository getRepository()
     {
         return repository;
     }
 
-    public void setRepository(MutableRepository repository)
-    {
-        this.repository = repository;
-    }
-
     public String getArtifactPath()
     {
         return artifactPath;
-    }
-
-    public void setArtifactPath(String artifactPath)
-    {
-        this.artifactPath = artifactPath;
     }
 
 }

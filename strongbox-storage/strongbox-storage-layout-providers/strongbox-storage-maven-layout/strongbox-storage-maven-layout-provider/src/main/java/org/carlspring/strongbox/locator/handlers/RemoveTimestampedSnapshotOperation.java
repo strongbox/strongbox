@@ -10,8 +10,6 @@ import org.carlspring.strongbox.storage.metadata.VersionCollector;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -116,8 +114,6 @@ public class RemoveTimestampedSnapshotOperation
         }
         catch (IOException |
                ProviderImplementationException |
-               NoSuchAlgorithmException |
-               ParseException |
                XmlPullParserException e)
         {
             logger.error("Failed to delete timestamped snapshot artifacts for " + basePath, e);

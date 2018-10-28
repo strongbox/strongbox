@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
@@ -12,8 +11,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -24,8 +30,33 @@ public abstract class BaseArtifactController
     @Inject
     protected ArtifactManagementService artifactManagementService;
 
-    @Inject
-    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
+
+    @ApiOperation(value = "Used to deploy an artifact", position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
+                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
+    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}", method = RequestMethod.PUT)
+    public ResponseEntity upload(@ApiParam(value = "The storageId", required = true)
+                                 @PathVariable(name = "storageId") String storageId,
+                                 @ApiParam(value = "The repositoryId", required = true)
+                                 @PathVariable(name = "repositoryId") String repositoryId,
+                                 @PathVariable String path,
+                                 HttpServletRequest request)
+    {
+        try
+        {
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
+            artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
+
+            return ResponseEntity.ok("The artifact was deployed successfully.");
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 
     public Storage getStorage(String storageId)
     {
@@ -38,7 +69,6 @@ public abstract class BaseArtifactController
         return getStorage(storageId).getRepository(repositoryId);
     }
 
-    //TODO: we need to use `java.nio.file.Path` instead of `String` for `path` parameter here.
     protected boolean provideArtifactDownloadResponse(HttpServletRequest request,
                                                       HttpServletResponse response,
                                                       HttpHeaders httpHeaders,

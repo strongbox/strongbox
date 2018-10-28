@@ -68,7 +68,6 @@ public class MetadataHelperTest
 
     private MetadataMerger metadataMerger;
 
-    private File pluginXmlFile;
     private static String pluginXmlFilePath;
     @Mock
     private Artifact artifact;
@@ -96,7 +95,6 @@ public class MetadataHelperTest
     public static void down()
     {
         deleteTestResources();
-
     }
 
     private static void deleteTestResources()
@@ -160,7 +158,7 @@ public class MetadataHelperTest
             throws IOException
     {
         File file = new File("");
-        pluginXmlFilePath = file.getCanonicalPath().toString() + "/src/test/resources/maven-dependency-plugin-3.0.2/META-INF/maven";
+        pluginXmlFilePath = file.getCanonicalPath() + "/src/test/resources/maven-dependency-plugin-3.0.2/META-INF/maven";
         Files.createDirectories(Paths.get(pluginXmlFilePath));
 
         try
@@ -211,7 +209,6 @@ public class MetadataHelperTest
     @Test
     public void versionLevelCreateNewMetadaTest()
     {
-
         // Given
         when(artifact.getGroupId()).thenReturn(GROUP_ID);
         when(artifact.getArtifactId()).thenReturn(ARTIFACT_ID);
