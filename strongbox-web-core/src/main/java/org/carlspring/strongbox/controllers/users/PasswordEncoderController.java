@@ -9,9 +9,9 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -28,7 +28,7 @@ public class PasswordEncoderController
 
     @ApiOperation(value = "Encodes provided raw password")
     @ApiResponses(value = @ApiResponse(code = 200, message = "Returns encoded raw password"))
-    @RequestMapping(value = "/{rawPassword}", method = RequestMethod.GET)
+    @GetMapping(value = "/{rawPassword}")
     @ResponseBody
     public ResponseEntity encode(@PathVariable String rawPassword)
     {

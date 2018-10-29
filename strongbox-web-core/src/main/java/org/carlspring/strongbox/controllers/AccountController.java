@@ -64,7 +64,6 @@ public class AccountController
         return ResponseEntity.ok(UserOutput.fromUser(user));
     }
 
-
     @ApiOperation(value = "Get the account details of the currently logged user")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Account details have been successfully updated"),
                             @ApiResponse(code = 400, message = "Unsupported logged user principal type"),
@@ -104,6 +103,5 @@ public class AccountController
         return getSuccessfulResponseEntity("Account details have been successfully updated",
                                            MediaType.APPLICATION_JSON_VALUE);
     }
-
 
 }

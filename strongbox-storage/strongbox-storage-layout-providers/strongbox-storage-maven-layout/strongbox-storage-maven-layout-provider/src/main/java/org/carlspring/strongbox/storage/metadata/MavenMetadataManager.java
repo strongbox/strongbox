@@ -4,7 +4,6 @@ import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -18,15 +17,10 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import javax.inject.Inject;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
+import java.io.*;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -60,13 +54,11 @@ public class MavenMetadataManager
     private static final Logger logger = LoggerFactory.getLogger(MavenMetadataManager.class);
 
     @Inject
-    protected StorageProviderRegistry storageProviderRegistry;
-
-    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
     
     @Inject
     private RepositoryPathLock repositoryPathLock;
+
 
     public Metadata readMetadata(MavenArtifact artifact)
             throws IOException,
@@ -165,7 +157,8 @@ public class MavenMetadataManager
      */
     public void generateMetadata(RepositoryPath artifactGroupDirectoryPath,
                                  VersionCollectionRequest request)
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException,
+            throws IOException,
+                   ProviderImplementationException,
                    UnknownRepositoryTypeException
     {
         Repository repository = artifactGroupDirectoryPath.getRepository();
@@ -188,7 +181,6 @@ public class MavenMetadataManager
         Metadata metadata = new Metadata();
         metadata.setGroupId(artifactGroupId);
         metadata.setArtifactId(artifactId);
-        
 
         List<MetadataVersion> baseVersioning = request.getMetadataVersions();
         Versioning versioning = request.getVersioning();
@@ -276,15 +268,13 @@ public class MavenMetadataManager
     }
 
     private void generateMavenPluginMetadata(String groupId, String aritfactId, RepositoryPath pluginMetadataPath, List<Plugin> plugins)
-            throws IOException, NoSuchAlgorithmException
     {
         Metadata pluginMetadata = new Metadata();
         pluginMetadata.setPlugins(plugins);
 
         storeMetadata(pluginMetadataPath, null, pluginMetadata, MetadataType.PLUGIN_GROUP_LEVEL);
 
-        logger.debug("Generated Maven plugin metadata for " + groupId + ":" +
-                     aritfactId + ".");
+        logger.debug("Generated Maven plugin metadata for " + groupId + ":" + aritfactId + ".");
     }
 
     public Metadata generateSnapshotVersioningMetadata(String groupId,
@@ -292,7 +282,7 @@ public class MavenMetadataManager
                                                        RepositoryPath snapshotBasePath,
                                                        String version,
                                                        boolean store)
-            throws IOException, NoSuchAlgorithmException
+            throws IOException
     {
         VersionCollector versionCollector = new VersionCollector();
         List<SnapshotVersion> snapshotVersions = versionCollector.collectTimestampedSnapshotVersions(snapshotBasePath);
@@ -362,7 +352,6 @@ public class MavenMetadataManager
                               Metadata mergeMetadata)
             throws IOException,
                    XmlPullParserException,
-                   NoSuchAlgorithmException,
                    ProviderImplementationException
     {
         RepositoryPath repositoryPath = artifact.getPath();
@@ -403,16 +392,15 @@ public class MavenMetadataManager
             Versioning versioning = metadata.getVersioning();
             if (versioning.getVersions() != null)
             {
-                Collections.sort(versioning.getVersions(), new VersionComparator());
+                versioning.getVersions().sort(new VersionComparator());
             }
             if (versioning.getSnapshotVersions() != null)
             {
-                Collections.sort(versioning.getSnapshotVersions(), new SnapshotVersionComparator());
+                versioning.getSnapshotVersions().sort(new SnapshotVersionComparator());
             }
 
             storeMetadata(metadataBasePath, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
         });
-
     }
 
     private void doInLock(RepositoryPath metadataBasePath,

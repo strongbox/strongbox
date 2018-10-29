@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.controllers.forms;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * @author Przemyslaw Fusik

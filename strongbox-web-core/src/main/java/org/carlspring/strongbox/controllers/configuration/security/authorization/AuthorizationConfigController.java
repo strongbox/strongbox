@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.controllers.configuration.security.authorization;
 
+import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
+import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
+import org.carlspring.strongbox.authorization.dto.RoleDto;
+import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
-import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
-import org.carlspring.strongbox.authorization.dto.RoleDto;
-import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
-import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
@@ -15,11 +15,7 @@ import javax.xml.bind.JAXBException;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.http.HttpHeaders;
@@ -32,13 +28,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Pablo Tirado
@@ -81,15 +71,13 @@ public class AuthorizationConfigController
     @Inject
     private ConversionService conversionService;
 
+
     @ApiOperation(value = "Used to add new roles")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-            message = SUCCESSFUL_ADD_ROLE),
-                            @ApiResponse(code = 400,
-                                    message = FAILED_ADD_ROLE) })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_ADD_ROLE),
+                            @ApiResponse(code = 400, message = FAILED_ADD_ROLE) })
     @PostMapping(value = "/role",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                 consumes = MediaType.APPLICATION_JSON_VALUE,
+                 produces = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addRole(@RequestBody @Validated RoleForm roleForm,
                                   BindingResult bindingResult,
                                   @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -107,34 +95,25 @@ public class AuthorizationConfigController
     }
 
     @ApiOperation(value = "Retrieves the strongbox-authorization.xml configuration file.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-            message = SUCCESSFUL_GET_CONFIG),
-                            @ApiResponse(code = 500,
-                                    message = FAILED_GET_CONFIG) })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIG),
+                            @ApiResponse(code = 500, message = FAILED_GET_CONFIG) })
     @GetMapping(value = "/xml",
-            produces = { MediaType.APPLICATION_XML_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                produces = { MediaType.APPLICATION_XML_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getAuthorizationConfig(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         return processConfig(null, acceptHeader);
     }
 
-    @ApiOperation(value = "Deletes a role by name.",
-            position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-            message = SUCCESSFUL_DELETE_ROLE),
-                            @ApiResponse(code = 400,
-                                    message = FAILED_DELETE_ROLE)
-    })
+    @ApiOperation(value = "Deletes a role by name.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_DELETE_ROLE),
+                            @ApiResponse(code = 400, message = FAILED_DELETE_ROLE) })
     @DeleteMapping(value = "/role/{name}",
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity deleteRole(@ApiParam(value = "The name of the role",
-            required = true)
+                   produces = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity deleteRole(@ApiParam(value = "The name of the role", required = true)
                                      @PathVariable("name") String name,
                                      @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-
         try
         {
             deleteRole(name);
@@ -161,16 +140,12 @@ public class AuthorizationConfigController
         }
     }
 
-
     @ApiOperation(value = "Used to assign privileges to the anonymous user")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-            message = SUCCESSFUL_ASSIGN_PRIVILEGES),
-                            @ApiResponse(code = 400,
-                                    message = FAILED_ASSIGN_PRIVILEGES) })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_ASSIGN_PRIVILEGES),
+                            @ApiResponse(code = 400, message = FAILED_ASSIGN_PRIVILEGES) })
     @PostMapping(value = "/anonymous/privileges",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                 consumes = MediaType.APPLICATION_JSON_VALUE,
+                 produces = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addPrivilegesToAnonymous(@RequestBody @Validated PrivilegeListForm privilegeListForm,
                                                    BindingResult bindingResult,
                                                    @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -230,21 +205,18 @@ public class AuthorizationConfigController
 
     private void addAnonymousAuthority(List<PrivilegeDto> authorities)
     {
-        authorities.stream().map(p -> p.getName()).forEach(this::addAnonymousAuthority);
+        authorities.stream().map(PrivilegeDto::getName).forEach(this::addAnonymousAuthority);
     }
 
     private void addAnonymousAuthority(String authority)
     {
         SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority.toUpperCase());
-        anonymousAuthenticationFilter.getAuthorities()
-                                     .add(simpleGrantedAuthority);
+        anonymousAuthenticationFilter.getAuthorities().add(simpleGrantedAuthority);
     }
 
     private interface CustomSuccessResponseBuilder
     {
-
-        ResponseEntity build(AuthorizationConfigDto config)
-                throws JAXBException;
+        ResponseEntity build(AuthorizationConfigDto config)throws JAXBException;
     }
 
 }

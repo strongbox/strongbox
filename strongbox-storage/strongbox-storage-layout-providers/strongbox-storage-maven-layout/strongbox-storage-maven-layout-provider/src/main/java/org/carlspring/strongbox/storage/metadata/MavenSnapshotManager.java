@@ -3,7 +3,6 @@ package org.carlspring.strongbox.storage.metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -15,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -45,9 +43,6 @@ public class MavenSnapshotManager
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
-    protected StorageProviderRegistry storageProviderRegistry;
-
-    @Inject
     private MavenMetadataManager mavenMetadataManager;
 
     public MavenSnapshotManager()
@@ -60,8 +55,6 @@ public class MavenSnapshotManager
                                                    int keepPeriod)
             throws IOException,
                    ProviderImplementationException,
-                   NoSuchAlgorithmException,
-                   ParseException,
                    XmlPullParserException
     {
         Repository repository = basePath.getRepository();
@@ -81,8 +74,7 @@ public class MavenSnapshotManager
         String artifactGroupId = artifactGroup.getValue0();
         String artifactId = artifactGroup.getValue1();
 
-        if (versioning.getVersions()
-                       .isEmpty())
+        if (versioning.getVersions().isEmpty())
         {
             return;
         }
@@ -90,7 +82,7 @@ public class MavenSnapshotManager
         for (String version : versioning.getVersions())
         {
 
-            RepositoryPath versionDirectoryPath = (RepositoryPath) basePath.resolve(ArtifactUtils.getSnapshotBaseVersion(version));
+            RepositoryPath versionDirectoryPath = basePath.resolve(ArtifactUtils.getSnapshotBaseVersion(version));
             if (!removeTimestampedSnapshot(versionDirectoryPath, numberToKeep, keepPeriod))
             {
                 continue;
@@ -98,20 +90,19 @@ public class MavenSnapshotManager
 
             logger.debug("Generate snapshot versioning metadata for " + versionDirectoryPath + ".");
 
-            mavenMetadataManager.generateSnapshotVersioningMetadata(artifactGroupId, artifactId, versionDirectoryPath,
+            mavenMetadataManager.generateSnapshotVersioningMetadata(artifactGroupId,
+                                                                    artifactId,
+                                                                    versionDirectoryPath,
                                                                     version,
                                                                     true);
         }
-
     }
 
     private boolean removeTimestampedSnapshot(RepositoryPath basePath,
                                               int numberToKeep,
                                               int keepPeriod)
-            throws ProviderImplementationException,
-                   IOException,
-                   XmlPullParserException,
-                   ParseException
+            throws IOException,
+                   XmlPullParserException
     {
         Metadata metadata = mavenMetadataManager.readMetadata(basePath);
 
@@ -149,7 +140,9 @@ public class MavenSnapshotManager
                 RepositoryPath repositoryPath = (RepositoryPath) path;
                 final String filename = path.getFileName().toString();
                 
-                if (!removingSnapshots.contains(filename) || !RepositoryFiles.isArtifact(repositoryPath) || RepositoryFiles.isMetadata(repositoryPath))
+                if (!removingSnapshots.contains(filename) ||
+                    !RepositoryFiles.isArtifact(repositoryPath) ||
+                    RepositoryFiles.isMetadata(repositoryPath))
                 {
                     continue;
                 }
@@ -178,20 +171,17 @@ public class MavenSnapshotManager
      * @param numberToKeep type int
      * @param keepPeriod   type int
      * @return type Map<Integer, String>
-     * @throws IOException
-     * @throws XmlPullParserException
      */
     private Map<Integer, String> getRemovableTimestampedSnapshots(Metadata metadata,
                                                                   int numberToKeep,
                                                                   int keepPeriod)
-            throws IOException,
-                   XmlPullParserException
     {
         /**
          * map of the snapshots in metadata file
          * k - number of the build, v - version of the snapshot
          */
         Map<Integer, String> snapshots = new HashMap<>();
+
         /**
          * map of snapshots for removing
          * k - number of the build, v - version of the snapshot
