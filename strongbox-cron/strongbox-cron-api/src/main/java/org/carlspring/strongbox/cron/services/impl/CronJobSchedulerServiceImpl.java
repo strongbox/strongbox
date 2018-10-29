@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.cron.services.impl;
 
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.GroovyScriptNamesDto;
 import org.carlspring.strongbox.cron.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
+
+import javax.inject.Inject;
+import java.util.Set;
+
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -67,15 +67,9 @@ public class CronJobSchedulerServiceImpl
         TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger()
                                                                .withIdentity(triggerKey)
                                                                .forJob(jobDetail);
-        if (cronTaskConfiguration.isOneTimeExecution())
-        {
-            triggerBuilder.startNow();
-        }
-        else
-        {
-            String cronExpression = cronTaskConfiguration.getProperty("cronExpression");
-            triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
-        }
+
+        String cronExpression = cronTaskConfiguration.getProperty("cronExpression");
+        triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
         Trigger trigger = triggerBuilder.build();
 
         try
@@ -99,7 +93,7 @@ public class CronJobSchedulerServiceImpl
         throws SchedulerException
     {
         scheduler.addJob(jobDetail, true);
-        if (cronTaskConfiguration.shouldExecuteImmediately() && !cronTaskConfiguration.isOneTimeExecution())
+        if (cronTaskConfiguration.shouldExecuteImmediately())
         {
             scheduler.triggerJob(jobKey);
         }
