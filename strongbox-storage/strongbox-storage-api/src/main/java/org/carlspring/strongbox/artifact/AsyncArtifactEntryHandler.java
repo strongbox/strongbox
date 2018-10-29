@@ -157,7 +157,9 @@ public abstract class AsyncArtifactEntryHandler
                 ArtifactEntry result = handleEvent(repositoryPath);
                 if (result == null)
                 {
-                    logger.warn(String.format("No [%s] result for [%s].", ArtifactEntry.class.getSimpleName(),
+                    logger.warn(String.format("No [%s] result for event [%s] and path [%s].",
+                                              ArtifactEntry.class.getSimpleName(),
+                                              AsyncArtifactEntryHandler.class.getSimpleName(),
                                               repositoryPath));
 
                     return null;
