@@ -305,7 +305,7 @@ public class Maven2LayoutProvider
             }
             catch (IOException e)
             {
-                logger.error(String.format("Unable to list filenames in archive path %s using %s", repositoryPath,
+                logger.warn(String.format("Unable to list filenames in archive path %s using %s", repositoryPath,
                                            JarArchiveListingFunction.INSTANCE.getClass()), e);
             }
         }
