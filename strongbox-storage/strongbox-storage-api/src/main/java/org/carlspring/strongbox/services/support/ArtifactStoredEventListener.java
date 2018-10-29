@@ -51,6 +51,15 @@ public class ArtifactStoredEventListener extends AsyncArtifactEntryHandler
     {
         ArtifactEntry artifactEntry = repositoryPath.getArtifactEntry();
         
+        if (artifactEntry == null)
+        {
+            logger.warn(String.format("No [%s] for [%s].",
+                                      ArtifactEntry.class.getSimpleName(),
+                                      repositoryPath));
+
+            return null;
+        }
+        
         final Repository repository = repositoryPath.getRepository();
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         
