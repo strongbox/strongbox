@@ -154,7 +154,16 @@ public abstract class AsyncArtifactEntryHandler
         new TransactionTemplate(transactionManager).execute(t -> {
             try
             {
-                return artifactEntryService.save(handleEvent(repositoryPath));
+                ArtifactEntry result = handleEvent(repositoryPath);
+                if (result == null)
+                {
+                    logger.warn(String.format("No [%s] result for [%s].", ArtifactEntry.class.getSimpleName(),
+                                              repositoryPath));
+
+                    return null;
+                }
+
+                return artifactEntryService.save(result);
             }
             catch (IOException e)
             {
