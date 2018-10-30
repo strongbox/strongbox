@@ -259,7 +259,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         deleteIfExists(new File(artifactPath,
                                               "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
 
-        assertTrue(!new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists(),
+        assertFalse(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists(),
                    "The checksum file for artifact exist!");
 
         List<File> resultList = new ArrayList<>();

@@ -973,7 +973,7 @@ public class MavenArtifactControllerTest
 
         assertTrue(results.getResults()
                           .isEmpty(), "Failed to delete artifacts from Maven Index!!");
-        assertTrue(!metadata.getVersioning()
+        assertFalse(metadata.getVersioning()
                             .getVersions()
                             .contains("1.2.2"));
     }
