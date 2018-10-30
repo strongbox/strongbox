@@ -2,6 +2,8 @@
 
 [![Master Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox/master)](https://dev.carlspring.org/jenkins/blue/organizations/jenkins/strongbox%2Fstrongbox/activity?branch=master)
 [![RocketChat.Community.Channel](https://chat.carlspring.org/images/join-chat.svg)](https://chat.carlspring.org/channel/community)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/50f1af2c3b2d4e31a5c686c9a9395cd2)](https://www.codacy.com/app/strongbox/strongbox?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=strongbox/strongbox&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/50f1af2c3b2d4e31a5c686c9a9395cd2)](https://www.codacy.com/app/strongbox/strongbox?utm_source=github.com&utm_medium=referral&utm_content=strongbox/strongbox&utm_campaign=Badge_Coverage)
 [![Help Contribute to Open Source](https://www.codetriage.com/strongbox/strongbox/badges/users.svg)](https://www.codetriage.com/strongbox/strongbox)
 [![License](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 
