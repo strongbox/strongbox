@@ -8,17 +8,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.ARTIFACT;
-import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.ARTIFACT_PATH;
-import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.CHECKSUM;
-import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.COORDINATES;
-import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.EXPIRED;
-import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.METADATA;
-import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.REPOSITORY_ID;
-import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.RESOURCE_URL;
-import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.STORAGE_ID;
-import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.TEMP;
-import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.TRASH;
+import static org.carlspring.strongbox.providers.io.RepositoryFileAttributeType.*;
 
 public class RepositoryFileAttributes
         implements BasicFileAttributes
