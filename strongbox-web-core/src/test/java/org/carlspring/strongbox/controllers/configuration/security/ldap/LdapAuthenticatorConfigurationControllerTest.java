@@ -41,6 +41,8 @@ import static org.hamcrest.CoreMatchers.startsWith;
 public class LdapAuthenticatorConfigurationControllerTest
         extends RestAssuredBaseTest
 {
+    @Inject
+    private AuthenticatorsScanner scanner;
 
     @Override
     @BeforeEach
@@ -49,9 +51,6 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         super.init();
     }
-
-    @Inject
-    private AuthenticatorsScanner scanner;
 
     private static LdapConfigurationTestForm validLdapConfigurationTestForm()
     {

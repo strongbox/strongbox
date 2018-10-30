@@ -150,7 +150,7 @@ public class BrowseControllerTest
         
         assertNotNull(returned, "Failed to get repository list!");
         assertNotNull(returned.getDirectories(), "Failed to get repository list!");
-        assertTrue(!returned.getDirectories().isEmpty(), "Returned repositories do not match");
+        assertFalse(returned.getDirectories().isEmpty(), "Returned repositories do not match");
         assertTrue(returned.getDirectories()
                            .stream()
                            .anyMatch(p -> p.getName().equals(REPOSITORY)), "Repository not found");

@@ -28,6 +28,9 @@ public class StrongboxConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
+    @Inject
+    private ObjectMapper objectMapper;
+
     @Override
     @BeforeEach
     public void init()
@@ -35,9 +38,6 @@ public class StrongboxConfigurationControllerTestIT
     {
         super.init();
     }
-
-    @Inject
-    private ObjectMapper objectMapper;
     
     @Test
     public void testGetAndSetConfiguration() throws JsonParseException, JsonMappingException, IOException
