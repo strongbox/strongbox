@@ -92,22 +92,20 @@ public class NpmArtifactController extends BaseArtifactController
     private RepositorySearchEventListener repositorySearchEventListener;
     
     
-    @RequestMapping(path = { "{storageId}/{repositoryId}/npm" }, method = RequestMethod.GET)
+    @GetMapping(path = { "{storageId}/{repositoryId}/npm" })
     public ResponseEntity<String> greet()
     {
         // TODO: find out what NPM expect to receive here
         return ResponseEntity.ok("");
     }
 
-    @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName:[^-].+}/{packageVersion}", method = { RequestMethod.GET })
+    @GetMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName:[^-].+}/{packageVersion}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
     public void viewPackageWithScope(@PathVariable(name = "storageId") String storageId,
                                      @PathVariable(name = "repositoryId") String repositoryId,
                                      @PathVariable(name = "packageScope") String packageScope,
                                      @PathVariable(name = "packageName") String packageName,
                                      @PathVariable(name = "packageVersion") String packageVersion,
-                                     @RequestHeader HttpHeaders httpHeaders,
-                                     HttpServletRequest request,
                                      HttpServletResponse response)
         throws Exception
     {
@@ -134,14 +132,12 @@ public class NpmArtifactController extends BaseArtifactController
         response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(npmPackage));
     }
     
-    @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}", method = { RequestMethod.GET})
+    @GetMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
     public void viewPackageFeedWithScope(@PathVariable(name = "storageId") String storageId,
                                          @PathVariable(name = "repositoryId") String repositoryId,
                                          @PathVariable(name = "packageScope") String packageScope,
                                          @PathVariable(name = "packageName") String packageName,
-                                         @RequestHeader HttpHeaders httpHeaders,
-                                         HttpServletRequest request,
                                          HttpServletResponse response)
         throws Exception
     {
@@ -200,17 +196,15 @@ public class NpmArtifactController extends BaseArtifactController
         response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(packageFeed));
     }
 
-    @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}", method = { RequestMethod.GET})
+    @GetMapping(path = "{storageId}/{repositoryId}/{packageName}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
     public void viewPackageFeed(@PathVariable(name = "storageId") String storageId,
                                 @PathVariable(name = "repositoryId") String repositoryId,
                                 @PathVariable(name = "packageName") String packageName,
-                                @RequestHeader HttpHeaders httpHeaders,
-                                HttpServletRequest request,
                                 HttpServletResponse response)
         throws Exception
     {
-        viewPackageFeedWithScope(storageId, repositoryId, null, packageName, httpHeaders, request, response);
+        viewPackageFeedWithScope(storageId, repositoryId, null, packageName, response);
     }
 
     private Predicate createSearchPredicate(String packageScope,
@@ -229,8 +223,8 @@ public class NpmArtifactController extends BaseArtifactController
     }
 
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}", method = { RequestMethod.GET,
-                                                                                                                                                     RequestMethod.HEAD })
+    @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
+                    method = { RequestMethod.GET, RequestMethod.HEAD })
     public void downloadPackageWithScope(@PathVariable(name = "storageId") String storageId,
                                          @PathVariable(name = "repositoryId") String repositoryId,
                                          @PathVariable(name = "packageScope") String packageScope,
@@ -259,8 +253,8 @@ public class NpmArtifactController extends BaseArtifactController
     }
 
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}", method = { RequestMethod.GET,
-                                                                                                                                      RequestMethod.HEAD })
+    @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
+                    method = { RequestMethod.GET, RequestMethod.HEAD })
     public void downloadPackage(@PathVariable(name = "storageId") String storageId,
                                 @PathVariable(name = "repositoryId") String repositoryId,
                                 @PathVariable(name = "packageName") String packageName,
@@ -288,7 +282,7 @@ public class NpmArtifactController extends BaseArtifactController
     }
 
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{name:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON)
+    @PutMapping(path = "{storageId}/{repositoryId}/{name:.+}", consumes = MediaType.APPLICATION_JSON)
     public ResponseEntity publish(@PathVariable(name = "storageId") String storageId,
                                   @PathVariable(name = "repositoryId") String repositoryId,
                                   @PathVariable(name = "name") String name,
@@ -300,8 +294,7 @@ public class NpmArtifactController extends BaseArtifactController
         Pair<PackageVersion, Path> packageEntry;
         try
         {
-            packageEntry = extractPackage(storageId, repositoryId, name,
-                                          request.getInputStream());
+            packageEntry = extractPackage(name, request.getInputStream());
         }
         catch (IllegalArgumentException e)
         {
@@ -358,9 +351,7 @@ public class NpmArtifactController extends BaseArtifactController
         Files.delete(packageJsonTmp);
     }
 
-    private Pair<PackageVersion, Path> extractPackage(String storageId,
-                                                      String repositoryId,
-                                                      String packageName,
+    private Pair<PackageVersion, Path> extractPackage(String packageName,
                                                       ServletInputStream in)
         throws IOException
     {
@@ -371,22 +362,22 @@ public class NpmArtifactController extends BaseArtifactController
         Path packageTgzPath = null;
 
         JsonFactory jfactory = new JsonFactory();
-        try (InputStream tmpIn = new BufferedInputStream(Files.newInputStream(packageSourceTmp)))
+        try (InputStream tmpIn = new BufferedInputStream(Files.newInputStream(packageSourceTmp));
+             JsonParser jp = jfactory.createParser(tmpIn);)
         {
-            JsonParser jp = jfactory.createParser(tmpIn);
             jp.setCodec(npmJacksonMapper);
 
             Assert.isTrue(jp.nextToken() == JsonToken.START_OBJECT, "npm package source should be JSON object.");
 
             while (jp.nextToken() != null)
             {
-                String fieldname = jp.getCurrentName();
+                String fieldName = jp.getCurrentName();
                 // read value
-                if (fieldname == null)
+                if (fieldName == null)
                 {
                     continue;
                 }
-                switch (fieldname)
+                switch (fieldName)
                 {
                 case FIELD_NAME_VERSION:
                     jp.nextValue();

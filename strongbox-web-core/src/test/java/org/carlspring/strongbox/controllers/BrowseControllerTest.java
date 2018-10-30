@@ -217,7 +217,6 @@ public class BrowseControllerTest
                       + STORAGE0 + "/" + REPOSITORY + "/org/carlspring/strongbox/browsing/test-browsing/1.1/test-browsing-1.1.jar";
 
         assertTrue(htmlResponse.contains(link), "Expected to have found [ " + link + " ] in the response html");
-
     }
 
     @Test

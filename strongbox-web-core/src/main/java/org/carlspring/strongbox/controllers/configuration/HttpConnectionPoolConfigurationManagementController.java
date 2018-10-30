@@ -7,9 +7,6 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -44,24 +41,17 @@ public class HttpConnectionPoolConfigurationManagementController
     }
 
     @ApiOperation(value = "Update number of pool connections pool for proxy repository")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "Number of pool connections for proxy repository was updated successfully."),
-                            @ApiResponse(code = 400,
-                                         message = "The proxy repository has no associated remote repository."),
-                            @ApiResponse(code = 404,
-                                    message = "The (storage/repository) does not exist!") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Number of pool connections for proxy repository was updated successfully."),
+                            @ApiResponse(code = 400, message = "The proxy repository has no associated remote repository."),
+                            @ApiResponse(code = 404, message = "The (storage/repository) does not exist!") })
     @PutMapping(value = "{storageId}/{repositoryId}/{numberOfConnections}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setNumberOfConnectionsForProxyRepository(@PathVariable(value = "storageId") String storageId,
-                                                                   @PathVariable(value = "repositoryId")
-                                                                           String repositoryId,
-                                                                   @PathVariable(value = "numberOfConnections")
-                                                                           int numberOfConnections,
+                                                                   @PathVariable(value = "repositoryId") String repositoryId,
+                                                                   @PathVariable(value = "numberOfConnections") int numberOfConnections,
                                                                    @RequestHeader(HttpHeaders.ACCEPT) String accept)
-            throws IOException, JAXBException
     {
-
         Storage storage = getConfiguration().getStorage(storageId);
         if (storage == null)
         {
@@ -84,11 +74,11 @@ public class HttpConnectionPoolConfigurationManagementController
         }
 
         configurationManagementService.setProxyRepositoryMaxConnections(storageId, repositoryId, numberOfConnections);
-        proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
-                repository.getRemoteRepository()
-                          .getUrl(), numberOfConnections);
+        proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(repository.getRemoteRepository().getUrl(),
+                                                                              numberOfConnections);
 
         String message = "Number of pool connections for repository was updated successfully.";
+
         return ResponseEntity.ok(getResponseEntityBody(message, accept));
     }
 

@@ -28,15 +28,18 @@ Once you've created a new pull request, kindly first review the diff thoroughly 
 
 # Legal
 
-Contributing code to this project means that you accept your contributions to be
-licensed under the Apache 2.0 license. Signing the ICLA below covers contributions to:
-* Any project in the [Strongbox](https://github.com/strongbox) organization on Github
-* Any dependent project in the [carlspring](https://github.com/carlspring) repositories
-
 To accept, please:
-- Print, sign and scan the [Individual Contributor's License Agreement (ICLA)](https://github.com/strongbox/strongbox/blob/master/ICLA.md), or, alternatively, fill in the [ICLA PDF](https://github.com/strongbox/strongbox/wiki/resources/pdfs/ICLA.pdf) file
-  and mail it back to [carlspring@gmail.com](mailto:carlspring@gmail.com).
-- Place your name and e-mail below and open a pull request.
+* Fill in all the mandatory fields
+  * `Full name` (**mandatory**)
+  * `Company` (**optional** -- please, only fill this, if you're contributing work on behalf of a company)
+  * `E-mail` (**mandatory**)
+  * `Mailing address` (**mandatory**)
+  * `Country` (**mandatory**)
+  * `Telephone` (**optional**)
+* Print, sign and scan the [Individual Contributor's License Agreement (ICLA)](https://github.com/strongbox/strongbox/blob/master/ICLA.md), or, alternatively, fill in the [ICLA PDF](https://github.com/strongbox/strongbox/wiki/resources/pdfs/ICLA.pdf) file and mail it back to [carlspring@gmail.com](mailto:carlspring@gmail.com).
+* Add your name and basic details below and open a pull request.
+
+**Notes:** Please, note that none of this information is shared with third-parties and is only required due to the legal agreement which you will be entering when contributing your code to the project. We require this minimal amount of information in order to be able to identify you, as we're not keeping record, or more sensitive information, such as passport/ID details. We will not send you any spam, or share your details with third parties.
 
 | Name                         | Company                                  | Location                                | Date       |
 |------------------------------|------------------------------------------|-----------------------------------------|------------|
@@ -64,5 +67,6 @@ To accept, please:
 | Guido Grazioli               |                                          | London, United Kingdom                  | 2018-01-15 |
 | Maxim Antonov                |                                          | Moscow, Russian Federation              | 2018-01-14 |
 | Aditya Srinivasan            |                                          | Washington DC, USA                      | 2018-02-02 |
-| Sevastyan Pigarev			   | 										  | Barnaul, Russian Federation				| 2018-03-27 |
-| Michael Altenburger          | 										  | Vienna, Austria         				| 2018-09-29 |
+| Sevastyan Pigarev			         |                              										  | Barnaul, Russian Federation				         | 2018-03-27 |
+| Michael Altenburger          | 						                             				  | Vienna, Austria                     				| 2018-09-29 |
+| Benjamin March               |                             			          | Munich, Germany                     				| 2018-10-28 |

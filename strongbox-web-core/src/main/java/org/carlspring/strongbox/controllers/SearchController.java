@@ -10,18 +10,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -51,11 +47,10 @@ public class SearchController
     @ApiOperation(value = "Used to search for artifacts.", response = SearchResults.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
     @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
-    @RequestMapping(method = RequestMethod.GET,
-                    consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
-                                 MediaType.TEXT_PLAIN_VALUE },
-                    produces = { MediaType.APPLICATION_JSON_VALUE,
-                                 MediaType.TEXT_PLAIN_VALUE })
+    @GetMapping(consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE },
+                produces = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     public ResponseEntity search(@ApiParam(value = "The storageId", required = false)
                                  @RequestParam(name = "storageId", required = false) final String storageId,
                                  @ApiParam(value = "The repositoryId", required = false)
@@ -76,16 +71,16 @@ public class SearchController
         if (accept.equalsIgnoreCase(MediaType.TEXT_PLAIN_VALUE))
         {
             final SearchResults artifacts = getSearchResults(storageId, repositoryId, q, searchProvider);
+
             return ResponseEntity.ok(artifacts.toString());
         }
         else
         {
             // Apparently, the JSON root tag's name is based on the name of the object
             // which the Jersey method returns, hence this is "artifacts".
-            @SuppressWarnings("UnnecessaryLocalVariable") final SearchResults artifacts = getSearchResults(storageId,
-                                                                                                           repositoryId,
-                                                                                                           q,
-                                                                                                           searchProvider);
+            @SuppressWarnings("UnnecessaryLocalVariable")
+            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q, searchProvider);
+
             return ResponseEntity.ok(artifacts);
         }
     }

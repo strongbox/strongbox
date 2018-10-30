@@ -13,7 +13,7 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
  * successfully, then file just moved into original location, other way
  * "transaction" will be rolled back and temporary file will be removed.
  *
- * @see RepositoryFileSystemProvider.TempOutputStream
+ * @see StorageFileSystemProvider.TempOutputStream
  * @author sbespalov
  *
  */
@@ -36,7 +36,7 @@ public class TempRepositoryPath extends RepositoryPath
         throws IOException
     {
         RepositoryPath tempPathBase = path.getFileSystem().getTempPath();
-        RepositoryPath tempPath = RepositoryFileSystemProvider.rebase(path, tempPathBase);
+        RepositoryPath tempPath = StorageFileSystemProvider.rebase(path, tempPathBase);
 
         if (!Files.exists(tempPath.getParent().getTarget()))
         {

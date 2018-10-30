@@ -10,7 +10,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
+import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.Storage;
@@ -124,14 +124,14 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                 value = repositoryPath.isAbsolute()
                         && repositoryPath.startsWith(repositoryPath.getFileSystem()
                                                                    .getRootDirectory()
-                                                                   .resolve(RepositoryFileSystem.TEMP));
+                                                                   .resolve(LayoutFileSystem.TEMP));
 
                 break;
             case TRASH:
                 value = repositoryPath.isAbsolute()
                         && repositoryPath.startsWith(repositoryPath.getFileSystem()
                                                                    .getRootDirectory()
-                                                                   .resolve(RepositoryFileSystem.TRASH));
+                                                                   .resolve(LayoutFileSystem.TRASH));
                 
                 break;
             case METADATA:
@@ -213,7 +213,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             }
             catch (IOException e)
             {
-                logger.error(String.format("Unable to list filenames in archive path %s using %s", repositoryPath,
+                logger.warn(String.format("Unable to list filenames in archive path %s using %s", repositoryPath,
                                            ARCHIVE_LISTING_FUNCTION), e);
             }
         }

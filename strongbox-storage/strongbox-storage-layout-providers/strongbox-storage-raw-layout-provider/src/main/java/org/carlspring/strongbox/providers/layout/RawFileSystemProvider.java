@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  * @author sbespalov
  *
  */
-public class RawFileSystemProvider extends RepositoryLayoutFileSystemProvider
+public class RawFileSystemProvider extends LayoutFileSystemProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(RawFileSystemProvider.class);

@@ -26,7 +26,7 @@ public class RepositoryPathTest
 
     private MutableRepository repository;
 
-    private RepositoryFileSystem repositoryFileSystem;
+    private LayoutFileSystem repositoryFileSystem;
 
     @BeforeEach
     public void setup()
@@ -34,7 +34,7 @@ public class RepositoryPathTest
         repository = new MutableRepository();
         repository.setBasedir(REPOSITORY_BASEDIR.toAbsolutePath().toString());
 
-        repositoryFileSystem = new RepositoryFileSystem(new Repository(repository), FileSystems.getDefault(), null)
+        repositoryFileSystem = new LayoutFileSystem(new Repository(repository), FileSystems.getDefault(), null)
         {
             @Override
             public Set<String> getDigestAlgorithmSet()

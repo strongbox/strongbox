@@ -3,6 +3,7 @@
 [![Master Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox/master)](https://dev.carlspring.org/jenkins/blue/organizations/jenkins/strongbox%2Fstrongbox/activity?branch=master)
 [![RocketChat.Community.Channel](https://chat.carlspring.org/images/join-chat.svg)](https://chat.carlspring.org/channel/community)
 [![Help Contribute to Open Source](https://www.codetriage.com/strongbox/strongbox/badges/users.svg)](https://www.codetriage.com/strongbox/strongbox)
+[![License](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Welcome to the Strongbox artifact repository manager's home.
 

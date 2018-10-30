@@ -33,9 +33,9 @@ public class ArtifactClient
 
     private static final String HEADER_NAME_USER_AGENT = "user-agent";
 
-    protected String username = "maven";
+    protected String username;
 
-    protected String password = "password";
+    protected String password;
 
     private String protocol = "http";
 
@@ -48,6 +48,7 @@ public class ArtifactClient
     private String contextBaseUrl;
 
     private Client client;
+
 
     public ArtifactClient()
     {
@@ -75,8 +76,8 @@ public class ArtifactClient
                    48080;
 
         ArtifactClient client = new ArtifactClient();
-        client.setUsername(username);
-        client.setPassword(password);
+        client.setUsername(username != null ? username : "maven");
+        client.setPassword(password != null ? password : "password");
         client.setPort(port);
         client.setContextBaseUrl("http://" + host + ":" + client.getPort());
 

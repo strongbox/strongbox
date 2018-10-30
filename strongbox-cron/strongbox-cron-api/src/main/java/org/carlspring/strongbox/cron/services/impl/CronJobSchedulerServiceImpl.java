@@ -57,15 +57,9 @@ public class CronJobSchedulerServiceImpl
         TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger()
                                                                .withIdentity(triggerKey)
                                                                .forJob(jobDetail);
-        if (cronTaskConfiguration.isOneTimeExecution())
-        {
-            triggerBuilder.startNow();
-        }
-        else
-        {
-            String cronExpression = cronTaskConfiguration.getProperty("cronExpression");
-            triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
-        }
+
+        String cronExpression = cronTaskConfiguration.getProperty("cronExpression");
+        triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
         Trigger trigger = triggerBuilder.build();
 
         try
@@ -89,7 +83,7 @@ public class CronJobSchedulerServiceImpl
         throws SchedulerException
     {
         scheduler.addJob(jobDetail, true);
-        if (cronTaskConfiguration.shouldExecuteImmediately() && !cronTaskConfiguration.isOneTimeExecution())
+        if (cronTaskConfiguration.shouldExecuteImmediately())
         {
             scheduler.triggerJob(jobKey);
         }

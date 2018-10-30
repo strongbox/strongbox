@@ -15,7 +15,7 @@ services:
          mkdir -p /workspace/.m2/repositories
          mvn clean install -DskipTests -Dmaven.repo.local=/workspace/.m2/repositories
          cd strongbox-web-core
-         mvn clean package -Pjetty-block -Dmaven.repo.local=/workspace/.m2/repositories
+         mvn spring-boot:run -Dmaven.repo.local=/workspace/.m2/repositories
     ports:
       - 48080:48080
     volumes:

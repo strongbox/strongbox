@@ -2,7 +2,6 @@ package org.carlspring.strongbox.controllers.layout.nuget;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
@@ -12,7 +11,6 @@ import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.io.ReplacingInputStream;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterQueryParser;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
@@ -93,8 +91,9 @@ public class NugetArtifactController extends BaseArtifactController
     
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-    
-    @RequestMapping(path = { "{storageId}/{repositoryId}/{packageId}/{version}" }, method = RequestMethod.DELETE)
+
+
+    @DeleteMapping(path = { "{storageId}/{repositoryId}/{packageId}/{version}" })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     public ResponseEntity deletePackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
                                         @ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
@@ -124,7 +123,7 @@ public class NugetArtifactController extends BaseArtifactController
         return ResponseEntity.status(HttpStatus.OK).build();
     }
     
-    @RequestMapping(path = { "{storageId}/{repositoryId}/Search()/$count" }, method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN)
+    @GetMapping(path = { "{storageId}/{repositoryId}/Search()/$count" }, produces = MediaType.TEXT_PLAIN)
     public ResponseEntity<String> countPackages(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                                 @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                                                 @RequestParam(name = "$filter", required = false) String filter,
@@ -148,7 +147,8 @@ public class NugetArtifactController extends BaseArtifactController
         return new ResponseEntity<>(String.valueOf(count), HttpStatus.OK);
     }
 
-    @RequestMapping(path = { "{storageId}/{repositoryId}/{searchCommandName:(?:Packages(?:\\(\\))?|Search\\(\\))}" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
+    @GetMapping(path = { "{storageId}/{repositoryId}/{searchCommandName:(?:Packages(?:\\(\\))?|Search\\(\\))}" },
+                produces = MediaType.APPLICATION_XML)
     public ResponseEntity<?> searchPackages(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                             @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                                             @PathVariable(name = "searchCommandName") String searchCommandName,
@@ -174,21 +174,14 @@ public class NugetArtifactController extends BaseArtifactController
                                    repositoryId);
 
         Collection<? extends Nupkg> files;
-        try
-        {
-            files = getPackages(storageId,
-                                repositoryId,
-                                filter,
-                                orderBy,
-                                normalizedSearchTerm,
-                                targetFramework,
-                                skip,
-                                top);
-        }
-        catch (NugetFormatException e)
-        {
-            return ResponseEntity.badRequest().build();
-        }
+        files = getPackages(storageId,
+                            repositoryId,
+                            filter,
+                            orderBy,
+                            normalizedSearchTerm,
+                            targetFramework,
+                            skip,
+                            top);
 
         PackageFeed feed = transform(feedId, files);
 
@@ -287,7 +280,7 @@ public class NugetArtifactController extends BaseArtifactController
 
     }
 
-    @RequestMapping(path = { "{storageId}/{repositoryId}/FindPackagesById()" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
+    @GetMapping(path = { "{storageId}/{repositoryId}/FindPackagesById()" }, produces = MediaType.APPLICATION_XML)
     public ResponseEntity<?> searchPackageById(@PathVariable(name = "storageId") String storageId,
                                                @PathVariable(name = "repositoryId") String repositoryId,
                                                @RequestParam(name = "id", required = true) String packageId,
@@ -330,7 +323,6 @@ public class NugetArtifactController extends BaseArtifactController
                                                    String targetFramework,
                                                    Integer skip,
                                                    Integer top)
-        throws NugetFormatException
     {
         Repository repository = getRepository(storageId, repositoryId);
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
@@ -404,7 +396,6 @@ public class NugetArtifactController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
     @RequestMapping(path = { "{storageId}/{repositoryId}/$metadata" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
     public ResponseEntity<Resource> getMetadata()
-            throws IOException
     {
         InputStream inputStream = NugetArtifactController.class.getResourceAsStream("/metadata.xml");
         return new ResponseEntity<>(new InputStreamResource(inputStream), HttpStatus.OK);
@@ -420,7 +411,7 @@ public class NugetArtifactController extends BaseArtifactController
     @ApiOperation(value = "Used to check storage availability")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Storage available."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Storage requires authorization.") })
-    @RequestMapping(path = { "{storageId}/{repositoryId}", "greet" }, method = RequestMethod.GET)
+    @GetMapping(path = { "{storageId}/{repositoryId}", "greet" })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     public ResponseEntity<String> greet()
     {
@@ -480,7 +471,8 @@ public class NugetArtifactController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "The requested path was not found."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Repository not in service currently.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{commandName:(?:download|package)}/{packageId}/{packageVersion}", method = {RequestMethod.GET, RequestMethod.HEAD},
+    @RequestMapping(path = "{storageId}/{repositoryId}/{commandName:(?:download|package)}/{packageId}/{packageVersion}",
+                    method = {RequestMethod.GET, RequestMethod.HEAD},
                     produces = MediaType.APPLICATION_OCTET_STREAM)
     public void downloadPackage(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                 @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
@@ -489,7 +481,7 @@ public class NugetArtifactController extends BaseArtifactController
                                 HttpServletResponse response,
                                 HttpServletRequest request,
                                 @RequestHeader HttpHeaders httpHeaders)
-            throws ArtifactTransportException, ProviderImplementationException, Exception
+            throws Exception
     {
         getPackageInternal(storageId, repositoryId, packageId, packageVersion, response, request, httpHeaders);
     }
@@ -500,7 +492,8 @@ public class NugetArtifactController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "The requested path was not found."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Repository not in service currently.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{packageId}/{packageVersion}", method = {RequestMethod.GET, RequestMethod.HEAD},
+    @RequestMapping(path = "{storageId}/{repositoryId}/{packageId}/{packageVersion}",
+                    method = {RequestMethod.GET, RequestMethod.HEAD},
                     produces = MediaType.APPLICATION_OCTET_STREAM)
     public void getPackage(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                            @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
@@ -509,10 +502,10 @@ public class NugetArtifactController extends BaseArtifactController
                            HttpServletResponse response,
                            HttpServletRequest request, 
                            @RequestHeader HttpHeaders httpHeaders)
-            throws ArtifactTransportException, ProviderImplementationException, Exception
+            throws Exception
     {
         getPackageInternal(storageId, repositoryId, packageId, packageVersion, response, request, httpHeaders);
-    }    
+    }
     
     private void getPackageInternal(String storageId,
                                     String repositoryId,
@@ -521,7 +514,7 @@ public class NugetArtifactController extends BaseArtifactController
                                     HttpServletResponse response,
                                     HttpServletRequest request,
                                     HttpHeaders httpHeaders)
-        throws ArtifactTransportException, ProviderImplementationException, Exception
+            throws Exception
     {
         logger.debug("Requested Nuget Package %s, %s, %s, %s.", storageId, repositoryId, packageId, packageVersion);
 

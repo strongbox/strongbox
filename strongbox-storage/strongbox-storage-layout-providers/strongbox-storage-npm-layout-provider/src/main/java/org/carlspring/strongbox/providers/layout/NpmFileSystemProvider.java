@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  * @author sbespalov
  *
  */
-public class NpmFileSystemProvider extends RepositoryLayoutFileSystemProvider
+public class NpmFileSystemProvider extends LayoutFileSystemProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(NpmFileSystemProvider.class);

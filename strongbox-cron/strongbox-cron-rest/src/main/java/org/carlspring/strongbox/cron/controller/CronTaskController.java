@@ -51,7 +51,7 @@ public class CronTaskController
     @Inject
     CronJobSchedulerService cronJobSchedulerService;
 
-    @ApiOperation(value = "Used to save the configuration", position = 0)
+    @ApiOperation(value = "Used to save the configuration")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration was saved successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @RequestMapping(value = "/cron",
@@ -76,7 +76,7 @@ public class CronTaskController
         }
     }
 
-    @ApiOperation(value = "Used to delete the configuration", position = 1)
+    @ApiOperation(value = "Used to delete the configuration")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration was deleted successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @RequestMapping(value = "/cron", method = RequestMethod.DELETE)
@@ -117,7 +117,7 @@ public class CronTaskController
         return ResponseEntity.ok().body("Configuration " + name + " removed");
     }
 
-    @ApiOperation(value = "Used to get the configuration on given cron task name", position = 2)
+    @ApiOperation(value = "Used to get the configuration on given cron task name")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration retrieved successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @RequestMapping(value = "/cron",
@@ -144,7 +144,7 @@ public class CronTaskController
         }
     }
 
-    @ApiOperation(value = "Used to get list of all the configurations", position = 3)
+    @ApiOperation(value = "Used to get list of all the configurations")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The all configurations retrieved successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @RequestMapping(value = "/",
@@ -163,7 +163,7 @@ public class CronTaskController
         return ResponseEntity.ok(config);
     }
 
-    @ApiOperation(value = "Used to upload groovy script for groovy cron task", position = 4)
+    @ApiOperation(value = "Used to upload groovy script for groovy cron task")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The groovy script uploaded successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @RequestMapping(value = "/cron/groovy", method = RequestMethod.PUT)
@@ -209,7 +209,7 @@ public class CronTaskController
         return ResponseEntity.ok().build();
     }
 
-    @ApiOperation(value = "Used to get all groovy scripts names", position = 5)
+    @ApiOperation(value = "Used to get all groovy scripts names")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The groovy scripts named retrieved successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @RequestMapping(value = "/groovy/names",

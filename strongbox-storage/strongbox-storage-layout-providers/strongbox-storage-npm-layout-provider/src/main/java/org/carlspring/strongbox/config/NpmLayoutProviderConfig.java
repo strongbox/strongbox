@@ -3,12 +3,12 @@ package org.carlspring.strongbox.config;
 import org.carlspring.strongbox.npm.metadata.jackson.NpmJacksonMapperFactory;
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemFactory;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemProviderFactory;
+import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
+import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
 import org.carlspring.strongbox.providers.layout.NpmFileSystem;
 import org.carlspring.strongbox.providers.layout.NpmFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
-import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
@@ -35,8 +35,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public class NpmLayoutProviderConfig
 {
 
-    public static final String FILE_SYSTEM_ALIAS = "RepositoryFileSystemFactory." + NpmLayoutProvider.ALIAS;
-    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "RepositoryFileSystemProviderFactory."
+    public static final String FILE_SYSTEM_ALIAS = "LayoutFileSystemFactory." + NpmLayoutProvider.ALIAS;
+    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "LayoutFileSystemProviderFactory."
             + NpmLayoutProvider.ALIAS;
 
     @Inject
@@ -50,12 +50,12 @@ public class NpmLayoutProviderConfig
     }
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)
-    public RepositoryFileSystemProviderFactory npmRepositoryFileSystemProviderFactory()
+    public LayoutFileSystemProviderFactory npmRepositoryFileSystemProviderFactory()
     {
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            RepositoryLayoutFileSystemProvider result = npmFileSystemProvider(storageProvider.getFileSystemProvider());
+            LayoutFileSystemProvider result = npmFileSystemProvider(storageProvider.getFileSystemProvider());
 
             return result;
         };
@@ -70,9 +70,9 @@ public class NpmLayoutProviderConfig
     }
 
     @Bean(FILE_SYSTEM_ALIAS)
-    public RepositoryFileSystemFactory npmRepositoryFileSystemFactory()
+    public LayoutFileSystemFactory npmRepositoryFileSystemFactory()
     {
-        RepositoryFileSystemProviderFactory providerFactory = npmRepositoryFileSystemProviderFactory();
+        LayoutFileSystemProviderFactory providerFactory = npmRepositoryFileSystemProviderFactory();
         
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
@@ -86,7 +86,7 @@ public class NpmLayoutProviderConfig
     @Scope("prototype")
     public NpmFileSystem npmRepositoryFileSystem(Repository repository,
                                                  FileSystem storageFileSystem,
-                                                 RepositoryLayoutFileSystemProvider provider)
+                                                 LayoutFileSystemProvider provider)
     {
         return new NpmFileSystem(repository, storageFileSystem, provider);
     }

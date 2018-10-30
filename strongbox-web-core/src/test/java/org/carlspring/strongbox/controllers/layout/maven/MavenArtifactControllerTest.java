@@ -186,7 +186,7 @@ public class MavenArtifactControllerTest
             throws Exception
     {
         File file = new File("");
-        pluginXmlFilePath = file.getCanonicalPath().toString() + "/src/test/resources/temp/" + artifactId + "/META-INF/maven";
+        pluginXmlFilePath = file.getCanonicalPath() + "/src/test/resources/temp/" + artifactId + "/META-INF/maven";
         Files.createDirectories(Paths.get(pluginXmlFilePath));
 
         String xmlSource = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

@@ -33,7 +33,7 @@ public class RepositoryPathResolver
     {
         Objects.requireNonNull(repository, "Repository should be provided");
 
-        RepositoryFileSystemFactory fileSystemFactory = fileSystemRegistry.lookupRepositoryFileSystemFactory(repository);
+        LayoutFileSystemFactory fileSystemFactory = fileSystemRegistry.lookupRepositoryFileSystemFactory(repository);
 
         return fileSystemFactory.create(repository).getRootDirectory();
     }
