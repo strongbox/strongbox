@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.providers.io;
 
-import java.nio.file.FileSystem;
-import java.util.Set;
-
 import org.carlspring.strongbox.io.StorageFileSystem;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import java.nio.file.FileSystem;
+import java.util.Set;
 
 /**
  * This class decorates {@link StorageFileSystem} with common layout specific

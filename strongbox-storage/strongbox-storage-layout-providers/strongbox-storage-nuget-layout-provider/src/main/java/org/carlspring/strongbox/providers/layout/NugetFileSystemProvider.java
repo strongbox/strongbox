@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.providers.layout;
 
+import org.carlspring.strongbox.io.LayoutOutputStream;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.io.LayoutOutputStream;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

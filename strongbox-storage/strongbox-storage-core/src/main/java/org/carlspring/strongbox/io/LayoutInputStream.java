@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.io;
 
+import org.carlspring.commons.util.MessageDigestUtils;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +15,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.apache.commons.io.input.ProxyInputStream;
-import org.carlspring.commons.util.MessageDigestUtils;
 
 /**
  * This class decorates storage {@link InputStream} with common layout specific logic.

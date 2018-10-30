@@ -1,10 +1,9 @@
 package org.carlspring.strongbox.providers.io;
 
-import java.io.Closeable;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+
 import java.io.IOException;
 import java.nio.file.Files;
-
-import org.carlspring.strongbox.domain.ArtifactEntry;
 
 /**
  * The main concept of {@link TempRepositoryPath} is to provide atomacity into

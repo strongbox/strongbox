@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.providers.repository;
 
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,9 +11,6 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**

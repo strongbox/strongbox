@@ -4,6 +4,7 @@ import org.carlspring.strongbox.event.AsyncEventListener;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
+
 import org.springframework.stereotype.Component;
 
 /**
