@@ -26,6 +26,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.awaitility.Awaitility.await;
 import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -277,7 +278,7 @@ public class RegenerateMavenChecksumCronJobTestIT
         deleteIfExists(new File(artifactPath, "/maven-metadata.xml.md5"));
         deleteIfExists(new File(artifactPath, "/maven-metadata.xml.sha1"));
 
-        assertTrue(!new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists(),
+        assertFalse(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists(),
                    "The checksum file for artifact exist!");
 
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
