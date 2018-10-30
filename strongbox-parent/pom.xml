@@ -200,7 +200,6 @@
 
                     <configuration>
                         <argLine>-Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-springsource-proxies.*=false -Dstrongbox.download.indexes=false -Dstrongbox.download.indexes.storage-sbt-proxies.*=false ${failsafeArgLine}</argLine>
-                        <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                         <systemPropertyVariables>
                             <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                             <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
