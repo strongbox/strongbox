@@ -3,28 +3,28 @@ package org.carlspring.strongbox.npm;
 public class NpmSearchRequest
 {
 
-    private String packageId;
+    private String text;
 
-    private String version;
+    private Integer size;
 
-    public String getPackageId()
+    public String getText()
     {
-        return packageId;
+        return text;
     }
 
-    public void setPackageId(String packageId)
+    public void setText(String packageId)
     {
-        this.packageId = packageId;
+        this.text = packageId;
     }
 
-    public String getVersion()
+    public Integer getSize()
     {
-        return version;
+        return size;
     }
 
-    public void setVersion(String version)
+    public void setSize(Integer size)
     {
-        this.version = version;
+        this.size = size;
     }
 
 }

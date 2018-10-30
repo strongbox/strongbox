@@ -7,7 +7,7 @@ import org.carlspring.strongbox.event.Event;
 public class RemoteRepositorySearchEvent extends Event
 {
 
-    private String sorageId;
+    private String storageId;
     private String repositoryId;
     private Predicate predicate;
     private Paginator paginator = new Paginator();
@@ -18,20 +18,20 @@ public class RemoteRepositorySearchEvent extends Event
                                        Paginator paginator)
     {
         super(-1);
-        this.sorageId = sorageId;
+        this.storageId = sorageId;
         this.repositoryId = repositoryId;
         this.predicate = predicate;
         this.paginator = paginator;
     }
 
-    public String getSorageId()
+    public String getStorageId()
     {
-        return sorageId;
+        return storageId;
     }
 
-    public void setSorageId(String sorageId)
+    public void setStorageId(String sorageId)
     {
-        this.sorageId = sorageId;
+        this.storageId = sorageId;
     }
 
     public String getRepositoryId()

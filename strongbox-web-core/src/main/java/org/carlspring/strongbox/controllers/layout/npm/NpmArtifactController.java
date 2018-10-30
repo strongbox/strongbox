@@ -1,5 +1,33 @@
 package org.carlspring.strongbox.controllers.layout.npm;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import javax.inject.Inject;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.io.IOUtils;
+import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.NpmLayoutProviderConfig.NpmObjectMapper;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
@@ -7,43 +35,25 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.npm.NpmSearchRequest;
-import org.carlspring.strongbox.npm.metadata.*;
+import org.carlspring.strongbox.npm.NpmViewRequest;
+import org.carlspring.strongbox.npm.metadata.DistTags;
+import org.carlspring.strongbox.npm.metadata.PackageFeed;
+import org.carlspring.strongbox.npm.metadata.PackageVersion;
+import org.carlspring.strongbox.npm.metadata.SearchResults;
+import org.carlspring.strongbox.npm.metadata.Time;
+import org.carlspring.strongbox.npm.metadata.Versions;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.NpmPackageDesc;
 import org.carlspring.strongbox.providers.layout.NpmPackageSupplier;
+import org.carlspring.strongbox.providers.layout.NpmSearchResultSupplier;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.repository.NpmRepositoryFeatures.RepositorySearchEventListener;
+import org.carlspring.strongbox.repository.NpmRepositoryFeatures.SearchPackagesEventListener;
+import org.carlspring.strongbox.repository.NpmRepositoryFeatures.ViewPackageEventListener;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
-
-import javax.inject.Inject;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
-import java.security.NoSuchAlgorithmException;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.io.IOUtils;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +62,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * This Controller used to handle npm requests.
@@ -87,10 +111,15 @@ public class NpmArtifactController extends BaseArtifactController
 
     @Inject
     private NpmPackageSupplier npmPackageSupplier;
+
+    @Inject
+    private NpmSearchResultSupplier npmSearchResultSupplier;
     
     @Inject
-    private RepositorySearchEventListener repositorySearchEventListener;
+    private ViewPackageEventListener viewPackageEventListener;
     
+    @Inject
+    private SearchPackagesEventListener searcPackagesEventListener;
     
     @GetMapping(path = { "{storageId}/{repositoryId}/npm" })
     public ResponseEntity<String> greet()
@@ -99,6 +128,58 @@ public class NpmArtifactController extends BaseArtifactController
         return ResponseEntity.ok("");
     }
 
+    @GetMapping(path = "{storageId}/{repositoryId}/-/v1/search")
+    @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
+    public void search(@PathVariable(name = "storageId") String storageId,
+                       @PathVariable(name = "repositoryId") String repositoryId,
+                       @RequestParam(name = "text") String text,
+                       @RequestParam(name = "size", defaultValue = "20") Integer size,
+                       HttpServletResponse response) throws JsonProcessingException, IOException
+    {
+        NpmSearchRequest npmSearchRequest = new NpmSearchRequest();
+        npmSearchRequest.setText(text);
+        npmSearchRequest.setSize(size);
+        
+        searcPackagesEventListener.setNpmSearchRequest(npmSearchRequest);
+
+        
+        Repository repository = getRepository(storageId, repositoryId);
+        RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
+        
+        Predicate predicate = Predicate.empty();
+        predicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.extension", "tgz")));
+        predicate.and(Predicate.of(ExpOperator.CONTAINS.of("tagSet.name", ArtifactTag.LAST_VERSION)));
+        
+        Predicate lkePredicate = Predicate.empty().nested();
+        lkePredicate.or(Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.name.toLowerCase()", text + "%")));
+        lkePredicate.or(Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.scope.toLowerCase()", text + "%")));
+        predicate.or(lkePredicate);
+        
+        
+        Paginator paginator = new Paginator();
+        paginator.setLimit(20);
+        
+        List<Path> searchResult = provider.search(storageId, repositoryId, predicate, paginator);
+
+        SearchResults searchResults = new SearchResults();
+        
+        searchResult.stream().map(npmSearchResultSupplier).forEach(p -> {
+            searchResults.getObjects().add(p);
+        });
+
+        Long count = provider.count(storageId, repositoryId, predicate);
+        
+        searchResults.setTotal(count.intValue());
+
+        //Wed Oct 31 2018 05:01:19 GMT+0000 (UTC)
+        SimpleDateFormat format = new SimpleDateFormat(NpmSearchResultSupplier.SEARCH_DATE_FORMAT);
+        searchResults.setTime(format.format(new Date()));
+        
+        response.setContentType(MediaType.APPLICATION_JSON);
+        response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(searchResults));
+    }
+
+    
     @GetMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName:[^-].+}/{packageVersion}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
     public void viewPackageWithScope(@PathVariable(name = "storageId") String storageId,
@@ -112,10 +193,10 @@ public class NpmArtifactController extends BaseArtifactController
         String packageId = NpmArtifactCoordinates.caclulatePackageId(packageScope, packageName);
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageId, packageVersion);
         
-        NpmSearchRequest npmSearchRequest = new NpmSearchRequest();
+        NpmViewRequest npmSearchRequest = new NpmViewRequest();
         npmSearchRequest.setPackageId(packageId);
         npmSearchRequest.setVersion(packageVersion);
-        repositorySearchEventListener.setNpmSearchRequest(npmSearchRequest);
+        viewPackageEventListener.setNpmSearchRequest(npmSearchRequest);
         
         RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, c.toPath());
         if (repositoryPath == null)
@@ -143,9 +224,9 @@ public class NpmArtifactController extends BaseArtifactController
     {
         String packageId = NpmArtifactCoordinates.caclulatePackageId(packageScope, packageName);
         
-        NpmSearchRequest npmSearchRequest = new NpmSearchRequest();
+        NpmViewRequest npmSearchRequest = new NpmViewRequest();
         npmSearchRequest.setPackageId(packageId);
-        repositorySearchEventListener.setNpmSearchRequest(npmSearchRequest);
+        viewPackageEventListener.setNpmSearchRequest(npmSearchRequest);
         
         Repository repository = getRepository(storageId, repositoryId);
 
