@@ -1,0 +1,157 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "http://strongbox.carlspring.org/npm/metadata/search-result",
+    "definitions": 
+    {
+        "search-results": 
+        {
+            "type": "object",
+            "properties": 
+            {
+                "objects": 
+                {
+                    "type": "array",
+                    "items": 
+                    {
+                        "$ref": "#definitions/package-search-result"
+                    }
+                }
+            }
+        },
+
+        "package-search-result": 
+        {
+            "type": "object",
+            "properties": 
+            {
+                "name": 
+                {
+                    "type": "string"
+                },
+
+                "scope": 
+                {
+                    "type": "string"
+                },
+
+                "version": 
+                {
+                    "type": "string"
+                },
+
+                "description": 
+                {
+                    "type": "string"
+                },
+
+                "keywords": 
+                {
+                    "type": "array",
+                    "items": 
+                    {
+                        "type": "string"
+                    }
+                },
+
+                "date": 
+                {
+                    "type": "string",
+                    "format": "date-time"
+                },
+
+                "links": 
+                {
+                    "type": "object",
+                    "properties": 
+                    {
+                        "npm": 
+                        {
+                            "type": "string"
+                        },
+
+                        "homepage": 
+                        {
+                            "type": "string"
+                        },
+
+                        "repository": 
+                        {
+                            "type": "string"
+                        },
+
+                        "bugs": 
+                        {
+                            "type": "string"
+                        }
+                    }
+                },
+
+                "author": 
+                {
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/person"
+                },
+
+                "publisher": 
+                {
+                    "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/person"
+                },
+
+                "maintainers": 
+                {
+                    "type": "array",
+                    "items": 
+                    {
+                        "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/person"
+                    }
+                },
+
+                "score": 
+                {
+                    "type": "object",
+                    "properties": 
+                    {
+                        "final": 
+                        {
+                            "type": "number"
+                        },
+
+                        "detail": 
+                        {
+                            "$ref": "#definitions/score-detail"
+                        }
+                    }
+                }
+            }
+        },
+
+        "score-detail": 
+        {
+            "type": "object",
+            "properties": 
+            {
+                "quality": 
+                {
+                    "type": "string"
+                },
+
+                "popularity": 
+                {
+                    "type": "string"
+                },
+
+                "maintenance": 
+                {
+                    "type": "string"
+                }
+            }
+        }
+    },
+
+    "properties": 
+    {
+        "searchResults": 
+        {
+            "$ref": "#definitions/search-results"
+        }
+    }
+}

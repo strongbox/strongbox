@@ -101,6 +101,7 @@
                                         replaceRef("package-version.schema.json");
                                         replaceRef("package-feed.schema.json");
                                         replaceRef("changes-feed.schema.json");
+                                        replaceRef("search-result.schema.json");
                                         
                                 ]]></script>
                             </scripts>
