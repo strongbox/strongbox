@@ -186,7 +186,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
         addCronJobConfig(jobName, ClearRepositoryTrashCronJob.class, STORAGE0, REPOSITORY_RELEASES_1);
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
     private File[] getDirs() 
@@ -272,7 +272,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
             addCronJobConfig(jobName, ClearRepositoryTrashCronJob.class, null, null);
 
-            await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+            await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
         }
         finally
         {

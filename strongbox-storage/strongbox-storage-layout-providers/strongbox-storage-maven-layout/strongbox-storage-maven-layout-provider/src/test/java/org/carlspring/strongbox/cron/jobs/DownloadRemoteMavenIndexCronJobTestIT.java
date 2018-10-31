@@ -175,7 +175,7 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         addCronJobConfig(jobName, DownloadRemoteMavenIndexCronJob.class, STORAGE0,
                          REPOSITORY_PROXIED_RELEASES);
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
 }

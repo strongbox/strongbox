@@ -17,9 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import org.junit.jupiter.api.TestInfo;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -27,7 +25,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author carlspring
  */
 public class BaseCronJobWithMavenIndexingTestCase
-        extends TestCaseWithMavenArtifactGenerationAndIndexing implements ApplicationContextAware, ApplicationListener<CronTaskEvent>
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     protected static final long EVENT_TIMEOUT_SECONDS = 10L;
@@ -41,38 +39,17 @@ public class BaseCronJobWithMavenIndexingTestCase
     @Inject
     protected JobManager jobManager;
 
+    @Inject
+    private ApplicationContext applicationContext;
+
+    private CronJobApplicationListener cronJobApplicationListener;
+
+    protected String expectedJobName;
+
     /**
      * A map containing the cron task configurations used by this test.
      */
     protected Map<String, CronTaskConfigurationDto> cronTaskConfigurations = new LinkedHashMap<>();
-
-    protected int expectedEventType = CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType();
-
-    protected CronTaskEvent receivedEvent;
-
-    protected AtomicBoolean receivedExpectedEvent = new AtomicBoolean(false);
-
-    protected String expectedJobName;
-
-    public void init(TestInfo testInfo)
-            throws Exception
-    {
-        Optional<Method> method = testInfo.getTestMethod();
-        expectedJobName = method.map(Method::getName).orElse(null);
-    }
-
-    @Override
-    public void onApplicationEvent(CronTaskEvent event)
-    {
-        handle(event);
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
-        throws BeansException
-    {
-        ((ConfigurableApplicationContext)applicationContext).addApplicationListener(this);
-    }
 
     protected CronTaskConfigurationDto addCronJobConfig(String jobName,
                                                         Class<? extends JavaCronJob> className,
@@ -124,19 +101,56 @@ public class BaseCronJobWithMavenIndexingTestCase
         return cronTaskConfiguration;
     }
 
-    public void handle(CronTaskEvent event)
-    {
-        if (event.getType() == expectedEventType && expectedJobName.equals(event.getName()))
-        {
-            receivedExpectedEvent.set(true);
-            receivedEvent = event;
-        }
-    }
-
     public CronTaskConfigurationDto addCronTaskConfiguration(String key,
                                                              CronTaskConfigurationDto value)
     {
         return cronTaskConfigurations.put(key, value);
+    }
+
+    public void init(final TestInfo testInfo)
+            throws Exception
+    {
+        Optional<Method> method = testInfo.getTestMethod();
+        expectedJobName = method.map(Method::getName).orElseThrow(() -> new IllegalStateException("No method name ?"));
+
+        cronJobApplicationListener = new CronJobApplicationListener(expectedJobName);
+
+        ((ConfigurableApplicationContext) applicationContext).addApplicationListener(cronJobApplicationListener);
+    }
+
+    private static class CronJobApplicationListener
+            implements ApplicationListener<CronTaskEvent>
+    {
+
+        private int expectedEventType = CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType();
+
+        private AtomicBoolean receivedExpectedEvent = new AtomicBoolean(false);
+
+        private final String expectedJobName;
+
+        public CronJobApplicationListener(final String expectedJobName)
+        {
+            this.expectedJobName = expectedJobName;
+        }
+
+        @Override
+        public void onApplicationEvent(CronTaskEvent event)
+        {
+            handle(event);
+        }
+
+        public void handle(CronTaskEvent event)
+        {
+            if (event.getType() == expectedEventType && expectedJobName.equals(event.getName()))
+            {
+                receivedExpectedEvent.set(true);
+            }
+        }
+    }
+
+    protected AtomicBoolean receivedExpectedEvent()
+    {
+        return cronJobApplicationListener.receivedExpectedEvent;
     }
 
 }
