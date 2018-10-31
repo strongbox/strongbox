@@ -193,7 +193,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                              properties.put("forceRegeneration", "false");
                          });
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
     @Test
@@ -256,7 +256,7 @@ public class RegenerateMavenChecksumCronJobTestIT
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE0, REPOSITORY_SNAPSHOTS,
                          properties -> properties.put("forceRegeneration", "false"));
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
     @Test
@@ -318,7 +318,7 @@ public class RegenerateMavenChecksumCronJobTestIT
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE0, null,
                          properties -> properties.put("forceRegeneration", "false"));
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
     @Test
@@ -379,7 +379,7 @@ public class RegenerateMavenChecksumCronJobTestIT
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, null, null,
                          properties -> properties.put("forceRegeneration", "false"));
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
 }

@@ -146,7 +146,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                              properties.put("minSizeInBytes", Long.valueOf(sizeInBytes - 1).toString());
                          });
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
 }

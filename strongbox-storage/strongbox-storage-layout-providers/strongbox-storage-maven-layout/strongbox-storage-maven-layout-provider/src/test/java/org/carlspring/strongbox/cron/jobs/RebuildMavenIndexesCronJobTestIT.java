@@ -159,7 +159,7 @@ public class RebuildMavenIndexesCronJobTestIT
         addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, REPOSITORY_RELEASES_1,
                          properties -> properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_INDEXES));
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
     @Test
@@ -202,7 +202,7 @@ public class RebuildMavenIndexesCronJobTestIT
 
         addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, REPOSITORY_RELEASES_1);
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
 }

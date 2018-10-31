@@ -206,7 +206,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                              properties.put("keepPeriod", "0");
                          });
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
     @Test
@@ -250,7 +250,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                              properties.put("keepPeriod", "0");
                          });
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
     @Test
@@ -297,7 +297,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                              properties.put("keepPeriod", "0");
                          });
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
     @Test
@@ -338,7 +338,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                              properties.put("keepPeriod", "3");
                          });
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
     private String getSnapshotArtifactVersion(File artifactFile)
