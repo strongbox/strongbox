@@ -13,13 +13,57 @@
                     "type": "array",
                     "items": 
                     {
-                        "$ref": "#definitions/package-search-result"
+                        "$ref": "#definitions/search-result"
                     }
+                },
+
+                "total": 
+                {
+                    "type": "integer"
+                },
+
+                "time": 
+                {
+                    "type": "string"
                 }
             }
         },
 
-        "package-search-result": 
+        "search-result": 
+        {
+            "type": "object",
+            "properties": 
+            {
+                "package": 
+                {
+                    "$ref": "#definitions/package-entry"
+                },
+
+                "score": 
+                {
+                    "type": "object",
+                    "properties": 
+                    {
+                        "final": 
+                        {
+                            "type": "number"
+                        },
+
+                        "detail": 
+                        {
+                            "$ref": "#definitions/score-detail"
+                        }
+                    }
+                },
+
+                "searchScore": 
+                {
+                    "type": "number"
+                }
+            }
+        },
+
+        "package-entry": 
         {
             "type": "object",
             "properties": 
@@ -103,23 +147,6 @@
                     {
                         "$ref": "http://strongbox.carlspring.org/npm/metadata/common#definitions/person"
                     }
-                },
-
-                "score": 
-                {
-                    "type": "object",
-                    "properties": 
-                    {
-                        "final": 
-                        {
-                            "type": "number"
-                        },
-
-                        "detail": 
-                        {
-                            "$ref": "#definitions/score-detail"
-                        }
-                    }
                 }
             }
         },
@@ -131,17 +158,17 @@
             {
                 "quality": 
                 {
-                    "type": "string"
+                    "type": "number"
                 },
 
                 "popularity": 
                 {
-                    "type": "string"
+                    "type": "number"
                 },
 
                 "maintenance": 
                 {
-                    "type": "string"
+                    "type": "number"
                 }
             }
         }
