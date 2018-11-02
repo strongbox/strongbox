@@ -2,7 +2,7 @@
 
 def REPO_NAME  = 'strongbox/strongbox-npm-metadata'
 def SERVER_ID  = 'carlspring-oss-snapshots'
-def SERVER_URL = 'https://dev.carlspring.org/nexus/content/repositories/carlspring-oss-snapshots/'
+def SERVER_URL = 'https://repo.carlspring.org/content/repositories/carlspring-oss-snapshots/'
 
 // Notification settings for "master" and "branch/pr"
 def notifyMaster = [notifyAdmins: true, recipients: [culprits(), requestor()]]
