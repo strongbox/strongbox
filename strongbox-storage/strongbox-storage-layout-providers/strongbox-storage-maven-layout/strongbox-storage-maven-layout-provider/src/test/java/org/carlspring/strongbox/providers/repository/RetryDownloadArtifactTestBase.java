@@ -1,14 +1,5 @@
 package org.carlspring.strongbox.providers.repository;
 
-import static org.carlspring.strongbox.config.HazelcastConfiguration.newDefaultMapConfig;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
 import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
@@ -20,10 +11,16 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.file.Path;
 
-import org.junit.After;
-import org.junit.Before;
+import com.hazelcast.config.Config;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
@@ -32,8 +29,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-
-import com.hazelcast.config.Config;
+import static org.carlspring.strongbox.config.HazelcastConfiguration.newDefaultMapConfig;
 
 /**
  * @author Przemyslaw Fusik
@@ -52,7 +48,7 @@ public abstract class RetryDownloadArtifactTestBase
     @Inject
     ArtifactEntryService artifactEntryService;
 
-    @Before
+    @BeforeEach
     public void timeoutRetryFeatureRatherQuicklyForTestPurposes()
             throws Exception
     {
@@ -64,8 +60,8 @@ public abstract class RetryDownloadArtifactTestBase
         configurationManagementService.set(remoteRepositoryRetryArtifactDownloadConfiguration);
     }
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void cleanup()
             throws Exception
     {
@@ -126,7 +122,7 @@ public abstract class RetryDownloadArtifactTestBase
                 throws IOException;
 
     }
-    
+
     @Profile("MockedRestArtifactResolverTestConfig")
     @Configuration
     public static class MockedRestArtifactResolverTestConfig
@@ -138,7 +134,7 @@ public abstract class RetryDownloadArtifactTestBase
             final Config config = new Config().setInstanceName("mocked-hazelcast-instance")
                                               .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
                                               .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
-            
+
             config.getGroupConfig().setName("strongbox").setPassword("password");
             return config;
         }
@@ -155,9 +151,9 @@ public abstract class RetryDownloadArtifactTestBase
         ArtifactEventListenerRegistry artifactEventListenerRegistry()
         {
             return new TestArtifactEventListenerRegistry();
-        }    
-        
-        public static class TestArtifactEventListenerRegistry extends ArtifactEventListenerRegistry 
+        }
+
+        public static class TestArtifactEventListenerRegistry extends ArtifactEventListenerRegistry
         {
 
             @Override
@@ -165,7 +161,7 @@ public abstract class RetryDownloadArtifactTestBase
             {
                 // this event cause java.io.EOFException within `MavenArtifactFetchedFromRemoteEventListener`
             }
-            
+
         }
 
     }

@@ -1,15 +1,5 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -18,21 +8,26 @@ import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author carlspring
  */
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 public class Maven2ProxyRepositoryTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
@@ -45,7 +40,7 @@ public class Maven2ProxyRepositoryTest
     @Inject
     private ConfigurationManager configurationManager;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -61,7 +56,7 @@ public class Maven2ProxyRepositoryTest
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -76,7 +71,7 @@ public class Maven2ProxyRepositoryTest
                               "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/");
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {
@@ -89,7 +84,7 @@ public class Maven2ProxyRepositoryTest
     public void testRepositoryIndexFetching()
             throws ArtifactTransportException, IOException
     {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
 
@@ -100,9 +95,9 @@ public class Maven2ProxyRepositoryTest
         File indexPropertiesFile = new File(repositoryReleases.getBasedir(),
                                             ".index/local/nexus-maven-repository-index.properties");
 
-        assertTrue("Failed to produce packed index for " +
-                   repositoryReleases.getStorage().getId() + ":" + repositoryReleases.getId() + "!",
-                   indexPropertiesFile.exists());
+        assertTrue(indexPropertiesFile.exists(),
+                   "Failed to produce packed index for " +
+                           repositoryReleases.getStorage().getId() + ":" + repositoryReleases.getId() + "!");
 
         // Download the remote index for the proxy repository
         features.downloadRemoteIndex(STORAGE0, REPOSITORY_PROXY);
@@ -111,8 +106,8 @@ public class Maven2ProxyRepositoryTest
         File indexPropertiesUpdaterFile = new File(repositoryProxiedReleases.getBasedir(),
                                                    ".index/remote/nexus-maven-repository-index-updater.properties");
 
-        assertTrue("Failed to retrieve nexus-maven-repository-index-updater.properties from the remote!",
-                   indexPropertiesUpdaterFile.exists());
+        assertTrue(indexPropertiesUpdaterFile.exists(),
+                   "Failed to retrieve nexus-maven-repository-index-updater.properties from the remote!");
     }
 
 }

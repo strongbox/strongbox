@@ -3,8 +3,8 @@ package org.carlspring.strongbox.rest.common;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
-import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithRepositoryManagement;
@@ -19,8 +19,6 @@ import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
-import org.junit.After;
-import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -28,8 +26,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.context.WebApplicationContext;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author carlspring
@@ -56,16 +54,10 @@ public class RawRestAssuredBaseTest
 
     private String contextBaseUrl;
 
-    @Before
     public void init()
             throws Exception
     {
         client.setUserAgent("Raw/*");
-    }
-
-    @After
-    public void shutdown()
-    {
     }
 
     public String getContextBaseUrl()
@@ -100,7 +92,7 @@ public class RawRestAssuredBaseTest
 
     protected void assertPathExists(String url)
     {
-        assertTrue("Path " + url + " doesn't exist.", pathExists(url));
+        assertTrue(pathExists(url), "Path " + url + " doesn't exist.");
     }
 
     @Override
@@ -158,7 +150,7 @@ public class RawRestAssuredBaseTest
         mdos.flush();
         mdos.close();
 
-        assertTrue("Resolved a zero-length artifact!", total > 0);
+        assertTrue(total > 0, "Resolved a zero-length artifact!");
     }
 
 }

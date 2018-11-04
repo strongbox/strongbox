@@ -1,11 +1,9 @@
 package org.carlspring.strongbox.locator.handlers;
 
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
-import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.Nonnull;
 import java.util.List;

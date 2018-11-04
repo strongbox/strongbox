@@ -1,18 +1,5 @@
 package org.carlspring.strongbox.dependency.snippet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -29,18 +16,22 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
-import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author carlspring
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class MavenDependencyFormatterTest
@@ -64,14 +55,14 @@ public class MavenDependencyFormatterTest
     private SnippetGenerator snippetGenerator;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
             throws Exception
     {
@@ -89,7 +80,7 @@ public class MavenDependencyFormatterTest
         reIndex(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox");
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {
@@ -138,7 +129,7 @@ public class MavenDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             Maven2LayoutProvider.ALIAS);
-        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
         coordinates.setGroupId("org.carlspring.strongbox");
@@ -150,15 +141,15 @@ public class MavenDependencyFormatterTest
 
         System.out.println(snippet);
 
-        assertEquals("Failed to generate dependency!",
-                     "<dependency>\n" +
+        assertEquals("<dependency>\n" +
                      "    <groupId>org.carlspring.strongbox</groupId>\n" +
                      "    <artifactId>maven-snippet</artifactId>\n" +
                      "    <version>1.0</version>\n" +
                      "    <type>jar</type>\n" +
                      "    <scope>compile</scope>\n" +
                      "</dependency>\n",
-                     snippet);
+                     snippet,
+                     "Failed to generate dependency!");
     }
 
     @Test
@@ -167,7 +158,7 @@ public class MavenDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             Maven2LayoutProvider.ALIAS);
-        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
         coordinates.setGroupId("org.carlspring.strongbox");
@@ -179,8 +170,7 @@ public class MavenDependencyFormatterTest
 
         System.out.println(snippet);
 
-        assertEquals("Failed to generate dependency!",
-                     "<dependency>\n" +
+        assertEquals("<dependency>\n" +
                      "    <groupId>org.carlspring.strongbox</groupId>\n" +
                      "    <artifactId>maven-snippet</artifactId>\n" +
                      "    <version>2.0</version>\n" +
@@ -188,20 +178,21 @@ public class MavenDependencyFormatterTest
                      "    <classifier>sources</classifier>\n" +
                      "    <scope>compile</scope>\n" +
                      "</dependency>\n",
-                     snippet);
+                     snippet,
+                     "Failed to generate dependency!");
     }
 
     @Test
     public void testSearchExactWithDependencySnippet()
     {
-        Assume.assumeTrue(mavenIndexerSearchProvider.isPresent());
+        Assumptions.assumeTrue(mavenIndexerSearchProvider.isPresent());
 
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
         final int x = features.reIndex(STORAGE0,
                                        REPOSITORY_RELEASES,
                                        "org/carlspring/strongbox/maven-snippet");
 
-        assertTrue("Incorrect number of artifacts found!", x >= 3);
+        assertTrue(x >= 3, "Incorrect number of artifacts found!");
 
         SearchRequest request = new SearchRequest(STORAGE0,
                                                   REPOSITORY_RELEASES,
@@ -234,9 +225,9 @@ public class MavenDependencyFormatterTest
                                                                                                         null,
                                                                                                         "jar"));
 
-        assertNotNull("Failed to look up dependency synonym formatter!", codeSnippets);
-        assertFalse("No synonyms found!", codeSnippets.isEmpty());
-        assertEquals("Incorrect number of dependency synonyms!", 5, codeSnippets.size());
+        assertNotNull(codeSnippets, "Failed to look up dependency synonym formatter!");
+        assertFalse(codeSnippets.isEmpty(), "No synonyms found!");
+        assertEquals(5, codeSnippets.size(), "Incorrect number of dependency synonyms!");
 
         String[] synonyms = new String[]{ "Maven 2", "Gradle", "Ivy", "Leiningen", "SBT" };
 
@@ -245,7 +236,7 @@ public class MavenDependencyFormatterTest
         {
             System.out.println(snippet.getName());
 
-            assertEquals("Failed to re-order correctly!", synonyms[i], snippet.getName());
+            assertEquals(synonyms[i], snippet.getName(), "Failed to re-order correctly!");
 
             i++;
         }

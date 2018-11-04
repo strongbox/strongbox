@@ -9,8 +9,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author mtodorov
@@ -40,7 +41,7 @@ public class AuthenticationConfigurationParserTest
         //noinspection unchecked
         AuthenticationConfiguration configuration = (AuthenticationConfiguration) parser.parse(xmlFile.toURI().toURL());
 
-        assertTrue("Failed to parse the authorization configuration!", configuration != null);
+        assertNotNull(configuration, "Failed to parse the authorization configuration!");
     }
 
     @Test
@@ -65,7 +66,7 @@ public class AuthenticationConfigurationParserTest
 
         parser.store(configuration, outputFile.getCanonicalPath());
 
-        assertTrue("Failed to store the produced XML!", outputFile.length() > 0);
+        assertTrue(outputFile.length() > 0, "Failed to store the produced XML!");
     }
 
 }

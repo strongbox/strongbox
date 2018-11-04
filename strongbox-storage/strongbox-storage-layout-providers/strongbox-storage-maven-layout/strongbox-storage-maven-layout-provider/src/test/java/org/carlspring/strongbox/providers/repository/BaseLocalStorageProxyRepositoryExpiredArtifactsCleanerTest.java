@@ -16,10 +16,10 @@ import java.util.Optional;
 import org.apache.commons.lang.time.DateUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 
 /**
@@ -50,16 +50,16 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void makeSureRemoteRepositoryIsRecognizedAsAlive()
             throws Exception
     {
         Mockito.when(remoteRepositoryAlivenessCacheManager.isAlive(any(RemoteRepository.class))).thenReturn(true);
     }
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void cleanup()
             throws Exception
     {

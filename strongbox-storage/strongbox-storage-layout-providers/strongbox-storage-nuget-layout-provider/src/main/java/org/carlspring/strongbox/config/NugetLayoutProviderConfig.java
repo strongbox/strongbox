@@ -1,23 +1,22 @@
 package org.carlspring.strongbox.config;
 
-import java.nio.file.FileSystem;
-import java.nio.file.spi.FileSystemProvider;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
+import org.carlspring.strongbox.providers.layout.NugetFileSystem;
 import org.carlspring.strongbox.providers.layout.NugetFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
-import org.carlspring.strongbox.providers.layout.NugetFileSystem;
-import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import java.nio.file.FileSystem;
+import java.nio.file.spi.FileSystemProvider;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
 
 @Configuration

@@ -1,9 +1,10 @@
 package org.carlspring.strongbox.artifact;
 
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+
 import java.io.File;
 
 import org.apache.maven.artifact.Artifact;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 
 /**
  * @author Przemyslaw Fusik

@@ -3,11 +3,11 @@ package org.carlspring.strongbox.artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.javatuples.Pair;
 
 import java.io.IOException;
 
 import org.apache.maven.artifact.Artifact;
+import org.javatuples.Pair;
 
 /**
  * @author Przemyslaw Fusik

@@ -6,20 +6,19 @@ import org.carlspring.strongbox.config.UsersConfig;
 
 import javax.inject.Inject;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Functional test for {@link AuthorizationConfigService}
  *
  * @author Alex Oreshkevich
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = { DataServiceConfig.class,
                                   UsersConfig.class })
@@ -35,6 +34,6 @@ public class AuthorizationConfigServiceTest
         // at the bean instantiation stage
         // config will be loaded from db or XML file, going to be validated aso.
         // if optional is present, it means that everything is really ok
-        Assert.assertTrue(authorizationConfigService.get() != null);
+        assertNotNull(authorizationConfigService.get());
     }
 }

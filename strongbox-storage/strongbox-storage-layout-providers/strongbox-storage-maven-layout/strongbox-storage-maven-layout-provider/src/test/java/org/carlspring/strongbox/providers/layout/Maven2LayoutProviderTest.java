@@ -6,9 +6,9 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
@@ -20,21 +20,21 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class Maven2LayoutProviderTest
@@ -53,14 +53,14 @@ public class Maven2LayoutProviderTest
     private MavenRepositoryFactory mavenRepositoryFactory;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -81,7 +81,7 @@ public class Maven2LayoutProviderTest
         );
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {
@@ -108,7 +108,7 @@ public class Maven2LayoutProviderTest
         String path = "com/artifacts/to/delete/releases/delete-foo/1.2.1/delete-foo-1.2.1.jar";
         File artifactFile = new File(repository.getBasedir(), path);
 
-        assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
+        assertTrue(artifactFile.exists(), "Failed to locate artifact file " + artifactFile.getAbsolutePath());
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
         RepositoryFiles.delete(repositoryPath, false);
@@ -127,7 +127,7 @@ public class Maven2LayoutProviderTest
                     }
                 });
 
-        assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
+        assertFalse(artifactFile.exists(), "Failed to delete artifact file " + artifactFile.getAbsolutePath());
     }
 
     @Test
@@ -141,7 +141,7 @@ public class Maven2LayoutProviderTest
         String path = "com/artifacts/to/delete/releases/delete-foo/1.2.2";
         File artifactFile = new File(repository.getBasedir(), path);
 
-        assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
+        assertTrue(artifactFile.exists(), "Failed to locate artifact file " + artifactFile.getAbsolutePath());
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
         RepositoryFiles.delete(repositoryPath, false);
@@ -160,7 +160,7 @@ public class Maven2LayoutProviderTest
                     }
                 });        
         
-        assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
+        assertFalse(artifactFile.exists(), "Failed to delete artifact file " + artifactFile.getAbsolutePath());
     }
 
 }

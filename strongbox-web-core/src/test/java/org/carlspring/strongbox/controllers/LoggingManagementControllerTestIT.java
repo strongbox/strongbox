@@ -1,36 +1,33 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.logging.Level;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Pablo Tirado
  * @author Aditya Srinivasan
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class LoggingManagementControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -44,13 +41,21 @@ public class LoggingManagementControllerTestIT
     private static final String LOGGER_APPENDER = "CONSOLE";
 
     private static final String LOGS_HOME_DIRECTORY = PropertiesBooter.getVaultDirectory() + "/logs";
-    
-    
+
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
+    {
+        super.init();
+        setContextBaseUrl(getContextBaseUrl() + "/api/logging");
+    }
+
     @Test
     @WithMockUser(authorities = { "CONFIGURATION_ADD_LOGGER" })
     public void testAddLoggerWithTextAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/api/logging/logger";
+        String url = getContextBaseUrl() + "/logger";
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .param("logger", LOGGER_PACKAGE)
@@ -68,7 +73,7 @@ public class LoggingManagementControllerTestIT
     @WithMockUser(authorities = { "CONFIGURATION_ADD_LOGGER" })
     public void testAddLoggerWithJsonAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/api/logging/logger";
+        String url = getContextBaseUrl() + "/logger";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .param("logger", LOGGER_PACKAGE)
@@ -86,7 +91,7 @@ public class LoggingManagementControllerTestIT
     @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerWithTextAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/api/logging/logger";
+        String url = getContextBaseUrl() + "/logger";
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .param("logger", LOGGER_PACKAGE)
@@ -103,7 +108,7 @@ public class LoggingManagementControllerTestIT
     @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerWithJsonAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/api/logging/logger";
+        String url = getContextBaseUrl() + "/logger";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .param("logger", LOGGER_PACKAGE)
@@ -120,7 +125,7 @@ public class LoggingManagementControllerTestIT
     @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerNotFoundWithTextAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/api/logging/logger";
+        String url = getContextBaseUrl() + "/logger";
         String loggerPackage = LOGGER_PACKAGE_NON_EXISTING;
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
@@ -138,7 +143,7 @@ public class LoggingManagementControllerTestIT
     @WithMockUser(authorities = { "CONFIGURATION_UPDATE_LOGGER" })
     public void testUpdateLoggerNotFoundWithJsonAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/api/logging/logger";
+        String url = getContextBaseUrl() + "/logger";
         String loggerPackage = LOGGER_PACKAGE_NON_EXISTING;
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -156,7 +161,7 @@ public class LoggingManagementControllerTestIT
     @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerWithTextAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/api/logging/logger";
+        String url = getContextBaseUrl() + "/logger";
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .param("logger", LOGGER_PACKAGE)
@@ -172,7 +177,7 @@ public class LoggingManagementControllerTestIT
     @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerWithJsonAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/api/logging/logger";
+        String url = getContextBaseUrl() + "/logger";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .param("logger", LOGGER_PACKAGE)
@@ -189,7 +194,7 @@ public class LoggingManagementControllerTestIT
     public void testDeleteLoggerNotFoundWithTextAcceptHeader()
     {
 
-        String url = getContextBaseUrl() + "/api/logging/logger";
+        String url = getContextBaseUrl() + "/logger";
         String loggerPackage = LOGGER_PACKAGE_NON_EXISTING;
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
@@ -206,7 +211,7 @@ public class LoggingManagementControllerTestIT
     @WithMockUser(authorities = { "CONFIGURATION_DELETE_LOGGER" })
     public void testDeleteLoggerNotFoundWithJsonAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/api/logging/logger";
+        String url = getContextBaseUrl() + "/logger";
         String loggerPackage = LOGGER_PACKAGE_NON_EXISTING;
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -229,7 +234,7 @@ public class LoggingManagementControllerTestIT
              .toFile()
              .deleteOnExit();
 
-        String url = getContextBaseUrl() + "/api/logging/log/" + testLogName;
+        String url = getContextBaseUrl() + "/log/" + testLogName;
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .when()
@@ -243,7 +248,7 @@ public class LoggingManagementControllerTestIT
     @WithMockUser(authorities = { "CONFIGURATION_RETRIEVE_LOGBACK_CFG" })
     public void testDownloadLogbackConfiguration()
     {
-        String url = getContextBaseUrl() + "/api/logging/logback";
+        String url = getContextBaseUrl() + "/logback";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
                .when()
@@ -257,7 +262,7 @@ public class LoggingManagementControllerTestIT
     @WithMockUser(authorities = { "CONFIGURATION_UPLOAD_LOGBACK_CFG", "CONFIGURATION_RETRIEVE_LOGBACK_CFG" })
     public void testUploadLogbackConfigurationWithTextAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/api/logging/logback";
+        String url = getContextBaseUrl() + "/logback";
 
         // Obtain the current logback XML.
         byte[] byteArray = given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
@@ -284,7 +289,7 @@ public class LoggingManagementControllerTestIT
     @WithMockUser(authorities = { "CONFIGURATION_UPLOAD_LOGBACK_CFG", "CONFIGURATION_RETRIEVE_LOGBACK_CFG"})
     public void testUploadLogbackConfigurationWithJsonAcceptHeader()
     {
-        String url = getContextBaseUrl() + "/api/logging/logback";
+        String url = getContextBaseUrl() + "/logback";
 
         // Obtain the current logback XML.
         byte[] byteArray = given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
@@ -321,7 +326,7 @@ public class LoggingManagementControllerTestIT
                                            .toString();
         }
 
-        String logDirectoryHomeUrl = getContextBaseUrl() + "/api/logging/logs/";
+        String logDirectoryHomeUrl = getContextBaseUrl() + "/logs/";
         
         //When
         //Getting the table elements
@@ -344,7 +349,7 @@ public class LoggingManagementControllerTestIT
         
         try
         {
-            assertTrue("The log files should be in the HTML response body!", shouldContainLogFilesInHtmlTableElement);
+            assertTrue(shouldContainLogFilesInHtmlTableElement, "The log files should be in the HTML response body!");
         }
         finally
         {
@@ -368,7 +373,7 @@ public class LoggingManagementControllerTestIT
                                            .toString();
         }
         
-        String logSubDirectoryUrl = getContextBaseUrl() + "/api/logging/logs/test/";
+        String logSubDirectoryUrl = getContextBaseUrl() + "/logs/test/";
         
         //When
         //Getting the table elements
@@ -393,7 +398,7 @@ public class LoggingManagementControllerTestIT
         try
         {
             //Assertion Test
-            assertTrue("The log files should be in the HTML response body!", shouldContainLogFilesInHtmlTableElement);
+            assertTrue(shouldContainLogFilesInHtmlTableElement, "The log files should be in the HTML response body!");
         }
         finally
         {

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.ClassRule;
 
 /**
  * @author carlspring
@@ -29,10 +28,6 @@ public class TestCaseWithRepository
 
     @Inject
     protected ConfigurationManagementService configurationManagementService;
-
-    @ClassRule
-    public static JUnitHelper jUnitHelper = new JUnitHelper();
-
 
     public static void cleanUp(Set<MutableRepository> repositoriesToClean)
             throws Exception

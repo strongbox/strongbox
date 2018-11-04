@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.storage.validation;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
@@ -11,18 +11,18 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = { Maven2LayoutProviderTestConfig.class})
 public class DefaultMavenArtifactCoordinateValidatorsTest
@@ -36,7 +36,7 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
     private ConfigurationManager configurationManager;
 
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         File xmlDir = new File(CONFIGURATION_BASEDIR);
@@ -58,18 +58,18 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
 
         for (String storageId : configuration.getStorages().keySet())
         {
-            assertNotNull("Storage ID was null!", storageId);
+            assertNotNull(storageId, "Storage ID was null!");
         }
 
-        assertTrue("Unexpected number of storages!", configuration.getStorages().size() > 0);
-        assertNotNull("Incorrect version!", configuration.getVersion());
-        assertEquals("Incorrect port number!", 48080, configuration.getPort());
-        assertTrue("Repository should have required authentication!",
-                   configuration.getStorages()
+        assertTrue(configuration.getStorages().size() > 0, "Unexpected number of storages!");
+        assertNotNull(configuration.getVersion(), "Incorrect version!");
+        assertEquals(48080, configuration.getPort(), "Incorrect port number!");
+        assertTrue(configuration.getStorages()
                                 .get("storage0")
                                 .getRepositories()
                                 .get("snapshots")
-                                .isSecured());
+                                .isSecured(),
+                   "Repository should have required authentication!");
 
         assertTrue(configuration.getStorages()
                                 .get("storage0")

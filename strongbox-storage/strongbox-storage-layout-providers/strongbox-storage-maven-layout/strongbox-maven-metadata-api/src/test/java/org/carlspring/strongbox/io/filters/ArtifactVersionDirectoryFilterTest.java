@@ -9,10 +9,10 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author mtodorov
@@ -24,7 +24,7 @@ public class ArtifactVersionDirectoryFilterTest
 
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    @Before
+    @BeforeEach
     public void setUp()
             throws Exception
     {
@@ -55,8 +55,8 @@ public class ArtifactVersionDirectoryFilterTest
             paths = Lists.newArrayList(ds);
         }
 
-        assertNotNull("Expected versions to be discovered.", paths.size());
-        assertEquals("Expected three versions.", 3, paths.size());
+        assertNotNull(paths, "Expected versions to be discovered.");
+        assertEquals(3, paths.size(), "Expected three versions.");
     }
 
 }

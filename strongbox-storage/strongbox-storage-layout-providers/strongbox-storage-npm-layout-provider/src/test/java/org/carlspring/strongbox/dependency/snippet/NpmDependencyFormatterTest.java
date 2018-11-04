@@ -3,9 +3,9 @@ package org.carlspring.strongbox.dependency.snippet;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author carlspring
@@ -20,7 +20,7 @@ public class NpmDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = new NpmDependencyFormatter();
 
-        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
         NpmArtifactCoordinates coordinates = new NpmArtifactCoordinates();
         coordinates.setId("angular");
@@ -30,9 +30,9 @@ public class NpmDependencyFormatterTest
 
         System.out.print(snippet);
 
-        assertEquals("Failed to generate dependency!",
-                     "\"angular\" : \"1.6.7\"\n",
-                     snippet);
+        assertEquals("\"angular\" : \"1.6.7\"\n",
+                     snippet,
+                     "Failed to generate dependency!");
     }
 
     @Test
@@ -41,7 +41,7 @@ public class NpmDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = new NpmDependencyFormatter();
 
-        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
         NpmArtifactCoordinates coordinates = new NpmArtifactCoordinates();
         coordinates.setId("angular");
@@ -52,9 +52,9 @@ public class NpmDependencyFormatterTest
 
         System.out.print(snippet);
 
-        assertEquals("Failed to generate dependency!",
-                     "\"@carlspring/angular\" : \"1.6.7\"\n",
-                     snippet);
+        assertEquals("\"@carlspring/angular\" : \"1.6.7\"\n",
+                     snippet,
+                     "Failed to generate dependency!");
     }
 
 }

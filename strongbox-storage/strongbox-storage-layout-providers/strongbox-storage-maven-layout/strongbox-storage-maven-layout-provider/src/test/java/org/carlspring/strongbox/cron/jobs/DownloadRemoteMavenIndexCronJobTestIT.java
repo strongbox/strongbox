@@ -1,16 +1,5 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
@@ -20,25 +9,28 @@ import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Martin Todorov
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class DownloadRemoteMavenIndexCronJobTestIT
@@ -53,20 +45,10 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                                                                      "/storages/" + STORAGE0 + "/" +
                                                                      REPOSITORY_RELEASES);
 
-    @Rule
-    public TestRule watcher = new TestWatcher()
-    {
-        @Override
-        protected void starting(final Description description)
-        {
-            expectedJobName = description.getMethodName();
-        }
-    };
-
     @Inject
     private ArtifactSearchService artifactSearchService;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -82,11 +64,14 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         return repositories;
     }
 
-    @Before
-    public void initialize()
+    @Override
+    @BeforeEach
+    public void init(TestInfo testInfo)
             throws Exception
     {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        super.init(testInfo);
+
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         createRepository(STORAGE0, REPOSITORY_RELEASES, true);
 
@@ -124,13 +109,13 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                                                    MavenIndexerSearchProvider.ALIAS);
 
         // Check that the artifacts exist in the hosted repository's local index
-        assertTrue("Failed to find any results for " + request1.getQuery() + " in the hosted repository!",
-                   artifactSearchService.contains(request1));
+        assertTrue(artifactSearchService.contains(request1),
+                   "Failed to find any results for " + request1.getQuery() + " in the hosted repository!");
 
         System.out.println(request1.getQuery() + " found matches!");
 
-        assertTrue("Failed to find any results for " + request2.getQuery() + " in the hosted repository!",
-                   artifactSearchService.contains(request2));
+        assertTrue(artifactSearchService.contains(request2),
+                   "Failed to find any results for " + request2.getQuery() + " in the hosted repository!");
 
         System.out.println(request2.getQuery() + " found matches!");
     }
@@ -139,7 +124,7 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     public void testDownloadRemoteIndexAndExecuteSearch()
             throws Exception
     {
-        String jobName = expectedJobName;
+        final String jobName = expectedJobName;
 
         // Checking if job was executed
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
@@ -170,13 +155,13 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                 try
                 {
                     // Check that the artifacts exist in the proxied repository's remote index
-                    assertTrue("Failed to find any results for " + request3.getQuery() + " in the remote index!",
-                               artifactSearchService.contains(request3));
+                    assertTrue(artifactSearchService.contains(request3),
+                               "Failed to find any results for " + request3.getQuery() + " in the remote index!");
 
                     System.out.println(request3.getQuery() + " found matches!");
 
-                    assertTrue("Failed to find any results for " + request4.getQuery() + " in the remote index!",
-                               artifactSearchService.contains(request4));
+                    assertTrue(artifactSearchService.contains(request4),
+                               "Failed to find any results for " + request4.getQuery() + " in the remote index!");
 
                     System.out.println(request4.getQuery() + " found matches!");
                 }
@@ -190,7 +175,7 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         addCronJobConfig(jobName, DownloadRemoteMavenIndexCronJob.class, STORAGE0,
                          REPOSITORY_PROXIED_RELEASES);
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
 }

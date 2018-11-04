@@ -1,8 +1,14 @@
 package org.carlspring.strongbox.utils;
 
-import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
-import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
+import org.carlspring.commons.http.range.ByteRange;
+import org.carlspring.commons.http.range.ByteRangeHeaderParser;
+import org.carlspring.strongbox.io.ByteRangeInputStream;
+import org.carlspring.strongbox.io.StreamUtils;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,20 +18,13 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
-
-import org.carlspring.commons.http.range.ByteRange;
-import org.carlspring.commons.http.range.ByteRangeHeaderParser;
-import org.carlspring.strongbox.io.ByteRangeInputStream;
-import org.carlspring.strongbox.io.StreamUtils;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
+import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
 
 public class ArtifactControllerHelper
 {

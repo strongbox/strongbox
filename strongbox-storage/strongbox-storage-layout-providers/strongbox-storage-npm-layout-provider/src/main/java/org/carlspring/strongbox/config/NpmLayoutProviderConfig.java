@@ -1,31 +1,29 @@
 package org.carlspring.strongbox.config;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.nio.file.FileSystem;
-import java.nio.file.spi.FileSystemProvider;
-
-import javax.inject.Inject;
-import javax.inject.Qualifier;
-
 import org.carlspring.strongbox.npm.metadata.jackson.NpmJacksonMapperFactory;
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.NpmFileSystem;
 import org.carlspring.strongbox.providers.layout.NpmFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import javax.inject.Qualifier;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.nio.file.FileSystem;
+import java.nio.file.spi.FileSystemProvider;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.dependency.snippet",

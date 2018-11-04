@@ -3,8 +3,6 @@ package org.carlspring.strongbox.artifact;
 import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 
-import com.google.common.io.Files;
-
 import java.io.File;
 import java.util.Optional;
 

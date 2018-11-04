@@ -1,28 +1,29 @@
 package org.carlspring.strongbox.controllers.aql;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.hamcrest.Matchers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 /**
  * @author sbespalov
  *
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class AqlControllerTest extends MavenRestAssuredBaseTest
 {
 
@@ -37,6 +38,7 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
     }
 
     @Override
+    @BeforeEach
     public void init()
         throws Exception
     {

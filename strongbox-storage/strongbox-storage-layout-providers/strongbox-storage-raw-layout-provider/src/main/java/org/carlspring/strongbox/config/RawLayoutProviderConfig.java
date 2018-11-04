@@ -4,10 +4,10 @@ import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.RawFileSystem;
 import org.carlspring.strongbox.providers.layout.RawFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.nio.file.FileSystem;

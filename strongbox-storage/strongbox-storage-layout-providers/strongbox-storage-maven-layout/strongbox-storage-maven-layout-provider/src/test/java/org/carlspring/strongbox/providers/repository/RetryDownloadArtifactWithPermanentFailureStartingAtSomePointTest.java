@@ -1,39 +1,33 @@
 package org.carlspring.strongbox.providers.repository;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertFalse;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Przemyslaw Fusik
  */
 @ActiveProfiles({"MockedRestArtifactResolverTestConfig","test"})
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
         extends RetryDownloadArtifactTestBase
 {
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private PermanentBrokenArtifactInputStream brokenArtifactInputStream;
 
-    @Before
+    @BeforeEach
     public void setup()
             throws Exception
     {
@@ -54,12 +48,14 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
         // given
         assertFalse(Files.exists(destinationPath));
 
-        //then
-        thrown.expect(IOException.class);
-        thrown.expectMessage(containsString("Connection lost."));
 
-        // when
-        assertStreamNotNull(storageId, repositoryId, path);
+        IOException exception = assertThrows(IOException.class, () -> {
+            // when
+            assertStreamNotNull(storageId, repositoryId, path);
+        });
+
+        //then
+        assertEquals("Connection lost.", exception.getMessage());
     }
 
     static class PermanentBrokenArtifactInputStream

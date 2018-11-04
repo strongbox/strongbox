@@ -22,27 +22,25 @@ import org.apache.commons.lang.time.DateUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Przemyslaw Fusik
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
@@ -51,16 +49,6 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-    
-    @Rule
-    public TestRule watcher = new TestWatcher()
-    {
-        @Override
-        protected void starting(final Description description)
-        {
-            expectedJobName = description.getMethodName();
-        }
-    };
 
     @Inject
     private ProxyRepositoryProvider proxyRepositoryProvider;
@@ -68,9 +56,17 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
     @Inject
     private ArtifactEntryService artifactEntryService;
 
-    @Before
-    @After
-    public void cleanup()
+    @Override
+    @BeforeEach
+    public void init(TestInfo testInfo)
+            throws Exception
+    {
+        super.init(testInfo);
+    }
+
+    @BeforeEach
+    @AfterEach
+    public void cleanup(TestInfo testInfo)
             throws Exception
     {
         deleteDirectoryRelativeToVaultDirectory(
@@ -150,7 +146,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                              properties.put("minSizeInBytes", Long.valueOf(sizeInBytes - 1).toString());
                          });
 
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent);
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
 }

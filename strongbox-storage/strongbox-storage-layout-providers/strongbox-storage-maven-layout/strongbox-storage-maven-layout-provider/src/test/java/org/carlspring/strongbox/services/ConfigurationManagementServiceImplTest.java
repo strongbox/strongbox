@@ -4,48 +4,35 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.carlspring.strongbox.storage.repository.*;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRuleSet;
+import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.hamcrest.CoreMatchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class ConfigurationManagementServiceImplTest
@@ -75,7 +62,7 @@ public class ConfigurationManagementServiceImplTest
     private MavenRepositoryFactory mavenRepositoryFactory;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -95,7 +82,7 @@ public class ConfigurationManagementServiceImplTest
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
             throws Exception
     {
@@ -119,7 +106,7 @@ public class ConfigurationManagementServiceImplTest
         createRepository(STORAGE0, groupRepository2);
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {
@@ -220,19 +207,19 @@ public class ConfigurationManagementServiceImplTest
     public void testRemoveRepositoryFromAssociatedGroups()
             throws Exception
     {
-        assertEquals("Failed to add repository to group!",
-                     2,
+        assertEquals(2,
                      configurationManagementService.getConfiguration()
                                                    .getGroupRepositoriesContaining(STORAGE0,
-                                                                                   REPOSITORY_RELEASES_1).size());
+                                                                                   REPOSITORY_RELEASES_1).size(),
+                     "Failed to add repository to group!");
 
         configurationManagementService.removeRepositoryFromAssociatedGroups(STORAGE0, REPOSITORY_RELEASES_1);
 
-        assertEquals("Failed to remove repository from all associated groups!",
-                     0,
+        assertEquals(0,
                      configurationManagementService.getConfiguration()
                                                    .getGroupRepositoriesContaining(STORAGE0,
-                                                                                   REPOSITORY_RELEASES_1).size());
+                                                                                   REPOSITORY_RELEASES_1).size(),
+                     "Failed to remove repository from all associated groups!");
 
         configurationManagementService.removeRepository(STORAGE0, REPOSITORY_GROUP_1);
         configurationManagementService.removeRepository(STORAGE0, REPOSITORY_GROUP_2);

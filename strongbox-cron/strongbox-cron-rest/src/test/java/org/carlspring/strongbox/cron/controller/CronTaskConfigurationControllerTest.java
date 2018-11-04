@@ -1,39 +1,38 @@
 package org.carlspring.strongbox.cron.controller;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import org.carlspring.strongbox.cron.context.CronTaskRestTest;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
+import org.carlspring.strongbox.cron.jobs.MyTask;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.JAXBException;
-
-import org.carlspring.strongbox.cron.context.CronTaskRestTest;
-import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
-import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
-import org.carlspring.strongbox.cron.jobs.MyTask;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import io.restassured.module.mockmvc.response.MockMvcResponse;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Alex Oreshkevich
  */
 @CronTaskRestTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 public class CronTaskConfigurationControllerTest
         extends RestAssuredBaseTest
@@ -44,6 +43,7 @@ public class CronTaskConfigurationControllerTest
     private final String cronName2 = "CRJG001";
 
     @Override
+    @BeforeEach
     public void init()
         throws Exception
     {
@@ -110,7 +110,6 @@ public class CronTaskConfigurationControllerTest
     }
 
     @Test
-    // @Ignore
     public void testGroovyCronTaskConfiguration()
         throws Exception
     {
@@ -149,14 +148,14 @@ public class CronTaskConfigurationControllerTest
             logger.error(status + " | " + response.getStatusLine());
         }
 
-        assertEquals("Failed to schedule job!", OK, status);
+        assertEquals(OK, status, "Failed to schedule job!");
 
         /**
          * Retrieve saved config
          */
         response = getCronConfig(cronName1);
 
-        assertEquals("Failed to get cron task config! " + response.getStatusLine(), OK, response.getStatusCode());
+        assertEquals(OK, response.getStatusCode(), "Failed to get cron task config! " + response.getStatusLine());
 
         logger.debug("Retrieved config " + response.getBody().asString());
     }
@@ -177,12 +176,12 @@ public class CronTaskConfigurationControllerTest
 
         MockMvcResponse response = client.put2(url, configuration, MediaType.APPLICATION_JSON_VALUE);
 
-        assertEquals("Failed to schedule job: " + response.getStatusLine(), OK, response.getStatusCode());
+        assertEquals(OK, response.getStatusCode(), "Failed to schedule job: " + response.getStatusLine());
 
         // Retrieve saved config
         response = getCronConfig(name);
 
-        assertEquals("Failed to get cron task config!", OK, response.getStatusCode());
+        assertEquals(OK, response.getStatusCode(), "Failed to get cron task config!");
 
     }
 
@@ -214,12 +213,12 @@ public class CronTaskConfigurationControllerTest
     {
         MockMvcResponse response = deleteCronConfig(cronName);
 
-        assertEquals("Failed to deleteCronConfig job: " + response.getStatusLine(), OK, response.getStatusCode());
+        assertEquals(OK, response.getStatusCode(), "Failed to deleteCronConfig job: " + response.getStatusLine());
 
         // Retrieve deleted config
         response = getCronConfig(cronName);
 
-        assertEquals("Cron task config exists!", HttpStatus.BAD_REQUEST.value(), response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode(), "Cron task config exists!");
     }
 
     private MockMvcResponse deleteCronConfig(String name)

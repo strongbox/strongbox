@@ -1,33 +1,5 @@
 package org.carlspring.strongbox.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
@@ -44,28 +16,42 @@ import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.storage.repository.*;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class ArtifactManagementServiceImplTest
@@ -112,7 +98,7 @@ public class ArtifactManagementServiceImplTest
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -134,14 +120,14 @@ public class ArtifactManagementServiceImplTest
         return repositories;
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {
         removeRepositories(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -424,8 +410,8 @@ public class ArtifactManagementServiceImplTest
         
         try (InputStream is = artifactResolutionService.getInputStream(path))
         {
-            assertFalse("Failed to resolve artifact from group repository!", is == null);
-            assertTrue("Failed to resolve artifact from group repository!", is.available() > 0);
+            assertNotNull(is, "Failed to resolve artifact from group repository!");
+            assertTrue(is.available() > 0, "Failed to resolve artifact from group repository!");
         }
     }
 
@@ -439,8 +425,8 @@ public class ArtifactManagementServiceImplTest
 
         mavenArtifactManagementService.delete(repositoryPath, true);
 
-        assertFalse("Failed to delete artifact during a force delete operation!",
-                    new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES), artifactPath).exists());
+        assertFalse(new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES), artifactPath).exists(),
+                    "Failed to delete artifact during a force delete operation!");
 
         final String artifactPath2 = "org/carlspring/strongbox/strongbox-utils/7.2/strongbox-utils-7.2.jar";
         repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY_RELEASES_WITH_TRASH,
@@ -451,9 +437,9 @@ public class ArtifactManagementServiceImplTest
 
         final File repositoryDir = new File(getStorageBasedir(STORAGE0), REPOSITORY_RELEASES_WITH_TRASH + "/.trash");
 
-        assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
-                   "when allowsForceDeletion is not enabled!",
-                   new File(repositoryDir, artifactPath2).exists());
+        assertTrue(new File(repositoryDir, artifactPath2).exists(),
+                   "Should have moved the artifact to the trash during a force delete operation, " +
+                           "when allowsForceDeletion is not enabled!");
     }
 
     @Test
@@ -477,9 +463,9 @@ public class ArtifactManagementServiceImplTest
                                           null,
                                           3);
 
-        assertEquals("Amount of timestamped snapshots doesn't equal 3.",
-                     3,
-                     artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length);
+        assertEquals(3,
+                     artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length,
+                     "Amount of timestamped snapshots doesn't equal 3.");
 
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/timestamped");
 
@@ -491,7 +477,7 @@ public class ArtifactManagementServiceImplTest
                                                            0);
 
         File[] files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
-        assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1, files.length);
+        assertEquals(1, files.length, "Amount of timestamped snapshots doesn't equal 1.");
         assertTrue(files[0].toString().endsWith("-3.jar"));
 
         //Creating timestamped snapshot with another timestamp
@@ -511,8 +497,8 @@ public class ArtifactManagementServiceImplTest
 
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/timestamped");
 
-        assertEquals("Amount of timestamped snapshots doesn't equal 2.", 2,
-                     artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length);
+        assertEquals(2, artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length,
+                     "Amount of timestamped snapshots doesn't equal 2.");
 
         // To check removing timestamped snapshot with keepPeriod = 3 and numberToKeep = 0
         mavenRepositoryFeatures.removeTimestampedSnapshots(STORAGE0,
@@ -522,7 +508,7 @@ public class ArtifactManagementServiceImplTest
                                                            3);
 
         files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
-        assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1, files.length);
+        assertEquals(1, files.length, "Amount of timestamped snapshots doesn't equal 1.");
         assertTrue(files[0].toString().endsWith("-3.jar"));
     }
 
@@ -556,8 +542,8 @@ public class ArtifactManagementServiceImplTest
         // then
         for (int i = 0; i < resultList.size(); i++)
         {
-            assertEquals(String.format("Operation [%s:%s] content size don't match.", i % 2 == 0 ? "write" : "read", i),
-                         Long.valueOf(CONTENT_SIZE), resultList.get(i));
+            assertEquals(Long.valueOf(CONTENT_SIZE),
+                         resultList.get(i), String.format("Operation [%s:%s] content size don't match.", i % 2 == 0 ? "write" : "read", i));
         }
         
         RepositoryPath repositoryPathResult = repositoryPathResolver.resolve(repository, path);

@@ -1,27 +1,5 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.xml.bind.JAXBException;
-
-import org.awaitility.Awaitility;
 import org.carlspring.strongbox.config.NpmLayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
@@ -43,11 +21,30 @@ import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepositor
 import org.carlspring.strongbox.testing.NpmRepositoryTestCase;
 import org.carlspring.strongbox.xml.configuration.repository.remote.MutableNpmRemoteRepositoryConfiguration;
 import org.carlspring.strongbox.xml.configuration.repository.remote.NpmRemoteRepositoryConfiguration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.xml.bind.JAXBException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.beans.BeansException;
@@ -62,11 +59,13 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ContextConfiguration(classes = { NpmLayoutProviderCronTasksTestConfig.class })
 @ActiveProfiles(profiles = { "test", "FetchChangesFeedCronJobTestConfig" })
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class FetchChangesFeedCronJobTestIT
         extends NpmRepositoryTestCase implements ApplicationListener<CronTaskEvent>, ApplicationContextAware
 {
@@ -98,14 +97,14 @@ public class FetchChangesFeedCronJobTestIT
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
         throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
         throws IOException,
         JAXBException
@@ -113,7 +112,7 @@ public class FetchChangesFeedCronJobTestIT
         removeRepositories(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
         throws Exception
     {

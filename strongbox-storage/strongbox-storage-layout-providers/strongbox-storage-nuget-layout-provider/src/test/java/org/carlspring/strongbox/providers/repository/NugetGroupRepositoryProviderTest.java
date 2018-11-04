@@ -9,9 +9,9 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
@@ -29,24 +29,21 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
-import com.carmatechnologies.commons.testing.logging.api.LogLevel;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.aristar.jnuget.files.NugetFormatException;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author sbespalov
  *
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
 public class NugetGroupRepositoryProviderTest
@@ -80,22 +77,15 @@ public class NugetGroupRepositoryProviderTest
 
     @Inject
     private NugetRepositoryFactory nugetRepositoryFactory;
-    
-    @Rule
-    public final ExpectedLogs logs = new ExpectedLogs()
-    {{
-        captureFor(GroupRepositoryProvider.class, LogLevel.DEBUG);
-    }};
 
-
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
         throws Exception
     {
@@ -185,7 +175,7 @@ public class NugetGroupRepositoryProviderTest
         repositoryManagementService.createRepository(storageId, repository.getId());
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {

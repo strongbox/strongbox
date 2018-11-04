@@ -9,10 +9,11 @@ import javax.inject.Inject;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 
@@ -20,13 +21,21 @@ import static org.hamcrest.Matchers.hasSize;
  * @author Przemyslaw Fusik
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class LoginControllerTest
         extends RestAssuredBaseTest
 {
 
     @Inject
     private UserService userService;
+
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
+    {
+        super.init();
+    }
 
     @Test
     public void shouldReturnGeneratedToken()

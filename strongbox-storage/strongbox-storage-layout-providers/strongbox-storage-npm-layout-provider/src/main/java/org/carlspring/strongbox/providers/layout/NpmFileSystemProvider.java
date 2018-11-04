@@ -1,8 +1,7 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.nio.file.spi.FileSystemProvider;
-
 import javax.inject.Inject;
+import java.nio.file.spi.FileSystemProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

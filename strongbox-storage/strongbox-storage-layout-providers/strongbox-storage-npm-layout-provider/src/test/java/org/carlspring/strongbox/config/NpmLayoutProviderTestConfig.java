@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 

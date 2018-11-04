@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.providers.io;
 
-import java.nio.file.Path;
-
 import org.carlspring.strongbox.domain.ArtifactEntry;
+
+import java.nio.file.Path;
 
 /**
  * @author sbespalov

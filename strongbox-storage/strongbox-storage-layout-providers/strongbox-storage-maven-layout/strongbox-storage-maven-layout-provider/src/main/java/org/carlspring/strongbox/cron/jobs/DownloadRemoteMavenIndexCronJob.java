@@ -1,10 +1,11 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
+
+import javax.inject.Inject;
+
 import org.springframework.core.env.Environment;
 
 /**

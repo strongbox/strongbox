@@ -7,18 +7,18 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 
 import javax.inject.Inject;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author carlspring
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class GradleDependencyFormatterTest
@@ -34,7 +34,7 @@ public class GradleDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             GradleDependencyFormatter.ALIAS);
-        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
         coordinates.setGroupId("org.carlspring.strongbox");
@@ -46,9 +46,9 @@ public class GradleDependencyFormatterTest
 
         System.out.print(snippet);
 
-        assertEquals("Failed to generate dependency!",
-                     "compile \"org.carlspring.strongbox:maven-snippet:1.0\"\n",
-                     snippet);
+        assertEquals("compile \"org.carlspring.strongbox:maven-snippet:1.0\"\n",
+                     snippet,
+                     "Failed to generate dependency!");
     }
 
     @Test
@@ -57,7 +57,7 @@ public class GradleDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             GradleDependencyFormatter.ALIAS);
-        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
         coordinates.setGroupId("org.carlspring.strongbox");
@@ -70,9 +70,9 @@ public class GradleDependencyFormatterTest
         System.out.print(snippet);
 
         // compile "org.gradle.test.classifiers:service:1.0:jdk15@jar"
-        assertEquals("Failed to generate dependency!",
-                     "compile \"org.carlspring.strongbox:maven-snippet:1.0:jdk12\"\n",
-                     snippet);
+        assertEquals("compile \"org.carlspring.strongbox:maven-snippet:1.0:jdk12\"\n",
+                     snippet,
+                     "Failed to generate dependency!");
     }
 
     @Test
@@ -81,7 +81,7 @@ public class GradleDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             GradleDependencyFormatter.ALIAS);
-        assertNotNull("Failed to look up dependency synonym formatter!", formatter);
+        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
         coordinates.setGroupId("org.carlspring.strongbox");
@@ -95,9 +95,9 @@ public class GradleDependencyFormatterTest
         System.out.print(snippet);
 
         // compile "org.gradle.test.classifiers:service:1.0:jdk15@jar"
-        assertEquals("Failed to generate dependency!",
-                     "compile \"org.carlspring.strongbox:maven-snippet:1.0:jdk12@zip\"\n",
-                     snippet);
+        assertEquals("compile \"org.carlspring.strongbox:maven-snippet:1.0:jdk12@zip\"\n",
+                     snippet,
+                     "Failed to generate dependency!");
     }
 
 }

@@ -4,10 +4,11 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.storage.validation.artifact.LowercaseValidationException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -29,7 +30,7 @@ public class MavenGroupIdLowercaseValidatorTest
     @Mock
     RepositoryFileAttributes repositoryFileAttributes;
     
-    @Before
+    @BeforeEach
     public void setUp()
     {
         initMocks(this);
@@ -41,13 +42,16 @@ public class MavenGroupIdLowercaseValidatorTest
     }
 
 
-    @Test(expected = LowercaseValidationException.class)
+    @Test
     public void validateGroupIdCase()
             throws Exception
     {
         doReturn(repositoryFileAttributes).when(groupIdCaseValidator).getAttributes(any());
         when(repositoryFileAttributes.getCoordinates()).thenReturn(mavenArtifactCoordinates);
-        groupIdCaseValidator.validate(null, mavenArtifactCoordinates);
+
+        assertThrows(LowercaseValidationException.class, () -> {
+            groupIdCaseValidator.validate(null, mavenArtifactCoordinates);
+        });
     }
 
 }

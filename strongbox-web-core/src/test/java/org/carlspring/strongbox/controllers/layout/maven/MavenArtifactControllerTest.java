@@ -1,44 +1,5 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.inject.Inject;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -62,26 +23,48 @@ import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
+
+import javax.inject.Inject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.response.ExtractableResponse;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-
-import io.restassured.http.Header;
-import io.restassured.http.Headers;
-import io.restassured.response.ExtractableResponse;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test cases for {@link MavenArtifactController}.
@@ -90,7 +73,7 @@ import io.restassured.response.ExtractableResponse;
  * @author Martin Todorov
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class MavenArtifactControllerTest
         extends MavenRestAssuredBaseTest
 {
@@ -115,21 +98,21 @@ public class MavenArtifactControllerTest
     
     private MavenArtifactDeployer defaultMavenArtifactDeployer;
     
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         MockitoAnnotations.initMocks(this);
         defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
     }
 
-    @AfterClass
+    @AfterAll
     public static void down()
     {
         deleteTestResources();
@@ -239,6 +222,7 @@ public class MavenArtifactControllerTest
     }
 
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {
@@ -318,6 +302,7 @@ public class MavenArtifactControllerTest
     }
 
     @Override
+    @AfterEach
     public void shutdown()
     {
         try
@@ -400,8 +385,8 @@ public class MavenArtifactControllerTest
         logger.debug("SHA-1 [Remote]: " + sha1Remote);
         logger.debug("SHA-1 [Local ]: " + sha1Local);
 
-        assertEquals("MD5 checksums did not match!", md5Local, md5Remote);
-        assertEquals("SHA-1 checksums did not match!", sha1Local, sha1Remote);
+        assertEquals(md5Local, md5Remote, "MD5 checksums did not match!");
+        assertEquals(sha1Local, sha1Remote, "SHA-1 checksums did not match!");
     }
 
     @Test
@@ -525,8 +510,8 @@ public class MavenArtifactControllerTest
         output.write(baos.toByteArray());
         output.close();
 
-        assertEquals("Glued partial fetches did not match MD5 checksum!", md5Remote, md5Local);
-        assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
+        assertEquals(md5Remote, md5Local, "Glued partial fetches did not match MD5 checksum!");
+        assertEquals(sha1Remote, sha1Local, "Glued partial fetches did not match SHA-1 checksum!");
     }
 
     @Test
@@ -556,8 +541,8 @@ public class MavenArtifactControllerTest
                     STORAGE0,
                     REPOSITORY_RELEASES2);
 
-        assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
-                   destArtifactFile.exists());
+        assertTrue(destArtifactFile.exists(),
+                   "Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!");
     }
 
     @Test
@@ -576,8 +561,8 @@ public class MavenArtifactControllerTest
             removeDir(artifactFileRestoredFromTrash.toPath());
         }
 
-        assertFalse("Unexpected artifact in repository '" + destRepositoryBasedir + "'!",
-                    artifactFileRestoredFromTrash.exists());
+        assertFalse(artifactFileRestoredFromTrash.exists(),
+                    "Unexpected artifact in repository '" + destRepositoryBasedir + "'!");
 
         client.copy(artifactPath,
                     STORAGE0,
@@ -585,8 +570,8 @@ public class MavenArtifactControllerTest
                     STORAGE0,
                     REPOSITORY_RELEASES2);
 
-        assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
-                   artifactFileRestoredFromTrash.exists());
+        assertTrue(artifactFileRestoredFromTrash.exists(),
+                   "Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!");
     }
 
     @Test
@@ -598,13 +583,13 @@ public class MavenArtifactControllerTest
         File deletedArtifact = new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                                         artifactPath).getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
-                   deletedArtifact.exists());
+        assertTrue(deletedArtifact.exists(),
+                   "Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!");
 
         client.delete(STORAGE0, REPOSITORY_RELEASES1, artifactPath);
 
-        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
-                    deletedArtifact.exists());
+        assertFalse(deletedArtifact.exists(),
+                    "Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!");
     }
 
     @Test
@@ -616,13 +601,13 @@ public class MavenArtifactControllerTest
         File deletedArtifact = new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                                         artifactPath).getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
-                   deletedArtifact.exists());
+        assertTrue(deletedArtifact.exists(),
+                   "Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!");
 
         client.delete(STORAGE0, REPOSITORY_RELEASES1, artifactPath);
 
-        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
-                    deletedArtifact.exists());
+        assertFalse(deletedArtifact.exists(),
+                    "Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!");
     }
 
     @Test
@@ -630,7 +615,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe/";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertTrue("Wrong response", response.statusCode() == 404);
+        assertTrue(response.statusCode() == 404, "Wrong response");
     }
 
     @Test
@@ -638,7 +623,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertTrue("Wrong response", response.statusCode() == 404);
+        assertTrue(response.statusCode() == 404, "Wrong response");
     }
 
     @Test
@@ -646,7 +631,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe/who.jar";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertTrue("Wrong response", response.statusCode() == 404);
+        assertTrue(response.statusCode() == 404, "Wrong response");
     }
 
     @Test
@@ -654,7 +639,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin/1.8/derby-maven-plugin-6.9.jar";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertTrue("Wrong response", response.statusCode() == 404);
+        assertTrue(response.statusCode() == 404, "Wrong response");
     }
 
     @Test
@@ -666,7 +651,7 @@ public class MavenArtifactControllerTest
         File artifact = new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(), artifactPath)
                                 .getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + artifact.getAbsolutePath() + "'!", artifact.exists());
+        assertTrue(artifact.exists(), "Failed to locate artifact file '" + artifact.getAbsolutePath() + "'!");
 
         String basePath = "/api/browse/" + STORAGE0 + "/" + REPOSITORY_RELEASES1;
 
@@ -684,10 +669,10 @@ public class MavenArtifactControllerTest
         String directoryListingContent = directoryListing.asString();
         String fileListingContent = fileListing.asString();
 
-        assertFalse(".trash directory should not be visible in directory listing!",
-                    repositoryRootContent.contains(".trash"));
-        assertTrue(".trash directory should not be browsable!",
-                   trashDirectoryListing.response().getStatusCode() == 404);
+        assertFalse(repositoryRootContent.contains(".trash"),
+                    ".trash directory should not be visible in directory listing!");
+        assertTrue(trashDirectoryListing.response().getStatusCode() == 404,
+                   ".trash directory should not be browsable!");
 
         logger.debug(directoryListingContent);
 
@@ -697,12 +682,12 @@ public class MavenArtifactControllerTest
 
         assertTrue(invalidPath.response().getStatusCode() == 404);
 
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
-        assertFalse(".index directory should not be visible in directory listing!",
-                    repositoryRootContent.contains(".index"));
-        assertTrue(".index directory should be browsable!",
-                   indexDirectoryListing.response().getStatusCode() == 200);
+        assertFalse(repositoryRootContent.contains(".index"),
+                    ".index directory should not be visible in directory listing!");
+        assertTrue(indexDirectoryListing.response().getStatusCode() == 200,
+                   ".index directory should be browsable!");
     }
 
     @Test
@@ -928,7 +913,7 @@ public class MavenArtifactControllerTest
     public void testUpdateMetadataOnDeleteReleaseVersionDirectory()
             throws Exception
     {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         // Given
         String groupId = "org.carlspring.strongbox.delete-metadata";
@@ -970,9 +955,9 @@ public class MavenArtifactControllerTest
             logger.debug(result.getArtifactCoordinates() + "(" + artifactPath + ")");
         }
 
-        assertEquals("Incorrect number of results yielded from search against Maven Index!",
-                     3,
-                     results.getResults().size());
+        assertEquals(3,
+                     results.getResults().size(),
+                     "Incorrect number of results yielded from search against Maven Index!");
 
         // When
         String path = "org/carlspring/strongbox/delete-metadata/metadata-foo/1.2.2";
@@ -986,9 +971,9 @@ public class MavenArtifactControllerTest
         // Re-run the search and check, if the results are now different
         results = artifactSearchService.search(request);
 
-        assertTrue("Failed to delete artifacts from Maven Index!!", results.getResults()
-                                                                           .isEmpty());
-        assertTrue(!metadata.getVersioning()
+        assertTrue(results.getResults()
+                          .isEmpty(), "Failed to delete artifacts from Maven Index!!");
+        assertFalse(metadata.getVersioning()
                             .getVersions()
                             .contains("1.2.2"));
     }
@@ -1065,7 +1050,7 @@ public class MavenArtifactControllerTest
                                 .get(artifactPath)
                                 .getStatusCode();
 
-        assertEquals("Access was wrongly restricted for user with custom access model", 200, statusCode);
+        assertEquals(200, statusCode, "Access was wrongly restricted for user with custom access model");
     }
 
     @Test

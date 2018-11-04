@@ -3,35 +3,30 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertTrue;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author carlspring
  */
 @CronTaskTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 public class OneTimeExecutionCronJobTestIT
         extends BaseCronTestCase
 {
-
-    @Rule
-    public TestRule watcher = new TestWatcher()
+    @Override
+    @BeforeEach
+    public void init(TestInfo testInfo)
+            throws Exception
     {
-        @Override
-        protected void starting(final Description description)
-        {
-            expectedCronTaskName = description.getMethodName();
-        }
-    };
+        super.init(testInfo);
+    }
 
     public void addOneTimeExecutionCronJobConfig(String name)
             throws Exception
@@ -52,7 +47,7 @@ public class OneTimeExecutionCronJobTestIT
     {
         addOneTimeExecutionCronJobConfig(expectedCronTaskName);
 
-        assertTrue("Failed to execute task within a reasonable time!", expectEvent(60000, 500));
+        assertTrue(expectEvent(60000, 500), "Failed to execute task within a reasonable time!");
     }
 
 }

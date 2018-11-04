@@ -1,16 +1,11 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.artifact.archive.ArchiveListingFunction;
-import org.carlspring.strongbox.artifact.archive.Bzip2ArchiveListingFunction;
-import org.carlspring.strongbox.artifact.archive.CompositeArchiveListingFunction;
-import org.carlspring.strongbox.artifact.archive.TarArchiveListingFunction;
-import org.carlspring.strongbox.artifact.archive.TarGzArchiveListingFunction;
-import org.carlspring.strongbox.artifact.archive.ZipArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.*;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.Storage;

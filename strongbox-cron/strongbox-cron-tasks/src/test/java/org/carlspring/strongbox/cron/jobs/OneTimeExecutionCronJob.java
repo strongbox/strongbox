@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import static org.junit.Assert.assertFalse;
-
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author carlspring
@@ -19,7 +19,7 @@ public class OneTimeExecutionCronJob
     {
         System.out.println("The one-time task has run " + runs + " times.");
 
-        assertFalse("Failed to execute in single run mode.", runs > 1);
+        assertFalse(runs > 1, "Failed to execute in single run mode.");
 
         runs++;
     }

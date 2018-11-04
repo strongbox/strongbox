@@ -5,20 +5,19 @@ import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 
 import javax.inject.Inject;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertFalse;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration
 public class AuthenticationManagerTest
@@ -37,13 +36,13 @@ public class AuthenticationManagerTest
     public void testLoad()
             throws Exception
     {
-        assertTrue("Failed to load configuration!", authenticationManager.getConfiguration() != null);
-        assertTrue("Failed to load realms!", authenticationManager.getRealms() != null);
-        assertFalse("Failed to load realms!", authenticationManager.getRealms().isEmpty());
-        assertTrue("Failed to load settings for anonymous access!",
-                   authenticationManager.getAnonymousAccessConfiguration() != null);
-        assertTrue("Failed to load settings for anonymous access!",
-                   authenticationManager.getAnonymousAccessConfiguration().isEnabled());
+        assertNotNull(authenticationManager.getConfiguration(), "Failed to load configuration!");
+        assertNotNull(authenticationManager.getRealms(), "Failed to load realms!");
+        assertFalse(authenticationManager.getRealms().isEmpty(), "Failed to load realms!");
+        assertNotNull(authenticationManager.getAnonymousAccessConfiguration(),
+                      "Failed to load settings for anonymous access!");
+        assertTrue(authenticationManager.getAnonymousAccessConfiguration().isEnabled(),
+                   "Failed to load settings for anonymous access!");
     }
 
 }

@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.io;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
@@ -28,18 +13,32 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.artifact.Artifact;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class ArtifactOutputStreamTest
@@ -59,7 +58,7 @@ public class ArtifactOutputStreamTest
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -69,7 +68,7 @@ public class ArtifactOutputStreamTest
                          "org.carlspring.foo:temp-file-test:1.2.3");
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {
@@ -97,13 +96,13 @@ public class ArtifactOutputStreamTest
         IOUtils.copy(bais, afos);
         afos.close();
         
-        assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
+        assertTrue(Files.exists(artifactPathTemp), "Failed to create temporary artifact file!");
 
         
 
         artifactPathTemp.getFileSystem().provider().moveFromTemporaryDirectory(artifactPathTemp);
         
-        assertTrue("Failed to the move temporary artifact file to original location!", Files.exists(artifactPath));
+        assertTrue(Files.exists(artifactPath), "Failed to the move temporary artifact file to original location!");
     }
 
     @Test
@@ -127,14 +126,14 @@ public class ArtifactOutputStreamTest
         IOUtils.copy(bais, afos);
         afos.close();
         
-        assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
+        assertTrue(Files.exists(artifactPathTemp), "Failed to create temporary artifact file!");
 
         
 
-        assertFalse("Should not have move temporary the artifact file to original location!",
-                    Files.exists(artifactPath));
-        assertTrue("Should not have move temporary the artifact file to original location!",
-                   Files.exists(artifactPathTemp));
+        assertFalse(Files.exists(artifactPath),
+                    "Should not have move temporary the artifact file to original location!");
+        assertTrue(Files.exists(artifactPathTemp),
+                   "Should not have move temporary the artifact file to original location!");
     }
 
 }

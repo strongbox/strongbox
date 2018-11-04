@@ -1,15 +1,5 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
@@ -20,18 +10,30 @@ import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Alex Oreshkevich
  * @author Martin Todorov
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class MavenSearchControllerTest
         extends MavenRestAssuredBaseTest
 {
@@ -53,6 +55,7 @@ public class MavenSearchControllerTest
     }
 
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {
@@ -83,6 +86,7 @@ public class MavenSearchControllerTest
     }
 
     @Override
+    @AfterEach
     public void shutdown()
     {
         try
@@ -109,7 +113,7 @@ public class MavenSearchControllerTest
     public void testIndexSearches()
             throws Exception
     {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         testSearches("+g:org.carlspring.strongbox.searches +a:test-project",
                      MavenIndexerSearchProvider.ALIAS);
@@ -130,23 +134,23 @@ public class MavenSearchControllerTest
         // testSearchPlainText
         String response = client.search(query, MediaType.TEXT_PLAIN_VALUE, searchProvider);
 
-        assertTrue("Received unexpected search results! \n" + response + "\n",
-                   response.contains("test-project-1.0.11.3.jar") &&
-                   response.contains("test-project-1.0.11.3.1.jar"));
+        assertTrue(response.contains("test-project-1.0.11.3.jar") &&
+                   response.contains("test-project-1.0.11.3.1.jar"),
+                   "Received unexpected search results! \n" + response + "\n");
 
         // testSearchJSON
         response = client.search(query, MediaType.APPLICATION_JSON_VALUE, searchProvider);
 
-        assertTrue("Received unexpected search results! \n" + response + "\n",
-                   response.contains("\"version\" : \"1.0.11.3\"") &&
-                   response.contains("\"version\" : \"1.0.11.3.1\""));
+        assertTrue(response.contains("\"version\" : \"1.0.11.3\"") &&
+                   response.contains("\"version\" : \"1.0.11.3.1\""),
+                   "Received unexpected search results! \n" + response + "\n");
     }
 
     @Test
     public void testDumpIndex()
             throws Exception
     {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
+        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         // /storages/storage0/releases/.index/local
         // this index is present but artifacts are missing
