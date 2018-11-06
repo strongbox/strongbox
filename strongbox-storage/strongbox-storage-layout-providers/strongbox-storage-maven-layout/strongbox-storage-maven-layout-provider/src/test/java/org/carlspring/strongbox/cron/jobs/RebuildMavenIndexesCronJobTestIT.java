@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
 public class RebuildMavenIndexesCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
@@ -82,12 +84,6 @@ public class RebuildMavenIndexesCronJobTestIT
         repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
 
         return repositories;
-    }
-
-    @BeforeEach
-    public void isIndexingEnabled()
-    {
-        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
     }
 
     @Override

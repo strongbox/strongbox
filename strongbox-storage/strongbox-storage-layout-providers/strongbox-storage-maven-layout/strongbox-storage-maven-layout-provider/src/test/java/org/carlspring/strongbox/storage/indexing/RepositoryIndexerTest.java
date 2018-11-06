@@ -20,6 +20,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
 public class RepositoryIndexerTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -38,12 +40,6 @@ public class RepositoryIndexerTest
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
-    }
-
-    @BeforeEach
-    public void isIndexingEnabled()
-    {
-        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
     }
 
     @BeforeEach

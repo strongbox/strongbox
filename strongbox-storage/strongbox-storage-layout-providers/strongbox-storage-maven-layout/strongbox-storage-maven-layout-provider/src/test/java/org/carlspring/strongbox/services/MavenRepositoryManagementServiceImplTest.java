@@ -21,6 +21,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -122,11 +123,10 @@ public class MavenRepositoryManagementServiceImplTest
     }
 
     @Test
+    @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
     public void testMerge()
             throws Exception
     {
-        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
-
         // dumpIndex(STORAGE0, REPOSITORY_RELEASES_MERGE_1, IndexTypeEnum.LOCAL.getType());
 
         // 1) Check that an exists in the first repository

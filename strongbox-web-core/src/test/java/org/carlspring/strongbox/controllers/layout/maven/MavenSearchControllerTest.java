@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -110,11 +111,10 @@ public class MavenSearchControllerTest
     }
 
     @Test
+    @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
     public void testIndexSearches()
             throws Exception
     {
-        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
-
         testSearches("+g:org.carlspring.strongbox.searches +a:test-project",
                      MavenIndexerSearchProvider.ALIAS);
     }
@@ -147,11 +147,10 @@ public class MavenSearchControllerTest
     }
 
     @Test
+    @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
     public void testDumpIndex()
             throws Exception
     {
-        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
-
         // /storages/storage0/releases/.index/local
         // this index is present but artifacts are missing
         dumpIndex("storage0", "releases");
