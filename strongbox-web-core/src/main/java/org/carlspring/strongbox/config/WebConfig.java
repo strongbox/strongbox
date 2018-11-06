@@ -222,6 +222,8 @@ public class WebConfig
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry)
     {
+        registry.setOrder(-1);
+
         registry.addResourceHandler("/docs/**")
                 .addResourceLocations("/docs/")
                 .setCachePeriod(3600);
