@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.aql.grammar;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
+import org.carlspring.strongbox.aql.grammar.AQLParser.LayoutValueContext;
+import org.carlspring.strongbox.aql.grammar.AQLParser.TokenExpContext;
 import org.carlspring.strongbox.aql.grammar.AQLParser.TokenKeyContext;
 import org.carlspring.strongbox.aql.grammar.AQLParser.TokenValueContext;
 import org.carlspring.strongbox.domain.ArtifactEntryExpressionBuilder;
@@ -15,9 +18,31 @@ public class AQLExpressionVisitor extends AQLBaseVisitor<ArtifactEntryExpression
             new AqlExpressionDialect());
 
     @Override
+    public ArtifactEntryExpressionBuilder visitTokenExp(TokenExpContext ctx)
+    {
+        
+        
+        TokenKeyContext tokenKey;
+        TerminalNode layout;
+        if ((tokenKey = ctx.tokenKey()) != null)
+        {
+            visitTokenKey(tokenKey);
+            visitTokenValue(ctx.tokenValue());
+        }
+        else if ((layout = ctx.LAYOUT()) != null)
+        {
+            expressionBuilder = expressionBuilder.of(layout.getText()).with(ctx.layoutValue().getText());
+        }
+        
+        return expressionBuilder;
+    }
+    
+    
+
+    @Override
     public ArtifactEntryExpressionBuilder visitTokenValue(TokenValueContext ctx)
     {
-        return expressionBuilder.with(ctx.getText());
+        return expressionBuilder = expressionBuilder.with(ctx.getText());
     }
 
     @Override

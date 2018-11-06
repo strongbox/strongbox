@@ -76,8 +76,11 @@ public class AQLQueryVisitor extends AQLBaseVisitor<Predicate>
     public Predicate visitTokenExp(TokenExpContext ctx)
     {
         AQLExpressionVisitor nestedVisitor = new AQLExpressionVisitor();
-        nestedVisitor.visitTokenKey(ctx.tokenKey());
-        nestedVisitor.visitTokenValue(ctx.tokenValue());
+        
+        nestedVisitor.visitTokenExp(ctx);
+        
+        //nestedVisitor.visitTokenKey(ctx.tokenKey());
+        //nestedVisitor.visitTokenValue(ctx.tokenValue());
 
         ArtifactEntryExpressionBuilder expressionBuilder = nestedVisitor.getExpressionBuilder();
         expressionBuilder.using(null);

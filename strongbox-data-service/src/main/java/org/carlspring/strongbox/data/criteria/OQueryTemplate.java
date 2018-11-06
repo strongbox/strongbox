@@ -224,6 +224,7 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
             return "";
         }
         property = property.replace(".toLowerCase()", "");
+        property = property.replace("@", "");
         return String.format("%s_%s", property.substring(property.lastIndexOf(".") + 1), n);
     }
 
