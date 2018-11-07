@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.domain.DirectoryListing;
@@ -102,21 +103,25 @@ public class DirectoryListingServiceImpl implements DirectoryListingService
         List<FileContent> directories = new ArrayList<>();
         List<FileContent> files = new ArrayList<>();
 
-        List<Path> contentPaths = Files.list(path)
-                                       .filter(p -> !p.toFile().getName().startsWith("."))
-                                       .filter(p -> {
-                                           try
-                                           {
-                                               return !Files.isHidden(p);
-                                           }
-                                           catch (IOException e)
-                                           {
-                                               logger.debug("Error accessing path {}", p);
-                                               return false;
-                                           }
-                                       })
-                                       .sorted()
-                                       .collect(Collectors.toList());
+        List<Path> contentPaths;
+        try (Stream<Path> pathStream = Files.list(path))
+        {
+            contentPaths = pathStream
+                                   .filter(p -> !p.toFile().getName().startsWith("."))
+                                   .filter(p -> {
+                                       try
+                                       {
+                                           return !Files.isHidden(p);
+                                       }
+                                       catch (IOException e)
+                                       {
+                                           logger.debug("Error accessing path {}", p);
+                                           return false;
+                                       }
+                                   })
+                                   .sorted()
+                                   .collect(Collectors.toList());
+        }
 
         for (Path contentPath : contentPaths)
         {

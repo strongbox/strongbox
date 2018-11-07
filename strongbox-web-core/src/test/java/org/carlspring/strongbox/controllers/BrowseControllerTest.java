@@ -11,6 +11,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -68,10 +69,8 @@ public class BrowseControllerTest
     {
         super.init();
 
-        File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
-
         MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
-        mavenRepositoryConfiguration.setIndexingEnabled(true);
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
 
         MutableRepository repository = mavenRepositoryFactory.createRepository(REPOSITORY);
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
@@ -94,12 +93,20 @@ public class BrowseControllerTest
         try
         {
             closeIndexersForRepository(STORAGE0, REPOSITORY);
+            removeRepositories();
+            cleanUp(getRepositoriesToClean());
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             throw new UndeclaredThrowableException(e);
         }
         super.shutdown();
+    }
+
+    private void removeRepositories()
+            throws IOException, JAXBException
+    {
+        removeRepositories(getRepositoriesToClean());
     }
     
     @Test
