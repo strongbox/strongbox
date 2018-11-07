@@ -96,4 +96,31 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
                .body("error", Matchers.containsString("[1:103]"));
     }
 
+    @Test
+    public void testSearchValidMavenCoordinates()
+        throws Exception
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .queryParam("query", "layout:maven+groupId:org.carlspring.strongbox.*")
+               .when()
+               .get(getContextBaseUrl() + "/api/aql")
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("artifact", Matchers.hasSize(6));
+    }
+    
+    @Test
+    public void testSearchInvalidMavenCoordinates()
+        throws Exception
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .queryParam("query", "layout:unknown-layout+id:org.carlspring.strongbox.*")
+               .when()
+               .get(getContextBaseUrl() + "/api/aql")
+               .then()
+               .log()
+               .body()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .body("error", Matchers.equalTo("Unknown layout [unknown-layout]."));
+    }
 }
