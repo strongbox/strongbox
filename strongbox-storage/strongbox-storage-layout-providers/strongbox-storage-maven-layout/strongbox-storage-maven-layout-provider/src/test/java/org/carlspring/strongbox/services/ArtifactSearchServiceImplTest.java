@@ -18,6 +18,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -75,10 +76,9 @@ public class ArtifactSearchServiceImplTest
     }
 
     @Test
+    @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
     public void testContains() throws Exception
     {
-        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
-
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
         final int x = features.reIndex(STORAGE0, REPOSITORYID, "org/carlspring/strongbox/strongbox-utils");
 

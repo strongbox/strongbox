@@ -22,6 +22,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
@@ -31,6 +32,7 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
  */
 @IntegrationTest
 @ExtendWith(SpringExtension.class)
+@EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
 public class MavenArtifactIndexControllerTest
         extends MavenRestAssuredBaseTest
 {
@@ -62,12 +64,6 @@ public class MavenArtifactIndexControllerTest
         repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_2, Maven2LayoutProvider.ALIAS));
 
         return repositories;
-    }
-
-    @BeforeEach
-    public void isIndexingEnabled()
-    {
-        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
     }
 
     @Override
