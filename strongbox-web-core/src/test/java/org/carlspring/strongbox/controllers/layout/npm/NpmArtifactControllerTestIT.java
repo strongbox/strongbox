@@ -162,5 +162,25 @@ public class NpmArtifactControllerTestIT
         assertTrue(artifactEntry instanceof RemoteArtifactEntry);
         assertFalse(((RemoteArtifactEntry)artifactEntry).getIsCached());
     }
-    
+
+    @Test
+    public void testSearchArtifactViaProxy() 
+            throws Exception
+    {
+        given().header("User-Agent", "npm/*")
+               .when()
+               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_PROXY
+                       + "/-/v1/search?text=reston&size=10")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .and()
+               .body("objects.package.name",
+                     CoreMatchers.hasItem("Reston"));
+        
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, REPOSITORY_PROXY, "Reston/Reston/0.2.0/Reston-0.2.0.tgz");
+        assertNotNull(artifactEntry);
+        assertTrue(artifactEntry instanceof RemoteArtifactEntry);
+        assertFalse(((RemoteArtifactEntry)artifactEntry).getIsCached());
+    }
 }
