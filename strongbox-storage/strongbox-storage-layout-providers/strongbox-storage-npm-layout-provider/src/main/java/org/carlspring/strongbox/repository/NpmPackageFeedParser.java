@@ -163,7 +163,8 @@ public class NpmPackageFeedParser
             {
                 artifactEntryService.save(e, false);
             }
-        } finally
+        } 
+        finally
         {
             lock.unlock();
         }

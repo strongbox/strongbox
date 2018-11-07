@@ -29,9 +29,9 @@ public class RemoteRepositorySearchEvent extends Event
         return storageId;
     }
 
-    public void setStorageId(String sorageId)
+    public void setStorageId(String storageId)
     {
-        this.storageId = sorageId;
+        this.storageId = storageId;
     }
 
     public String getRepositoryId()
