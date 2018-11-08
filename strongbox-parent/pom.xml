@@ -93,6 +93,7 @@
         <version.codacy.mvn.plugin>1.1.0</version.codacy.mvn.plugin>
         <!-- Version properties. -->
         <surefireArgLine/>
+        <failsafeArgLine/>
     </properties>
 
     <build>
