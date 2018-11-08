@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author Steve Todorov
  */
 @Controller
-@RequestMapping("/")
+@RequestMapping(path = { "/", "/**" })
 @Api(value = "/")
 public class HomepageController
         extends BaseArtifactController
