@@ -161,6 +161,7 @@
                     <version>2.22.0</version>
                     <inherited>true</inherited>
                     <configuration>
+                        <useSystemClassLoader>false</useSystemClassLoader>
                         <argLine>-Xmx1024m -Xms512m -Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-springsource-proxies.*=false -Dstrongbox.download.indexes=false -Dstrongbox.download.indexes.storage-sbt-proxies.*=false -Dstrongbox.npm.remote.changes.enabled=false ${surefireArgLine}</argLine>
                         <includes>
                             <include>**/*Test</include>
@@ -198,6 +199,7 @@
                     <version>2.22.0</version>
 
                     <configuration>
+                        <useSystemClassLoader>false</useSystemClassLoader>
                         <argLine>-Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-springsource-proxies.*=false -Dstrongbox.download.indexes=false -Dstrongbox.download.indexes.storage-sbt-proxies.*=false ${failsafeArgLine}</argLine>
                         <systemPropertyVariables>
                             <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
