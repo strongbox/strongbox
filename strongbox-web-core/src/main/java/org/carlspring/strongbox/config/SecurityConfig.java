@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
-import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
+import org.carlspring.strongbox.authentication.registry.AuthenticationConfig;
 import org.carlspring.strongbox.security.CustomAccessDeniedHandler;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
@@ -24,6 +23,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -39,7 +39,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -60,7 +59,7 @@ public class SecurityConfig
     private AuthoritiesProvider authoritiesProvider;
 
     @Inject
-    private AuthenticatorsRegistry authenticatorsRegistry;
+    private AuthenticationManager authenticationManager;
 
     @Inject
     private List<AuthenticationSupplier> suppliers;
@@ -155,7 +154,7 @@ public class SecurityConfig
     @Bean
     StrongboxAuthenticationFilter strongboxAuthenticationFilter()
     {
-        return new StrongboxAuthenticationFilter(new AuthenticationSuppliers(suppliers), authenticatorsRegistry);
+        return new StrongboxAuthenticationFilter(new AuthenticationSuppliers(suppliers), authenticationManager);
     }
 
     @Bean

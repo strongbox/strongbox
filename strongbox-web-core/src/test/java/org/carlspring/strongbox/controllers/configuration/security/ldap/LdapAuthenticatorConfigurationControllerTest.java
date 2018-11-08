@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.configuration.security.ldap;
 
-import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
+import org.carlspring.strongbox.authentication.registry.support.ConfigurableProviderManager;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
@@ -42,7 +42,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         extends RestAssuredBaseTest
 {
     @Inject
-    private AuthenticatorsScanner scanner;
+    private ConfigurableProviderManager scanner;
 
     @Override
     @BeforeEach
@@ -84,7 +84,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     public void setUp()
     {
         setContextBaseUrl("/api/configuration/ldap");
-        scanner.scanAndReloadRegistry();
+        scanner.reloadRegistry();
     }
 
     @WithMockUser(authorities = "ADMIN")

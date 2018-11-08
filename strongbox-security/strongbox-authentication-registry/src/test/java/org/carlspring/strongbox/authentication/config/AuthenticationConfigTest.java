@@ -1,21 +1,22 @@
 package org.carlspring.strongbox.authentication.config;
 
-import org.carlspring.strongbox.authentication.TestConfig;
-import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticator;
-import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import javax.inject.Inject;
 
-import com.google.common.collect.Lists;
+import org.carlspring.strongbox.authentication.TestConfig;
+import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticationProvider;
+import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.CustomMatcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import static org.hamcrest.MatcherAssert.assertThat;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author Przemyslaw Fusik
@@ -27,56 +28,40 @@ public class AuthenticationConfigTest
 {
 
     @Inject
-    AuthenticatorsRegistry authenticatorsRegistry;
+    AuthenticationProvidersRegistry authenticationProvidersRegistry;
 
     @Test
     public void registryShouldNotBeNull()
     {
-        assertThat(authenticatorsRegistry, CoreMatchers.notNullValue());
+        assertThat(authenticationProvidersRegistry, CoreMatchers.notNullValue());
     }
 
     @Test
-    public void registryShouldContainStrongboxBuiltinAuthenticator()
+    public void registryShouldContainStrongboxBuiltinAuthenticationProvider()
     {
-        assertThat(Lists.newArrayList(authenticatorsRegistry), CoreMatchers.hasItem(
-                new CustomMatcher<Authenticator>("registryShouldContainStrongboxBuiltinAuthenticator")
+        assertThat(Lists.newArrayList(authenticationProvidersRegistry), CoreMatchers.hasItem(
+                new CustomMatcher<AuthenticationProvider>("registryShouldContainStrongboxBuiltinAuthenticationProvider")
                 {
                     @Override
                     public boolean matches(Object o)
                     {
-                        return ((Authenticator) o).getName()
-                                                  .equals(
-                                                          PasswordAuthenticator.class.getName());
+                        return ((AuthenticationProvider) o).getClass().getName()
+                                                  .equals(PasswordAuthenticationProvider.class.getName());
                     }
                 }));
     }
 
     @Test
-    public void registryShouldContainEmptyAuthenticator()
+    public void registryShouldContainEmptyAuthenticationProvider()
     {
-        assertThat(Lists.newArrayList(authenticatorsRegistry),
-                   CoreMatchers.hasItem(new CustomMatcher<Authenticator>("registryShouldContainEmptyAuthenticator")
+        assertThat(Lists.newArrayList(authenticationProvidersRegistry),
+                   CoreMatchers.hasItem(new CustomMatcher<AuthenticationProvider>("registryShouldContainEmptyAuthenticationProvider")
                    {
                        @Override
                        public boolean matches(Object o)
                        {
-                           return ((Authenticator) o).getName()
-                                                     .equals("org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticator");
-                       }
-                   }));
-    }
-
-    @Test
-    public void registryShouldContainLdapAuthenticator()
-    {
-        assertThat(Lists.newArrayList(authenticatorsRegistry),
-                   CoreMatchers.hasItem(new CustomMatcher<Authenticator>("registryShouldContainLdapAuthenticator")
-                   {
-                       @Override
-                       public boolean matches(Object o)
-                       {
-                           return ((Authenticator) o).getName()
-                                                     .equals("org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator");
+                           return ((AuthenticationProvider) o).getClass().getName()
+                                                     .equals("org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticationProvider");
                        }
                    }));
     }

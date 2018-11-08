@@ -1,7 +1,8 @@
 package org.carlspring.strongbox.controllers.configuration.security.authentication;
 
-import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
-import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
+import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
+import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
+import org.carlspring.strongbox.authentication.registry.support.ConfigurableProviderManager;
 import org.carlspring.strongbox.controllers.BaseController;
 
 import io.swagger.annotations.Api;
@@ -35,15 +36,15 @@ public class AuthenticatorsConfigController
 
     static final String FAILED_RELOAD = "Could not reload authenticators registry.";
 
-    private final AuthenticatorsRegistry authenticatorsRegistry;
+    private final AuthenticationProvidersRegistry authenticationProvidersRegistry;
 
-    private final AuthenticatorsScanner authenticatorsScanner;
+    private final ConfigurableProviderManager authenticatorsScanner;
 
 
-    public AuthenticatorsConfigController(AuthenticatorsRegistry authenticatorsRegistry,
-                                          AuthenticatorsScanner authenticatorsScanner)
+    public AuthenticatorsConfigController(AuthenticationProvidersRegistry authenticatorsRegistry,
+                                          ConfigurableProviderManager authenticatorsScanner)
     {
-        this.authenticatorsRegistry = authenticatorsRegistry;
+        this.authenticationProvidersRegistry = authenticatorsRegistry;
         this.authenticatorsScanner = authenticatorsScanner;
     }
 
@@ -53,7 +54,7 @@ public class AuthenticatorsConfigController
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity list()
     {
-        return ResponseEntity.ok(authenticatorsRegistry);
+        return ResponseEntity.ok(authenticationProvidersRegistry);
     }
 
     @ApiOperation(value = "Reorders authenticators by their indexes")
@@ -69,7 +70,7 @@ public class AuthenticatorsConfigController
     {
         try
         {
-            authenticatorsRegistry.reorder(first, second);
+            authenticationProvidersRegistry.reorder(first, second);
             return getSuccessfulResponseEntity(SUCCESSFUL_REORDER, acceptHeader);
         }
         catch (Exception e)
@@ -89,7 +90,7 @@ public class AuthenticatorsConfigController
     {
         try
         {
-            authenticatorsScanner.scanAndReloadRegistry();
+            authenticatorsScanner.reloadRegistry();
             return getSuccessfulResponseEntity(SUCCESSFUL_RELOAD, acceptHeader);
         }
         catch (Exception e)

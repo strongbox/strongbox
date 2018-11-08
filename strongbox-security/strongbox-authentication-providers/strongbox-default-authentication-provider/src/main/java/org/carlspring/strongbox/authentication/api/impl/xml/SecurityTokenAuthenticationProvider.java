@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Sergey Bespalov
  *
  */
-public class SecurityTokenAuthenticator extends JwtAuthenticator
+public class SecurityTokenAuthenticationProvider extends JwtAuthenticationProvider
 {
 
     protected Map<String, String> provideTokenClaims(UserDetails userDetails)

@@ -3,15 +3,12 @@ package org.carlspring.strongbox.authentication.api.impl.xml;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.security.exceptions.InvalidTokenException;
 import org.carlspring.strongbox.security.exceptions.ExpiredTokenException;
+import org.carlspring.strongbox.security.exceptions.InvalidTokenException;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.userdetails.StrongboxUserDetailService;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,7 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * @author Sergey Bespalov
  *
  */
-public class JwtAuthenticator extends AbstractUserDetailsAuthenticationProvider implements Authenticator
+public class JwtAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider
 {
 
     @Inject
@@ -34,13 +31,6 @@ public class JwtAuthenticator extends AbstractUserDetailsAuthenticationProvider 
 
     @Inject
     private SecurityTokenProvider securityTokenProvider;
-
-    @Nonnull
-    @Override
-    public AuthenticationProvider getAuthenticationProvider()
-    {
-        return this;
-    }
 
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails,

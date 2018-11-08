@@ -2,14 +2,11 @@ package org.carlspring.strongbox.authentication.api.impl.xml;
 
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.authentication.api.Authenticator;
 import org.carlspring.strongbox.users.userdetails.StrongboxUserDetailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -23,21 +20,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @author Przemyslaw Fusik
  * @author sbespalov
  */
-public class PasswordAuthenticator extends DaoAuthenticationProvider
-        implements Authenticator
+public class PasswordAuthenticationProvider extends DaoAuthenticationProvider
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(PasswordAuthenticator.class);
+    private static final Logger logger = LoggerFactory.getLogger(PasswordAuthenticationProvider.class);
 
     @Inject
     private AuthenticationCache authenticationCache;
-
-    @Nonnull
-    @Override
-    public AuthenticationProvider getAuthenticationProvider()
-    {
-        return this;
-    }
 
     @Override
     @Inject

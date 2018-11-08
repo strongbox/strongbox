@@ -1,23 +1,27 @@
 package org.carlspring.strongbox.controllers.configuration.security.ldap.support;
 
-import org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator;
-import org.carlspring.strongbox.authentication.external.ExternalUserProvider;
-import org.carlspring.strongbox.authentication.external.ExternalUserProviders;
-import org.carlspring.strongbox.authentication.external.ExternalUserProvidersFileManager;
-import org.carlspring.strongbox.authentication.external.ldap.*;
-import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
-import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
-import org.carlspring.strongbox.forms.configuration.security.ldap.LdapUserSearchForm;
-
-import javax.annotation.Nonnull;
-import javax.inject.Inject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.carlspring.strongbox.authentication.external.ExternalUserProvider;
+import org.carlspring.strongbox.authentication.external.ExternalUserProviders;
+import org.carlspring.strongbox.authentication.external.ExternalUserProvidersFileManager;
+import org.carlspring.strongbox.authentication.external.ldap.LdapAuthoritiesPopulator;
+import org.carlspring.strongbox.authentication.external.ldap.LdapBindAuthenticator;
+import org.carlspring.strongbox.authentication.external.ldap.LdapConfiguration;
+import org.carlspring.strongbox.authentication.external.ldap.LdapRoleMapping;
+import org.carlspring.strongbox.authentication.external.ldap.LdapRolesMapping;
+import org.carlspring.strongbox.authentication.external.ldap.LdapUserDnPattern;
+import org.carlspring.strongbox.authentication.external.ldap.LdapUserDnPatterns;
+import org.carlspring.strongbox.authentication.external.ldap.LdapUserSearch;
+import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
+import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.security.ldap.LdapUserSearchForm;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -33,14 +37,14 @@ public class LdapConfigurationMutator
 {
 
     @Inject
-    private AuthenticatorsRegistry authenticatorsRegistry;
+    private AuthenticationProvidersRegistry authenticatorsRegistry;
 
     @Inject
     private ExternalUserProvidersFileManager externalUserProvidersFileManager;
 
     public void dropLdapConfiguration()
     {
-        authenticatorsRegistry.drop(LdapAuthenticator.class);
+        authenticatorsRegistry.drop(LdapAuthenticationProvider.class);
         ExternalUserProviders externalUserProviders = getExternalUserProviders();
         dropLdapConfiguration(externalUserProviders);
     }
@@ -144,15 +148,7 @@ public class LdapConfigurationMutator
     private void overrideAuthenticator(final LdapConfigurationForm configuration)
     {
         LdapAuthenticationProvider provider = createProvider(configuration);
-        authenticatorsRegistry.put(new LdapAuthenticator()
-        {
-            @Nonnull
-            @Override
-            public AuthenticationProvider getAuthenticationProvider()
-            {
-                return provider;
-            }
-        });
+        authenticatorsRegistry.put(provider);
     }
 
     private LdapRolesMapping mapRolesMapping(Map<String, String> rolesMapping)

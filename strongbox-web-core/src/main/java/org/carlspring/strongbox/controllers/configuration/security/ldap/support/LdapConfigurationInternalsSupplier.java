@@ -1,21 +1,17 @@
 package org.carlspring.strongbox.controllers.configuration.security.ldap.support;
 
-import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator;
-import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.authentication.support.AuthoritiesExternalToInternalMapper;
 
-import javax.inject.Inject;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.support.AbstractContextSource;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
@@ -32,9 +28,6 @@ import org.springframework.util.ReflectionUtils;
 public class LdapConfigurationInternalsSupplier
 {
 
-    @Inject
-    private AuthenticatorsRegistry authenticatorsRegistry;
-
     public boolean isLdapAuthenticationEnabled()
     {
         return getCurrentLdapAuthentication().isPresent();
@@ -42,15 +35,13 @@ public class LdapConfigurationInternalsSupplier
 
     public LdapAuthenticationProvider getAuthenticationProvider()
     {
-        return (LdapAuthenticationProvider) (getCurrentLdapAuthentication().orElseThrow(
-                () -> new IllegalStateException(LdapMessages.NOT_CONFIGURED))).getAuthenticationProvider();
+        return (LdapAuthenticationProvider) (getCurrentLdapAuthentication().orElseThrow(() -> new IllegalStateException(
+                LdapMessages.NOT_CONFIGURED)));
     }
 
-    public Optional<Authenticator> getCurrentLdapAuthentication()
+    public Optional<AuthenticationProvider> getCurrentLdapAuthentication()
     {
-        return StreamSupport.stream(authenticatorsRegistry.spliterator(), false)
-                            .filter(a -> a instanceof LdapAuthenticator)
-                            .findFirst();
+        return Optional.empty();
     }
 
     public AbstractLdapAuthenticator getAuthenticator()

@@ -16,11 +16,8 @@
 
     <bean class="org.carlspring.strongbox.authentication.api.impl.xml.CacheManagerAuthenticationCache"/>
 
-    <util:list id="authenticators" value-type="java.lang.String">
-        <bean class="org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticator"/>
-        <bean class="org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthenticator" />
-        <bean class="org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthenticator" />
-        <bean class="org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator"/>
-    </util:list>
+    <bean class="org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticationProvider"/>
+    <bean class="org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthenticationProvider" />
+    <bean class="org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthenticationProvider" />
 
 </beans>
