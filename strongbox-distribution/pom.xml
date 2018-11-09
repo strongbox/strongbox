@@ -424,7 +424,7 @@
 
                             <overwriteArtifact>true</overwriteArtifact>
                             <repositoryId>strongbox/strongbox</repositoryId>
-                            <serverId>strongbox/strongbox</serverId>
+                            <serverId>github</serverId>
                             <deleteRelease>true</deleteRelease>
 
                             <fileSets>
