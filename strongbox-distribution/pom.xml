@@ -423,6 +423,9 @@
                             <tag>${project.version}</tag>
 
                             <overwriteArtifact>true</overwriteArtifact>
+                            <repositoryId>strongbox/strongbox</repositoryId>
+                            <serverId>strongbox/strongbox</serverId>
+                            <deleteRelease>true</deleteRelease>
 
                             <fileSets>
                                 <fileSet>
