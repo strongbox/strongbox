@@ -75,9 +75,7 @@
         <version.quartz>2.3.0</version.quartz>
         <version.servlet.api>3.1.0</version.servlet.api>
         <version.slf4j>1.7.24</version.slf4j>
-        <!--<version.spring>5.0.6.RELEASE</version.spring>-->
-        <version.spring.boot>2.0.3.RELEASE</version.spring.boot>
-        <version.spring.security>5.0.5.RELEASE</version.spring.security>
+        <version.spring.boot>2.1.0.RELEASE</version.spring.boot>
         <version.rest.assured>3.0.3</version.rest.assured>
         <version.jnuget>0.8.5-SNAPSHOT</version.jnuget>
         <version.hibernate.validator>6.0.7.Final</version.hibernate.validator>
@@ -287,7 +285,7 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>2.0.5.RELEASE</version>
+                    <version>${version.spring.boot}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -1136,12 +1134,6 @@
                         <artifactId>asm-tree</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-commons</artifactId>
-                <version>2.0.8.RELEASE</version>
             </dependency>
 
             <dependency>
