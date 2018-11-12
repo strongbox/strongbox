@@ -6,12 +6,10 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 /**
  * @author Przemyslaw Fusik
  */
-public class RepositoryPathExpiredEvent
+public class ProxyRepositoryPathExpiredEvent
         extends RepositoryBasedEvent<RepositoryPath>
 {
-
-
-    public RepositoryPathExpiredEvent(final RepositoryPath path)
+    public ProxyRepositoryPathExpiredEvent(final RepositoryPath path)
     {
         super(path, -1);
     }

@@ -37,11 +37,11 @@ import static org.junit.Assert.assertTrue;
 @ActiveProfiles({ "MockedRestArtifactResolverTestConfig",
                   "test" })
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
-public class MavenMetadataExpirationGroupCaseTest
+public class MavenMetadataExpirationSingleGroupCaseTest
         extends BaseMavenMetadataExpirationTest
 {
 
-    protected static final String REPOSITORY_GROUP = "mvn-group-repo-snapshots";
+    private static final String REPOSITORY_GROUP = "mvn-group-repo-snapshots";
 
     @Inject
     private GroupRepositoryProvider groupRepositoryProvider;
@@ -93,7 +93,7 @@ public class MavenMetadataExpirationGroupCaseTest
     }
 
     @Test
-    public void expiredMetadataShouldFetchUpdatedVersionWithinProxiedRepository()
+    public void expiredGroupRepositoryMetadataPathShouldBeRefetchedFromUnderlyingRepository()
             throws Exception
     {
         final RepositoryPath hostedPath = resolvePath(REPOSITORY_HOSTED, true, "maven-metadata.xml");
@@ -121,6 +121,7 @@ public class MavenMetadataExpirationGroupCaseTest
                                                                EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertThat(sha1ProxyPathChecksum, equalTo(calculatedGroupPathChecksum));
 
+        Files.setLastModifiedTime(proxyPath, oneHourAgo());
         Files.setLastModifiedTime(groupPath, oneHourAgo());
 
         groupRepositoryProvider.fetchPath(groupPath);
@@ -136,6 +137,7 @@ public class MavenMetadataExpirationGroupCaseTest
         assertThat(sha1HostedPathChecksum, equalTo(calculatedHostedPathChecksum));
         assertThat(calculatedHostedPathChecksum, not(equalTo(sha1ProxyPathChecksum)));
 
+        Files.setLastModifiedTime(proxyPath, oneHourAgo());
         Files.setLastModifiedTime(groupPath, oneHourAgo());
 
         groupRepositoryProvider.fetchPath(groupPath);
@@ -154,6 +156,7 @@ public class MavenMetadataExpirationGroupCaseTest
         closeIndexersForRepository(STORAGE0, REPOSITORY_HOSTED);
         closeIndexersForRepository(STORAGE0, REPOSITORY_LOCAL_SOURCE);
         closeIndexersForRepository(STORAGE0, REPOSITORY_PROXY);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_GROUP);
         removeRepositories(getRepositoriesToClean());
         cleanUp();
     }

@@ -2,11 +2,8 @@ package org.carlspring.strongbox.providers.repository;
 
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.data.criteria.OQueryTemplate;
-import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.data.criteria.QueryTemplate;
-import org.carlspring.strongbox.data.criteria.Selector;
+import org.carlspring.strongbox.config.CommonConfig.CommonExecutorService;
+import org.carlspring.strongbox.data.criteria.*;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -25,12 +22,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -63,6 +56,10 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
+    @Inject
+    @CommonExecutorService
+    private ExecutorService executorService;
+
     @Override
     public String getAlias()
     {
@@ -80,25 +77,32 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             throws IOException
     {
         RepositoryPath result = resolvePathDirectlyFromGroupPathIfPossible(repositoryPath);
-        if (result != null && !RepositoryFiles.hasExpired(result))
+        if (result != null)
         {
+            if (RepositoryFiles.hasExpired(result))
+            {
+                resolvePathTraversal(repositoryPath, false);
+            }
             return result;
         }
-        // Both cases (result == null || RepositoryFiles.hasExpired(result)) require to resolve the path traversal ...
-        RepositoryPath resolvedTraversal = resolvePathTraversal(repositoryPath);
-        // ... but only first case ...
-        if (result == null)
-        {
-            // ... requires reassignment
-            result = resolvedTraversal;
-        }
-        return result;
+
+        return resolvePathTraversal(repositoryPath);
     }
 
-    protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath) throws IOException
+    protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath)
+            throws IOException
+    {
+        return resolvePathTraversal(repositoryPath, true);
+    }
+
+    protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath,
+                                                  boolean firstMatch)
+            throws IOException
     {
         Repository groupRepository = repositoryPath.getRepository();
         Storage storage = groupRepository.getStorage();
+        RepositoryPath result = null;
+        List<Callable<RepositoryPath>> actions = new ArrayList<>();
 
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories().keySet())
         {
@@ -111,27 +115,76 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 continue;
             }
 
-            RepositoryPath result = repositoryPathResolver.resolve(r, repositoryPath);
+            result = repositoryPathResolver.resolve(r, repositoryPath);
             if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), result))
             {
                 continue;
             }
 
-            result = resolvePathFromGroupMemberOrTraverse(result);
-            if (result == null)
+            final RepositoryPath selfResult = result;
+            actions.add(() -> resolvePathFromGroupMemberOrTraverse(selfResult, firstMatch));
+
+            if (firstMatch)
             {
-                continue;
+                result = invokeResolvePathActions(actions);
+                if (result == null)
+                {
+                    continue;
+                }
+                logger.debug(String.format("Located artifact: [%s]", result));
+                return result;
             }
+        }
 
-            logger.debug(String.format("Located artifact: [%s]", result));
+        if (!firstMatch)
+        {
+            result = invokeResolvePathActions(actions);
+        }
 
-            return result;
+        return result;
+    }
+
+    private RepositoryPath invokeResolvePathActions(List<Callable<RepositoryPath>> resolvePathActions)
+    {
+        List<Future<RepositoryPath>> answers;
+        try
+        {
+            // TODO invokeAll timeout interrupt ?
+            answers = executorService.invokeAll(resolvePathActions);
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+        for (Future<RepositoryPath> answer : answers)
+        {
+            RepositoryPath result;
+            try
+            {
+                result = answer.get();
+            }
+            catch (InterruptedException e)
+            {
+                Thread.currentThread().interrupt();
+                logger.error(e.getMessage(), e);
+                return null;
+            }
+            catch (ExecutionException e)
+            {
+                logger.error(e.getMessage(), e);
+                return null;
+            }
+            if (result != null)
+            {
+                return result;
+            }
         }
         return null;
     }
 
     private RepositoryPath resolvePathDirectlyFromGroupPathIfPossible(final RepositoryPath artifactPath)
-        throws IOException
     {
         if (Files.exists(artifactPath))
         {
@@ -140,13 +193,14 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return null;
     }
 
-    private RepositoryPath resolvePathFromGroupMemberOrTraverse(RepositoryPath repositoryPath)
-        throws IOException
+    private RepositoryPath resolvePathFromGroupMemberOrTraverse(RepositoryPath repositoryPath,
+                                                                boolean firstMatch)
+            throws IOException
     {
         Repository repository = repositoryPath.getRepository();
         if (getAlias().equals(repository.getType()))
         {
-            return resolvePathTraversal(repositoryPath);
+            return resolvePathTraversal(repositoryPath, firstMatch);
         }
 
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
@@ -163,7 +217,6 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
     @Override
     protected OutputStream getOutputStreamInternal(RepositoryPath repositoryPath)
-            throws IOException
     {
         // It should not be possible to write artifacts to a group repository.
         // A group repository should only serve artifacts that already exist

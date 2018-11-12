@@ -88,7 +88,7 @@ public class MavenMetadataExpirationProxyCaseTest
     }
 
     @Test
-    public void expiredMetadataShouldFetchUpdatedVersionWithinProxiedRepository()
+    public void expiredProxyRepositoryMetadataPathShouldBeRefetched()
             throws Exception
     {
         final RepositoryPath hostedPath = resolvePath(REPOSITORY_HOSTED, true, "maven-metadata.xml");

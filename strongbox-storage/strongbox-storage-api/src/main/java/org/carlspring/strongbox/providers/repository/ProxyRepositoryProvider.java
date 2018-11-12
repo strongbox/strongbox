@@ -8,8 +8,8 @@ import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.repository.event.ProxyRepositoryPathExpiredEvent;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
-import org.carlspring.strongbox.providers.repository.event.RepositoryPathExpiredEvent;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 
 import javax.inject.Inject;
@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 /**
@@ -42,10 +41,6 @@ public class ProxyRepositoryProvider
 
     @Inject
     private HostedRepositoryProvider hostedRepositoryProvider;
-
-    @Inject
-    private ApplicationEventPublisher eventPublisher;
-
 
     @Override
     public String getAlias()
@@ -72,7 +67,7 @@ public class ProxyRepositoryProvider
         }
         else if (RepositoryFiles.hasExpired(targetPath))
         {
-            eventPublisher.publishEvent(new RepositoryPathExpiredEvent(targetPath));
+            eventPublisher.publishEvent(new ProxyRepositoryPathExpiredEvent(targetPath));
         }
 
         return targetPath;

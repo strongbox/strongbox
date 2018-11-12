@@ -53,11 +53,11 @@ public class BaseMavenMetadataExpirationTest
 
     protected MavenArtifactGenerator mavenArtifactGenerator;
 
-    protected Metadata versionLevelMetadata;
+    private Metadata versionLevelMetadata;
 
-    protected Metadata artifactLevelMetadata;
+    private Metadata artifactLevelMetadata;
 
-    protected Artifact snapshotArtifact;
+    private Artifact snapshotArtifact;
 
     protected MutableRepository localSourceRepository;
 
@@ -76,6 +76,8 @@ public class BaseMavenMetadataExpirationTest
     @Inject
     protected CacheManager cacheManager;
 
+    private int numberOfBuilds;
+
     protected void mockHostedRepositoryMetadataUpdate()
             throws Exception
     {
@@ -92,12 +94,11 @@ public class BaseMavenMetadataExpirationTest
     protected void mockLocalRepositoryTestMetadataUpdate()
             throws Exception
     {
-        snapshotArtifact = snapshotArtifact != null ? snapshotArtifact :
-                           createTimestampedSnapshotArtifact(localSourceRepository.getBasedir(),
+        snapshotArtifact = createTimestampedSnapshotArtifact(localSourceRepository.getBasedir(),
                                                              groupId,
                                                              artifactId,
                                                              "1.0",
-                                                             1);
+                                                             ++numberOfBuilds);
 
         metadataMerger = new MetadataMerger();
         mavenArtifactGenerator = new MavenArtifactGenerator(localSourceRepository.getBasedir());

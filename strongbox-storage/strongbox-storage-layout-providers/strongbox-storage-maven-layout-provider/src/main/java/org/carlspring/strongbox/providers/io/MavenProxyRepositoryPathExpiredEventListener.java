@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.providers.repository.event.RepositoryPathExpiredEvent;
+import org.carlspring.strongbox.providers.repository.event.ProxyRepositoryPathExpiredEvent;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -17,16 +17,16 @@ import org.springframework.stereotype.Component;
  * @author Przemyslaw Fusik
  */
 @Component
-public class MavenRepositoryPathExpiredEventListener
+public class MavenProxyRepositoryPathExpiredEventListener
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MavenRepositoryPathExpiredEventListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(MavenProxyRepositoryPathExpiredEventListener.class);
 
     @Inject
     private List<MavenExpiredRepositoryPathHandler> expiredRepositoryPathHandlers;
 
     @EventListener
-    public void handle(final RepositoryPathExpiredEvent event)
+    public void handle(final ProxyRepositoryPathExpiredEvent event)
     {
 
         RepositoryPath repositoryPath = event.getPath();
@@ -50,7 +50,7 @@ public class MavenRepositoryPathExpiredEventListener
             }
             catch (IOException e)
             {
-                logger.error(String.format("Expired path [%s] inproperly handled.", repositoryPath), e);
+                logger.error(String.format("Expired path [%s] improperly handled.", repositoryPath), e);
             }
         };
     }
