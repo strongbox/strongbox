@@ -111,73 +111,6 @@
                 </executions>
             </plugin>
 
-            <!-- Configure jetty server (for default profile) -->
-            <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>${version.jetty}</version>
-                <configuration>
-                    <scanIntervalSeconds>10</scanIntervalSeconds>
-
-                    <daemon>false</daemon>
-
-                    <webApp>
-                        <contextPath>/</contextPath>
-                        <descriptor>${dir.strongbox.home}/webapp/WEB-INF/web.xml</descriptor>
-                    </webApp>
-
-                    <stopPort>${port.jetty.shutdown}</stopPort>
-                    <stopKey>53AS9DS1FD8E3WEFEW9GR1ER8G2ER0WE31</stopKey>
-                    <stopWait>10</stopWait>
-
-                    <httpConnector>
-                        <port>${port.jetty.listen}</port>
-                    </httpConnector>
-
-                    <systemProperties>
-                        <force>true</force>
-
-                        <systemProperty>
-                            <name>strongbox.home</name>
-                            <value>${dir.strongbox.home}</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>strongbox.vault</name>
-                            <value>${dir.strongbox.vault}</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>strongbox.config.xml</name>
-                            <value>${dir.strongbox.home}/etc/conf/strongbox.xml</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>strongbox.storage.booter.basedir</name>
-                            <value>${dir.strongbox.vault}/storages</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>logging.dir</name>
-                            <value>${dir.strongbox.home}/logs</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>logging.config.file</name>
-                            <value>${dir.strongbox.home}/etc/logback-debug.xml</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>java.io.tmpdir</name>
-                            <value>${dir.strongbox.vault}/tmp</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>ehcache.disk.store.dir</name>
-                            <value>${dir.strongbox.home}/cache</value>
-                        </systemProperty>
-                    </systemProperties>
-
-                    <!-- Restore the following for SSL/HTTPSL when the time comes:
-                    <jettyXml>${dir.jetty.etc}/jetty.xml,${dir.jetty.etc}/jetty-http.xml,${dir.jetty.etc}/jetty-ssl.xml,${dir.jetty.etc}/jetty-https.xml</jettyXml>
-                    -->
-                    <jettyXml>${dir.jetty.etc}/jetty.xml,${dir.jetty.etc}/jetty-http.xml</jettyXml>
-                    <webAppSourceDirectory>${project.build.directory}/strongbox/webapp</webAppSourceDirectory>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -256,28 +189,6 @@
                             </artifactItems>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>unpack-web-resources</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-web-resources</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.home}</outputDirectory>
-                                    <includes>etc/**,webapp/**</includes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-
                     <execution>
                         <id>unpack-web-ui</id>
                         <phase>process-resources</phase>
@@ -443,11 +354,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-common-resources</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-web-resources</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -904,27 +810,6 @@
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
                                             <includes>logback*xml</includes>
-                                        </artifactItem>
-                                    </artifactItems>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>unpack-web-resources</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>unpack</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-web-resources</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${dir.strongbox.home}</outputDirectory>
-                                            <includes>etc/**,webapp/**</includes>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
