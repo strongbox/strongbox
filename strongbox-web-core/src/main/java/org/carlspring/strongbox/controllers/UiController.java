@@ -2,6 +2,7 @@ package org.carlspring.strongbox.controllers;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -11,10 +12,10 @@ import org.springframework.web.bind.annotation.GetMapping;
  * @author Steve Todorov
  */
 @Controller
-public class UiController
+public class UiController implements ErrorController
 {
 
-    @GetMapping(path = { "/**" }, produces = { MediaType.TEXT_HTML_VALUE })
+    @GetMapping(path = { "/**", "/error" }, produces = { MediaType.TEXT_HTML_VALUE })
     public String intexWithRoute(HttpServletResponse response)
     {
         response.setStatus(HttpStatus.NOT_FOUND.value());
@@ -28,4 +29,11 @@ public class UiController
         return "/index.html";
     }
 
+    @Override
+    public String getErrorPath()
+    {
+        return "/error";
+    }
+
+    
 }
