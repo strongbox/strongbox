@@ -19,7 +19,9 @@ Welcome to the Strongbox artifact repository manager's home.
     * Support for nested group repositories
 * Layout providers:
   * Maven 2.x/3.x
+  * NPM
   * NuGet v2
+  * Raw
 * [Search providers](https://github.com/strongbox/strongbox/wiki/Searching):
   * OrientDB (default implementation for all repositories and layout formats)
   * [Maven Indexer](https://github.com/strongbox/strongbox/wiki/Maven-Indexer) (additional implementation for Maven repositories)
@@ -50,8 +52,7 @@ Welcome to the Strongbox artifact repository manager's home.
 
 ## What's in the works (Q4/2018):
 * Layout providers
-  * NPM layout provider
-  * Raw layout provider
+  * PyPi layout provider
 * Web UI
 * Spring Bootification
 
