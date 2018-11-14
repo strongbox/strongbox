@@ -19,10 +19,10 @@ Welcome to the Strongbox artifact repository manager's home.
     * Support for routing rules
     * Support for nested group repositories
 * Layout providers:
-  * Maven 2.x/3.x
-  * NPM
-  * NuGet v2
-  * Raw
+  * [Maven 2.x/3.x](https://github.com/strongbox/strongbox/wiki/Maven-2-Layout-Provider)
+  * [NPM](https://github.com/strongbox/strongbox/wiki/NPM-Layout-Provider)
+  * [NuGet v2](https://github.com/strongbox/strongbox/wiki/NuGet-Layout-Provider)
+  * [Raw](https://github.com/strongbox/strongbox/wiki/Raw-Layout-Provider)
 * [Search providers](https://github.com/strongbox/strongbox/wiki/Searching):
   * OrientDB (default implementation for all repositories and layout formats)
   * [Maven Indexer](https://github.com/strongbox/strongbox/wiki/Maven-Indexer) (additional implementation for Maven repositories)
@@ -56,12 +56,12 @@ Welcome to the Strongbox artifact repository manager's home.
   * PyPi layout provider
 * Web UI
 * Spring Bootification
+* RPM distribution ([#855](https://github.com/strongbox/strongbox/pull/855))
 
 ## Upcoming:
 * Logging:
   * Log tailing over HTTP
 * Deploy as a transaction
-* RPM distribution
 * Debian/Ubuntu distribution
 
 ## What's not yet implemented:
