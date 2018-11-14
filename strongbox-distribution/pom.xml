@@ -151,27 +151,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>unpack-web-resources</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-web-resources</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.standalone}</outputDirectory>
-                                    <includes>etc/**,webapp/**</includes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>unpack-user-management-resources</id>
                         <phase>process-resources</phase>
                         <goals>
@@ -243,12 +222,6 @@
                                             <name>wrapper.logfile.rollmode</name>
                                             <value>DATE</value>
                                         </property>
-                                        <!--
-                                        <property>
-                                            <name>wrapper.app.parameter.2</name>
-                                            <value>%STRONGBOX_HOME%/conf/jetty.xml</value>
-                                        </property>
-                                        -->
                                         <property>
                                             <name>app.base.envvar</name>
                                             <value>STRONGBOX_HOME</value>
@@ -291,8 +264,7 @@
                                     <systemProperty>strongbox.home=%STRONGBOX_HOME%</systemProperty>
                                     <systemProperty>strongbox.vault=../strongbox-vault</systemProperty>
                                     <systemProperty>strongbox.storage.booter.basedir=../strongbox-vault/storages</systemProperty>
-                                    <systemProperty>logback.configurationFile=%STRONGBOX_HOME%/etc/${strongbox.log.file}</systemProperty>
-                                    <systemProperty>logging.config.file=%STRONGBOX_HOME%/etc/${strongbox.log.file}</systemProperty>
+                                    <systemProperty>logging.config=%STRONGBOX_HOME%/etc/%STRONGBOX_LOG_FILE%</systemProperty>
                                     <systemProperty>logging.dir=../strongbox-vault/logs</systemProperty>
                                     <systemProperty>jetty.logs=%STRONGBOX_HOME%/logs</systemProperty>
                                     <systemProperty>java.io.tmpdir=%STRONGBOX_HOME%/tmp</systemProperty>
