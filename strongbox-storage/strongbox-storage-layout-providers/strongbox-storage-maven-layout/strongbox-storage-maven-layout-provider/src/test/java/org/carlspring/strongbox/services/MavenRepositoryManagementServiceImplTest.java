@@ -19,12 +19,14 @@ import java.util.Set;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -87,7 +89,7 @@ public class MavenRepositoryManagementServiceImplTest
 
     @AfterEach
     public void removeRepositories()
-            throws IOException, JAXBException, SearchException
+            throws IOException, JAXBException
     {
         closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
         closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
@@ -97,8 +99,8 @@ public class MavenRepositoryManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testCreateRepository()
-            throws IOException, JAXBException
     {
         File repositoryBaseDir = new File(STORAGES_BASEDIR, STORAGE0 + "/" + REPOSITORY_RELEASES_1);
 
@@ -106,6 +108,7 @@ public class MavenRepositoryManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testCreateAndDelete()
             throws Exception
     {
@@ -124,6 +127,7 @@ public class MavenRepositoryManagementServiceImplTest
 
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
+    @Execution(CONCURRENT)
     public void testMerge()
             throws Exception
     {

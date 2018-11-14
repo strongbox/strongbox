@@ -35,7 +35,7 @@ pipeline {
             steps {
                 withMavenPlus(timestamps: true, mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534')
                 {
-                    sh "mvn -U clean install -T2C -Dintegration.tests -Dprepare.revision -Dmaven.test.failure.ignore=true -Pcoverage"
+                    sh "mvn -U clean install -T2C -Dintegration.tests -Djunit.jupiter.execution.parallel.enabled=true -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=2 -Dprepare.revision -Dmaven.test.failure.ignore=true -Pcoverage"
                 }
             }
         }

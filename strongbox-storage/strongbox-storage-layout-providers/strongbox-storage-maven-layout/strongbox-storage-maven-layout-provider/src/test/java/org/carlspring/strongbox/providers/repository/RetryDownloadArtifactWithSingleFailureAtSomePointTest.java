@@ -10,6 +10,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -17,6 +18,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
@@ -24,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles({"MockedRestArtifactResolverTestConfig", "test"})
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
         extends RetryDownloadArtifactTestBase
 {
@@ -31,10 +34,10 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
     private OneTimeBrokenArtifactInputStream brokenArtifactInputStream;
 
     private boolean exceptionAlreadyThrown;
-    
+
+
     @BeforeEach
     public void setup()
-            throws Exception
     {
         brokenArtifactInputStream = new OneTimeBrokenArtifactInputStream(jarArtifact);
         prepareArtifactResolverContext(brokenArtifactInputStream, true);
@@ -47,8 +50,10 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
         final String storageId = "storage-common-proxies";
         final String repositoryId = "maven-central";
         final String path = "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar";
-        final Path destinationPath = getVaultDirectoryPath().resolve("storages").resolve(storageId).resolve(
-                repositoryId).resolve(path);
+        final Path destinationPath = getVaultDirectoryPath().resolve("storages")
+                                                            .resolve(storageId)
+                                                            .resolve(repositoryId)
+                                                            .resolve(path);
 
         // given
         assertFalse(Files.exists(destinationPath));
@@ -61,7 +66,6 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
         assertTrue(Files.exists(destinationPath));
         assertThat(Files.size(destinationPath), CoreMatchers.equalTo(Files.size(jarArtifact.getFile().toPath())));
         assertTrue(exceptionAlreadyThrown);
-
     }
 
     private class OneTimeBrokenArtifactInputStream
@@ -89,6 +93,6 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
             currentReadSize++;
             return artifactInputStream.read();
         }
-
     }
+
 }

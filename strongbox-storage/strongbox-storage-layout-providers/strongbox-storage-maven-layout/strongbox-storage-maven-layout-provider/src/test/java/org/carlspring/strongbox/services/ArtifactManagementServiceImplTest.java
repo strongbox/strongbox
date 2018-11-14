@@ -41,12 +41,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -210,6 +212,7 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testDeploymentToRepositoryWithForbiddenDeployments()
             throws Exception
     {
@@ -245,6 +248,7 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testRedeploymentToRepositoryWithForbiddenRedeployments()
             throws Exception
     {
@@ -282,6 +286,7 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testDeletionFromRepositoryWithForbiddenDeletes()
             throws IOException
     {
@@ -304,6 +309,7 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
             throws Exception
     {
@@ -399,10 +405,9 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testArtifactResolutionFromGroup()
-            throws IOException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
+            throws IOException
     {
         RepositoryPath path = artifactResolutionService.resolvePath(STORAGE0,
                                                                      REPOSITORY_GROUP,
@@ -416,6 +421,7 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testForceDelete()
             throws IOException
     {
@@ -443,6 +449,7 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testRemoveTimestampedSnapshots()
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
@@ -513,6 +520,7 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testConcurrentReadWrite()
             throws Exception
     {

@@ -122,8 +122,6 @@ public class MavenTestCaseWithArtifactGeneration
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        //artifact.setPath(Paths.get(basedir).resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
-
         MavenArtifactGenerator generator = createArtifactGenerator(basedir);
         generator.generate(artifact);
     }
@@ -133,8 +131,6 @@ public class MavenTestCaseWithArtifactGeneration
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        //artifact.setPath(Paths.get(basedir).resolve(MavenArtifactUtils.convertArtifactToPath(artifact)));
-
         MavenArtifactGenerator generator = createArtifactGenerator(basedir);
         generator.generate(artifact, packaging);
     }
@@ -162,7 +158,8 @@ public class MavenTestCaseWithArtifactGeneration
                 String path = FilenameUtils.separatorsToUnix(basePath.relativize(artifactPath).toString());
 
                 Path repositoryBasePath = basePath;
-                if (repositoryBasePath.endsWith(LayoutFileSystem.TEMP) || repositoryBasePath.endsWith(LayoutFileSystem.TEMP))
+                if (repositoryBasePath.endsWith(LayoutFileSystem.TEMP) ||
+                    repositoryBasePath.endsWith(LayoutFileSystem.TEMP))
                 {
                     repositoryBasePath = repositoryBasePath.getParent();
                 }
@@ -218,7 +215,10 @@ public class MavenTestCaseWithArtifactGeneration
         generator.generate(gavtc, "maven-plugin", versions);
     }
 
-    public InputStream generateArtifactInputStream(String basedir, String repositoryId, String gavtc, boolean useTempDir)
+    public InputStream generateArtifactInputStream(String basedir,
+                                                   String repositoryId,
+                                                   String gavtc,
+                                                   boolean useTempDir)
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException
@@ -348,7 +348,9 @@ public class MavenTestCaseWithArtifactGeneration
         String repositoryId = repositoryBasePath.getFileName().toString();
         String storageId = repositoryBasePath.getParent().getFileName().toString();
         
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, ArtifactUtils.convertArtifactToPath(artifact));
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                                       repositoryId,
+                                                                       ArtifactUtils.convertArtifactToPath(artifact));
         return repositoryPath;
     }
 
@@ -466,7 +468,8 @@ public class MavenTestCaseWithArtifactGeneration
         {
             if (fileEntry.isFile())
             {
-                BasicFileAttributeView attributes = Files.getFileAttributeView(fileEntry.toPath(), BasicFileAttributeView.class);
+                BasicFileAttributeView attributes = Files.getFileAttributeView(fileEntry.toPath(),
+                                                                               BasicFileAttributeView.class);
                 FileTime time = FileTime.from(System.currentTimeMillis() + 60000L, TimeUnit.MILLISECONDS);
                 attributes.setTimes(time, time, time);
             }

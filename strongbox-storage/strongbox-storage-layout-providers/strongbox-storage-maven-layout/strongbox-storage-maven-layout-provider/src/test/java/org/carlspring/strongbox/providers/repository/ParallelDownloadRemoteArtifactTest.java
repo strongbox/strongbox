@@ -20,6 +20,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,6 +29,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author sbespalov
@@ -36,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles({"MockedRestArtifactResolverTestConfig","test"})
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class ParallelDownloadRemoteArtifactTest
         extends RetryDownloadArtifactTestBase
 {
@@ -92,9 +95,9 @@ public class ParallelDownloadRemoteArtifactTest
         assertArrayEquals(expected, actual);
         
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
+
         assertNotNull(repositoryPath.getArtifactEntry());
         assertEquals(Integer.valueOf(concurrency), repositoryPath.getArtifactEntry().getDownloadCount());
-
     }
 
     private Throwable executeTask(final String storageId,
@@ -182,7 +185,6 @@ public class ParallelDownloadRemoteArtifactTest
 
             assertEquals(currentThread, Optional.ofNullable(ownerThread).orElse(currentThread));
         }
-
     }
 
 }

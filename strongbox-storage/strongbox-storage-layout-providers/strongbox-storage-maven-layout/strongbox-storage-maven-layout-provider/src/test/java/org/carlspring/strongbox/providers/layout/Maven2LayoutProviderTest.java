@@ -25,11 +25,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -37,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class Maven2LayoutProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -98,8 +101,7 @@ public class Maven2LayoutProviderTest
 
     @Test
     public void testDeleteArtifact()
-            throws IOException,
-                   SearchException
+            throws IOException
     {
         Repository repository = configurationManager.getConfiguration()
                                                     .getStorage(STORAGE0)
@@ -132,7 +134,7 @@ public class Maven2LayoutProviderTest
 
     @Test
     public void testDeleteArtifactDirectory()
-            throws IOException, SearchException
+            throws IOException
     {
         Repository repository = configurationManager.getConfiguration()
                                                     .getStorage(STORAGE0)

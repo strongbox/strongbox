@@ -18,11 +18,13 @@ import java.util.Set;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author carlspring
@@ -83,6 +85,7 @@ public class Maven2ProxyRepositoryTest
 
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
+    @Execution(CONCURRENT)
     public void testRepositoryIndexFetching()
             throws ArtifactTransportException, IOException
     {

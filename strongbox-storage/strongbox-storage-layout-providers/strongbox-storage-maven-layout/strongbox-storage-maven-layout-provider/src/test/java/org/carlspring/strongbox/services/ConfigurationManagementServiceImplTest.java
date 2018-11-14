@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,6 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -114,6 +116,7 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void groupRepositoriesShouldBeSortedAsExpected()
     {
         Repository repository = configurationManagementService.getConfiguration().getRepository(
@@ -128,6 +131,7 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void additionOfTheSameGroupRepositoryShouldNotAffectGroupRepositoriesList()
     {
         configurationManagementService.addRepositoryToGroup("storage-common-proxies",
@@ -147,6 +151,7 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void multipleAdditionOfTheSameRepositoryShouldNotAffectGroup()
     {
         configurationManagementService.addRepositoryToGroup("storage-common-proxies",
@@ -172,6 +177,7 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testGetGroupRepositories()
     {
         List<Repository> groupRepositories = configurationManagementService.getConfiguration().getGroupRepositories();
@@ -187,6 +193,7 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testGetGroupRepositoriesContainingRepository()
     {
         List<Repository> groups = configurationManagementService.getConfiguration()
@@ -204,8 +211,8 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testRemoveRepositoryFromAssociatedGroups()
-            throws Exception
     {
         assertEquals(2,
                      configurationManagementService.getConfiguration()
@@ -226,8 +233,8 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testSetProxyRepositoryMaxConnections()
-            throws IOException, JAXBException
     {
         Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
 
@@ -243,8 +250,8 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void addAcceptedRuleSet()
-            throws Exception
     {
         final MutableRuleSet ruleSet = getRuleSet();
         final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
@@ -261,8 +268,8 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testRemoveAcceptedRuleSet()
-            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
@@ -276,8 +283,8 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testAddAcceptedRepo()
-            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
@@ -297,8 +304,8 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testRemoveAcceptedRepository()
-            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
@@ -321,8 +328,8 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testOverrideAcceptedRepositories()
-            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
@@ -344,6 +351,7 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testCanGetRepositoriesWithStorageAndLayout()
     {
         String maven2Layout = Maven2LayoutProvider.ALIAS;
@@ -362,6 +370,7 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage()
     {
         String maven2Layout = Maven2LayoutProvider.ALIAS;

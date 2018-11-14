@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
@@ -15,11 +13,9 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -30,12 +26,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -43,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class MavenGroupRepositoryProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -169,7 +168,6 @@ public class MavenGroupRepositoryProviderTest
     }
 
     private void createRoutingRules()
-            throws IOException, JAXBException
     {
         /**
          <accepted>
@@ -271,7 +269,6 @@ public class MavenGroupRepositoryProviderTest
 
     @AfterEach
     public void tearDown()
-            throws Exception
     {
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_RELEASES_1);
         if (!repository.isInService())
@@ -282,10 +279,7 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     public void testGroupIncludes()
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
+            throws IOException
     {
         System.out.println("# Testing group includes...");
 
@@ -331,10 +325,7 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     public void testGroupIncludesWithOutOfServiceRepository()
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
+            throws IOException
     {
         System.out.println("# Testing group includes with out of service repository...");
 
@@ -356,10 +347,7 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     public void testGroupIncludesWildcardRule()
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
+            throws IOException
     {
         System.out.println("# Testing group includes with wildcard...");
 
@@ -377,10 +365,7 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     public void testGroupIncludesWildcardRuleAgainstNestedRepository()
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
+            throws IOException
     {
         System.out.println("# Testing group includes with wildcard against nested repositories...");
 
@@ -398,10 +383,7 @@ public class MavenGroupRepositoryProviderTest
     
     @Test
     public void testGroupAgainstNestedRepository()
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
+            throws IOException
     {
         System.out.println("# Testing group includes with wildcard against nested repositories...");
 
@@ -419,10 +401,7 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     public void testGroupExcludes()
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
+            throws IOException
     {
         System.out.println("# Testing group excludes...");
 
@@ -440,10 +419,7 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     public void testGroupExcludesWildcardRule()
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
+            throws IOException
     {
         System.out.println("# Testing group excludes with wildcard...");
 

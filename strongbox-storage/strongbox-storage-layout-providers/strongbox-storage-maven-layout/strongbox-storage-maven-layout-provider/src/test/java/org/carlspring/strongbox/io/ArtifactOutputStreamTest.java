@@ -19,7 +19,6 @@ import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -29,11 +28,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -41,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class ArtifactOutputStreamTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -77,8 +79,7 @@ public class ArtifactOutputStreamTest
 
     @Test
     public void testCreateWithTemporaryLocation()
-            throws IOException,
-                   NoSuchAlgorithmException
+            throws IOException
     {
         final Storage storage = getConfiguration().getStorage(STORAGE0);
         final Repository repository = storage.getRepository(REPOSITORY_RELEASES);
@@ -107,8 +108,7 @@ public class ArtifactOutputStreamTest
 
     @Test
     public void testCreateWithTemporaryLocationNoMoveOnClose()
-            throws IOException,
-                   NoSuchAlgorithmException
+            throws IOException
     {
         final Storage storage = getConfiguration().getStorage(STORAGE0);
         final Repository repository = storage.getRepository(REPOSITORY_RELEASES);

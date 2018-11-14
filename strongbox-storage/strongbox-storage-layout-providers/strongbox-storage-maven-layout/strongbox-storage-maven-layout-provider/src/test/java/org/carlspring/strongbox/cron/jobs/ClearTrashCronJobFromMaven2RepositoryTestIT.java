@@ -44,7 +44,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@Disabled
 public class ClearTrashCronJobFromMaven2RepositoryTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {

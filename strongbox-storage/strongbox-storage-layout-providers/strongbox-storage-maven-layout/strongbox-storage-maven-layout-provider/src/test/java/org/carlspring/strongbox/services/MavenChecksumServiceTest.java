@@ -2,13 +2,9 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
@@ -28,11 +24,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Kate Novik.
@@ -63,12 +61,6 @@ public class MavenChecksumServiceTest
 
     @Inject
     private ChecksumService checksumService;
-
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
-    private ConfigurationManager configurationManager;
 
 
     @BeforeAll
@@ -124,6 +116,7 @@ public class MavenChecksumServiceTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testGenerateMavenChecksumForReleaseArtifact()
             throws IOException,
                    XmlPullParserException,
@@ -179,6 +172,7 @@ public class MavenChecksumServiceTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testGenerateMavenChecksumForSnapshotArtifact()
             throws IOException,
                    XmlPullParserException,
@@ -230,6 +224,7 @@ public class MavenChecksumServiceTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testRewriteMavenChecksum()
             throws IOException,
                    XmlPullParserException,
@@ -289,10 +284,4 @@ public class MavenChecksumServiceTest
                    "The checksum file for metadata is empty!");
     }
 
-    private LayoutProvider getLayoutProvider(String repositoryId)
-    {
-        Repository repository = configurationManager.getRepository(STORAGE0, repositoryId);
-
-        return layoutProviderRegistry.getProvider(repository.getLayout());
-    }
 }
