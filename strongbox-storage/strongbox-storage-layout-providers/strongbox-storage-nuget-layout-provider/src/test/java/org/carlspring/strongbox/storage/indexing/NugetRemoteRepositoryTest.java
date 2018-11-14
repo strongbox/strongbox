@@ -12,9 +12,9 @@ import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithRepository;
 
@@ -25,21 +25,23 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author Sergey Bespalov
  *
  */
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 public class NugetRemoteRepositoryTest
         extends TestCaseWithRepository
@@ -64,7 +66,7 @@ public class NugetRemoteRepositoryTest
     @Inject
     private NugetRepositoryFactory nugetRepositoryFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
         throws Exception
     {
@@ -79,7 +81,7 @@ public class NugetRemoteRepositoryTest
         return repositories;
     }
 
-    @Before
+    @BeforeEach
     public void initialize()
         throws Exception
     {
@@ -92,7 +94,7 @@ public class NugetRemoteRepositoryTest
         repositoryManagementService.createRepository(NUGET_COMMON_STORAGE, repository.getId());
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
         throws IOException,
         JAXBException
@@ -123,8 +125,8 @@ public class NugetRemoteRepositoryTest
                                                                                                          REPOSITORY_PROXY,
                                                                                                          c.toPath()));
 
-        Assert.assertTrue(artifactEntry.isPresent());
-        Assert.assertFalse(((RemoteArtifactEntry) artifactEntry.get()).getIsCached());
+        assertTrue(artifactEntry.isPresent());
+        assertFalse(((RemoteArtifactEntry) artifactEntry.get()).getIsCached());
     }
 
 }

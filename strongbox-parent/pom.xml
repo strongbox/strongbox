@@ -37,14 +37,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <!-- Sonar settings: -->
-        <sonar.language>java</sonar.language>
-        <!-- Tells Sonar to run the unit tests -->
-        <sonar.dynamicAnalysis>true</sonar.dynamicAnalysis>
-        <!-- Tells Sonar to use JaCoCo as the code coverage tool -->
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <!-- Sonar settings. -->
-
         <license.licenseName>apache_v2</license.licenseName>
 
         <!-- Strongbox properties: -->
@@ -60,7 +52,7 @@
         <version.carlspring.commons.http>1.0-SNAPSHOT</version.carlspring.commons.http>
         <version.carlspring.logback.config>1.0-SNAPSHOT</version.carlspring.logback.config>
         <version.carlspring.npm.metadata>1.0-SNAPSHOT</version.carlspring.npm.metadata>
-        
+
         <version.apache.directory>1.5.5</version.apache.directory>
         <version.groovy>2.4.7</version.groovy>
         <version.guava>25.0-jre</version.guava>
@@ -71,11 +63,8 @@
         <version.jcl>1.7.25</version.jcl>
         <version.jsr305>3.0.2</version.jsr305>
         <version.findbugs.annotations>3.0.1</version.findbugs.annotations>
-        <version.junit>4.12</version.junit>
-        <version.junit-jupiter-api>5.1.0</version.junit-jupiter-api>
-        <version.junit-jupiter-engine>5.1.0</version.junit-jupiter-engine>
-        <version.junit-vintage>5.1.0</version.junit-vintage>
-        <version.junit-platform>1.1.0</version.junit-platform>
+        <version.junit>5.3.0</version.junit>
+        <version.junit.platform>1.3.0</version.junit.platform>
         <version.jersey>2.23.1</version.jersey>
         <version.jetty>9.4.6.v20170531</version.jetty>
         <version.lucene>4.8.1</version.lucene>
@@ -101,7 +90,11 @@
         <version.awaitility>3.1.2</version.awaitility>
         <version.asm>6.0</version.asm>
         <version.jtwig>5.87.0.RELEASE</version.jtwig>
+        <version.jacoco>0.8.2</version.jacoco>
+        <version.codacy.mvn.plugin>1.1.0</version.codacy.mvn.plugin>
         <!-- Version properties. -->
+        <surefireArgLine/>
+        <failsafeArgLine/>
     </properties>
 
     <build>
@@ -166,13 +159,20 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.20</version>
+                    <version>2.22.0</version>
                     <inherited>true</inherited>
                     <configuration>
-                        <argLine>-Xmx1024m -Xms512m -Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-springsource-proxies.*=false -Dstrongbox.download.indexes=false -Dstrongbox.download.indexes.storage-sbt-proxies.*=false -Dstrongbox.npm.remote.changes.enabled=false</argLine>
+                        <useSystemClassLoader>false</useSystemClassLoader>
+                        <argLine>-Xmx1024m -Xms512m -Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-springsource-proxies.*=false -Dstrongbox.download.indexes=false -Dstrongbox.download.indexes.storage-sbt-proxies.*=false -Dstrongbox.npm.remote.changes.enabled=false ${surefireArgLine}</argLine>
                         <includes>
                             <include>**/*Test</include>
                         </includes>
+                        <excludes>
+                            <exclude>**/*TestIT</exclude>
+                        </excludes>
+
+                        <!-- This field needs to be set to 1 or jacoco reports will be incorrect/missing! -->
+                        <forkCount>1</forkCount>
 
                         <systemPropertyVariables>
                             <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
@@ -185,15 +185,23 @@
                             <java.io.tmpdir>${strongbox.vault}/tmp</java.io.tmpdir>
                             <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                         </systemPropertyVariables>
+
+                        <properties>
+                            <property>
+                                <name>listener</name>
+                                <value>org.sonar.java.jacoco.JUnitListener</value>
+                            </property>
+                        </properties>
                     </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.20</version>
+                    <version>2.22.0</version>
 
                     <configuration>
-                        <argLine>-Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-springsource-proxies.*=false -Dstrongbox.download.indexes=false -Dstrongbox.download.indexes.storage-sbt-proxies.*=false</argLine>
+                        <useSystemClassLoader>false</useSystemClassLoader>
+                        <argLine>-Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-springsource-proxies.*=false -Dstrongbox.download.indexes=false -Dstrongbox.download.indexes.storage-sbt-proxies.*=false ${failsafeArgLine}</argLine>
                         <systemPropertyVariables>
                             <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                             <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
@@ -206,14 +214,6 @@
                             <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                         </systemPropertyVariables>
                     </configuration>
-
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.maven.surefire</groupId>
-                            <artifactId>surefire-junit47</artifactId>
-                            <version>2.20</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -269,29 +269,6 @@
                     <version>3.1.6</version>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.owasp</groupId>
-                    <artifactId>dependency-check-maven</artifactId>
-                    <version>1.4.5</version>
-
-                    <configuration>
-                        <cveUrl12Modified>https://nvd.carlspring.org/1.2/nvdcve-modified.xml.gz</cveUrl12Modified>
-                        <cveUrl20Modified>https://nvd.carlspring.org/2.0/nvdcve-2.0-modified.xml.gz</cveUrl20Modified>
-                        <cveUrl12Base>https://nvd.carlspring.org/1.2/nvdcve-%d.xml</cveUrl12Base>
-                        <cveUrl20Base>https://nvd.carlspring.org/2.0/nvdcve-2.0-%d.xml</cveUrl20Base>
-
-                        <autoconfAnalyzerEnabled>false</autoconfAnalyzerEnabled>
-                        <cmakeAnalyzerEnabled>false</cmakeAnalyzerEnabled>
-                        <cocoapodsAnalyzerEnabled>false</cocoapodsAnalyzerEnabled>
-                        <composerAnalyzerEnabled>false</composerAnalyzerEnabled>
-                        <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
-                        <pyPackageAnalyzerEnabled>false</pyPackageAnalyzerEnabled>
-                        <pyDistributionAnalyzerEnabled>false</pyDistributionAnalyzerEnabled>
-                        <rubygemsAnalyzerEnabled>false</rubygemsAnalyzerEnabled>
-                        <swiftPackageManagerAnalyzerEnabled>false</swiftPackageManagerAnalyzerEnabled>
-                        <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-                    </configuration>
-                </plugin>
                 <plugin>
                     <groupId>org.codehaus.gmavenplus</groupId>
                     <artifactId>gmavenplus-plugin</artifactId>
@@ -379,7 +356,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.carlspring.strongbox</groupId>
                 <artifactId>npm-metadata-jackson</artifactId>
@@ -485,8 +462,8 @@
                 <artifactId>orientdb-jdbc</artifactId>
                 <version>${version.orientdb}</version>
             </dependency>
-            
-            <dependency>            
+
+            <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>orientdb-studio</artifactId>
                 <version>2.2.0</version>
@@ -693,15 +670,15 @@
                 <version>2.2</version>
             </dependency>
             <dependency>
-                 <groupId>javax.validation</groupId>
-                 <artifactId>validation-api</artifactId>
-                 <version>2.0.1.Final</version>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>2.0.1.Final</version>
             </dependency>
             <dependency>
-                 <groupId>javax.transaction</groupId>
-                 <artifactId>javax.transaction-api</artifactId>
-                 <version>1.2</version>
-            </dependency>						
+                <groupId>javax.transaction</groupId>
+                <artifactId>javax.transaction-api</artifactId>
+                <version>1.2</version>
+            </dependency>
             <dependency>
                 <groupId>javax.inject</groupId>
                 <artifactId>javax.inject</artifactId>
@@ -842,33 +819,22 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>${version.junit-jupiter-api}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
                 <version>${version.junit}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>${version.junit.jupiter-engine}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.vintage</groupId>
-                <artifactId>junit-vintage-engine</artifactId>
-                <version>${version.junit.vintage}</version>
+                <version>${version.junit}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit.platform</groupId>
-                <artifactId>junit-platform-launcher</artifactId>
-                <version>${version.junit-platform}</version>
+                <artifactId>junit-platform-runner</artifactId>
+                <version>${version.junit.platform}</version>
                 <scope>test</scope>
             </dependency>
+
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
@@ -1114,7 +1080,7 @@
                     <exclusion>
                         <groupId>org.hibernate</groupId>
                         <artifactId>hibernate-validator</artifactId>
-                    </exclusion>               
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1236,53 +1202,147 @@
 
     <profiles>
         <profile>
-            <id>coverage-per-test</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-
-                        <configuration>
-                            <properties>
-                                <property>
-                                    <name>listener</name>
-                                    <value>org.sonar.java.jacoco.JUnitListener</value>
-                                </property>
-                            </properties>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-
-            <dependencies>
-                <dependency>
-                    <groupId>org.codehaus.sonar-plugins.java</groupId>
-                    <artifactId>sonar-jacoco-listeners</artifactId>
-                    <version>3.2</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>dependency-check</id>
-
+            <id>coverage</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
-
             <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jacoco</groupId>
+                            <artifactId>jacoco-maven-plugin</artifactId>
+                            <version>${version.jacoco}</version>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
                 <plugins>
                     <plugin>
-                        <groupId>org.owasp</groupId>
-                        <artifactId>dependency-check-maven</artifactId>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <configuration>
+                            <append>true</append>
+                        </configuration>
+                        <executions>
+                            <!--
+                                Prepares the property pointing to the JaCoCo runtime agent which
+                                is passed as VM argument when Maven the Surefire plugin is executed.
+                            -->
+                            <execution>
+                                <id>pre-unit-test</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- Sets the path to the file which contains the execution data. -->
+                                    <destFile>${project.build.directory}/jacoco-ut.exec</destFile>
+                                    <!--
+                                        Sets the name of the property containing the settings
+                                        for JaCoCo runtime agent.
+                                    -->
+                                    <propertyName>surefireArgLine</propertyName>
+                                </configuration>
+                            </execution>
 
+
+                            <!--
+                                Prepares the property pointing to the JaCoCo runtime agent which
+                                is passed as VM argument when Maven the Failsafe plugin is executed.
+                            -->
+                            <execution>
+                                <id>pre-integration-test</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- Sets the path to the file which contains the execution data. -->
+                                    <destFile>${project.build.directory}/jacoco-it.exec</destFile>
+                                    <!--
+                                        Sets the name of the property containing the settings
+                                        for JaCoCo runtime agent.
+                                    -->
+                                    <propertyName>failsafeArgLine</propertyName>
+                                </configuration>
+                            </execution>
+
+                            <!-- Merge jacoco-it and jacoco-ut into jacoco-aggregated (necessary for next step) -->
+                            <execution>
+                                <id>merge-results</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>merge</goal>
+                                </goals>
+                                <configuration>
+                                    <fileSets>
+                                        <fileSet>
+                                            <directory>${project.build.directory}</directory>
+                                            <includes>
+                                                <include>jacoco-it.exec</include>
+                                                <include>jacoco-ut.exec</include>
+                                            </includes>
+                                        </fileSet>
+                                    </fileSets>
+                                    <destFile>${project.build.directory}/jacoco-aggregated.exec</destFile>
+                                </configuration>
+                            </execution>
+
+                            <!-- We need this step for submitting reports to codacy -->
+                            <execution>
+                                <id>report-coverage</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- Sets the path to the file which contains the execution data. -->
+                                    <dataFile>${project.build.directory}/jacoco-aggregated.exec</dataFile>
+                                    <!-- Sets the output directory for the code coverage report. -->
+                                    <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregated-report</outputDirectory>
+                                </configuration>
+                            </execution>
+
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>codacy</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>com.gavinmogan</groupId>
+                            <artifactId>codacy-maven-plugin</artifactId>
+                            <version>${version.codacy.mvn.plugin}</version>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <plugins>
+                    <!-- codacy -->
+                    <plugin>
+                        <groupId>com.gavinmogan</groupId>
+                        <artifactId>codacy-maven-plugin</artifactId>
+                        <configuration>
+                            <!-- expects to receive the jacoco.xml aggregated report which comes from the report-coverage execution -->
+                            <coverageReportFile>${project.reporting.outputDirectory}/jacoco-aggregated-report/jacoco.xml</coverageReportFile>
+                            <apiToken>${env.CODACY_API_TOKEN}</apiToken>
+                            <projectToken>${env.CODACY_PROJECT_TOKEN_STRONGBOX}</projectToken>
+                            <commit>${env.GIT_COMMIT}</commit>
+                            <codacyApiBaseUrl>https://api.codacy.com</codacyApiBaseUrl>
+                            <failOnMissingReportFile>false</failOnMissingReportFile>
+                        </configuration>
                         <executions>
                             <execution>
-                                <id>dependency-check</id>
+                                <id>post-test</id>
+                                <phase>verify</phase>
                                 <goals>
-                                    <goal>check</goal>
+                                    <goal>coverage</goal>
                                 </goals>
                             </execution>
                         </executions>

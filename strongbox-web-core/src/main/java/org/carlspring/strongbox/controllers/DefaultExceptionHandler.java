@@ -1,17 +1,17 @@
 package org.carlspring.strongbox.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.data.criteria.QueryParserException;
 import org.carlspring.strongbox.validation.RequestBodyValidationError;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

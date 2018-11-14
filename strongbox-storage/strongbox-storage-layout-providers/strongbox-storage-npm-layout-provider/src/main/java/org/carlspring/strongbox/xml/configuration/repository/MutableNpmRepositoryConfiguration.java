@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.xml.configuration.repository;
 
+import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
+import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
-import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
 
 /**
  * @author carlspring

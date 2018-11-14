@@ -1,26 +1,5 @@
 package org.carlspring.strongbox.repository;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.locks.Lock;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-
-import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.NpmLayoutProviderConfig.NpmObjectMapper;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -28,21 +7,14 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.npm.NpmSearchRequest;
+import org.carlspring.strongbox.npm.NpmViewRequest;
 import org.carlspring.strongbox.npm.metadata.Change;
 import org.carlspring.strongbox.npm.metadata.PackageFeed;
-import org.carlspring.strongbox.npm.metadata.PackageVersion;
-import org.carlspring.strongbox.npm.metadata.Versions;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathLock;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.npm.metadata.SearchResults;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -53,22 +25,31 @@ import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnaps
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.xml.configuration.repository.remote.MutableNpmRemoteRepositoryConfiguration;
 import org.carlspring.strongbox.xml.configuration.repository.remote.NpmRemoteRepositoryConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.cglib.proxy.UndeclaredThrowableException;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.Assert;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.concurrent.Executor;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 @Component
 public class NpmRepositoryFeatures implements RepositoryFeatures
@@ -96,18 +77,6 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
     @Inject
     private ConfigurationManager configurationManager;
 
-    @Inject
-    private ArtifactTagService artifactTagService;
-
-    @Inject
-    private ArtifactEntryService artifactEntryService;
-
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-
-    @Inject
-    private RepositoryPathLock repositoryPathLock;
-
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -119,7 +88,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
     private ObjectMapper npmJacksonMapper;
 
     @Inject
-    private PlatformTransactionManager transactionManager;
+    private NpmPackageFeedParser npmPackageFeedParser;
 
     private Set<String> defaultArtifactCoordinateValidators;
 
@@ -135,6 +104,58 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
     public Set<String> getDefaultArtifactCoordinateValidators()
     {
         return defaultArtifactCoordinateValidators;
+    }
+
+    private void fetchRemoteSearchResult(String storageId,
+                                         String repositoryId,
+                                         String text,
+                                         Integer size)
+    {
+
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        RemoteRepository remoteRepository = repository.getRemoteRepository();
+        if (remoteRepository == null)
+        {
+            return;
+        }
+        String remoteRepositoryUrl = remoteRepository.getUrl();
+
+        SearchResults searchResults;
+        Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
+        try
+        {
+            logger.debug(String.format("Search NPM packages for [%s].", remoteRepositoryUrl));
+
+            WebTarget service = restClient.target(remoteRepository.getUrl());
+            service = service.path("-/v1/search").queryParam("text", text).queryParam("size", size);
+
+            InputStream inputStream = service.request().buildGet().invoke(InputStream.class);
+            searchResults = npmJacksonMapper.readValue(inputStream, SearchResults.class);
+
+            logger.debug(String.format("Searched NPM packages for [%s].", remoteRepository.getUrl()));
+
+        }
+        catch (Exception e)
+        {
+            logger.error(String.format("Failed to searhc NPM packages [%s]", remoteRepositoryUrl), e);
+            
+            return;
+        } 
+        finally
+        {
+            restClient.close();
+        }
+
+        try
+        {
+            npmPackageFeedParser.parseSearchResult(repository, searchResults);
+        }
+        catch (Exception e)
+        {
+            logger.error(String.format("Failed to parse NPM packages search result for [%s]", remoteRepositoryUrl), e);
+        }
     }
 
     public void fetchRemoteChangesFeed(String storageId,
@@ -172,7 +193,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             lastCnahgeId = nextChangeId;
             mutableConfiguration.setLastChangeId(nextChangeId);
             configurationManagementService.saveRepository(storageId, mutableRepository);
-            
+
             nextChangeId = Long.valueOf(fetchRemoteChangesFeed(repository, replicateUrl, lastCnahgeId + 1));
         } while (nextChangeId > lastCnahgeId);
     }
@@ -197,7 +218,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             Invocation request = service.request().buildGet();
 
             result = fetchRemoteChangesFeed(repository, request);
-        } finally
+        } 
+        finally
         {
             restClient.close();
         }
@@ -244,7 +266,6 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 try
                 {
                     change = npmJacksonMapper.readValue(changeValue, Change.class);
-                    parseFeed(repository, change.getDoc());
                 }
                 catch (Exception e)
                 {
@@ -255,6 +276,20 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                                  e);
 
                     return result;
+                }
+
+                PackageFeed packageFeed = change.getDoc();
+                try
+                {
+                    npmPackageFeedParser.parseFeed(repository, packageFeed);
+                }
+                catch (Exception e)
+                {
+                    logger.error(String.format("Failed to parse NPM feed [%s/%s]",
+                                               repository.getRemoteRepository().getUrl(),
+                                               packageFeed.getName()),
+                                 e);
+
                 }
 
                 result = change.getSeq();
@@ -270,9 +305,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         return result;
     }
 
-    public void downloadRemotePackageFeed(String storageId,
-                                          String repositoryId,
-                                          String packageId)
+    private void fetchRemotePackageFeed(String storageId,
+                                        String repositoryId,
+                                        String packageId)
     {
 
         Storage storage = getConfiguration().getStorage(storageId);
@@ -304,153 +339,28 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         {
             logger.error(String.format("Failed to fetch NPM changes feed [%s]", remoteRepositoryUrl), e);
             return;
-        } finally
+        } 
+        finally
         {
             restClient.close();
         }
 
-        parseFeed(repository, packageFeed);
-    }
-
-    private void parseFeed(Repository repository,
-                           PackageFeed packageFeed)
-    {
         try
         {
-            parseFeedTransactional(repository, packageFeed);
+            npmPackageFeedParser.parseFeed(repository, packageFeed);
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to parse NPM feed [%s/%s]", repository.getRemoteRepository().getUrl(),
+            logger.error(String.format("Failed to parse NPM feed [%s/%s]",
+                                       repository.getRemoteRepository().getUrl(),
                                        packageFeed.getName()),
                          e);
         }
     }
 
-    private void parseFeedTransactional(Repository repository,
-                                        PackageFeed packageFeed)
-    {
-        new TransactionTemplate(transactionManager).execute((s) -> {
-
-            try
-            {
-                doParseFeed(repository, packageFeed);
-            }
-            catch (IOException e)
-            {
-                throw new UndeclaredThrowableException(e);
-            }
-
-            return null;
-        });
-    }
-
-    private void doParseFeed(Repository repository,
-                             PackageFeed packageFeed)
-        throws IOException
-    {
-        if (packageFeed == null)
-        {
-            return;
-        }
-
-        String repositoryId = repository.getId();
-        String storageId = repository.getStorage().getId();
-
-        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
-
-        Versions versions = packageFeed.getVersions();
-        if (versions == null)
-        {
-            return;
-        }
-
-        Map<String, PackageVersion> versionMap = versions.getAdditionalProperties();
-        if (versionMap == null || versionMap.isEmpty())
-        {
-            return;
-        }
-
-        Set<ArtifactEntry> artifactToSaveSet = new HashSet<>();
-        for (PackageVersion packageVersion : versionMap.values())
-        {
-            RemoteArtifactEntry remoteArtifactEntry = parseVersion(storageId, repositoryId, packageVersion);
-            if (remoteArtifactEntry == null)
-            {
-                continue;
-            }
-
-            if (packageVersion.getVersion().equals(packageFeed.getDistTags().getLatest()))
-            {
-                remoteArtifactEntry.getTagSet().add(lastVersionTag);
-            }
-
-            artifactToSaveSet.add(remoteArtifactEntry);
-        }
-
-        for (ArtifactEntry e : artifactToSaveSet)
-        {
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(e);
-
-            saveArtifactEntry(repositoryPath);
-        }
-    }
-
-    private void saveArtifactEntry(RepositoryPath repositoryPath)
-        throws IOException
-    {
-        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
-
-        ArtifactEntry e = repositoryPath.getArtifactEntry();
-
-        Lock lock = repositoryPathLock.lock(repositoryPath).writeLock();
-        lock.lock();
-
-        try
-        {
-            if (artifactEntryService.artifactExists(e.getStorageId(), e.getRepositoryId(),
-                                                    e.getArtifactCoordinates().toPath()))
-            {
-                return;
-            }
-
-            if (e.getTagSet().contains(lastVersionTag))
-            {
-                artifactEntryService.save(e, true);
-            }
-            else
-            {
-                artifactEntryService.save(e, false);
-            }
-        } finally
-        {
-            lock.unlock();
-        }
-    }
-
-    private RemoteArtifactEntry parseVersion(String storageId,
-                                             String repositoryId,
-                                             PackageVersion packageVersion)
-    {
-        NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageVersion.getName(), packageVersion.getVersion());
-
-        RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
-        remoteArtifactEntry.setStorageId(storageId);
-        remoteArtifactEntry.setRepositoryId(repositoryId);
-        remoteArtifactEntry.setArtifactCoordinates(c);
-        remoteArtifactEntry.setLastUsed(new Date());
-        remoteArtifactEntry.setLastUpdated(new Date());
-        remoteArtifactEntry.setDownloadCount(0);
-
-        // TODO HEAD request for `tarball` URL ???
-        // remoteArtifactEntry.setSizeInBytes(packageVersion.getProperties().getPackageSize());
-
-        return remoteArtifactEntry;
-    }
-
     @Component
     @Scope(scopeName = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public class RepositorySearchEventListener
+    public class SearchPackagesEventListener
     {
 
         private NpmSearchRequest npmSearchRequest;
@@ -473,30 +383,83 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 return;
             }
 
-            Storage storage = getConfiguration().getStorage(event.getSorageId());
-            Repository repository = storage.getRepository(event.getRepositoryId());
+            String storageId = event.getStorageId();
+            String repositoryId = event.getRepositoryId();
+
+            Storage storage = getConfiguration().getStorage(storageId);
+            Repository repository = storage.getRepository(repositoryId);
             RemoteRepository remoteRepository = repository.getRemoteRepository();
             if (remoteRepository == null)
             {
                 return;
             }
 
-            Selector<RemoteArtifactEntry> selector = new Selector<>(RemoteArtifactEntry.class);
-            selector.select("count(*)");
-            selector.where(Predicate.of(ExpOperator.EQ.of("storageId", event.getSorageId())))
-                    .and(Predicate.of(ExpOperator.EQ.of("repositoryId", event.getRepositoryId())));
-            if (!event.getPredicate().isEmpty())
-            {
-                selector.getPredicate().and(event.getPredicate());
-            }
-            OQueryTemplate<Long, RemoteArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
-            Long packageCount = queryTemplate.select(selector);
+            Predicate predicate = event.getPredicate();
+            Long packageCount = countPackages(storageId, repositoryId, predicate);
 
             logger.debug(String.format("NPM remote repository [%s] cached package count is [%s]", repository.getId(),
                                        packageCount));
 
-            Runnable job = () -> downloadRemotePackageFeed(storage.getId(), repository.getId(),
-                                                           npmSearchRequest.getPackageId());
+            Runnable job = () -> fetchRemoteSearchResult(storageId, repositoryId, npmSearchRequest.getText(),
+                                                         npmSearchRequest.getSize());
+            if (packageCount.longValue() == 0)
+            {
+                // Syncronously fetch remote package feed if ve have no cached
+                // packages
+                job.run();
+            }
+            else
+            {
+                eventTaskExecutor.execute(job);
+            }
+
+        }
+    }
+
+    @Component
+    @Scope(scopeName = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
+    public class ViewPackageEventListener
+    {
+
+        private NpmViewRequest npmSearchRequest;
+
+        public NpmViewRequest getNpmSearchRequest()
+        {
+            return npmSearchRequest;
+        }
+
+        public void setNpmSearchRequest(NpmViewRequest npmSearchRequest)
+        {
+            this.npmSearchRequest = npmSearchRequest;
+        }
+
+        @EventListener
+        public void handle(RemoteRepositorySearchEvent event)
+        {
+            if (npmSearchRequest == null)
+            {
+                return;
+            }
+
+            String storageId = event.getStorageId();
+            String repositoryId = event.getRepositoryId();
+
+            Storage storage = getConfiguration().getStorage(storageId);
+            Repository repository = storage.getRepository(repositoryId);
+            RemoteRepository remoteRepository = repository.getRemoteRepository();
+            if (remoteRepository == null)
+            {
+                return;
+            }
+
+            Predicate predicate = event.getPredicate();
+            Long packageCount = countPackages(storageId, repositoryId, predicate);
+
+            logger.debug(String.format("NPM remote repository [%s] cached package count is [%s]", repository.getId(),
+                                       packageCount));
+
+            Runnable job = () -> fetchRemotePackageFeed(storage.getId(), repository.getId(),
+                                                        npmSearchRequest.getPackageId());
             if (packageCount.longValue() == 0)
             {
                 // Syncronously fetch remote package feed if ve have no cached
@@ -508,6 +471,24 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 eventTaskExecutor.execute(job);
             }
         }
+
+    }
+
+    private Long countPackages(String storageId,
+                               String repositoryId,
+                               Predicate predicate)
+    {
+        Selector<RemoteArtifactEntry> selector = new Selector<>(RemoteArtifactEntry.class);
+        selector.select("count(*)");
+        selector.where(Predicate.of(ExpOperator.EQ.of("storageId", storageId)))
+                .and(Predicate.of(ExpOperator.EQ.of("repositoryId", repositoryId)));
+        if (!predicate.isEmpty())
+        {
+            selector.getPredicate().and(predicate);
+        }
+        OQueryTemplate<Long, RemoteArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
+        Long packageCount = queryTemplate.select(selector);
+        return packageCount;
     }
 
     protected Configuration getConfiguration()

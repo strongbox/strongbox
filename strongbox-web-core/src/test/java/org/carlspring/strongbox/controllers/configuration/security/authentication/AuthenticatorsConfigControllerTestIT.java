@@ -16,17 +16,17 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import org.hamcrest.CoreMatchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.CustomMatchers.equalByToString;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -37,7 +37,7 @@ import static org.hamcrest.CoreMatchers.is;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class AuthenticatorsConfigControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -50,15 +50,20 @@ public class AuthenticatorsConfigControllerTestIT
     @Inject
     private AuthenticatorsRegistry authenticatorsRegistry;
 
-    @Before
-    public void setUp()
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
     {
+        super.init();
+        setContextBaseUrl(getContextBaseUrl() + "/api/configuration");
+        
         Iterator<Authenticator> iterator = authenticatorsRegistry.iterator();
         originalRegistryList = Lists.newArrayList(iterator);
         authenticatorsRegistry.reload(registryList);
     }
 
-    @After
+    @AfterEach
     public void afterEveryTest() {
         authenticatorsRegistry.reload(originalRegistryList);
     }
@@ -68,7 +73,7 @@ public class AuthenticatorsConfigControllerTestIT
     {
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/api/configuration/authenticators/")
+               .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
@@ -88,7 +93,7 @@ public class AuthenticatorsConfigControllerTestIT
         // Registry should have form setup in test, first
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/api/configuration/authenticators/")
+               .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
@@ -106,7 +111,7 @@ public class AuthenticatorsConfigControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .put("/api/configuration/authenticators/reorder/0/1")
+               .put(getContextBaseUrl() + "/authenticators/reorder/0/1")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -115,7 +120,7 @@ public class AuthenticatorsConfigControllerTestIT
         // Confirm they are re-ordered
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/api/configuration/authenticators/")
+               .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
@@ -133,7 +138,7 @@ public class AuthenticatorsConfigControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .put("/api/configuration/authenticators/reload")
+               .put(getContextBaseUrl() + "/authenticators/reload")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -142,7 +147,7 @@ public class AuthenticatorsConfigControllerTestIT
         // Registry should be reloaded
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/api/configuration/authenticators/")
+               .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",
@@ -179,7 +184,7 @@ public class AuthenticatorsConfigControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .put("/api/configuration/authenticators/reorder/0/1")
+               .put(getContextBaseUrl() + "/authenticators/reorder/0/1")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -188,7 +193,7 @@ public class AuthenticatorsConfigControllerTestIT
         // then
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get("/api/configuration/authenticators/")
+               .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
                .body("authenticators.authenticator[0].index",

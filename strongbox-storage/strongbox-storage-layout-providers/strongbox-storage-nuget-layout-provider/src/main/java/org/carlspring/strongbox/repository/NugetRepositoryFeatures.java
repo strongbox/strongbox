@@ -284,7 +284,7 @@ public class NugetRepositoryFeatures
                 return;
             }
             
-            Storage storage = getConfiguration().getStorage(event.getSorageId());
+            Storage storage = getConfiguration().getStorage(event.getStorageId());
             Repository repository = storage.getRepository(event.getRepositoryId());
             RemoteRepository remoteRepository = repository.getRemoteRepository();
             if (remoteRepository == null)
@@ -294,7 +294,7 @@ public class NugetRepositoryFeatures
 
             Selector<RemoteArtifactEntry> selector = new Selector<>(RemoteArtifactEntry.class);
             selector.select("count(*)");
-            selector.where(Predicate.of(ExpOperator.EQ.of("storageId", event.getSorageId())))
+            selector.where(Predicate.of(ExpOperator.EQ.of("storageId", event.getStorageId())))
                     .and(Predicate.of(ExpOperator.EQ.of("repositoryId", event.getRepositoryId())));
             if (!event.getPredicate().isEmpty())
             {

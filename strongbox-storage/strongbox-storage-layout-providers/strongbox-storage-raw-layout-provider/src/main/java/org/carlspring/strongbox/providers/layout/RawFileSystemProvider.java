@@ -1,8 +1,7 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.nio.file.spi.FileSystemProvider;
-
 import javax.inject.Inject;
+import java.nio.file.spi.FileSystemProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,7 @@ import org.slf4j.LoggerFactory;
  * @author sbespalov
  *
  */
-public class RawFileSystemProvider extends RepositoryLayoutFileSystemProvider
+public class RawFileSystemProvider extends LayoutFileSystemProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(RawFileSystemProvider.class);

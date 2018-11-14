@@ -2,8 +2,8 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.config.RawLayoutProviderTestConfig;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithRepositoryManagement;
@@ -12,16 +12,16 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * @author carlspring
  */
 @ContextConfiguration(classes = RawLayoutProviderTestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 public class RawRepositoryTestCase
         extends TestCaseWithRepositoryManagement

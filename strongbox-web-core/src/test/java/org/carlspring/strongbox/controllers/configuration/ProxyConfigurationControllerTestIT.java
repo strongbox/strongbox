@@ -7,33 +7,34 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static junit.framework.TestCase.assertNotNull;
-import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.FAILED_UPDATE;
-import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.FAILED_UPDATE_FORM_ERROR;
-import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.SUCCESSFUL_UPDATE;
+import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.*;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ProxyConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
-    @Before
-    public void setUp()
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
     {
+        super.init();
         setContextBaseUrl("/api/configuration/strongbox/proxy-configuration");
     }
 
@@ -92,14 +93,14 @@ public class ProxyConfigurationControllerTestIT
                                               .get(url)
                                               .as(MutableProxyConfiguration.class);
 
-        assertNotNull("Failed to get proxy configuration!", pc);
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getHost(), pc.getHost());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getPort(), pc.getPort());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getUsername(), pc.getUsername());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getPassword(), pc.getPassword());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getType(), pc.getType());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getNonProxyHosts(),
-                     pc.getNonProxyHosts());
+        assertNotNull(pc, "Failed to get proxy configuration!");
+        assertEquals(proxyConfiguration.getHost(), pc.getHost(), "Failed to get proxy configuration!");
+        assertEquals(proxyConfiguration.getPort(), pc.getPort(), "Failed to get proxy configuration!");
+        assertEquals(proxyConfiguration.getUsername(), pc.getUsername(), "Failed to get proxy configuration!");
+        assertEquals(proxyConfiguration.getPassword(), pc.getPassword(), "Failed to get proxy configuration!");
+        assertEquals(proxyConfiguration.getType(), pc.getType(), "Failed to get proxy configuration!");
+        assertEquals(proxyConfiguration.getNonProxyHosts(), pc.getNonProxyHosts(),
+                     "Failed to get proxy configuration!");
     }
 
     @WithMockUser(authorities = {"CONFIGURATION_SET_GLOBAL_PROXY_CFG", "CONFIGURATION_VIEW_GLOBAL_PROXY_CFG"})

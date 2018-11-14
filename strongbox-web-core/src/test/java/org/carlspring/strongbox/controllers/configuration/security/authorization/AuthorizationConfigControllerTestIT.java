@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.controllers.configuration.security.authorization;
 
+import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
+import org.carlspring.strongbox.authorization.dto.RoleDto;
+import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.PrivilegeForm;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
-import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -16,29 +16,23 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_ADD_ROLE;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_ASSIGN_PRIVILEGES;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_DELETE_ROLE;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_ADD_ROLE;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_ASSIGN_PRIVILEGES;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_DELETE_ROLE;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.*;
 import static org.hamcrest.CoreMatchers.containsString;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class AuthorizationConfigControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -48,13 +42,17 @@ public class AuthorizationConfigControllerTestIT
 
     private AuthorizationConfigDto config;
 
-    @Before
-    public void beforeEveryTest()
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
     {
+        super.init();
+        setContextBaseUrl(getContextBaseUrl() + "/api/configuration");
         config = authorizationConfigService.getDto();
     }
 
-    @After
+    @AfterEach
     public void afterEveryTest()
     {
         authorizationConfigService.setAuthorizationConfig(config);
@@ -67,7 +65,7 @@ public class AuthorizationConfigControllerTestIT
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(role)
                .when()
-               .post("/api/configuration/authorization/role")
+               .post(getContextBaseUrl() + "/authorization/role")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
@@ -109,7 +107,7 @@ public class AuthorizationConfigControllerTestIT
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(customRole)
                .when()
-               .post("/api/configuration/authorization/role")
+               .post(getContextBaseUrl() + "/authorization/role")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
@@ -149,7 +147,7 @@ public class AuthorizationConfigControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .get("/api/configuration/authorization/xml")
+               .get(getContextBaseUrl() + "/authorization/xml")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()); // check http status code
@@ -174,7 +172,7 @@ public class AuthorizationConfigControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .delete("/api/configuration/authorization/role/" + roleName)
+               .delete(getContextBaseUrl() + "/authorization/role/" + roleName)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
@@ -202,7 +200,7 @@ public class AuthorizationConfigControllerTestIT
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
-               .delete("/api/configuration/authorization/role/" + roleName)
+               .delete(getContextBaseUrl() + "/authorization/role/" + roleName)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
@@ -237,7 +235,7 @@ public class AuthorizationConfigControllerTestIT
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(privilegeListForm)
                .when()
-               .post("/api/configuration/authorization/anonymous/privileges")
+               .post(getContextBaseUrl() + "/authorization/anonymous/privileges")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
@@ -272,7 +270,7 @@ public class AuthorizationConfigControllerTestIT
                .header(HttpHeaders.ACCEPT, acceptHeader)
                .body(privilegeListForm)
                .when()
-               .post("/api/configuration/authorization/anonymous/privileges")
+               .post(getContextBaseUrl() + "/authorization/anonymous/privileges")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code

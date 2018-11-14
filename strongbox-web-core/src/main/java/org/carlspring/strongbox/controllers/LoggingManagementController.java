@@ -18,11 +18,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -32,14 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import static org.carlspring.strongbox.controllers.LoggingManagementController.ROOT_CONTEXT;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -80,7 +69,7 @@ public class LoggingManagementController
         });
     }
     
-    @ApiOperation(value = "Used to add new logger.", position = 0)
+    @ApiOperation(value = "Used to add new logger.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was added successfully."),
                             @ApiResponse(code = 400, message = "Could not add a new logger.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_ADD_LOGGER','CONFIGURE_LOGS')")
@@ -109,8 +98,7 @@ public class LoggingManagementController
         }
     }
 
-    @ApiOperation(value = "Used to update existing logger.",
-            position = 0)
+    @ApiOperation(value = "Used to update existing logger.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was updated successfully."),
                             @ApiResponse(code = 400, message = "Could not update logger."),
                             @ApiResponse(code = 404, message = "Logger was not found.") })
@@ -184,7 +172,6 @@ public class LoggingManagementController
     @GetMapping(value = "/log/{path}", produces = TEXT_PLAIN_VALUE)
     public ResponseEntity downloadLog(@PathVariable String path,
                                       @RequestHeader(HttpHeaders.ACCEPT) String accept)
-            throws Exception
     {
         try
         {
@@ -207,7 +194,6 @@ public class LoggingManagementController
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOGBACK_CFG','CONFIGURE_LOGS')")
     @GetMapping(value = "/logback", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity downloadLogbackConfiguration(@RequestHeader(HttpHeaders.ACCEPT) String accept)
-            throws Exception
     {
         try
         {
@@ -255,7 +241,8 @@ public class LoggingManagementController
     public Object generateLogDirectoryListing(@PathVariable("urlPath") Optional<String> rawPath,
                                               ModelMap model,
                                               HttpServletRequest request,
-                                              @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String acceptHeader)
+                                              @RequestHeader(value = HttpHeaders.ACCEPT,
+                                                             required = false) String acceptHeader)
     {
         logger.debug("Requested directory listing of logs " + ROOT_CONTEXT + "/logs/{}", rawPath.orElse(""));
 

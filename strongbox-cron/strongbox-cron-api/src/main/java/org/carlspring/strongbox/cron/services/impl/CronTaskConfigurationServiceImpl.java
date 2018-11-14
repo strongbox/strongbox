@@ -1,16 +1,15 @@
 package org.carlspring.strongbox.cron.services.impl;
 
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
-import org.carlspring.strongbox.cron.exceptions.CronTaskException;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
-import org.carlspring.strongbox.cron.jobs.AbstractCronJob;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
+
+import javax.inject.Inject;
+
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -5,33 +5,39 @@ import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.MutableStorage;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import javax.inject.Inject;
+import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static junit.framework.TestCase.assertNotNull;
-
-import java.io.IOException;
-
-import javax.inject.Inject;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class StrongboxConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
     @Inject
     private ObjectMapper objectMapper;
+
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
+    {
+        super.init();
+    }
     
     @Test
     public void testGetAndSetConfiguration() throws JsonParseException, JsonMappingException, IOException
@@ -54,7 +60,7 @@ public class StrongboxConfigurationControllerTestIT
 
         final MutableConfiguration c = getConfigurationFromRemote();
 
-        assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
+        assertNotNull(c.getStorage("storage3"), "Failed to create storage3!");
     }
 
     public MutableConfiguration getConfigurationFromRemote() throws JsonParseException, JsonMappingException, IOException

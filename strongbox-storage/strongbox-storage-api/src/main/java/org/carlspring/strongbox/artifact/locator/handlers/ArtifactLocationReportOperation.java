@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,15 +39,13 @@ public class ArtifactLocationReportOperation
                                        .filter(p -> !p.getFileName().startsWith(".pom"))
                                                                     .sorted()
                                                                     .collect(Collectors.toList());
-        
-        RepositoryPath parentPath = path;
 
         if (filePathList.isEmpty())
         {
             return;
         }
         // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
-        if (getVisitedRootPaths().containsKey(parentPath) && getVisitedRootPaths().get(parentPath).contains(path))
+        if (getVisitedRootPaths().containsKey(path) && getVisitedRootPaths().get(path).contains(path))
         {
             return;
         }
@@ -54,27 +53,27 @@ public class ArtifactLocationReportOperation
         if (logger.isDebugEnabled())
         {
             // We're using System.out.println() here for clarity and due to the length of the lines
-            System.out.println(parentPath);
+            System.out.println(path);
         }
 
         // The current directory is out of the tree
-        if (previousPath != null && !parentPath.startsWith(previousPath))
+        if (previousPath != null && !path.startsWith(previousPath))
         {
             getVisitedRootPaths().remove(previousPath);
-            previousPath = parentPath;
+            previousPath = path;
         }
 
         if (previousPath == null)
         {
-            previousPath = parentPath;
+            previousPath = path;
         }
 
-        List<RepositoryPath> versionDirectories = getVersionDirectories(parentPath);
+        List<RepositoryPath> versionDirectories = getVersionDirectories(path);
         if (versionDirectories != null)
         {
-            getVisitedRootPaths().put(parentPath, versionDirectories);
+            getVisitedRootPaths().put(path, versionDirectories);
 
-            System.out.println(parentPath);
+            System.out.println(path);
         }
     }
 

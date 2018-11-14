@@ -16,7 +16,7 @@
                                                min-attempts-interval-seconds="5"/>
     </remote-repositories-configuration>
 
-    <cors-configuration allowed-credentials="true" max-age="600">nom
+    <cors-configuration allowed-credentials="true" max-age="600">
         <allowed-origins>
             <allowed-origin>*</allowed-origin>
         </allowed-origins>

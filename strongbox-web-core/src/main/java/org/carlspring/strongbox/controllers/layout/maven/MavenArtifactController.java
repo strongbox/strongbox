@@ -60,34 +60,7 @@ public class MavenArtifactController
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Used to deploy an artifact", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(value = "/{storageId}/{repositoryId}/{path:.+}", method = RequestMethod.PUT)
-    public ResponseEntity upload(@ApiParam(value = "The storageId", required = true)
-                                 @PathVariable(name = "storageId") String storageId,
-                                 @ApiParam(value = "The repositoryId", required = true)
-                                 @PathVariable(name = "repositoryId") String repositoryId,
-                                 @PathVariable String path,
-                                 HttpServletRequest request)
-    {
-        try
-        {
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
-            artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
-
-            return ResponseEntity.ok("The artifact was deployed successfully.");
-        }
-        catch (Exception e)
-        {
-            logger.error(e.getMessage(), e);
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
-
-    @ApiOperation(value = "Used to retrieve an artifact", position = 1)
+    @ApiOperation(value = "Used to retrieve an artifact")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 404, message = "Requested path not found."),
                             @ApiResponse(code = 500, message = "Server error."),
@@ -141,13 +114,12 @@ public class MavenArtifactController
         provideArtifactDownloadResponse(request, response, httpHeaders, repositoryPath);
     }
 
-    @ApiOperation(value = "Copies a path from one repository to another.", position = 4)
+    @ApiOperation(value = "Copies a path from one repository to another.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
-    @RequestMapping(value = "/copy/{path:.+}",
-                    method = RequestMethod.POST)
+    @PostMapping(value = "/copy/{path:.+}")
     public ResponseEntity copy(@ApiParam(value = "The source storageId", required = true)
                                @RequestParam(name = "srcStorageId") String srcStorageId,
                                @ApiParam(value = "The source repositoryId", required = true)
@@ -218,13 +190,12 @@ public class MavenArtifactController
         return ResponseEntity.ok("The path was copied successfully.");
     }
 
-    @ApiOperation(value = "Deletes a path from a repository.", position = 3)
+    @ApiOperation(value = "Deletes a path from a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deleted."),
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
-    @RequestMapping(value = "/{storageId}/{repositoryId}/{path:.+}",
-                    method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/{storageId}/{repositoryId}/{path:.+}")
     public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)

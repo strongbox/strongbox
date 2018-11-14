@@ -11,7 +11,6 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryStreamReadContext;
 import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
 import org.carlspring.strongbox.io.StreamUtils;
@@ -147,8 +146,7 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
 
-        ArtifactOutputStream aos = StreamUtils.findSource(ArtifactOutputStream.class, ctx.getStream());
-        ArtifactCoordinates coordinates = aos.getCoordinates();
+        ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
         artifactEntry.setArtifactCoordinates(coordinates);
 
         Date now = new Date();

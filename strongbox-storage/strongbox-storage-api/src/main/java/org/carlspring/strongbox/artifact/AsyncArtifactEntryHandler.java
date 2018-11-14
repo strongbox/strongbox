@@ -1,11 +1,5 @@
 package org.carlspring.strongbox.artifact;
 
-import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.concurrent.locks.Lock;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.AsyncEventListener;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
@@ -14,13 +8,18 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.concurrent.locks.Lock;
+
+import com.orientechnologies.common.concur.ONeedRetryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.transaction.ChainedTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import com.orientechnologies.common.concur.ONeedRetryException;
 
 public abstract class AsyncArtifactEntryHandler
 {
@@ -154,7 +153,18 @@ public abstract class AsyncArtifactEntryHandler
         new TransactionTemplate(transactionManager).execute(t -> {
             try
             {
-                return artifactEntryService.save(handleEvent(repositoryPath));
+                ArtifactEntry result = handleEvent(repositoryPath);
+                if (result == null)
+                {
+                    logger.warn(String.format("No [%s] result for event [%s] and path [%s].",
+                                              ArtifactEntry.class.getSimpleName(),
+                                              AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
+                                              repositoryPath));
+
+                    return null;
+                }
+
+                return artifactEntryService.save(result);
             }
             catch (IOException e)
             {

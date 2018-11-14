@@ -25,9 +25,4 @@ public enum RepositoryChecksumPolicyValidationTypeEnum
         return policyType;
     }
 
-    public void setPolicyType(String policyType)
-    {
-        this.policyType = policyType;
-    }
-
 }

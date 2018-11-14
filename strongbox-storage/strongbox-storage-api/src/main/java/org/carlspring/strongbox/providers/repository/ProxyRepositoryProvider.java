@@ -116,9 +116,6 @@ public class ProxyRepositoryProvider
                       String repositoryId,
                       Predicate predicate)
     {
-        RemoteRepositorySearchEvent event = new RemoteRepositorySearchEvent(storageId, repositoryId, predicate, null);
-        eventPublisher.publishEvent(event);
-
         return hostedRepositoryProvider.count(storageId, repositoryId, predicate);
     }
 

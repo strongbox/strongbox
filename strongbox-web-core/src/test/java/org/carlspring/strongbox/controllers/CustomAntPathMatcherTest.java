@@ -8,13 +8,13 @@ import javax.inject.Named;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Several test cases just to make sure that path variable parsing is correct.
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Alex Oreshkevich
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class CustomAntPathMatcherTest
 {
 
@@ -76,7 +76,7 @@ public class CustomAntPathMatcherTest
         antPathMatcher.doMatch(pattern, path, true, uriTemplateVariables);
 
         String pathVariable = uriTemplateVariables.get("path");
-        assertNotNull("Unable to find path variable. uriTemplateVariables " + uriTemplateVariables, pathVariable);
+        assertNotNull(pathVariable, "Unable to find path variable. uriTemplateVariables " + uriTemplateVariables);
 
         assertEquals(artifactPath, pathVariable);
     }

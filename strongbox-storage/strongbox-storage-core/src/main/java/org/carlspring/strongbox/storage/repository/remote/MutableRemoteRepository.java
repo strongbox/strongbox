@@ -1,16 +1,11 @@
 package org.carlspring.strongbox.storage.repository.remote;
 
-import static org.carlspring.strongbox.configuration.MutableRemoteRepositoriesConfiguration.DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
+import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryConfiguration;
 
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryConfiguration;
+import static org.carlspring.strongbox.configuration.MutableRemoteRepositoriesConfiguration.DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
 
 /**
  * @author mtodorov

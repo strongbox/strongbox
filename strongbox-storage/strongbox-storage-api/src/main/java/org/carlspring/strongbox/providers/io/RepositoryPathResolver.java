@@ -1,16 +1,16 @@
 package org.carlspring.strongbox.providers.io;
 
-import java.io.IOException;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Objects;
+
 import org.springframework.stereotype.Component;
 
 /**
@@ -33,7 +33,7 @@ public class RepositoryPathResolver
     {
         Objects.requireNonNull(repository, "Repository should be provided");
 
-        RepositoryFileSystemFactory fileSystemFactory = fileSystemRegistry.lookupRepositoryFileSystemFactory(repository);
+        LayoutFileSystemFactory fileSystemFactory = fileSystemRegistry.lookupRepositoryFileSystemFactory(repository);
 
         return fileSystemFactory.create(repository).getRootDirectory();
     }

@@ -6,7 +6,7 @@ import org.carlspring.strongbox.security.exceptions.NotSupportedException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author mtodorov

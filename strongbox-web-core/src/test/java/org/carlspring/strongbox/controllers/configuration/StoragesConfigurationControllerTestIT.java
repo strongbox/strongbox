@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import org.apache.http.pool.PoolStats;
-
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.*;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
@@ -11,37 +9,42 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
+import javax.inject.Inject;
 import java.util.List;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.http.pool.PoolStats;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.HttpServerErrorException;
-
-import javax.inject.Inject;
-
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class StoragesConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
+    {
+        super.init();
+    }
 
     static ProxyConfigurationForm createProxyConfiguration()
     {
@@ -168,23 +171,23 @@ public class StoragesConfigurationControllerTestIT
         Repository repository0 = storage.getRepositories().get("repository0");
         Repository repository1 = storage.getRepositories().get("repository1");
 
-        assertNotNull("Failed to get storage (" + storageId + ")!", storage);
-        assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());
-        assertTrue("Failed to get storage (" + storageId + ")!",
-                   repository0.allowsRedeployment());
-        assertTrue("Failed to get storage (" + storageId + ")!",
-                   repository0.isSecured());
-        assertTrue("Failed to get storage (" + storageId + ")!",
-                   repository1.allowsForceDeletion());
-        assertTrue("Failed to get storage (" + storageId + ")!",
-                   repository1.isTrashEnabled());
+        assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
+        assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
+        assertTrue(repository0.allowsRedeployment(),
+                   "Failed to get storage (" + storageId + ")!");
+        assertTrue(repository0.isSecured(),
+                   "Failed to get storage (" + storageId + ")!");
+        assertTrue(repository1.allowsForceDeletion(),
+                   "Failed to get storage (" + storageId + ")!");
+        assertTrue(repository1.isTrashEnabled(),
+                   "Failed to get storage (" + storageId + ")!");
 
 
-        assertNotNull("Failed to get storage (" + storageId + ")!",
-                      repository1.getProxyConfiguration().getHost());
-        assertEquals("Failed to get storage (" + storageId + ")!",
-                     "localhost",
-                     repository1.getProxyConfiguration().getHost());
+        assertNotNull(repository1.getProxyConfiguration().getHost(),
+                      "Failed to get storage (" + storageId + ")!");
+        assertEquals("localhost",
+                     repository1.getProxyConfiguration().getHost(),
+                     "Failed to get storage (" + storageId + ")!");
 
         deleteRepository(storageId, "repository0");
         deleteRepository(storageId, "repository1");
@@ -240,37 +243,38 @@ public class StoragesConfigurationControllerTestIT
         Repository repository0 = storage.getRepositories().get(r0_1.getId());
         Repository repository1 = storage.getRepositories().get(r0_2.getId());
 
-        assertNotNull("Failed to get storage (" + storageId + ")!", storage);
-        assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());
-        assertTrue("Failed to get storage (" + storageId + ")!",
-                   repository0.allowsRedeployment());
-        assertTrue("Failed to get storage (" + storageId + ")!",
-                   repository0.isSecured());
-        assertNotNull("Failed to get storage (" + storageId + ")!",
-                      repository0.getRepositoryConfiguration());
-        assertTrue("Failed to get storage (" + storageId + ")!",
-                   repository0.getRepositoryConfiguration() instanceof MavenRepositoryConfiguration);
-        assertTrue("Failed to get storage (" + storageId + ")!",
-                   ((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingEnabled());
-        assertFalse("Failed to get storage (" + storageId + ")!",
-                    ((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingClassNamesEnabled());
+        assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
+        assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
+        assertTrue(repository0.allowsRedeployment(),
+                   "Failed to get storage (" + storageId + ")!");
+        assertTrue(repository0.isSecured(),
+                   "Failed to get storage (" + storageId + ")!");
+        assertNotNull(repository0.getRepositoryConfiguration(),
+                      "Failed to get storage (" + storageId + ")!");
+        assertTrue(repository0.getRepositoryConfiguration() instanceof MavenRepositoryConfiguration,
+                   "Failed to get storage (" + storageId + ")!");
+        assertTrue(((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingEnabled(),
+                   "Failed to get storage (" + storageId + ")!");
+        assertFalse(
+                ((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingClassNamesEnabled(),
+                "Failed to get storage (" + storageId + ")!");
 
-        assertTrue("Failed to get storage (" + storageId + ")!",
-                   repository1.allowsForceDeletion());
-        assertTrue("Failed to get storage (" + storageId + ")!",
-                   repository1.isTrashEnabled());
-        assertNotNull("Failed to get storage (" + storageId + ")!",
-                      repository1.getProxyConfiguration().getHost());
-        assertEquals("Failed to get storage (" + storageId + ")!",
-                     "localhost",
-                     repository1.getProxyConfiguration().getHost());
+        assertTrue(repository1.allowsForceDeletion(),
+                   "Failed to get storage (" + storageId + ")!");
+        assertTrue(repository1.isTrashEnabled(),
+                   "Failed to get storage (" + storageId + ")!");
+        assertNotNull(repository1.getProxyConfiguration().getHost(),
+                      "Failed to get storage (" + storageId + ")!");
+        assertEquals("localhost",
+                     repository1.getProxyConfiguration().getHost(),
+                     "Failed to get storage (" + storageId + ")!");
 
         PoolStats poolStatsRepository2 = proxyRepositoryConnectionPoolConfigurationService.getPoolStats(
                 secondRepositoryUrl);
 
-        assertEquals("Max connections for proxy repository not set accordingly!",
-                     maxConnectionsRepository2.intValue(),
-                     poolStatsRepository2.getMax());
+        assertEquals(maxConnectionsRepository2.intValue(),
+                     poolStatsRepository2.getMax(),
+                     "Max connections for proxy repository not set accordingly!");
 
         deleteRepository(storage0.getId(), r0_1.getId());
         deleteRepository(storage0.getId(), r0_2.getId());
@@ -412,8 +416,8 @@ public class StoragesConfigurationControllerTestIT
 
         Storage storage = getStorage(storageId);
 
-        assertNotNull("Failed to get storage (" + storageId + ")!", storage);
-        assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());
+        assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
+        assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
 
         url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
 

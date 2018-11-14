@@ -1,23 +1,22 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.providers.datastore.StorageProvider;
+import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
+import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
+import org.carlspring.strongbox.providers.layout.NugetFileSystem;
+import org.carlspring.strongbox.providers.layout.NugetFileSystemProvider;
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
+import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
 import java.nio.file.FileSystem;
 import java.nio.file.spi.FileSystemProvider;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.providers.datastore.StorageProvider;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemFactory;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemProviderFactory;
-import org.carlspring.strongbox.providers.layout.NugetFileSystemProvider;
-import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
-import org.carlspring.strongbox.providers.layout.NugetFileSystem;
-import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
 
 @Configuration
@@ -29,20 +28,20 @@ import org.springframework.context.annotation.Scope;
 public class NugetLayoutProviderConfig
 {
 
-    public static final String FILE_SYSTEM_ALIAS = "RepositoryFileSystemFactory." + NugetLayoutProvider.ALIAS;
-    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "RepositoryFileSystemProviderFactory."
+    public static final String FILE_SYSTEM_ALIAS = "LayoutFileSystemFactory." + NugetLayoutProvider.ALIAS;
+    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "LayoutFileSystemProviderFactory."
             + NugetLayoutProvider.ALIAS;
 
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)
-    public RepositoryFileSystemProviderFactory nugetRepositoryFileSystemProviderFactory()
+    public LayoutFileSystemProviderFactory nugetRepositoryFileSystemProviderFactory()
     {
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            RepositoryLayoutFileSystemProvider result = nugetFileSystemProvider(storageProvider.getFileSystemProvider());
+            LayoutFileSystemProvider result = nugetFileSystemProvider(storageProvider.getFileSystemProvider());
 
             return result;
         };
@@ -57,10 +56,10 @@ public class NugetLayoutProviderConfig
     }
 
     @Bean(FILE_SYSTEM_ALIAS)
-    public RepositoryFileSystemFactory nugetRepositoryFileSystemFactory()
+    public LayoutFileSystemFactory nugetRepositoryFileSystemFactory()
     {
         return (repository) -> {
-            RepositoryFileSystemProviderFactory providerFactory = nugetRepositoryFileSystemProviderFactory();
+            LayoutFileSystemProviderFactory providerFactory = nugetRepositoryFileSystemProviderFactory();
 
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
@@ -73,7 +72,7 @@ public class NugetLayoutProviderConfig
     @Scope("prototype")
     public NugetFileSystem nugetRepositoryFileSystem(Repository repository,
                                                                FileSystem storageFileSystem,
-                                                               RepositoryLayoutFileSystemProvider provider)
+                                                               LayoutFileSystemProvider provider)
     {
         return new NugetFileSystem(repository, storageFileSystem, provider);
     }

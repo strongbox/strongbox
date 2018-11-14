@@ -11,20 +11,21 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Paths;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Przemyslaw Fusik
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = StorageApiTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
@@ -41,7 +42,7 @@ public class TrustStoreServiceTestIT
 
     private InetAddress inetAddress;
 
-    @Before
+    @BeforeEach
     public void before()
             throws Exception
     {
@@ -54,13 +55,13 @@ public class TrustStoreServiceTestIT
     public void shouldAddSslCertificatesToTrustStore()
             throws Exception
     {
-        Assert.assertFalse(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
+        assertFalse(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
                                                             "password".toCharArray()).keySet().stream().filter(
                 name -> name.contains("*.apache.org")).findAny().isPresent());
 
         trustStoreService.addSslCertificatesToTrustStore("https://repository.apache.org/snapshots/");
 
-        Assert.assertTrue(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
+        assertTrue(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
                                                            "password".toCharArray()).keySet().stream().filter(
                 name -> name.contains("*.apache.org")).findAny().isPresent());
     }

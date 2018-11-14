@@ -7,15 +7,15 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author mtodorov
  */
-@Ignore
+@Disabled
 public class CalculatedChecksumCacheManagerTest
 {
 
@@ -71,8 +71,8 @@ public class CalculatedChecksumCacheManagerTest
         String md5 = MessageDigestUtils.convertToHexadecimalString(md5Digest);
         String sha1 = MessageDigestUtils.convertToHexadecimalString(sha1Digest);
 
-        assertEquals("Incorrect MD5 sum!", "120ea8a25e5d487bf68b5f7096440019", md5);
-        assertEquals("Incorrect SHA-1 sum!", "afa6c8b3a2fae95785dc7d9685a57835d703ac88", sha1);
+        assertEquals("120ea8a25e5d487bf68b5f7096440019", md5, "Incorrect MD5 sum!");
+        assertEquals("afa6c8b3a2fae95785dc7d9685a57835d703ac88", sha1, "Incorrect SHA-1 sum!");
 
         System.out.println("md5:  " + md5);
         System.out.println("sha1: " + sha1);

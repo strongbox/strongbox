@@ -10,12 +10,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.RoutingConfigurationController.*;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -24,14 +24,17 @@ import static org.hamcrest.CoreMatchers.containsString;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class RoutingConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
-    @Before
-    public void setUp()
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
     {
+        super.init();
         setContextBaseUrl("/api/configuration/strongbox/routing");
     }
 

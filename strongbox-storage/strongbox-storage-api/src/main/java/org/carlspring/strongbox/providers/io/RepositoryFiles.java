@@ -16,6 +16,15 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+/**
+ * This utility class contains common methods to work with {@link RepositoryPath}
+ * 
+ * @author sbespalov
+ * 
+ * @see RepositoryPath
+ * @see Files
+ *
+ */
 public abstract class RepositoryFiles
 {
 
@@ -87,7 +96,7 @@ public abstract class RepositoryFiles
         {
             sj.add(repositoryFileAttributeType.getName());
         }
-        return String.format("%s:%s", RepositoryFileSystemProvider.STRONGBOX_SCHEME, sj.toString());
+        return String.format("%s:%s", StorageFileSystemProvider.STRONGBOX_SCHEME, sj.toString());
     }
 
     public static Set<RepositoryFileAttributeType> parseAttributes(String attributes)
@@ -96,7 +105,7 @@ public abstract class RepositoryFiles
         {
             return Collections.emptySet();
         }
-        String schemePrefix = String.format("%s:", RepositoryFileSystemProvider.STRONGBOX_SCHEME);
+        String schemePrefix = String.format("%s:", StorageFileSystemProvider.STRONGBOX_SCHEME);
         String attributesLocal = attributes.replace(schemePrefix, "").trim();
         if (attributesLocal.equals("*"))
         {
@@ -115,11 +124,11 @@ public abstract class RepositoryFiles
 
         if (isTrash(p))
         {
-            result = result.resolve(RepositoryFileSystem.TRASH);
+            result = result.resolve(LayoutFileSystem.TRASH);
         }
         else if (isTemp(p))
         {
-            result = result.resolve(RepositoryFileSystem.TEMP);
+            result = result.resolve(LayoutFileSystem.TEMP);
         }
 
         return result.relativize(p.toUri());

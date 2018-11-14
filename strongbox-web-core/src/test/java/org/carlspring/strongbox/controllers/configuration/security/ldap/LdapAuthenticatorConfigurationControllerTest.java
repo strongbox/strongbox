@@ -19,15 +19,15 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 import io.restassured.http.ContentType;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
@@ -37,14 +37,20 @@ import static org.hamcrest.CoreMatchers.startsWith;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class LdapAuthenticatorConfigurationControllerTest
         extends RestAssuredBaseTest
 {
-
-
     @Inject
     private AuthenticatorsScanner scanner;
+
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
+    {
+        super.init();
+    }
 
     private static LdapConfigurationTestForm validLdapConfigurationTestForm()
     {
@@ -74,7 +80,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         return form;
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         setContextBaseUrl("/api/configuration/ldap");

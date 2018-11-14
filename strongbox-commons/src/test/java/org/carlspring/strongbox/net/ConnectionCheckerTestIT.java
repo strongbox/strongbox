@@ -3,10 +3,8 @@ package org.carlspring.strongbox.net;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import org.junit.Test;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author mtodorov
@@ -56,7 +54,7 @@ public class ConnectionCheckerTestIT
 
         thread.interrupt();
 
-        assertTrue("Failed to connect!", availability);
+        assertTrue(availability, "Failed to connect!");
     }
 
 }

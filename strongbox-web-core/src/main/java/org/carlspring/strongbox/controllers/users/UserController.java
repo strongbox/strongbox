@@ -20,11 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.springframework.core.convert.ConversionService;
@@ -38,15 +34,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Pablo Tirado
@@ -247,7 +235,7 @@ public class UserController
         return getSuccessfulResponseEntity(SUCCESSFUL_DELETE_USER, accept);
     }
 
-    @ApiOperation(value = "Generate new security token for specified user.", position = 3)
+    @ApiOperation(value = "Generate new security token for specified user.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GENERATE_SECURITY_TOKEN),
                             @ApiResponse(code = 400, message = FAILED_GENERATE_SECURITY_TOKEN),
                             @ApiResponse(code = 404, message = NOT_FOUND_USER) })
@@ -279,7 +267,7 @@ public class UserController
         return ResponseEntity.ok(body);
     }
 
-    @ApiOperation(value = "Update custom access model for the user.", position = 3)
+    @ApiOperation(value = "Update custom access model for the user.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_UPDATE_ACCESS_MODEL),
                             @ApiResponse(code = 400, message = FAILED_UPDATE_ACCESS_MODEL),
                             @ApiResponse(code = 404, message = NOT_FOUND_USER) })

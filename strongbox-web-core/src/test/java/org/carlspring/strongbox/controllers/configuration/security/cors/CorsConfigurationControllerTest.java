@@ -9,14 +9,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.*;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class CorsConfigurationControllerTest
         extends RestAssuredBaseTest
 {
@@ -41,14 +41,16 @@ public class CorsConfigurationControllerTest
 
     private static final String url = "/api/configuration/cors";
 
-
-    @Before
-    public void before()
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
     {
+        super.init();
         initialConfiguration = new HashMap<>(((UrlBasedCorsConfigurationSource) corsConfigurationSource).getCorsConfigurations());
     }
 
-    @After
+    @AfterEach
     public void after()
     {
         ((UrlBasedCorsConfigurationSource) corsConfigurationSource).setCorsConfigurations(initialConfiguration);

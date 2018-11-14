@@ -5,7 +5,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.io.StreamUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -87,7 +87,7 @@ public class ArtifactManagementService
 
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
-
+    
     @Inject
     protected RepositoryPathLock repositoryPathLock;
 
@@ -107,13 +107,13 @@ public class ArtifactManagementService
             performRepositoryAcceptanceValidation(repositoryPath);
 
             return doStore(repositoryPath, is);
-        }
+        } 
         finally
         {
             lock.writeLock().unlock();
         }
     }
-
+    
     @Deprecated
     @Transactional
     public long validateAndStore(String storageId,
@@ -129,7 +129,7 @@ public class ArtifactManagementService
 
         return validateAndStore(repositoryPath, is);
     }
-
+    
     @Transactional
     public long store(RepositoryPath repositoryPath,
                       InputStream is)
@@ -138,11 +138,11 @@ public class ArtifactManagementService
         ReadWriteLock lockSource = repositoryPathLock.lock(repositoryPath);
         Lock lock = lockSource.writeLock();
         lock.lock();
-
+        
         try
         {
             return doStore(repositoryPath, is);
-        }
+        } 
         finally
         {
             lock.unlock();
@@ -160,14 +160,14 @@ public class ArtifactManagementService
         {
             updatedArtifactFile = RepositoryFiles.isArtifact(repositoryPath);
         }
-
+        
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(repositoryPath))
         {
             result = writeArtifact(repositoryPath, is, aos);
         }
         catch (IOException e)
         {
-           throw e;
+           throw e; 
         }
         catch (Exception e)
         {
@@ -188,7 +188,7 @@ public class ArtifactManagementService
             artifactEventListenerRegistry.dispatchArtifactMetadataStoredEvent(repositoryPath);
         }
 
-
+        
         return result;
     }
 
@@ -197,7 +197,7 @@ public class ArtifactManagementService
                                OutputStream os)
             throws IOException
     {
-        ArtifactOutputStream aos = StreamUtils.findSource(ArtifactOutputStream.class, os);
+        LayoutOutputStream aos = StreamUtils.findSource(LayoutOutputStream.class, os);
 
         Repository repository = repositoryPath.getRepository();
 
@@ -213,7 +213,7 @@ public class ArtifactManagementService
         {
             artifactEventListenerRegistry.dispatchArtifactUploadingEvent(repositoryPath);
         }
-
+        
         long totalAmountOfBytes = IOUtils.copy(is, os);
 
         URI repositoryPathId = repositoryPath.toUri();
@@ -234,7 +234,7 @@ public class ArtifactManagementService
                 validateUploadedChecksumAgainstCache(checksumValue, repositoryPathId);
             }
         }
-
+        
         return totalAmountOfBytes;
     }
 

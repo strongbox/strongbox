@@ -2,8 +2,6 @@ package org.carlspring.strongbox.utils;
 
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.http.range.ByteRangeHeaderParser;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.io.StreamUtils;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
@@ -139,40 +137,6 @@ public class ArtifactControllerHelper
             String contentRange = headers.getFirst(HEADER_NAME_RANGE) != null ? headers.getFirst(HEADER_NAME_RANGE) : null;
             return contentRange != null && !"0/*".equals(contentRange) && !"0-".equals(contentRange) &&
                    !"0".equals(contentRange);
-        }
-    }
-
-    public static void setHeadersForChecksums(InputStream is,
-                                              HttpServletResponse response)
-    {
-        ArtifactInputStream ais = StreamUtils.findSource(ArtifactInputStream.class, is);
-        ais.getHexDigests().forEach((k,
-                                     v) -> response.setHeader(String.format("Checksum-%s",
-                                                                            k.toUpperCase().replaceAll("-", "")),
-                                                              v));
-
-        /*
-         * ArtifactCoordinates artifactCoordinates =
-         * ais.getArtifactCoordinates();
-         * if (artifactCoordinates != null)
-         * {
-         * response.setHeader("strongbox-layout",
-         * artifactCoordinates.getClass().getSimpleName());
-         * }
-         */
-    }
-
-    public static void setHeadersForChecksums(InputStream is,
-                                              HttpHeaders headers)
-    {
-        ArtifactInputStream ais = StreamUtils.findSource(ArtifactInputStream.class, is);
-        ais.getHexDigests()
-           .forEach((k, v) -> headers.add(String.format("Checksum-%s", k.toUpperCase().replaceAll("-", "")), v));
-
-        ArtifactCoordinates artifactCoordinates = ais.getArtifactCoordinates();
-        if (artifactCoordinates != null)
-        {
-            headers.add("strongbox-layout", artifactCoordinates.getClass().getSimpleName());
         }
     }
 

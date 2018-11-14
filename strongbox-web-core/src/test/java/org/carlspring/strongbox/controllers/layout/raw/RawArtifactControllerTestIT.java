@@ -3,11 +3,7 @@ package org.carlspring.strongbox.controllers.layout.raw;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.rest.common.RawRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.storage.repository.*;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -18,17 +14,18 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * @author Martin Todorov
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class RawArtifactControllerTestIT
         extends RawRestAssuredBaseTest
 {
@@ -43,7 +40,7 @@ public class RawArtifactControllerTestIT
     RawRepositoryFactory rawRepositoryFactory;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -60,6 +57,7 @@ public class RawArtifactControllerTestIT
     }
 
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {
@@ -88,7 +86,7 @@ public class RawArtifactControllerTestIT
         // Required for apache-19-source-release.zip
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {

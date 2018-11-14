@@ -1,18 +1,5 @@
 package org.carlspring.strongbox.controllers;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
@@ -22,22 +9,34 @@ import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Guido Grazioli
  */
 
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class BrowseControllerTest
         extends MavenRestAssuredBaseTest
 {
@@ -49,7 +48,7 @@ public class BrowseControllerTest
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup()
             throws Exception
     {
@@ -64,15 +63,14 @@ public class BrowseControllerTest
     }
     
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {
         super.init();
 
-        File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
-
         MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
-        mavenRepositoryConfiguration.setIndexingEnabled(true);
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
 
         MutableRepository repository = mavenRepositoryFactory.createRepository(REPOSITORY);
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
@@ -89,17 +87,26 @@ public class BrowseControllerTest
     } 
     
     @Override
+    @AfterEach
     public void shutdown()
     {
         try
         {
             closeIndexersForRepository(STORAGE0, REPOSITORY);
+            removeRepositories();
+            cleanUp(getRepositoriesToClean());
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             throw new UndeclaredThrowableException(e);
         }
         super.shutdown();
+    }
+
+    private void removeRepositories()
+            throws IOException, JAXBException
+    {
+        removeRepositories(getRepositoriesToClean());
     }
     
     @Test
@@ -117,9 +124,9 @@ public class BrowseControllerTest
 
         DirectoryListing returned = new ObjectMapper().readValue(jsonResponse, DirectoryListing.class);
               
-        assertNotNull("Failed to get storage list!", returned);
-        assertNotNull("Failed to get storage list!", returned.getDirectories());
-        assertFalse("Returned storage size does not match", returned.getDirectories().isEmpty());
+        assertNotNull(returned, "Failed to get storage list!");
+        assertNotNull(returned.getDirectories(), "Failed to get storage list!");
+        assertFalse(returned.getDirectories().isEmpty(), "Returned storage size does not match");
         
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
@@ -131,7 +138,7 @@ public class BrowseControllerTest
                                      .extract()
                                      .asString();
        
-        assertTrue("Returned HTML is incorrect", htmlResponse.contains("storage0"));
+        assertTrue(htmlResponse.contains("storage0"), "Returned HTML is incorrect");
     }
 
     @Test
@@ -148,12 +155,12 @@ public class BrowseControllerTest
 
         DirectoryListing returned = new ObjectMapper().readValue(jsonResponse, DirectoryListing.class);
         
-        assertNotNull("Failed to get repository list!", returned);
-        assertNotNull("Failed to get repository list!", returned.getDirectories());
-        assertTrue("Returned repositories do not match", !returned.getDirectories().isEmpty());
-        assertTrue("Repository not found", returned.getDirectories()
-                                                   .stream()
-                                                   .anyMatch(p -> p.getName().equals(REPOSITORY)));
+        assertNotNull(returned, "Failed to get repository list!");
+        assertNotNull(returned.getDirectories(), "Failed to get repository list!");
+        assertFalse(returned.getDirectories().isEmpty(), "Returned repositories do not match");
+        assertTrue(returned.getDirectories()
+                           .stream()
+                           .anyMatch(p -> p.getName().equals(REPOSITORY)), "Repository not found");
         
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
@@ -165,7 +172,7 @@ public class BrowseControllerTest
                                      .extract()
                                      .asString();
 
-        assertTrue("Returned HTML is incorrect", htmlResponse.contains(REPOSITORY));
+        assertTrue(htmlResponse.contains(REPOSITORY), "Returned HTML is incorrect");
 }
                                  
 
@@ -204,8 +211,8 @@ public class BrowseControllerTest
         
         DirectoryListing returned = new ObjectMapper().readValue(jsonResponse, DirectoryListing.class);
         
-        assertTrue("Invalid files returned", returned.getFiles().size() == 6
-                        && returned.getFiles().get(0).getName().equals("test-browsing-1.1.jar"));                                                        
+        assertTrue(returned.getFiles().size() == 6
+                   && returned.getFiles().get(0).getName().equals("test-browsing-1.1.jar"), "Invalid files returned");
     
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
@@ -216,8 +223,7 @@ public class BrowseControllerTest
         String link = getContextBaseUrl() + "/storages/"
                       + STORAGE0 + "/" + REPOSITORY + "/org/carlspring/strongbox/browsing/test-browsing/1.1/test-browsing-1.1.jar";
 
-        assertTrue("Expected to have found [ " + link + " ] in the response html", htmlResponse.contains(link));
-
+        assertTrue(htmlResponse.contains(link), "Expected to have found [ " + link + " ] in the response html");
     }
 
     @Test

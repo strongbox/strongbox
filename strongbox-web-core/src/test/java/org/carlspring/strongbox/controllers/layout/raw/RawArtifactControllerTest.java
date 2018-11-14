@@ -3,8 +3,8 @@ package org.carlspring.strongbox.controllers.layout.raw;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.rest.common.RawRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
@@ -17,20 +17,21 @@ import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Martin Todorov
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class RawArtifactControllerTest
         extends RawRestAssuredBaseTest
 {
@@ -43,7 +44,7 @@ public class RawArtifactControllerTest
     RawRepositoryFactory rawRepositoryFactory;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -59,6 +60,7 @@ public class RawArtifactControllerTest
     }
 
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {
@@ -73,7 +75,7 @@ public class RawArtifactControllerTest
         Files.createDirectories(Paths.get(TEST_RESOURCES));
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws IOException, JAXBException
     {
@@ -114,7 +116,7 @@ public class RawArtifactControllerTest
 
         baos.flush();
 
-        assertEquals("Deployed content mismatch!", new String(content), new String(baos.toByteArray()));
+        assertEquals(new String(content), new String(baos.toByteArray()), "Deployed content mismatch!");
 
         System.out.println("Read '" + new String(baos.toByteArray()) + "'.");
     }

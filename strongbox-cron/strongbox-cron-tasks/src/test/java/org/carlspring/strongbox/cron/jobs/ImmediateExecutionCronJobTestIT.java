@@ -6,38 +6,34 @@ import org.carlspring.strongbox.cron.services.JobManager;
 
 import javax.inject.Inject;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertTrue;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author carlspring
  */
 @CronTaskTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 public class ImmediateExecutionCronJobTestIT
         extends BaseCronTestCase
 {
 
-    @Rule
-    public TestRule watcher = new TestWatcher()
-    {
-        @Override
-        protected void starting(final Description description)
-        {
-            expectedCronTaskName = description.getMethodName();
-        }
-    };
-
     @Inject
     private JobManager jobManager;
+
+    @Override
+    @BeforeEach
+    public void init(TestInfo testInfo)
+            throws Exception
+    {
+        super.init(testInfo);
+    }
 
     public void addImmediateExecutionCronJobConfig(String name)
             throws Exception
@@ -66,7 +62,7 @@ public class ImmediateExecutionCronJobTestIT
 
         addImmediateExecutionCronJobConfig(jobName);
 
-        assertTrue("Failed to execute task within a reasonable time!", expectEvent());
+        assertTrue(expectEvent(), "Failed to execute task within a reasonable time!");
     }
 
 }

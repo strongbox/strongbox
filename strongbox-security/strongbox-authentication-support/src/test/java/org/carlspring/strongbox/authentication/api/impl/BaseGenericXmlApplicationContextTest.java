@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
@@ -33,7 +33,7 @@ public abstract class BaseGenericXmlApplicationContextTest
     private ExternalUserProvidersFileManager externalUserProvidersFileManager;
 
 
-    @Before
+    @BeforeEach
     public void initAppContext()
             throws IOException
     {
@@ -47,7 +47,7 @@ public abstract class BaseGenericXmlApplicationContextTest
         }
     }
 
-    @After
+    @AfterEach
     public void closeAppContext()
     {
         if (appCtx != null)

@@ -1,14 +1,5 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-
-import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
@@ -18,24 +9,30 @@ import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import io.restassured.http.Header;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
+import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.context.junit.jupiter.EnabledIf;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 /**
  * @author Kate Novik
  * @author Martin Todorov
  */
 @IntegrationTest
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
+@EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
 public class MavenArtifactIndexControllerTest
         extends MavenRestAssuredBaseTest
 {
@@ -53,7 +50,7 @@ public class MavenArtifactIndexControllerTest
     private MavenRepositoryFactory mavenRepositoryFactory;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
@@ -69,13 +66,8 @@ public class MavenArtifactIndexControllerTest
         return repositories;
     }
 
-    @Before
-    public void isIndexingEnabled()
-    {
-        Assume.assumeTrue(repositoryIndexManager.isPresent());
-    }
-
     @Override
+    @BeforeEach
     public void init()
             throws Exception
     {
@@ -107,6 +99,7 @@ public class MavenArtifactIndexControllerTest
     }
 
     @Override
+    @AfterEach
     public void shutdown()
     {
         try
