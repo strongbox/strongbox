@@ -15,6 +15,16 @@ public class MavenArtifactMetadataStoredEventListener
         extends BaseMavenArtifactEventListener
 {
 
+    /**
+     * Why not @{@link org.carlspring.strongbox.event.AsyncEventListener}:
+     *
+     * Consider call to group repository for expired maven-metadata.xml.
+     * Then all underlying sub-repositories will fetch their maven-metadata.xml.
+     * In case at least one sub-repository was a proxy repository and its maven-metadata.xml local copy expired, we will re-fetch the maven-metadata.xml from remote.
+     * Then this listener will be invoked and it will update all groups containing this proxy repository.
+     * We need to have updated initial group when we return from the initial call.
+     * Async update could be done a bit later.
+     */
     @EventListener
     public void handle(final ArtifactEvent<RepositoryPath> event)
     {

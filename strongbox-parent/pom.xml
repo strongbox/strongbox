@@ -81,7 +81,7 @@
         <version.lucene>4.8.1</version.lucene>
         <version.logback>1.2.3</version.logback>
         <version.maven>3.6.0</version.maven>
-        <version.maven.strongbox.fork>3.6.1-PR-1-SNAPSHOT</version.maven.strongbox.fork>
+        <version.maven.strongbox.fork>3.6.1-PR-2-SNAPSHOT</version.maven.strongbox.fork>
         <version.mockito>2.22.0</version.mockito>
         <version.orientdb>3.0.0</version.orientdb>
         <version.quartz>2.3.0</version.quartz>

@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.junit.After;
 import org.junit.Before;
@@ -49,9 +50,9 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
 
     private MutableRepository localYahrSourceRepository;
 
-    private Metadata versionLevelMetadataYahr;
+    private MutableObject<Metadata> versionLevelMetadataYahr = new MutableObject<>();
 
-    private Metadata artifactLevelMetadataYahr;
+    private MutableObject<Metadata> artifactLevelMetadataYahr = new MutableObject<>();
 
     @BeforeClass
     public static void cleanUp()
@@ -85,22 +86,32 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
                                                  RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                                                  false);
 
+        createRepository(STORAGE0,
+                         REPOSITORY_HOSTED,
+                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
+                         false);
+
+        mockHostedRepositoryMetadataUpdate(localSourceRepository,
+                                           REPOSITORY_HOSTED,
+                                           REPOSITORY_LOCAL_SOURCE,
+                                           versionLevelMetadata,
+                                           artifactLevelMetadata);
+
         localYahrSourceRepository = createRepository(STORAGE0,
                                                      REPOSITORY_LOCAL_YAHR_SOURCE,
                                                      RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                                                      false);
 
         createRepository(STORAGE0,
-                         REPOSITORY_HOSTED,
-                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
-                         false);
-
-        createRepository(STORAGE0,
                          REPOSITORY_HOSTED_YAHR,
                          RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                          false);
 
-        mockHostedRepositoryMetadataUpdate();
+        mockHostedRepositoryMetadataUpdate(localYahrSourceRepository,
+                                           REPOSITORY_HOSTED_YAHR,
+                                           REPOSITORY_LOCAL_YAHR_SOURCE,
+                                           versionLevelMetadataYahr,
+                                           artifactLevelMetadataYahr);
 
         createProxyRepository(STORAGE0,
                               REPOSITORY_PROXY,
@@ -116,14 +127,14 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
             throws Exception
     {
         final RepositoryPath hostedPath = resolvePath(REPOSITORY_HOSTED, true, "maven-metadata.xml");
-        String sha1HostedPathChecksum = checksumCacheManager.getArtifactChecksum(hostedPath,
-                                                                                 EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        String sha1HostedPathChecksum = checksumCacheManager.get(hostedPath,
+                                                                 EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertNotNull(sha1HostedPathChecksum);
 
         final RepositoryPath proxyPath = resolvePath(REPOSITORY_PROXY, true, "maven-metadata.xml");
         final RepositoryPath groupPath = resolvePath(REPOSITORY_GROUP, true, "maven-metadata.xml");
-        String sha1ProxyPathChecksum = checksumCacheManager.getArtifactChecksum(proxyPath,
-                                                                                EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        String sha1ProxyPathChecksum = checksumCacheManager.get(proxyPath,
+                                                                EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertNull(sha1ProxyPathChecksum);
 
         assertFalse(RepositoryFiles.artifactExists(groupPath));
@@ -131,8 +142,8 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         groupRepositoryProvider.fetchPath(groupPath);
         assertTrue(RepositoryFiles.artifactExists(groupPath));
 
-        sha1ProxyPathChecksum = checksumCacheManager.getArtifactChecksum(proxyPath,
-                                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        sha1ProxyPathChecksum = checksumCacheManager.get(proxyPath,
+                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertNotNull(sha1ProxyPathChecksum);
         assertThat(sha1ProxyPathChecksum, equalTo(sha1HostedPathChecksum));
 
@@ -144,28 +155,45 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         Files.setLastModifiedTime(groupPath, oneHourAgo());
 
         groupRepositoryProvider.fetchPath(groupPath);
-        sha1ProxyPathChecksum = checksumCacheManager.getArtifactChecksum(proxyPath,
-                                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        sha1ProxyPathChecksum = checksumCacheManager.get(proxyPath,
+                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertThat(sha1ProxyPathChecksum, equalTo(calculatedGroupPathChecksum));
 
-        mockHostedRepositoryMetadataUpdate();
-        sha1HostedPathChecksum = checksumCacheManager.getArtifactChecksum(hostedPath,
-                                                                          EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        mockHostedRepositoryMetadataUpdate(localSourceRepository,
+                                           REPOSITORY_HOSTED,
+                                           REPOSITORY_LOCAL_SOURCE,
+                                           versionLevelMetadata,
+                                           artifactLevelMetadata);
+
+        sha1HostedPathChecksum = checksumCacheManager.get(hostedPath,
+                                                          EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         final String calculatedHostedPathChecksum = calculateChecksum(hostedPath,
                                                                       EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertThat(sha1HostedPathChecksum, equalTo(calculatedHostedPathChecksum));
         assertThat(calculatedHostedPathChecksum, not(equalTo(sha1ProxyPathChecksum)));
 
+        mockHostedRepositoryMetadataUpdate(localYahrSourceRepository,
+                                           REPOSITORY_HOSTED_YAHR,
+                                           REPOSITORY_LOCAL_YAHR_SOURCE,
+                                           versionLevelMetadataYahr,
+                                           artifactLevelMetadataYahr);
+
         Files.setLastModifiedTime(proxyPath, oneHourAgo());
         Files.setLastModifiedTime(groupPath, oneHourAgo());
 
         groupRepositoryProvider.fetchPath(groupPath);
-        sha1ProxyPathChecksum = checksumCacheManager.getArtifactChecksum(proxyPath,
-                                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+
+        sha1ProxyPathChecksum = checksumCacheManager.get(proxyPath,
+                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertThat(sha1ProxyPathChecksum, equalTo(calculatedHostedPathChecksum));
         calculatedGroupPathChecksum = calculateChecksum(groupPath,
                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        assertThat(sha1ProxyPathChecksum, equalTo(calculatedGroupPathChecksum));
+
+        final RepositoryPath hostedYahrPath = resolvePath(REPOSITORY_HOSTED_YAHR, true, "maven-metadata.xml");
+        String calculatedHostedYahrPathChecksum = calculateChecksum(hostedYahrPath,
+                                                                    EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+
+        assertThat(calculatedHostedYahrPathChecksum, equalTo(calculatedGroupPathChecksum));
     }
 
     @After

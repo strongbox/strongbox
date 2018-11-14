@@ -56,6 +56,7 @@ public class MetadataMerger
         snapshot.setTimestamp(timestamp.substring(0, 7) + "." + timestamp.substring(8));
 
         versioning.setLastUpdated(timestamp);
+        versioning.getSnapshotVersions().clear();
         versioning.getSnapshotVersions().addAll(createNewSnapshotVersions(artifact.getVersion(), timestamp, snapshot.getBuildNumber()));
 
         return metadata;

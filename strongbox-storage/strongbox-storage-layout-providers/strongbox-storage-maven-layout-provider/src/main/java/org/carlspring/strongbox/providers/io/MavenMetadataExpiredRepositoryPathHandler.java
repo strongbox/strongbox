@@ -13,9 +13,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.providers.io.MavenMetadataExpiredRepositoryPathHandler.Decision.I_DONT_KNOW;
-import static org.carlspring.strongbox.providers.io.MavenMetadataExpiredRepositoryPathHandler.Decision.NO_LEAVE_IT;
-import static org.carlspring.strongbox.providers.io.MavenMetadataExpiredRepositoryPathHandler.Decision.YES_FETCH;
+import static org.carlspring.strongbox.providers.io.MavenMetadataExpiredRepositoryPathHandler.Decision.*;
 
 /**
  * @author Przemyslaw Fusik
@@ -86,7 +84,7 @@ public class MavenMetadataExpiredRepositoryPathHandler
                                               final String checksumAlgorithm)
             throws IOException
     {
-        final String currentChecksum = checksumCacheManager.getArtifactChecksum(repositoryPath, checksumAlgorithm);
+        final String currentChecksum = checksumCacheManager.get(repositoryPath, checksumAlgorithm);
         if (currentChecksum == null)
         {
             return I_DONT_KNOW;
@@ -94,8 +92,8 @@ public class MavenMetadataExpiredRepositoryPathHandler
 
         proxyRepositoryProvider.resolvePathForceFetch(
                 repositoryPath.resolveSibling(repositoryPath.getFileName().toString() + "." + checksumAlgorithm));
-        final String newRemoteChecksum = checksumCacheManager.getArtifactChecksum(repositoryPath,
-                                                                                  checksumAlgorithm);
+        final String newRemoteChecksum = checksumCacheManager.get(repositoryPath,
+                                                                  checksumAlgorithm);
 
         if (newRemoteChecksum == null)
         {

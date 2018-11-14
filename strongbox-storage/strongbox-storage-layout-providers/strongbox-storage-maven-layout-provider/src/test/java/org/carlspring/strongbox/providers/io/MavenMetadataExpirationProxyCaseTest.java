@@ -24,11 +24,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Przemyslaw Fusik
@@ -78,7 +74,11 @@ public class MavenMetadataExpirationProxyCaseTest
                          RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                          false);
 
-        mockHostedRepositoryMetadataUpdate();
+        mockHostedRepositoryMetadataUpdate(localSourceRepository,
+                                           REPOSITORY_HOSTED,
+                                           REPOSITORY_LOCAL_SOURCE,
+                                           versionLevelMetadata,
+                                           artifactLevelMetadata);
 
         createProxyRepository(STORAGE0,
                               REPOSITORY_PROXY,
@@ -92,13 +92,13 @@ public class MavenMetadataExpirationProxyCaseTest
             throws Exception
     {
         final RepositoryPath hostedPath = resolvePath(REPOSITORY_HOSTED, true, "maven-metadata.xml");
-        String sha1HostedPathChecksum = checksumCacheManager.getArtifactChecksum(hostedPath,
-                                                                                 EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        String sha1HostedPathChecksum = checksumCacheManager.get(hostedPath,
+                                                                 EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertNotNull(sha1HostedPathChecksum);
 
         final RepositoryPath proxiedPath = resolvePath(REPOSITORY_PROXY, true, "maven-metadata.xml");
-        String sha1ProxiedPathChecksum = checksumCacheManager.getArtifactChecksum(proxiedPath,
-                                                                                  EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        String sha1ProxiedPathChecksum = checksumCacheManager.get(proxiedPath,
+                                                                  EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertNull(sha1ProxiedPathChecksum);
 
         assertFalse(RepositoryFiles.artifactExists(proxiedPath));
@@ -106,8 +106,8 @@ public class MavenMetadataExpirationProxyCaseTest
         proxyRepositoryProvider.fetchPath(proxiedPath);
         assertTrue(RepositoryFiles.artifactExists(proxiedPath));
 
-        sha1ProxiedPathChecksum = checksumCacheManager.getArtifactChecksum(proxiedPath,
-                                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        sha1ProxiedPathChecksum = checksumCacheManager.get(proxiedPath,
+                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertNotNull(sha1ProxiedPathChecksum);
         assertThat(sha1ProxiedPathChecksum, equalTo(sha1HostedPathChecksum));
 
@@ -118,13 +118,18 @@ public class MavenMetadataExpirationProxyCaseTest
         Files.setLastModifiedTime(proxiedPath, oneHourAgo());
 
         proxyRepositoryProvider.fetchPath(proxiedPath);
-        sha1ProxiedPathChecksum = checksumCacheManager.getArtifactChecksum(proxiedPath,
-                                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        sha1ProxiedPathChecksum = checksumCacheManager.get(proxiedPath,
+                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertThat(sha1ProxiedPathChecksum, equalTo(calculatedProxiedPathChecksum));
 
-        mockHostedRepositoryMetadataUpdate();
-        sha1HostedPathChecksum = checksumCacheManager.getArtifactChecksum(hostedPath,
-                                                                          EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        mockHostedRepositoryMetadataUpdate(localSourceRepository,
+                                           REPOSITORY_HOSTED,
+                                           REPOSITORY_LOCAL_SOURCE,
+                                           versionLevelMetadata,
+                                           artifactLevelMetadata);
+
+        sha1HostedPathChecksum = checksumCacheManager.get(hostedPath,
+                                                          EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         final String calculatedHostedPathChecksum = calculateChecksum(hostedPath,
                                                                       EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertThat(sha1HostedPathChecksum, equalTo(calculatedHostedPathChecksum));
@@ -133,8 +138,8 @@ public class MavenMetadataExpirationProxyCaseTest
         Files.setLastModifiedTime(proxiedPath, oneHourAgo());
 
         proxyRepositoryProvider.fetchPath(proxiedPath);
-        sha1ProxiedPathChecksum = checksumCacheManager.getArtifactChecksum(proxiedPath,
-                                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        sha1ProxiedPathChecksum = checksumCacheManager.get(proxiedPath,
+                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertThat(sha1ProxiedPathChecksum, equalTo(calculatedHostedPathChecksum));
         calculatedProxiedPathChecksum = calculateChecksum(proxiedPath,
                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());

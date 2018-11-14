@@ -19,23 +19,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 /**
- * All artifacts should pass through here.
- * Any deployed file which doesn't end in a checksum format (md5, sha1, gpg)
- * should add a cachedChecksum. When an actual checksum is deployed,
- * (which is right after the artifact or metadata file has been deployed),
- * the cache should be queried for a match.
- * <p>
- * If:
- * - a match is found and matches, remove it from the cache. (If the checksums set
- * is empty, remove the respective Checksum from the cachedChecksums).
- * - a match is found, but does not match, trigger an event and log this, then remove
- * the checksum from the cache. (If the checksums set is empty, remove the respective
- * Checksum from the cachedChecksums).
- * - a checksum is not claimed within cachedChecksumLifetime, trigger an event and log
- * this, then remove the checksum from the cache. (If this checksums set is empty,
- * remove the respective Checksum from the cachedChecksums).
- *
- * @author mtodorov
  * @author Przemysław Fusik
  */
 @Component
@@ -72,8 +55,8 @@ public class ChecksumCacheManager
                               .orElse(algorithm);
     }
 
-    public String getArtifactChecksum(final RepositoryPath artifactPath,
-                                      final String algorithm)
+    public String get(final RepositoryPath artifactPath,
+                      final String algorithm)
     {
         ArtifactChecksum artifactChecksum = cache.get(artifactPath.toUri(), ArtifactChecksum.class);
         if (artifactChecksum == null)
@@ -91,9 +74,9 @@ public class ChecksumCacheManager
         return checksum;
     }
 
-    public void addArtifactChecksum(final RepositoryPath artifactPath,
-                                    final String algorithm,
-                                    final String checksum)
+    public void put(final RepositoryPath artifactPath,
+                    final String algorithm,
+                    final String checksum)
     {
         final String escapedAlgorithm = getAlgorithm(algorithm);
         logger.debug("Adding checksum '{}' [{}] for '{}' in cache.", checksum, escapedAlgorithm, artifactPath);
@@ -110,7 +93,6 @@ public class ChecksumCacheManager
 
     @Override
     public void destroy()
-            throws Exception
     {
         cache.clear();
     }
