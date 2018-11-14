@@ -25,7 +25,6 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -96,9 +95,9 @@ public class MavenArtifactControllerTest
 
     @Inject
     private ArtifactEntryService artifactEntryService;
-
+    
     private MavenArtifactDeployer defaultMavenArtifactDeployer;
-
+    
     @BeforeAll
     public static void cleanUp()
             throws Exception
@@ -106,7 +105,113 @@ public class MavenArtifactControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    private static Set<MutableRepository> getRepositoriesToClean()
+    @BeforeEach
+    public void setUp()
+    {
+        MockitoAnnotations.initMocks(this);
+        defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
+    }
+
+    @AfterAll
+    public static void down()
+    {
+        deleteTestResources();
+    }
+
+    private static void deleteTestResources()
+    {
+        if (pluginXmlFilePath == null)
+        {
+            return;
+        }
+        Path dirPath = Paths.get(pluginXmlFilePath).getParent().getParent().getParent();
+        try
+        {
+            Files.walk(dirPath)
+                 .map(Path::toFile)
+                 .sorted(Comparator.comparing(File::isDirectory))
+                 .forEach(File::delete);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private static void writeToZipFile(String path,
+                                       ZipOutputStream zipStream)
+            throws Exception
+    {
+        File aFile = new File(path);
+        FileInputStream fis = new FileInputStream(aFile);
+        ZipEntry zipEntry = new ZipEntry(path);
+        zipStream.putNextEntry(zipEntry);
+
+        byte[] bytes = new byte[1024];
+        int length;
+        while ((length = fis.read(bytes)) >= 0)
+        {
+            zipStream.write(bytes, 0, length);
+        }
+
+        zipStream.closeEntry();
+        fis.close();
+
+    }
+
+    private static void crateJarFile(String artifactId)
+            throws Exception
+    {
+        String parentPluginPath = String.valueOf(Paths.get(pluginXmlFilePath).getParent());
+        try (FileOutputStream fos = new FileOutputStream(parentPluginPath + "/" + artifactId + ".jar");
+             ZipOutputStream zipOS = new ZipOutputStream(fos))
+        {
+            writeToZipFile(pluginXmlFilePath + "/plugin.xml", zipOS);
+            System.out.println("");
+
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private static void createPluginXmlFile(String groupId,
+                                            String artifactId,
+                                            String version)
+            throws Exception
+    {
+        File file = new File("");
+        pluginXmlFilePath = file.getCanonicalPath() + "/src/test/resources/temp/" + artifactId + "/META-INF/maven";
+        Files.createDirectories(Paths.get(pluginXmlFilePath));
+
+        String xmlSource = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                           "<plugin>\n" +
+                           "  <name>Apache Maven Dependency Plugin</name>\n" +
+                           "  <description>Provides utility goals to work with dependencies like copying, unpacking, analyzing, resolving and many more.</description>\n" +
+                           "  <groupId>" + groupId + "</groupId>\n" +
+                           "  <artifactId>" + artifactId + "</artifactId>\n" +
+                           "  <version>" + version + "</version>\n" +
+                           "  <goalPrefix>dependency</goalPrefix>\n" +
+                           "</plugin>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new InputSource(new StringReader(xmlSource)));
+
+        // Write the parsed document to an xml file
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        DOMSource source = new DOMSource(doc);
+
+        StreamResult result = new StreamResult(new File(pluginXmlFilePath + "/plugin.xml"));
+        transformer.transform(source, result);
+    }
+
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES1, Maven2LayoutProvider.ALIAS));
@@ -123,11 +228,10 @@ public class MavenArtifactControllerTest
     {
         super.init();
 
-        MockitoAnnotations.initMocks(this);
-        defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
+        GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
         MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
-        mavenRepositoryConfiguration.setIndexingEnabled(false);
+        mavenRepositoryConfiguration.setIndexingEnabled(true);
 
         MutableRepository repository1 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
@@ -194,7 +298,7 @@ public class MavenArtifactControllerTest
         createRepository(STORAGE0, repository3);
 
         //noinspection ResultOfMethodCallIgnored
-        Files.createDirectories(Paths.get(TEST_RESOURCES));
+        new File(TEST_RESOURCES).mkdirs();
     }
 
     @Override
@@ -206,115 +310,12 @@ public class MavenArtifactControllerTest
             closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES1);
             closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES2);
             closeIndexersForRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
-            removeRepositories();
-            cleanUp();
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             throw new UndeclaredThrowableException(e);
         }
         super.shutdown();
-    }
-
-    private void removeRepositories()
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
-
-    @AfterAll
-    public static void down()
-    {
-        deleteTestResources();
-    }
-
-    private static void deleteTestResources()
-    {
-        if (pluginXmlFilePath == null)
-        {
-            return;
-        }
-        Path dirPath = Paths.get(pluginXmlFilePath).getParent().getParent().getParent();
-        try
-        {
-            Files.walk(dirPath)
-                 .map(Path::toFile)
-                 .sorted(Comparator.comparing(File::isDirectory))
-                 .forEach(File::delete);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    private static void writeToZipFile(String path,
-                                       ZipOutputStream zipStream)
-            throws Exception
-    {
-        File aFile = new File(path);
-        FileInputStream fis = new FileInputStream(aFile);
-        ZipEntry zipEntry = new ZipEntry(path);
-        zipStream.putNextEntry(zipEntry);
-
-        byte[] bytes = new byte[1024];
-        int length;
-        while ((length = fis.read(bytes)) >= 0)
-        {
-            zipStream.write(bytes, 0, length);
-        }
-
-        zipStream.closeEntry();
-        fis.close();
-
-    }
-
-    private static void crateJarFile(String artifactId)
-            throws Exception
-    {
-        String parentPluginPath = String.valueOf(Paths.get(pluginXmlFilePath).getParent());
-        try (FileOutputStream fos = new FileOutputStream(parentPluginPath + "/" + artifactId + ".jar");
-             ZipOutputStream zipOS = new ZipOutputStream(fos))
-        {
-            writeToZipFile(pluginXmlFilePath + "/plugin.xml", zipOS);
-            System.out.println("");
-
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    private static void createPluginXmlFile(String groupId,
-                                            String artifactId,
-                                            String version)
-            throws Exception
-    {
-        File file = new File("");
-        pluginXmlFilePath = file.getCanonicalPath() + "/src/test/resources/temp/" + artifactId + "/META-INF/maven";
-        Files.createDirectories(Paths.get(pluginXmlFilePath));
-
-        String xmlSource = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                           "<plugin>\n" +
-                           "  <name>Apache Maven Dependency Plugin</name>\n" +
-                           "  <description>Provides utility goals to work with dependencies like copying, unpacking, analyzing, resolving and many more.</description>\n" +
-                           "  <groupId>" + groupId + "</groupId>\n" +
-                           "  <artifactId>" + artifactId + "</artifactId>\n" +
-                           "  <version>" + version + "</version>\n" +
-                           "  <goalPrefix>dependency</goalPrefix>\n" +
-                           "</plugin>";
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(new InputSource(new StringReader(xmlSource)));
-
-        // Write the parsed document to an xml file
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        DOMSource source = new DOMSource(doc);
-
-        StreamResult result = new StreamResult(new File(pluginXmlFilePath + "/plugin.xml"));
-        transformer.transform(source, result);
     }
 
     /**
@@ -391,7 +392,7 @@ public class MavenArtifactControllerTest
     @Test
     public void testHeadersFetch()
             throws Exception
-    {
+    {   
         String artifactPath;
         Headers headersFromGET, headersFromHEAD;
 
@@ -401,7 +402,7 @@ public class MavenArtifactControllerTest
         headersFromHEAD = client.getHeadersfromHEAD(artifactPath);
         assertHeadersEquals(headersFromGET,headersFromHEAD);
     }
-
+    
     private void assertHeadersEquals(Headers h1, Headers h2)
     {
         assertNotNull(h1);
@@ -1091,7 +1092,7 @@ public class MavenArtifactControllerTest
 
         String path = String.format("org/carlspring/commons/commons-http/%s/commons-http-%s.jar",
                                     commonsHttpSnapshot.version, commonsHttpSnapshot.timestampedVersion);
-
+        
         String url = String.format("%s/storages/storage-common-proxies/carlspring/%s", getContextBaseUrl(), path);
 
         given().header("user-agent", "Maven/*")
@@ -1101,11 +1102,11 @@ public class MavenArtifactControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
-
+        
         ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact("storage-common-proxies", "carlspring", path);
         assertNotNull(artifactEntry);
         assertNotNull(artifactEntry.getArtifactCoordinates());
-
+        
         assertTrue(artifactEntry instanceof RemoteArtifactEntry);
         assertTrue(((RemoteArtifactEntry) artifactEntry).getIsCached());
     }
