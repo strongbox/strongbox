@@ -14,8 +14,8 @@ import java.util.Set;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
@@ -36,7 +36,6 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
 
     private static final String REPOSITORY_RELEASES = "sc-releases-search";
 
-    @BeforeAll
     public static void cleanUp()
         throws Exception
     {
@@ -122,6 +121,7 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
                .body("error", Matchers.containsString("[1:103]"));
     }
 
+    @Disabled
     @Test
     public void testSearchValidMavenCoordinates()
             throws Exception {
