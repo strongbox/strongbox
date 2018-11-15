@@ -1,10 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationFileManager;
-import org.carlspring.strongbox.configuration.MutableConfiguration;
-import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
+import org.carlspring.strongbox.configuration.*;
 import org.carlspring.strongbox.event.repository.RepositoryEvent;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventTypeEnum;
@@ -26,6 +23,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -81,7 +79,7 @@ public class ConfigurationManagementServiceImpl
 
         return null;
     }
-    
+
     @Override
     public MutableConfiguration getMutableConfigurationClone()
     {
@@ -297,7 +295,8 @@ public class ConfigurationManagementServiceImpl
         final MutableBoolean result = new MutableBoolean();
         modifyInLock(configuration ->
                      {
-                         final Map<String, MutableRuleSet> acceptedRulesMap = configuration.getRoutingRules().getAccepted();
+                         final Map<String, MutableRuleSet> acceptedRulesMap = configuration.getRoutingRules()
+                                                                                           .getAccepted();
                          if (acceptedRulesMap.containsKey(groupRepository))
                          {
                              for (MutableRoutingRule rl : acceptedRulesMap.get(groupRepository).getRoutingRules())
@@ -322,7 +321,8 @@ public class ConfigurationManagementServiceImpl
         final MutableBoolean result = new MutableBoolean();
         modifyInLock(configuration ->
                      {
-                         final Map<String, MutableRuleSet> acceptedRules = configuration.getRoutingRules().getAccepted();
+                         final Map<String, MutableRuleSet> acceptedRules = configuration.getRoutingRules()
+                                                                                        .getAccepted();
                          if (acceptedRules.containsKey(groupRepository))
                          {
                              for (MutableRoutingRule routingRule : acceptedRules.get(groupRepository).getRoutingRules())
@@ -491,7 +491,8 @@ public class ConfigurationManagementServiceImpl
 
                          RepositoryEvent event = new RepositoryEvent(storageId,
                                                                      repositoryId,
-                                                                     RepositoryEventTypeEnum.EVENT_REPOSITORY_PUT_IN_SERVICE.getType());
+                                                                     RepositoryEventTypeEnum.EVENT_REPOSITORY_PUT_IN_SERVICE
+                                                                             .getType());
 
                          repositoryEventListenerRegistry.dispatchEvent(event);
                      });
@@ -572,8 +573,18 @@ public class ConfigurationManagementServiceImpl
     {
         modifyInLock(configuration ->
                      {
+                         ArrayList origins;
+
+                         if(CollectionUtils.isEmpty(allowedOrigins))
+                         {
+                             origins = new ArrayList<>();
+                         } else
+                         {
+                             origins = new ArrayList<>(allowedOrigins);
+                         }
+
                          configuration.getCorsConfiguration()
-                                      .setAllowedOrigins(new ArrayList<>(allowedOrigins));
+                                      .setAllowedOrigins(origins);
                      });
     }
 
@@ -590,6 +601,18 @@ public class ConfigurationManagementServiceImpl
                                                       repository.getRemoteRepository().getUrl(),
                                                       repository.getHttpConnectionPool().getAllocatedConnections()));
                      }, false);
+    }
+
+    @Override
+    public void setSmtpSettings(MutableSmtpConfiguration smtpConfiguration)
+    {
+        modifyInLock(configuration -> {
+            configuration.getSmtpConfiguration().setHost(smtpConfiguration.getHost());
+            configuration.getSmtpConfiguration().setPort(smtpConfiguration.getPort());
+            configuration.getSmtpConfiguration().setConnection(smtpConfiguration.getConnection());
+            configuration.getSmtpConfiguration().setUsername(smtpConfiguration.getUsername());
+            configuration.getSmtpConfiguration().setPassword(smtpConfiguration.getPassword());
+        });
     }
 
     private void modifyInLock(final Consumer<MutableConfiguration> operation)

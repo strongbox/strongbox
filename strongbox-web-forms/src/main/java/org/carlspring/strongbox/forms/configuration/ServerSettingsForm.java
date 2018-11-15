@@ -1,14 +1,21 @@
 package org.carlspring.strongbox.forms.configuration;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * @author Pablo Tirado
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ServerSettingsForm
 {
+
+    @NotBlank(message = "The name of this instance")
+    private String instanceName;
 
     @NotBlank(message = "A base URL must be specified.")
     private String baseUrl;
@@ -16,6 +23,15 @@ public class ServerSettingsForm
     @Min(value = 1, message = "Port number must be an integer between 1 and 65535.")
     @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.")
     private int port;
+
+    @Valid
+    private CorsConfigurationForm corsConfigurationForm = new CorsConfigurationForm();
+
+    @Valid
+    private SmtpConfigurationForm smtpConfigurationForm = new SmtpConfigurationForm();
+
+    @Valid
+    private ProxyConfigurationForm proxyConfigurationForm = new ProxyConfigurationForm();
 
     public ServerSettingsForm()
     {
@@ -27,6 +43,21 @@ public class ServerSettingsForm
     {
         this.baseUrl = baseUrl;
         this.port = port;
+    }
+
+    public ServerSettingsForm(String baseUrl,
+                              int port,
+                              String instanceName,
+                              CorsConfigurationForm corsConfigurationForm,
+                              SmtpConfigurationForm smtpConfigurationForm,
+                              ProxyConfigurationForm proxyConfigurationForm)
+    {
+        this.baseUrl = baseUrl;
+        this.port = port;
+        this.instanceName = instanceName;
+        this.corsConfigurationForm = corsConfigurationForm;
+        this.smtpConfigurationForm = smtpConfigurationForm;
+        this.proxyConfigurationForm = proxyConfigurationForm;
     }
 
     public String getBaseUrl()
@@ -47,5 +78,45 @@ public class ServerSettingsForm
     public void setPort(int port)
     {
         this.port = port;
+    }
+
+    public String getInstanceName()
+    {
+        return instanceName;
+    }
+
+    public void setInstanceName(String instanceName)
+    {
+        this.instanceName = instanceName;
+    }
+
+    public CorsConfigurationForm getCorsConfigurationForm()
+    {
+        return corsConfigurationForm;
+    }
+
+    public void setCorsConfigurationForm(CorsConfigurationForm corsConfigurationForm)
+    {
+        this.corsConfigurationForm = corsConfigurationForm;
+    }
+
+    public SmtpConfigurationForm getSmtpConfigurationForm()
+    {
+        return smtpConfigurationForm;
+    }
+
+    public void setSmtpConfigurationForm(SmtpConfigurationForm smtpConfigurationForm)
+    {
+        this.smtpConfigurationForm = smtpConfigurationForm;
+    }
+
+    public ProxyConfigurationForm getProxyConfigurationForm()
+    {
+        return proxyConfigurationForm;
+    }
+
+    public void setProxyConfigurationForm(ProxyConfigurationForm proxyConfigurationForm)
+    {
+        this.proxyConfigurationForm = proxyConfigurationForm;
     }
 }

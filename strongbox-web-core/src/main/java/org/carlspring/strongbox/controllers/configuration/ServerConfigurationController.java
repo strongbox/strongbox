@@ -42,7 +42,7 @@ public class ServerConfigurationController
     @ApiOperation(value = "Updates the instance name.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The instance's name was updated."),
                             @ApiResponse(code = 400, message = "Could not update the instance's name.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_SET_INSTANCE_NAME')")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_SET_INSTANCE_NAME', 'GLOBAL_CONFIGURATION_MANAGE')")
     @PutMapping(value = "/instanceName",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -72,7 +72,7 @@ public class ServerConfigurationController
     @ApiOperation(value = "Returns the instance name of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "", response = String.class),
                             @ApiResponse(code = 404, message = "No value for instanceName has been defined yet.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_INSTANCE_NAME')")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_VIEW_INSTANCE_NAME', 'GLOBAL_CONFIGURATION_MANAGE')")
     @GetMapping(value = "/instanceName",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -96,7 +96,7 @@ public class ServerConfigurationController
     @ApiOperation(value = "Updates the base URL of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The base URL was updated."),
                             @ApiResponse(code = 400, message = "Could not update the base URL of the service.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_SET_BASE_URL')")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_SET_BASE_URL', 'GLOBAL_CONFIGURATION_MANAGE')")
     @PutMapping(value = "/baseUrl",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -127,7 +127,7 @@ public class ServerConfigurationController
     @ApiOperation(value = "Returns the base URL of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "", response = String.class),
                             @ApiResponse(code = 404, message = "No value for baseUrl has been defined yet.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_BASE_URL')")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_VIEW_BASE_URL', 'GLOBAL_CONFIGURATION_MANAGE')")
     @GetMapping(value = "/baseUrl",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -149,7 +149,7 @@ public class ServerConfigurationController
     @ApiOperation(value = "Sets the port of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The port was updated."),
                             @ApiResponse(code = 400, message = "Could not update the strongbox port.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_SET_PORT')")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_SET_PORT', 'GLOBAL_CONFIGURATION_MANAGE')")
     @PutMapping(value = "/port/{port}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -178,7 +178,7 @@ public class ServerConfigurationController
     @ApiOperation(value = "Sets the port of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The port was updated."),
                             @ApiResponse(code = 400, message = "Could not update the strongbox port.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_SET_PORT')")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_SET_PORT', 'GLOBAL_CONFIGURATION_MANAGE')")
     @PutMapping(value = "/port",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -191,19 +191,20 @@ public class ServerConfigurationController
 
     @ApiOperation(value = "Returns the port of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "", response = String.class) })
-    @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_PORT')")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_VIEW_PORT', 'GLOBAL_CONFIGURATION_MANAGE')")
     @GetMapping(value = "/port",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getPort(@RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        return ResponseEntity.ok(getPortEntityBody(configurationManagementService.getConfiguration().getPort(), accept));
+        return ResponseEntity.ok(
+                getPortEntityBody(configurationManagementService.getConfiguration().getPort(), accept));
     }
 
     @ApiOperation(value = "Sets the server settings of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_SAVE_SERVER_SETTINGS),
                             @ApiResponse(code = 400, message = FAILED_SAVE_SERVER_SETTINGS) })
-    @PreAuthorize("hasAnyAuthority('CONFIGURATION_SET_BASE_URL', 'CONFIGURATION_SET_PORT')")
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_SET_BASE_URL', 'CONFIGURATION_SET_PORT', 'GLOBAL_CONFIGURATION_MANAGE')")
     @PostMapping(value = "/serverSettings",
                  consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -219,6 +220,27 @@ public class ServerConfigurationController
 
         configurationManagementService.setBaseUrl(serverSettingsForm.getBaseUrl());
         configurationManagementService.setPort(serverSettingsForm.getPort());
+        configurationManagementService.setInstanceName(serverSettingsForm.getInstanceName());
+
+        if(serverSettingsForm.getCorsConfigurationForm() != null) {
+            configurationManagementService.setCorsAllowedOrigins(
+                    serverSettingsForm.getCorsConfigurationForm().getAllowedOrigins()
+            );
+        }
+
+        if(serverSettingsForm.getSmtpConfigurationForm() != null) {
+            // SMTP settings
+            configurationManagementService.setSmtpSettings(
+                    serverSettingsForm.getSmtpConfigurationForm().getMutableSmtpConfiguration()
+            );
+        }
+
+        if(serverSettingsForm.getProxyConfigurationForm() != null) {
+            // Global Proxy settings
+            configurationManagementService.setProxyConfiguration(
+                    null,null, serverSettingsForm.getProxyConfigurationForm().getMutableProxyConfiguration()
+            );
+        }
 
         return getSuccessfulResponseEntity(SUCCESSFUL_SAVE_SERVER_SETTINGS, acceptHeader);
     }

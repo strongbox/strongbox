@@ -157,11 +157,11 @@ public class ServerConfigurationControllerTestIT
                                             int port)
     {
         // assign settings to server
-        ServerSettingsForm serverSettingsForm = new ServerSettingsForm(baseUrl, port);
+        ServerSettingsForm serverSettingsForm = new ServerSettingsForm(baseUrl, port, "Strongbox-1234", null, null, null);
 
         String url = getContextBaseUrl() + "/serverSettings";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        given().log().all().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(serverSettingsForm)
                .when()

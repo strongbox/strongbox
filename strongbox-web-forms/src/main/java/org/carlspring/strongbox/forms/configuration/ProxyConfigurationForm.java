@@ -1,16 +1,20 @@
 package org.carlspring.strongbox.forms.configuration;
 
+import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
+
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 
 /**
  * @author Pablo Tirado
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProxyConfigurationForm
 {
 
@@ -23,8 +27,8 @@ public class ProxyConfigurationForm
 
     @NotBlank(message = "A proxy type must be specified.")
     @Pattern(regexp = "DIRECT|HTTP|SOCKS4|SOCKS5",
-            flags = Pattern.Flag.CASE_INSENSITIVE,
-            message = "Proxy type must contain one the following strings as value: DIRECT, HTTP, SOCKS4, SOCKS5")
+             flags = Pattern.Flag.CASE_INSENSITIVE,
+             message = "Proxy type must contain one the following strings as value: DIRECT, HTTP, SOCKS4, SOCKS5")
     private String type;
 
     private String username;
@@ -91,5 +95,10 @@ public class ProxyConfigurationForm
     public void setNonProxyHosts(List<String> nonProxyHosts)
     {
         this.nonProxyHosts = nonProxyHosts;
+    }
+
+    public MutableProxyConfiguration getMutableProxyConfiguration()
+    {
+        return new MutableProxyConfiguration(this.host, this.port, this.username, this.password, this.type, this.nonProxyHosts);
     }
 }
