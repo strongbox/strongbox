@@ -27,7 +27,6 @@ public class SmtpConfiguration
 
     SmtpConfiguration()
     {
-
     }
 
     public SmtpConfiguration(final MutableSmtpConfiguration source)

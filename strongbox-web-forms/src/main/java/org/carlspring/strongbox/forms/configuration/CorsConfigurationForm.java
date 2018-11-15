@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.forms.configuration;
 
+import org.carlspring.strongbox.configuration.CorsConfiguration;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,5 +30,10 @@ public class CorsConfigurationForm
     public void setAllowedOrigins(List<String> allowedOrigins)
     {
         this.allowedOrigins = allowedOrigins;
+    }
+
+    public static CorsConfigurationForm fromConfiguration(CorsConfiguration source)
+    {
+        return new CorsConfigurationForm(source.getAllowedOrigins());
     }
 }

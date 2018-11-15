@@ -1,9 +1,13 @@
 package org.carlspring.strongbox.controllers.configuration;
 
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
 import org.carlspring.strongbox.controllers.support.InstanceNameEntityBody;
 import org.carlspring.strongbox.controllers.support.PortEntityBody;
+import org.carlspring.strongbox.forms.configuration.CorsConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ServerSettingsForm;
+import org.carlspring.strongbox.forms.configuration.SmtpConfigurationForm;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.support.ConfigurationException;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
@@ -15,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -201,7 +206,7 @@ public class ServerConfigurationController
                 getPortEntityBody(configurationManagementService.getConfiguration().getPort(), accept));
     }
 
-    @ApiOperation(value = "Sets the server settings of the service.")
+    @ApiOperation(value = "Set global server settings.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_SAVE_SERVER_SETTINGS),
                             @ApiResponse(code = 400, message = FAILED_SAVE_SERVER_SETTINGS) })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_SET_BASE_URL', 'CONFIGURATION_SET_PORT', 'GLOBAL_CONFIGURATION_MANAGE')")
@@ -222,27 +227,58 @@ public class ServerConfigurationController
         configurationManagementService.setPort(serverSettingsForm.getPort());
         configurationManagementService.setInstanceName(serverSettingsForm.getInstanceName());
 
-        if(serverSettingsForm.getCorsConfigurationForm() != null) {
+        if (serverSettingsForm.getCorsConfigurationForm() != null)
+        {
             configurationManagementService.setCorsAllowedOrigins(
                     serverSettingsForm.getCorsConfigurationForm().getAllowedOrigins()
             );
         }
 
-        if(serverSettingsForm.getSmtpConfigurationForm() != null) {
+        if (serverSettingsForm.getSmtpConfigurationForm() != null)
+        {
             // SMTP settings
             configurationManagementService.setSmtpSettings(
                     serverSettingsForm.getSmtpConfigurationForm().getMutableSmtpConfiguration()
             );
         }
 
-        if(serverSettingsForm.getProxyConfigurationForm() != null) {
+        if (serverSettingsForm.getProxyConfigurationForm() != null)
+        {
             // Global Proxy settings
             configurationManagementService.setProxyConfiguration(
-                    null,null, serverSettingsForm.getProxyConfigurationForm().getMutableProxyConfiguration()
+                    null, null, serverSettingsForm.getProxyConfigurationForm().getMutableProxyConfiguration()
             );
         }
 
         return getSuccessfulResponseEntity(SUCCESSFUL_SAVE_SERVER_SETTINGS, acceptHeader);
+    }
+
+    @ApiOperation(value = "Get global server settings.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_SAVE_SERVER_SETTINGS),
+                            @ApiResponse(code = 400, message = FAILED_SAVE_SERVER_SETTINGS) })
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_SET_BASE_URL', 'CONFIGURATION_SET_PORT', 'GLOBAL_CONFIGURATION_MANAGE')")
+    @GetMapping(value = "/serverSettings",
+                produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getServerSettings(Model model)
+    {
+
+        Configuration configuration = configurationManagementService.getConfiguration();
+
+        ServerSettingsForm settings = new ServerSettingsForm();
+        settings.setBaseUrl(configuration.getBaseUrl());
+        settings.setInstanceName(configuration.getInstanceName());
+        settings.setPort(configuration.getPort());
+        settings.setCorsConfigurationForm(
+                CorsConfigurationForm.fromConfiguration(configuration.getCorsConfiguration())
+        );
+        settings.setSmtpConfigurationForm(
+                SmtpConfigurationForm.fromConfiguration(configuration.getSmtpConfiguration())
+        );
+        settings.setProxyConfigurationForm(
+                ProxyConfigurationForm.fromConfiguration(configuration.getProxyConfiguration())
+        );
+
+        return ResponseEntity.ok(settings);
     }
 
     private Object getInstanceNameEntityBody(String instanceName,

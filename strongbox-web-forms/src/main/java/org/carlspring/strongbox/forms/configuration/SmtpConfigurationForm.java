@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.forms.configuration;
 
 import org.carlspring.strongbox.configuration.MutableSmtpConfiguration;
+import org.carlspring.strongbox.configuration.SmtpConfiguration;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -94,6 +96,7 @@ public class SmtpConfigurationForm
         this.connection = connection;
     }
 
+    @JsonIgnore()
     public MutableSmtpConfiguration getMutableSmtpConfiguration()
     {
         return new MutableSmtpConfiguration(this.host,
@@ -101,5 +104,15 @@ public class SmtpConfigurationForm
                                             this.connection,
                                             this.username,
                                             this.password);
+    }
+
+    @JsonIgnore()
+    public static SmtpConfigurationForm fromConfiguration(SmtpConfiguration source)
+    {
+        return new SmtpConfigurationForm(source.getHost(),
+                                         source.getPort(),
+                                         source.getConnection(),
+                                         source.getUsername(),
+                                         null);
     }
 }
