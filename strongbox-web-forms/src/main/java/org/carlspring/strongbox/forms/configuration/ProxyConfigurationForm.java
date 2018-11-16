@@ -8,6 +8,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -128,11 +129,15 @@ public class ProxyConfigurationForm
     @JsonIgnore()
     public static ProxyConfigurationForm fromConfiguration(ProxyConfiguration source)
     {
-        return new ProxyConfigurationForm(source.getHost(),
-                                          source.getPort(),
-                                          source.getType(),
-                                          source.getUsername(),
+        ProxyConfiguration configuration = Optional.ofNullable(source).orElse(
+                new ProxyConfiguration(new MutableProxyConfiguration())
+        );
+
+        return new ProxyConfigurationForm(configuration.getHost(),
+                                          configuration.getPort(),
+                                          configuration.getType(),
+                                          configuration.getUsername(),
                                           null,
-                                          source.getNonProxyHosts());
+                                          configuration.getNonProxyHosts());
     }
 }

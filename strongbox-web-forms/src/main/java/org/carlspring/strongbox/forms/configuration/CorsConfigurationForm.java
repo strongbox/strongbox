@@ -1,9 +1,11 @@
 package org.carlspring.strongbox.forms.configuration;
 
 import org.carlspring.strongbox.configuration.CorsConfiguration;
+import org.carlspring.strongbox.configuration.MutableCorsConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -34,6 +36,10 @@ public class CorsConfigurationForm
 
     public static CorsConfigurationForm fromConfiguration(CorsConfiguration source)
     {
-        return new CorsConfigurationForm(source.getAllowedOrigins());
+        CorsConfiguration configuration = Optional.ofNullable(source).orElse(
+                new CorsConfiguration(new MutableCorsConfiguration())
+        );
+
+        return new CorsConfigurationForm(configuration.getAllowedOrigins());
     }
 }
