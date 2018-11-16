@@ -9,15 +9,15 @@ import java.util.Collection;
 public class RepositoryAccessModelForm
 {
 
-    @NotEmpty
+    @NotEmpty(message = "A storage id must be specified.")
     private String storageId;
 
-    @NotEmpty
+    @NotEmpty(message = "A repository id must be specified.")
     private String repositoryId;
 
     private String path;
 
-    @NotEmpty
+    @NotEmpty(message = "A collection of privileges must be specified.")
     private Collection<String> privileges;
 
     private boolean wildcard;
