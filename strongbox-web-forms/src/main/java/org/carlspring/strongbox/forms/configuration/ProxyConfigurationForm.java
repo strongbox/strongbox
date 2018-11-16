@@ -1,16 +1,22 @@
 package org.carlspring.strongbox.forms.configuration;
 
+import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
+import org.carlspring.strongbox.configuration.ProxyConfiguration;
+
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 
 /**
  * @author Pablo Tirado
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProxyConfigurationForm
 {
 
@@ -23,8 +29,8 @@ public class ProxyConfigurationForm
 
     @NotBlank(message = "A proxy type must be specified.")
     @Pattern(regexp = "DIRECT|HTTP|SOCKS4|SOCKS5",
-            flags = Pattern.Flag.CASE_INSENSITIVE,
-            message = "Proxy type must contain one the following strings as value: DIRECT, HTTP, SOCKS4, SOCKS5")
+             flags = Pattern.Flag.CASE_INSENSITIVE,
+             message = "Proxy type must contain one the following strings as value: DIRECT, HTTP, SOCKS4, SOCKS5")
     private String type;
 
     private String username;
@@ -32,6 +38,25 @@ public class ProxyConfigurationForm
     private String password;
 
     private List<String> nonProxyHosts = Lists.newArrayList();
+
+    public ProxyConfigurationForm()
+    {
+    }
+
+    public ProxyConfigurationForm(String host,
+                                  int port,
+                                  String type,
+                                  String username,
+                                  String password,
+                                  List<String> nonProxyHosts)
+    {
+        this.host = host;
+        this.port = port;
+        this.type = type;
+        this.username = username;
+        this.password = password;
+        this.nonProxyHosts = nonProxyHosts;
+    }
 
     public String getHost()
     {
@@ -91,5 +116,23 @@ public class ProxyConfigurationForm
     public void setNonProxyHosts(List<String> nonProxyHosts)
     {
         this.nonProxyHosts = nonProxyHosts;
+    }
+
+    @JsonIgnore()
+    public MutableProxyConfiguration getMutableProxyConfiguration()
+    {
+        return new MutableProxyConfiguration(this.host, this.port, this.username, this.password, this.type,
+                                             this.nonProxyHosts);
+    }
+
+    @JsonIgnore()
+    public static ProxyConfigurationForm fromConfiguration(ProxyConfiguration source)
+    {
+        return new ProxyConfigurationForm(source.getHost(),
+                                          source.getPort(),
+                                          source.getType(),
+                                          source.getUsername(),
+                                          null,
+                                          source.getNonProxyHosts());
     }
 }

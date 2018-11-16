@@ -65,6 +65,8 @@ public class MutableConfiguration
     @XmlElement(name = "cors-configuration")
     private MutableCorsConfiguration corsConfiguration = new MutableCorsConfiguration();
 
+    @XmlElement(name = "smtp-configuration")
+    private MutableSmtpConfiguration smtpConfiguration = new MutableSmtpConfiguration();
 
     public MutableConfiguration()
     {
@@ -201,6 +203,16 @@ public class MutableConfiguration
         this.corsConfiguration = corsConfiguration;
     }
 
+    public MutableSmtpConfiguration getSmtpConfiguration()
+    {
+        return smtpConfiguration;
+    }
+
+    public void setSmtpConfiguration(final MutableSmtpConfiguration smtpConfiguration)
+    {
+        this.smtpConfiguration = smtpConfiguration;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -216,14 +228,15 @@ public class MutableConfiguration
                Objects.equal(storages, that.storages) &&
                Objects.equal(routingRules, that.routingRules) &&
                Objects.equal(remoteRepositoriesConfiguration, that.remoteRepositoriesConfiguration) &&
-               Objects.equal(corsConfiguration, that.corsConfiguration);
+               Objects.equal(corsConfiguration, that.corsConfiguration) &&
+               Objects.equal(smtpConfiguration, that.smtpConfiguration);
     }
 
     @Override
     public int hashCode()
     {
         return Objects.hashCode(version, baseUrl, port, proxyConfiguration, sessionConfiguration, storages,
-                                routingRules, remoteRepositoriesConfiguration, corsConfiguration);
+                                routingRules, remoteRepositoriesConfiguration, corsConfiguration, smtpConfiguration);
     }
 
     @Override
@@ -240,6 +253,7 @@ public class MutableConfiguration
                           .add("\n\troutingRules", routingRules)
                           .add("\n\tremoteRepositoriesConfiguration", remoteRepositoriesConfiguration)
                           .add("\n\tcorsConfiguration", corsConfiguration)
+                          .add("\n\tsmtpConfiguration", smtpConfiguration)
                           .toString();
     }
 
