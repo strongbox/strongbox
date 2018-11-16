@@ -46,6 +46,16 @@ public class StrongboxIndexerTest
 
     private static final String REPOSITORY_RELEASES_1 = "injector-releases-1";
 
+    private static final String REPOSITORY_RELEASES_2 = "injector-releases-2";
+
+    private static final String REPOSITORY_RELEASES_3 = "injector-releases-3";
+
+    private static final String REPOSITORY_RELEASES_4 = "injector-releases-4";
+
+    private static final String REPOSITORY_RELEASES_5 = "injector-releases-5";
+
+    private static final String REPOSITORY_RELEASES_6 = "injector-releases-6";
+
     /**
      * org/carlspring/ioc/PropertyValueInjector
      * org/carlspring/ioc/InjectionException
@@ -79,21 +89,13 @@ public class StrongboxIndexerTest
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_4, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_5, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_6, Maven2LayoutProvider.ALIAS));
 
         return repositories;
-    }
-
-    @BeforeEach
-    public void setUp()
-            throws Exception
-    {
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES_1,
-                                      true,
-                                      "org.carlspring:properties-injector",
-                                      "1.8");
-
-
     }
 
     @Test
@@ -101,10 +103,13 @@ public class StrongboxIndexerTest
     public void indexerShouldBeCapableToSearchByClassName()
             throws Exception
     {
+        createRepository(STORAGE0, REPOSITORY_RELEASES_1, true);
+
         Indexer indexer = this.indexer.get();
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_1,
+        artifactManagementService.validateAndStore(STORAGE0,
+                                                   REPOSITORY_RELEASES_1,
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar",
                                                    jarArtifact.getInputStream());
 
@@ -123,14 +128,18 @@ public class StrongboxIndexerTest
     public void indexerShouldBeCapableToSearchByFQN()
             throws Exception
     {
+        createRepository(STORAGE0, REPOSITORY_RELEASES_2, true);
+
         Indexer indexer = this.indexer.get();
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_1,
+        artifactManagementService.validateAndStore(STORAGE0,
+                                                   REPOSITORY_RELEASES_2,
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar",
                                                    jarArtifact.getInputStream());
 
-        String contextId = IndexContextHelper.getContextId(STORAGE0, REPOSITORY_RELEASES_1,
+        String contextId = IndexContextHelper.getContextId(STORAGE0,
+                                                           REPOSITORY_RELEASES_2,
                                                            IndexTypeEnum.LOCAL.getType());
         RepositoryIndexer ri = repositoryIndexManager.getRepositoryIndexer(contextId);
         Query q = indexer.constructQuery(MAVEN.CLASSNAMES,
@@ -146,22 +155,29 @@ public class StrongboxIndexerTest
     public void indexerShouldBeCapableToSearchByFullSha1Hash()
             throws Exception
     {
+        createRepositoryWithArtifacts(STORAGE0,
+                                      REPOSITORY_RELEASES_3,
+                                      true,
+                                      "org.carlspring:properties-injector",
+                                      "1.8");
+
         Indexer indexer = this.indexer.get();
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
-        String sha1 = Files.readAllLines(getVaultDirectoryPath()
-                                                 .resolve("storages")
-                                                 .resolve(STORAGE0)
-                                                 .resolve(REPOSITORY_RELEASES_1)
-                                                 .resolve("org")
-                                                 .resolve("carlspring")
-                                                 .resolve("properties-injector")
-                                                 .resolve("1.8")
-                                                 .resolve("properties-injector-1.8.jar.sha1")
-                                                 .toAbsolutePath()).get(0);
+        String sha1 = Files.readAllLines(getVaultDirectoryPath().resolve("storages")
+                                                                .resolve(STORAGE0)
+                                                                .resolve(REPOSITORY_RELEASES_3)
+                                                                .resolve("org")
+                                                                .resolve("carlspring")
+                                                                .resolve("properties-injector")
+                                                                .resolve("1.8")
+                                                                .resolve("properties-injector-1.8.jar.sha1")
+                                                                .toAbsolutePath()).get(0);
 
-        String contextId = IndexContextHelper.getContextId(STORAGE0, REPOSITORY_RELEASES_1,
+        String contextId = IndexContextHelper.getContextId(STORAGE0,
+                                                           REPOSITORY_RELEASES_3,
                                                            IndexTypeEnum.LOCAL.getType());
+
         RepositoryIndexer ri = repositoryIndexManager.getRepositoryIndexer(contextId);
         Query q = indexer.constructQuery(MAVEN.SHA1, new SourcedSearchExpression(sha1));
 
@@ -175,25 +191,31 @@ public class StrongboxIndexerTest
     public void indexerShouldBeCapableToSearchByPartialSha1Hash()
             throws Exception
     {
+        createRepositoryWithArtifacts(STORAGE0,
+                                      REPOSITORY_RELEASES_4,
+                                      true,
+                                      "org.carlspring:properties-injector",
+                                      "1.8");
+
         Indexer indexer = this.indexer.get();
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
-        String sha1 = Files.readAllLines(getVaultDirectoryPath()
-                                                 .resolve("storages")
-                                                 .resolve(STORAGE0)
-                                                 .resolve(REPOSITORY_RELEASES_1)
-                                                 .resolve("org")
-                                                 .resolve("carlspring")
-                                                 .resolve("properties-injector")
-                                                 .resolve("1.8")
-                                                 .resolve("properties-injector-1.8.jar.sha1")
-                                                 .toAbsolutePath()).get(0);
+        String sha1 = Files.readAllLines(getVaultDirectoryPath().resolve("storages")
+                                                                .resolve(STORAGE0)
+                                                                .resolve(REPOSITORY_RELEASES_4)
+                                                                .resolve("org")
+                                                                .resolve("carlspring")
+                                                                .resolve("properties-injector")
+                                                                .resolve("1.8")
+                                                                .resolve("properties-injector-1.8.jar.sha1")
+                                                                .toAbsolutePath()).get(0);
 
-        String contextId = IndexContextHelper.getContextId(STORAGE0, REPOSITORY_RELEASES_1,
+        String contextId = IndexContextHelper.getContextId(STORAGE0,
+                                                           REPOSITORY_RELEASES_4,
                                                            IndexTypeEnum.LOCAL.getType());
+
         RepositoryIndexer ri = repositoryIndexManager.getRepositoryIndexer(contextId);
-        Query q = indexer.constructQuery(MAVEN.SHA1,
-                                         new UserInputSearchExpression(sha1.substring(0, 8)));
+        Query q = indexer.constructQuery(MAVEN.SHA1, new UserInputSearchExpression(sha1.substring(0, 8)));
 
         FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(q, ri.getIndexingContext()));
 
@@ -205,14 +227,18 @@ public class StrongboxIndexerTest
     public void indexerShouldBeCapableToSearchByClassNameFromZippedArtifact()
             throws Exception
     {
+        createRepository(STORAGE0, REPOSITORY_RELEASES_5, true);
+
         Indexer indexer = this.indexer.get();
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_1,
+        artifactManagementService.validateAndStore(STORAGE0,
+                                                   REPOSITORY_RELEASES_5,
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip",
                                                    zipArtifact.getInputStream());
 
-        String contextId = IndexContextHelper.getContextId(STORAGE0, REPOSITORY_RELEASES_1,
+        String contextId = IndexContextHelper.getContextId(STORAGE0,
+                                                           REPOSITORY_RELEASES_5,
                                                            IndexTypeEnum.LOCAL.getType());
         RepositoryIndexer ri = repositoryIndexManager.getRepositoryIndexer(contextId);
         Query q = indexer.constructQuery(MAVEN.CLASSNAMES, new UserInputSearchExpression("PropertiesResources"));
@@ -227,14 +253,17 @@ public class StrongboxIndexerTest
     public void indexerShouldBeCapableToSearchByFQNFromZippedArtifact()
             throws Exception
     {
+        createRepository(STORAGE0, REPOSITORY_RELEASES_6, true);
+
         Indexer indexer = this.indexer.get();
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_1,
+        artifactManagementService.validateAndStore(STORAGE0,
+                                                   REPOSITORY_RELEASES_6,
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip",
                                                    zipArtifact.getInputStream());
 
-        String contextId = IndexContextHelper.getContextId(STORAGE0, REPOSITORY_RELEASES_1,
+        String contextId = IndexContextHelper.getContextId(STORAGE0, REPOSITORY_RELEASES_6,
                                                            IndexTypeEnum.LOCAL.getType());
         RepositoryIndexer ri = repositoryIndexManager.getRepositoryIndexer(contextId);
         Query q = indexer.constructQuery(MAVEN.CLASSNAMES,
@@ -250,7 +279,14 @@ public class StrongboxIndexerTest
             throws Exception
     {
         closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_3);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_4);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_5);
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_6);
+
         removeRepositories(getRepositoriesToClean());
+
         cleanUp();
     }
 
