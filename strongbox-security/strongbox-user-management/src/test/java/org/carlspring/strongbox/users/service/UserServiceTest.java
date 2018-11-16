@@ -68,7 +68,7 @@ public class UserServiceTest
         user.setPassword("test-password");
         user.setSecurityTokenKey("some-security-token");
 
-        userService.add(user);
+        userService.save(user);
 
         User foundEntity = userService.findByUserName(testUserName);
 
@@ -96,7 +96,7 @@ public class UserServiceTest
         userAdd.setPassword("test-password");
         userAdd.setSecurityTokenKey("before");
 
-        userService.add(userAdd);
+        userService.save(userAdd);
 
         User addedEntity = userService.findByUserName(testUserName);
         assertNotNull(addedEntity, "Unable to locate user " + testUserName + ". Save operation failed!");
@@ -111,7 +111,7 @@ public class UserServiceTest
         userUpdate.setSecurityTokenKey("after");
         userUpdate.setEnabled(false);
 
-        userService.updateByUsername(userUpdate);
+        userService.save(userUpdate);
 
         User updatedEntity = userService.findByUserName(testUserName);
         assertNotNull(updatedEntity, "Unable to locate updated user " + testUserName + ". Update operation failed!");
@@ -140,7 +140,7 @@ public class UserServiceTest
         userAdd.setUsername(testUserName);
         userAdd.setPassword("initial");
 
-        userService.add(userAdd);
+        userService.save(userAdd);
 
         User addedEntity = userService.findByUserName(testUserName);
         assertNotNull(addedEntity, "Unable to locate user " + testUserName + ". Save operation failed!");
@@ -154,7 +154,7 @@ public class UserServiceTest
         userNullPassUpdate.setUsername(testUserName);
         userNullPassUpdate.setPassword(null);
 
-        userService.updateByUsername(userNullPassUpdate);
+        userService.save(userNullPassUpdate);
 
         User updatedEntity = userService.findByUserName(testUserName);
         assertNotNull(updatedEntity, "Unable to locate updated user " + testUserName + ". Update operation failed!");
@@ -170,7 +170,7 @@ public class UserServiceTest
         userBlankPassUpdate.setUsername(testUserName);
         userBlankPassUpdate.setPassword(null);
 
-        userService.updateByUsername(userBlankPassUpdate);
+        userService.save(userBlankPassUpdate);
 
         updatedEntity = userService.findByUserName(testUserName);
         assertNotNull(updatedEntity, "Unable to locate updated user " + testUserName + ". Update operation failed!");
@@ -192,7 +192,7 @@ public class UserServiceTest
         userAdd.setPassword("test-password");
         userAdd.setSecurityTokenKey("before");
 
-        userService.add(userAdd);
+        userService.save(userAdd);
 
         User addedEntity = userService.findByUserName(testUserName);
         assertNotNull(addedEntity, "Unable to locate user " + testUserName + ". Save operation failed!");
@@ -232,7 +232,7 @@ public class UserServiceTest
         UserDto user = new UserDto();
         user.setUsername("admin");
 
-        userService.add(user);
+        userService.save(user);
 
         assertThat(userService.findAll().getUsers().stream().filter(u -> "admin".equals(u.getUsername())).collect(
                 Collectors.toList()).size(), CoreMatchers.equalTo(1));
@@ -305,7 +305,7 @@ public class UserServiceTest
         userAdd.setPassword("test-password");
         userAdd.setSecurityTokenKey("before");
 
-        userService.add(userAdd);
+        userService.save(userAdd);
 
         User addedEntity = userService.findByUserName(testUserName);
         assertNotNull(addedEntity, "Unable to locate user " + testUserName + ". Delete operation failed!");

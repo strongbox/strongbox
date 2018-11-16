@@ -6,6 +6,7 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -44,6 +45,7 @@ public class AccountControllerTest
     private static final String TEST_DISABLED_USER_ACCOUNT = "test-disabled-user-account";
 
     @Inject
+    @XmlUserServiceQualifier
     private UserService userService;
     
     @Override
@@ -62,7 +64,7 @@ public class AccountControllerTest
         disabledUser.setUsername(TEST_DISABLED_USER_ACCOUNT);
         disabledUser.setPassword("1234");
         disabledUser.setEnabled(false);
-        userService.add(disabledUser);
+        userService.save(disabledUser);
     }
 
     @Test
@@ -103,7 +105,7 @@ public class AccountControllerTest
         UserDto testUser = new UserDto();
         testUser.setUsername("test-account-update");
         testUser.setPassword("password");
-        userService.add(testUser);
+        userService.save(testUser);
 
         User userEntity = userService.findByUserName(testUser.getUsername());
 
@@ -164,7 +166,7 @@ public class AccountControllerTest
         testUser.setPassword("password");
         testUser.setRoles(null);
         testUser.setEnabled(true);
-        userService.add(testUser);
+        userService.save(testUser);
 
         // Tru to change roles
         UserForm userForm = new UserForm();

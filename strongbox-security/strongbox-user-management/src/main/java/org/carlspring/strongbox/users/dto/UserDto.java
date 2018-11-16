@@ -5,8 +5,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,6 +45,9 @@ public class UserDto
     @XmlElement(name = "security-token-key")
     private String securityTokenKey;
 
+    @XmlTransient
+    private Date lastUpdate;
+    
     public UserDto()
     {
     }
@@ -129,6 +135,16 @@ public class UserDto
     public void setEnabled(final boolean enabled)
     {
         this.enabled = enabled;
+    }
+
+    public Date getLastUpdate()
+    {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate)
+    {
+        this.lastUpdate = lastUpdate;
     }
 
     @Override

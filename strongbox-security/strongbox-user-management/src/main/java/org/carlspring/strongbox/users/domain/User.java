@@ -2,12 +2,15 @@ package org.carlspring.strongbox.users.domain;
 
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserDto;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -34,6 +37,19 @@ public class User implements Serializable
 
     private final AccessModel accessModel;
 
+    private final Date lastUpdate;
+    
+    public User(final UserDetails source) {
+        this.username = source.getUsername();
+        this.password = source.getPassword();
+        this.enabled = source.isEnabled();
+        this.roles = source.getAuthorities().stream().map(a -> a.getAuthority()).collect(Collectors.toSet());
+        this.authorities = null;
+        this.securityTokenKey = null;
+        this.accessModel = null;
+        this.lastUpdate = null;        
+    }
+    
     public User(final UserDto source)
     {
         this.username = source.getUsername();
@@ -43,6 +59,12 @@ public class User implements Serializable
         this.authorities = source.getAuthorities();
         this.securityTokenKey = source.getSecurityTokenKey();
         this.accessModel = immuteAccessModel(source.getUserAccessModel());
+        this.lastUpdate = immuteDate(source.getLastUpdate());
+    }
+
+    private Date immuteDate(Date date)
+    {
+        return date == null ? null : new Date(date.getTime());
     }
 
     private Set<String> immuteRoles(final Set<String> source)
@@ -88,6 +110,11 @@ public class User implements Serializable
     public boolean isEnabled()
     {
         return enabled;
+    }
+
+    public Date getLastUpdate()
+    {
+        return lastUpdate;
     }
 
     @Override

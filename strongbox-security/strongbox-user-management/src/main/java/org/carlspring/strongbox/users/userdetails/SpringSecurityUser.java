@@ -26,7 +26,7 @@ public class SpringSecurityUser
 
     private String securityKey;
 
-    SpringSecurityUser()
+    public SpringSecurityUser()
     {
     }
 

@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.users.userdetails.StrongboxUserDetailService;
+import org.carlspring.strongbox.users.userdetails.XmlUserDetailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -37,7 +37,7 @@ public class PasswordAuthenticationProvider extends DaoAuthenticationProvider
 
     @Override
     @Inject
-    @StrongboxUserDetailService.StrongboxUserDetailServiceQualifier
+    @XmlUserDetailService.XmlUserDetailServiceQualifier
     public void setUserDetailsService(UserDetailsService userDetailsService)
     {
         super.setUserDetailsService(userDetailsService);

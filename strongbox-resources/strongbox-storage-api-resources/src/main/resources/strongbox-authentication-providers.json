@@ -1,0 +1,36 @@
+{
+    "strongbox": 
+    {
+        "authentication": 
+        {
+            "ldap": 
+            {
+                "url": "ldap://127.0.0.1:53389/dc=carlspring,dc=com",
+                "roles-mapping": 
+                [
+                    {
+                        "ldap-role": "Developers",
+                        "strongbox-role": "REPOSITORY_MANAGER"
+                    },
+
+                    {
+                        "ldap-role": "Contributors",
+                        "strongbox-role": "USER_ROLE"
+                    }
+                ],
+
+                "user-dn-patterns": 
+                [
+                    "uid={0},ou=Users"
+                ],
+
+                "group-search-base": "ou=Groups",
+                "search-subtree": true,
+                "group-search-filter": "(uniqueMember={0})",
+                "group-role-attribute": "cn",
+                "role-prefix": "",
+                "convert-to-upper-case": false
+            }
+        }
+    }
+}

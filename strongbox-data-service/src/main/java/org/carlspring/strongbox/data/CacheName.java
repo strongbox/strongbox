@@ -7,7 +7,6 @@ public final class CacheName
 {
     public static final class User
     {
-        public static final String USERS = "users";
         public static final String AUTHENTICATIONS = "authentications";
     }
     

@@ -4,6 +4,7 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
 
 import javax.inject.Inject;
 
@@ -27,6 +28,7 @@ public class LoginControllerTest
 {
 
     @Inject
+    @XmlUserServiceQualifier
     private UserService userService;
 
     @Override
@@ -88,7 +90,7 @@ public class LoginControllerTest
         disabledUser.setUsername("test-disabled-user-login");
         disabledUser.setPassword("1234");
         disabledUser.setEnabled(false);
-        userService.add(disabledUser);
+        userService.save(disabledUser);
 
         LoginInput loginInput = new LoginInput();
         loginInput.setUsername("test-disabled-user-login");
