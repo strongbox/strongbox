@@ -7,6 +7,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -109,10 +110,14 @@ public class SmtpConfigurationForm
     @JsonIgnore()
     public static SmtpConfigurationForm fromConfiguration(SmtpConfiguration source)
     {
-        return new SmtpConfigurationForm(source.getHost(),
-                                         source.getPort(),
-                                         source.getConnection(),
-                                         source.getUsername(),
+        SmtpConfiguration configuration = Optional.ofNullable(source).orElse(
+                new SmtpConfiguration(new MutableSmtpConfiguration())
+        );
+
+        return new SmtpConfigurationForm(configuration.getHost(),
+                                         configuration.getPort(),
+                                         configuration.getConnection(),
+                                         configuration.getUsername(),
                                          null);
     }
 }
