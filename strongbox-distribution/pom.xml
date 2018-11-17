@@ -395,6 +395,9 @@
                             <tag>${project.version}</tag>
 
                             <overwriteArtifact>true</overwriteArtifact>
+                            <repositoryId>strongbox/strongbox</repositoryId>
+                            <serverId>github</serverId>
+                            <deleteRelease>true</deleteRelease>
 
                             <fileSets>
                                 <fileSet>
