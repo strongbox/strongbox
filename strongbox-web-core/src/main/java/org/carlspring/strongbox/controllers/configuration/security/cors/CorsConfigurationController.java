@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration.security.cors;
 
 import org.carlspring.strongbox.controllers.BaseController;
+import org.carlspring.strongbox.forms.configuration.CorsConfigurationForm;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 
 import javax.inject.Inject;
@@ -19,6 +20,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -67,16 +70,17 @@ public class CorsConfigurationController
     }
 
     @ApiOperation(value = "Sets CORS allowed origins",
-            notes = "In the request body, put an array of all allowed origins like this example: " +
-                    "[\"http://example-a.com/\",\"http://example-b.com/foo/bar\"]. " +
-                    "You can always provide [*] to allow all origins.")
+                  notes = "In the request body, put an array of all allowed origins like this example: " +
+                          "allowedOrigins: [\"http://example-a.com/\",\"http://example-b.com/foo/bar\"] " +
+                          "You can always provide [\"*\"] to allow all origins.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = CorsConfigurationController.SUCCESSFUL_UPDATE),
                             @ApiResponse(code = 400, message = CorsConfigurationController.FAILED_UPDATE) })
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity setAllowedOrigins(@RequestBody List<String> allowedOrigins,
-                                            @RequestHeader(HttpHeaders.ACCEPT) String accept)
+    public ResponseEntity setAllowedOrigins(@RequestBody @Validated CorsConfigurationForm corsSettingsForm,
+                                            BindingResult bindingResult,
+                                            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         Optional<CorsConfiguration> corsConfiguration = ((UrlBasedCorsConfigurationSource) corsConfigurationSource).getCorsConfigurations()
                                                                                                                    .values()
@@ -85,12 +89,13 @@ public class CorsConfigurationController
 
         if (corsConfiguration.isPresent())
         {
-            if (setAllowedOrigins(corsConfiguration.get(), allowedOrigins))
+            if (setAllowedOrigins(corsConfiguration.get(), corsSettingsForm.getAllowedOrigins()))
             {
-                return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE, accept);
+                return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE, acceptHeader);
             }
         }
-        return getBadRequestResponseEntity(FAILED_UPDATE, accept);
+
+        return getBadRequestResponseEntity(FAILED_UPDATE, acceptHeader);
     }
 
     private boolean setAllowedOrigins(CorsConfiguration corsConfiguration,

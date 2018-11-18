@@ -52,6 +52,8 @@ public class Configuration
 
     private final CorsConfiguration corsConfiguration;
 
+    private final SmtpConfiguration smtpConfiguration;
+
     public Configuration(final MutableConfiguration delegate)
     {
 
@@ -68,6 +70,7 @@ public class Configuration
         storages = immuteStorages(delegate.getStorages());
         routingRules = immuteRoutingRules(delegate.getRoutingRules());
         corsConfiguration = immuteCorsConfiguration(delegate.getCorsConfiguration());
+        smtpConfiguration = immuteSmtpConfiguration(delegate.getSmtpConfiguration());
     }
 
     private ProxyConfiguration immuteProxyConfiguration(final MutableProxyConfiguration source)
@@ -99,6 +102,11 @@ public class Configuration
     private CorsConfiguration immuteCorsConfiguration(final MutableCorsConfiguration source)
     {
         return source != null ? new CorsConfiguration(source) : null;
+    }
+
+    private SmtpConfiguration immuteSmtpConfiguration(final MutableSmtpConfiguration source)
+    {
+        return source != null ? new SmtpConfiguration(source) : null;
     }
 
     public String getId()
@@ -241,5 +249,10 @@ public class Configuration
     public CorsConfiguration getCorsConfiguration()
     {
         return corsConfiguration;
+    }
+
+    public SmtpConfiguration getSmtpConfiguration()
+    {
+        return smtpConfiguration;
     }
 }

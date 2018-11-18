@@ -1,27 +1,62 @@
 package org.carlspring.strongbox.forms.users;
 
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
 import org.carlspring.strongbox.users.dto.UserRepositoryDto;
 import org.carlspring.strongbox.users.dto.UserStorageDto;
 
+import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.Java6Assertions;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.IsCollectionContaining;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
+@IntegrationTest
+@ExtendWith(SpringExtension.class)
 public class AccessModelFormTest
+        extends RestAssuredBaseTest
 {
+
+    private static final String STORAGE_ID_VALID = "storage0";
+    private static final String REPOSITORY_ID_VALID = "releases";
+    private Collection<String> privileges;
+
+    @Inject
+    private Validator validator;
+
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
+    {
+        super.init();
+
+        privileges = Lists.newArrayList(Privileges.r());
+    }
 
     @Test
     public void shouldProperlyMapToDto()
@@ -92,7 +127,7 @@ public class AccessModelFormTest
         for (UserRepositoryDto userRepository : userRepositories)
         {
             assertThat(userRepository.getRepositoryId(),
-                              CoreMatchers.anyOf(CoreMatchers.equalTo("releases"), CoreMatchers.equalTo("snapshots")));
+                       CoreMatchers.anyOf(CoreMatchers.equalTo("releases"), CoreMatchers.equalTo("snapshots")));
 
 
             Set<PrivilegeDto> repositoryPrivileges = userRepository.getRepositoryPrivileges();
@@ -106,10 +141,10 @@ public class AccessModelFormTest
                 for (UserPathPrivilegesDto pathPrivilege : pathPrivileges)
                 {
                     assertThat(pathPrivilege.getPath(),
-                                      CoreMatchers.anyOf(CoreMatchers.equalTo("com/apache/foo"),
-                                                         CoreMatchers.equalTo("org/apache/foo"),
-                                                         CoreMatchers.equalTo("com/carlspring/foo"),
-                                                         CoreMatchers.equalTo("org/carlspring/foo")));
+                               CoreMatchers.anyOf(CoreMatchers.equalTo("com/apache/foo"),
+                                                  CoreMatchers.equalTo("org/apache/foo"),
+                                                  CoreMatchers.equalTo("com/carlspring/foo"),
+                                                  CoreMatchers.equalTo("org/carlspring/foo")));
                     if (pathPrivilege.getPath().startsWith("org"))
                     {
                         assertThat(pathPrivilege.getPrivileges().size(), CoreMatchers.equalTo(5));
@@ -144,4 +179,40 @@ public class AccessModelFormTest
         }
     }
 
+    @Test
+    void testAccessModelFormValid()
+    {
+        // given
+        AccessModelForm accessModelForm = new AccessModelForm();
+        RepositoryAccessModelForm repositoryAccessModelForm = new RepositoryAccessModelForm();
+        repositoryAccessModelForm.setStorageId(STORAGE_ID_VALID);
+        repositoryAccessModelForm.setRepositoryId(REPOSITORY_ID_VALID);
+        repositoryAccessModelForm.setPrivileges(privileges);
+        List<RepositoryAccessModelForm> repositories = Lists.newArrayList(repositoryAccessModelForm);
+        accessModelForm.setRepositoriesAccess(repositories);
+
+        // when
+        Set<ConstraintViolation<RepositoryAccessModelForm>> violations = validator.validate(repositoryAccessModelForm);
+
+        // then
+        assertTrue(violations.isEmpty(), "Violations are not empty!");
+    }
+
+    @Test
+    void testAccessModelFormInvalidEmptyStorageId()
+    {
+        // given
+        RepositoryAccessModelForm repositoryAccessModelForm = new RepositoryAccessModelForm();
+        repositoryAccessModelForm.setStorageId(StringUtils.EMPTY);
+        repositoryAccessModelForm.setRepositoryId(REPOSITORY_ID_VALID);
+        repositoryAccessModelForm.setPrivileges(privileges);
+
+        // when
+        Set<ConstraintViolation<RepositoryAccessModelForm>> violations = validator.validate(repositoryAccessModelForm);
+
+        // then
+        assertFalse(violations.isEmpty(), "Violations are empty!");
+        assertEquals(violations.size(), 1);
+        Java6Assertions.assertThat(violations).extracting("message").containsAnyOf("A storage id must be specified.");
+    }
 }

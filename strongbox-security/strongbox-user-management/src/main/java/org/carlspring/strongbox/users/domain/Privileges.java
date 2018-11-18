@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.users.domain;
 
+import org.carlspring.strongbox.authorization.domain.Privilege;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,7 @@ public enum Privileges
     ADMIN,
     ANONYMOUS_USER,
     AUTHENTICATED_USER,
+    GLOBAL_CONFIGURATION_MANAGE,
     CONFIGURATION_UPLOAD,
     CONFIGURATION_VIEW,
     CONFIGURATION_SET_INSTANCE_NAME,
@@ -81,7 +84,8 @@ public enum Privileges
         EnumSet<Privileges> privileges = EnumSet.allOf(Privileges.class)
                                                 .stream()
                                                 .filter(Privileges::excludeInternalAuthorities)
-                                                .collect(Collectors.toCollection(() -> EnumSet.noneOf(Privileges.class)));
+                                                .collect(Collectors.toCollection(
+                                                        () -> EnumSet.noneOf(Privileges.class)));
         return privileges;
     }
 
@@ -113,6 +117,16 @@ public enum Privileges
     public static EnumSet<Privileges> uiAll()
     {
         return EnumSet.of(UI_LOGIN, UI_BROWSE);
+    }
+
+    public static EnumSet<Privileges> configurationAll()
+    {
+        EnumSet<Privileges> privileges = EnumSet.allOf(Privileges.class)
+                                                .stream()
+                                                .filter(Privileges::excludeNonConfigurationAuthorities)
+                                                .collect(Collectors.toCollection(() -> EnumSet.noneOf(Privileges.class)));
+
+        return privileges;
     }
 
     public static Set<String> r()
@@ -156,5 +170,11 @@ public enum Privileges
         exclude.add(Privileges.AUTHENTICATED_USER);
 
         return exclude.stream().noneMatch(p::equals);
+    }
+
+    private static boolean excludeNonConfigurationAuthorities(Privileges p)
+    {
+        return !p.getAuthority().toLowerCase().matches("^CONFIGURATION_.*") &&
+               !p.getAuthority().toLowerCase().equals("GLOBAL_CONFIGURATION_MANAGE");
     }
 }

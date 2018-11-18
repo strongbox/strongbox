@@ -4,6 +4,7 @@ import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.configuration.MutableSmtpConfiguration;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
@@ -93,4 +94,7 @@ public interface ConfigurationManagementService
                                                      String alias);
 
     void setCorsAllowedOrigins(List<String> allowedOrigins);
+
+    void setSmtpSettings(MutableSmtpConfiguration smtpConfiguration);
+
 }

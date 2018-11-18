@@ -16,6 +16,9 @@ public enum Roles
 {
     ADMIN(Privileges.all(), "Role with all privileges"),
 
+    // This is temporary and will be refactored as part of SB-1220 in a later stage.
+    GLOBAL_CONFIGURATION_MANAGER(Privileges.configurationAll(), "Role with all global configuration related privileges"),
+
     REPOSITORY_MANAGER(Privileges.repoAll(), "Role with all repository related privileges"),
 
     ARTIFACTS_MANAGER(Privileges.artifactsAll(), "Role with all artifact related privileges"),
