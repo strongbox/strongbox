@@ -73,11 +73,8 @@ Welcome to the Strongbox artifact repository manager's home.
 
 ## Download
 * Standalone:
-  * [tar.gz](https://github.com/strongbox/strongbox-assembly/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.tar.gz), [zip](https://github.com/strongbox/strongbox-assembly/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.zip)
-  * [other releases](https://github.com/strongbox/strongbox-assembly/releases)
-* Webapp
-  * [war](https://github.com/strongbox/strongbox-webapp/releases/download/1.0-SNAPSHOT/strongbox-webapp-1.0-SNAPSHOT.war)
-  * [other releases](https://github.com/strongbox/strongbox-webapp/releases)
+  * [tar.gz](https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.tar.gz), [zip](https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.zip)
+  * [other releases](https://github.com/strongbox/strongbox/releases)
 
 # Installation
 Please check [here](https://github.com/strongbox/strongbox/wiki/Installation) for detailed instruction on how to install and setup up Strongbox on the supported platforms.
