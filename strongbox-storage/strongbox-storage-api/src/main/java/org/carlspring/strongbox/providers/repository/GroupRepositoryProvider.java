@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
+ * @author Przemyslaw Fusik
  */
 @Component
 public class GroupRepositoryProvider extends AbstractRepositoryProvider

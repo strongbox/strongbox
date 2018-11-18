@@ -37,7 +37,7 @@ import static org.mockito.ArgumentMatchers.eq;
 /**
  * @author Przemyslaw Fusik
  */
-public class BaseMavenMetadataExpirationTest
+abstract class BaseMavenMetadataExpirationTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 

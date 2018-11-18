@@ -1,14 +1,9 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.client.CloseableRestResponse;
-import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
-import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +20,6 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -46,6 +39,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ParallelDownloadRemoteArtifactTest
         extends RetryDownloadArtifactTestBase
 {
+
+    private RemoteArtifactInputStreamStub remoteArtifactInputStream;
+
     public Map<InputStream, Thread> repoteRepositoryConnectionOwnerMap = new ConcurrentHashMap<>();
 
     @Inject
@@ -55,37 +51,8 @@ public class ParallelDownloadRemoteArtifactTest
     public void setup()
         throws Exception
     {
-        prepareArtifactResolverContext(null, true);
-    }
-
-    @Override
-    void prepareArtifactResolverContext(final InputStream artifactInputStream,
-                                        final boolean rangeRquestSupported)
-    {
-
-        RemoteRepositoryRetryArtifactDownloadConfiguration configuration = configurationManager.getConfiguration()
-                                                                                               .getRemoteRepositoriesConfiguration()
-                                                                                               .getRemoteRepositoryRetryArtifactDownloadConfiguration();
-
-        final Response response = Mockito.mock(Response.class);
-        Mockito.when(response.getEntity()).thenAnswer(invocation -> new RemoteArtifactInputStreamStub(jarArtifact));
-        Mockito.when(response.readEntity(InputStream.class)).thenAnswer(invocation -> new RemoteArtifactInputStreamStub(jarArtifact));
-        Mockito.when(response.getStatus()).thenReturn(200);
-        Mockito.when(response.getHeaderString("Accept-Ranges")).thenReturn(rangeRquestSupported ? "bytes" : "none");
-
-        final CloseableRestResponse restResponse = Mockito.mock(CloseableRestResponse.class);
-        Mockito.when(restResponse.getResponse()).thenReturn(response);
-
-        final RestArtifactResolver artifactResolver = Mockito.mock(RestArtifactResolver.class);
-        Mockito.when(artifactResolver.get(ArgumentMatchers.any(String.class))).thenReturn(restResponse);
-        Mockito.when(artifactResolver.get(ArgumentMatchers.any(String.class), ArgumentMatchers.any(Long.class))).thenReturn(
-                restResponse);
-        Mockito.when(artifactResolver.head(ArgumentMatchers.any(String.class))).thenReturn(restResponse);
-        Mockito.when(artifactResolver.getConfiguration()).thenReturn(configuration);
-        Mockito.when(artifactResolver.isAlive()).thenReturn(true);
-
-        Mockito.when(artifactResolverFactory.newInstance(ArgumentMatchers.any(RemoteRepository.class)))
-               .thenReturn(artifactResolver);
+        remoteArtifactInputStream = new RemoteArtifactInputStreamStub(jarArtifact);
+        prepareArtifactResolverContext(remoteArtifactInputStream, true);
     }
 
     @Test
@@ -104,6 +71,7 @@ public class ParallelDownloadRemoteArtifactTest
 
         // given
         assertFalse(Files.exists(destinationPath));
+        assertFalse(repoteRepositoryConnectionOwnerMap.containsKey(remoteArtifactInputStream));
 
         // when
         List<Throwable> result = IntStream.range(0, concurrency)

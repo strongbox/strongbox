@@ -8,6 +8,7 @@ import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.repository.event.ProxyRepositoryPathExpiredEvent;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
@@ -19,6 +20,8 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
+ * @author Przemyslaw Fusik
  */
 @Component
 public class ProxyRepositoryProvider
@@ -41,6 +45,9 @@ public class ProxyRepositoryProvider
 
     @Inject
     private HostedRepositoryProvider hostedRepositoryProvider;
+
+    @Inject
+    private RepositoryPathLock repositoryPathLock;
 
     @Override
     public String getAlias()
@@ -63,7 +70,7 @@ public class ProxyRepositoryProvider
 
         if (targetPath == null)
         {
-            targetPath = resolvePathForceFetch(repositoryPath);
+            targetPath = resolvePathExclusive(repositoryPath);
         }
         else if (RepositoryFiles.hasExpired(targetPath))
         {
@@ -73,11 +80,24 @@ public class ProxyRepositoryProvider
         return targetPath;
     }
 
-    public RepositoryPath resolvePathForceFetch(RepositoryPath repositoryPath)
-        throws IOException
+    private RepositoryPath resolvePathExclusive(RepositoryPath repositoryPath)
+            throws IOException
     {
+
+        ReadWriteLock lockSource = repositoryPathLock.lock(repositoryPath, "pre-remote-fetch");
+        Lock lock = lockSource.writeLock();
+        lock.lock();
+
         try
         {
+            // This is the second attempt, but this time inside exclusive write lock
+            // Things might have changed.
+            RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(repositoryPath);
+            if (targetPath != null)
+            {
+                return targetPath;
+
+            }
             return proxyRepositoryArtifactResolver.fetchRemoteResource(repositoryPath);
         }
         catch (IOException e)
@@ -86,6 +106,10 @@ public class ProxyRepositoryProvider
                          e);
 
             throw e;
+        }
+        finally
+        {
+            lock.unlock();
         }
     }
 

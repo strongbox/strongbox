@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.io;
 import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -35,7 +36,7 @@ public class MavenMetadataExpiredRepositoryPathHandler
     private ChecksumCacheManager checksumCacheManager;
 
     @Inject
-    private ProxyRepositoryProvider proxyRepositoryProvider;
+    private ProxyRepositoryArtifactResolver proxyRepositoryArtifactResolver;
 
     @Override
     public boolean supports(final RepositoryPath repositoryPath)
@@ -77,7 +78,7 @@ public class MavenMetadataExpiredRepositoryPathHandler
         {
             logger.debug("maven-metadata.xml will be re-fetched. Checksums differ.");
         }
-        proxyRepositoryProvider.resolvePathForceFetch(repositoryPath);
+        proxyRepositoryArtifactResolver.fetchRemoteResource(repositoryPath);
     }
 
     private Decision determineMetadataRefetch(final RepositoryPath repositoryPath,
@@ -90,7 +91,7 @@ public class MavenMetadataExpiredRepositoryPathHandler
             return I_DONT_KNOW;
         }
 
-        proxyRepositoryProvider.resolvePathForceFetch(
+        proxyRepositoryArtifactResolver.fetchRemoteResource(
                 repositoryPath.resolveSibling(repositoryPath.getFileName().toString() + "." + checksumAlgorithm));
         final String newRemoteChecksum = checksumCacheManager.get(repositoryPath,
                                                                   checksumAlgorithm);

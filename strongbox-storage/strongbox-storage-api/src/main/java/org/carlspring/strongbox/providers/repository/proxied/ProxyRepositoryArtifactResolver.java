@@ -45,6 +45,13 @@ public class ProxyRepositoryArtifactResolver
     @Inject
     private ArtifactManagementService artifactManagementService;
 
+    /**
+     * This method has been developed to force fetch resource from remote.
+     *
+     * It should not contain any local / cache existence checks.
+     *
+     * Update this method carefully.
+     */
     public RepositoryPath fetchRemoteResource(RepositoryPath repositoryPath)
         throws IOException
     {
@@ -58,15 +65,15 @@ public class ProxyRepositoryArtifactResolver
         }
 
         RestArtifactResolver client = restArtifactResolverFactory.newInstance(remoteRepository);
-        
+
         ReadWriteLock lockSource = repositoryPathLock.lock(repositoryPath, "remote-fetch");
         Lock lock = lockSource.writeLock();
         lock.lock();
-        
+
         try (InputStream is = new BufferedInputStream(new ProxyRepositoryInputStream(client, repositoryPath)))
         {
             return doFetch(repositoryPath, is);
-        } 
+        }
         finally
         {
             lock.unlock();
