@@ -130,7 +130,7 @@ public class MavenArtifactGenerator
         return new FileOutputStream(artifactFile);
     }
 
-    protected void createMetadata(Metadata metadata, String metadataPath)
+    public void createMetadata(Metadata metadata, String metadataPath)
             throws NoSuchAlgorithmException, IOException
     {
         File metadataFile = null;
