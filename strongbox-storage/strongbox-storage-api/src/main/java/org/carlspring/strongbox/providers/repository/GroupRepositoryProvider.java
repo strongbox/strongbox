@@ -118,6 +118,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             result = repositoryPathResolver.resolve(r, repositoryPath);
             if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), result))
             {
+                result = null;
                 continue;
             }
 
