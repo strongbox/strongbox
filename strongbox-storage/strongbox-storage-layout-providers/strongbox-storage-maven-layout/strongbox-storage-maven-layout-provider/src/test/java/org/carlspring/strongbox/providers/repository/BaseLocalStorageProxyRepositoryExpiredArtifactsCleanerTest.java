@@ -53,7 +53,6 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     @BeforeEach
     @AfterEach
     public void makeSureRemoteRepositoryIsRecognizedAsAlive()
-            throws Exception
     {
         Mockito.when(remoteRepositoryAlivenessCacheManager.isAlive(any(RemoteRepository.class))).thenReturn(true);
     }
@@ -63,8 +62,7 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     public void cleanup()
             throws Exception
     {
-        deleteDirectoryRelativeToVaultDirectory(
-                "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
+        deleteDirectoryRelativeToVaultDirectory("storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
 
         artifactEntryService.deleteAll();
     }
@@ -77,13 +75,15 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
                                                                                                                  path));
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
-        RepositoryPath repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(storageId, repositoryId,
+        RepositoryPath repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(storageId,
+                                                                                                         repositoryId,
                                                                                                          path));
         try (final InputStream ignored = proxyRepositoryProvider.getInputStream(repositoryPath))
         {
         }
 
-        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId, repositoryId,
+        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                         repositoryId,
                                                                                          path));
         ArtifactEntry artifactEntry = artifactEntryOptional.orElse(null);
         assertThat(artifactEntry, CoreMatchers.notNullValue());
@@ -92,9 +92,9 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
         assertThat(artifactEntry.getSizeInBytes(), CoreMatchers.notNullValue());
         assertThat(artifactEntry.getSizeInBytes(), Matchers.greaterThan(0l));
 
-        artifactEntry.setLastUsed(
-                DateUtils.addDays(artifactEntry.getLastUsed(), -10));
+        artifactEntry.setLastUsed(DateUtils.addDays(artifactEntry.getLastUsed(), -10));
 
         return artifactEntryService.save(artifactEntry);
     }
+
 }

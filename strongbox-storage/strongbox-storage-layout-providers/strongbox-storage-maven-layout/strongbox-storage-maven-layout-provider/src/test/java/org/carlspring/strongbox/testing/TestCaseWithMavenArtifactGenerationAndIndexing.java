@@ -488,8 +488,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         }
         
         super.removeRepositories(repositoriesToClean);
-        
     }
-
     
 }

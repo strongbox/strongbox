@@ -3,10 +3,8 @@ package org.carlspring.strongbox.services;
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -16,7 +14,9 @@ import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.repository.*;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
@@ -36,10 +36,7 @@ import java.util.stream.IntStream;
 
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.slf4j.Logger;
@@ -56,6 +53,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Disabled
 public class ArtifactManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -133,40 +131,34 @@ public class ArtifactManagementServiceImplTest
     public void initialize()
             throws Exception
     {
-        // Used by testDeploymentToRepositoryWithForbiddenDeployments()
-        MutableRepository repositoryWithoutDelete = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_WITHOUT_DELETE);
-        repositoryWithoutDelete.setAllowsDelete(false);
-        repositoryWithoutDelete.setLayout(Maven2LayoutProvider.ALIAS);
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      repositoryWithoutDelete,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "8.0");
-
-        // Used by testRedeploymentToRepositoryWithForbiddenRedeployments()
-        MutableRepository repositoryWithoutRedeployments = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT);
-        repositoryWithoutRedeployments.setAllowsRedeployment(false);
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      repositoryWithoutRedeployments,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "8.1");
-
-        // Used by testDeletionFromRepositoryWithForbiddenDeletes()
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DELETE).getAbsolutePath(),
-                         "org.carlspring.strongbox:strongbox-utils",
-                         new String[]{ "8.2" });
+        /*
+        createRepository(STORAGE0, REPOSITORY_RELEASES, false);
 
         // Used by:
         // - testForceDelete()
+        generateArtifact(STORAGE0,
+                         REPOSITORY_RELEASES,
+                         "org.carlspring.strongbox:strongbox-utils",
+                         "7.0" // Used by testForceDelete()
+        );
         // - testArtifactResolutionFromGroup()
+        generateArtifact(STORAGE0,
+                         REPOSITORY_RELEASES,
+                         "org.carlspring.strongbox:strongbox-utils",
+                         "7.0" // Used by testForceDelete()
+        );
         // - testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES,
-                                      false,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "7.0", // Used by testForceDelete()
-                                      "7.3"  // Used by testArtifactResolutionFromGroup()
+        generateArtifact(STORAGE0,
+                         REPOSITORY_RELEASES,
+                         "org.carlspring.strongbox:strongbox-utils",
+                         "7.0" // Used by testForceDelete()
+        );
+
+        // Used by testArtifactResolutionFromGroup()
+        generateArtifact(STORAGE0,
+                         REPOSITORY_RELEASES,
+                         "org.carlspring.strongbox:strongbox-utils",
+                         "7.3"
         );
 
         MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP);
@@ -176,10 +168,11 @@ public class ArtifactManagementServiceImplTest
         repositoryGroup.setAllowsForceDeletion(false);
         repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES);
 
+        // Used by testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
         createRepositoryWithArtifacts(STORAGE0,
                                       repositoryGroup,
                                       "org.carlspring.strongbox:strongbox-utils",
-                                      "8.2" // Used by testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
+                                      "8.2"
         );
 
         // Used by testForceDelete()
@@ -203,12 +196,12 @@ public class ArtifactManagementServiceImplTest
 
 
         //
-        MutableRepository releasesWithoutDeployment = mavenRepositoryFactory.createRepository(
-                REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT);
+        MutableRepository releasesWithoutDeployment = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT);
         releasesWithoutDeployment.setAllowsDeployment(false);
         releasesWithoutDeployment.setLayout(Maven2LayoutProvider.ALIAS);
 
         createRepository(STORAGE0, releasesWithoutDeployment);
+        */
     }
 
     @Test
@@ -216,6 +209,16 @@ public class ArtifactManagementServiceImplTest
     public void testDeploymentToRepositoryWithForbiddenDeployments()
             throws Exception
     {
+        // Used by testDeploymentToRepositoryWithForbiddenDeployments()
+        MutableRepository repositoryWithoutDelete = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_WITHOUT_DELETE);
+        repositoryWithoutDelete.setAllowsDelete(false);
+        repositoryWithoutDelete.setLayout(Maven2LayoutProvider.ALIAS);
+
+        createRepositoryWithArtifacts(STORAGE0,
+                                      repositoryWithoutDelete,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "8.0");
+
         InputStream is = null;
 
         //noinspection EmptyCatchBlock
@@ -252,6 +255,15 @@ public class ArtifactManagementServiceImplTest
     public void testRedeploymentToRepositoryWithForbiddenRedeployments()
             throws Exception
     {
+        // Used by testRedeploymentToRepositoryWithForbiddenRedeployments()
+        MutableRepository repositoryWithoutRedeployments = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT);
+        repositoryWithoutRedeployments.setAllowsRedeployment(false);
+
+        createRepositoryWithArtifacts(STORAGE0,
+                                      repositoryWithoutRedeployments,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "8.1");
+
         InputStream is = null;
 
         //noinspection EmptyCatchBlock
@@ -288,8 +300,13 @@ public class ArtifactManagementServiceImplTest
     @Test
     @Execution(CONCURRENT)
     public void testDeletionFromRepositoryWithForbiddenDeletes()
-            throws IOException
+            throws IOException, NoSuchAlgorithmException, XmlPullParserException
     {
+        // Used by testDeletionFromRepositoryWithForbiddenDeletes()
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DELETE).getAbsolutePath(),
+                         "org.carlspring.strongbox:strongbox-utils",
+                         new String[]{ "8.2" });
+
         //noinspection EmptyCatchBlock
         try
         {

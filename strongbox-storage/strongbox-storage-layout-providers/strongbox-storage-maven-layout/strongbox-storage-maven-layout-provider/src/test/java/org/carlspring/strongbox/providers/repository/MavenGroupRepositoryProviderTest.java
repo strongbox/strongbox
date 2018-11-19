@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
@@ -13,7 +14,6 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
@@ -23,14 +23,13 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
@@ -41,20 +40,9 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
-@Execution(CONCURRENT)
 public class MavenGroupRepositoryProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
-
-    private static final String REPOSITORY_RELEASES_1 = "grpt-releases-1";
-
-    private static final String REPOSITORY_RELEASES_2 = "grpt-releases-2";
-
-    private static final String REPOSITORY_GROUP_WITH_NESTED_GROUP_1 = "grpt-releases-group-with-nested-group-level-1";
-
-    private static final String REPOSITORY_GROUP_WITH_NESTED_GROUP_2 = "grpt-releases-group-with-nested-group-level-2";
-
-    private static final String REPOSITORY_GROUP = "grpt-releases-group";
 
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
@@ -78,87 +66,6 @@ public class MavenGroupRepositoryProviderTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @BeforeEach
-    public void setUp()
-            throws Exception
-    {
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES_1,
-                                      false,
-                                      "com.artifacts.in.releases.one:foo",
-                                      "1.2.3");
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES_1,
-                                      false,
-                                      "com.artifacts.in.releases.under:group",
-                                      "1.2.3");
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES_2,
-                                      false,
-                                      "com.artifacts.in.releases.two:foo",
-                                      "1.2.4");
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES_2,
-                                      false,
-                                      "com.artifacts.in.releases.under:group",
-                                      "1.2.4");
-
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
-        mavenRepositoryConfiguration.setIndexingEnabled(false);
-
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP);
-        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryGroup.setAllowsRedeployment(false);
-        repositoryGroup.setAllowsDelete(false);
-        repositoryGroup.setAllowsForceDeletion(false);
-        repositoryGroup.setRepositoryConfiguration(mavenRepositoryConfiguration);
-        repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_1);
-        repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_2);
-
-        createRepository(STORAGE0, repositoryGroup);
-
-        MutableRepository repositoryWithNestedGroupLevel1 = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
-        repositoryWithNestedGroupLevel1.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryWithNestedGroupLevel1.setAllowsRedeployment(false);
-        repositoryWithNestedGroupLevel1.setAllowsDelete(false);
-        repositoryWithNestedGroupLevel1.setAllowsForceDeletion(false);
-        repositoryWithNestedGroupLevel1.setRepositoryConfiguration(mavenRepositoryConfiguration);
-        repositoryWithNestedGroupLevel1.addRepositoryToGroup(REPOSITORY_GROUP);
-
-        createRepository(STORAGE0, repositoryWithNestedGroupLevel1);
-
-        MutableRepository repositoryWithNestedGroupLevel2 = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
-        repositoryWithNestedGroupLevel2.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryWithNestedGroupLevel2.setAllowsRedeployment(false);
-        repositoryWithNestedGroupLevel2.setAllowsDelete(false);
-        repositoryWithNestedGroupLevel2.setAllowsForceDeletion(false);
-        repositoryWithNestedGroupLevel2.setRepositoryConfiguration(mavenRepositoryConfiguration);
-        repositoryWithNestedGroupLevel2.addRepositoryToGroup(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
-
-        createRepository(STORAGE0, repositoryWithNestedGroupLevel2);
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_2).getAbsolutePath(),
-                         "org.carlspring.metadata.by.juan:juancho:1.2.64");
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_2).getAbsolutePath(),
-                         "org.carlspring.metadata.will.not.be:retrieved:1.2.64");
-
-        // Used by the testGroupExcludesWildcardRule() test
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_1).getAbsolutePath(),
-                         "com.artifacts.denied.by.wildcard:foo:1.2.6");
-        // Used by the testGroupExcludesWildcardRule() test
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_2).getAbsolutePath(),
-                         "com.artifacts.denied.by.wildcard:foo:1.2.7");
-
-        createRoutingRules();
-
-        generateMavenMetadata(STORAGE0, REPOSITORY_RELEASES_1);
-        generateMavenMetadata(STORAGE0, REPOSITORY_RELEASES_2);
-    }
-
     @AfterEach
     public void removeRepositories()
             throws Exception
@@ -167,136 +74,109 @@ public class MavenGroupRepositoryProviderTest
         cleanUp();
     }
 
-    private void createRoutingRules()
-    {
-        /**
-         <accepted>
-             <rule-set group-repository="*">
-                 <rule pattern=".*(com|org)/artifacts.in.releases1.*">
-                     <repositories>
-                         <repository>releases</repository>
-                     </repositories>
-                 </rule>
-             </rule-set>
-         </accepted>
-         */
-        createRoutingRuleSet(STORAGE0,
-                             "*",
-                             new String[]{ REPOSITORY_RELEASES_1 },
-                             ".*(com|org)/artifacts.in.releases.one.*",
-                             ROUTING_RULE_TYPE_ACCEPTED);
-
-        /**
-        <accepted>
-            <rule-set group-repository="group-releases">
-                <rule pattern=".*(com|org)/artifacts.in.releases.*">
-                    <repositories>
-                        <repository>releases-with-trash</repository>
-                        <repository>releases-with-redeployment</repository>
-                    </repositories>
-                </rule>
-            </rule-set>
-         **/
-        createRoutingRuleSet(STORAGE0,
-                             REPOSITORY_GROUP,
-                             new String[]{ REPOSITORY_RELEASES_1, REPOSITORY_RELEASES_2 },
-                             ".*(com|org)/artifacts.in.releases.*",
-                             ROUTING_RULE_TYPE_ACCEPTED);
-
-        /**
-        <denied>
-            <rule-set group-repository="*">
-                 <rule pattern=".*(com|org)/artifacts.denied.by.wildcard.*">
-                     <repositories>
-                         <repository>releases</repository>
-                     </repositories>
-                 </rule>
-            </rule-set>
-        </denied>
-         **/
-        createRoutingRuleSet(STORAGE0,
-                             "*",
-                             new String[]{ REPOSITORY_RELEASES_1 },
-                             ".*(com|org)/artifacts.denied.by.wildcard.*",
-                             ROUTING_RULE_TYPE_DENIED);
-
-        /**
-         <denied>
-            <rule-set group-repository="group-releases">
-                <rule pattern=".*(com|org)/artifacts.in.releases.*">
-                    <repositories>
-                        <repository>grpt-releases-1</repository>
-                    </repositories>
-                </rule>
-            </rule-set>
-         </denied>
-         **/
-        createRoutingRuleSet(STORAGE0,
-                             REPOSITORY_GROUP,
-                             new String[]{ REPOSITORY_RELEASES_1 },
-                             ".*(com|org)/artifacts.in.*",
-                             ROUTING_RULE_TYPE_DENIED);
-
-        /**
-         <denied>
-             <rule-set group-repository="grpt-releases-group">
-                 <rule pattern=".*(com|org)/carlspring/metadata/will/not/be/retrieved.*">
-                     <repositories>
-                        <repository>grpt-releases-2</repository>
-                     </repositories>
-                 </rule>
-             </rule-set>
-         </denied>
-         **/
-        createRoutingRuleSet(STORAGE0,
-                             REPOSITORY_GROUP,
-                             new String[]{ REPOSITORY_RELEASES_2 },
-                             ".*(com|org)/carlspring/metadata/will/not/be/retrieved.*",
-                             ROUTING_RULE_TYPE_DENIED);
-    }
-
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_1, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgi-1", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgi-2", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgi-group", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-mmfsbffgpr-1", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-mmfsbffgpr-2", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-mmfsbffgpr-group", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwoosr-1", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwoosr-2", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwoosr-group", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwr-1", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwr-2", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwr-group", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwr-1", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwr-2", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwr-group", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwranr-1", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwranr-2", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwranr-group", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwranr-group-with-nested-group-level-1",
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tganr-1", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tganr-test-group-against-nested-repository",
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tge-1", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tge-2", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tge-group", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-drsbv-1", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-drsbv-2", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-drsbv-group", Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
 
-    @AfterEach
-    public void tearDown()
-    {
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_RELEASES_1);
-        if (!repository.isInService())
-        {
-            configurationManagementService.putInService(STORAGE0, REPOSITORY_RELEASES_1);
-        }
-    }
-
     @Test
+    @Execution(CONCURRENT)
     public void testGroupIncludes()
-            throws IOException
+            throws Exception
     {
         System.out.println("# Testing group includes...");
 
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
+        String repositoryReleases1Name = "grpt-releases-tgi-1";
+
+        String repositoryReleases2Name = "grpt-releases-tgi-2";
+
+        String repositoryGroupName = "grpt-releases-tgi-group";
+
+        // Initialize test data
+        createRepository(STORAGE0, repositoryReleases1Name, false);
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
+                                      "com.artifacts.in.releases.one:foo",
+                                      new String[]{ "1.2.3" });
+
+        createRepositoryWithArtifacts(STORAGE0,
+                                      repositoryReleases1Name,
+                                      false,
+                                      "com.artifacts.in.releases.under:group",
+                                      "1.2.3");
+
+        createRepository(STORAGE0, repositoryReleases2Name, false);
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
+                         "com.artifacts.in.releases.two:foo",
+                         new String[]{ "1.2.4" });
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
+                         "com.artifacts.in.releases.under:group",
+                         new String[]{ "1.2.4" });
+
+        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
+
+        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
+        repositoryGroup.setAllowsRedeployment(false);
+        repositoryGroup.setAllowsDelete(false);
+        repositoryGroup.setAllowsForceDeletion(false);
+        repositoryGroup.setRepositoryConfiguration(mavenRepositoryConfiguration);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases1Name);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases2Name);
+
+        createRepository(STORAGE0, repositoryGroup);
+        // Test data initialized.
+
+        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        Path repositoryPath = repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0, REPOSITORY_GROUP,
-                                                                                          "com/artifacts/in/releases/one/foo/1.2.3/foo-1.2.3.jar"));
+        RepositoryPath resolvedPath1 = repositoryPathResolver.resolve(STORAGE0,
+                                                                      repositoryGroupName,
+                                                                      "com/artifacts/in/releases/one/foo/1.2.3/foo-1.2.3.jar");
+
+        Path repositoryPath = repositoryProvider.fetchPath(resolvedPath1);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-
             assertNotNull(is);
         }
 
-        repositoryPath = repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0,
-                                                                                     REPOSITORY_GROUP,
-                                                                                     "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"));
+        RepositoryPath resolvedPath2 = repositoryPathResolver.resolve(STORAGE0,
+                                                                      repositoryGroupName,
+                                                                      "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar");
+        repositoryPath = repositoryProvider.fetchPath(resolvedPath2);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
 
@@ -305,14 +185,61 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository()
             throws Exception
     {
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
+        String repositoryReleases1Name = "grpt-releases-mmfsbffgpr-1";
+
+        String repositoryReleases2Name = "grpt-releases-mmfsbffgpr-2";
+
+        String repositoryGroupName = "grpt-releases-mmfsbffgpr-group";
+
+        // Initialize test data
+        createRepository(STORAGE0, repositoryReleases1Name, false);
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
+                         "com.artifacts.in.releases.one:foo",
+                         new String[]{ "1.2.3" });
+
+        createRepositoryWithArtifacts(STORAGE0,
+                                      repositoryReleases1Name,
+                                      false,
+                                      "com.artifacts.in.releases.under:group",
+                                      "1.2.3");
+
+        createRepository(STORAGE0, repositoryReleases2Name, false);
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
+                         "com.artifacts.in.releases.under:group",
+                         new String[]{ "1.2.4" });
+
+        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
+
+        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
+        repositoryGroup.setAllowsRedeployment(false);
+        repositoryGroup.setAllowsDelete(false);
+        repositoryGroup.setAllowsForceDeletion(false);
+        repositoryGroup.setRepositoryConfiguration(mavenRepositoryConfiguration);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases1Name);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases2Name);
+
+        createRepository(STORAGE0, repositoryGroup);
+
+        generateMavenMetadata(STORAGE0, repositoryReleases1Name);
+        generateMavenMetadata(STORAGE0, repositoryReleases2Name);
+        // Test data initialized.
+
+        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        Path repositoryPath = repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0, REPOSITORY_GROUP,
-                                                                                          "com/artifacts/in/releases/under/group/maven-metadata.xml"));
+        RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                     repositoryGroupName,
+                                                                     "com/artifacts/in/releases/under/group/maven-metadata.xml");
+
+        Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         InputStream is = repositoryProvider.getInputStream(repositoryPath);
 
         assertNotNull(is);
@@ -324,39 +251,134 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testGroupIncludesWithOutOfServiceRepository()
-            throws IOException
+            throws Exception
     {
+        String repositoryReleases1Name = "grpt-releases-tgiwoosr-1";
+
+        String repositoryReleases2Name = "grpt-releases-tgiwoosr-2";
+
+        String repositoryGroupName = "grpt-releases-tgiwoosr-group";
+
+        // Initialize test data
+        createRepository(STORAGE0, repositoryReleases1Name, false);
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
+                         "com.artifacts.in.releases.one:foo",
+                         new String[]{ "1.2.3" });
+
+        createRepository(STORAGE0, repositoryReleases2Name, false);
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
+                         "com.artifacts.in.releases.two:foo",
+                         new String[]{ "1.2.4" });
+
+        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
+
+        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
+        repositoryGroup.setAllowsRedeployment(false);
+        repositoryGroup.setAllowsDelete(false);
+        repositoryGroup.setAllowsForceDeletion(false);
+        repositoryGroup.setRepositoryConfiguration(mavenRepositoryConfiguration);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases1Name);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases2Name);
+
+        createRepository(STORAGE0, repositoryGroup);
+
+        createRoutingRuleSet(STORAGE0,
+                             repositoryGroupName,
+                             new String[]{ repositoryReleases1Name, repositoryReleases2Name },
+                             ".*(com|org)/artifacts.in.releases.*",
+                             ROUTING_RULE_TYPE_ACCEPTED);
+
+        createRoutingRuleSet(STORAGE0,
+                             repositoryGroupName,
+                             new String[]{ repositoryReleases1Name },
+                             ".*(com|org)/artifacts.in.*",
+                             ROUTING_RULE_TYPE_DENIED);
+        // Test data initialized.
+
         System.out.println("# Testing group includes with out of service repository...");
 
-        configurationManagementService.putOutOfService(STORAGE0, REPOSITORY_RELEASES_2);
+        configurationManagementService.putOutOfService(STORAGE0, repositoryReleases2Name);
 
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
+        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        Path repositoryPath = repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0,
-                                                                                          REPOSITORY_GROUP,
-                                                                                          "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"));
+        RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                     repositoryGroupName,
+                                                                     "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar");
+
+        Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-            configurationManagementService.putInService(STORAGE0, REPOSITORY_RELEASES_2);
+            configurationManagementService.putInService(STORAGE0, repositoryReleases2Name);
 
             assertNull(is);
         }
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testGroupIncludesWildcardRule()
-            throws IOException
+            throws Exception
     {
         System.out.println("# Testing group includes with wildcard...");
 
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
+        String repositoryReleases1Name = "grpt-releases-tgiwr-1";
+
+        String repositoryReleases2Name = "grpt-releases-tgiwr-2";
+
+        String repositoryGroupName = "grpt-releases-tgiwr-group";
+
+        // Initialize test data
+        createRepository(STORAGE0, repositoryReleases1Name, false);
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
+                         "com.artifacts.in.releases.one:foo",
+                         new String[]{ "1.2.3" });
+
+        createRepositoryWithArtifacts(STORAGE0,
+                                      repositoryReleases1Name,
+                                      false,
+                                      "com.artifacts.in.releases.under:group",
+                                      "1.2.3");
+
+        createRepository(STORAGE0, repositoryReleases2Name, false);
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
+                         "com.artifacts.in.releases.two:foo",
+                         new String[]{ "1.2.4" });
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
+                         "com.artifacts.in.releases.under:group",
+                         new String[]{ "1.2.4" });
+
+        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
+
+        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
+        repositoryGroup.setAllowsRedeployment(false);
+        repositoryGroup.setAllowsDelete(false);
+        repositoryGroup.setAllowsForceDeletion(false);
+        repositoryGroup.setRepositoryConfiguration(mavenRepositoryConfiguration);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases1Name);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases2Name);
+
+        createRepository(STORAGE0, repositoryGroup);
+        // Test data initialized.
+
+        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        Path repositoryPath = repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0,
-                                                                                          REPOSITORY_GROUP,
-                                                                                          "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"));
+        RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                     repositoryGroupName,
+                                                                     "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar");
+
+        Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
             assertNotNull(is);
@@ -364,35 +386,118 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testGroupIncludesWildcardRuleAgainstNestedRepository()
-            throws IOException
+            throws Exception
     {
         System.out.println("# Testing group includes with wildcard against nested repositories...");
 
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
+        String repositoryReleases1Name = "grpt-releases-tgiwranr-1";
+
+        String repositoryReleases2Name = "grpt-releases-tgiwranr-2";
+
+        String repositoryGroupName = "grpt-releases-tgiwranr-group";
+
+        String repositoryGroupWithNestedGroup1 = "grpt-releases-tgiwranr-group-with-nested-group-level-1";
+
+        // Initialize test data
+        createRepository(STORAGE0, repositoryReleases1Name, false);
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
+                         "com.artifacts.in.releases.one:foo",
+                         new String[]{ "1.2.3" });
+
+        createRepositoryWithArtifacts(STORAGE0,
+                                      repositoryReleases1Name,
+                                      false,
+                                      "com.artifacts.in.releases.under:group",
+                                      "1.2.3");
+
+        createRepository(STORAGE0, repositoryReleases2Name, false);
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
+                         "com.artifacts.in.releases.two:foo",
+                         new String[]{ "1.2.4" });
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
+                         "com.artifacts.in.releases.under:group",
+                         new String[]{ "1.2.4" });
+
+        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
+
+        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
+        repositoryGroup.setAllowsRedeployment(false);
+        repositoryGroup.setAllowsDelete(false);
+        repositoryGroup.setAllowsForceDeletion(false);
+        repositoryGroup.setRepositoryConfiguration(mavenRepositoryConfiguration);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases1Name);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases2Name);
+
+        createRepository(STORAGE0, repositoryGroup);
+
+        MutableRepository repositoryWithNestedGroupLevel1 = mavenRepositoryFactory.createRepository(repositoryGroupWithNestedGroup1);
+        repositoryWithNestedGroupLevel1.setType(RepositoryTypeEnum.GROUP.getType());
+        repositoryWithNestedGroupLevel1.setAllowsRedeployment(false);
+        repositoryWithNestedGroupLevel1.setAllowsDelete(false);
+        repositoryWithNestedGroupLevel1.setAllowsForceDeletion(false);
+        repositoryWithNestedGroupLevel1.setRepositoryConfiguration(mavenRepositoryConfiguration);
+        repositoryWithNestedGroupLevel1.addRepositoryToGroup(repositoryGroupName);
+
+        createRepository(STORAGE0, repositoryWithNestedGroupLevel1);
+        // Test data initialized.
+
+        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupWithNestedGroup1);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        Path repositoryPath = repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0,
-                                                                                          REPOSITORY_GROUP_WITH_NESTED_GROUP_1,
-                                                                                          "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar"));
+        RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                     repositoryGroupWithNestedGroup1,
+                                                                     "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar");
+
+        Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
             assertNotNull(is);
         }
     }
-    
+
     @Test
+    @Execution(CONCURRENT)
     public void testGroupAgainstNestedRepository()
-            throws IOException
+            throws Exception
     {
+        String repositoryReleases1Name = "grpt-releases-tganr-1";
+
+        String repositoryGroupName = "grpt-releases-tganr-test-group-against-nested-repository";
+
+        createRepository(STORAGE0, repositoryReleases1Name, false);
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
+                         "org.carlspring.metadata.by.juan:juancho:1.2.64");
+
+        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
+
+        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
+        repositoryGroup.setAllowsRedeployment(false);
+        repositoryGroup.setAllowsDelete(false);
+        repositoryGroup.setAllowsForceDeletion(false);
+        repositoryGroup.setRepositoryConfiguration(mavenRepositoryConfiguration);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases1Name);
+
+        createRepository(STORAGE0, repositoryGroup);
+
         System.out.println("# Testing group includes with wildcard against nested repositories...");
 
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
+        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        Path repositoryPath = repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0,
-                                                                                          REPOSITORY_GROUP_WITH_NESTED_GROUP_2,
-                                                                                          "org/carlspring/metadata/by/juan/juancho/1.2.64/juancho-1.2.64.jar"));
+        RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                     repositoryGroupName,
+                                                                     "org/carlspring/metadata/by/juan/juancho/1.2.64/juancho-1.2.64.jar");
+
+        Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
             assertNotNull(is);
@@ -400,64 +505,133 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void testGroupExcludes()
-            throws IOException
+            throws Exception
     {
         System.out.println("# Testing group excludes...");
 
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
+        String repositoryReleases1Name = "grpt-releases-tge-1";
+
+        String repositoryReleases2Name = "grpt-releases-tge-2";
+
+        String repositoryGroupName = "grpt-releases-tge-group";
+
+        // Initialize test data
+        createRepository(STORAGE0, repositoryReleases1Name, false);
+        createRepository(STORAGE0, repositoryReleases2Name, false);
+
+        // Used by the testGroupExcludesWildcardRule() test
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
+                         "com.artifacts.accepted:foo:1.2.6");
+
+        // Used by the testGroupExcludesWildcardRule() test
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
+                         "com.artifacts.denied.by.wildcard:foo:1.2.7");
+
+        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
+
+        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
+        repositoryGroup.setAllowsRedeployment(false);
+        repositoryGroup.setAllowsDelete(false);
+        repositoryGroup.setAllowsForceDeletion(false);
+        repositoryGroup.setRepositoryConfiguration(mavenRepositoryConfiguration);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases1Name);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases2Name);
+
+        createRepository(STORAGE0, repositoryGroup);
+
+        createRoutingRuleSet(STORAGE0,
+                             repositoryGroupName,
+                             new String[]{ repositoryReleases1Name },
+                             ".*(com|org)/artifacts.denied.*",
+                             ROUTING_RULE_TYPE_DENIED);
+
+        // Test data initialized.
+
+        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        Path repositoryPath = repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0,
-                                                                                          REPOSITORY_GROUP,
-                                                                                          "com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar"));
-        try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
-        {
-            assertNull(is);
-        }
-    }
+        RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                     repositoryGroupName,
+                                                                     "com/artifacts/accepted/foo/1.2.6/foo-1.2.6.jar");
 
-    @Test
-    public void testGroupExcludesWildcardRule()
-            throws IOException
-    {
-        System.out.println("# Testing group excludes with wildcard...");
-
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
-        RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-
-        try (InputStream is = repositoryProvider.getInputStream(repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0,
-                                                                                             REPOSITORY_GROUP,
-                                                                                             "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar"))))
-        {
-            assertNull(is);
-        }
-
-        // This one should work, as it's in a different repository
-        Path repositoryPath = repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0,
-                                                                                          REPOSITORY_GROUP,
-                                                                                          "com/artifacts/denied/by/wildcard/foo/1.2.7/foo-1.2.7.jar"));
+        Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
             assertNotNull(is);
         }
+
+        resolvedPath = repositoryPathResolver.resolve(STORAGE0,
+                                                      repositoryGroupName,
+                                                      "com/artifacts/denied/foo/1.2.7/foo-1.2.7.jar");
+
+        repositoryPath = repositoryProvider.fetchPath(resolvedPath);
+        try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
+        {
+            assertNull(is);
+        }
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void deniedRuleShouldBeValid()
             throws Exception
     {
-        System.out.println("# Testing group includes...");
+        String repositoryReleases1Name = "grpt-releases-drsbv-1";
 
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
+        String repositoryReleases2Name = "grpt-releases-drsbv-2";
+
+        String repositoryGroupName = "grpt-releases-drsbv-group";
+
+        // Initialize test data
+        createRepository(STORAGE0, repositoryReleases1Name, false);
+        createRepository(STORAGE0, repositoryReleases2Name, false);
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
+                         "com.artifacts.accepted:foo:1.2.6");
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
+                         "org.carlspring.metadata.will.not.be:retrieved:1.2.64");
+
+        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
+
+        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
+        repositoryGroup.setAllowsRedeployment(false);
+        repositoryGroup.setAllowsDelete(false);
+        repositoryGroup.setAllowsForceDeletion(false);
+        repositoryGroup.setRepositoryConfiguration(mavenRepositoryConfiguration);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases1Name);
+        repositoryGroup.addRepositoryToGroup(repositoryReleases2Name);
+
+        createRepository(STORAGE0, repositoryGroup);
+
+        createRoutingRuleSet(STORAGE0,
+                             repositoryGroupName,
+                             new String[]{ repositoryReleases2Name },
+                             ".*(com|org)/carlspring.metadata.*",
+                             ROUTING_RULE_TYPE_DENIED);
+
+        generateMavenMetadata(STORAGE0, repositoryReleases1Name);
+        generateMavenMetadata(STORAGE0, repositoryReleases2Name);
+        // Test data initialized.
+
+        System.out.println("# Testing group excludes...");
+
+        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        Path repositoryPath = repositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE0,
-                                                                                          REPOSITORY_GROUP,
-                                                                                          "org/carlspring/metadata/will/not/be/retrieved/1.2.64/retrieved-1.2.64.jar"));
+        RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                     repositoryGroupName,
+                                                                     "org/carlspring/metadata/will/not/be/retrieved/1.2.64/retrieved-1.2.64.jar");
+
+        Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-
             assertNull(is);
         }
     }

@@ -145,7 +145,6 @@ public class ArtifactDirectoryLocatorTest
 
     @AfterEach
     public void tearDown()
-            throws Exception
     {
         resetOutput();
         removeGeneratedArtifacts();

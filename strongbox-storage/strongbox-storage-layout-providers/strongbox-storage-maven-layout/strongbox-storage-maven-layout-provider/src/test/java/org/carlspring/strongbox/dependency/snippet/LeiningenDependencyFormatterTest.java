@@ -35,7 +35,6 @@ public class LeiningenDependencyFormatterTest
 
     @BeforeEach
     public void setUp()
-            throws Exception
     {
         coordinates = new MavenArtifactCoordinates();
         coordinates.setGroupId("org.carlspring.strongbox");
@@ -117,6 +116,5 @@ public class LeiningenDependencyFormatterTest
                      snippet,
                      "Failed to generate dependency!");
     }
-
 
 }
