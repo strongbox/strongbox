@@ -34,7 +34,7 @@ public class StorageApiConfig
     private List<ArtifactCoordinatesValidator> versionValidators;
 
     @Bean(name = "calculatedChecksumCacheManager")
-    CalculatedChecksumCacheManager calculatedChecksumCacheManager()
+    protected CalculatedChecksumCacheManager calculatedChecksumCacheManager()
     {
         CalculatedChecksumCacheManager calculatedChecksumCacheManager = new CalculatedChecksumCacheManager();
         calculatedChecksumCacheManager.setCachedChecksumExpiredCheckInterval(300000);
@@ -44,19 +44,19 @@ public class StorageApiConfig
     }
 
     @Bean(name = "versionValidators")
-    LinkedHashSet<ArtifactCoordinatesValidator> versionValidators()
+    protected LinkedHashSet<ArtifactCoordinatesValidator> versionValidators()
     {
         return new LinkedHashSet<>(versionValidators);
     }
 
     @Bean(name = "resourcesBooter")
-    ResourcesBooter getResourcesBooter()
+    protected ResourcesBooter getResourcesBooter()
     {
         return new ResourcesBooter();
     }
 
     @Bean(name = "storageBooter")
-    StorageBooter getStorageBooter()
+    protected StorageBooter getStorageBooter()
     {
         return new StorageBooter();
     }

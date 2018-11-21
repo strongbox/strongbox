@@ -80,12 +80,12 @@ public class CalculatedChecksumCacheManagerTest
 
     private class CheckingThread extends Thread
     {
-        CalculatedChecksumCacheManager manager;
+        private CalculatedChecksumCacheManager manager;
 
-        int sleepInterval = 100; // 100 ms
-        int timeSlept;
-        int maxTime = 3000;      // 3 secs
-        int tolerance = 1000;    // 1 sec
+        private int sleepInterval = 100; // 100 ms
+        private int timeSlept;
+        private int maxTime = 3000;      // 3 secs
+        private int tolerance = 1000;    // 1 sec
 
         private CheckingThread(CalculatedChecksumCacheManager manager)
         {

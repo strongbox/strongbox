@@ -29,7 +29,7 @@ public class CommonConfig
 
     @Bean
     @CommonExecutorService
-    ExecutorService executorService()
+    protected ExecutorService executorService()
     {
         int availableProcessors = Runtime.getRuntime().availableProcessors();
         int nThreads = (availableProcessors == 1) ? availableProcessors : (availableProcessors - 1);

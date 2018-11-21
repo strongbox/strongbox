@@ -23,7 +23,8 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -123,13 +124,11 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             }
 
             final RepositoryPath groupMemberPath = resolvePathFromGroupMemberOrTraverse(resolvedPath, true);
-            if (groupMemberPath == null)
+            if (groupMemberPath != null)
             {
-                continue;
+                logger.debug(String.format("Located artifact: [%s]", groupMemberPath));
+                return groupMemberPath;
             }
-            logger.debug(String.format("Located artifact: [%s]", groupMemberPath));
-            return groupMemberPath;
-
         }
 
         if (!firstMatch)

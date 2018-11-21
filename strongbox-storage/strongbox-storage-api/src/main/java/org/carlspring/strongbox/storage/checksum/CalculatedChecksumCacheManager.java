@@ -52,11 +52,6 @@ public class CalculatedChecksumCacheManager
      */
     private long cachedChecksumExpiredCheckInterval = 60000L;
 
-
-    public CalculatedChecksumCacheManager()
-    {
-    }
-
     public boolean containsArtifactPath(String artifactPath)
     {
         final boolean containsChecksum = cachedChecksums.containsKey(artifactPath);
