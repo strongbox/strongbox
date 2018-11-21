@@ -186,7 +186,8 @@ public class ConfigurationManagerTest
         Set<String> repositories = new LinkedHashSet<>();
         repositories.addAll(Arrays.asList("int-releases", "int-snapshots"));
 
-        MutableRoutingRule routingRule = new MutableRoutingRule(".*(com|org)/artifacts.denied.in.memory.*", repositories);
+        MutableRoutingRule routingRule = new MutableRoutingRule(".*(com|org)/artifacts.denied.in.memory.*",
+                                                                repositories);
 
         List<MutableRoutingRule> routingRulesList = new ArrayList<>();
         routingRulesList.add(routingRule);
@@ -209,4 +210,64 @@ public class ConfigurationManagerTest
         // Not optimal, but that's as good as it gets right now.
     }
 
+    @Test
+    public void testCorsConfiguration()
+            throws IOException, JAXBException
+    {
+
+        MutableCorsConfiguration corsConfiguration = new MutableCorsConfiguration(
+                Arrays.asList("http://example.com", "https://github.com/strongbox", "http://carlspring.org"));
+
+        MutableConfiguration configuration = new MutableConfiguration();
+        configuration.setCorsConfiguration(corsConfiguration);
+
+        File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
+
+        parser.store(configuration, outputFile.getCanonicalPath());
+
+        assertTrue(outputFile.length() > 0, "Failed to store the produced XML!");
+
+        MutableConfiguration c = parser.parse(outputFile.toURI().toURL());
+
+        assertEquals(3,
+                     c.getCorsConfiguration().getAllowedOrigins().size(),
+                     "Failed to read saved cors allowedOrigins!");
+    }
+
+    @Test
+    public void testSmtpConfiguration()
+            throws IOException, JAXBException
+    {
+
+        final String smtpHost = "localhost";
+        final Integer smtpPort = 25;
+        final String smtpConnection = "tls";
+        final String smtpUsername = "user-name";
+        final String smtpPassword = "user-password";
+
+        MutableSmtpConfiguration smtpConfiguration = new MutableSmtpConfiguration(smtpHost,
+                                                                                  smtpPort,
+                                                                                  smtpConnection,
+                                                                                  smtpUsername,
+                                                                                  smtpPassword);
+
+        MutableConfiguration configuration = new MutableConfiguration();
+        configuration.setSmtpConfiguration(smtpConfiguration);
+
+        File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
+
+        parser.store(configuration, outputFile.getCanonicalPath());
+
+        assertTrue(outputFile.length() > 0, "Failed to store the produced XML!");
+
+        MutableConfiguration c = parser.parse(outputFile.toURI().toURL());
+
+        MutableSmtpConfiguration savedSmtpConfiguration = c.getSmtpConfiguration();
+
+        assertEquals(smtpHost, savedSmtpConfiguration.getHost(), "Failed to read saved smtp host!");
+        assertEquals(smtpPort, savedSmtpConfiguration.getPort(), "Failed to read saved smtp port!");
+        assertEquals(smtpConnection, savedSmtpConfiguration.getConnection(), "Failed to read saved smtp connection!");
+        assertEquals(smtpUsername, savedSmtpConfiguration.getUsername(), "Failed to read saved smtp username!");
+        assertEquals(smtpPassword, savedSmtpConfiguration.getPassword(), "Failed to read saved smtp password!");
+    }
 }

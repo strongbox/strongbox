@@ -47,6 +47,21 @@ public class MutableProxyConfiguration
     {
     }
 
+    public MutableProxyConfiguration(String host,
+                                     int port,
+                                     String username,
+                                     String password,
+                                     String type,
+                                     List<String> nonProxyHosts)
+    {
+        this.host = host;
+        this.port = port;
+        this.username = username;
+        this.password = password;
+        this.type = type;
+        this.nonProxyHosts = nonProxyHosts;
+    }
+
     public String getHost()
     {
         return host;

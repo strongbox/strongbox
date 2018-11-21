@@ -67,6 +67,17 @@ pipeline {
                 }
             }
         }
+        stage('Deploying to GitHub') {
+            when {
+                expression { BRANCH_NAME == 'master' && (currentBuild.result == null || currentBuild.result == 'SUCCESS') }
+            }
+            steps {
+                withMavenPlus(mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833', publisherStrategy: 'EXPLICIT')
+                {
+                    sh "mvn package -Pdeploy-release-artifact-to-github -Dmaven.test.skip=true"
+                }
+            }
+        }
     }
     post {
         success {
