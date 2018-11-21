@@ -1,8 +1,11 @@
 package org.carlspring.strongbox.event.artifact;
 
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import java.io.IOException;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -27,6 +30,7 @@ public class MavenArtifactMetadataStoredEventListener
      */
     @EventListener
     public void handle(final ArtifactEvent<RepositoryPath> event)
+            throws IOException
     {
         final Repository repository = getRepository(event);
 
@@ -36,6 +40,11 @@ public class MavenArtifactMetadataStoredEventListener
         }
 
         if (event.getType() != ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_STORED.getType())
+        {
+            return;
+        }
+
+        if (!RepositoryFiles.requiresGroupAggregation(event.getPath()))
         {
             return;
         }

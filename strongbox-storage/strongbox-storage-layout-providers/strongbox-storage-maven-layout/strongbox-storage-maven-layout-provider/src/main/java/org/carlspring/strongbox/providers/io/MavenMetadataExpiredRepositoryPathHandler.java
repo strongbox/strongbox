@@ -27,9 +27,6 @@ public class MavenMetadataExpiredRepositoryPathHandler
     private static final Logger logger = LoggerFactory.getLogger(MavenMetadataExpiredRepositoryPathHandler.class);
 
     @Inject
-    private RepositoryProviderRegistry repositoryProviderRegistry;
-
-    @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
     @Inject
@@ -51,8 +48,7 @@ public class MavenMetadataExpiredRepositoryPathHandler
         }
 
         Repository repository = repositoryPath.getRepository();
-        RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
-        return provider instanceof ProxyRepositoryProvider;
+        return repository.getRemoteRepository() != null;
     }
 
     @Override

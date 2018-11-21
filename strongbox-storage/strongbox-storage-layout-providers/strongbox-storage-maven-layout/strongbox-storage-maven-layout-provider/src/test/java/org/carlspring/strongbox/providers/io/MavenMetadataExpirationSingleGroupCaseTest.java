@@ -109,22 +109,19 @@ public class MavenMetadataExpirationSingleGroupCaseTest
 
         assertFalse(RepositoryFiles.artifactExists(groupPath));
 
-        groupRepositoryProvider.fetchPath(groupPath);
-        assertTrue(RepositoryFiles.artifactExists(groupPath));
+        RepositoryPath resolvedGroupPath = groupRepositoryProvider.fetchPath(groupPath);
 
         sha1ProxyPathChecksum = checksumCacheManager.get(proxyPath,
                                                          EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertNotNull(sha1ProxyPathChecksum);
         assertThat(sha1ProxyPathChecksum, equalTo(sha1HostedPathChecksum));
 
-        String calculatedGroupPathChecksum = calculateChecksum(groupPath,
+        String calculatedGroupPathChecksum = calculateChecksum(resolvedGroupPath,
                                                                EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertThat(sha1ProxyPathChecksum, equalTo(calculatedGroupPathChecksum));
 
         Files.setLastModifiedTime(proxyPath, oneHourAgo());
-        Files.setLastModifiedTime(groupPath, oneHourAgo());
 
-        groupRepositoryProvider.fetchPath(groupPath);
         sha1ProxyPathChecksum = checksumCacheManager.get(proxyPath,
                                                          EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertThat(sha1ProxyPathChecksum, equalTo(calculatedGroupPathChecksum));
@@ -143,13 +140,12 @@ public class MavenMetadataExpirationSingleGroupCaseTest
         assertThat(calculatedHostedPathChecksum, not(equalTo(sha1ProxyPathChecksum)));
 
         Files.setLastModifiedTime(proxyPath, oneHourAgo());
-        Files.setLastModifiedTime(groupPath, oneHourAgo());
 
-        groupRepositoryProvider.fetchPath(groupPath);
+        resolvedGroupPath = groupRepositoryProvider.fetchPath(groupPath);
         sha1ProxyPathChecksum = checksumCacheManager.get(proxyPath,
                                                          EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertThat(sha1ProxyPathChecksum, equalTo(calculatedHostedPathChecksum));
-        calculatedGroupPathChecksum = calculateChecksum(groupPath,
+        calculatedGroupPathChecksum = calculateChecksum(resolvedGroupPath,
                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertThat(sha1ProxyPathChecksum, equalTo(calculatedGroupPathChecksum));
     }

@@ -20,6 +20,8 @@ public enum RepositoryFileAttributeType
     ARTIFACT_PATH("artifactPath"),
 
     EXPIRED("expired"),
+
+    REQUIRES_GROUP_AGGREGATION("requiresGroupAggregation"),
     
     RESOURCE_URL("resourceUrl"),
     

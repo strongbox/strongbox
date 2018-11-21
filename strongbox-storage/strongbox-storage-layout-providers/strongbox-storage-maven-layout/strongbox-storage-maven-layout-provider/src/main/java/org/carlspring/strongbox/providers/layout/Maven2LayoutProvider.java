@@ -122,6 +122,15 @@ public class Maven2LayoutProvider
                     result.put(attributeType, value);
 
                     break;
+                case REQUIRES_GROUP_AGGREGATION:
+                    value = BooleanUtils.isTrue((Boolean) value) || (isMavenMetadata(repositoryPath)
+                                                                     &&
+                                                                     !ArtifactUtils.isSnapshot(
+                                                                             repositoryPath.getParent().getFileName().toString()));
+
+                    result.put(attributeType, value);
+
+                    break;
                 default:
 
                     break;

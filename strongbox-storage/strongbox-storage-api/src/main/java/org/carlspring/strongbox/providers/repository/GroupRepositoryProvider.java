@@ -77,33 +77,27 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     public RepositoryPath fetchPath(RepositoryPath repositoryPath)
             throws IOException
     {
+        boolean firstMatch = !RepositoryFiles.requiresGroupAggregation(repositoryPath);
         RepositoryPath result = resolvePathDirectlyFromGroupPathIfPossible(repositoryPath);
         if (result != null)
         {
             if (RepositoryFiles.hasExpired(result))
             {
-                resolvePathTraversal(repositoryPath, false);
+                resolvePathTraversal(repositoryPath, firstMatch);
             }
             return result;
         }
 
-        return resolvePathTraversal(repositoryPath);
+        return resolvePathTraversal(repositoryPath, firstMatch);
     }
 
-    protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath)
-            throws IOException
-    {
-        return resolvePathTraversal(repositoryPath, true);
-    }
-
-    protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath,
-                                                  boolean firstMatch)
+    private RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath,
+                                                boolean firstMatch)
             throws IOException
     {
         Repository groupRepository = repositoryPath.getRepository();
         Storage storage = groupRepository.getStorage();
-        RepositoryPath result = null;
-        List<Callable<RepositoryPath>> actions = new ArrayList<>();
+        List<Callable<RepositoryPath>> aggregatedActions = new ArrayList<>();
 
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories().keySet())
         {
@@ -116,74 +110,49 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 continue;
             }
 
-            result = repositoryPathResolver.resolve(r, repositoryPath);
-            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), result))
+            final RepositoryPath resolvedPath = repositoryPathResolver.resolve(r, repositoryPath);
+            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), resolvedPath))
             {
-                result = null;
                 continue;
             }
 
-            final RepositoryPath selfResult = result;
-            actions.add(() -> resolvePathFromGroupMemberOrTraverse(selfResult, firstMatch));
-
-            if (firstMatch)
+            if (!firstMatch)
             {
-                result = invokeResolvePathActions(actions);
-                if (result == null)
-                {
-                    continue;
-                }
-                logger.debug(String.format("Located artifact: [%s]", result));
-                return result;
+                aggregatedActions.add(() -> resolvePathFromGroupMemberOrTraverse(resolvedPath, false));
+                continue;
             }
+
+            final RepositoryPath groupMemberPath = resolvePathFromGroupMemberOrTraverse(resolvedPath, true);
+            if (groupMemberPath == null)
+            {
+                continue;
+            }
+            logger.debug(String.format("Located artifact: [%s]", groupMemberPath));
+            return groupMemberPath;
+
         }
 
         if (!firstMatch)
         {
-            result = invokeResolvePathActions(actions);
+            invokeResolvePathActions(aggregatedActions);
+            return repositoryPath;
         }
 
-        return result;
+        return null;
     }
 
-    private RepositoryPath invokeResolvePathActions(List<Callable<RepositoryPath>> resolvePathActions)
+    private void invokeResolvePathActions(List<Callable<RepositoryPath>> resolvePathActions)
     {
-        List<Future<RepositoryPath>> answers;
         try
         {
             // TODO invokeAll timeout interrupt ?
-            answers = executorService.invokeAll(resolvePathActions);
+            executorService.invokeAll(resolvePathActions);
         }
         catch (InterruptedException e)
         {
             Thread.currentThread().interrupt();
             logger.error(e.getMessage(), e);
-            return null;
         }
-        for (Future<RepositoryPath> answer : answers)
-        {
-            RepositoryPath result;
-            try
-            {
-                result = answer.get();
-            }
-            catch (InterruptedException e)
-            {
-                Thread.currentThread().interrupt();
-                logger.error(e.getMessage(), e);
-                return null;
-            }
-            catch (ExecutionException e)
-            {
-                logger.error(e.getMessage(), e);
-                return null;
-            }
-            if (result != null)
-            {
-                return result;
-            }
-        }
-        return null;
     }
 
     private RepositoryPath resolvePathDirectlyFromGroupPathIfPossible(final RepositoryPath artifactPath)
