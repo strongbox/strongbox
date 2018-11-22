@@ -37,7 +37,7 @@ import static org.mockito.Matchers.any;
 public class Maven2LayoutProviderTestConfig
 {
 
-    @Bean
+    @Bean(name = "mockedConfigurationFileManager")
     @Primary
     ConfigurationFileManager configurationFileManager()
             throws IOException, JAXBException
