@@ -11,15 +11,11 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
-@Component
-@Scope("singleton")
 public class AuthenticationManager
         implements AuthenticationConfigurationManager
 {

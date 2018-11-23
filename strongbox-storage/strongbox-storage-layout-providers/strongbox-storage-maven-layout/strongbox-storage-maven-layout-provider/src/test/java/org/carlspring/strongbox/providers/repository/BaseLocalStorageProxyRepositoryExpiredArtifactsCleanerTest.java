@@ -10,6 +10,7 @@ import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteReposi
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.InputStream;
 import java.util.Optional;
 
@@ -45,6 +46,7 @@ public class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     protected LocalStorageProxyRepositoryExpiredArtifactsCleaner localStorageProxyRepositoryExpiredArtifactsCleaner;
 
     @Inject
+    @Named("mockedRemoteRepositoryAlivenessCacheManager")
     protected RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
     
     @Inject

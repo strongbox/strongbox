@@ -14,7 +14,6 @@ import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,15 +25,10 @@ import java.util.Map;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
-@Singleton
-@Component("storageBooter")
-@Scope("singleton")
 public class StorageBooter
 {
 
