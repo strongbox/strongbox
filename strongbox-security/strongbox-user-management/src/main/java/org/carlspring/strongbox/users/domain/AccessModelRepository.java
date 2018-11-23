@@ -1,13 +1,16 @@
 package org.carlspring.strongbox.users.domain;
 
+import org.carlspring.strongbox.authorization.dto.PrivelegieReadContract;
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
 import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
 import org.carlspring.strongbox.users.dto.UserRepositoryDto;
+import org.carlspring.strongbox.users.dto.UserRepositoryReadContract;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
 import static java.util.stream.Collectors.toSet;
@@ -17,12 +20,12 @@ import static java.util.stream.Collectors.toSet;
  */
 @Immutable
 public class AccessModelRepository
-        implements Serializable
+        implements Serializable, UserRepositoryReadContract
 {
 
     private final String repositoryId;
 
-    private final Set<String> repositoryPrivileges;
+    private final Set<AccessModelPrivelege> repositoryPrivileges;
 
     private final Set<AccessModelPathPrivileges> pathPrivileges;
 
@@ -33,11 +36,10 @@ public class AccessModelRepository
         this.pathPrivileges = immutePathPrivileges(delegate.getPathPrivileges());
     }
 
-    private Set<String> immuteRepositoryPrivileges(final Set<PrivilegeDto> source)
+    private Set<AccessModelPrivelege> immuteRepositoryPrivileges(final Set<PrivilegeDto> set)
     {
-        return source != null ?
-               ImmutableSet.copyOf(source.stream().map(PrivilegeDto::getName).collect(toSet())) :
-               Collections.emptySet();
+        return set != null ? set.stream().map(p -> new AccessModelPrivelege(p)).collect(Collectors.toSet())
+                : Collections.emptySet();
     }
 
     private Set<AccessModelPathPrivileges> immutePathPrivileges(final Set<UserPathPrivilegesDto> source)
@@ -52,7 +54,7 @@ public class AccessModelRepository
         return repositoryId;
     }
 
-    public Set<String> getRepositoryPrivileges()
+    public Set<? extends PrivelegieReadContract> getRepositoryPrivileges()
     {
         return repositoryPrivileges;
     }

@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.users.domain;
 
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.UserReadContract;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.concurrent.Immutable;
@@ -18,7 +20,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Przemyslaw Fusik
  */
 @Immutable
-public class User implements Serializable
+public class User implements Serializable, UserReadContract
 {
 
     public static final String SECURITY_TOKEN_KEY = "security-token-key";
@@ -102,7 +104,7 @@ public class User implements Serializable
         return securityTokenKey;
     }
 
-    public AccessModel getAccessModel()
+    public UserAccessModelReadContract getUserAccessModel()
     {
         return accessModel;
     }

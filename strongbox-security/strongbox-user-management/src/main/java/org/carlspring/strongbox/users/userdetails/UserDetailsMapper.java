@@ -30,7 +30,7 @@ public class UserDetailsMapper implements StrongboxUserToUserDetails
         springUser.setPassword(user.getPassword());
         springUser.setUsername(user.getUsername());
         springUser.setAuthorities(authorities);
-        springUser.setAccessModel(user.getAccessModel());
+        springUser.setAccessModel(user.getUserAccessModel());
         springUser.setSecurityKey(user.getSecurityTokenKey());
 
         return springUser;

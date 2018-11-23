@@ -14,7 +14,7 @@ import com.google.common.base.Objects;
 @XmlRootElement(name = "privilege")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PrivilegeDto
-        implements Serializable
+        implements Serializable, PrivelegieReadContract
 {
 
     @XmlElement(required = true)
@@ -49,6 +49,9 @@ public class PrivilegeDto
         return Objects.hashCode(name);
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.authorization.dto.PrivelegieReadContract#getName()
+     */
     public String getName()
     {
         return name;
@@ -59,6 +62,9 @@ public class PrivilegeDto
         this.name = name;
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.authorization.dto.PrivelegieReadContract#getDescription()
+     */
     public String getDescription()
     {
         return description;

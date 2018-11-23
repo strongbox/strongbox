@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.users.userdetails;
 
 import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 
 import java.util.Collection;
 
@@ -20,7 +21,7 @@ public class SpringSecurityUser
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    private AccessModel accessModel;
+    private UserAccessModelReadContract accessModel;
 
     private String url;
 
@@ -92,12 +93,12 @@ public class SpringSecurityUser
         this.authorities = authorities;
     }
 
-    public AccessModel getAccessModel()
+    public UserAccessModelReadContract getAccessModel()
     {
         return accessModel;
     }
 
-    public void setAccessModel(AccessModel accessModel)
+    public void setAccessModel(UserAccessModelReadContract accessModel)
     {
         this.accessModel = accessModel;
     }

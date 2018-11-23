@@ -1,7 +1,11 @@
 package org.carlspring.strongbox.users.domain;
 
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
+import org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract;
+import org.carlspring.strongbox.users.dto.UserRepositoryReadContract;
 import org.carlspring.strongbox.users.dto.UserStorageDto;
+import org.carlspring.strongbox.users.dto.UserStorageReadContract;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
@@ -9,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.StringUtils;
@@ -19,7 +24,7 @@ import static java.util.stream.Collectors.toSet;
  */
 @Immutable
 public class AccessModel
-        implements Serializable
+        implements Serializable, UserAccessModelReadContract
 {
 
     private final Set<AccessModelStorage> storages;
@@ -43,27 +48,30 @@ public class AccessModel
         return storages;
     }
 
-    public Collection<String> getPathPrivileges(String url)
+    public static Collection<String> getPathPrivileges(UserAccessModelReadContract accessModel, String url)
     {
         String normalizedUrl = StringUtils.chomp(url, "/");
 
         Collection<String> privileges = new HashSet<>();
-        for (final AccessModelStorage storage : storages)
+        for (final UserStorageReadContract storage : accessModel.getStorages())
         {
             String storageKey = "/storages/" + storage.getStorageId();
             if (!normalizedUrl.startsWith(storageKey))
             {
                 continue;
             }
-            for (AccessModelRepository repository : storage.getRepositories())
+            for (UserRepositoryReadContract repository : storage.getRepositories())
             {
                 String repositoryKey = storageKey + "/" + repository.getRepositoryId();
                 if (!normalizedUrl.startsWith(repositoryKey))
                 {
                     continue;
                 }
-                privileges.addAll(repository.getRepositoryPrivileges());
-                for (AccessModelPathPrivileges pathPrivilege : repository.getPathPrivileges())
+                privileges.addAll(repository.getRepositoryPrivileges()
+                                            .stream()
+                                            .map(p -> p.getName())
+                                            .collect(Collectors.toSet()));
+                for (UserPathPrivelegiesReadContract pathPrivilege : repository.getPathPrivileges())
                 {
                     String normalizedPath = StringUtils.chomp(pathPrivilege.getPath(), "/");
                     String pathKey = repositoryKey + "/" + normalizedPath;
@@ -74,7 +82,10 @@ public class AccessModel
                     }
                     if (normalizedUrl.equals(pathKey) || pathPrivilege.isWildcard())
                     {
-                        privileges.addAll(pathPrivilege.getPrivileges());
+                        privileges.addAll(pathPrivilege.getPrivileges()
+                                                       .stream()
+                                                       .map(p -> p.getName())
+                                                       .collect(Collectors.toSet()));
                     }
                 }
             }

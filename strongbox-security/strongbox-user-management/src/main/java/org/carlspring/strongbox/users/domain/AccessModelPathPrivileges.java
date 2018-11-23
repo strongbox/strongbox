@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.users.domain;
 
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
+import org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract;
 import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
 
 import javax.annotation.concurrent.Immutable;
@@ -16,7 +17,7 @@ import static java.util.stream.Collectors.toSet;
  */
 @Immutable
 public class AccessModelPathPrivileges
-        implements Serializable
+        implements Serializable, UserPathPrivelegiesReadContract
 {
 
     private final String path;
@@ -26,7 +27,7 @@ public class AccessModelPathPrivileges
      */
     private final boolean wildcard;
 
-    private final Set<String> privileges;
+    private final Set<AccessModelPrivelege> privileges;
 
     public AccessModelPathPrivileges(final UserPathPrivilegesDto delegate)
     {
@@ -36,10 +37,10 @@ public class AccessModelPathPrivileges
     }
 
 
-    private Set<String> immutePrivileges(final Set<PrivilegeDto> source)
+    private Set<AccessModelPrivelege> immutePrivileges(final Set<PrivilegeDto> source)
     {
         return source != null ?
-               ImmutableSet.copyOf(source.stream().map(PrivilegeDto::getName).collect(toSet())) :
+               ImmutableSet.copyOf(source.stream().map(p -> new AccessModelPrivelege(p)).collect(toSet())) :
                Collections.emptySet();
     }
 
@@ -53,7 +54,7 @@ public class AccessModelPathPrivileges
         return wildcard;
     }
 
-    public Set<String> getPrivileges()
+    public Set<AccessModelPrivelege> getPrivileges()
     {
         return privileges;
     }

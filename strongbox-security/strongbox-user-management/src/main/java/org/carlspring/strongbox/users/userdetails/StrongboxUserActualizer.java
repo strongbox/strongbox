@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.InMemoryUserService.InMemoryUserServiceQualifier;
@@ -32,7 +33,7 @@ public class StrongboxUserActualizer implements UserDetailsToStrongboxUser
         userDto.setRoles(user.getRoles());
         userDto.setSecurityTokenKey(user.getSecurityTokenKey());
         
-        AccessModel accessModel = user.getAccessModel();
+        UserAccessModelReadContract accessModel = user.getUserAccessModel();
         if (accessModel != null) {
             UserAccessModelDto acessModelDto = new UserAccessModelDto();
             userDto.setUserAccessModel(acessModelDto);

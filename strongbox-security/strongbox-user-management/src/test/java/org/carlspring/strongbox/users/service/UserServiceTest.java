@@ -4,6 +4,7 @@ import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.dto.UserDto;
 
 import javax.inject.Inject;
@@ -247,14 +248,14 @@ public class UserServiceTest
         assertNotNull(user, "Unable to find user by name developer01");
 
         // Display the access model
-        AccessModel accessModel = user.getAccessModel();
+        UserAccessModelReadContract accessModel = user.getUserAccessModel();
 
         logger.debug(accessModel.toString());
 
         // Make sure that the privileges were correctly assigned for the example paths
         Collection<String> privileges;
 
-        privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
                                                    "org/carlspring/foo/1.1/foo-1.1.jar");
 
         assertNotNull(privileges);
@@ -263,7 +264,7 @@ public class UserServiceTest
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
         assertTrue(privileges.contains("ARTIFACTS_DELETE"));
 
-        privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
                                                    "com/carlspring/foo/1.2/foo-1.2.jar");
 
         assertNotNull(privileges);
@@ -272,7 +273,7 @@ public class UserServiceTest
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
         assertTrue(privileges.contains("ARTIFACTS_VIEW"));
 
-        privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
                                                    "com/mycorp/foo/1.2/foo-1.2.jar");
 
         assertNotNull(privileges);
@@ -280,7 +281,7 @@ public class UserServiceTest
         assertThat(privileges.size(), CoreMatchers.equalTo(1));
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
 
-        privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
                                                    "com/mycorp/");
 
         assertNotNull(privileges);

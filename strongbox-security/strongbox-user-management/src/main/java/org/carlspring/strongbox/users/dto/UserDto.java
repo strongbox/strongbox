@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +18,7 @@ import java.util.Set;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UserDto
-        implements Serializable
+        implements Serializable, UserReadContract
 {
 
     @XmlElement
@@ -52,6 +51,9 @@ public class UserDto
     {
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserReadContract#getUsername()
+     */
     public String getUsername()
     {
         return username;
@@ -62,6 +64,9 @@ public class UserDto
         this.username = username;
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserReadContract#getPassword()
+     */
     public String getPassword()
     {
         return password;
@@ -72,6 +77,9 @@ public class UserDto
         this.password = password;
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserReadContract#getRoles()
+     */
     public Set<String> getRoles()
     {
         return roles;
@@ -97,6 +105,9 @@ public class UserDto
         return roles.contains(role);
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserReadContract#getAuthorities()
+     */
     public Set<String> getAuthorities()
     {
         return authorities;
@@ -107,6 +118,9 @@ public class UserDto
         this.authorities = authorities;
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserReadContract#getUserAccessModel()
+     */
     public UserAccessModelDto getUserAccessModel()
     {
         return userAccessModel;
@@ -117,6 +131,9 @@ public class UserDto
         this.userAccessModel = userAccessModel;
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserReadContract#getSecurityTokenKey()
+     */
     public String getSecurityTokenKey()
     {
         return securityTokenKey;
@@ -127,6 +144,9 @@ public class UserDto
         this.securityTokenKey = securityTokenKey;
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserReadContract#isEnabled()
+     */
     public boolean isEnabled()
     {
         return enabled;
@@ -137,6 +157,9 @@ public class UserDto
         this.enabled = enabled;
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserReadContract#getLastUpdate()
+     */
     public Date getLastUpdate()
     {
         return lastUpdate;

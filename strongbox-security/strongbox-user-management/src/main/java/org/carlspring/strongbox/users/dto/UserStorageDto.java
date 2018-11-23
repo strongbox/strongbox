@@ -16,7 +16,7 @@ import java.util.Set;
  */
 @XmlRootElement(name = "storage")
 @XmlAccessorType(XmlAccessType.NONE)
-public class UserStorageDto
+public class UserStorageDto implements UserStorageReadContract
 {
 
     @XmlElement(name = "repository")
@@ -26,11 +26,17 @@ public class UserStorageDto
     @XmlAttribute(name = "id", required = true)
     private String storageId;
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserStorageReadContract#getRepositories()
+     */
     public Set<UserRepositoryDto> getRepositories()
     {
         return repositories;
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserStorageReadContract#getStorageId()
+     */
     public String getStorageId()
     {
         return storageId;

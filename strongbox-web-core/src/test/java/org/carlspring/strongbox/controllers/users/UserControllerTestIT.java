@@ -907,7 +907,7 @@ public class UserControllerTestIT
         dto.setEnabled(user.isEnabled());
         dto.setRoles(user.getRoles());
         dto.setAccessModel(
-                buildFromAccessModel(AccessModelToAccessModelOutputConverter.INSTANCE.convert(user.getAccessModel())));
+                buildFromAccessModel(AccessModelToAccessModelOutputConverter.INSTANCE.convert(user.getUserAccessModel())));
         dto.setSecurityTokenKey(user.getSecurityTokenKey());
 
         if (operation != null)
