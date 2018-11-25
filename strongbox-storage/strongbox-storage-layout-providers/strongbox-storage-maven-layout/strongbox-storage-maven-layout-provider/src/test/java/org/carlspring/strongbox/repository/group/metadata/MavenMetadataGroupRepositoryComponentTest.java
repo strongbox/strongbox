@@ -4,7 +4,6 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.IndexedMaven2FileSystemProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
 import org.carlspring.strongbox.storage.Storage;
@@ -38,7 +37,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
-@Execution(CONCURRENT)
 @Disabled
 public class MavenMetadataGroupRepositoryComponentTest
         extends BaseMavenGroupRepositoryComponentTest
@@ -79,6 +77,7 @@ public class MavenMetadataGroupRepositoryComponentTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void whenAnArtifactWasDeletedAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible()
             throws Exception
     {
@@ -149,6 +148,7 @@ public class MavenMetadataGroupRepositoryComponentTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void generationOfMavenMetadataInLeafsShouldResultUpToDateMetadataInGroups()
             throws Exception
     {
@@ -188,6 +188,7 @@ public class MavenMetadataGroupRepositoryComponentTest
     }
 
     @Test
+    @Execution(CONCURRENT)
     public void whenMetadataWasUploadedInRepositoryAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible()
             throws Exception
     {
@@ -195,7 +196,6 @@ public class MavenMetadataGroupRepositoryComponentTest
                                                     .getStorage(STORAGE0)
                                                     .getRepository(REPOSITORY_LEAF_D);
 
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         Metadata metadata;
 
         // BEFORE

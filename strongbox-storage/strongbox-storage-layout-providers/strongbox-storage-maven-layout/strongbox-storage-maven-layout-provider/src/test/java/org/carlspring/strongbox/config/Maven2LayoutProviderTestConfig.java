@@ -40,7 +40,6 @@ public class Maven2LayoutProviderTestConfig
     @Bean
     @Primary
     ConfigurationFileManager configurationFileManager()
-            throws IOException, JAXBException
     {
         final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager());
 
