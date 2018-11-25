@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.storage.checksum;
 
-import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -10,7 +9,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author mtodorov
  */
 public class ArtifactChecksum
-        implements Serializable
 {
 
     /**
