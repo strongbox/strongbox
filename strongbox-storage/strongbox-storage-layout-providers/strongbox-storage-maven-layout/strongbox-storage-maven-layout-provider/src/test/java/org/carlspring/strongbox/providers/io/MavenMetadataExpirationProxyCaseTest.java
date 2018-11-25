@@ -2,7 +2,6 @@ package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -62,8 +61,6 @@ public class MavenMetadataExpirationProxyCaseTest
     public void initialize()
             throws Exception
     {
-        cacheManager.getCache(CacheName.Artifact.CHECKSUM).clear();
-
         localSourceRepository = createRepository(STORAGE0,
                                                  REPOSITORY_LOCAL_SOURCE,
                                                  RepositoryPolicyEnum.SNAPSHOT.getPolicy(),

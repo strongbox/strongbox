@@ -10,7 +10,6 @@ import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConf
 import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -32,7 +31,6 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.mockito.Mockito;
-import org.springframework.cache.CacheManager;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -68,13 +66,7 @@ abstract class BaseMavenMetadataExpirationTest
     protected RestArtifactResolverFactory artifactResolverFactory;
 
     @Inject
-    protected ChecksumCacheManager checksumCacheManager;
-
-    @Inject
     protected ArtifactManagementService artifactManagementService;
-
-    @Inject
-    protected CacheManager cacheManager;
 
     protected void mockHostedRepositoryMetadataUpdate(final MutableRepository localSourceRepository,
                                                       final String hostedRepositoryId,
