@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
@@ -18,6 +19,7 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
@@ -194,5 +196,23 @@ abstract class BaseMavenMetadataExpirationTest
         LocalDateTime dateTime = LocalDateTime.now().minusHours(1);
         Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
         return FileTime.from(instant);
+    }
+
+    protected RepositoryPath resolveSiblingChecksum(final RepositoryPath repositoryPath,
+                                                    final EncryptionAlgorithmsEnum checksumAlgorithm)
+    {
+        return repositoryPath.resolveSibling(
+                repositoryPath.getFileName().toString() + checksumAlgorithm.getExtension());
+    }
+
+    protected String readChecksum(final RepositoryPath checksumRepositoryPath)
+            throws IOException
+    {
+        if (!Files.exists(checksumRepositoryPath))
+        {
+            return null;
+        }
+
+        return Files.readAllLines(checksumRepositoryPath).stream().findFirst().orElse(null);
     }
 }

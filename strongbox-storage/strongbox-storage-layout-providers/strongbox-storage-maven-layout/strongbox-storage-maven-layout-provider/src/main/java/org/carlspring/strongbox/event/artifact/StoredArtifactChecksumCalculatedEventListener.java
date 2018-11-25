@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.event.artifact;
 
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.event.AsyncEventListener;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
@@ -44,8 +45,8 @@ public class StoredArtifactChecksumCalculatedEventListener
              .forEach(entry -> {
                  try (InputStream is = new ByteArrayInputStream(entry.getValue().getBytes(StandardCharsets.UTF_8)))
                  {
-                     // TODO
-                     RepositoryPath checksumPath = repositoryPath.resolveSibling(repositoryPath.getFileName() + "." + entry.getKey());
+                     final EncryptionAlgorithmsEnum encryptionAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(entry.getKey());
+                     final RepositoryPath checksumPath = repositoryPath.resolveSibling(repositoryPath.getFileName() + encryptionAlgorithm.getExtension());
                      artifactManagementService.store(checksumPath, is);
                  }
                  catch (IOException e)
