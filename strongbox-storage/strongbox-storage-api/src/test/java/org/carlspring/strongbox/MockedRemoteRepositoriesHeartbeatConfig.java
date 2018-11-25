@@ -18,7 +18,7 @@ public class MockedRemoteRepositoriesHeartbeatConfig
 {
 
     @Primary
-    @Bean
+    @Bean(name = "mockedRemoteRepositoryAlivenessCacheManager")
     RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager()
     {
         RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager = Mockito.mock(
@@ -28,7 +28,7 @@ public class MockedRemoteRepositoriesHeartbeatConfig
     }
 
     @Primary
-    @Bean
+    @Bean(name = "mockedRemoteRepositoriesHeartbeatMonitorInitiator")
     RemoteRepositoriesHeartbeatMonitorInitiator remoteRepositoriesHeartbeatMonitorInitiator()
     {
         return Mockito.mock(RemoteRepositoriesHeartbeatMonitorInitiator.class);
