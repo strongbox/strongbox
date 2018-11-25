@@ -14,10 +14,10 @@ import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.repository.event.StoredArtifactChecksumCalculatedEvent;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
-import org.carlspring.strongbox.storage.checksum.CalculatedChecksumCacheManager;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
@@ -42,7 +42,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,9 +74,6 @@ public class ArtifactManagementService
 
     @Inject
     protected ArtifactResolutionService artifactResolutionService;
-
-    @Inject
-    protected CalculatedChecksumCacheManager calculatedChecksumCacheManager;
 
     @Inject
     protected ChecksumCacheManager checksumCacheManager;
@@ -221,7 +217,10 @@ public class ArtifactManagementService
         if (Boolean.FALSE.equals(checksumAttribute) && !digestMap.isEmpty())
         {
             // Store artifact digests in cache if we have them.
-            addChecksumsToCacheManager(digestMap, repositoryPath);
+            addChecksumsToCacheManager(digestMap, repositoryPathId);
+            //
+            artifactEventListenerRegistry.dispatchEvent(
+                    new StoredArtifactChecksumCalculatedEvent(repositoryPath, digestMap));
         }
 
         if (Boolean.TRUE.equals(checksumAttribute))
@@ -229,7 +228,6 @@ public class ArtifactManagementService
             byte[] checksumValue = ((ByteArrayOutputStream) aos.getCacheOutputStream()).toByteArray();
             if (checksumValue != null && checksumValue.length > 0)
             {
-                cachePathChecksum(repositoryPath, checksumValue);
                 // Validate checksum with artifact digest cache.
                 validateUploadedChecksumAgainstCache(checksumValue, repositoryPathId);
             }
@@ -254,7 +252,7 @@ public class ArtifactManagementService
                                        new String(checksum, StandardCharsets.UTF_8)));
         }
 
-        calculatedChecksumCacheManager.removeArtifactChecksum(artifactBasePath, checksumExtension);
+        checksumCacheManager.removeArtifactChecksum(artifactBasePath, checksumExtension);
     }
 
     private boolean matchesChecksum(byte[] pChecksum,
@@ -262,7 +260,7 @@ public class ArtifactManagementService
                                     String checksumExtension)
     {
         String checksum = new String(pChecksum, StandardCharsets.UTF_8);
-        ArtifactChecksum artifactChecksum = calculatedChecksumCacheManager.getArtifactChecksum(artifactBasePath);
+        ArtifactChecksum artifactChecksum = checksumCacheManager.getArtifactChecksum(artifactBasePath);
 
         if (artifactChecksum == null)
         {
@@ -293,27 +291,11 @@ public class ArtifactManagementService
     }
 
     private void addChecksumsToCacheManager(Map<String, String> digestMap,
-                                            RepositoryPath artifactPath)
+                                            URI artifactPath)
     {
-        URI artifactPathId = artifactPath.toUri();
         digestMap.entrySet()
                  .stream()
-                 .forEach(e -> {
-                     calculatedChecksumCacheManager.addArtifactChecksum(artifactPathId.toString(), e.getKey(), e.getValue());
-                     checksumCacheManager.put(artifactPath, e.getKey(), e.getValue());
-                 });
-    }
-
-    private void cachePathChecksum(RepositoryPath repositoryPath,
-                                   byte[] checksum)
-    {
-        String checksumValue = new String(checksum, StandardCharsets.UTF_8);
-        String algorithm = FilenameUtils.getExtension(repositoryPath.toString());
-        String fileBaseName = FilenameUtils.getBaseName(repositoryPath.toString());
-
-        checksumCacheManager.put(repositoryPath.resolveSibling(fileBaseName),
-                                 algorithm,
-                                 checksumValue);
+                 .forEach(e -> checksumCacheManager.addArtifactChecksum(artifactPath.toString(), e.getKey(), e.getValue()));
     }
 
     private boolean performRepositoryAcceptanceValidation(RepositoryPath path)

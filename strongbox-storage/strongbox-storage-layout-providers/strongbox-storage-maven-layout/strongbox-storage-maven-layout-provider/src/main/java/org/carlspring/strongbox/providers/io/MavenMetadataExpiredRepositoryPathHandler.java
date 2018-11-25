@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
-import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
-import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
@@ -24,19 +22,17 @@ public class MavenMetadataExpiredRepositoryPathHandler
     private static final Logger logger = LoggerFactory.getLogger(MavenMetadataExpiredRepositoryPathHandler.class);
 
     @Inject
-    private ChecksumCacheManager checksumCacheManager;
-
-    @Inject
     private ProxyRepositoryArtifactResolver proxyRepositoryArtifactResolver;
 
     @Override
     public boolean supports(final RepositoryPath repositoryPath)
+            throws IOException
     {
         if (repositoryPath == null)
         {
             return false;
         }
-        if (!MetadataHelper.MAVEN_METADATA_XML.equals(repositoryPath.getFileName().toString()))
+        if (!RepositoryFiles.isMetadata(repositoryPath))
         {
             return false;
         }

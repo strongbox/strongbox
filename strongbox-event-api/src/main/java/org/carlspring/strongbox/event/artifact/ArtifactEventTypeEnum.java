@@ -101,7 +101,12 @@ public enum ArtifactEventTypeEnum
     /**
      * Occurs when an artifact file has been physically stored.
      */
-    EVENT_ARTIFACT_FILE_STORED(22);
+    EVENT_ARTIFACT_FILE_STORED(22),
+
+    /**
+     * Occurs when an artifact file has been physically stored and its checksum(s) have been calculated.
+     */
+    EVENT_ARTIFACT_FILE_STORED_CHECKSUM_CALCULATED(23);
 
 
     private int type;

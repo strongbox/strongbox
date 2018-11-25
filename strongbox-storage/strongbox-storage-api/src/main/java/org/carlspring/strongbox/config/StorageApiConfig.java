@@ -2,7 +2,7 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
-import org.carlspring.strongbox.storage.checksum.CalculatedChecksumCacheManager;
+import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 
 import javax.inject.Inject;
@@ -33,30 +33,30 @@ public class StorageApiConfig
     @Inject
     private List<ArtifactCoordinatesValidator> versionValidators;
 
-    @Bean(name = "calculatedChecksumCacheManager")
-    protected CalculatedChecksumCacheManager calculatedChecksumCacheManager()
+    @Bean(name = "checksumCacheManager")
+    ChecksumCacheManager checksumCacheManager()
     {
-        CalculatedChecksumCacheManager calculatedChecksumCacheManager = new CalculatedChecksumCacheManager();
-        calculatedChecksumCacheManager.setCachedChecksumExpiredCheckInterval(300000);
-        calculatedChecksumCacheManager.setCachedChecksumLifetime(60000);
+        ChecksumCacheManager checksumCacheManager = new ChecksumCacheManager();
+        checksumCacheManager.setCachedChecksumExpiredCheckInterval(300000);
+        checksumCacheManager.setCachedChecksumLifetime(60000);
 
-        return calculatedChecksumCacheManager;
+        return checksumCacheManager;
     }
 
     @Bean(name = "versionValidators")
-    protected LinkedHashSet<ArtifactCoordinatesValidator> versionValidators()
+    LinkedHashSet<ArtifactCoordinatesValidator> versionValidators()
     {
         return new LinkedHashSet<>(versionValidators);
     }
 
     @Bean(name = "resourcesBooter")
-    protected ResourcesBooter getResourcesBooter()
+    ResourcesBooter getResourcesBooter()
     {
         return new ResourcesBooter();
     }
 
     @Bean(name = "storageBooter")
-    protected StorageBooter getStorageBooter()
+    StorageBooter getStorageBooter()
     {
         return new StorageBooter();
     }

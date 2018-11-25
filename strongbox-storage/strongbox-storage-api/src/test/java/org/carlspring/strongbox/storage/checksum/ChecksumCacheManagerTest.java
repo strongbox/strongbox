@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author mtodorov
  */
 @Disabled
-public class CalculatedChecksumCacheManagerTest
+public class ChecksumCacheManagerTest
 {
 
 
@@ -24,7 +24,7 @@ public class CalculatedChecksumCacheManagerTest
     public void testChecksumManagement()
             throws Exception
     {
-        CalculatedChecksumCacheManager manager = new CalculatedChecksumCacheManager();
+        ChecksumCacheManager manager = new ChecksumCacheManager();
         manager.setCachedChecksumLifetime(3000L);
         manager.setCachedChecksumExpiredCheckInterval(500L);
 
@@ -80,14 +80,14 @@ public class CalculatedChecksumCacheManagerTest
 
     private class CheckingThread extends Thread
     {
-        private CalculatedChecksumCacheManager manager;
+        ChecksumCacheManager manager;
 
-        private int sleepInterval = 100; // 100 ms
-        private int timeSlept;
-        private int maxTime = 3000;      // 3 secs
-        private int tolerance = 1000;    // 1 sec
+        int sleepInterval = 100; // 100 ms
+        int timeSlept;
+        int maxTime = 3000;      // 3 secs
+        int tolerance = 1000;    // 1 sec
 
-        private CheckingThread(CalculatedChecksumCacheManager manager)
+        private CheckingThread(ChecksumCacheManager manager)
         {
             this.manager = manager;
         }
@@ -120,7 +120,7 @@ public class CalculatedChecksumCacheManagerTest
             }
         }
 
-        public CalculatedChecksumCacheManager getManager()
+        public ChecksumCacheManager getManager()
         {
             return manager;
         }

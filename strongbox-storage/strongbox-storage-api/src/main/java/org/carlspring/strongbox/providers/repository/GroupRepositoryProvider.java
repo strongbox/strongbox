@@ -2,7 +2,6 @@ package org.carlspring.strongbox.providers.repository;
 
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.config.CommonConfig.CommonExecutorService;
 import org.carlspring.strongbox.data.criteria.*;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
@@ -25,10 +24,12 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,7 +37,7 @@ import org.springframework.stereotype.Component;
  * @author Przemyslaw Fusik
  */
 @Component
-public class GroupRepositoryProvider extends AbstractRepositoryProvider
+public class GroupRepositoryProvider extends AbstractRepositoryProvider implements InitializingBean
 {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupRepositoryProvider.class);
@@ -58,9 +59,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
-    @Inject
-    @CommonExecutorService
     private ExecutorService executorService;
+
+    @Override
+    public void afterPropertiesSet()
+    {
+        executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    }
 
     @Override
     public String getAlias()
@@ -69,7 +74,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    protected InputStream getInputStreamInternal(RepositoryPath path) throws IOException
+    protected InputStream getInputStreamInternal(RepositoryPath path)
+            throws IOException
     {
         return hostedRepositoryProvider.getInputStreamInternal(path);
     }
@@ -315,6 +321,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return queryTemplate.select(selector);
 
     }
+
 
 
 }

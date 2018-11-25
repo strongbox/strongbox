@@ -1,15 +1,7 @@
 package org.carlspring.strongbox.config;
 
-import javax.inject.Qualifier;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Configuration
 @ComponentScan({
@@ -26,21 +18,4 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 })
 public class CommonConfig
 {
-
-    @Bean
-    @CommonExecutorService
-    protected ExecutorService executorService()
-    {
-        int availableProcessors = Runtime.getRuntime().availableProcessors();
-        int nThreads = (availableProcessors == 1) ? availableProcessors : (availableProcessors - 1);
-        return Executors.newFixedThreadPool(nThreads);
-    }
-
-    @Documented
-    @Retention(RUNTIME)
-    @Qualifier
-    public @interface CommonExecutorService
-    {
-
-    }
 }

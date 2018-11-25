@@ -1,114 +1,226 @@
 package org.carlspring.strongbox.storage.checksum;
 
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-
-import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
-import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Component;
 
 /**
- * @author Przemysław Fusik
+ * All artifacts should pass through here.
+ * Any deployed file which doesn't end in a checksum format (md5, sha1, gpg)
+ * should add a cachedChecksum. When an actual checksum is deployed,
+ * (which is right after the artifact or metadata file has been deployed),
+ * the cache should be queried for a match.
+ * <p>
+ * If:
+ * - a match is found and matches, remove it from the cache. (If the checksums set
+ * is empty, remove the respective Checksum from the cachedChecksums).
+ * - a match is found, but does not match, trigger an event and log this, then remove
+ * the checksum from the cache. (If the checksums set is empty, remove the respective
+ * Checksum from the cachedChecksums).
+ * - a checksum is not claimed within cachedChecksumLifetime, trigger an event and log
+ * this, then remove the checksum from the cache. (If this checksums set is empty,
+ * remove the respective Checksum from the cachedChecksums).
+ *
+ * @author mtodorov
  */
-@Component
 public class ChecksumCacheManager
-        implements DisposableBean
 {
-
-    private static final String SHA1_KEY = "sha1";
-
-    private static final String MD5_KEY = "md5";
-
-    private static final Map<String, List<String>> knownAlgorithms;
 
     private static Logger logger = LoggerFactory.getLogger(ChecksumCacheManager.class);
 
-    private final Cache cache;
+    /**
+     * Key:     Artifact path
+     * Value:   Artifact checksum.
+     */
+    private Map<String, ArtifactChecksum> cachedChecksums = new LinkedHashMap<>();
 
-    @Inject
-    ChecksumCacheManager(final CacheManager cacheManager)
+    /**
+     * Specifies how long to keep the cached checksums.
+     * <p>
+     * The default is five minutes.
+     */
+    private long cachedChecksumLifetime = 5 * 60000;
+
+    /**
+     * Specifies at what interval to check if the checksums have expired.
+     * The default is to check once every minute.
+     */
+    private long cachedChecksumExpiredCheckInterval = 60000L;
+
+
+    public ChecksumCacheManager()
     {
-        cache = cacheManager.getCache(CacheName.Artifact.CHECKSUM);
-        Objects.requireNonNull(cache, "checksum cache configuration was not provided");
     }
 
-    private static String getAlgorithm(final String algorithm)
+    public boolean containsArtifactPath(String artifactPath)
     {
-        return knownAlgorithms.entrySet()
-                              .stream()
-                              .filter(entry -> entry.getValue()
-                                                    .stream()
-                                                    .anyMatch(value -> value.equals(algorithm)))
-                              .findFirst()
-                              .map(Map.Entry::getKey)
-                              .orElse(algorithm);
+        final boolean containsChecksum = cachedChecksums.containsKey(artifactPath);
+        if (containsChecksum)
+        {
+            logger.debug("Cache contains artifact path '" + artifactPath + "'.");
+        }
+
+        return containsChecksum;
     }
 
-    public String get(final RepositoryPath artifactPath,
-                      final String algorithm)
+    public String getArtifactChecksum(String artifactBasePath,
+                                      String algorithm)
     {
-        ArtifactChecksum artifactChecksum = cache.get(artifactPath.toUri(), ArtifactChecksum.class);
-        if (artifactChecksum == null)
+        if (!cachedChecksums.containsKey(artifactBasePath))
         {
             return null;
         }
 
-        final String escapedAlgorithm = getAlgorithm(algorithm);
-        final String checksum = artifactChecksum.getChecksum(escapedAlgorithm);
+        final ArtifactChecksum artifactChecksum = getArtifactChecksum(artifactBasePath);
+        final String checksum = artifactChecksum.getChecksum(algorithm);
         if (checksum != null)
         {
-            logger.debug("Found checksum '{}' [{}] for '{}' in cache.", checksum, escapedAlgorithm, artifactPath);
+            logger.debug("Found checksum '" + checksum + "' [" + algorithm + "]" + " for '" + artifactBasePath + "' in cache.");
         }
 
         return checksum;
     }
 
-    public void put(final RepositoryPath artifactPath,
-                    final String algorithm,
-                    final String checksum)
+    public ArtifactChecksum getArtifactChecksum(String artifactBasePath)
     {
-        final String escapedAlgorithm = getAlgorithm(algorithm);
-        logger.debug("Adding checksum '{}' [{}] for '{}' in cache.", checksum, escapedAlgorithm, artifactPath);
+        return cachedChecksums.get(artifactBasePath);
+    }
 
-        ArtifactChecksum artifactChecksum = cache.get(artifactPath.toUri(), ArtifactChecksum.class);
-        if (artifactChecksum == null)
+    public boolean validateChecksum(String artifactPath,
+                                    String algorithm,
+                                    String checksum)
+    {
+        return getArtifactChecksum(artifactPath, algorithm).equals(checksum);
+    }
+
+    public synchronized void addArtifactChecksum(String artifactBasePath,
+                                                 String algorithm,
+                                                 String checksum)
+    {
+        logger.debug("Adding checksum '" + checksum + "' [" + algorithm + "]" + " for '" + artifactBasePath + "' in cache.");
+
+        if (cachedChecksums.containsKey(artifactBasePath))
         {
-            artifactChecksum = new ArtifactChecksum();
+            final ArtifactChecksum artifactChecksum = getArtifactChecksum(artifactBasePath);
+            artifactChecksum.addChecksum(algorithm, checksum);
         }
-        artifactChecksum.addChecksum(escapedAlgorithm, checksum);
+        else
+        {
+            ArtifactChecksum artifactChecksum = new ArtifactChecksum();
+            artifactChecksum.addChecksum(algorithm, checksum);
 
-        cache.put(artifactPath.toUri(), artifactChecksum);
+            cachedChecksums.put(artifactBasePath, artifactChecksum);
+        }
     }
 
-    @Override
-    public void destroy()
+    public synchronized void removeArtifactChecksum(String artifactBasePath,
+                                                    String algorithm)
     {
-        cache.clear();
+        Optional.ofNullable(getArtifactChecksum(artifactBasePath)).map(ac -> {
+            logger.debug(ac.removeChecksum(algorithm)
+                           .map(c -> String.format("Removed [%s] artifact checksum value [%s] from cache.",
+                                                   artifactBasePath,
+                                                   c))
+                           .orElseGet(() -> String.format("Checksum algorithm [%s] not found for [%s] in cache.",
+                                                          algorithm,
+                                                          artifactBasePath)));
+            return ac;
+        }).filter(ac -> ac.getChecksums().isEmpty()).ifPresent(ac -> cachedChecksums.values().remove(ac));
     }
 
-    static
+    public synchronized void removeArtifactChecksum(String artifactBasePath)
     {
-        ImmutableMap.Builder builder = ImmutableMap.builder();
-
-        builder.put(SHA1_KEY, Arrays.asList(SHA1_KEY,
-                                            EncryptionAlgorithmsEnum.SHA1.getAlgorithm(),
-                                            EncryptionAlgorithmsEnum.SHA1.getExtension()));
-        builder.put(MD5_KEY, Arrays.asList(MD5_KEY,
-                                           EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
-                                           EncryptionAlgorithmsEnum.MD5.getExtension()));
-        knownAlgorithms = builder.build();
+        Optional.ofNullable(cachedChecksums.remove(artifactBasePath))
+                .ifPresent(ac -> logger.debug(String.format("Removed [%s] artifact checksum value [%s] from cache.",
+                                                            artifactBasePath, ac)));
     }
 
+    public synchronized void removeExpiredChecksums()
+    {
+        for (String checksum : getExpiredChecksums())
+        {
+            removeArtifactChecksum(checksum);
+        }
+    }
+
+    private Set<String> getExpiredChecksums()
+    {
+        Set<String> expiredChecksums = new LinkedHashSet<>();
+
+        for (Map.Entry<String, ArtifactChecksum> artifactChecksumEntry : cachedChecksums.entrySet())
+        {
+            ArtifactChecksum checksum = artifactChecksumEntry.getValue();
+
+            if (System.currentTimeMillis() - checksum.getLastAccessed() > cachedChecksumLifetime)
+            {
+                expiredChecksums.add(artifactChecksumEntry.getKey());
+            }
+        }
+
+        return expiredChecksums;
+    }
+
+    public long getCachedChecksumLifetime()
+    {
+        return cachedChecksumLifetime;
+    }
+
+    public void setCachedChecksumLifetime(long cachedChecksumLifetime)
+    {
+        this.cachedChecksumLifetime = cachedChecksumLifetime;
+    }
+
+    public long getCachedChecksumExpiredCheckInterval()
+    {
+        return cachedChecksumExpiredCheckInterval;
+    }
+
+    public void setCachedChecksumExpiredCheckInterval(long cachedChecksumExpiredCheckInterval)
+    {
+        this.cachedChecksumExpiredCheckInterval = cachedChecksumExpiredCheckInterval;
+    }
+
+    public long getSize()
+    {
+        return cachedChecksums.size();
+    }
+
+    public void startMonitor()
+    {
+        new CachedChecksumExpirer();
+    }
+
+    private class CachedChecksumExpirer
+            extends Thread
+    {
+
+        private CachedChecksumExpirer()
+        {
+            start();
+        }
+
+        @Override
+        public void run()
+        {
+            try
+            {
+                //noinspection InfiniteLoopStatement
+                while (true)
+                {
+                    Thread.sleep(getCachedChecksumExpiredCheckInterval());
+                    removeExpiredChecksums();
+                }
+            }
+            catch (InterruptedException e)
+            {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
 
 }
