@@ -75,7 +75,7 @@
         <version.quartz>2.3.0</version.quartz>
         <version.servlet.api>3.1.0</version.servlet.api>
         <version.slf4j>1.7.24</version.slf4j>
-        <version.spring.boot>2.1.0.RELEASE</version.spring.boot>
+        <version.spring.boot>2.0.6.RELEASE</version.spring.boot>
         <version.rest.assured>3.0.3</version.rest.assured>
         <version.jnuget>0.8.5-SNAPSHOT</version.jnuget>
         <version.hibernate.validator>6.0.7.Final</version.hibernate.validator>
