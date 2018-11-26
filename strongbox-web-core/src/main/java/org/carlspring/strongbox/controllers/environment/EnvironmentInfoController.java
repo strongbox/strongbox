@@ -32,6 +32,7 @@ public class EnvironmentInfoController
         extends BaseController
 {
 
+    private static final String SYSTEM_PROPERTIES_PREFIX = "-D";
     private ObjectMapper objectMapper;
 
     public EnvironmentInfoController(ObjectMapper objectMapper)
@@ -84,13 +85,27 @@ public class EnvironmentInfoController
                                .collect(Collectors.toList());
     }
 
+    private List<String> getSystemPropertiesAsString()
+    {
+        List<EnvironmentInfo> systemProperties = getSystemProperties();
+
+        return systemProperties.stream()
+                               .map(e -> SYSTEM_PROPERTIES_PREFIX + e.getName() + "=" + e.getValue())
+                               .collect(Collectors.toList());
+    }
+
     private List<String> getJvmArguments()
     {
         RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
         List<String> arguments = runtimeMxBean.getInputArguments();
+        List<String> systemProperties = getSystemPropertiesAsString();
 
         return arguments.stream()
+                        .filter(argument -> !systemProperties.contains(argument))
                         .sorted(String::compareToIgnoreCase)
                         .collect(Collectors.toList());
+
     }
+
+
 }
