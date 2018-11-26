@@ -42,7 +42,7 @@ public class EnvironmentInfoControllerTestIT
     }
 
     @Test
-    public void testGetEnvironmentInfo()
+    void testGetEnvironmentInfo()
             throws Exception
     {
         String path = "/api/configuration/environment/info";
@@ -73,11 +73,11 @@ public class EnvironmentInfoControllerTestIT
         List<?> jvmArguments = returnedMap.get("jvm");
 
         assertNotNull(jvmArguments, "Failed to get JVM arguments list!");
-        assertFalse(jvmArguments.isEmpty(), "Returned JVM arguments are empty");
+        assertTrue(jvmArguments.isEmpty(), "Returned JVM arguments are not empty");
     }
 
     @Test
-    public void testGetEnvironmentInfoCheckSorted()
+    void testGetEnvironmentInfoCheckSorted()
             throws Exception
     {
         String path = "/api/configuration/environment/info";
@@ -91,7 +91,9 @@ public class EnvironmentInfoControllerTestIT
 
         // Environment variables
         JsonNode environmentNode = root.path("environment");
-        ObjectReader listEnvironmentInfoReader = mapper.readerFor(new TypeReference<List<EnvironmentInfo>>(){});
+        ObjectReader listEnvironmentInfoReader = mapper.readerFor(new TypeReference<List<EnvironmentInfo>>()
+        {
+        });
 
         List<EnvironmentInfo> environmentVariables = listEnvironmentInfoReader.readValue(environmentNode);
         Comparator<EnvironmentInfo> environmentInfoComparator = Comparator.comparing(EnvironmentInfo::getName,
@@ -113,7 +115,9 @@ public class EnvironmentInfoControllerTestIT
 
         // JVM arguments
         JsonNode jvmNode = root.path("jvm");
-        ObjectReader listStringReader = mapper.readerFor(new TypeReference<List<String>>(){});
+        ObjectReader listStringReader = mapper.readerFor(new TypeReference<List<String>>()
+        {
+        });
         List<String> jvmArguments = listStringReader.readValue(jvmNode);
         Comparator<String> stringComparator = String::compareToIgnoreCase;
         List<String> sortedJvmArguments = new ArrayList<>(jvmArguments);
