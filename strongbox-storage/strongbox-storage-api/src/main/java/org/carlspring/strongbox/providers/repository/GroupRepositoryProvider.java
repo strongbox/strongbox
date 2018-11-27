@@ -23,13 +23,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,7 +34,8 @@ import org.springframework.stereotype.Component;
  * @author Przemyslaw Fusik
  */
 @Component
-public class GroupRepositoryProvider extends AbstractRepositoryProvider implements InitializingBean
+public class GroupRepositoryProvider
+        extends AbstractRepositoryProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupRepositoryProvider.class);
@@ -58,14 +56,6 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider implemen
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-
-    private ExecutorService executorService;
-
-    @Override
-    public void afterPropertiesSet()
-    {
-        executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    }
 
     @Override
     public String getAlias()
@@ -148,16 +138,18 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider implemen
 
     private void invokeResolvePathActions(List<Callable<RepositoryPath>> resolvePathActions)
     {
-        try
-        {
-            // TODO invokeAll timeout interrupt ?
-            executorService.invokeAll(resolvePathActions);
-        }
-        catch (InterruptedException e)
-        {
-            Thread.currentThread().interrupt();
-            logger.error(e.getMessage(), e);
-        }
+        resolvePathActions
+                .parallelStream()
+                .forEach(action -> {
+                    try
+                    {
+                        action.call();
+                    }
+                    catch (Exception e)
+                    {
+                        logger.error(e.getMessage(), e);
+                    }
+                });
     }
 
     private RepositoryPath resolvePathDirectlyFromGroupPathIfPossible(final RepositoryPath artifactPath)
