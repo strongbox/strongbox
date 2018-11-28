@@ -26,7 +26,6 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
 {
 
     @Inject
-    @XmlUserDetailService.XmlUserDetailServiceQualifier
     private UserDetailsService userDetailsService;
 
     @Inject

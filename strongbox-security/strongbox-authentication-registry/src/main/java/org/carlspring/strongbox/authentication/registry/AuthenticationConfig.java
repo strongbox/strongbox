@@ -5,6 +5,7 @@ import org.carlspring.strongbox.authentication.registry.support.ConfigurableProv
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 /**
  * @author Przemyslaw Fusik
@@ -15,6 +16,7 @@ public class AuthenticationConfig
 {
 
     @Bean
+    @Primary
     ConfigurableProviderManager authenticationManager()
     {
         return new ConfigurableProviderManager();

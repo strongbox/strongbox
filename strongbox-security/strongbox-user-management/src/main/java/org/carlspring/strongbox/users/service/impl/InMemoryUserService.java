@@ -216,7 +216,7 @@ public class InMemoryUserService implements UserService
     private void updatePassword(final UserDto user,
                                 final String rawPassword)
     {
-        if (StringUtils.isNotBlank(rawPassword))
+        if (StringUtils.isNotBlank(rawPassword) && !user.getPassword().equals(rawPassword))
         {
             user.setPassword(passwordEncoder.encode(rawPassword));
         }

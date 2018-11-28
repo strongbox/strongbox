@@ -18,6 +18,7 @@ import org.carlspring.strongbox.users.userdetails.UserDetailsMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,9 +31,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-/**
- * @author Przemyslaw Fusik
- */
+@Primary
 public class ConfigurableProviderManager extends ProviderManager implements UserDetailsService
 {
 
@@ -163,5 +162,5 @@ public class ConfigurableProviderManager extends ProviderManager implements User
         }
 
     }
-
+    
 }

@@ -37,7 +37,6 @@ public class PasswordAuthenticationProvider extends DaoAuthenticationProvider
 
     @Override
     @Inject
-    @XmlUserDetailService.XmlUserDetailServiceQualifier
     public void setUserDetailsService(UserDetailsService userDetailsService)
     {
         super.setUserDetailsService(userDetailsService);
