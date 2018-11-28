@@ -72,12 +72,6 @@ public abstract class RepositoryFiles
         return (Boolean) Files.getAttribute(path, formatAttributes(RepositoryFileAttributeType.EXPIRED));
     }
 
-    public static Boolean requiresGroupAggregation(RepositoryPath path)
-            throws IOException
-    {
-        return (Boolean) Files.getAttribute(path, formatAttributes(RepositoryFileAttributeType.REQUIRES_GROUP_AGGREGATION));
-    }
-
     public static ArtifactCoordinates readCoordinates(RepositoryPath path)
         throws IOException
     {

@@ -1,11 +1,10 @@
 package org.carlspring.strongbox.event.artifact;
 
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import java.io.IOException;
+import javax.inject.Inject;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -18,9 +17,12 @@ public class MavenArtifactMetadataStoredEventListener
         extends BaseMavenArtifactEventListener
 {
 
+    @Inject
+    private Maven2LayoutProvider maven2LayoutProvider;
+
     /**
      * Why not @{@link org.carlspring.strongbox.event.AsyncEventListener}:
-     *
+     * <p>
      * Consider call to group repository for expired maven-metadata.xml.
      * Then all underlying sub-repositories will fetch their maven-metadata.xml.
      * In case at least one sub-repository was a proxy repository and its maven-metadata.xml local copy expired, we will re-fetch the maven-metadata.xml from remote.
@@ -30,7 +32,6 @@ public class MavenArtifactMetadataStoredEventListener
      */
     @EventListener
     public void handle(final ArtifactEvent<RepositoryPath> event)
-            throws IOException
     {
         final Repository repository = getRepository(event);
 
@@ -44,7 +45,7 @@ public class MavenArtifactMetadataStoredEventListener
             return;
         }
 
-        if (!RepositoryFiles.requiresGroupAggregation(event.getPath()))
+        if (!maven2LayoutProvider.requiresGroupAggregation(event.getPath()))
         {
             return;
         }

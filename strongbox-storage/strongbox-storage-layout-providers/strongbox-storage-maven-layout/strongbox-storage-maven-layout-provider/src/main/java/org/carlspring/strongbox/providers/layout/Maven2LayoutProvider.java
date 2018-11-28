@@ -60,6 +60,7 @@ public class Maven2LayoutProvider
     @Inject
     private MavenRepositoryFeatures mavenRepositoryFeatures;
 
+
     @PostConstruct
     public void register()
     {
@@ -118,15 +119,6 @@ public class Maven2LayoutProvider
                                                                      &&
                                                                      !RepositoryFiles.wasModifiedAfter(repositoryPath,
                                                                                                        oneMinuteAgo));
-
-                    result.put(attributeType, value);
-
-                    break;
-                case REQUIRES_GROUP_AGGREGATION:
-                    value = BooleanUtils.isTrue((Boolean) value) || (isMavenMetadata(repositoryPath)
-                                                                     &&
-                                                                     !ArtifactUtils.isSnapshot(
-                                                                             repositoryPath.getParent().getFileName().toString()));
 
                     result.put(attributeType, value);
 
@@ -321,5 +313,11 @@ public class Maven2LayoutProvider
             }
         }
         return Collections.emptySet();
+    }
+
+    public boolean requiresGroupAggregation(final RepositoryPath repositoryPath)
+    {
+        return isMavenMetadata(repositoryPath) &&
+               !ArtifactUtils.isSnapshot(repositoryPath.getParent().getFileName().toString());
     }
 }

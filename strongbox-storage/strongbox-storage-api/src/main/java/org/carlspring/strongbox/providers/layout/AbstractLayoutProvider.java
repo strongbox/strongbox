@@ -173,10 +173,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                 value = false;
 
                 break;
-            case REQUIRES_GROUP_AGGREGATION:
-                value = false;
 
-                break;
             }
             if (value != null)
             {

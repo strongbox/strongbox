@@ -14,15 +14,13 @@ public enum RepositoryFileAttributeType
     TRASH("trash"),
 
     TEMP("temp"),
+
+    EXPIRED("expired"),
     
     ARTIFACT("artifact"),
     
     ARTIFACT_PATH("artifactPath"),
 
-    EXPIRED("expired"),
-
-    REQUIRES_GROUP_AGGREGATION("requiresGroupAggregation"),
-    
     RESOURCE_URL("resourceUrl"),
     
     REPOSITORY_ID("repositoryId"),

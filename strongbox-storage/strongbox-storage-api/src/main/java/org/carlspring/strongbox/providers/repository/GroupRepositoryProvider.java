@@ -1,29 +1,39 @@
 package org.carlspring.strongbox.providers.repository;
 
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.data.criteria.*;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
-import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.data.criteria.OQueryTemplate;
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.data.criteria.QueryTemplate;
+import org.carlspring.strongbox.data.criteria.Selector;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.repository.event.GroupRepositoryPathFetchEvent;
+import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
+import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +41,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
- * @author Przemyslaw Fusik
  */
 @Component
-public class GroupRepositoryProvider
-        extends AbstractRepositoryProvider
+public class GroupRepositoryProvider extends AbstractRepositoryProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupRepositoryProvider.class);
@@ -50,13 +58,13 @@ public class GroupRepositoryProvider
 
     @Inject
     private GroupRepositorySetCollector groupRepositorySetCollector;
-
+    
     @PersistenceContext
     private EntityManager entityManager;
-
+    
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-
+    
     @Override
     public String getAlias()
     {
@@ -64,38 +72,31 @@ public class GroupRepositoryProvider
     }
 
     @Override
-    protected InputStream getInputStreamInternal(RepositoryPath path)
-            throws IOException
+    protected InputStream getInputStreamInternal(RepositoryPath path) throws IOException
     {
         return hostedRepositoryProvider.getInputStreamInternal(path);
     }
 
     @Override
     public RepositoryPath fetchPath(RepositoryPath repositoryPath)
-            throws IOException
+        throws IOException
     {
-        boolean firstMatch = !RepositoryFiles.requiresGroupAggregation(repositoryPath);
+        eventPublisher.publishEvent(new GroupRepositoryPathFetchEvent(repositoryPath));
+
         RepositoryPath result = resolvePathDirectlyFromGroupPathIfPossible(repositoryPath);
         if (result != null)
         {
-            if (RepositoryFiles.hasExpired(result))
-            {
-                resolvePathTraversal(repositoryPath, firstMatch);
-            }
             return result;
         }
-
-        return resolvePathTraversal(repositoryPath, firstMatch);
+        
+        return resolvePathTraversal(repositoryPath);
     }
-
-    private RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath,
-                                                boolean firstMatch)
-            throws IOException
+    
+    protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath) throws IOException
     {
         Repository groupRepository = repositoryPath.getRepository();
         Storage storage = groupRepository.getStorage();
-        List<Callable<RepositoryPath>> aggregatedActions = new ArrayList<>();
-
+        
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories().keySet())
         {
             String sId = configurationManager.getStorageId(storage, storageAndRepositoryId);
@@ -106,50 +107,24 @@ public class GroupRepositoryProvider
             {
                 continue;
             }
-
-            final RepositoryPath resolvedPath = repositoryPathResolver.resolve(r, repositoryPath);
-            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), resolvedPath))
+            
+            RepositoryPath result = repositoryPathResolver.resolve(r, repositoryPath);
+            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), result))
             {
                 continue;
             }
-
-            if (!firstMatch)
+            
+            result = resolvePathFromGroupMemberOrTraverse(result);
+            if (result == null)
             {
-                aggregatedActions.add(() -> resolvePathFromGroupMemberOrTraverse(resolvedPath, false));
                 continue;
             }
-
-            final RepositoryPath groupMemberPath = resolvePathFromGroupMemberOrTraverse(resolvedPath, true);
-            if (groupMemberPath != null)
-            {
-                logger.debug(String.format("Located artifact: [%s]", groupMemberPath));
-                return groupMemberPath;
-            }
+            
+            logger.debug(String.format("Located artifact: [%s]", result));
+            
+            return result;
         }
-
-        if (!firstMatch)
-        {
-            invokeResolvePathActions(aggregatedActions);
-            return repositoryPath;
-        }
-
         return null;
-    }
-
-    private void invokeResolvePathActions(List<Callable<RepositoryPath>> resolvePathActions)
-    {
-        resolvePathActions
-                .parallelStream()
-                .forEach(action -> {
-                    try
-                    {
-                        action.call();
-                    }
-                    catch (Exception e)
-                    {
-                        logger.error(e.getMessage(), e);
-                    }
-                });
     }
 
     private RepositoryPath resolvePathDirectlyFromGroupPathIfPossible(final RepositoryPath artifactPath)
@@ -161,16 +136,15 @@ public class GroupRepositoryProvider
         return null;
     }
 
-    private RepositoryPath resolvePathFromGroupMemberOrTraverse(RepositoryPath repositoryPath,
-                                                                boolean firstMatch)
-            throws IOException
+    protected RepositoryPath resolvePathFromGroupMemberOrTraverse(RepositoryPath repositoryPath)
+        throws IOException
     {
         Repository repository = repositoryPath.getRepository();
         if (getAlias().equals(repository.getType()))
         {
-            return resolvePathTraversal(repositoryPath, firstMatch);
+            return resolvePathTraversal(repositoryPath);
         }
-
+        
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
         try
         {
@@ -292,28 +266,27 @@ public class GroupRepositoryProvider
                       Predicate predicate)
     {
         logger.debug(String.format("Count in [%s]:[%s] ...", storageId, repositoryId));
-
+        
         Storage storage = getConfiguration().getStorage(storageId);
 
         Repository groupRepository = storage.getRepository(repositoryId);
 
         Predicate p = Predicate.empty();
-
+        
         p.or(createPredicate(storageId, repositoryId, predicate));
         groupRepositorySetCollector.collect(groupRepository,
                                             true)
                                    .stream()
-                                   .forEach(r -> p.or(createPredicate(r.getStorage().getId(), r.getId(), predicate)));
+                                   .forEach(r -> p.or(createPredicate(r.getStorage().getId(), r.getId(), predicate)));                                                                                            
 
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
         selector.select("count(distinct(artifactCoordinates))").where(p);
-
+        
         QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
-
+        
         return queryTemplate.select(selector);
 
     }
 
-
-
+    
 }
