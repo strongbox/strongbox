@@ -12,6 +12,10 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +72,7 @@ public class MavenGroupRepositoryPathFetchEventListener
     {
         Repository groupRepository = repositoryPath.getRepository();
         Storage storage = groupRepository.getStorage();
+        List<Callable<Path>> fetchActions = new ArrayList<>();
 
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories().keySet())
         {
@@ -87,14 +92,25 @@ public class MavenGroupRepositoryPathFetchEventListener
             }
 
             RepositoryProvider provider = repositoryProviderRegistry.getProvider(subRepository.getType());
-            try
-            {
-                provider.fetchPath(repositoryPath);
-            }
-            catch (IOException e)
-            {
-                logger.error(String.format("Failed to resolve path [%s]", repositoryPath));
-            }
+            fetchActions.add(() -> provider.fetchPath(resolvedPath));
         }
+
+        fetchPathsInParallel(fetchActions);
+    }
+
+    private void fetchPathsInParallel(final List<Callable<Path>> fetchActions)
+    {
+        fetchActions
+                .parallelStream()
+                .forEach(action -> {
+                    try
+                    {
+                        action.call();
+                    }
+                    catch (Exception e)
+                    {
+                        logger.error(e.getMessage(), e);
+                    }
+                });
     }
 }
