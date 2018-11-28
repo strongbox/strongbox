@@ -13,8 +13,8 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryOutputStream;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.repository.event.StoredArtifactChecksumCalculatedEvent;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
@@ -218,9 +218,8 @@ public class ArtifactManagementService
         {
             // Store artifact digests in cache if we have them.
             addChecksumsToCacheManager(digestMap, repositoryPathId);
-            //
-            artifactEventListenerRegistry.dispatchEvent(
-                    new StoredArtifactChecksumCalculatedEvent(repositoryPath, digestMap));
+
+            writeChecksums(repositoryPath, digestMap);
         }
 
         if (Boolean.TRUE.equals(checksumAttribute))
@@ -234,6 +233,26 @@ public class ArtifactManagementService
         }
         
         return totalAmountOfBytes;
+    }
+
+    private void writeChecksums(RepositoryPath repositoryPath,
+                                Map<String, String> digestMap)
+    {
+        LayoutFileSystemProvider provider = (LayoutFileSystemProvider) repositoryPath.getFileSystem().provider();
+
+        digestMap.entrySet()
+                 .stream()
+                 .forEach(entry -> {
+                     final RepositoryPath checksumPath = provider.getChecksumPath(repositoryPath, entry.getKey());
+                     try
+                     {
+                         Files.write(checksumPath, entry.getValue().getBytes(StandardCharsets.UTF_8));
+                     }
+                     catch (IOException ex)
+                     {
+                         logger.error(ex.getMessage(), ex);
+                     }
+                 });
     }
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,

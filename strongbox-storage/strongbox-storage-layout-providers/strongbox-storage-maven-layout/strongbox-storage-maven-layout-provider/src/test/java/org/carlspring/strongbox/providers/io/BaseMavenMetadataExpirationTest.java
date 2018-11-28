@@ -8,6 +8,7 @@ import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RestArtifactResolver;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
@@ -193,8 +194,8 @@ abstract class BaseMavenMetadataExpirationTest
     protected RepositoryPath resolveSiblingChecksum(final RepositoryPath repositoryPath,
                                                     final EncryptionAlgorithmsEnum checksumAlgorithm)
     {
-        return repositoryPath.resolveSibling(
-                repositoryPath.getFileName().toString() + checksumAlgorithm.getExtension());
+        LayoutFileSystemProvider provider = (LayoutFileSystemProvider) repositoryPath.getFileSystem().provider();
+        return provider.getChecksumPath(repositoryPath, checksumAlgorithm.getAlgorithm());
     }
 
     protected String readChecksum(final RepositoryPath checksumRepositoryPath)

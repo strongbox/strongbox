@@ -90,7 +90,7 @@ public class MavenMetadataExpirationSingleGroupCaseTest
     }
 
     @Test
-    public void expiredGroupRepositoryMetadataPathShouldBeRefetchedFromUnderlyingRepository()
+    public void groupRepositoryVersionLevelMetadataShouldBeRefreshedAsItsSingleProxySubrepository()
             throws Exception
     {
         final RepositoryPath hostedPath = resolvePath(REPOSITORY_HOSTED, true, "maven-metadata.xml");

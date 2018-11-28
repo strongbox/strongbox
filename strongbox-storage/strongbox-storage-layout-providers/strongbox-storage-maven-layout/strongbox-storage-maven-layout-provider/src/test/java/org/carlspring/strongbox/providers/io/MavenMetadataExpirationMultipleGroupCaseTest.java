@@ -120,7 +120,7 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
     }
 
     @Test
-    public void expiredGroupMetadataShouldForceMergeMetadataFromMultipleSubRepositories()
+    public void expiredGroupMetadataShouldFetchVersionLevelMetadataFromFirstMatch()
             throws Exception
     {
         final RepositoryPath hostedPath = resolvePath(REPOSITORY_HOSTED, true, "maven-metadata.xml");
@@ -179,11 +179,7 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         calculatedGroupPathChecksum = calculateChecksum(resolvedGroupPath,
                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
-        final RepositoryPath hostedYahrPath = resolvePath(REPOSITORY_HOSTED_YAHR, true, "maven-metadata.xml");
-        String calculatedHostedYahrPathChecksum = calculateChecksum(hostedYahrPath,
-                                                                    EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-
-        assertThat(calculatedHostedYahrPathChecksum, equalTo(calculatedGroupPathChecksum));
+        assertThat(calculatedGroupPathChecksum, equalTo(sha1ProxyPathChecksum));
     }
 
     @After
