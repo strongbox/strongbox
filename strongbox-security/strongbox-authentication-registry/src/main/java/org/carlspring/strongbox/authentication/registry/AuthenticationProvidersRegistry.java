@@ -81,7 +81,7 @@ public class AuthenticationProvidersRegistry
 
         final AuthenticationConfigurationContext applicationContext = new AuthenticationConfigurationContext();
 
-        Resource authenticationPropertiesResource = new DefaultResourceLoader().getResource("classpath:strongbox-authentication-providers.json");
+        Resource authenticationPropertiesResource = new DefaultResourceLoader().getResource("classpath:strongbox-authentication-providers.yaml");
         YamlPropertiesFactoryBean authenticationPropertiesFactory = new YamlPropertiesFactoryBean();
         authenticationPropertiesFactory.setResources(authenticationPropertiesResource);
         Properties authenticationProperties = authenticationPropertiesFactory.getObject();
@@ -92,8 +92,6 @@ public class AuthenticationProvidersRegistry
             applicationContext.setClassLoader(requiredClassLoader);
             applicationContext.load(getAuthenticationConfigurationResource());
 
-            // ConfigurableEnvironment env =
-            // applicationContext.getEnvironment();
             ConfigurableEnvironment env = new StandardEnvironment();
             applicationContext.setEnvironment(env);
 
@@ -104,6 +102,10 @@ public class AuthenticationProvidersRegistry
             PropertySourcesPlaceholderConfigurer propertyHolder = new PropertySourcesPlaceholderConfigurer();
             propertyHolder.setEnvironment(env);
             applicationContext.addBeanFactoryPostProcessor(propertyHolder);
+            
+            AuthenticationContextConfigurer authenticationContextConfigurer = new AuthenticationContextConfigurer();
+            authenticationContextConfigurer.setEnvironment(env);
+            applicationContext.addBeanFactoryPostProcessor(authenticationContextConfigurer);
 
             applicationContext.refresh();
         }

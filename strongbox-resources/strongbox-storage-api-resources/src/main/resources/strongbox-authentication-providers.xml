@@ -45,8 +45,7 @@
         <property name="anonymousReadOnly" value="true" />
     </bean>
 
-    <bean
-        class="org.springframework.security.ldap.userdetails.LdapUserDetailsService">
+    <bean id="ldapUserDetailsService" class="org.springframework.security.ldap.userdetails.LdapUserDetailsService">
         <constructor-arg>
             <bean
                 class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">

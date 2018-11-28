@@ -1,5 +1,7 @@
 strongbox:
   authentication:
+    ldapUserDetailsService:
+      enabled: false
     ldap:
       url: ldap://127.0.0.1:53389/dc=carlspring,dc=com
       roles-mapping:
