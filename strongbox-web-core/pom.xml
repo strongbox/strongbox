@@ -77,7 +77,6 @@
                     <systemPropertyVariables>
                         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
-                        <strongbox.authentication.providers.xml>${project.build.testOutputDirectory}/etc/conf/strongbox-authentication-providers.xml</strongbox.authentication.providers.xml>
                         <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
                         <strongbox.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</strongbox.config.xml>
                         <strongbox.host>${strongbox.host}</strongbox.host>
@@ -93,11 +92,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <systemPropertyVariables>
-                        <strongbox.authentication.providers.xml>${project.build.testOutputDirectory}/etc/conf/strongbox-authentication-providers.xml</strongbox.authentication.providers.xml>
-                    </systemPropertyVariables>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
