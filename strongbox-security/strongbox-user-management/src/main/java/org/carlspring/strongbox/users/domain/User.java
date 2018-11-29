@@ -37,7 +37,7 @@ public class User implements Serializable, UserReadContract
 
     private final String securityTokenKey;
 
-    private final AccessModel accessModel;
+    private final UserAccessModelReadContract accessModel;
 
     private final Date lastUpdate;
     
@@ -60,7 +60,7 @@ public class User implements Serializable, UserReadContract
         this.roles = immuteRoles(source.getRoles());
         this.authorities = source.getAuthorities();
         this.securityTokenKey = source.getSecurityTokenKey();
-        this.accessModel = immuteAccessModel(source.getUserAccessModel());
+        this.accessModel = source.getUserAccessModel();
         this.lastUpdate = immuteDate(source.getLastUpdate());
     }
 

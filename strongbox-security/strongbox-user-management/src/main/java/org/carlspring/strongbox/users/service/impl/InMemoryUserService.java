@@ -26,7 +26,9 @@ import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.UserReadContract;
 import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
@@ -143,25 +145,20 @@ public class InMemoryUserService implements UserService
     }
 
     @Override
-    public void save(final UserDto user)
+    public void save(final UserReadContract user)
     {
         modifyInLock(users -> {
-            UserDto u = users.get(user.getUsername());
+            UserDto u = Optional.ofNullable(users.get(user.getUsername())).orElseGet(() -> new UserDto());
 
-            if (userMap.containsKey(user.getUsername()))
-            {
-                updatePassword(u, user.getPassword());
-                u.setEnabled(user.isEnabled());
-                u.setRoles(user.getRoles());
-                u.setSecurityTokenKey(user.getSecurityTokenKey());
-                u.setUserAccessModel(user.getUserAccessModel());
-            }
-            else
-            {
-                updatePassword(user, user.getPassword());
-                users.put(user.getUsername(), user);
-            }
-            ;
+            updatePassword(u, user.getPassword());
+            
+            u.setUsername(user.getUsername());
+            u.setEnabled(user.isEnabled());
+            u.setRoles(user.getRoles());
+            u.setSecurityTokenKey(user.getSecurityTokenKey());
+            u.setUserAccessModel(user.getUserAccessModel());
+            
+            users.putIfAbsent(user.getUsername(), u);
         });
     }
 
@@ -216,7 +213,7 @@ public class InMemoryUserService implements UserService
     private void updatePassword(final UserDto user,
                                 final String rawPassword)
     {
-        if (StringUtils.isNotBlank(rawPassword) && !user.getPassword().equals(rawPassword))
+        if (StringUtils.isNotBlank(rawPassword) && !rawPassword.equals(user.getPassword()))
         {
             user.setPassword(passwordEncoder.encode(rawPassword));
         }

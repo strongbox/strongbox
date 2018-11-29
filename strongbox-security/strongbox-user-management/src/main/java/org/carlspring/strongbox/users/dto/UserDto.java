@@ -38,8 +38,8 @@ public class UserDto
     @XmlElementWrapper(name = "authorities")
     private Set<String> authorities = new HashSet<>();
 
-    @XmlElement(name = "access-model")
-    private UserAccessModelDto userAccessModel;
+    @XmlElement(name = "access-model", type = UserAccessModelDto.class)
+    private UserAccessModelReadContract userAccessModel;
 
     @XmlElement(name = "security-token-key")
     private String securityTokenKey;
@@ -121,12 +121,12 @@ public class UserDto
     /* (non-Javadoc)
      * @see org.carlspring.strongbox.users.dto.UserReadContract#getUserAccessModel()
      */
-    public UserAccessModelDto getUserAccessModel()
+    public UserAccessModelReadContract getUserAccessModel()
     {
         return userAccessModel;
     }
 
-    public void setUserAccessModel(UserAccessModelDto userAccessModel)
+    public void setUserAccessModel(UserAccessModelReadContract userAccessModel)
     {
         this.userAccessModel = userAccessModel;
     }

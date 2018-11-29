@@ -35,4 +35,5 @@ public class UserAccessModelDto implements UserAccessModelReadContract
     {
         return storages.stream().filter(s -> s.getStorageId().equals(storageId)).findFirst();
     }
+    
 }

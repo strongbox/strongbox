@@ -27,6 +27,7 @@ public class UserRepositoryDto implements UserRepositoryReadContract
     private String repositoryId;
 
     @XmlElement(name = "privilege")
+    @XmlElementWrapper(name = "repository-privileges")
     private Set<PrivilegeDto> repositoryPrivileges = new LinkedHashSet<>();
 
     @XmlElement(name = "path-privilege")

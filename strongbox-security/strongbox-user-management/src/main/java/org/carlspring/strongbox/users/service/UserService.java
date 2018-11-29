@@ -4,7 +4,7 @@ import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserDto;
-
+import org.carlspring.strongbox.users.dto.UserReadContract;
 import org.jose4j.lang.JoseException;
 
 /**
@@ -56,7 +56,7 @@ public interface UserService
 
     void revokeEveryone(String roleToRevoke);
 
-    void save(UserDto user);
+    void save(UserReadContract user);
 
     void delete(String username);
 
