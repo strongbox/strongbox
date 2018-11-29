@@ -1,31 +1,35 @@
 package org.carlspring.strongbox.providers.repository;
 
 
-import java.io.BufferedOutputStream;
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathLock;
+import org.carlspring.strongbox.providers.repository.event.ProxyRepositoryPathExpiredEvent;
+import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
+import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
-import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
+ * @author Przemyslaw Fusik
  */
 @Component
 public class ProxyRepositoryProvider
@@ -41,10 +45,9 @@ public class ProxyRepositoryProvider
 
     @Inject
     private HostedRepositoryProvider hostedRepositoryProvider;
-    
-    @Inject
-    private ApplicationEventPublisher eventPublisher;
 
+    @Inject
+    private RepositoryPathLock repositoryPathLock;
 
     @Override
     public String getAlias()
@@ -64,20 +67,38 @@ public class ProxyRepositoryProvider
         throws IOException
     {
         RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(repositoryPath);
+
         if (targetPath == null)
         {
-            targetPath = resolvePathForceFetch(repositoryPath);
+            targetPath = resolvePathExclusive(repositoryPath);
         }
-        
+        else if (RepositoryFiles.hasExpired(targetPath))
+        {
+            eventPublisher.publishEvent(new ProxyRepositoryPathExpiredEvent(targetPath));
+        }
+
         return targetPath;
     }
 
-    public RepositoryPath resolvePathForceFetch(RepositoryPath repositoryPath)
-        throws IOException
+    private RepositoryPath resolvePathExclusive(RepositoryPath repositoryPath)
+            throws IOException
     {
+
+        ReadWriteLock lockSource = repositoryPathLock.lock(repositoryPath, "pre-remote-fetch");
+        Lock lock = lockSource.writeLock();
+        lock.lock();
+
         try
         {
-            return (RepositoryPath) proxyRepositoryArtifactResolver.fetchRemoteResource(repositoryPath);
+            // This is the second attempt, but this time inside exclusive write lock
+            // Things might have changed.
+            RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(repositoryPath);
+            if (targetPath != null)
+            {
+                return targetPath;
+
+            }
+            return proxyRepositoryArtifactResolver.fetchRemoteResource(repositoryPath);
         }
         catch (IOException e)
         {
@@ -86,15 +107,19 @@ public class ProxyRepositoryProvider
 
             throw e;
         }
+        finally
+        {
+            lock.unlock();
+        }
     }
-    
+
     @Override
     protected OutputStream getOutputStreamInternal(RepositoryPath repositoryPath)
             throws IOException
     {
         return Files.newOutputStream(repositoryPath);
     }
-    
+
     @Override
     public List<Path> search(String storageId,
                              String repositoryId,
@@ -123,7 +148,7 @@ public class ProxyRepositoryProvider
     {
         ArtifactEntry artifactEntry = super.provideArtifactEntry(repositoryPath);
         ArtifactEntry remoteArtifactEntry = artifactEntry.getObjectId() == null ? new RemoteArtifactEntry() : (RemoteArtifactEntry) artifactEntry;
-        
+
         return remoteArtifactEntry;
     }
 
@@ -132,10 +157,10 @@ public class ProxyRepositoryProvider
     {
         RemoteArtifactEntry remoteArtifactEntry = (RemoteArtifactEntry) artifactEntry;
         boolean result = super.shouldStoreArtifactEntry(artifactEntry) || !remoteArtifactEntry.getIsCached();
-        
+
         remoteArtifactEntry.setIsCached(true);
-        
+
         return result;
     }
-    
+
 }

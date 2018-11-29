@@ -13,6 +13,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryOutputStream;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
@@ -149,12 +150,10 @@ public class ArtifactManagementService
             throws IOException
     {
         long result;
-        boolean updatedMetadataFile = false;
         boolean updatedArtifactFile = false;
 
         if (RepositoryFiles.artifactExists(repositoryPath))
         {
-            updatedMetadataFile = RepositoryFiles.isMetadata(repositoryPath);
             updatedArtifactFile = RepositoryFiles.isArtifact(repositoryPath);
         }
         
@@ -179,11 +178,10 @@ public class ArtifactManagementService
         {
             artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
         }
-        
-        if (updatedMetadataFile)
+
+        if (RepositoryFiles.isMetadata(repositoryPath))
         {
-            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(repositoryPath);
-            // If this is a metadata file and it has been updated:
+            artifactEventListenerRegistry.dispatchArtifactMetadataStoredEvent(repositoryPath);
         }
 
         
@@ -220,6 +218,8 @@ public class ArtifactManagementService
         {
             // Store artifact digests in cache if we have them.
             addChecksumsToCacheManager(digestMap, repositoryPathId);
+
+            writeChecksums(repositoryPath, digestMap);
         }
 
         if (Boolean.TRUE.equals(checksumAttribute))
@@ -233,6 +233,26 @@ public class ArtifactManagementService
         }
         
         return totalAmountOfBytes;
+    }
+
+    private void writeChecksums(RepositoryPath repositoryPath,
+                                Map<String, String> digestMap)
+    {
+        LayoutFileSystemProvider provider = (LayoutFileSystemProvider) repositoryPath.getFileSystem().provider();
+
+        digestMap.entrySet()
+                 .stream()
+                 .forEach(entry -> {
+                     final RepositoryPath checksumPath = provider.getChecksumPath(repositoryPath, entry.getKey());
+                     try
+                     {
+                         Files.write(checksumPath, entry.getValue().getBytes(StandardCharsets.UTF_8));
+                     }
+                     catch (IOException ex)
+                     {
+                         logger.error(ex.getMessage(), ex);
+                     }
+                 });
     }
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,

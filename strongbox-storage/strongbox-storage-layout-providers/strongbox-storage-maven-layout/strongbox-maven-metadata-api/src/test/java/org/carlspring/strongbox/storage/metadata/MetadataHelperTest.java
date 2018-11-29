@@ -252,22 +252,7 @@ public class MetadataHelperTest
         assertEquals(2, metadata.getVersioning().getSnapshot().getBuildNumber());
         assertNotNull(metadata.getVersioning().getSnapshot().getTimestamp());
         assertNotNull(metadata.getVersioning().getLastUpdated());
-        assertEquals(6, metadata.getVersioning().getSnapshotVersions().size());
-
-        assertEquals(JAVADOC, metadata.getVersioning().getSnapshotVersions().get(3).getClassifier());
-        assertEquals(JAR, metadata.getVersioning().getSnapshotVersions().get(3).getExtension());
-        assertNotNull(metadata.getVersioning().getSnapshotVersions().get(3).getUpdated());
-
-        assertEquals(JAR, metadata.getVersioning().getSnapshotVersions().get(4).getExtension());
-        assertNotNull(metadata.getVersioning().getSnapshotVersions().get(4).getUpdated());
-
-        assertEquals(POM, metadata.getVersioning().getSnapshotVersions().get(5).getExtension());
-        assertNotNull(metadata.getVersioning().getSnapshotVersions().get(5).getUpdated());
-
-        assertTrue(metadata.getVersioning().getSnapshotVersions().get(3).getVersion()
-                                  .equals(metadata.getVersioning().getSnapshotVersions().get(4).getVersion()));
-        assertTrue(metadata.getVersioning().getSnapshotVersions().get(4).getVersion()
-                                  .equals(metadata.getVersioning().getSnapshotVersions().get(5).getVersion()));
+        assertEquals(3, metadata.getVersioning().getSnapshotVersions().size());
     }
 
     @Test

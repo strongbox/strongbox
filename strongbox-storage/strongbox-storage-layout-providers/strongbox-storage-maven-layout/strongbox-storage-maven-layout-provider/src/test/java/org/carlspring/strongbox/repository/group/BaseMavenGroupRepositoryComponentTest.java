@@ -12,12 +12,10 @@ import org.carlspring.strongbox.xml.configuration.repository.MutableMavenReposit
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Random;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -121,21 +119,6 @@ public class BaseMavenGroupRepositoryComponentTest
         createRepository(storageId, repository);
     }
 
-    protected MutableRepository createGroup(String repositoryId,
-                                            String storageId,
-                                            String... leafs)
-            throws Exception
-    {
-        MutableRepository repository = new MutableRepository(repositoryId);
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
-        repository.setType(RepositoryTypeEnum.GROUP.getType());
-        repository.setGroupRepositories(Sets.newLinkedHashSet(Arrays.asList(leafs)));
-
-        createRepository(storageId, repository);
-
-        return repository;
-    }
-
     @BeforeEach
     public void initialize()
             throws Exception
@@ -147,11 +130,11 @@ public class BaseMavenGroupRepositoryComponentTest
         createLeaf(STORAGE0, REPOSITORY_LEAF_G);
         createLeaf(STORAGE0, REPOSITORY_LEAF_K);
 
-        createGroup(REPOSITORY_GROUP_C, STORAGE0, REPOSITORY_LEAF_E, REPOSITORY_LEAF_Z);
-        createGroup(REPOSITORY_GROUP_B, STORAGE0, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
-        createGroup(REPOSITORY_GROUP_A, STORAGE0, REPOSITORY_LEAF_G, REPOSITORY_GROUP_B);
-        createGroup(REPOSITORY_GROUP_F, STORAGE0, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
-        createGroup(REPOSITORY_GROUP_H, STORAGE0, REPOSITORY_GROUP_F, REPOSITORY_LEAF_K);
+        createGroup(STORAGE0, REPOSITORY_GROUP_C, REPOSITORY_LEAF_E, REPOSITORY_LEAF_Z);
+        createGroup(STORAGE0, REPOSITORY_GROUP_B, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
+        createGroup(STORAGE0, REPOSITORY_GROUP_A, REPOSITORY_LEAF_G, REPOSITORY_GROUP_B);
+        createGroup(STORAGE0, REPOSITORY_GROUP_F, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
+        createGroup(STORAGE0, REPOSITORY_GROUP_H, REPOSITORY_GROUP_F, REPOSITORY_LEAF_K);
 
         // whenAnArtifactWasDeletedAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible
         generateArtifact(REPOSITORY_LEAF_L_BASEDIR.getAbsolutePath(),

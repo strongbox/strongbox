@@ -8,7 +8,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,4 +85,18 @@ public class MessageDigestUtils
         }
     }
 
+    public static String calculateChecksum(Path path,
+                                           String type)
+            throws IOException, NoSuchAlgorithmException
+    {
+        byte[] buffer = new byte[4096];
+        MessageDigest md = MessageDigest.getInstance(type);
+
+        try (DigestInputStream dis = new DigestInputStream(Files.newInputStream(path), md))
+        {
+            while (dis.read(buffer) != -1) ;
+        }
+
+        return convertToHexadecimalString(md);
+    }
 }

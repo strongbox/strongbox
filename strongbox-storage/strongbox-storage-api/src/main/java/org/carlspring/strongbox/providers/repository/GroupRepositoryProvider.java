@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -20,7 +19,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
@@ -31,6 +29,7 @@ import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.repository.event.GroupRepositoryPathFetchEvent;
 import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
@@ -82,6 +81,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     public RepositoryPath fetchPath(RepositoryPath repositoryPath)
         throws IOException
     {
+        eventPublisher.publishEvent(new GroupRepositoryPathFetchEvent(repositoryPath));
+
         RepositoryPath result = resolvePathDirectlyFromGroupPathIfPossible(repositoryPath);
         if (result != null)
         {
@@ -127,7 +128,6 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     private RepositoryPath resolvePathDirectlyFromGroupPathIfPossible(final RepositoryPath artifactPath)
-        throws IOException
     {
         if (Files.exists(artifactPath))
         {
@@ -135,19 +135,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         }
         return null;
     }
-    
-    /**
-     * Returns the artifact associated to artifactPath if repository type isn't GROUP or
-     * returns the product of calling getInputStream recursively otherwise.
-     *
-     * @param storageId    The storage id
-     * @param repositoryId The repository
-     * @param artifactPath The path to the artifact
-     * @return
-     * @throws NoSuchAlgorithmException
-     * @throws IOException
-     * @throws ArtifactTransportException
-     */
+
     protected RepositoryPath resolvePathFromGroupMemberOrTraverse(RepositoryPath repositoryPath)
         throws IOException
     {
@@ -171,7 +159,6 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
     @Override
     protected OutputStream getOutputStreamInternal(RepositoryPath repositoryPath)
-            throws IOException
     {
         // It should not be possible to write artifacts to a group repository.
         // A group repository should only serve artifacts that already exist

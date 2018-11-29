@@ -169,7 +169,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                 value = repositoryPath.getRepository().getId();
 
                 break;
-                
+            case EXPIRED:
+                value = false;
+
+                break;
+
             }
             if (value != null)
             {

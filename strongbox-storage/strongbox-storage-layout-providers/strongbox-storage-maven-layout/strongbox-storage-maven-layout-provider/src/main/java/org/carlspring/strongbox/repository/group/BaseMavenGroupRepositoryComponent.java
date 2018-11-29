@@ -111,7 +111,7 @@ public abstract class BaseMavenGroupRepositoryComponent
         updateGroupsContaining(repositoryPath, Lists.newArrayList(repository), updateCallback);
     }
 
-    private void updateGroupsContaining(RepositoryPath repositoryPath,
+    private void updateGroupsContaining(final RepositoryPath repositoryPath,
                                         final List<Repository> leafRoute,
                                         final UpdateCallback updateCallback)
             throws IOException

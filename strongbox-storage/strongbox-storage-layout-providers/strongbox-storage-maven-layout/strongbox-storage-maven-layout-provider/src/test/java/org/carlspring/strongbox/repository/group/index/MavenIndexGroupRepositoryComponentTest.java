@@ -97,7 +97,7 @@ public class MavenIndexGroupRepositoryComponentTest
     public void whenCreatingNewGroupRepositoryItsIndexShouldContainChildrenArtifacts()
             throws Exception
     {
-        MutableRepository repository = createGroup(REPOSITORY_GROUP, STORAGE0, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
+        MutableRepository repository = createGroup(STORAGE0, REPOSITORY_GROUP, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
 
         RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
         // recoded since we scheduled a cron job now
