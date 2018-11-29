@@ -21,12 +21,10 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 
-import org.apache.commons.lang.StringUtils;
-import org.carlspring.strongbox.data.CacheName;
+import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.dto.UserReadContract;
 import org.carlspring.strongbox.users.dto.UsersDto;
@@ -35,7 +33,6 @@ import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.jose4j.lang.JoseException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 
@@ -47,9 +44,6 @@ public class InMemoryUserService implements UserService
     protected Map<String, UserDto> userMap = new ConcurrentHashMap<>();
 
     private final ReadWriteLock usersLock = new ReentrantReadWriteLock();
-
-    @Inject
-    private PasswordEncoder passwordEncoder;
 
     @Inject
     private SecurityTokenProvider tokenProvider;
@@ -155,8 +149,10 @@ public class InMemoryUserService implements UserService
         modifyInLock(users -> {
             UserDto u = Optional.ofNullable(users.get(user.getUsername())).orElseGet(() -> new UserDto());
 
-            updatePassword(u, user.getPassword());
-            
+            if (!StringUtils.isBlank(user.getPassword()))
+            {
+                u.setPassword(user.getPassword());
+            }
             u.setUsername(user.getUsername());
             u.setEnabled(user.isEnabled());
             u.setRoles(user.getRoles());
@@ -188,9 +184,14 @@ public class InMemoryUserService implements UserService
     @Override
     public void updatePassword(final UserDto userToUpdate)
     {
+        if (StringUtils.isBlank(userToUpdate.getPassword()))
+        {
+            return;
+        }
+
         modifyInLock(users -> {
             Optional.ofNullable(users.get(userToUpdate.getUsername()))
-                    .ifPresent(user -> updatePassword(user, userToUpdate.getPassword()));
+                    .ifPresent(user -> user.setPassword(userToUpdate.getPassword()));
         });
     }
 
@@ -209,19 +210,14 @@ public class InMemoryUserService implements UserService
         modifyInLock(users -> {
             Optional.ofNullable(users.get(userToUpdate.getUsername()))
                     .ifPresent(user -> {
-                        updatePassword(user, userToUpdate.getPassword());
+                        if (!StringUtils.isBlank(userToUpdate.getPassword()))
+                        {
+                            user.setPassword(userToUpdate.getPassword());
+                        }
+                        
                         updateSecurityToken(user, userToUpdate.getSecurityTokenKey());
                     });
         });
-    }
-
-    private void updatePassword(final UserDto user,
-                                final String rawPassword)
-    {
-        if (StringUtils.isNotBlank(rawPassword) && !rawPassword.equals(user.getPassword()))
-        {
-            user.setPassword(passwordEncoder.encode(rawPassword));
-        }
     }
 
     private void updateSecurityToken(final UserDto user,

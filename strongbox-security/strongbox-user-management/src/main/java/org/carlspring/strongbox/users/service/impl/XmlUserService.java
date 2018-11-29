@@ -11,9 +11,12 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 
+import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.users.UsersFileManager;
 import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.UserReadContract;
 import org.carlspring.strongbox.users.dto.UsersDto;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,6 +31,42 @@ public class XmlUserService
 
     @Inject
     private UsersFileManager usersFileManager;
+
+    @Inject
+    private PasswordEncoder passwordEncoder;
+
+    private void encryptPassword(final UserDto user,
+                                 final String rawPassword)
+    {
+        if (StringUtils.isNotBlank(rawPassword))
+        {
+            user.setPassword(passwordEncoder.encode(rawPassword));
+        }
+    }
+
+    @Override
+    public void save(UserReadContract user)
+    {
+        encryptPassword((UserDto) user, user.getPassword());
+        
+        super.save(user);
+    }
+
+    @Override
+    public void updatePassword(UserDto userToUpdate)
+    {
+        encryptPassword((UserDto) userToUpdate, userToUpdate.getPassword());
+        
+        super.updatePassword(userToUpdate);
+    }
+
+    @Override
+    public void updateAccountDetailsByUsername(UserDto userToUpdate)
+    {
+        encryptPassword((UserDto) userToUpdate, userToUpdate.getPassword());
+        
+        super.updateAccountDetailsByUsername(userToUpdate);
+    }
 
     @Override
     protected void modifyInLock(Consumer<Map<String, UserDto>> operation)
@@ -44,7 +83,6 @@ public class XmlUserService
         });
     }
 
-    
     @Documented
     @Retention(RUNTIME)
     @Qualifier
