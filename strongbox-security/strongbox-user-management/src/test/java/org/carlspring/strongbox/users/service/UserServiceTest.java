@@ -6,6 +6,7 @@ import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -35,6 +36,7 @@ public class UserServiceTest
     private static final Logger logger = LoggerFactory.getLogger(UserServiceTest.class);
 
     @Inject
+    @XmlUserServiceQualifier
     UserService userService;
 
     @BeforeEach

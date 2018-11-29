@@ -78,6 +78,11 @@ public class InMemoryUserService implements UserService
     @Override
     public User findByUserName(final String username)
     {
+        if (username == null)
+        {
+            return null;
+        }
+        
         final Lock readLock = usersLock.readLock();
         readLock.lock();
 
