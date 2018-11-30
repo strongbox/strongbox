@@ -14,20 +14,11 @@
                            http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
     <context:annotation-config />
-    <cache:annotation-driven />
 
     <bean id="xmlUserDetailService" class="org.carlspring.strongbox.users.userdetails.XmlUserDetailService"/>
 
-    <bean
-        class="org.carlspring.strongbox.authentication.api.impl.xml.CacheManagerAuthenticationCache" />
+    <bean id="authenticationProviderFirst" class="org.carlspring.strongbox.controllers.configuration.security.authentication.AuthenticatorsConfigControllerTestIT.TestAuthenticationProvider"/>
+    <bean id="authenticationProviderSecond" class="org.carlspring.strongbox.controllers.configuration.security.authentication.AuthenticatorsConfigControllerTestIT.TestAuthenticationProvider"/>
+    <bean id="authenticationProviderThird" class="org.carlspring.strongbox.controllers.configuration.security.authentication.AuthenticatorsConfigControllerTestIT.TestAuthenticationProvider"/>
 
-    <bean id="passwordAuthenticationProvider"
-        class="org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticationProvider" />
-    <bean id="jwtAuthenticationProvider"
-        class="org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthenticationProvider" />
-    <bean id="securityTokenAuthenticationProvider"
-        class="org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthenticationProvider" />
-
-    <import resource="classpath:/org/carlspring/strongbox/authentication/external/ldap/strongbox-authentication-providers.xml" />
-    
 </beans>

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.authentication.registry.AuthenticationConfig;
+import org.carlspring.strongbox.authentication.AuthenticationConfig;
 import org.carlspring.strongbox.security.CustomAccessDeniedHandler;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;

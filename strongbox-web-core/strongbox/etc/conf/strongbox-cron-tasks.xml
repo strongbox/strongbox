@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cron-tasks-configuration>
+    <cron-task-configuration>
+        <name>Clear Each Repository's Trash Cron Job</name>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression>
+            <jobClass>org.carlspring.strongbox.cron.jobs.ClearRepositoryTrashCronJob</jobClass>
+        </properties>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+    </cron-task-configuration>
+    <cron-task-configuration>
+        <name>Cleanup Expired Artifacts From Proxy Repositories Cron Job</name>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression>
+            <lastAccessedTimeInDays>60</lastAccessedTimeInDays>
+            <jobClass>org.carlspring.strongbox.cron.jobs.CleanupExpiredArtifactsFromProxyRepositoriesCronJob</jobClass>
+        </properties>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+    </cron-task-configuration>
+    <cron-task-configuration>
+        <name>Re-generate Artifacts Checksums Cron Job</name>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression>
+            <jobClass>org.carlspring.strongbox.cron.jobs.RegenerateChecksumCronJob</jobClass>
+        </properties>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+    </cron-task-configuration>
+    <cron-task-configuration>
+        <name>Re-build All Maven Repositories Metadata Files Cron Job</name>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression>
+            <jobClass>org.carlspring.strongbox.cron.jobs.RebuildMavenMetadataCronJob</jobClass>
+        </properties>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+    </cron-task-configuration>
+    <cron-task-configuration>
+        <name>Remove Timestamped Maven Snapshots Cron Job</name>
+        <properties>
+            <cronExpression>0 0 1 * * ?</cronExpression>
+            <jobClass>org.carlspring.strongbox.cron.jobs.RemoveTimestampedMavenSnapshotCronJob</jobClass>
+        </properties>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>false</immediate-execution>
+    </cron-task-configuration>
+    <cron-task-configuration>
+        <name>Remote feed download for storage-common-proxies:nuget.org</name>
+        <properties>
+            <cronExpression>0 0 0 * * ?</cronExpression>
+            <jobClass>org.carlspring.strongbox.cron.jobs.DownloadRemoteFeedCronJob</jobClass>
+            <repositoryId>nuget.org</repositoryId>
+            <storageId>storage-common-proxies</storageId>
+        </properties>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>true</immediate-execution>
+    </cron-task-configuration>
+    <cron-task-configuration>
+        <name>Fetch Remote Changes feed for storage-npm:npmjs</name>
+        <properties>
+            <cronExpression>0 0 * ? * * *</cronExpression>
+            <jobClass>org.carlspring.strongbox.cron.jobs.FetchRemoteNpmChangesFeedCronJob</jobClass>
+            <repositoryId>npmjs</repositoryId>
+            <storageId>storage-npm</storageId>
+        </properties>
+        <one-time-execution>false</one-time-execution>
+        <immediate-execution>true</immediate-execution>
+    </cron-task-configuration>
+</cron-tasks-configuration>

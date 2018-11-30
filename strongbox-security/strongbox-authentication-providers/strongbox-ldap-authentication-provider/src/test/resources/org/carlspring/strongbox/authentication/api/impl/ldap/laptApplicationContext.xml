@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:util="http://www.springframework.org/schema/util"
-    xmlns:cache="http://www.springframework.org/schema/cache"
+    xmlns:util="http://www.springframework.org/schema/util" xmlns:cache="http://www.springframework.org/schema/cache"
     xmlns:security="http://www.springframework.org/schema/security"
 
     xmlns="http://www.springframework.org/schema/beans"
@@ -14,20 +13,11 @@
                            http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
     <context:annotation-config />
-    <cache:annotation-driven />
 
-    <bean id="xmlUserDetailService" class="org.carlspring.strongbox.users.userdetails.XmlUserDetailService"/>
+    <security:ldap-server id="ldapServer" ldif="classpath:strongbox.ldif" port="53389" root="dc=carlspring,dc=com"/>
 
-    <bean
-        class="org.carlspring.strongbox.authentication.api.impl.xml.CacheManagerAuthenticationCache" />
+    <import resource="classpath:/org/carlspring/strongbox/authentication/external/ldap/strongbox-authentication-providers.xml" /> 
 
-    <bean id="passwordAuthenticationProvider"
-        class="org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticationProvider" />
-    <bean id="jwtAuthenticationProvider"
-        class="org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthenticationProvider" />
-    <bean id="securityTokenAuthenticationProvider"
-        class="org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthenticationProvider" />
 
-    <import resource="classpath:/org/carlspring/strongbox/authentication/external/ldap/strongbox-authentication-providers.xml" />
-    
+
 </beans>

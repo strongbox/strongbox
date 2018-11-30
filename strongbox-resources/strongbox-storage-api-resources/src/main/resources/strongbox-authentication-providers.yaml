@@ -1,19 +1,37 @@
 strongbox:
   authentication:
+    xmlUserDetailService:
+      order: 0
+      enabled: true
     ldapUserDetailsService:
+      order: 1
       enabled: false
+    passwordAuthenticationProvider:
+      order: 0
+      enabled: true
+    jwtAuthenticationProvider:
+      order: 1
+      enabled: true
+    securityTokenAuthenticationProvider:
+      order: 2
+      enabled: true
     ldap:
       url: ldap://127.0.0.1:53389/dc=carlspring,dc=com
-      roles-mapping:
-      - ldap-role: Developers
-        strongbox-role: REPOSITORY_MANAGER
-      - ldap-role: Contributors
-        strongbox-role: USER_ROLE
-      user-dn-patterns:
+      managerDn: cn=manager,ou=users,dc=carlspring,dc=com
+      managerPassword: password
+      rolesMapping:
+      - ldapRole: Developers
+        strongboxRole: REPOSITORY_MANAGER
+      - ldapRole: Contributors
+        strongboxRole: USER_ROLE
+      userDnPatterns:
       - uid={0},ou=Users
-      group-search-base: ou=Groups
-      search-subtree: true
-      group-search-filter: (uniqueMember={0})
-      group-role-attribute: cn
-      role-prefix: null
-      convert-to-upper-case: false
+      groupSearchBase: ou=Users
+      groupSearchFilter: (uid={0})
+      authorities:
+        groupSearchBase: ou=Groups
+        groupSearchFilter: (uniqueMember={0})
+        convertToUpperCase: false
+        groupRoleAttribute: cn
+        rolePrefix: ''
+        searchSubtree: true      

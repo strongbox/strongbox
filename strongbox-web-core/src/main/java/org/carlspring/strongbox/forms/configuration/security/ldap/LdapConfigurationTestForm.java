@@ -4,6 +4,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+import org.carlspring.strongbox.authentication.external.ldap.LdapConfiguration;
+
 /**
  * @author Przemyslaw Fusik
  */
@@ -18,7 +20,7 @@ public class LdapConfigurationTestForm
 
     @NotNull
     @Valid
-    private LdapConfigurationForm configuration;
+    private LdapConfiguration configuration;
 
     public String getUsername()
     {
@@ -40,13 +42,14 @@ public class LdapConfigurationTestForm
         this.password = password;
     }
 
-    public LdapConfigurationForm getConfiguration()
+    public LdapConfiguration getConfiguration()
     {
         return configuration;
     }
 
-    public void setConfiguration(final LdapConfigurationForm configuration)
+    public void setConfiguration(LdapConfiguration configuration)
     {
         this.configuration = configuration;
     }
+
 }

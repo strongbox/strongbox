@@ -1,269 +1,227 @@
 package org.carlspring.strongbox.authentication.registry;
 
 import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
+import java.util.TreeMap;
+import java.util.function.Predicate;
 
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.registry.support.ExternalAuthenticatorsHelper;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.authentication.support.AuthenticationConfigurationContext;
+import org.carlspring.strongbox.authentication.support.AuthenticationContextInitializer;
+import org.carlspring.strongbox.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertiesPropertySource;
-import org.springframework.core.env.StandardEnvironment;
-import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+
 /**
  * @author Przemyslaw Fusik
+ * @author sbespalov
  */
 @Component
 public class AuthenticationProvidersRegistry
-        implements Iterable<AuthenticationProvider>
 {
 
-    private static final String PROPERTY_AUTHENTICATION_PROVIDERS_LOCATION = "strongbox.authentication.providers.xml";
+    public static final String STRONGBOX_AUTHENTICATION_PROPERTIES_PREFIX = "strongbox.authentication";
 
-    private static final String DEFAULT_AUTHENTICATION_PROVIDERS_LOCATION = "classpath:strongbox-authentication-providers.xml";
-    
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationProvidersRegistry.class);
 
-    private volatile AuthenticationProvider[] authenticationProviders;
-    private volatile UserDetailsService[] userDetailsServices;
-    
+    private YAMLMapper yamlMapper = new YAMLMapper();
+
+    private AuthenticationConfigurationContext authenticationContext;
+
+    private Map<String, Object> authenticationPropertiesMap;
 
     @Inject
-    private ApplicationContext parentApplicationContext;
+    private ApplicationContext strongboxApplicationContext;
 
-    /**
-     * Creates an empty registry.
-     */
-    public AuthenticationProvidersRegistry()
-    {
-        reload(Collections.emptyList());
-    }
+    @Inject
+    private AuthenticationResourceManager authenticationResourceManager;
 
-    /**
-     * Creates a registry containing the elements of the specified
-     * collection, in the order they are returned by the collection's
-     * iterator.
-     */
-    public AuthenticationProvidersRegistry(Collection<? extends AuthenticationProvider> c)
-    {
-        reload(c);
-    }
-
-    public void scanAndReloadRegistry()
-    {
-        final ClassLoader entryClassLoader = parentApplicationContext.getClassLoader();
-        final ClassLoader requiredClassLoader = ExternalAuthenticatorsHelper.getExternalAuthenticatorsClassLoader(
-                                                                                                                  entryClassLoader);
-
-        logger.debug("Reloading authenticators registry ...");
-
-        final AuthenticationConfigurationContext applicationContext = new AuthenticationConfigurationContext();
-
-        Resource authenticationPropertiesResource = new DefaultResourceLoader().getResource("classpath:strongbox-authentication-providers.yaml");
-        YamlPropertiesFactoryBean authenticationPropertiesFactory = new YamlPropertiesFactoryBean();
-        authenticationPropertiesFactory.setResources(authenticationPropertiesResource);
-        Properties authenticationProperties = authenticationPropertiesFactory.getObject();
-
-        try
-        {
-            applicationContext.setParent(parentApplicationContext);
-            applicationContext.setClassLoader(requiredClassLoader);
-            applicationContext.load(getAuthenticationConfigurationResource());
-
-            ConfigurableEnvironment env = new StandardEnvironment();
-            applicationContext.setEnvironment(env);
-
-            MutablePropertySources propertySources = env.getPropertySources();
-            propertySources.addFirst(new PropertiesPropertySource("strongbox-authentication-providers",
-                    authenticationProperties));
-
-            PropertySourcesPlaceholderConfigurer propertyHolder = new PropertySourcesPlaceholderConfigurer();
-            propertyHolder.setEnvironment(env);
-            applicationContext.addBeanFactoryPostProcessor(propertyHolder);
-            
-            AuthenticationContextConfigurer authenticationContextConfigurer = new AuthenticationContextConfigurer();
-            authenticationContextConfigurer.setEnvironment(env);
-            applicationContext.addBeanFactoryPostProcessor(authenticationContextConfigurer);
-
-            applicationContext.refresh();
-        }
-        catch (Exception e)
-        {
-            logger.error("Unable to load authenticators from configuration file.", e);
-
-            throw new UndeclaredThrowableException(e);
-        }
-
-        authenticationProviders = applicationContext.getBeansOfType(AuthenticationProvider.class).values().toArray(new AuthenticationProvider[0]);
-        userDetailsServices = applicationContext.getBeansOfType(UserDetailsService.class).values().toArray(new UserDetailsService[0]);;
-    }
-
-    public List<UserDetailsService> getUserDetailsServices()
-    {
-        return Arrays.asList(userDetailsServices);
-    }
-
-    private Resource getAuthenticationConfigurationResource()
+    public void reload()
         throws IOException
     {
-        return ConfigurationResourceResolver.getConfigurationResource(PROPERTY_AUTHENTICATION_PROVIDERS_LOCATION,
-                                                                      DEFAULT_AUTHENTICATION_PROVIDERS_LOCATION);
+        Map<String, Object> authenticationPropertiesMapLocal = fetchAuthenticationProperties();
+
+        reload(authenticationPropertiesMapLocal);
     }
 
-    /**
-     * Replaces the authenticator of the same class
-     * or adds given authenticator to the end of the authenticator lists
-     */
-    public synchronized void put(AuthenticationProvider authenticator)
+    public void reload(Map<String, Object> authenticationPropertiesMapLocal)
+        throws IOException
     {
-        List<AuthenticationProvider> elements = new ArrayList<>(Arrays.asList(authenticationProviders));
-        Optional<AuthenticationProvider> opt = elements.stream()
-                                                       .filter(e -> e.getClass()
-                                                                     .isAssignableFrom(authenticator.getClass()))
-                                                       .findFirst();
+        logger.info("Reloading authentication configuration...");
+        AuthenticationConfigurationContext authenticationContextLocal = createAuthenticationContext(authenticationPropertiesMapLocal);
 
-        if (opt.isPresent())
+        apply(authenticationPropertiesMapLocal, authenticationContextLocal);
+    }
+
+    private void apply(Map<String, Object> authenticationPropertiesMapLocal,
+                       AuthenticationConfigurationContext authenticationContextLocal)
+    {
+        logger.info("Applying authentication configuration...");
+
+        if (authenticationContext != null)
         {
-            int index = elements.indexOf(opt.get());
-            elements.set(index, authenticator);
-        }
-        else
-        {
-            elements.add(authenticator);
+            authenticationContext.close();
         }
 
-        reload(elements);
+        this.authenticationPropertiesMap = authenticationPropertiesMapLocal;
+        this.authenticationContext = authenticationContextLocal;
     }
 
-    /**
-     * Reloads the registry by replacing all authenticators using
-     * given collection.
-     *
-     * @param c
-     *            new collection of authenticators
-     */
-    public synchronized void reload(Collection<? extends AuthenticationProvider> c)
+    private Map<String, Object> fetchAuthenticationProperties()
+        throws IOException
     {
-        authenticationProviders = c.toArray(new AuthenticationProvider[0]);;
+        Resource authenticationPropertiesResource = authenticationResourceManager.getAuthenticationPropertiesResource();
+        Map<String, Object> authenticationPropertiesMapLocal = yamlMapper.readValue(authenticationPropertiesResource.getInputStream(),
+                                                                                    Map.class);
+        return authenticationPropertiesMapLocal;
     }
 
-    /**
-     * Reorders elements in the registry.
-     */
-    public synchronized void reorder(int first,
-                                     int second)
+    private AuthenticationConfigurationContext createAuthenticationContext(Map<String, Object> authenticationPropertiesMap)
+        throws IOException
     {
-        List<AuthenticationProvider> elements = new ArrayList<>(Arrays.asList(authenticationProviders));
-        final AuthenticationProvider firstA = elements.get(first);
-        final AuthenticationProvider secondA = elements.get(second);
-        elements.set(first, secondA);
-        elements.set(second, firstA);
-        reload(elements);
+        AuthenticationConfigurationContext authenticationContext = new AuthenticationConfigurationContext();
+
+        ClassLoader entryClassLoader = strongboxApplicationContext.getClassLoader();
+        ClassLoader requiredClassLoader = ExternalAuthenticatorsHelper.getExternalAuthenticatorsClassLoader(entryClassLoader);
+
+        Resource authenticationConfigurationResource = authenticationResourceManager.getAuthenticationConfigurationResource();
+        authenticationContext.setParent(strongboxApplicationContext);
+        authenticationContext.setClassLoader(requiredClassLoader);
+        authenticationContext.load(authenticationConfigurationResource);
+
+        AuthenticationContextInitializer contextInitializer = new AuthenticationContextInitializer(new MapPropertySource(AuthenticationContextInitializer.STRONGBOX_AUTHENTICATION_PROVIDERS,
+                CollectionUtils.flattenMap(authenticationPropertiesMap)));
+        contextInitializer.initialize(authenticationContext);
+        
+        authenticationContext.refresh();
+
+        return authenticationContext;
     }
 
-    public int size()
+    public Map<String, UserDetailsService> getUserDetailsServiceMap()
     {
-        return authenticationProviders.length;
+        Map<String, UserDetailsService> componentMap = authenticationContext.getBeansOfType(UserDetailsService.class);
+
+        TreeMap<String, UserDetailsService> result = new TreeMap<>(new AutnenticationComponentOrderComparator());
+
+        result.putAll(componentMap);
+
+        return result;
     }
 
-    public boolean isEmpty()
+    public Map<String, AuthenticationProvider> getAuthenticationProviderMap()
     {
-        return size() == 0;
+        Map<String, AuthenticationProvider> componentMap = authenticationContext.getBeansOfType(AuthenticationProvider.class);
+
+        TreeMap<String, AuthenticationProvider> result = new TreeMap<>(new AutnenticationComponentOrderComparator());
+        result.putAll(componentMap);
+
+        return result;
     }
 
-    @Override
-    public String toString()
+    public Map<String, Object> getAuthenticationProperties()
     {
-        final StringBuilder builder = new StringBuilder();
-        final AuthenticationProvider[] view = authenticationProviders;
-        for (int index = 0; index < view.length; index++)
-        {
-            final AuthenticationProvider authenticator = view[index];
-            builder.append(Arrays.toString(new Object[] { index,
-                                                          authenticator.getClass().getSimpleName() }));
-        }
-        return builder.toString();
+        Object resutl = CollectionUtils.getMapValue(STRONGBOX_AUTHENTICATION_PROPERTIES_PREFIX,
+                                                    authenticationPropertiesMap);
+
+        return new HashMap<>((Map<String, Object>) resutl);
     }
 
-    @Override
-    public Iterator<AuthenticationProvider> iterator()
+    public Map<String, Object> getAuthenticationProperties(String path)
     {
-        return new COWIterator(authenticationProviders, 0);
+        Object resutl = CollectionUtils.getMapValue(STRONGBOX_AUTHENTICATION_PROPERTIES_PREFIX + "." + path,
+                                                    authenticationPropertiesMap);
+
+        return new HashMap<>((Map<String, Object>) resutl);
     }
 
-    public synchronized void drop(final Class<? extends AuthenticationProvider> authenticatorClass)
+    public void putAuthenticationProperties(String path,
+                                            Map<String, Object> propertiesMap)
     {
-        List<AuthenticationProvider> elements = new ArrayList<>(Arrays.asList(authenticationProviders));
-        elements.stream()
-                .filter(e -> e.getClass().isAssignableFrom(authenticatorClass))
-                .findFirst()
-                .ifPresent(e -> {
-                    elements.remove(e);
-                    reload(elements);
-                });
+
     }
 
-    static final class COWIterator
-            implements Iterator<AuthenticationProvider>
+    private class AutnenticationComponentOrderComparator implements Comparator<String>
     {
-
-        private final AuthenticationProvider[] snapshot;
-
-        private int cursor;
-
-        private COWIterator(AuthenticationProvider[] elements,
-                            int initialCursor)
-        {
-            cursor = initialCursor;
-            snapshot = Arrays.copyOf(elements, elements.length);
-        }
 
         @Override
-        public boolean hasNext()
+        public int compare(String id1,
+                           String id2)
         {
-            return cursor < snapshot.length;
+            Map<String, Object> authenticationMap = Optional.of(authenticationPropertiesMap.get("strongbox"))
+                                                            .map(o -> (Map<String, Object>) o)
+                                                            .map(o -> (Map<String, Object>) o.get("authentication"))
+                                                            .get();
+
+            Map<String, Object> componentConfiguration1 = (Map<String, Object>) authenticationMap.get(id1);
+            Map<String, Object> componentConfiguration2 = (Map<String, Object>) authenticationMap.get(id2);
+
+            Integer order1 = Optional.ofNullable(componentConfiguration1).map(c -> (Integer) c.get("order")).orElse(0);
+            Integer order2 = Optional.ofNullable(componentConfiguration2).map(c -> (Integer) c.get("order")).orElse(0);
+
+            return order1.compareTo(order2);
         }
 
-        @Override
-        public AuthenticationProvider next()
+    }
+
+    public MergePropertiesContext mergeProperties()
+    {
+        return new MergePropertiesContext(authenticationPropertiesMap);
+    }
+
+    public class MergePropertiesContext
+    {
+
+        private Map<String, Object> target;
+
+        public MergePropertiesContext(Map<String, Object> target)
         {
-            if (!hasNext())
+            super();
+            this.target = target;
+        }
+
+        public MergePropertiesContext merge(String path,
+                                            Map<String, Object> map)
+        {
+
+            CollectionUtils.putMapValue(STRONGBOX_AUTHENTICATION_PROPERTIES_PREFIX + "." + path, map, target);
+
+            return this;
+        }
+
+        public boolean apply(Predicate<ApplicationContext> p)
+            throws IOException
+        {
+
+            AuthenticationConfigurationContext authenticationContextLocal = createAuthenticationContext(target);
+            if (!p.test(authenticationContextLocal))
             {
-                throw new NoSuchElementException();
+                return false;
             }
-            return snapshot[cursor++];
+
+            AuthenticationProvidersRegistry.this.apply(target, authenticationContextLocal);
+
+            return true;
         }
-    }
 
-    public static class AuthenticationConfigurationContext extends GenericXmlApplicationContext
-    {
-
-        public AuthenticationConfigurationContext()
+        public boolean apply()
+            throws IOException
         {
+            return apply(c -> true);
         }
 
     }
-
 }

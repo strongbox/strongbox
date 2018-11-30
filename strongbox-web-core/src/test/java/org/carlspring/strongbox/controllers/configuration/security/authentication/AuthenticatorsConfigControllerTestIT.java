@@ -1,242 +1,213 @@
 package org.carlspring.strongbox.controllers.configuration.security.authentication;
 
-import org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthenticationProvider;
-import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticationProvider;
-import org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthenticationProvider;
-import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.CustomMatchers.equalByToString;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+
+import java.io.IOException;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
-import com.google.common.collect.Lists;
-import org.hamcrest.CoreMatchers;
+import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
+import org.carlspring.strongbox.authentication.registry.AuthenticationResourceManager;
+import org.carlspring.strongbox.authentication.support.AuthenticationItem;
+import org.carlspring.strongbox.authentication.support.AuthenticationItems;
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.CustomMatchers.equalByToString;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
 
 /**
  * @author Przemyslaw Fusik
  * @author Pablo Tirado
+ * @author sbespalov
  */
+@ActiveProfiles("AuthenticatorsConfigControllerTestConfig")
 @IntegrationTest
 @ExtendWith(SpringExtension.class)
 public class AuthenticatorsConfigControllerTestIT
         extends RestAssuredBaseTest
 {
 
-    private static List<AuthenticationProvider> originalRegistryList;
-
-    private static final List<AuthenticationProvider> registryList = Arrays.asList(new OrientDbAuthenticationProvider(),
-                                                                          new LdapAuthenticationProvider());
-
     @Inject
-    private AuthenticationProvidersRegistry authenticationProvidersRegistry;
+    private ConfigurableProviderManager configurableProviderManager;
 
     @Override
     @BeforeEach
     public void init()
-            throws Exception
+        throws Exception
     {
         super.init();
         setContextBaseUrl(getContextBaseUrl() + "/api/configuration");
-        
-        Iterator<AuthenticationProvider> iterator = authenticationProvidersRegistry.iterator();
-        originalRegistryList = Lists.newArrayList(iterator);
-        authenticationProvidersRegistry.reload(registryList);
     }
 
     @AfterEach
-    public void afterEveryTest() {
-        authenticationProvidersRegistry.reload(originalRegistryList);
+    public void afterEveryTest()
+        throws IOException
+    {
+        configurableProviderManager.reload();
+
     }
 
     @Test
     public void registryShouldReturnExpectedInitialArray()
     {
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .when()
+        assertInitialAuthenticationItems();
+    }
+
+    private void assertInitialAuthenticationItems()
+    {
+        given().when()
                .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
-               .body("authenticators.authenticator[0].index",
-                     equalByToString(0))
-               .body("authenticators.authenticator[0].name",
-                     CoreMatchers.equalTo(OrientDbAuthenticationProvider.class.getName()))
-               .body("authenticators.authenticator[1].index",
-                     equalByToString(1))
-               .body("authenticators.authenticator[1].name",
-                     CoreMatchers.equalTo(LdapAuthenticationProvider.class.getName()))
-               .body("authenticators.authenticator.size()", is(2))
+               .body("authenticationItemList[0].name",
+                     equalByToString("authenticationProviderFirst"))
+               .body("authenticationItemList[0].order",
+                     equalByToString("0"))
+               .body("authenticationItemList[0].enabled",
+                     equalByToString("true"))
+               .body("authenticationItemList[1].name",
+                     equalByToString("authenticationProviderSecond"))
+               .body("authenticationItemList[1].order",
+                     equalByToString("1"))
+               .body("authenticationItemList[1].enabled",
+                     equalByToString("true"))
+               .body("authenticationItemList[2].name",
+                     equalByToString("authenticationProviderThird"))
+               .body("authenticationItemList[2].order",
+                     equalByToString("2"))
+               .body("authenticationItemList[2].enabled",
+                     equalByToString("false"))
+               .body("authenticationItemList[3].name",
+                     equalByToString("xmlUserDetailService"))
+               .body("authenticationItemList[3].order",
+                     equalByToString("0"))
+               .body("authenticationItemList.size()", is(4))
                .statusCode(HttpStatus.OK.value());
     }
 
-    private void registryShouldBeReloadable(String acceptHeader)
+    @Test
+    public void registryShouldBeReloadable()
     {
-        // Registry should have form setup in test, first
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(getContextBaseUrl() + "/authenticators/")
-               .peek()
-               .then()
-               .body("authenticators.authenticator[0].index",
-                     equalByToString(0))
-               .body("authenticators.authenticator[0].name",
-                     CoreMatchers.equalTo(OrientDbAuthenticationProvider.class.getName()))
-               .body("authenticators.authenticator[1].index",
-                     equalByToString(1))
-               .body("authenticators.authenticator[1].name",
-                     CoreMatchers.equalTo(LdapAuthenticationProvider.class.getName()))
-               .body("authenticators.authenticator.size()", is(2))
-               .statusCode(HttpStatus.OK.value());
+        assertInitialAuthenticationItems();
 
-        // Reorder elements
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, acceptHeader)
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .put(getContextBaseUrl() + "/authenticators/reorder/0/1")
+               .put(getContextBaseUrl()
+                       + "/authenticators/reorder/authenticationProviderFirst/authenticationProviderSecond")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
                .body(containsString(AuthenticatorsConfigController.SUCCESSFUL_REORDER));
 
         // Confirm they are re-ordered
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .when()
+        given().when()
                .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
-               .body("authenticators.authenticator[0].index",
-                     equalByToString(0))
-               .body("authenticators.authenticator[0].name",
-                     CoreMatchers.equalTo(LdapAuthenticationProvider.class.getName()))
-               .body("authenticators.authenticator[1].index",
-                     equalByToString(1))
-               .body("authenticators.authenticator[1].name",
-                     CoreMatchers.equalTo(OrientDbAuthenticationProvider.class.getName()))
-               .body("authenticators.authenticator.size()", is(2))
+               .body("authenticationItemList[0].name",
+                     equalByToString("authenticationProviderSecond"))
+               .body("authenticationItemList[0].order",
+                     equalByToString("0"))
+               .body("authenticationItemList[1].name",
+                     equalByToString("authenticationProviderFirst"))
+               .body("authenticationItemList[1].order",
+                     equalByToString("1"))
                .statusCode(HttpStatus.OK.value());
+    }
 
-        // Reload registry
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, acceptHeader)
+    @Test
+    public void authenticationItemCanBeEnabled()
+    {
+        assertInitialAuthenticationItems();
+
+        AuthenticationItem authenticationItem = new AuthenticationItem("authenticationProviderThird",
+                AuthenticationProvider.class.getSimpleName());
+        authenticationItem.setEnabled(true);
+        authenticationItem.setOrder(2);
+
+        AuthenticationItems authenticationItems = new AuthenticationItems();
+        authenticationItems.getAuthenticationItemList().add(authenticationItem);
+
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+               .body(authenticationItems)
                .when()
-               .put(getContextBaseUrl() + "/authenticators/reload")
+               .put(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(containsString(AuthenticatorsConfigController.SUCCESSFUL_RELOAD));
+               .body(containsString(AuthenticatorsConfigController.SUCCESSFUL_UPDATE));
 
-        // Registry should be reloaded
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .when()
+        given().when()
                .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
-               .body("authenticators.authenticator[0].index",
-                     equalByToString(0))
-               .body("authenticators.authenticator[0].name",
-                     CoreMatchers.equalTo(PasswordAuthenticationProvider.class.getName()))
-               .body("authenticators.authenticator[1].index",
-                     equalByToString(1))
-               .body("authenticators.authenticator[1].name",
-                     CoreMatchers.equalTo(JwtAuthenticationProvider.class.getName()))
-               .body("authenticators.authenticator[2].name",
-                     CoreMatchers.equalTo(SecurityTokenAuthenticationProvider.class.getName()))
-//               .body("authenticators.authenticator[3].name",
-//                     CoreMatchers.equalTo(org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticationProvider.class.getName()))               
-               .body("authenticators.authenticator.size()", is(4))
+               .body("authenticationItemList[2].name",
+                     equalByToString("authenticationProviderThird"))
+               .body("authenticationItemList[2].enabled",
+                     equalByToString("true"))
                .statusCode(HttpStatus.OK.value());
     }
 
-    @Test
-    public void registryShouldBeReloadableWithResponseInJson()
+    @Profile("AuthenticatorsConfigControllerTestConfig")
+    @Configuration
+    public static class AuthenticatorsConfigControllerTestConfig
     {
-        registryShouldBeReloadable(MediaType.APPLICATION_JSON_VALUE);
+
+        public AuthenticatorsConfigControllerTestConfig()
+        {
+            super();
+            System.out.println("!!!");
+        }
+
+        @Bean
+        @Primary
+        public AuthenticationResourceManager testAuthenticationResourceManager()
+        {
+            return new TestAuthenticationResourceManager();
+        }
+
     }
 
-    @Test
-    public void registryShouldBeReloadableWithResponseInText()
-    {
-        registryShouldBeReloadable(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    private void registryShouldBeAbleToReorderElement(String acceptHeader)
-    {
-        // when
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, acceptHeader)
-               .when()
-               .put(getContextBaseUrl() + "/authenticators/reorder/0/1")
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(containsString(AuthenticatorsConfigController.SUCCESSFUL_REORDER));
-
-        // then
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(getContextBaseUrl() + "/authenticators/")
-               .peek()
-               .then()
-               .body("authenticators.authenticator[0].index",
-                     equalByToString(0))
-               .body("authenticators.authenticator[0].name",
-                     CoreMatchers.equalTo(LdapAuthenticationProvider.class.getName()))
-               .body("authenticators.authenticator[1].index",
-                     equalByToString(1))
-               .body("authenticators.authenticator[1].name",
-                     CoreMatchers.equalTo(OrientDbAuthenticationProvider.class.getName()))
-               .body("authenticators.authenticator.size()", is(2))
-               .statusCode(HttpStatus.OK.value());
-    }
-
-    @Test
-    public void registryShouldBeAbleToReorderElementsWithResponseInJson()
-    {
-        registryShouldBeAbleToReorderElement(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    @Test
-    public void registryShouldBeAbleToReorderElementsWithResponseInText()
-    {
-        registryShouldBeAbleToReorderElement(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    private static class OrientDbAuthenticationProvider
-            implements AuthenticationProvider
+    private static class TestAuthenticationResourceManager extends AuthenticationResourceManager
     {
 
         @Override
-        public Authentication authenticate(Authentication authentication)
-            throws AuthenticationException
+        public Resource getAuthenticationConfigurationResource()
+            throws IOException
         {
-            return authentication;
+            return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.xml");
         }
 
         @Override
-        public boolean supports(Class<?> authentication)
+        public Resource getAuthenticationPropertiesResource()
+            throws IOException
         {
-            return true;
+            return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.yaml");
         }
+
     }
 
-    private static class LdapAuthenticationProvider
+    static class TestAuthenticationProvider
             implements AuthenticationProvider
     {
 

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:cache="http://www.springframework.org/schema/cache"
+    xmlns:security="http://www.springframework.org/schema/security"
+
+    xmlns="http://www.springframework.org/schema/beans"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <context:annotation-config />  
+      
+    <bean id="ldapRolesMapping" class="org.carlspring.strongbox.authentication.external.ldap.LdapRolesMappingFactoryBean"/>
+
+    <bean id="ldapAuthoritiesExternalToInternalMapper"
+        class="org.carlspring.strongbox.authentication.support.AuthoritiesExternalToInternalMapper">
+        <property name="rolesMapping" ref="ldapRolesMapping"/>
+    </bean>
+
+    <bean id="contextSource"
+        class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
+        <constructor-arg
+            value="${strongbox.authentication.ldap.url}" />
+        <property name="anonymousReadOnly" value="true" />
+        <property name="userDn" value="${strongbox.authentication.ldap.managerDn}"/>
+        <property name="password" value="${strongbox.authentication.ldap.managerPassword}"/>
+    </bean>
+
+    <bean id="ldapAuthoritiesPopulator" class="org.carlspring.strongbox.authentication.external.ldap.LdapAuthoritiesPopulator">
+        <constructor-arg ref="contextSource"/>
+        <constructor-arg value="${strongbox.authentication.ldap.authorities.groupSearchBase}"/>
+        <property name="groupSearchFilter" value="${strongbox.authentication.ldap.authorities.groupSearchFilter}"/>
+        <property name="convertToUpperCase" value="${strongbox.authentication.ldap.authorities.convertToUpperCase}"/>
+        <property name="groupRoleAttribute" value="${strongbox.authentication.ldap.authorities.groupRoleAttribute}"/>
+        <property name="rolePrefix" value="${strongbox.authentication.ldap.authorities.rolePrefix}"/>
+        <property name="searchSubtree" value="${strongbox.authentication.ldap.authorities.searchSubtree}"/> 
+    </bean>
+
+    <bean id="ldapUserDetailsService" class="org.springframework.security.ldap.userdetails.LdapUserDetailsService">
+        <constructor-arg>
+            <bean
+                class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+                <constructor-arg
+                    value="${strongbox.authentication.ldap.groupSearchBase}" />
+                <constructor-arg
+                    value="${strongbox.authentication.ldap.groupSearchFilter}" />
+                <constructor-arg ref="contextSource" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg ref="ldapAuthoritiesPopulator"/>
+    </bean>
+
+</beans>

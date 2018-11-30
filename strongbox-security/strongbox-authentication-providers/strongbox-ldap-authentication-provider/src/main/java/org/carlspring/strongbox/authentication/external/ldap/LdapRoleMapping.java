@@ -1,23 +1,27 @@
 package org.carlspring.strongbox.authentication.external.ldap;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement(name = "role-mapping")
-@XmlAccessorType(XmlAccessType.NONE)
 public class LdapRoleMapping
 {
 
-    @XmlAttribute(name = "ldap-role")
     private String ldapRole;
 
-    @XmlAttribute(name = "strongbox-role")
     private String strongboxRole;
+
+    public LdapRoleMapping()
+    {
+        super();
+    }
+
+    public LdapRoleMapping(String ldapRole,
+                           String strongboxRole)
+    {
+        super();
+        this.ldapRole = ldapRole;
+        this.strongboxRole = strongboxRole;
+    }
 
     public String getLdapRole()
     {

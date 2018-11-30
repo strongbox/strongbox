@@ -40,18 +40,18 @@ public class LdapRolesMappingFactoryBean extends AbstractFactoryBean<Map<String,
 
         for (String propertyName : propertyNames)
         {
-            if (!propertyName.startsWith("strongbox.authentication.ldap.roles-mapping"))
+            if (!propertyName.startsWith("strongbox.authentication.ldap.rolesMapping"))
             {
                 continue;
             }
-            if (propertyName.endsWith("ldap-role"))
+            if (propertyName.endsWith("ldapRole"))
             {
-                ldapRolesMap.put(propertyName.replace("strongbox.authentication.ldap.roles-mapping", ""),
+                ldapRolesMap.put(propertyName.replace("strongbox.authentication.ldap.rolesMapping", ""),
                                  env.getProperty(propertyName));
             }
-            else if (propertyName.endsWith("strongbox-role"))
+            else if (propertyName.endsWith("strongboxRole"))
             {
-                strongboxRolesMap.put(propertyName.replace("strongbox.authentication.ldap.roles-mapping", ""),
+                strongboxRolesMap.put(propertyName.replace("strongbox.authentication.ldap.rolesMapping", ""),
                                  env.getProperty(propertyName));
             }
         }
@@ -59,7 +59,7 @@ public class LdapRolesMappingFactoryBean extends AbstractFactoryBean<Map<String,
         for (Entry<String, String> ldapRoleEntry : ldapRolesMap.entrySet())
         {
             String ldapRole = ldapRoleEntry.getValue();
-            String strongboxRole = strongboxRolesMap.get(ldapRoleEntry.getKey().replace("ldap-role","strongbox-role"));
+            String strongboxRole = strongboxRolesMap.get(ldapRoleEntry.getKey().replace("ldapRole","strongboxRole"));
             
             roleMappingMap.put(ldapRole, strongboxRole);
         }

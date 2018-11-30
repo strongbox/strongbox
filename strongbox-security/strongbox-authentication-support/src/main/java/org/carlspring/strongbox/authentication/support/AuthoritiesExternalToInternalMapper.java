@@ -1,8 +1,5 @@
 package org.carlspring.strongbox.authentication.support;
 
-import org.carlspring.strongbox.users.security.AuthoritiesProvider;
-
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,14 +8,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableMap;
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.util.Assert;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * @author Przemyslaw Fusik
@@ -33,7 +33,6 @@ public class AuthoritiesExternalToInternalMapper
     @Inject
     private AuthoritiesProvider authoritiesProvider;
 
-    @JsonProperty
     private ConcurrentMap<String, String> rolesMapping;
 
     @Override
