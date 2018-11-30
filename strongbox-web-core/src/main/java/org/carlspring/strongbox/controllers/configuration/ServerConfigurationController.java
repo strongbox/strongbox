@@ -12,7 +12,14 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.support.ConfigurationException;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
+import java.util.Collection;
+import java.util.Objects;
+import java.util.stream.Stream;
+
 import io.swagger.annotations.*;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,7 +28,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -38,10 +46,13 @@ public class ServerConfigurationController
 
     static final String FAILED_SAVE_SERVER_SETTINGS = "Server settings cannot be saved because the submitted form contains errors!";
 
+    private final Validator validator;
 
-    public ServerConfigurationController(ConfigurationManagementService configurationManagementService)
+    public ServerConfigurationController(ConfigurationManagementService configurationManagementService,
+                                         @Qualifier("localValidatorFactoryBean") Validator validator)
     {
         super(configurationManagementService);
+        this.validator = validator;
     }
 
     @ApiOperation(value = "Updates the instance name.")
@@ -214,13 +225,16 @@ public class ServerConfigurationController
                  consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = { MediaType.TEXT_PLAIN_VALUE,
                               MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity setServerSettings(@RequestBody @Validated ServerSettingsForm serverSettingsForm,
+    public ResponseEntity setServerSettings(@RequestBody ServerSettingsForm serverSettingsForm,
                                             BindingResult bindingResult,
                                             @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
+        validateServerSettingsForm(serverSettingsForm, bindingResult);
+
         if (bindingResult.hasErrors())
         {
             throw new RequestBodyValidationException(FAILED_SAVE_SERVER_SETTINGS, bindingResult);
+
         }
 
         configurationManagementService.setBaseUrl(serverSettingsForm.getBaseUrl());
@@ -251,6 +265,53 @@ public class ServerConfigurationController
         }
 
         return getSuccessfulResponseEntity(SUCCESSFUL_SAVE_SERVER_SETTINGS, acceptHeader);
+    }
+
+    private void validateServerSettingsForm(ServerSettingsForm form,
+                                            BindingResult bindingResult)
+    {
+        if (form != null)
+        {
+            if (!isProxyConfigurationFormEmpty(form.getProxyConfigurationForm()))
+            {
+                ValidationUtils.invokeValidator(validator, form, bindingResult, ProxyConfigurationForm.ProxyConfigurationFormChecks.class);
+            }
+
+            if (!isSmtpConfigurationFormEmpty(form.getSmtpConfigurationForm()))
+            {
+                ValidationUtils.invokeValidator(validator, form, bindingResult, SmtpConfigurationForm.SmtpConfigurationFormChecks.class);
+            }
+
+            ValidationUtils.invokeValidator(validator, form, bindingResult);
+        }
+
+    }
+
+    private boolean isProxyConfigurationFormEmpty(ProxyConfigurationForm form)
+    {
+        return Stream.of(form.getHost(), form.getPort(), form.getType())
+                     .allMatch(this::isNullOrEmpty);
+    }
+
+    private boolean isSmtpConfigurationFormEmpty(SmtpConfigurationForm form)
+    {
+        return Stream.of(form.getHost(), form.getPort(), form.getConnection())
+                     .allMatch(this::isNullOrEmpty);
+    }
+
+    private boolean isNullOrEmpty(Object object)
+    {
+        if (object instanceof String)
+        {
+            String strObject = (String) object;
+            return StringUtils.isBlank(strObject);
+        }
+        if (object instanceof Collection)
+        {
+            Collection collectionObject = (Collection) object;
+            return CollectionUtils.isEmpty(collectionObject);
+        }
+        return Objects.isNull(object);
     }
 
     @ApiOperation(value = "Get global server settings.")

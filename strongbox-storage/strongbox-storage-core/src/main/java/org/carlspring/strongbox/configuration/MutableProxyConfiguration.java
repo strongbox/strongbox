@@ -1,10 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +21,7 @@ public class MutableProxyConfiguration
     private String host;
 
     @XmlAttribute
-    private int port;
+    private Integer port;
 
     @XmlAttribute
     private String username;
@@ -48,7 +44,7 @@ public class MutableProxyConfiguration
     }
 
     public MutableProxyConfiguration(String host,
-                                     int port,
+                                     Integer port,
                                      String username,
                                      String password,
                                      String type,
@@ -72,12 +68,12 @@ public class MutableProxyConfiguration
         this.host = host;
     }
 
-    public int getPort()
+    public Integer getPort()
     {
         return port;
     }
 
-    public void setPort(int port)
+    public void setPort(Integer port)
     {
         this.port = port;
     }
@@ -133,7 +129,7 @@ public class MutableProxyConfiguration
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MutableProxyConfiguration that = (MutableProxyConfiguration) o;
-        return port == that.port &&
+        return Objects.equal(port, that.port) &&
                Objects.equal(host, that.host) &&
                Objects.equal(username, that.username) &&
                Objects.equal(password, that.password) &&

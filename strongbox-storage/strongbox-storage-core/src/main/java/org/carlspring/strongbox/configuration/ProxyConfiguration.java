@@ -21,7 +21,7 @@ public class ProxyConfiguration
 
     private String host;
 
-    private int port;
+    private Integer port;
 
     private String username;
 
@@ -56,7 +56,7 @@ public class ProxyConfiguration
         return host;
     }
 
-    public int getPort()
+    public Integer getPort()
     {
         return port;
     }

@@ -161,7 +161,7 @@ public class ServerConfigurationControllerTestIT
 
     public void serverSettingsShouldBeSaved(String acceptHeader,
                                             String baseUrl,
-                                            int port)
+                                            Integer port)
     {
         CorsConfigurationForm corsConfigurationForm = new CorsConfigurationForm(
                 Arrays.asList("http://example.com", "https://github.com/strongbox")
