@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.forms.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.configuration.SmtpConfigurationForm.SmtpConfigurationFormChecks;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
@@ -69,7 +70,8 @@ public class SmtpConfigurationFormTestIT
         smtpConfigurationForm.setConnection(connection);
 
         // when
-        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm);
+        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm,
+                                                                                        SmtpConfigurationFormChecks.class);
 
         // then
         assertTrue(violations.isEmpty(), "Violations are not empty!");
@@ -85,7 +87,8 @@ public class SmtpConfigurationFormTestIT
         smtpConfigurationForm.setConnection(CONNECTION_VALID);
 
         // when
-        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm);
+        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm,
+                                                                                        SmtpConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
@@ -105,7 +108,8 @@ public class SmtpConfigurationFormTestIT
         smtpConfigurationForm.setConnection(CONNECTION_VALID);
 
         // when
-        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm);
+        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm,
+                                                                                        SmtpConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
@@ -126,7 +130,8 @@ public class SmtpConfigurationFormTestIT
         smtpConfigurationForm.setConnection(connection);
 
         // when
-        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm);
+        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm,
+                                                                                        SmtpConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");

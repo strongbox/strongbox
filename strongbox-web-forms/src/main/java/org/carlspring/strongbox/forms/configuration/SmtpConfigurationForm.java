@@ -20,8 +20,8 @@ public class SmtpConfigurationForm
     @NotBlank(message = "SMTP host must be provided", groups = SmtpConfigurationFormChecks.class)
     private String host;
 
-    @Min(value = 1, message = "Port number must be an integer between 1 and 65535.",  groups = SmtpConfigurationFormChecks.class)
-    @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.",  groups = SmtpConfigurationFormChecks.class)
+    @Min(value = 1, message = "Port number must be an integer between 1 and 65535.", groups = SmtpConfigurationFormChecks.class)
+    @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.", groups = SmtpConfigurationFormChecks.class)
     private Integer port;
 
     private String username;

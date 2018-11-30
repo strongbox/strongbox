@@ -2,8 +2,11 @@ package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm.ProxyConfigurationFormChecks;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
+
+import javax.validation.groups.Default;
 
 import io.swagger.annotations.*;
 import org.springframework.core.convert.ConversionService;
@@ -57,7 +60,9 @@ public class ProxyConfigurationController
                                                 @RequestParam(value = "repositoryId", required = false)
                                                         String repositoryId,
                                                 @ApiParam(value = "The proxy configuration for this proxy repository", required = true)
-                                                @RequestBody @Validated ProxyConfigurationForm proxyConfigurationForm,
+                                                @RequestBody @Validated({ Default.class,
+                                                                          ProxyConfigurationFormChecks.class })
+                                                        ProxyConfigurationForm proxyConfigurationForm,
                                                 BindingResult bindingResult,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {

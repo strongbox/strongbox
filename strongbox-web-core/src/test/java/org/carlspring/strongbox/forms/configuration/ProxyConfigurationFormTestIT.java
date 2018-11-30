@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.forms.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm.ProxyConfigurationFormChecks;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
@@ -71,7 +72,8 @@ public class ProxyConfigurationFormTestIT
         proxyConfigurationForm.setType(validType);
 
         // when
-        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm);
+        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm,
+                                                                                         ProxyConfigurationFormChecks.class);
 
         // then
         assertTrue(violations.isEmpty(), "Violations are not empty!");
@@ -87,7 +89,8 @@ public class ProxyConfigurationFormTestIT
         proxyConfigurationForm.setType(TYPE_VALID);
 
         // when
-        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm);
+        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm,
+                                                                                         ProxyConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
@@ -107,7 +110,8 @@ public class ProxyConfigurationFormTestIT
         proxyConfigurationForm.setType(TYPE_VALID);
 
         // when
-        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm);
+        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm,
+                                                                                         ProxyConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
@@ -129,7 +133,8 @@ public class ProxyConfigurationFormTestIT
         proxyConfigurationForm.setType(type);
 
         // when
-        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm);
+        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm,
+                                                                                         ProxyConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
