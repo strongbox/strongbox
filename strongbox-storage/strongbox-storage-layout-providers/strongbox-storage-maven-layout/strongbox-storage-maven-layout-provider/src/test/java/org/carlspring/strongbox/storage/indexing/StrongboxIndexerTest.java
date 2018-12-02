@@ -9,6 +9,7 @@ import org.carlspring.strongbox.util.IndexContextHelper;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -21,7 +22,9 @@ import org.apache.maven.index.MAVEN;
 import org.apache.maven.index.expr.SourcedSearchExpression;
 import org.apache.maven.index.expr.UserInputSearchExpression;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.core.io.ClassPathResource;
@@ -40,21 +43,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-@Disabled // Needs more work
-/**
- * [ERROR] Tests run: 5, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 1.64 s <<< FAILURE! - in org.carlspring.strongbox.storage.indexing.StrongboxIndexerTest
- * [ERROR] indexerShouldBeCapableToSearchByFQN  Time elapsed: 0.013 s  <<< ERROR!
- * java.lang.NullPointerException
- * 	at org.carlspring.strongbox.storage.indexing.StrongboxIndexerTest.indexerShouldBeCapableToSearchByFQN(StrongboxIndexerTest.java:148)
- *
- * [ERROR] indexerShouldBeCapableToSearchByClassNameFromZippedArtifact  Time elapsed: 0.292 s  <<< ERROR!
- * java.nio.file.NoSuchFileException: /java/opensource/carlspring/strongbox/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/target/strongbox-vault/storages/storage0/injector-releases-5/org/carlspring/properties-injector/1.7
- * 	at org.carlspring.strongbox.storage.indexing.StrongboxIndexerTest.removeRepositories(StrongboxIndexerTest.java:288)
- *
- * [ERROR] indexerShouldBeCapableToSearchByClassName  Time elapsed: 0.003 s  <<< ERROR!
- * java.lang.NullPointerException
- * 	at org.carlspring.strongbox.storage.indexing.StrongboxIndexerTest.indexerShouldBeCapableToSearchByClassName(StrongboxIndexerTest.java:121)
- */
 public class StrongboxIndexerTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -94,22 +82,25 @@ public class StrongboxIndexerTest
     private Optional<Indexer> indexer;
 
     @BeforeAll
+    @AfterAll
     public static void cleanUp()
             throws Exception
     {
-        cleanUp(getRepositoriesToClean());
+        cleanUp(getRepositoriesToClean(REPOSITORY_RELEASES_1,
+                                       REPOSITORY_RELEASES_2,
+                                       REPOSITORY_RELEASES_3,
+                                       REPOSITORY_RELEASES_4,
+                                       REPOSITORY_RELEASES_5,
+                                       REPOSITORY_RELEASES_6));
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean(String... repositoryId)
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_4, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_5, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_6, Maven2LayoutProvider.ALIAS));
 
+        Arrays.asList(repositoryId).forEach(
+                r -> repositories.add(createRepositoryMock(STORAGE0, r, Maven2LayoutProvider.ALIAS))
+        );
         return repositories;
     }
 
@@ -136,6 +127,9 @@ public class StrongboxIndexerTest
         FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(q, ri.getIndexingContext()));
 
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
+
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
+        removeRepositories(getRepositoriesToClean(REPOSITORY_RELEASES_1));
     }
 
     @Test
@@ -163,6 +157,9 @@ public class StrongboxIndexerTest
         FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(q, ri.getIndexingContext()));
 
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
+
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
+        removeRepositories(getRepositoriesToClean(REPOSITORY_RELEASES_2));
     }
 
     @Test
@@ -199,6 +196,9 @@ public class StrongboxIndexerTest
         FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(q, ri.getIndexingContext()));
 
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
+
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_3);
+        removeRepositories(getRepositoriesToClean(REPOSITORY_RELEASES_3));
     }
 
     @Test
@@ -235,6 +235,9 @@ public class StrongboxIndexerTest
         FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(q, ri.getIndexingContext()));
 
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
+
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_4);
+        removeRepositories(getRepositoriesToClean(REPOSITORY_RELEASES_4));
     }
 
     @Test
@@ -261,6 +264,9 @@ public class StrongboxIndexerTest
         FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(q, ri.getIndexingContext()));
 
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
+
+        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_5);
+        removeRepositories(getRepositoriesToClean(REPOSITORY_RELEASES_5));
     }
 
     @Test
@@ -287,22 +293,8 @@ public class StrongboxIndexerTest
         FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(q, ri.getIndexingContext()));
 
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
-    }
 
-    @AfterEach
-    public void removeRepositories()
-            throws Exception
-    {
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_3);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_4);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_5);
         closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_6);
-
-        removeRepositories(getRepositoriesToClean());
-
-        cleanUp();
+        removeRepositories(getRepositoriesToClean(REPOSITORY_RELEASES_6));
     }
-
 }
