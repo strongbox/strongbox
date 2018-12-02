@@ -131,7 +131,6 @@ public class ServerSettingsFormTestIT
                                                                                      Default.class,
                                                                                      SmtpConfigurationFormChecks.class,
                                                                                      ProxyConfigurationFormChecks.class);
-        ;
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
