@@ -5,10 +5,10 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -21,8 +21,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -30,6 +34,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Kate Novik.
@@ -37,34 +42,36 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@Execution(CONCURRENT)
 public class RebuildMavenMetadataCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
 
-    private static final String[] CLASSIFIERS = { "javadoc",
-                                                  "sources",
-                                                  "source-release" };
-
-    /*
     private static final String STORAGE1 = "storage1";
 
     private static final String REPOSITORY_RELEASES = "rmmcj-releases";
 
     private static final String REPOSITORY_SNAPSHOTS = "rmmcj-snapshots";
 
-    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                       "/storages/" + STORAGE0 + "/" +
-                                                                       REPOSITORY_RELEASES);
+    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(
+            ConfigurationResourceResolver.getVaultDirectory() +
+            "/storages/" + STORAGE0 + "/" +
+            REPOSITORY_RELEASES);
 
-    private static final File REPOSITORY_SNAPSHOTS_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                      "/storages/" + STORAGE0 + "/" +
-                                                                      REPOSITORY_SNAPSHOTS);
+    private static final File REPOSITORY_SNAPSHOTS_BASEDIR = new File(
+            ConfigurationResourceResolver.getVaultDirectory() +
+            "/storages/" + STORAGE0 + "/" +
+            REPOSITORY_SNAPSHOTS);
 
-    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                       "/storages/" + STORAGE1 + "/" +
-                                                                       REPOSITORY_RELEASES);
+    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(
+            ConfigurationResourceResolver.getVaultDirectory() +
+            "/storages/" + STORAGE1 + "/" +
+            REPOSITORY_RELEASES);
+
+    private static final String[] CLASSIFIERS = { "javadoc",
+                                                  "sources",
+                                                  "source-release" };
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_METADATA = "org/carlspring/strongbox/strongbox-metadata-one";
 
@@ -75,30 +82,30 @@ public class RebuildMavenMetadataCronJobTestIT
     private static MavenArtifact artifact3;
 
     private static MavenArtifact artifact4;
-    */
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
     @Inject
-    private MavenRepositoryFactory mavenRepositoryFactory;
-
-    @Inject
     private ArtifactMetadataService artifactMetadataService;
 
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
+    private String getRepositoryName(String repositoryId,
+                                     String methodName)
     {
-        cleanUp(getRepositoriesToClean());
+        return repositoryId + methodName;
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    private Set<MutableRepository> getRepositories(TestInfo testInfo)
     {
+        String methodName = testInfo.getTestMethod().get().getName();
+
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, "tram-snapshots", Maven2LayoutProvider.ALIAS));
-         repositories.add(createRepositoryMock(STORAGE0, "trmir-snapshots", Maven2LayoutProvider.ALIAS));
-//        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, getRepositoryName(REPOSITORY_RELEASES, methodName),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, methodName),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE1, getRepositoryName(REPOSITORY_RELEASES, methodName),
+                                              Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -109,11 +116,12 @@ public class RebuildMavenMetadataCronJobTestIT
             throws Exception
     {
         super.init(testInfo);
+        String methodName = testInfo.getTestMethod().get().getName();
 
-        /*
-        createRepository(STORAGE0, REPOSITORY_SNAPSHOTS, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
+        createRepository(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, methodName),
+                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 
-        artifact1 = createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR.getAbsolutePath(),
+        artifact1 = createTimestampedSnapshotArtifact(getRepositoryBasedir(REPOSITORY_SNAPSHOTS_BASEDIR, methodName),
                                                       "org.carlspring.strongbox",
                                                       "strongbox-metadata-one",
                                                       "2.0",
@@ -121,7 +129,7 @@ public class RebuildMavenMetadataCronJobTestIT
                                                       CLASSIFIERS,
                                                       5);
 
-        artifact2 = createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR.getAbsolutePath(),
+        artifact2 = createTimestampedSnapshotArtifact(getRepositoryBasedir(REPOSITORY_SNAPSHOTS_BASEDIR, methodName),
                                                       "org.carlspring.strongbox",
                                                       "strongbox-metadata-second",
                                                       "2.0",
@@ -129,53 +137,43 @@ public class RebuildMavenMetadataCronJobTestIT
                                                       CLASSIFIERS,
                                                       5);
 
-        createRepository(STORAGE0, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
+        createRepository(STORAGE0, getRepositoryName(REPOSITORY_RELEASES, methodName),
+                         RepositoryPolicyEnum.RELEASE.getPolicy(), false);
 
-        artifact3 = generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
+        artifact3 = generateArtifact(getRepositoryBasedir(REPOSITORY_RELEASES_BASEDIR_1, methodName),
                                      "org.carlspring.strongbox.metadata:strongbox-metadata:1.0:jar");
 
         createStorage(STORAGE1);
 
-        createRepository(STORAGE1, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
+        createRepository(STORAGE1, getRepositoryName(REPOSITORY_RELEASES, methodName),
+                         RepositoryPolicyEnum.RELEASE.getPolicy(), false);
 
-        artifact4 = generateArtifact(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(),
+        artifact4 = generateArtifact(getRepositoryBasedir(REPOSITORY_RELEASES_BASEDIR_2, methodName),
                                      "org.carlspring.strongbox.metadata:strongbox-metadata:1.0:jar");
-        */
+    }
+
+    private String getRepositoryBasedir(File repositoryBaseDir,
+                                        String methodName)
+    {
+        return repositoryBaseDir.getAbsolutePath() + methodName;
     }
 
     @AfterEach
-    public void removeRepositories()
+    public void removeRepositories(TestInfo testInfo)
             throws IOException, JAXBException
     {
-        /*
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
-        closeIndexersForRepository(STORAGE1, REPOSITORY_RELEASES);
-        */
-        removeRepositories(getRepositoriesToClean());
+        String methodName = testInfo.getTestMethod().get().getName();
+        closeIndexersForRepository(STORAGE0, getRepositoryName(REPOSITORY_RELEASES, methodName));
+        closeIndexersForRepository(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, methodName));
+        closeIndexersForRepository(STORAGE1, getRepositoryName(REPOSITORY_RELEASES, methodName));
+        removeRepositories(getRepositories(testInfo));
     }
 
     @Test
-    public void testRebuildArtifactsMetadata()
+    public void testRebuildArtifactsMetadata(TestInfo testInfo)
             throws Exception
     {
-        String repositoryId = "tram-snapshots";
-
-        MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
-        repository.setType(RepositoryTypeEnum.HOSTED.getType());
-
-        createRepository(STORAGE0, repository);
-
-        File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryId);
-
-        MavenArtifact artifact1 = createTimestampedSnapshotArtifact(repositoryBasedir.getAbsolutePath(),
-                                                                    "org.carlspring.strongbox",
-                                                                    "strongbox-metadata-one",
-                                                                    "2.0",
-                                                                    "jar",
-                                                                    CLASSIFIERS,
-                                                                    5);
-
+        String methodName = testInfo.getTestMethod().get().getName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -184,7 +182,8 @@ public class RebuildMavenMetadataCronJobTestIT
                 try
                 {
                     Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
-                                                                            repositoryId,
+                                                                            getRepositoryName(REPOSITORY_SNAPSHOTS,
+                                                                                              methodName),
                                                                             "org/carlspring/strongbox/strongbox-metadata-one");
 
                     assertNotNull(metadata);
@@ -206,46 +205,18 @@ public class RebuildMavenMetadataCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobName,
-                         RebuildMavenMetadataCronJob.class,
-                         STORAGE0,
-                         repositoryId,
-                         properties -> properties.put("basePath", "org/carlspring/strongbox/strongbox-metadata-one"));
+        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, STORAGE0,
+                         getRepositoryName(REPOSITORY_SNAPSHOTS, methodName),
+                         properties -> properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_METADATA));
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-
-        closeIndexersForRepository(STORAGE0, repositoryId);
     }
 
     @Test
-    public void testRebuildMetadataInRepository()
+    public void testRebuildMetadataInRepository(TestInfo testInfo)
             throws Exception
     {
-        String repositoryId = "trmir-snapshots";
-
-        MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
-        repository.setType(RepositoryTypeEnum.HOSTED.getType());
-
-        createRepository(STORAGE0, repository);
-
-        File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryId);
-
-        MavenArtifact artifact1 = createTimestampedSnapshotArtifact(repositoryBasedir.getAbsolutePath(),
-                                                                    "org.carlspring.strongbox",
-                                                                    "strongbox-metadata-one",
-                                                                    "2.0",
-                                                                    "jar",
-                                                                    CLASSIFIERS,
-                                                                    5);
-
-        MavenArtifact artifact2 = createTimestampedSnapshotArtifact(repositoryBasedir.getAbsolutePath(),
-                                                                    "org.carlspring.strongbox",
-                                                                    "strongbox-metadata-second",
-                                                                    "2.0",
-                                                                    "jar",
-                                                                    CLASSIFIERS,
-                                                                    5);
-
+        String methodName = testInfo.getTestMethod().get().getName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -254,10 +225,12 @@ public class RebuildMavenMetadataCronJobTestIT
                 try
                 {
                     Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                             repositoryId,
+                                                                             getRepositoryName(REPOSITORY_SNAPSHOTS,
+                                                                                               methodName),
                                                                              "org/carlspring/strongbox/strongbox-metadata-one");
                     Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                             repositoryId,
+                                                                             getRepositoryName(REPOSITORY_SNAPSHOTS,
+                                                                                               methodName),
                                                                              "org/carlspring/strongbox/strongbox-metadata-second");
 
                     assertNotNull(metadata1);
@@ -289,18 +262,17 @@ public class RebuildMavenMetadataCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, STORAGE0, repositoryId);
+        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, STORAGE0,
+                         getRepositoryName(REPOSITORY_SNAPSHOTS, methodName));
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-
-        closeIndexersForRepository(STORAGE0, repositoryId);
     }
 
-    /*
     @Test
-    public void testRebuildMetadataInStorage()
+    public void testRebuildMetadataInStorage(TestInfo testInfo)
             throws Exception
     {
+        String methodName = testInfo.getTestMethod().get().getName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -309,10 +281,12 @@ public class RebuildMavenMetadataCronJobTestIT
                 try
                 {
                     Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                             REPOSITORY_SNAPSHOTS,
+                                                                             getRepositoryName(REPOSITORY_SNAPSHOTS,
+                                                                                               methodName),
                                                                              "org/carlspring/strongbox/strongbox-metadata-one");
                     Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                             REPOSITORY_RELEASES,
+                                                                             getRepositoryName(REPOSITORY_RELEASES,
+                                                                                               methodName),
                                                                              "org/carlspring/strongbox/metadata/strongbox-metadata");
 
                     assertNotNull(metadata1);
@@ -350,9 +324,10 @@ public class RebuildMavenMetadataCronJobTestIT
     }
 
     @Test
-    public void testRebuildMetadataInStorages()
+    public void testRebuildMetadataInStorages(TestInfo testInfo)
             throws Exception
     {
+        String methodName = testInfo.getTestMethod().get().getName();
         final String jobName = expectedJobName;
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -361,10 +336,12 @@ public class RebuildMavenMetadataCronJobTestIT
                 try
                 {
                     Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                             REPOSITORY_SNAPSHOTS,
+                                                                             getRepositoryName(REPOSITORY_SNAPSHOTS,
+                                                                                               methodName),
                                                                              "org/carlspring/strongbox/strongbox-metadata-one");
                     Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE1,
-                                                                             REPOSITORY_RELEASES,
+                                                                             getRepositoryName(REPOSITORY_RELEASES,
+                                                                                               methodName),
                                                                              "org/carlspring/strongbox/metadata/strongbox-metadata");
 
                     assertNotNull(metadata1);
@@ -400,6 +377,4 @@ public class RebuildMavenMetadataCronJobTestIT
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
-    */
-
 }
