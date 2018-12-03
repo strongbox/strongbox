@@ -198,7 +198,7 @@ public class ConfigurationManagementServiceImplTest
     {
         List<Repository> groups = configurationManagementService.getConfiguration()
                                                                 .getGroupRepositoriesContaining(STORAGE0,
-                                                                                                         REPOSITORY_RELEASES_1);
+                                                                                                REPOSITORY_RELEASES_1);
 
         assertFalse(groups.isEmpty());
 
@@ -242,8 +242,9 @@ public class ConfigurationManagementServiceImplTest
 
         configurationManagementService.setProxyRepositoryMaxConnections(storage.getId(), repository.getId(), 10);
 
-        HttpConnectionPool pool = configurationManagementService.getConfiguration().getHttpConnectionPoolConfiguration(storage.getId(),
-                                                                                                                       repository.getId());
+        HttpConnectionPool pool = configurationManagementService.getConfiguration()
+                                                                .getHttpConnectionPoolConfiguration(storage.getId(),
+                                                                                                    repository.getId());
 
         assertNotNull(pool);
         assertEquals(10, pool.getAllocatedConnections());
@@ -355,18 +356,15 @@ public class ConfigurationManagementServiceImplTest
     public void testCanGetRepositoriesWithStorageAndLayout()
     {
         String maven2Layout = Maven2LayoutProvider.ALIAS;
-        List<Repository> repositories = configurationManagementService.getConfiguration().getRepositoriesWithLayout(STORAGE0,
-                                                                                                                    maven2Layout);
+        List<Repository> repositories = configurationManagementService.getConfiguration()
+                                                                      .getRepositoriesWithLayout(STORAGE0,
+                                                                                                 maven2Layout);
 
         assertFalse(repositories.isEmpty());
 
-        repositories.forEach(
-                repository -> assertTrue(repository.getLayout().equals(maven2Layout))
-        );
+        repositories.forEach(repository -> assertTrue(repository.getLayout().equals(maven2Layout)));
 
-        repositories.forEach(
-                repository -> assertTrue(repository.getStorage().getId().equals(STORAGE0))
-        );
+        repositories.forEach(repository -> assertTrue(repository.getStorage().getId().equals(STORAGE0)));
     }
 
     @Test
@@ -374,8 +372,9 @@ public class ConfigurationManagementServiceImplTest
     public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage()
     {
         String maven2Layout = Maven2LayoutProvider.ALIAS;
-        List<Repository> repositories = configurationManagementService.getConfiguration().getRepositoriesWithLayout("notExistedStorage",
-                                                                                                                    maven2Layout);
+        List<Repository> repositories = configurationManagementService.getConfiguration()
+                                                                      .getRepositoriesWithLayout("notExistedStorage",
+                                                                                                 maven2Layout);
 
         assertTrue(repositories.isEmpty());
     }
