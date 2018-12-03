@@ -83,7 +83,7 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
 
     private static final String REPOSITORY_GROUP_H = "group-repo-h";
 
-    protected Set<MutableRepository> getRepositoriesToClean()
+    protected Set<MutableRepository> getRepositories()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_E, Maven2LayoutProvider.ALIAS));

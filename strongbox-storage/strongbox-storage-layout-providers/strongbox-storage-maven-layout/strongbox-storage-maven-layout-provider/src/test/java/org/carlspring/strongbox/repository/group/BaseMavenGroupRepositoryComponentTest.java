@@ -25,7 +25,7 @@ public abstract class BaseMavenGroupRepositoryComponentTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    protected Set<MutableRepository> getRepositoriesToClean()
+    protected Set<MutableRepository> getRepositories()
     {
         return Collections.emptySet();
     }
@@ -78,7 +78,7 @@ public abstract class BaseMavenGroupRepositoryComponentTest
     public void removeRepositories()
             throws IOException, JAXBException
     {
-        Set<MutableRepository> repositories = getRepositoriesToClean();
+        Set<MutableRepository> repositories = getRepositories();
 
         for (MutableRepository repository : repositories)
         {

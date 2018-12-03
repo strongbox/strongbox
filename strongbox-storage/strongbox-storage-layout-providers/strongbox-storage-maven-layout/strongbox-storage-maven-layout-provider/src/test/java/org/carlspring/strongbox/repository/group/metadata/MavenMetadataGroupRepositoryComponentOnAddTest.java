@@ -77,7 +77,7 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
 
     private static final String REPOSITORY_GROUP_ZQ = "group-repo-zq";
 
-    protected Set<MutableRepository> getRepositoriesToClean()
+    protected Set<MutableRepository> getRepositories()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_O, Maven2LayoutProvider.ALIAS));

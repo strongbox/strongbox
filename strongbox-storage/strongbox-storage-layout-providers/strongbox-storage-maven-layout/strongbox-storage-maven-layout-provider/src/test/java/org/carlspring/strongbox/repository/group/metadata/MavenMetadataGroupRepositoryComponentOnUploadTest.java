@@ -85,7 +85,7 @@ public class MavenMetadataGroupRepositoryComponentOnUploadTest
     @Inject
     private MavenMetadataGroupRepositoryComponent mavenGroupRepositoryComponent;
 
-    protected Set<MutableRepository> getRepositoriesToClean()
+    protected Set<MutableRepository> getRepositories()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_AE, Maven2LayoutProvider.ALIAS));

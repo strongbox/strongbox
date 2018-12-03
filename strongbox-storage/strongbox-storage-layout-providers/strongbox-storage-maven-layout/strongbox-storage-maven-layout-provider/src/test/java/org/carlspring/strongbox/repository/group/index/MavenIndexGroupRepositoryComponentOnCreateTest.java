@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @Execution(CONCURRENT)
 @EnabledIf(expression = "#{containsObject('artifactIndexesService')}", loadContext = true)
 public class MavenIndexGroupRepositoryComponentOnCreateTest
-        extends BaseMavenGroupRepositoryComponentTest
+        extends BaseMavenIndexGroupRepositoryComponentTest
 {
 
     private static final String REPOSITORY_GROUP_XA_2 = "migrc-group-xa_2";
@@ -86,12 +86,9 @@ public class MavenIndexGroupRepositoryComponentOnCreateTest
     private static final String REPOSITORY_GROUP_XH_2 = "group-repo-xh_2";
 
     @Inject
-    private ArtifactIndexesService artifactIndexesService;
-
-    @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
 
-    protected Set<MutableRepository> getRepositoriesToClean()
+    protected Set<MutableRepository> getRepositories()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XE_2, Maven2LayoutProvider.ALIAS));
@@ -172,7 +169,7 @@ public class MavenIndexGroupRepositoryComponentOnCreateTest
                              ".*(com|org)/artifacts/to/update/releases/update-group.*",
                              ROUTING_RULE_TYPE_DENIED);
 
-        artifactIndexesService.rebuildIndexes();
+        rebuildIndexes(getRepositories());
     }
 
     @Test
