@@ -14,8 +14,8 @@ import java.util.Set;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
@@ -25,27 +25,36 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 /**
  * @author sbespalov
- *
  */
 @IntegrationTest
 @ExtendWith(SpringExtension.class)
-public class AqlControllerTest extends MavenRestAssuredBaseTest
+public class AqlControllerTest
+        extends MavenRestAssuredBaseTest
 {
 
     private static final String STORAGE_SC_TEST = "storage-sc-test";
 
     private static final String REPOSITORY_RELEASES = "sc-releases-search";
 
+    @BeforeAll
     public static void cleanUp()
-        throws Exception
+            throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    private static Set<MutableRepository> getRepositoriesToClean()
+    {
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE_SC_TEST, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
+
+        return repositories;
     }
 
     @Override
     @BeforeEach
     public void init()
-        throws Exception
+            throws Exception
     {
         super.init();
 
@@ -82,22 +91,15 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
         removeRepositories(getRepositoriesToClean());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE_SC_TEST, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
     @Test
     public void testSearchExcludeVersion()
-        throws Exception
+            throws Exception
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query",
-                           String.format("storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches+!version:1.0.11.3.1",
-                                         STORAGE_SC_TEST, REPOSITORY_RELEASES))
+                           String.format(
+                                   "storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches+!version:1.0.11.3.1",
+                                   STORAGE_SC_TEST, REPOSITORY_RELEASES))
                .when()
                .get(getContextBaseUrl() + "/api/aql")
                .then()
@@ -108,12 +110,13 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
 
     @Test
     public void testBadAqlSyntaxRequest()
-        throws Exception
+            throws Exception
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query",
-                           String.format("storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches-version:1.0.11.3.1",
-                                         STORAGE_SC_TEST, REPOSITORY_RELEASES))
+                           String.format(
+                                   "storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches-version:1.0.11.3.1",
+                                   STORAGE_SC_TEST, REPOSITORY_RELEASES))
                .when()
                .get(getContextBaseUrl() + "/api/aql")
                .then()
@@ -121,23 +124,23 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
                .body("error", Matchers.containsString("[1:103]"));
     }
 
-    @Disabled
     @Test
     public void testSearchValidMavenCoordinates()
-            throws Exception {
+            throws Exception
+    {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
-                .queryParam("query", "layout:maven+groupId:org.carlspring.strongbox.*")
-                .when()
-                .get(getContextBaseUrl() + "/api/aql")
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("artifact", Matchers.hasSize(6));
+               .queryParam("query", "layout:maven+groupId:org.carlspring.strongbox.*")
+               .when()
+               .get(getContextBaseUrl() + "/api/aql")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("artifact", Matchers.hasSize(6));
     }
-    
+
     @Test
     public void testSearchInvalidMavenCoordinates()
-        throws Exception
+            throws Exception
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query", "layout:unknown-layout+id:org.carlspring.strongbox.*")
