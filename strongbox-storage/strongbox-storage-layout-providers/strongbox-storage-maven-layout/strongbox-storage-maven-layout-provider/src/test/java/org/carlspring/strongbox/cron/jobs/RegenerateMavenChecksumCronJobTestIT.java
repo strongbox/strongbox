@@ -30,7 +30,6 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.awaitility.Awaitility.await;
 import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
@@ -47,26 +46,12 @@ public class RegenerateMavenChecksumCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
 
-    private static final String STORAGE1 = "storage1";
-
-    private static final String REPOSITORY_RELEASES = "rmccj-releases";
-
     private static final String REPOSITORY_SNAPSHOTS = "rmccj-snapshots";
-
-    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(
-            ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/" + STORAGE0 + "/" +
-            REPOSITORY_RELEASES);
 
     private static final File REPOSITORY_SNAPSHOTS_BASEDIR = new File(
             ConfigurationResourceResolver.getVaultDirectory() +
             "/storages/" + STORAGE0 + "/" +
             REPOSITORY_SNAPSHOTS);
-
-    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(
-            ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/" + STORAGE1 + "/" +
-            REPOSITORY_RELEASES);
 
     private MavenArtifact snapshotArtifact_1;
 
@@ -79,13 +64,7 @@ public class RegenerateMavenChecksumCronJobTestIT
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName(REPOSITORY_RELEASES, testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
                                               getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE1,
-                                              getRepositoryName(REPOSITORY_RELEASES, testInfo),
                                               Maven2LayoutProvider.ALIAS));
         return repositories;
     }
@@ -96,14 +75,6 @@ public class RegenerateMavenChecksumCronJobTestIT
             throws Exception
     {
         super.init(testInfo);
-
-        createRepository(STORAGE0,
-                         getRepositoryName(REPOSITORY_RELEASES, testInfo),
-                         RepositoryPolicyEnum.RELEASE.getPolicy(),
-                         false);
-
-        generateArtifact(getRepositoryBasedir(REPOSITORY_RELEASES_BASEDIR_1, testInfo),
-                         "org.carlspring.strongbox.checksum:strongbox-checksum:1.0:jar");
 
         createRepository(STORAGE0,
                          getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
@@ -126,25 +97,13 @@ public class RegenerateMavenChecksumCronJobTestIT
                 "jar",
                 null,
                 1);
-
-        createStorage(STORAGE1);
-
-        createRepository(STORAGE1,
-                         getRepositoryName(REPOSITORY_RELEASES, testInfo),
-                         RepositoryPolicyEnum.RELEASE.getPolicy(),
-                         false);
-
-        generateArtifact(getRepositoryBasedir(REPOSITORY_RELEASES_BASEDIR_2, testInfo),
-                         "org.carlspring.strongbox.checksum:strongbox-checksum:1.0:jar");
     }
 
     @AfterEach
     public void removeRepositories(TestInfo testInfo)
             throws IOException, JAXBException
     {
-        closeIndexersForRepository(STORAGE0, getRepositoryName(REPOSITORY_RELEASES, testInfo));
         closeIndexersForRepository(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo));
-        closeIndexersForRepository(STORAGE1, getRepositoryName(REPOSITORY_RELEASES, testInfo));
         removeRepositories(getRepositoriesToClean(testInfo));
     }
 
@@ -157,7 +116,8 @@ public class RegenerateMavenChecksumCronJobTestIT
         String artifactPath = getRepositoryBasedir(REPOSITORY_SNAPSHOTS_BASEDIR, testInfo) +
                               "/org/carlspring/strongbox/strongbox-checksum-one";
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
+        artifactMetadataService.rebuildMetadata(STORAGE0,
+                                                getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
                                                 "org/carlspring/strongbox/strongbox-checksum-one");
 
         deleteIfExists(new File(snapshotArtifact_1.getPath().toString() + ".md5"));
@@ -277,135 +237,10 @@ public class RegenerateMavenChecksumCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE0,
+        addCronJobConfig(jobName,
+                         RegenerateChecksumCronJob.class,
+                         STORAGE0,
                          getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
-                         properties -> properties.put("forceRegeneration", "false"));
-
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-    }
-
-    @Test
-    public void testRegenerateChecksumInStorage(TestInfo testInfo)
-            throws Exception
-    {
-        final String jobName = expectedJobName;
-
-        String artifactPath = getRepositoryBasedir(REPOSITORY_RELEASES_BASEDIR_1, testInfo) +
-                              "/org/carlspring/strongbox/checksum/strongbox-checksum";
-
-        artifactMetadataService.rebuildMetadata(STORAGE0,
-                                                getRepositoryName(REPOSITORY_RELEASES, testInfo),
-                                                "org/carlspring/strongbox/checksum/strongbox-checksum");
-
-        deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5"));
-        deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1"));
-        deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.md5"));
-        deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.sha1"));
-
-        deleteIfExists(new File(artifactPath, "/maven-metadata.xml.md5"));
-        deleteIfExists(new File(artifactPath, "/maven-metadata.xml.sha1"));
-
-        assertFalse(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists(),
-                    "The checksum file for artifact exist!");
-
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
-        {
-            if (jobName1.equals(jobName) && statusExecuted)
-            {
-                try
-                {
-
-                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").exists(),
-                               "The checksum file for artifact doesn't exist!");
-                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").length() > 0,
-                               "The checksum file for artifact is empty!");
-
-                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists(),
-                               "The checksum file for artifact doesn't exist!");
-                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").length() > 0,
-                               "The checksum file for artifact is empty!");
-
-                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.sha1").exists(),
-                               "The checksum file for pom file doesn't exist!");
-                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.md5").length() > 0,
-                               "The checksum file for pom file is empty!");
-
-                    assertTrue(new File(artifactPath, "/maven-metadata.xml.md5").exists(),
-                               "The checksum file for metadata file doesn't exist!");
-                    assertTrue(new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0,
-                               "The checksum file for metadata file is empty!");
-                }
-                catch (Exception e)
-                {
-                    throw new UndeclaredThrowableException(e);
-                }
-            }
-        });
-
-        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE0, null,
-                         properties -> properties.put("forceRegeneration", "false"));
-
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-    }
-
-    @Test
-    public void testRegenerateChecksumInStorages(TestInfo testInfo)
-            throws Exception
-    {
-        final String jobName = expectedJobName;
-
-        String artifactPath = getRepositoryBasedir(REPOSITORY_RELEASES_BASEDIR_2, testInfo) +
-                              "/org/carlspring/strongbox/checksum/strongbox-checksum";
-
-        artifactMetadataService.rebuildMetadata(STORAGE1,
-                                                getRepositoryName(REPOSITORY_RELEASES, testInfo),
-                                                "org/carlspring/strongbox/checksum/strongbox-checksum");
-
-        deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5"));
-        deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1"));
-        deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.md5"));
-        deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.sha1"));
-
-        deleteIfExists(new File(artifactPath, "/maven-metadata.xml.md5"));
-        deleteIfExists(new File(artifactPath, "/maven-metadata.xml.sha1"));
-
-        assertFalse(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists(),
-                    "The checksum file for artifact exist!");
-
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
-        {
-            if (jobName1.equals(jobName) && statusExecuted)
-            {
-                try
-                {
-                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").exists(),
-                               "The checksum file for artifact doesn't exist!");
-                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").length() > 0,
-                               "The checksum file for artifact is empty!");
-
-                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists(),
-                               "The checksum file for artifact doesn't exist!");
-                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").length() > 0,
-                               "The checksum file for artifact is empty!");
-
-                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.sha1").exists(),
-                               "The checksum file for pom file doesn't exist!");
-                    assertTrue(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.md5").length() > 0,
-                               "The checksum file for pom file is empty!");
-
-                    assertTrue(new File(artifactPath, "/maven-metadata.xml.md5").exists(),
-                               "The checksum file for metadata file doesn't exist!");
-                    assertTrue(new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0,
-                               "The checksum file for metadata file is empty!");
-                }
-                catch (Exception e)
-                {
-                    throw new UndeclaredThrowableException(e);
-                }
-            }
-        });
-
-        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, null, null,
                          properties -> properties.put("forceRegeneration", "false"));
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());

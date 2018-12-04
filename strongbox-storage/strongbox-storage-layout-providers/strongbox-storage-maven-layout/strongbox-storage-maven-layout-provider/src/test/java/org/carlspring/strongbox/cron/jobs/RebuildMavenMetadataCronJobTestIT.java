@@ -2,7 +2,6 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -48,26 +47,12 @@ public class RebuildMavenMetadataCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
 
-    private static final String STORAGE1 = "storage1";
-
-    private static final String REPOSITORY_RELEASES = "rmmcj-releases";
-
     private static final String REPOSITORY_SNAPSHOTS = "rmmcj-snapshots";
-
-    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(
-            ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/" + STORAGE0 + "/" +
-            REPOSITORY_RELEASES);
 
     private static final File REPOSITORY_SNAPSHOTS_BASEDIR = new File(
             ConfigurationResourceResolver.getVaultDirectory() +
             "/storages/" + STORAGE0 + "/" +
             REPOSITORY_SNAPSHOTS);
-
-    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(
-            ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/" + STORAGE1 + "/" +
-            REPOSITORY_RELEASES);
 
     private static final String[] CLASSIFIERS = { "javadoc",
                                                   "sources",
@@ -79,24 +64,13 @@ public class RebuildMavenMetadataCronJobTestIT
 
     private static MavenArtifact artifact2;
 
-    private static MavenArtifact artifact3;
-
-    private static MavenArtifact artifact4;
-
-    @Inject
-    private CronTaskConfigurationService cronTaskConfigurationService;
-
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
     private Set<MutableRepository> getRepositories(TestInfo testInfo)
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, getRepositoryName(REPOSITORY_RELEASES, testInfo),
-                                              Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE1, getRepositoryName(REPOSITORY_RELEASES, testInfo),
                                               Maven2LayoutProvider.ALIAS));
 
         return repositories;
@@ -129,33 +103,13 @@ public class RebuildMavenMetadataCronJobTestIT
                                                       "jar",
                                                       CLASSIFIERS,
                                                       5);
-
-        createRepository(STORAGE0,
-                         getRepositoryName(REPOSITORY_RELEASES, testInfo),
-                         RepositoryPolicyEnum.RELEASE.getPolicy(),
-                         false);
-
-        artifact3 = generateArtifact(getRepositoryBasedir(REPOSITORY_RELEASES_BASEDIR_1, testInfo),
-                                     "org.carlspring.strongbox.metadata:strongbox-metadata:1.0:jar");
-
-        createStorage(STORAGE1);
-
-        createRepository(STORAGE1,
-                         getRepositoryName(REPOSITORY_RELEASES, testInfo),
-                         RepositoryPolicyEnum.RELEASE.getPolicy(),
-                         false);
-
-        artifact4 = generateArtifact(getRepositoryBasedir(REPOSITORY_RELEASES_BASEDIR_2, testInfo),
-                                     "org.carlspring.strongbox.metadata:strongbox-metadata:1.0:jar");
     }
 
     @AfterEach
     public void removeRepositories(TestInfo testInfo)
             throws IOException, JAXBException
     {
-        closeIndexersForRepository(STORAGE0, getRepositoryName(REPOSITORY_RELEASES, testInfo));
         closeIndexersForRepository(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo));
-        closeIndexersForRepository(STORAGE1, getRepositoryName(REPOSITORY_RELEASES, testInfo));
         removeRepositories(getRepositories(testInfo));
     }
 
@@ -256,114 +210,6 @@ public class RebuildMavenMetadataCronJobTestIT
                          RebuildMavenMetadataCronJob.class,
                          STORAGE0,
                          getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo));
-
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-    }
-
-    @Test
-    public void testRebuildMetadataInStorage(TestInfo testInfo)
-            throws Exception
-    {
-        final String jobName = expectedJobName;
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
-        {
-            if (jobName1.equals(jobName) && statusExecuted)
-            {
-                try
-                {
-                    Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                             getRepositoryName(REPOSITORY_SNAPSHOTS,
-                                                                                               testInfo),
-                                                                             "org/carlspring/strongbox/strongbox-metadata-one");
-                    Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                             getRepositoryName(REPOSITORY_RELEASES,
-                                                                                               testInfo),
-                                                                             "org/carlspring/strongbox/metadata/strongbox-metadata");
-
-                    assertNotNull(metadata1);
-                    assertNotNull(metadata2);
-
-                    Versioning versioning1 = metadata1.getVersioning();
-                    Versioning versioning2 = metadata1.getVersioning();
-
-                    assertEquals(artifact1.getArtifactId(), metadata1.getArtifactId(), "Incorrect artifactId!");
-                    assertEquals(artifact1.getGroupId(), metadata1.getGroupId(), "Incorrect groupId!");
-
-                    assertEquals(artifact3.getArtifactId(), metadata2.getArtifactId(), "Incorrect artifactId!");
-                    assertEquals(artifact3.getGroupId(), metadata2.getGroupId(), "Incorrect groupId!");
-
-                    assertNotNull(versioning1.getVersions(),
-                                  "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning1.getVersions().size(),
-                                 "Incorrect number of versions stored in metadata!");
-
-                    assertNotNull(versioning2.getVersions(),
-                                  "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning2.getVersions().size(),
-                                 "Incorrect number of versions stored in metadata!");
-                }
-                catch (Exception e)
-                {
-                    throw new UndeclaredThrowableException(e);
-                }
-            }
-        });
-
-        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, STORAGE0, null);
-
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-    }
-
-    @Test
-    public void testRebuildMetadataInStorages(TestInfo testInfo)
-            throws Exception
-    {
-        final String jobName = expectedJobName;
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
-        {
-            if (jobName1.equals(jobName) && statusExecuted)
-            {
-                try
-                {
-                    Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                             getRepositoryName(REPOSITORY_SNAPSHOTS,
-                                                                                               testInfo),
-                                                                             "org/carlspring/strongbox/strongbox-metadata-one");
-                    Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE1,
-                                                                             getRepositoryName(REPOSITORY_RELEASES,
-                                                                                               testInfo),
-                                                                             "org/carlspring/strongbox/metadata/strongbox-metadata");
-
-                    assertNotNull(metadata1);
-                    assertNotNull(metadata2);
-
-                    Versioning versioning1 = metadata1.getVersioning();
-                    Versioning versioning2 = metadata1.getVersioning();
-
-                    assertEquals(artifact1.getArtifactId(), metadata1.getArtifactId(), "Incorrect artifactId!");
-                    assertEquals(artifact1.getGroupId(), metadata1.getGroupId(), "Incorrect groupId!");
-
-                    assertEquals(artifact4.getArtifactId(), metadata2.getArtifactId(), "Incorrect artifactId!");
-                    assertEquals(artifact4.getGroupId(), metadata2.getGroupId(), "Incorrect groupId!");
-
-                    assertNotNull(versioning1.getVersions(),
-                                  "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning1.getVersions().size(),
-                                 "Incorrect number of versions stored in metadata!");
-
-                    assertNotNull(versioning2.getVersions(),
-                                  "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning2.getVersions().size(),
-                                 "Incorrect number of versions stored in metadata!");
-                }
-                catch (Exception e)
-                {
-                    throw new UndeclaredThrowableException(e);
-                }
-            }
-        });
-
-        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, null, null);
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }

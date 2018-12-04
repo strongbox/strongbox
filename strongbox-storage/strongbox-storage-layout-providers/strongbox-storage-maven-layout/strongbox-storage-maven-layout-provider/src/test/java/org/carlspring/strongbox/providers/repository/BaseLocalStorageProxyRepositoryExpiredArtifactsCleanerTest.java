@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
@@ -59,10 +60,13 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     @AfterEach
     public void cleanup()
     {
-        artifactEntryService.delete(artifactEntryService.findArtifactList(STORAGE_ID, getRepositoryId(),
-                                                                          new MavenArtifactCoordinates(getGroupId(),
-                                                                                                       getArtifactId(),
-                                                                                                       getVersion())));
+        artifactEntryService.delete(
+                artifactEntryService.findArtifactList(STORAGE_ID,
+                                                      getRepositoryId(),
+                                                      ImmutableMap.of("groupId", getGroupId(),
+                                                                      "artifactId", getArtifactId(),
+                                                                      "version", getVersion()),
+                                                      true));
     }
 
     protected abstract String getRepositoryId();

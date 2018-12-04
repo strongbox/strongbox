@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Path;
 
+import com.google.common.collect.ImmutableMap;
 import com.hazelcast.config.Config;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,8 +67,15 @@ public abstract class RetryDownloadArtifactTestBase
             throws Exception
     {
         deleteDirectoryRelativeToVaultDirectory(
-                "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
-        artifactEntryService.deleteAll();
+                "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector/1.7");
+
+        artifactEntryService.delete(
+                artifactEntryService.findArtifactList("storage-common-proxies",
+                                                      "maven-central",
+                                                      ImmutableMap.of("groupId", "org.carlspring",
+                                                                      "artifactId", "properties-injector",
+                                                                      "version", "1.7"),
+                                                      true));
     }
 
     void prepareArtifactResolverContext(final InputStream artifactInputStream,

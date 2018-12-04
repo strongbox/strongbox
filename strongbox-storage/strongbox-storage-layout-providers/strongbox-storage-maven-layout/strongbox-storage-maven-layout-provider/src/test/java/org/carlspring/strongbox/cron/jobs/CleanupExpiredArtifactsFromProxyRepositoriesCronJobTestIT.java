@@ -18,11 +18,15 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -40,7 +44,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@Disabled
 public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
@@ -54,6 +57,12 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
     @Inject
     private ArtifactEntryService artifactEntryService;
 
+    private String storageId = "storage-common-proxies";
+
+    private String repositoryId = "maven-central";
+
+    private String path = "org/carlspring/properties-injector/1.5/properties-injector-1.5.jar";
+
     @Override
     @BeforeEach
     public void init(TestInfo testInfo)
@@ -64,13 +73,19 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
     @BeforeEach
     @AfterEach
-    public void cleanup(TestInfo testInfo)
+    public void cleanup()
             throws Exception
     {
         deleteDirectoryRelativeToVaultDirectory(
-                "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
+                "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector/1.5");
 
-        artifactEntryService.deleteAll();
+        artifactEntryService.delete(
+                artifactEntryService.findArtifactList(storageId,
+                                                      repositoryId,
+                                                      ImmutableMap.of("groupId", "org.carlspring",
+                                                                      "artifactId", "properties-injector",
+                                                                      "version", "1.5"),
+                                                      true));
     }
 
     @Test
@@ -79,7 +94,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
     {
         final String storageId = "storage-common-proxies";
         final String repositoryId = "maven-central";
-        final String path = "org/carlspring/properties-injector/1.6/properties-injector-1.6.jar";
+        final String path = "org/carlspring/properties-injector/1.5/properties-injector-1.5.jar";
 
         Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
                                                                                                                  repositoryId,
@@ -126,7 +141,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                     assertFalse(layoutProvider.containsPath(repositoryPathResolver.resolve(repository, path)));
                     assertTrue(layoutProvider.containsPath(repositoryPathResolver.resolve(repository,
                                                                                           StringUtils.replace(path,
-                                                                                                              "1.6/properties-injector-1.6.jar",
+                                                                                                              "1.5/properties-injector-1.5.jar",
                                                                                                               "maven-metadata.xml"))));
                 }
                 catch (IOException e)

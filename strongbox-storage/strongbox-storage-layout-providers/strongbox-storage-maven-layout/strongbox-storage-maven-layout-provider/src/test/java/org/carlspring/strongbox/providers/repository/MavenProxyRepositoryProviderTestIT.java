@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -26,7 +27,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -34,18 +34,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author carlspring
  */
-@Disabled
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@Execution(CONCURRENT)
 public class MavenProxyRepositoryProviderTestIT
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -61,14 +58,42 @@ public class MavenProxyRepositoryProviderTestIT
     public void cleanup()
             throws Exception
     {
-        deleteDirectoryRelativeToVaultDirectory(
-                "storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin");
+        deleteDirectoryRelativeToVaultDirectory("storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin");
         deleteDirectoryRelativeToVaultDirectory("storages/storage-common-proxies/maven-oracle/com/oracle/jdbc/ojdbc8");
-        deleteDirectoryRelativeToVaultDirectory(
-                "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector");
+        deleteDirectoryRelativeToVaultDirectory("storages/storage-common-proxies/maven-central/org/carlspring/properties-injector/1.1");
         deleteDirectoryRelativeToVaultDirectory("storages/storage-common-proxies/maven-central/javax/media/jai_core");
 
-        artifactEntryService.deleteAll();
+        artifactEntryService.delete(
+                artifactEntryService.findArtifactList("storage-common-proxies",
+                                                      "maven-central",
+                                                      ImmutableMap.of("groupId", "org.carlspring.maven",
+                                                                      "artifactId", "derby-maven-plugin",
+                                                                      "version", "1.10"),
+                                                      true));
+
+        artifactEntryService.delete(
+                artifactEntryService.findArtifactList("storage-common-proxies",
+                                                      "maven-oracle",
+                                                      ImmutableMap.of("groupId", "com.oracle.jdbc",
+                                                                      "artifactId", "ojdbc8",
+                                                                      "version", "12.2.0.1"),
+                                                      true));
+
+        artifactEntryService.delete(
+                artifactEntryService.findArtifactList("storage-common-proxies",
+                                                      "maven-central",
+                                                      ImmutableMap.of("groupId", "org.carlspring",
+                                                                      "artifactId", "properties-injector",
+                                                                      "version", "1.1"),
+                                                      true));
+
+        artifactEntryService.delete(
+                artifactEntryService.findArtifactList("storage-common-proxies",
+                                                      "maven-central",
+                                                      ImmutableMap.of("groupId", "javax.media",
+                                                                      "artifactId", "jai_core",
+                                                                      "version", "1.1.3"),
+                                                      true));
     }
 
     /*
@@ -119,7 +144,7 @@ public class MavenProxyRepositoryProviderTestIT
         String repositoryId = "maven-central";
 
         assertStreamNotNull(storageId, repositoryId,
-                            "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
+                            "org/carlspring/properties-injector/1.1/properties-injector-1.1.jar");
 
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
