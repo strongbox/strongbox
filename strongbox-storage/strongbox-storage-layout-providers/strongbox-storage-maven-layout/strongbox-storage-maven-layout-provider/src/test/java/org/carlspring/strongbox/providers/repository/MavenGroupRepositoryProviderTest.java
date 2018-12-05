@@ -24,6 +24,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
@@ -60,68 +61,111 @@ public class MavenGroupRepositoryProviderTest
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
     @AfterEach
-    public void removeRepositories()
+    public void removeRepositories(TestInfo testInfo)
             throws Exception
     {
-        removeRepositories(getRepositoriesToClean());
-        cleanUp();
+        removeRepositories(getRepositories(testInfo));
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    private Set<MutableRepository> getRepositories(TestInfo testInfo)
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgi-1", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgi-2", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgi-group", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-mmfsbffgpr-1", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-mmfsbffgpr-2", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-mmfsbffgpr-group", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwoosr-1", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwoosr-2", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwoosr-group", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwr-1", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwr-2", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwr-group", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwr-1", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwr-2", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwr-group", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwranr-1", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwranr-2", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwranr-group", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tgiwranr-group-with-nested-group-level-1",
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgi-1", testInfo),
                                               Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tganr-1", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tganr-test-group-against-nested-repository",
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgi-2", testInfo),
                                               Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tge-1", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tge-2", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-tge-group", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-drsbv-1", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-drsbv-2", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "grpt-releases-drsbv-group", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgi-group", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-mmfsbffgpr-1", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-mmfsbffgpr-2", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-mmfsbffgpr-group", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwoosr-1", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwoosr-2", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwoosr-group", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwr-1", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwr-2", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwr-group", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwr-1", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwr-2", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwr-group", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwranr-1", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwranr-2", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwranr-group", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tgiwranr-group-with-nested-group-level-1", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, getRepositoryName("grpt-releases-tganr-1", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tganr-test-group-against-nested-repository", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tge-1", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tge-2", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-tge-group", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-drsbv-1", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-drsbv-2", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("grpt-releases-drsbv-group", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
 
     @Test
-    public void testGroupIncludes()
+    public void testGroupIncludes(TestInfo testInfo)
             throws Exception
     {
         System.out.println("# Testing group includes...");
 
-        String repositoryReleases1Name = "grpt-releases-tgi-1";
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-tgi-1", testInfo);
 
-        String repositoryReleases2Name = "grpt-releases-tgi-2";
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-tgi-2", testInfo);
 
-        String repositoryGroupName = "grpt-releases-tgi-group";
+        String repositoryGroupName = getRepositoryName("grpt-releases-tgi-group", testInfo);
 
         // Initialize test data
         createRepository(STORAGE0, repositoryReleases1Name, false);
@@ -138,7 +182,7 @@ public class MavenGroupRepositoryProviderTest
 
         createRepository(STORAGE0, repositoryReleases2Name, false);
         generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
-                         "com.artifacts.in.releases.two:foo",
+                         "com.artifacts.in.releases.four:foo",
                          new String[]{ "1.2.4" });
 
         generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
@@ -175,7 +219,7 @@ public class MavenGroupRepositoryProviderTest
 
         RepositoryPath resolvedPath2 = repositoryPathResolver.resolve(STORAGE0,
                                                                       repositoryGroupName,
-                                                                      "com/artifacts/in/releases/two/foo/1.2.4/foo-1.2.4.jar");
+                                                                      "com/artifacts/in/releases/four/foo/1.2.4/foo-1.2.4.jar");
         repositoryPath = repositoryProvider.fetchPath(resolvedPath2);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
@@ -185,14 +229,14 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository()
+    public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository(TestInfo testInfo)
             throws Exception
     {
-        String repositoryReleases1Name = "grpt-releases-mmfsbffgpr-1";
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-mmfsbffgpr-1", testInfo);
 
-        String repositoryReleases2Name = "grpt-releases-mmfsbffgpr-2";
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-mmfsbffgpr-2", testInfo);
 
-        String repositoryGroupName = "grpt-releases-mmfsbffgpr-group";
+        String repositoryGroupName = getRepositoryName("grpt-releases-mmfsbffgpr-group", testInfo);
 
         // Initialize test data
         createRepository(STORAGE0, repositoryReleases1Name, false);
@@ -204,13 +248,13 @@ public class MavenGroupRepositoryProviderTest
         createRepositoryWithArtifacts(STORAGE0,
                                       repositoryReleases1Name,
                                       false,
-                                      "com.artifacts.in.releases.under:group",
+                                      "com.artifacts.in.releases.under123:group",
                                       "1.2.3");
 
         createRepository(STORAGE0, repositoryReleases2Name, false);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
-                         "com.artifacts.in.releases.under:group",
+                         "com.artifacts.in.releases.under123:group",
                          new String[]{ "1.2.4" });
 
         MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
@@ -236,7 +280,7 @@ public class MavenGroupRepositoryProviderTest
 
         RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,
                                                                      repositoryGroupName,
-                                                                     "com/artifacts/in/releases/under/group/maven-metadata.xml");
+                                                                     "com/artifacts/in/releases/under123/group/maven-metadata.xml");
 
         Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         InputStream is = repositoryProvider.getInputStream(repositoryPath);
@@ -250,14 +294,14 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    public void testGroupIncludesWithOutOfServiceRepository()
+    public void testGroupIncludesWithOutOfServiceRepository(TestInfo testInfo)
             throws Exception
     {
-        String repositoryReleases1Name = "grpt-releases-tgiwoosr-1";
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-tgiwoosr-1", testInfo);
 
-        String repositoryReleases2Name = "grpt-releases-tgiwoosr-2";
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-tgiwoosr-2", testInfo);
 
-        String repositoryGroupName = "grpt-releases-tgiwoosr-group";
+        String repositoryGroupName = getRepositoryName("grpt-releases-tgiwoosr-group", testInfo);
 
         // Initialize test data
         createRepository(STORAGE0, repositoryReleases1Name, false);
@@ -320,28 +364,28 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    public void testGroupIncludesWildcardRule()
+    public void testGroupIncludesWildcardRule(TestInfo testInfo)
             throws Exception
     {
         System.out.println("# Testing group includes with wildcard...");
 
-        String repositoryReleases1Name = "grpt-releases-tgiwr-1";
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-tgiwr-1", testInfo);
 
-        String repositoryReleases2Name = "grpt-releases-tgiwr-2";
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-tgiwr-2", testInfo);
 
-        String repositoryGroupName = "grpt-releases-tgiwr-group";
+        String repositoryGroupName = getRepositoryName("grpt-releases-tgiwr-group", testInfo);
 
         // Initialize test data
         createRepository(STORAGE0, repositoryReleases1Name, false);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
-                         "com.artifacts.in.releases.one:foo",
+                         "com.artifacts.in.releases.three:foo",
                          new String[]{ "1.2.3" });
 
         createRepositoryWithArtifacts(STORAGE0,
                                       repositoryReleases1Name,
                                       false,
-                                      "com.artifacts.in.releases.under:group",
+                                      "com.artifacts.in.releases.under2:group",
                                       "1.2.3");
 
         createRepository(STORAGE0, repositoryReleases2Name, false);
@@ -350,7 +394,7 @@ public class MavenGroupRepositoryProviderTest
                          new String[]{ "1.2.4" });
 
         generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
-                         "com.artifacts.in.releases.under:group",
+                         "com.artifacts.in.releases.under2:group",
                          new String[]{ "1.2.4" });
 
         MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
@@ -383,18 +427,19 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    public void testGroupIncludesWildcardRuleAgainstNestedRepository()
+    public void testGroupIncludesWildcardRuleAgainstNestedRepository(TestInfo testInfo)
             throws Exception
     {
         System.out.println("# Testing group includes with wildcard against nested repositories...");
 
-        String repositoryReleases1Name = "grpt-releases-tgiwranr-1";
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-tgiwranr-1", testInfo);
 
-        String repositoryReleases2Name = "grpt-releases-tgiwranr-2";
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-tgiwranr-2", testInfo);
 
-        String repositoryGroupName = "grpt-releases-tgiwranr-group";
+        String repositoryGroupName = getRepositoryName("grpt-releases-tgiwranr-group", testInfo);
 
-        String repositoryGroupWithNestedGroup1 = "grpt-releases-tgiwranr-group-with-nested-group-level-1";
+        String repositoryGroupWithNestedGroup1 = getRepositoryName(
+                "grpt-releases-tgiwranr-group-with-nested-group-level-1", testInfo);
 
         // Initialize test data
         createRepository(STORAGE0, repositoryReleases1Name, false);
@@ -406,7 +451,7 @@ public class MavenGroupRepositoryProviderTest
         createRepositoryWithArtifacts(STORAGE0,
                                       repositoryReleases1Name,
                                       false,
-                                      "com.artifacts.in.releases.under:group",
+                                      "com.artifacts.in.releases.under3:group",
                                       "1.2.3");
 
         createRepository(STORAGE0, repositoryReleases2Name, false);
@@ -415,7 +460,7 @@ public class MavenGroupRepositoryProviderTest
                          new String[]{ "1.2.4" });
 
         generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
-                         "com.artifacts.in.releases.under:group",
+                         "com.artifacts.in.releases.under3:group",
                          new String[]{ "1.2.4" });
 
         MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
@@ -458,12 +503,13 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    public void testGroupAgainstNestedRepository()
+    public void testGroupAgainstNestedRepository(TestInfo testInfo)
             throws Exception
     {
-        String repositoryReleases1Name = "grpt-releases-tganr-1";
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-tganr-1", testInfo);
 
-        String repositoryGroupName = "grpt-releases-tganr-test-group-against-nested-repository";
+        String repositoryGroupName = getRepositoryName("grpt-releases-tganr-test-group-against-nested-repository",
+                                                       testInfo);
 
         createRepository(STORAGE0, repositoryReleases1Name, false);
 
@@ -500,16 +546,16 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    public void testGroupExcludes()
+    public void testGroupExcludes(TestInfo testInfo)
             throws Exception
     {
         System.out.println("# Testing group excludes...");
 
-        String repositoryReleases1Name = "grpt-releases-tge-1";
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-tge-1", testInfo);
 
-        String repositoryReleases2Name = "grpt-releases-tge-2";
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-tge-2", testInfo);
 
-        String repositoryGroupName = "grpt-releases-tge-group";
+        String repositoryGroupName = getRepositoryName("grpt-releases-tge-group", testInfo);
 
         // Initialize test data
         createRepository(STORAGE0, repositoryReleases1Name, false);
@@ -570,14 +616,14 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    public void deniedRuleShouldBeValid()
+    public void deniedRuleShouldBeValid(TestInfo testInfo)
             throws Exception
     {
-        String repositoryReleases1Name = "grpt-releases-drsbv-1";
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-drsbv-1", testInfo);
 
-        String repositoryReleases2Name = "grpt-releases-drsbv-2";
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-drsbv-2", testInfo);
 
-        String repositoryGroupName = "grpt-releases-drsbv-group";
+        String repositoryGroupName = getRepositoryName("grpt-releases-drsbv-group", testInfo);
 
         // Initialize test data
         createRepository(STORAGE0, repositoryReleases1Name, false);
