@@ -7,6 +7,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
@@ -38,6 +39,7 @@ import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
+import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -182,6 +184,21 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         
         createRepository(storageId, repository);
         
+        return repository;
+    }
+
+    protected MutableRepository createGroup(String storageId,
+                                            String repositoryId,
+                                            String... leafs)
+            throws Exception
+    {
+        MutableRepository repository = new MutableRepository(repositoryId);
+        repository.setLayout(Maven2LayoutProvider.ALIAS);
+        repository.setType(RepositoryTypeEnum.GROUP.getType());
+        repository.setGroupRepositories(Sets.newLinkedHashSet(Arrays.asList(leafs)));
+
+        createRepository(storageId, repository);
+
         return repository;
     }
 

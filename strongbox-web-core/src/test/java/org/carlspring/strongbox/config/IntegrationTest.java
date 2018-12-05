@@ -64,7 +64,7 @@ public @interface IntegrationTest
             return Mockito.mock(CronJobSchedulerService.class);
         }
 
-        @Bean
+        @Bean(name = "mockedConfigurationFileManager")
         @Primary
         ConfigurationFileManager configurationFileManager()
         {

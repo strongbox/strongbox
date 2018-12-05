@@ -11,8 +11,10 @@ import org.carlspring.strongbox.storage.routing.RoutingRules;
 import javax.annotation.concurrent.Immutable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,6 +52,8 @@ public class Configuration
 
     private final CorsConfiguration corsConfiguration;
 
+    private final SmtpConfiguration smtpConfiguration;
+
     public Configuration(final MutableConfiguration delegate)
     {
 
@@ -66,6 +70,7 @@ public class Configuration
         storages = immuteStorages(delegate.getStorages());
         routingRules = immuteRoutingRules(delegate.getRoutingRules());
         corsConfiguration = immuteCorsConfiguration(delegate.getCorsConfiguration());
+        smtpConfiguration = immuteSmtpConfiguration(delegate.getSmtpConfiguration());
     }
 
     private ProxyConfiguration immuteProxyConfiguration(final MutableProxyConfiguration source)
@@ -97,6 +102,11 @@ public class Configuration
     private CorsConfiguration immuteCorsConfiguration(final MutableCorsConfiguration source)
     {
         return source != null ? new CorsConfiguration(source) : null;
+    }
+
+    private SmtpConfiguration immuteSmtpConfiguration(final MutableSmtpConfiguration source)
+    {
+        return source != null ? new SmtpConfiguration(source) : null;
     }
 
     public String getId()
@@ -211,20 +221,22 @@ public class Configuration
     public List<Repository> getGroupRepositoriesContaining(String storageId,
                                                            String repositoryId)
     {
-        List<Repository> groupRepositories = new ArrayList<>();
-
-        Storage storage = getStorage(storageId);
-
-        groupRepositories.addAll(storage.getRepositories()
-                                        .values()
-                                        .stream()
-                                        .filter(repository -> repository.getType()
-                                                                        .equals(RepositoryTypeEnum.GROUP.getType()))
-                                        .filter(repository -> repository.getGroupRepositories()
-                                                                        .keySet()
-                                                                        .contains(repositoryId))
-                                        .collect(Collectors.toList()));
-
+        String storageAndRepositoryId = storageId + ":" + repositoryId;
+        List<Repository> groupRepositories = getGroupRepositories();
+        for (Iterator<Repository> it = groupRepositories.iterator(); it.hasNext(); )
+        {
+            Repository repository = it.next();
+            Optional<String> exists = repository.getGroupRepositories()
+                                                .keySet()
+                                                .stream()
+                                                .filter(groupName -> (groupName.equals(storageAndRepositoryId) ||
+                                                                      (repository.getStorage().getId().equals(storageId) && groupName.equals(repositoryId))))
+                                                .findFirst();
+            if (!exists.isPresent())
+            {
+                it.remove();
+            }
+        }
         return groupRepositories;
     }
 
@@ -237,5 +249,10 @@ public class Configuration
     public CorsConfiguration getCorsConfiguration()
     {
         return corsConfiguration;
+    }
+
+    public SmtpConfiguration getSmtpConfiguration()
+    {
+        return smtpConfiguration;
     }
 }

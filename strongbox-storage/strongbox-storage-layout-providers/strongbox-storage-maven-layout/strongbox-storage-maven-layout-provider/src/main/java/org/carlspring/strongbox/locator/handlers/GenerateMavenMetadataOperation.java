@@ -43,7 +43,7 @@ public class GenerateMavenMetadataOperation
         try
         {
             mavenMetadataManager.generateMetadata(artifactGroupDirectoryPath, request);
-            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(artifactGroupDirectoryPath.resolve("maven-metadata.xml"));
+            artifactEventListenerRegistry.dispatchArtifactMetadataStoredEvent(artifactGroupDirectoryPath.resolve("maven-metadata.xml"));
         }
         catch (Exception e)
         {

@@ -19,12 +19,15 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
@@ -81,7 +84,7 @@ public class Maven2LayoutProvider
 
     public boolean isMavenMetadata(RepositoryPath path)
     {
-        return path.getFileName().toString().equals("maven-metadata.xml");
+        return MetadataHelper.MAVEN_METADATA_XML.equals(path.getFileName().toString());
     }
 
     @Override
@@ -98,21 +101,26 @@ public class Maven2LayoutProvider
             switch (attributeType)
             {
                 case ARTIFACT:
-                    value = (Boolean) value && !isMavenMetadata(repositoryPath) && !isIndex(repositoryPath);
+                    value = BooleanUtils.isTrue((Boolean) value) && !isMavenMetadata(repositoryPath) &&
+                            !isIndex(repositoryPath);
 
-                    if (value != null)
-                    {
-                        result.put(attributeType, value);
-                    }
+                    result.put(attributeType, value);
 
                     break;
                 case METADATA:
-                    value = (Boolean) value || isMavenMetadata(repositoryPath);
+                    value = BooleanUtils.isTrue((Boolean) value) || isMavenMetadata(repositoryPath);
 
-                    if (value != null)
-                    {
-                        result.put(attributeType, value);
-                    }
+                    result.put(attributeType, value);
+
+                    break;
+                case EXPIRED:
+                    final Instant oneMinuteAgo = Instant.now().minus(1, ChronoUnit.MINUTES);
+                    value = BooleanUtils.isTrue((Boolean) value) || (isMavenMetadata(repositoryPath)
+                                                                     &&
+                                                                     !RepositoryFiles.wasModifiedAfter(repositoryPath,
+                                                                                                       oneMinuteAgo));
+
+                    result.put(attributeType, value);
 
                     break;
                 default:
@@ -307,4 +315,9 @@ public class Maven2LayoutProvider
         return Collections.emptySet();
     }
 
+    public boolean requiresGroupAggregation(final RepositoryPath repositoryPath)
+    {
+        return isMavenMetadata(repositoryPath) &&
+               !ArtifactUtils.isSnapshot(repositoryPath.getParent().getFileName().toString());
+    }
 }

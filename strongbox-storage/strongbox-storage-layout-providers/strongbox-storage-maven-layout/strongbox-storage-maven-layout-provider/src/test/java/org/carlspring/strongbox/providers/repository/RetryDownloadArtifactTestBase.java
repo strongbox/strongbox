@@ -80,6 +80,7 @@ public abstract class RetryDownloadArtifactTestBase
 
     void prepareArtifactResolverContext(final InputStream artifactInputStream,
                                         final boolean rangeRquestSupported)
+            throws IOException
     {
         
         RemoteRepositoryRetryArtifactDownloadConfiguration configuration = configurationManager.getConfiguration()

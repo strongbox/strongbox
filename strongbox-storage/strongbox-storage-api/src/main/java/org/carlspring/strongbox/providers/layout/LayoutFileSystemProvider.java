@@ -152,8 +152,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         return checksum;
     }
 
-    protected RepositoryPath getChecksumPath(RepositoryPath path,
-                                             String digestAlgorithm)
+    public RepositoryPath getChecksumPath(RepositoryPath path,
+                                          String digestAlgorithm)
     {
         String checksumExtension = ".".concat(digestAlgorithm.toLowerCase().replaceAll("-", ""));
 

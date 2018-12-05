@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.event.artifact;
 
+import org.carlspring.strongbox.event.AbstractEventListenerRegistry;
+
 import java.nio.file.Path;
 
-
-import org.carlspring.strongbox.event.AbstractEventListenerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -38,12 +38,12 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         dispatchEvent(event);
     }
 
-    public void dispatchArtifactMetadataFileUpdatedEvent(Path path)
+    public void dispatchArtifactMetadataStoredEvent(Path path)
     {
         ArtifactEvent event = new ArtifactEvent(path,
-                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPDATED.getType());
+                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_STORED.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPDATED event for " +
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_STORED event for " +
                       path + "...");
 
         dispatchEvent(event);

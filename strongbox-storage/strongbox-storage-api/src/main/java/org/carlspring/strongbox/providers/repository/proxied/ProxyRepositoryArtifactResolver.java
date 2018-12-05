@@ -1,5 +1,16 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
+import org.carlspring.strongbox.client.RestArtifactResolver;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathLock;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
+
+import javax.inject.Inject;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,23 +18,6 @@ import java.nio.file.Files;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.client.RestArtifactResolver;
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathLock;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.repository.HostedRepositoryProvider;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
-import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -37,44 +31,31 @@ public class ProxyRepositoryArtifactResolver
     private static final Logger logger = LoggerFactory.getLogger(ProxyRepositoryArtifactResolver.class);
 
     @Inject
-    protected ConfigurationManager configurationManager;
+    private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
 
     @Inject
-    protected RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
+    private ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
     @Inject
-    protected LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
-    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
-
-    @Inject
-    protected RestArtifactResolverFactory restArtifactResolverFactory;
+    private RestArtifactResolverFactory restArtifactResolverFactory;
     
     @Inject
-    protected RepositoryPathResolver repositoryPathResolver;
-    
-    @Inject
-    protected RepositoryPathLock repositoryPathLock;
-    
-    @Inject
-    private HostedRepositoryProvider hostedRepositoryProvider;
+    private RepositoryPathLock repositoryPathLock;
 
     @Inject
     private ArtifactManagementService artifactManagementService;
 
+    /**
+     * This method has been developed to force fetch resource from remote.
+     *
+     * It should not contain any local / cache existence checks.
+     *
+     * Update this method carefully.
+     */
     public RepositoryPath fetchRemoteResource(RepositoryPath repositoryPath)
         throws IOException
     {
         Repository repository = repositoryPath.getFileSystem().getRepository();
-        logger.debug(String.format("Checking in [%s]...", repositoryPath));
-
-        final RepositoryPath candidate = preProxyRepositoryAccessAttempt(repositoryPath);
-        if (candidate != null)
-        {
-            return candidate;
-        }
-
         final RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (!remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository))
         {
@@ -84,20 +65,15 @@ public class ProxyRepositoryArtifactResolver
         }
 
         RestArtifactResolver client = restArtifactResolverFactory.newInstance(remoteRepository);
-        
+
         ReadWriteLock lockSource = repositoryPathLock.lock(repositoryPath, "remote-fetch");
         Lock lock = lockSource.writeLock();
         lock.lock();
-        
+
         try (InputStream is = new BufferedInputStream(new ProxyRepositoryInputStream(client, repositoryPath)))
         {
-            if (RepositoryFiles.artifactExists(repositoryPath))
-            {
-                return repositoryPath;
-            }
-            
             return doFetch(repositoryPath, is);
-        } 
+        }
         finally
         {
             lock.unlock();
@@ -117,20 +93,12 @@ public class ProxyRepositoryArtifactResolver
         
         RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(repositoryPath,
                                                                                RepositoryFileAttributes.class);
-        if (!artifactFileAttributes.isArtifact())
+        if (artifactFileAttributes.isArtifact())
         {
-            return result;
+            artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(result);
         }
         
-        artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(result);
-        
         return result;
-    }
-
-    protected RepositoryPath preProxyRepositoryAccessAttempt(RepositoryPath repositoryPath)
-            throws IOException
-    {
-        return hostedRepositoryProvider.fetchPath(repositoryPath);
     }
 
     protected RepositoryPath onSuccessfulProxyRepositoryResponse(InputStream is,
@@ -145,11 +113,6 @@ public class ProxyRepositoryArtifactResolver
         
         // Serve the downloaded artifact
         return repositoryPath;
-    }
-
-    protected Configuration getConfiguration()
-    {
-        return configurationManager.getConfiguration();
     }
 
 }

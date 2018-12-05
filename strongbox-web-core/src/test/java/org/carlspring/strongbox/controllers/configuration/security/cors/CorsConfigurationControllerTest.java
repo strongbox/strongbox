@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration.security.cors;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.configuration.CorsConfigurationForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
@@ -47,7 +48,8 @@ public class CorsConfigurationControllerTest
             throws Exception
     {
         super.init();
-        initialConfiguration = new HashMap<>(((UrlBasedCorsConfigurationSource) corsConfigurationSource).getCorsConfigurations());
+        initialConfiguration = new HashMap<>(
+                ((UrlBasedCorsConfigurationSource) corsConfigurationSource).getCorsConfigurations());
     }
 
     @AfterEach
@@ -61,7 +63,7 @@ public class CorsConfigurationControllerTest
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
-               .body(Collections.emptyList())
+               .body(new CorsConfigurationForm(Collections.emptyList()))
                .when()
                .put(url)
                .peek()
@@ -85,7 +87,7 @@ public class CorsConfigurationControllerTest
     {
         given().accept(MediaType.TEXT_PLAIN_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
-               .body(Collections.emptyList())
+               .body(new CorsConfigurationForm(Collections.emptyList()))
                .when()
                .put(url)
                .peek()
@@ -108,7 +110,7 @@ public class CorsConfigurationControllerTest
     {
         given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-               .body(Collections.singletonList("http://example.com"))
+               .body(new CorsConfigurationForm(Collections.singletonList("http://example.com")))
                .when()
                .put(url)
                .peek()
@@ -129,9 +131,9 @@ public class CorsConfigurationControllerTest
     @Test
     public void testAllowAllOrigins()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        given().log().all().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
-               .body(Collections.singletonList("*"))
+               .body(new CorsConfigurationForm(Collections.singletonList("*")))
                .when()
                .put(url)
                .peek()
@@ -155,9 +157,7 @@ public class CorsConfigurationControllerTest
     {
         given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-               .body(Arrays.asList("http://example.com", "https://google.com",
-                                   "http://dev.carlspring.org/confluence",
-                                   "http://dev.carlspring.org/jenkins"))
+               .body(new CorsConfigurationForm(Arrays.asList("http://example.com", "https://github.com/strongbox", "http://carlspring.org")))
                .when()
                .put(url)
                .peek()
@@ -172,8 +172,8 @@ public class CorsConfigurationControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body("origins", hasSize(equalTo(4)))
-               .body("origins", hasItem("https://google.com"));
+               .body("origins", hasSize(equalTo(3)))
+               .body("origins", hasItem("https://github.com/strongbox"));
     }
 
 }

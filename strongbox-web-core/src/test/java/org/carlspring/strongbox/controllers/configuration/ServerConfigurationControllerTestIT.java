@@ -4,8 +4,13 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
 import org.carlspring.strongbox.controllers.support.InstanceNameEntityBody;
 import org.carlspring.strongbox.controllers.support.PortEntityBody;
+import org.carlspring.strongbox.forms.configuration.CorsConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ServerSettingsForm;
+import org.carlspring.strongbox.forms.configuration.SmtpConfigurationForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+
+import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +23,8 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.FAILED_SAVE_SERVER_SETTINGS;
 import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.SUCCESSFUL_SAVE_SERVER_SETTINGS;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 /**
@@ -156,12 +163,35 @@ public class ServerConfigurationControllerTestIT
                                             String baseUrl,
                                             int port)
     {
+        CorsConfigurationForm corsConfigurationForm = new CorsConfigurationForm(
+                Arrays.asList("http://example.com", "https://github.com/strongbox")
+        );
+
+        SmtpConfigurationForm smtpConfigurationForm = new SmtpConfigurationForm(
+                "localhost", 25, "tls", "username", "password"
+        );
+
+        ProxyConfigurationForm proxyConfigurationForm = new ProxyConfigurationForm(
+                "localhost",
+                3218,
+                "direct",
+                "username",
+                "password",
+                Arrays.asList("http://example.com", "https://github.com/strongbox")
+        );
+
         // assign settings to server
-        ServerSettingsForm serverSettingsForm = new ServerSettingsForm(baseUrl, port);
+        ServerSettingsForm serverSettingsForm = new ServerSettingsForm(baseUrl,
+                                                                       port,
+                                                                       "Strongbox-1234",
+                                                                       corsConfigurationForm,
+                                                                       smtpConfigurationForm,
+                                                                       proxyConfigurationForm);
 
         String url = getContextBaseUrl() + "/serverSettings";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        // Save the form
+        given().log().all().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(serverSettingsForm)
                .when()
@@ -170,6 +200,29 @@ public class ServerConfigurationControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
                .body(containsString(SUCCESSFUL_SAVE_SERVER_SETTINGS));
+
+
+        // Check if things are properly saved.
+        given().log().all().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body("baseUrl", equalTo(baseUrl))
+               .body("port", equalTo(port))
+               .body("corsConfigurationForm.allowedOrigins", hasSize(equalTo(2)))
+               .body("smtpConfigurationForm.host", equalTo(smtpConfigurationForm.getHost()))
+               .body("smtpConfigurationForm.port", equalTo(smtpConfigurationForm.getPort()))
+               .body("smtpConfigurationForm.connection", equalTo(smtpConfigurationForm.getConnection()))
+               .body("smtpConfigurationForm.username", equalTo(smtpConfigurationForm.getUsername()))
+               .body("smtpConfigurationForm.password", isEmptyOrNullString())
+               .body("proxyConfigurationForm.host", equalTo(proxyConfigurationForm.getHost()))
+               .body("proxyConfigurationForm.port", equalTo(proxyConfigurationForm.getPort()))
+               .body("proxyConfigurationForm.type", equalTo(proxyConfigurationForm.getType()))
+               .body("proxyConfigurationForm.username", equalTo(proxyConfigurationForm.getUsername()))
+               .body("proxyConfigurationForm.password", isEmptyOrNullString())
+        ;
+
     }
 
     @Test

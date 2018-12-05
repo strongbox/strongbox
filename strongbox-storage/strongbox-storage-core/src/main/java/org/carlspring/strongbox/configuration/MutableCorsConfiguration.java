@@ -40,6 +40,15 @@ public class MutableCorsConfiguration
     @XmlAttribute(name = "max-age")
     private Long maxAge;
 
+    public MutableCorsConfiguration()
+    {
+    }
+
+    public MutableCorsConfiguration(List<String> allowedOrigins)
+    {
+        this.allowedOrigins = allowedOrigins;
+    }
+
     public List<String> getAllowedOrigins()
     {
         return allowedOrigins;
