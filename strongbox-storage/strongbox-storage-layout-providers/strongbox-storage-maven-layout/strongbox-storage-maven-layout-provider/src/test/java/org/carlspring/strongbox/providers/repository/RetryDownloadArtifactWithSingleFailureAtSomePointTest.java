@@ -49,7 +49,7 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
     {
         final String storageId = "storage-common-proxies";
         final String repositoryId = "maven-central";
-        final String path = "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar";
+        final String path = getJarPath();
         final Path destinationPath = getVaultDirectoryPath().resolve("storages")
                                                             .resolve(storageId)
                                                             .resolve(repositoryId)
@@ -66,6 +66,12 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
         assertTrue(Files.exists(destinationPath));
         assertThat(Files.size(destinationPath), CoreMatchers.equalTo(Files.size(jarArtifact.getFile().toPath())));
         assertTrue(exceptionAlreadyThrown);
+    }
+
+    @Override
+    protected String getArtifactVersion()
+    {
+        return "3.2";
     }
 
     private class OneTimeBrokenArtifactInputStream

@@ -66,7 +66,7 @@ public class ParallelDownloadRemoteArtifactTest
 
         final String storageId = "storage-common-proxies";
         final String repositoryId = "maven-central";
-        final String path = "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar";
+        final String path = getJarPath();
         final Path destinationPath = getVaultDirectoryPath().resolve("storages")
                                                             .resolve(storageId)
                                                             .resolve(repositoryId)
@@ -121,6 +121,12 @@ public class ParallelDownloadRemoteArtifactTest
 
             return null;
         });
+    }
+
+    @Override
+    protected String getArtifactVersion()
+    {
+        return "3.0";
     }
 
     private class RemoteArtifactInputStreamStub
