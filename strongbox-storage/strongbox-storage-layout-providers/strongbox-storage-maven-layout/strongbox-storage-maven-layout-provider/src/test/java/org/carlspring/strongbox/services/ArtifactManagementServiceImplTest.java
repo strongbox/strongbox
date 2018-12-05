@@ -33,8 +33,8 @@ import java.util.stream.IntStream;
 
 import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.slf4j.Logger;
@@ -79,44 +79,59 @@ public class ArtifactManagementServiceImplTest
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public Set<MutableRepository> getRepositories(TestInfo testInfo)
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, "amsi-releases-without-deployment", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "amsi-releases-without-redeployment", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "amsi-releases-without-deletes", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "tdradagr-releases", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "tdradagr-group", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "tarfg-releases", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "tarfg-group", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "tfd-release-with-trash", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "tfd-release-without-delete", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "trts-snapshots", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "tcrw-releases-with-lock", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("amsi-releases-without-deployment", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("amsi-releases-without-redeployment", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("amsi-releases-without-deletes", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("tdradagr-releases", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("tdradagr-group", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("tarfg-releases", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("tarfg-group", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("tfd-release-with-trash", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("tfd-release-without-delete", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("trts-snapshots", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("tcrw-releases-with-lock", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
 
     @AfterEach
-    public void removeRepositories()
+    public void removeRepositories(TestInfo testInfo)
             throws IOException, JAXBException
     {
-        removeRepositories(getRepositoriesToClean());
+        removeRepositories(getRepositories(testInfo));
     }
 
     @Test
     @Execution(CONCURRENT)
-    public void testDeploymentToRepositoryWithForbiddenDeployments()
+    public void testDeploymentToRepositoryWithForbiddenDeployments(TestInfo testInfo)
             throws Exception
     {
-        String repositoryId = "amsi-releases-without-deployment";
+        String repositoryId = getRepositoryName("amsi-releases-without-deployment", testInfo);
 
         MutableRepository repositoryWithoutDeployment = mavenRepositoryFactory.createRepository(repositoryId);
         repositoryWithoutDeployment.setAllowsDelete(false);
@@ -161,10 +176,10 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     @Execution(CONCURRENT)
-    public void testRedeploymentToRepositoryWithForbiddenRedeployments()
+    public void testRedeploymentToRepositoryWithForbiddenRedeployments(TestInfo testInfo)
             throws Exception
     {
-        String repositoryId = "amsi-releases-without-redeployment";
+        String repositoryId = getRepositoryName("amsi-releases-without-redeployment", testInfo);
 
         MutableRepository repositoryWithoutRedeployments = mavenRepositoryFactory.createRepository(repositoryId);
         repositoryWithoutRedeployments.setAllowsRedeployment(false);
@@ -209,10 +224,10 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     @Execution(CONCURRENT)
-    public void testDeletionFromRepositoryWithForbiddenDeletes()
+    public void testDeletionFromRepositoryWithForbiddenDeletes(TestInfo testInfo)
             throws Exception
     {
-        String repositoryId = "amsi-releases-without-deletes";
+        String repositoryId = getRepositoryName("amsi-releases-without-deletes", testInfo);
 
         MutableRepository repositoryWithoutDelete = mavenRepositoryFactory.createRepository(repositoryId);
         repositoryWithoutDelete.setAllowsDelete(false);
@@ -221,7 +236,7 @@ public class ArtifactManagementServiceImplTest
         createRepositoryWithArtifacts(STORAGE0,
                                       repositoryWithoutDelete,
                                       "org.carlspring.strongbox:strongbox-utils",
-                                      "8.0");
+                                      "8.6");
 
         generateArtifact(getRepositoryBasedir(STORAGE0, repositoryId).getAbsolutePath(),
                          "org.carlspring.strongbox:strongbox-utils",
@@ -249,12 +264,12 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     @Execution(CONCURRENT)
-    public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
+    public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository(TestInfo testInfo)
             throws Exception
     {
         // Test resource initialization start:
-        String repositoryId = "tdradagr-releases";
-        String repositoryGroupId = "tdradagr-group";
+        String repositoryId = getRepositoryName("tdradagr-releases", testInfo);
+        String repositoryGroupId = getRepositoryName("tdradagr-group", testInfo);
 
         MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
         repository.setAllowsDelete(false);
@@ -369,11 +384,11 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     @Execution(CONCURRENT)
-    public void testArtifactResolutionFromGroup()
+    public void testArtifactResolutionFromGroup(TestInfo testInfo)
             throws Exception
     {
-        String repositoryId = "tarfg-releases";
-        String repositoryGroupId = "tarfg-group";
+        String repositoryId = getRepositoryName("tarfg-releases", testInfo);
+        String repositoryGroupId = getRepositoryName("tarfg-group", testInfo);
 
         MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
         repository.setAllowsDelete(false);
@@ -406,11 +421,11 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     @Execution(CONCURRENT)
-    public void testForceDelete()
+    public void testForceDelete(TestInfo testInfo)
             throws Exception
     {
-        String repositoryId = "tfd-release-without-delete";
-        String repositoryWithTrashId = "tfd-release-with-trash";
+        String repositoryId = getRepositoryName("tfd-release-without-delete", testInfo);
+        String repositoryWithTrashId = getRepositoryName("tfd-release-with-trash", testInfo);
 
         createRepositoryWithArtifacts(STORAGE0, repositoryId, false, "org.carlspring.strongbox:strongbox-utils", "7.0");
 
@@ -447,10 +462,10 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     @Execution(CONCURRENT)
-    public void testRemoveTimestampedSnapshots()
+    public void testRemoveTimestampedSnapshots(TestInfo testInfo)
             throws Exception
     {
-        String repositoryid = "trts-snapshots";
+        String repositoryid = getRepositoryName("trts-snapshots", testInfo);
 
         MutableRepository repositoryWithSnapshots = mavenRepositoryFactory.createRepository(repositoryid);
         repositoryWithSnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
@@ -524,10 +539,10 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     @Execution(CONCURRENT)
-    public void testConcurrentReadWrite()
+    public void testConcurrentReadWrite(TestInfo testInfo)
             throws Exception
     {
-        String repositoryId = "tcrw-releases-with-lock";
+        String repositoryId = getRepositoryName("tcrw-releases-with-lock", testInfo);
 
         MutableRepository repositoryWithLock = mavenRepositoryFactory.createRepository(repositoryId);
 
