@@ -42,9 +42,12 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
     {
         final String storageId = "storage-common-proxies";
         final String repositoryId = "maven-central";
-        final String path = "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar";
-        final Path destinationPath = getVaultDirectoryPath().resolve("storages").resolve(storageId).resolve(
-                repositoryId).resolve(path);
+        final String path = getJarPath();
+        final Path destinationPath = getVaultDirectoryPath()
+                                             .resolve("storages")
+                                             .resolve(storageId)
+                                             .resolve(repositoryId)
+                                             .resolve(path);
 
         // given
         assertFalse(Files.exists(destinationPath));
@@ -57,6 +60,12 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
 
         //then
         assertEquals("Connection lost.", exception.getMessage());
+    }
+
+    @Override
+    protected String getArtifactVersion()
+    {
+        return "3.1";
     }
 
     static class PermanentBrokenArtifactInputStream

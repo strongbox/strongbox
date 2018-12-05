@@ -51,7 +51,6 @@ public abstract class RetryDownloadArtifactTestBase
 
     @BeforeEach
     public void timeoutRetryFeatureRatherQuicklyForTestPurposes()
-            throws Exception
     {
         final MutableRemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration =
                 new MutableRemoteRepositoryRetryArtifactDownloadConfiguration();
@@ -66,17 +65,45 @@ public abstract class RetryDownloadArtifactTestBase
     public void cleanup()
             throws Exception
     {
-        deleteDirectoryRelativeToVaultDirectory(
-                "storages/storage-common-proxies/maven-central/org/carlspring/properties-injector/1.7");
+        deleteDirectoryRelativeToVaultDirectory(getVaultDirectoryVersionPath());
 
         artifactEntryService.delete(
                 artifactEntryService.findArtifactList("storage-common-proxies",
                                                       "maven-central",
-                                                      ImmutableMap.of("groupId", "org.carlspring",
-                                                                      "artifactId", "properties-injector",
-                                                                      "version", "1.7"),
+                                                      ImmutableMap.of("groupId", getGroupId(),
+                                                                      "artifactId", getArtifactId(),
+                                                                      "version", getArtifactVersion()),
                                                       true));
     }
+
+    protected String getVaultDirectoryVersionPath()
+    {
+        return "storages/storage-common-proxies/maven-central/" + getGroupId().replaceAll(".", "/") + "/" +
+               getArtifactId() + "/" + getArtifactVersion();
+    }
+
+    protected String getJarPath()
+    {
+        return getGroupId().replaceAll("\\.", "/") + "/" + getArtifactId() + "/" + getArtifactVersion() + "/" +
+               getJarArtifact();
+    }
+
+    protected String getGroupId()
+    {
+        return "org.apache.commons";
+    }
+
+    protected String getArtifactId()
+    {
+        return "commons-lang3";
+    }
+
+    protected String getJarArtifact()
+    {
+        return getArtifactId() + "-" + getArtifactVersion() + ".jar";
+    }
+
+    protected abstract String getArtifactVersion();
 
     void prepareArtifactResolverContext(final InputStream artifactInputStream,
                                         final boolean rangeRquestSupported)
