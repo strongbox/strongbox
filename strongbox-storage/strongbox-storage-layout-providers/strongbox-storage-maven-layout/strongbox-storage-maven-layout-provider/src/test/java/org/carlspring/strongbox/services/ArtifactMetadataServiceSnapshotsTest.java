@@ -21,16 +21,13 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author stodorov
@@ -38,7 +35,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
-@Execution(CONCURRENT)
 public class ArtifactMetadataServiceSnapshotsTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -71,7 +67,6 @@ public class ArtifactMetadataServiceSnapshotsTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testSnapshotMetadataRebuild()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
@@ -104,7 +99,6 @@ public class ArtifactMetadataServiceSnapshotsTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testDeleteVersionFromMetadata()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
@@ -141,7 +135,6 @@ public class ArtifactMetadataServiceSnapshotsTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testAddTimestampedSnapshotVersionToMetadata()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
@@ -188,7 +181,6 @@ public class ArtifactMetadataServiceSnapshotsTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testDeleteTimestampedSnapshotVersionFromMetadata()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
@@ -227,7 +219,6 @@ public class ArtifactMetadataServiceSnapshotsTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testSnapshotWithoutTimestampMetadataRebuild()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
@@ -266,7 +257,6 @@ public class ArtifactMetadataServiceSnapshotsTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testSnapshotPluginMetadataRebuild()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
@@ -298,7 +288,6 @@ public class ArtifactMetadataServiceSnapshotsTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testMetadataMerge()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException
     {

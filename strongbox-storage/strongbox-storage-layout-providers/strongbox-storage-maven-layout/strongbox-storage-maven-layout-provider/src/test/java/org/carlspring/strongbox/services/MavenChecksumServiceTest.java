@@ -38,6 +38,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class MavenChecksumServiceTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -116,7 +117,6 @@ public class MavenChecksumServiceTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testGenerateMavenChecksumForReleaseArtifact()
             throws IOException,
                    XmlPullParserException,
@@ -172,7 +172,6 @@ public class MavenChecksumServiceTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testGenerateMavenChecksumForSnapshotArtifact()
             throws IOException,
                    XmlPullParserException,
@@ -224,7 +223,6 @@ public class MavenChecksumServiceTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testRewriteMavenChecksum()
             throws IOException,
                    XmlPullParserException,

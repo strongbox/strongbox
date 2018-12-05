@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class ConfigurationManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -116,7 +117,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void groupRepositoriesShouldBeSortedAsExpected()
     {
         Repository repository = configurationManagementService.getConfiguration().getRepository(
@@ -131,7 +131,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void additionOfTheSameGroupRepositoryShouldNotAffectGroupRepositoriesList()
     {
         configurationManagementService.addRepositoryToGroup("storage-common-proxies",
@@ -151,7 +150,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void multipleAdditionOfTheSameRepositoryShouldNotAffectGroup()
     {
         configurationManagementService.addRepositoryToGroup("storage-common-proxies",
@@ -177,7 +175,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testGetGroupRepositories()
     {
         List<Repository> groupRepositories = configurationManagementService.getConfiguration().getGroupRepositories();
@@ -193,7 +190,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testGetGroupRepositoriesContainingRepository()
     {
         List<Repository> groups = configurationManagementService.getConfiguration()
@@ -211,7 +207,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testRemoveRepositoryFromAssociatedGroups()
     {
         assertEquals(2,
@@ -233,7 +228,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testSetProxyRepositoryMaxConnections()
     {
         Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
@@ -251,7 +245,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void addAcceptedRuleSet()
     {
         final MutableRuleSet ruleSet = getRuleSet();
@@ -269,7 +262,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testRemoveAcceptedRuleSet()
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
@@ -284,7 +276,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testAddAcceptedRepo()
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
@@ -305,7 +296,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testRemoveAcceptedRepository()
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
@@ -329,7 +319,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testOverrideAcceptedRepositories()
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
@@ -352,7 +341,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testCanGetRepositoriesWithStorageAndLayout()
     {
         String maven2Layout = Maven2LayoutProvider.ALIAS;
@@ -368,7 +356,6 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage()
     {
         String maven2Layout = Maven2LayoutProvider.ALIAS;

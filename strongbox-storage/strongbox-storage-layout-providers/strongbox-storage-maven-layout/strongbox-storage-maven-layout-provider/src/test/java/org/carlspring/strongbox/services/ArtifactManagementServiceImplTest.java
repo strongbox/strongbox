@@ -51,6 +51,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class ArtifactManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -79,7 +80,7 @@ public class ArtifactManagementServiceImplTest
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
-    public Set<MutableRepository> getRepositories(TestInfo testInfo)
+    private Set<MutableRepository> getRepositories(TestInfo testInfo)
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0,
@@ -127,7 +128,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testDeploymentToRepositoryWithForbiddenDeployments(TestInfo testInfo)
             throws Exception
     {
@@ -175,7 +175,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testRedeploymentToRepositoryWithForbiddenRedeployments(TestInfo testInfo)
             throws Exception
     {
@@ -223,7 +222,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testDeletionFromRepositoryWithForbiddenDeletes(TestInfo testInfo)
             throws Exception
     {
@@ -263,7 +261,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository(TestInfo testInfo)
             throws Exception
     {
@@ -383,7 +380,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testArtifactResolutionFromGroup(TestInfo testInfo)
             throws Exception
     {
@@ -420,7 +416,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testForceDelete(TestInfo testInfo)
             throws Exception
     {
@@ -461,7 +456,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testRemoveTimestampedSnapshots(TestInfo testInfo)
             throws Exception
     {
@@ -538,7 +532,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testConcurrentReadWrite(TestInfo testInfo)
             throws Exception
     {
