@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +45,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class ArtifactOutputStreamTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -87,7 +87,6 @@ public class ArtifactOutputStreamTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testCreateWithTemporaryLocation(TestInfo testInfo)
             throws IOException
     {
@@ -117,7 +116,6 @@ public class ArtifactOutputStreamTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testCreateWithTemporaryLocationNoMoveOnClose(TestInfo testInfo)
             throws IOException
     {

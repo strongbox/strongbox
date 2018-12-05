@@ -51,6 +51,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class ArtifactManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -112,7 +113,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testDeploymentToRepositoryWithForbiddenDeployments()
             throws Exception
     {
@@ -160,7 +160,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testRedeploymentToRepositoryWithForbiddenRedeployments()
             throws Exception
     {
@@ -208,7 +207,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testDeletionFromRepositoryWithForbiddenDeletes()
             throws Exception
     {
@@ -248,7 +246,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
             throws Exception
     {
@@ -368,7 +365,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testArtifactResolutionFromGroup()
             throws Exception
     {
@@ -405,7 +401,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testForceDelete()
             throws Exception
     {
@@ -446,7 +441,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testRemoveTimestampedSnapshots()
             throws Exception
     {
@@ -523,7 +517,6 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testConcurrentReadWrite()
             throws Exception
     {

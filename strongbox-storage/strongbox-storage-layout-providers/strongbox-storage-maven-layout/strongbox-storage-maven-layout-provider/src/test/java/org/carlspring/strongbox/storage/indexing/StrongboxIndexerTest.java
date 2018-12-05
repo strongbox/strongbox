@@ -43,6 +43,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
+@Execution(CONCURRENT)
 public class StrongboxIndexerTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -105,7 +106,6 @@ public class StrongboxIndexerTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void indexerShouldBeCapableToSearchByClassName()
             throws Exception
     {
@@ -133,7 +133,6 @@ public class StrongboxIndexerTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void indexerShouldBeCapableToSearchByFQN()
             throws Exception
     {
@@ -163,7 +162,6 @@ public class StrongboxIndexerTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void indexerShouldBeCapableToSearchByFullSha1Hash()
             throws Exception
     {
@@ -202,7 +200,6 @@ public class StrongboxIndexerTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void indexerShouldBeCapableToSearchByPartialSha1Hash()
             throws Exception
     {
@@ -241,7 +238,6 @@ public class StrongboxIndexerTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void indexerShouldBeCapableToSearchByClassNameFromZippedArtifact()
             throws Exception
     {
@@ -270,7 +266,6 @@ public class StrongboxIndexerTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void indexerShouldBeCapableToSearchByFQNFromZippedArtifact()
             throws Exception
     {

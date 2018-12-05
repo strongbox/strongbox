@@ -44,6 +44,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class ArtifactMetadataServiceReleasesTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -83,7 +84,6 @@ public class ArtifactMetadataServiceReleasesTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testReleaseMetadataRebuild()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
@@ -142,7 +142,6 @@ public class ArtifactMetadataServiceReleasesTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testAddVersionToMetadata()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
@@ -174,7 +173,6 @@ public class ArtifactMetadataServiceReleasesTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testDeleteVersionFromMetadata()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
@@ -205,7 +203,6 @@ public class ArtifactMetadataServiceReleasesTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testReleasePluginMetadataRebuild()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
@@ -237,7 +234,6 @@ public class ArtifactMetadataServiceReleasesTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testMetadataMerge()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException
     {

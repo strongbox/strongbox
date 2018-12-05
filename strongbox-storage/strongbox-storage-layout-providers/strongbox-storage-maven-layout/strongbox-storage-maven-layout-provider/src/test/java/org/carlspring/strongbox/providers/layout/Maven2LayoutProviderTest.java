@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class Maven2LayoutProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -93,7 +94,6 @@ public class Maven2LayoutProviderTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testDeleteArtifact()
             throws IOException, NoSuchAlgorithmException, XmlPullParserException
     {
@@ -131,7 +131,6 @@ public class Maven2LayoutProviderTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testDeleteArtifactDirectory()
             throws IOException, NoSuchAlgorithmException, XmlPullParserException
     {

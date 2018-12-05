@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class MavenGroupRepositoryProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -111,7 +112,6 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testGroupIncludes()
             throws Exception
     {
@@ -185,7 +185,6 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository()
             throws Exception
     {
@@ -251,7 +250,6 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testGroupIncludesWithOutOfServiceRepository()
             throws Exception
     {
@@ -322,7 +320,6 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testGroupIncludesWildcardRule()
             throws Exception
     {
@@ -386,7 +383,6 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testGroupIncludesWildcardRuleAgainstNestedRepository()
             throws Exception
     {
@@ -462,7 +458,6 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testGroupAgainstNestedRepository()
             throws Exception
     {
@@ -505,7 +500,6 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void testGroupExcludes()
             throws Exception
     {
@@ -576,7 +570,6 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    @Execution(CONCURRENT)
     public void deniedRuleShouldBeValid()
             throws Exception
     {
