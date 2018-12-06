@@ -9,29 +9,32 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles({ "MockedRestArtifactResolverTestConfig",
                   "test" })
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class MavenMetadataExpirationProxyCaseTest
         extends BaseMavenMetadataExpirationTest
 {
@@ -39,25 +42,26 @@ public class MavenMetadataExpirationProxyCaseTest
     @Inject
     private ProxyRepositoryProvider proxyRepositoryProvider;
 
-    @BeforeClass
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
-        cleanUp(getRepositoriesToClean());
+        cleanUp(getRepositoriesToClean(REPOSITORY_HOSTED,
+                                       REPOSITORY_PROXY,
+                                       REPOSITORY_LOCAL_SOURCE));
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    private static Set<MutableRepository> getRepositoriesToClean(String... repositoryId)
     {
-        final Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_HOSTED, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXY, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LOCAL_SOURCE, Maven2LayoutProvider.ALIAS));
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
 
+        Arrays.asList(repositoryId).forEach(
+                r -> repositories.add(createRepositoryMock(STORAGE0, r, Maven2LayoutProvider.ALIAS))
+        );
         return repositories;
     }
 
-
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -104,17 +108,17 @@ public class MavenMetadataExpirationProxyCaseTest
 
         sha1ProxiedPathChecksum = readChecksum(resolveSiblingChecksum(proxiedPath, EncryptionAlgorithmsEnum.SHA1));
         assertNotNull(sha1ProxiedPathChecksum);
-        assertThat(sha1ProxiedPathChecksum, equalTo(sha1HostedPathChecksum));
+        assertEquals(sha1ProxiedPathChecksum, sha1HostedPathChecksum);
 
         String calculatedProxiedPathChecksum = calculateChecksum(proxiedPath,
                                                                  EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        assertThat(sha1ProxiedPathChecksum, equalTo(calculatedProxiedPathChecksum));
+        assertEquals(sha1ProxiedPathChecksum, calculatedProxiedPathChecksum);
 
         Files.setLastModifiedTime(proxiedPath, oneHourAgo());
 
         proxyRepositoryProvider.fetchPath(proxiedPath);
         sha1ProxiedPathChecksum = readChecksum(resolveSiblingChecksum(proxiedPath, EncryptionAlgorithmsEnum.SHA1));
-        assertThat(sha1ProxiedPathChecksum, equalTo(calculatedProxiedPathChecksum));
+        assertEquals(sha1ProxiedPathChecksum, calculatedProxiedPathChecksum);
 
         mockHostedRepositoryMetadataUpdate(localSourceRepository,
                                            REPOSITORY_HOSTED,
@@ -125,20 +129,20 @@ public class MavenMetadataExpirationProxyCaseTest
         sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath, EncryptionAlgorithmsEnum.SHA1));
         final String calculatedHostedPathChecksum = calculateChecksum(hostedPath,
                                                                       EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        assertThat(sha1HostedPathChecksum, equalTo(calculatedHostedPathChecksum));
-        assertThat(calculatedHostedPathChecksum, not(equalTo(sha1ProxiedPathChecksum)));
+        assertEquals(sha1HostedPathChecksum, calculatedHostedPathChecksum);
+        assertNotEquals(calculatedHostedPathChecksum, sha1ProxiedPathChecksum);
 
         Files.setLastModifiedTime(proxiedPath, oneHourAgo());
 
         proxyRepositoryProvider.fetchPath(proxiedPath);
         sha1ProxiedPathChecksum = readChecksum(resolveSiblingChecksum(proxiedPath, EncryptionAlgorithmsEnum.SHA1));
-        assertThat(sha1ProxiedPathChecksum, equalTo(calculatedHostedPathChecksum));
+        assertEquals(sha1ProxiedPathChecksum, calculatedHostedPathChecksum);
         calculatedProxiedPathChecksum = calculateChecksum(proxiedPath,
                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        assertThat(sha1ProxiedPathChecksum, equalTo(calculatedProxiedPathChecksum));
+        assertEquals(sha1ProxiedPathChecksum, calculatedProxiedPathChecksum);
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws Exception
     {

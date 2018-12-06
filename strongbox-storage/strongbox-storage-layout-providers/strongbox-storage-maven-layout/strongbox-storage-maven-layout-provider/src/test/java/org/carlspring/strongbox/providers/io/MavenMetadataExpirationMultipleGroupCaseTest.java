@@ -9,31 +9,34 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles({ "MockedRestArtifactResolverTestConfig",
                   "test" })
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class MavenMetadataExpirationMultipleGroupCaseTest
         extends BaseMavenMetadataExpirationTest
 {
@@ -53,28 +56,30 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
 
     private MutableObject<Metadata> artifactLevelMetadataYahr = new MutableObject<>();
 
-    @BeforeClass
+
+    @BeforeAll
     public static void cleanUp()
             throws Exception
     {
-        cleanUp(getRepositoriesToClean());
+        cleanUp(getRepositoriesToClean(REPOSITORY_HOSTED,
+                                       REPOSITORY_HOSTED_YAHR,
+                                       REPOSITORY_PROXY,
+                                       REPOSITORY_LOCAL_SOURCE,
+                                       REPOSITORY_LOCAL_YAHR_SOURCE,
+                                       REPOSITORY_GROUP));
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    private static Set<MutableRepository> getRepositoriesToClean(String... repositoryId)
     {
-        final Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_HOSTED, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_HOSTED_YAHR, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXY, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LOCAL_SOURCE, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LOCAL_YAHR_SOURCE, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP, Maven2LayoutProvider.ALIAS));
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
 
+        Arrays.asList(repositoryId).forEach(
+                r -> repositories.add(createRepositoryMock(STORAGE0, r, Maven2LayoutProvider.ALIAS))
+        );
         return repositories;
     }
 
-
-    @Before
+    @BeforeEach
     public void initialize()
             throws Exception
     {
@@ -140,17 +145,17 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
 
         sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath, EncryptionAlgorithmsEnum.SHA1));
         assertNotNull(sha1ProxyPathChecksum);
-        assertThat(sha1ProxyPathChecksum, equalTo(sha1HostedPathChecksum));
+        assertEquals(sha1ProxyPathChecksum, sha1HostedPathChecksum);
 
         String calculatedGroupPathChecksum = calculateChecksum(resolvedGroupPath,
                                                                EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        assertThat(sha1ProxyPathChecksum, equalTo(calculatedGroupPathChecksum));
+        assertEquals(sha1ProxyPathChecksum, calculatedGroupPathChecksum);
 
         Files.setLastModifiedTime(proxyPath, oneHourAgo());
 
         groupRepositoryProvider.fetchPath(groupPath);
         sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath, EncryptionAlgorithmsEnum.SHA1));
-        assertThat(sha1ProxyPathChecksum, equalTo(calculatedGroupPathChecksum));
+        assertEquals(sha1ProxyPathChecksum, calculatedGroupPathChecksum);
 
         mockHostedRepositoryMetadataUpdate(localSourceRepository,
                                            REPOSITORY_HOSTED,
@@ -161,8 +166,8 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath, EncryptionAlgorithmsEnum.SHA1));
         final String calculatedHostedPathChecksum = calculateChecksum(hostedPath,
                                                                       EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        assertThat(sha1HostedPathChecksum, equalTo(calculatedHostedPathChecksum));
-        assertThat(calculatedHostedPathChecksum, not(equalTo(sha1ProxyPathChecksum)));
+        assertEquals(sha1HostedPathChecksum, calculatedHostedPathChecksum);
+        assertNotEquals(calculatedHostedPathChecksum, sha1ProxyPathChecksum);
 
         mockHostedRepositoryMetadataUpdate(localYahrSourceRepository,
                                            REPOSITORY_HOSTED_YAHR,
@@ -175,14 +180,14 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         resolvedGroupPath = groupRepositoryProvider.fetchPath(groupPath);
 
         sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath, EncryptionAlgorithmsEnum.SHA1));
-        assertThat(sha1ProxyPathChecksum, equalTo(calculatedHostedPathChecksum));
+        assertEquals(sha1ProxyPathChecksum, calculatedHostedPathChecksum);
         calculatedGroupPathChecksum = calculateChecksum(resolvedGroupPath,
                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
-        assertThat(calculatedGroupPathChecksum, equalTo(sha1ProxyPathChecksum));
+        assertEquals(calculatedGroupPathChecksum, sha1ProxyPathChecksum);
     }
 
-    @After
+    @AfterEach
     public void removeRepositories()
             throws Exception
     {
