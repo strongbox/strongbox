@@ -20,9 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,13 +28,14 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
@@ -57,7 +56,7 @@ public class MavenGroupRepositoryProviderTest
 
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
-    
+
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
@@ -126,12 +125,16 @@ public class MavenGroupRepositoryProviderTest
                                               getRepositoryName("grpt-releases-tgiwranr-group", testInfo),
                                               Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("grpt-releases-tgiwranr-group-with-nested-group-level-1", testInfo),
+                                              getRepositoryName(
+                                                      "grpt-releases-tgiwranr-group-with-nested-group-level-1",
+                                                      testInfo),
                                               Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, getRepositoryName("grpt-releases-tganr-1", testInfo),
                                               Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("grpt-releases-tganr-test-group-against-nested-repository", testInfo),
+                                              getRepositoryName(
+                                                      "grpt-releases-tganr-test-group-against-nested-repository",
+                                                      testInfo),
                                               Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0,
                                               getRepositoryName("grpt-releases-tge-1", testInfo),
@@ -171,8 +174,8 @@ public class MavenGroupRepositoryProviderTest
         createRepository(STORAGE0, repositoryReleases1Name, false);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
-                                      "com.artifacts.in.releases.one:foo",
-                                      new String[]{ "1.2.3" });
+                         "com.artifacts.in.releases.one:foo",
+                         new String[]{ "1.2.3" });
 
         createRepositoryWithArtifacts(STORAGE0,
                                       repositoryReleases1Name,
@@ -288,9 +291,9 @@ public class MavenGroupRepositoryProviderTest
         assertNotNull(is);
 
         Metadata metadata = artifactMetadataService.getMetadata(is);
-        
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
-        assertThat(metadata.getVersioning().getVersions(), CoreMatchers.hasItems("1.2.3", "1.2.4"));
+
+        assertEquals(metadata.getVersioning().getVersions().size(), 2);
+        assertThat(metadata.getVersioning().getVersions(), contains("1.2.3", "1.2.4"));
     }
 
     @Test
@@ -332,7 +335,8 @@ public class MavenGroupRepositoryProviderTest
 
         createRoutingRuleSet(STORAGE0,
                              repositoryGroupName,
-                             new String[]{ repositoryReleases1Name, repositoryReleases2Name },
+                             new String[]{ repositoryReleases1Name,
+                                           repositoryReleases2Name },
                              ".*(com|org)/artifacts.in.releases.*",
                              ROUTING_RULE_TYPE_ACCEPTED);
 
@@ -477,7 +481,8 @@ public class MavenGroupRepositoryProviderTest
 
         createRepository(STORAGE0, repositoryGroup);
 
-        MutableRepository repositoryWithNestedGroupLevel1 = mavenRepositoryFactory.createRepository(repositoryGroupWithNestedGroup1);
+        MutableRepository repositoryWithNestedGroupLevel1 = mavenRepositoryFactory.createRepository(
+                repositoryGroupWithNestedGroup1);
         repositoryWithNestedGroupLevel1.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryWithNestedGroupLevel1.setAllowsRedeployment(false);
         repositoryWithNestedGroupLevel1.setAllowsDelete(false);
