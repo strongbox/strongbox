@@ -1,13 +1,11 @@
 package org.carlspring.strongbox.storage.validation.resource;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
@@ -16,11 +14,9 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author mtodorov
@@ -31,9 +27,6 @@ public class ArtifactOperationsValidator
 
     @Inject
     private ConfigurationManager configurationManager;
-
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
@@ -84,7 +77,7 @@ public class ArtifactOperationsValidator
         }
     }
 
-    public void checkArtifactPath(RepositoryPath repositoryPath)
+    private void checkArtifactPath(RepositoryPath repositoryPath)
             throws ArtifactResolutionException
     {
         if (repositoryPath == null)
@@ -117,11 +110,8 @@ public class ArtifactOperationsValidator
 
     public void checkAllowsRedeployment(Repository repository,
                                         ArtifactCoordinates coordinates)
-            throws IOException,
-                   ProviderImplementationException
+            throws IOException
     {
-        LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, coordinates);
         if (RepositoryFiles.artifactExists(repositoryPath) && !repository.allowsRedeployment())
         {
@@ -134,16 +124,16 @@ public class ArtifactOperationsValidator
     public void checkAllowsDeletion(Repository repository)
             throws ArtifactStorageException
     {
-        if (!repository.allowsDeletion())
+        if (repository != null && !repository.allowsDeletion())
         {
             throw new ArtifactStorageException("Deleting artifacts from " + repository.getType() +
                                                " repository is not allowed!");
         }
     }
 
-    public void checkArtifactSize(String storageId,
-                                  String repositoryId,
-                                  MultipartFile uploadedFile)
+    void checkArtifactSize(String storageId,
+                           String repositoryId,
+                           MultipartFile uploadedFile)
             throws ArtifactResolutionException
     {
         if (uploadedFile.isEmpty() || uploadedFile.getSize() == 0)

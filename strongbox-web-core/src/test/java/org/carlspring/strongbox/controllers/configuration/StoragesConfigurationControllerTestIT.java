@@ -18,6 +18,7 @@ import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryCon
 
 import javax.inject.Inject;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -26,8 +27,10 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.apache.http.pool.PoolStats;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
@@ -53,13 +56,11 @@ public class StoragesConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
-    private static final String VALID_STORAGE_ID = "storage1";
+    private static final String VALID_STORAGE_ID = "storage-sccti";
 
     private static final String EXISTING_STORAGE_ID = STORAGE0;
 
-    private RepositoryForm repositoryForm0;
-
-    private RepositoryForm repositoryForm1;
+    private static final String EXISTING_REPOSITORY_ID = "releases";
 
     @Inject
     private PropertiesBooter propertiesBooter;
@@ -67,8 +68,48 @@ public class StoragesConfigurationControllerTestIT
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
+    {
+        super.init();
+        setContextBaseUrl("/api/configuration/strongbox/storages");
+    }
 
-    static ProxyConfigurationForm createProxyConfiguration()
+    private RepositoryForm createRepositoryForm0()
+    {
+        RepositoryForm repositoryForm0 = new RepositoryForm();
+        repositoryForm0.setId("repository0");
+        repositoryForm0.setAllowsRedeployment(true);
+        repositoryForm0.setSecured(true);
+        repositoryForm0.setLayout(Maven2LayoutProvider.ALIAS);
+        repositoryForm0.setType("hosted");
+        repositoryForm0.setPolicy("release");
+        repositoryForm0.setImplementation("file-system");
+        repositoryForm0.setStatus("In Service");
+
+        return repositoryForm0;
+    }
+
+    private RepositoryForm createRepositoryForm1()
+    {
+        RepositoryForm repositoryForm1 = new RepositoryForm();
+        repositoryForm1.setId("repository1");
+        repositoryForm1.setAllowsForceDeletion(true);
+        repositoryForm1.setTrashEnabled(true);
+        repositoryForm1.setProxyConfiguration(createProxyConfiguration());
+        repositoryForm1.setLayout(Maven2LayoutProvider.ALIAS);
+        repositoryForm1.setType("hosted");
+        repositoryForm1.setPolicy("release");
+        repositoryForm1.setImplementation("file-system");
+        repositoryForm1.setStatus("In Service");
+        repositoryForm1.setGroupRepositories(ImmutableSet.of("repository0"));
+
+        return repositoryForm1;
+    }
+
+    private ProxyConfigurationForm createProxyConfiguration()
     {
         ProxyConfigurationForm proxyConfiguration = new ProxyConfigurationForm();
         proxyConfiguration.setHost("localhost");
@@ -85,43 +126,10 @@ public class StoragesConfigurationControllerTestIT
         return proxyConfiguration;
     }
 
-    @Override
-    @BeforeEach
-    public void init()
-            throws Exception
-    {
-        super.init();
-
-        setContextBaseUrl("/api/configuration/strongbox/storages");
-
-        repositoryForm0 = new RepositoryForm();
-        repositoryForm0.setId("repository0");
-        repositoryForm0.setAllowsRedeployment(true);
-        repositoryForm0.setSecured(true);
-        repositoryForm0.setLayout(Maven2LayoutProvider.ALIAS);
-        repositoryForm0.setType("hosted");
-        repositoryForm0.setPolicy("release");
-        repositoryForm0.setImplementation("file-system");
-        repositoryForm0.setStatus("In Service");
-
-        repositoryForm1 = new RepositoryForm();
-        repositoryForm1.setId("repository1");
-        repositoryForm1.setAllowsForceDeletion(true);
-        repositoryForm1.setTrashEnabled(true);
-        repositoryForm1.setProxyConfiguration(createProxyConfiguration());
-        repositoryForm1.setLayout(Maven2LayoutProvider.ALIAS);
-        repositoryForm1.setType("hosted");
-        repositoryForm1.setPolicy("release");
-        repositoryForm1.setImplementation("file-system");
-        repositoryForm1.setStatus("In Service");
-        repositoryForm1.setGroupRepositories(ImmutableSet.of("repository0"));
-    }
-
     private String getBaseDir(String storageId)
     {
-        String directory = propertiesBooter.getStorageBooterBasedir() + "/" + storageId;
-
-        return Paths.get(directory).toAbsolutePath().toString();
+        Path baseDirPath = Paths.get(propertiesBooter.getStorageBooterBasedir(), storageId);
+        return baseDirPath.toAbsolutePath().toString();
     }
 
     @Test
@@ -140,11 +148,11 @@ public class StoragesConfigurationControllerTestIT
     @Test
     public void testGetStorage()
     {
-        String url = getContextBaseUrl() + "/" + EXISTING_STORAGE_ID;
+        String url = getContextBaseUrl() + "/{storageId}";
 
         givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
                      .when()
-                     .get(url)
+                     .get(url, EXISTING_STORAGE_ID)
                      .peek()
                      .then()
                      .statusCode(OK);
@@ -153,11 +161,11 @@ public class StoragesConfigurationControllerTestIT
     @Test
     public void testGetGroupRepository()
     {
-        String url = getContextBaseUrl() + "/storage-common-proxies/group-common-proxies";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
                      .when()
-                     .get(url)
+                     .get(url, "storage-common-proxies", "group-common-proxies")
                      .peek()
                      .then()
                      .statusCode(OK);
@@ -166,18 +174,18 @@ public class StoragesConfigurationControllerTestIT
     @Test
     public void testGetMavenRepository()
     {
-        String url = getContextBaseUrl() + "/" + EXISTING_STORAGE_ID + "/releases";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
                      .when()
-                     .get(url)
+                     .get(url, EXISTING_STORAGE_ID, EXISTING_REPOSITORY_ID)
                      .peek()
                      .then()
                      .statusCode(OK);
     }
 
     @Test
-    public void testCreateAndUpdateStorage()
+    public void testCreateUpdateAndDeleteStorage()
     {
         final String storageId = VALID_STORAGE_ID;
 
@@ -195,8 +203,13 @@ public class StoragesConfigurationControllerTestIT
                      .put(url)
                      .prettyPeek()
                      .then()
-                     .statusCode(OK)
-                     .body(containsString(SUCCESSFUL_SAVE_STORAGE));
+                     .statusCode(OK);
+
+        RepositoryForm repositoryForm0 = createRepositoryForm0();
+        RepositoryForm repositoryForm1 = createRepositoryForm1();
+
+        addRepository(repositoryForm0, storage1);
+        addRepository(repositoryForm1, storage1);
 
         Storage storage = getStorage(storageId);
 
@@ -204,7 +217,7 @@ public class StoragesConfigurationControllerTestIT
         assertThat(storage1.getBasedir()).isEqualTo(storage.getBasedir());
 
         // 2. Update storage.
-        url = getContextBaseUrl() + "/" + storageId;
+        url = getContextBaseUrl() + "/{storageId}";
         String newBasedir = getBaseDir(storageId) + "-updated";
         storage1.setBasedir(newBasedir);
 
@@ -212,7 +225,7 @@ public class StoragesConfigurationControllerTestIT
                      .accept(MediaType.APPLICATION_JSON_VALUE)
                      .body(storage1)
                      .when()
-                     .put(url)
+                     .put(url, storageId)
                      .prettyPeek()
                      .then()
                      .statusCode(OK)
@@ -224,6 +237,17 @@ public class StoragesConfigurationControllerTestIT
         assertThat(storage1.getBasedir())
                 .as("Failed to update storage (" + storageId + ") basedir!")
                 .isEqualTo(storage.getBasedir());
+
+        // 3. Delete storage created.
+        givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
+                     .accept(MediaType.TEXT_PLAIN_VALUE)
+                     .param("force", true)
+                     .when()
+                     .delete(url, storageId)
+                     .peek() // Use peek() to print the output
+                     .then()
+                     .statusCode(OK)
+                     .body(containsString(SUCCESSFUL_STORAGE_REMOVAL));
     }
 
     @ParameterizedTest
@@ -269,20 +293,13 @@ public class StoragesConfigurationControllerTestIT
 
         StorageForm storage0 = buildStorageForm(storageId);
 
-        RepositoryForm repositoryForm0_1 = new RepositoryForm();
+        RepositoryForm repositoryForm0_1 = createRepositoryForm0();
         repositoryForm0_1.setId("repository0_1_" + extension + "." + extension);
-        repositoryForm0_1.setAllowsRedeployment(true);
-        repositoryForm0_1.setSecured(true);
-        repositoryForm0_1.setLayout(Maven2LayoutProvider.ALIAS);
         MavenRepositoryConfigurationForm mavenRepositoryConfigurationForm = new MavenRepositoryConfigurationForm();
         mavenRepositoryConfigurationForm.setIndexingEnabled(true);
         mavenRepositoryConfigurationForm.setIndexingClassNamesEnabled(false);
         mavenRepositoryConfigurationForm.setCronExpression("0 0 2 * * ?");
         repositoryForm0_1.setRepositoryConfiguration(mavenRepositoryConfigurationForm);
-        repositoryForm0_1.setType("hosted");
-        repositoryForm0_1.setPolicy("release");
-        repositoryForm0_1.setImplementation("file-system");
-        repositoryForm0_1.setStatus("In Service");
         Set<String> groupRepositories = new LinkedHashSet<>();
         String groupRepository1 = "maven-central";
         String groupRepository2 = "carlspring";
@@ -292,17 +309,9 @@ public class StoragesConfigurationControllerTestIT
 
         Integer maxConnectionsRepository2 = 30;
 
-        RepositoryForm repositoryForm0_2 = new RepositoryForm();
+        RepositoryForm repositoryForm0_2 = createRepositoryForm1();
         repositoryForm0_2.setId("repository0_2_" + extension + "." + extension);
-        repositoryForm0_2.setAllowsForceDeletion(true);
-        repositoryForm0_2.setTrashEnabled(true);
-        repositoryForm0_2.setProxyConfiguration(createProxyConfiguration());
-        repositoryForm0_2.setLayout(Maven2LayoutProvider.ALIAS);
         repositoryForm0_2.setType("proxy");
-        repositoryForm0_2.setPolicy("release");
-        repositoryForm0_2.setImplementation("file-system");
-        repositoryForm0_2.setStatus("In Service");
-        repositoryForm0_2.setGroupRepositories(ImmutableSet.of("repository0"));
         repositoryForm0_2.setHttpConnectionPool(maxConnectionsRepository2);
 
         String secondRepositoryUrl = "http://abc.def";
@@ -406,13 +415,13 @@ public class StoragesConfigurationControllerTestIT
         groupRepositories.add(groupRepository2);
         repositoryForm0_1.setGroupRepositories(groupRepositories);
 
-        String url = getContextBaseUrl() + "/" + storageId + "/" + repositoryForm0_1.getId();
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
                      .body(repositoryForm0_1)
                      .when()
-                     .put(url)
+                     .put(url, storageId, repositoryForm0_1.getId())
                      .then()
                      .statusCode(not(equalTo(OK)));
     }
@@ -420,14 +429,14 @@ public class StoragesConfigurationControllerTestIT
     @Test
     public void testUpdatingRepositoryWithNonExistingStorage()
     {
-        String url = getContextBaseUrl() + "/non-existing-storage/fake-repository";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
         RepositoryForm form = new RepositoryForm();
 
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
                      .body(form)
                      .when()
-                     .put(url)
+                     .put(url, "non-existing-storage", "fake-repository")
                      .peek()
                      .then()
                      .statusCode(404);
@@ -435,11 +444,11 @@ public class StoragesConfigurationControllerTestIT
 
     private Storage getStorage(String storageId)
     {
-        String url = getContextBaseUrl() + "/" + storageId;
+        String url = getContextBaseUrl() + "/{storageId}";
 
         return givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
                             .when()
-                            .get(url)
+                            .get(url, storageId)
                             .prettyPeek()
                             .as(StorageData.class);
     }
@@ -466,13 +475,13 @@ public class StoragesConfigurationControllerTestIT
 
         try
         {
-            url = getContextBaseUrl() + "/" + storage.getId() + "/" + repository.getId();
+            url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
             givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                          .accept(MediaType.APPLICATION_JSON_VALUE)
                          .body(repository)
                          .when()
-                         .put(url)
+                         .put(url, storage.getId(), repository.getId())
                          .then()
                          .statusCode(OK)
                          .body(containsString(SUCCESSFUL_REPOSITORY_SAVE));
@@ -489,12 +498,13 @@ public class StoragesConfigurationControllerTestIT
     private void deleteRepository(String storageId,
                                   String repositoryId)
     {
-        String url = String.format("%s/%s/%s?force=%s", getContextBaseUrl(), storageId, repositoryId, true);
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .param("force", true)
                      .when()
-                     .delete(url)
+                     .delete(url, storageId, repositoryId)
                      .then()
                      .statusCode(OK)
                      .body(containsString(SUCCESSFUL_REPOSITORY_REMOVAL));
@@ -539,7 +549,11 @@ public class StoragesConfigurationControllerTestIT
     public void testCreateAndDeleteStorage(String extension)
     {
         final String storageId = "storage2_" + extension + "." + extension;
+
+        final RepositoryForm repositoryForm0 = createRepositoryForm0();
         final String repositoryId0 = repositoryForm0.getId();
+
+        final RepositoryForm repositoryForm1 = createRepositoryForm1();
         final String repositoryId1 = repositoryForm1.getId();
 
         StorageForm storage2 = buildStorageForm(storageId);
@@ -565,7 +579,8 @@ public class StoragesConfigurationControllerTestIT
 
         // 2. Check proxy configuration from storage created.
         givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
-                     .params("storageId", storageId, "repositoryId", repositoryId1)
+                     .param("storageId", storageId)
+                     .param("repositoryId", repositoryId1)
                      .when()
                      .get(url)
                      .peek() // Use peek() to print the output
@@ -577,7 +592,7 @@ public class StoragesConfigurationControllerTestIT
         assertThat(storage).as("Failed to get storage (" + storageId + ")!").isNotNull();
         assertThat(storage.getRepositories().isEmpty()).as("Failed to get storage (" + storageId + ")!").isFalse();
 
-        url = getContextBaseUrl() + "/" + storageId;
+        url = getContextBaseUrl() + "/{storageId}";
 
         logger.debug(url);
 
@@ -586,13 +601,11 @@ public class StoragesConfigurationControllerTestIT
                      .accept(MediaType.TEXT_PLAIN_VALUE)
                      .param("force", true)
                      .when()
-                     .delete(url)
+                     .delete(url, storageId)
                      .peek() // Use peek() to print the output
                      .then()
                      .statusCode(OK)
                      .body(containsString(SUCCESSFUL_STORAGE_REMOVAL));
-
-        url = getContextBaseUrl() + "/" + storageId;
 
         logger.debug(storageId);
         logger.debug(repositoryId0);
@@ -600,7 +613,7 @@ public class StoragesConfigurationControllerTestIT
         // 4. Check that the storage deleted does not exist anymore.
         givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
                      .when()
-                     .get(url)
+                     .get(url, storageId)
                      .peek() // Use peek() to print the output
                      .then()
                      .statusCode(HttpStatus.NOT_FOUND.value());
@@ -612,19 +625,22 @@ public class StoragesConfigurationControllerTestIT
                              "com",
                              "pl",
                              "json" })
-    public void whenStorageIsCreatedWithoutBasedirProvidedDefaultIsSet(String extension)
+    public void whenStorageIsCreatedWithoutBasedirProvidedDefaultIsSet(String extension,
+                                                                       TestInfo testInfo)
     {
-        final String storageId = "storage4_" + extension + "." + extension;
+        final String methodName = getMethodName(testInfo);
+        final String storageId = String.format("storage-%s-%s.%s", methodName, extension, extension);
+        final RepositoryForm repositoryForm0 = createRepositoryForm0();
 
-        StorageForm storage4 = buildStorageForm(storageId);
-        storage4.setBasedir(null);
+        StorageForm newStorage = buildStorageForm(storageId);
+        newStorage.setBasedir(null);
 
         String url = getContextBaseUrl();
 
         // 1. Create storage without base dir provided.
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
-                     .body(storage4)
+                     .body(newStorage)
                      .when()
                      .put(url)
                      .peek() // Use peek() to print the output
@@ -636,20 +652,20 @@ public class StoragesConfigurationControllerTestIT
         assertThat(storage).as("Failed to get storage (" + storageId + ")!").isNotNull();
 
         // Storage basedir will be created only when repository created.
-        addRepository(repositoryForm0, storage4);
+        addRepository(repositoryForm0, newStorage);
 
         // 2. Confirm default base dir has been created
         String storageBaseDir = getBaseDir(storageId);
         assertThat(Files.exists(Paths.get(storageBaseDir))).isTrue();
 
-        url = getContextBaseUrl() + "/" + storageId;
+        url = getContextBaseUrl() + "/{storageId}";
 
         // 3. Delete storage created.
         givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
                      .accept(MediaType.TEXT_PLAIN_VALUE)
                      .param("force", true)
                      .when()
-                     .delete(url)
+                     .delete(url, storageId)
                      .peek() // Use peek() to print the output
                      .then()
                      .statusCode(OK)
@@ -658,13 +674,19 @@ public class StoragesConfigurationControllerTestIT
         // 4. Check that the storage deleted does not exist anymore.
         givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
                      .when()
-                     .get(url)
+                     .get(url, storageId)
                      .peek() // Use peek() to print the output
                      .then()
                      .statusCode(HttpStatus.NOT_FOUND.value());
 
         // 5. Confirm base dir has been deleted
         assertThat(Files.exists(Paths.get(storageBaseDir))).isFalse();
+    }
+
+    private String getMethodName(TestInfo testInfo)
+    {
+        Assumptions.assumeTrue(testInfo.getTestMethod().isPresent());
+        return testInfo.getTestMethod().get().getName();
     }
 
 }

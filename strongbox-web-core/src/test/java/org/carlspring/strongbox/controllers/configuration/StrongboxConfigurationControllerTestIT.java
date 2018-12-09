@@ -8,9 +8,11 @@ import org.carlspring.strongbox.storage.StorageDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
+
 
 /**
  * @author Pablo Tirado
@@ -26,6 +28,7 @@ public class StrongboxConfigurationControllerTestIT
             throws Exception
     {
         super.init();
+        setContextBaseUrl("/api/configuration/strongbox");
     }
 
     @ParameterizedTest
@@ -33,13 +36,13 @@ public class StrongboxConfigurationControllerTestIT
                              APPLICATION_YAML_VALUE })
     public void testGetAndSetConfiguration(String acceptHeader)
     {
+        final String storageId = "storage3";
+        StorageDto storage = new StorageDto(storageId);
+
         MutableConfiguration configuration = getConfigurationFromRemote();
-
-        StorageDto storage = new StorageDto("storage3");
-
         configuration.addStorage(storage);
 
-        String url = getContextBaseUrl() + "/api/configuration/strongbox";
+        String url = getContextBaseUrl();
 
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(acceptHeader)
@@ -47,7 +50,7 @@ public class StrongboxConfigurationControllerTestIT
                      .when()
                      .put(url)
                      .then()
-                     .statusCode(200);
+                     .statusCode(HttpStatus.OK.value());
 
         final MutableConfiguration c = getConfigurationFromRemote();
 
@@ -56,9 +59,9 @@ public class StrongboxConfigurationControllerTestIT
                 .isNotNull();
     }
 
-    public MutableConfiguration getConfigurationFromRemote()
+    private MutableConfiguration getConfigurationFromRemote()
     {
-        String url = getContextBaseUrl() + "/api/configuration/strongbox";
+        String url = getContextBaseUrl();
 
         return givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
                             .when()

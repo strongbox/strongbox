@@ -4,9 +4,9 @@ import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
 import org.carlspring.strongbox.authentication.api.AuthenticationItem;
 import org.carlspring.strongbox.authentication.api.AuthenticationItems;
 import org.carlspring.strongbox.authentication.registry.AuthenticationResourceManager;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
-import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
@@ -17,7 +17,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -32,12 +36,14 @@ import static org.carlspring.strongbox.CustomMatchers.equalByToString;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
+
 /**
  * @author Przemyslaw Fusik
  * @author Pablo Tirado
  * @author sbespalov
  */
-@ActiveProfiles({"test", "AuthenticatorsConfigControllerTestConfig"})
+@ActiveProfiles({ "test",
+                  "AuthenticatorsConfigControllerTestConfig" })
 @IntegrationTest
 public class AuthenticatorsConfigControllerTestIT
         extends RestAssuredBaseTest
@@ -52,7 +58,7 @@ public class AuthenticatorsConfigControllerTestIT
             throws Exception
     {
         super.init();
-        setContextBaseUrl(getContextBaseUrl() + "/api/configuration");
+        setContextBaseUrl("/api/configuration/authenticators");
     }
 
     @AfterEach
@@ -60,7 +66,6 @@ public class AuthenticatorsConfigControllerTestIT
             throws IOException
     {
         configurableProviderManager.reload();
-
     }
 
     @Test
@@ -71,8 +76,9 @@ public class AuthenticatorsConfigControllerTestIT
 
     private void assertInitialAuthenticationItems()
     {
+        String url = getContextBaseUrl();
         mockMvc.when()
-               .get(getContextBaseUrl() + "/authenticators/")
+               .get(url)
                .peek()
                .then()
                .body("authenticationItemList[0].name",
@@ -108,18 +114,19 @@ public class AuthenticatorsConfigControllerTestIT
     {
         assertInitialAuthenticationItems();
 
+        String url = getContextBaseUrl() + "/reorder/{first}/{second}";
         mockMvc.accept(acceptHeader)
                .when()
-               .put(getContextBaseUrl()
-                    + "/authenticators/reorder/authenticationProviderFirst/authenticationProviderSecond")
+               .put(url, "authenticationProviderFirst", "authenticationProviderSecond")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
                .body(containsString(AuthenticatorsConfigController.SUCCESSFUL_REORDER));
 
         // Confirm they are re-ordered
+        url = getContextBaseUrl();
         mockMvc.when()
-               .get(getContextBaseUrl() + "/authenticators/")
+               .get(url)
                .peek()
                .then()
                .body("authenticationItemList[0].name",
@@ -146,18 +153,19 @@ public class AuthenticatorsConfigControllerTestIT
         AuthenticationItems authenticationItems = new AuthenticationItems();
         authenticationItems.getAuthenticationItemList().add(authenticationItem);
 
+        String url = getContextBaseUrl();
         mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                .body(authenticationItems)
                .when()
-               .put(getContextBaseUrl() + "/authenticators/")
+               .put(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
                .body(containsString(AuthenticatorsConfigController.SUCCESSFUL_UPDATE));
 
         mockMvc.when()
-               .get(getContextBaseUrl() + "/authenticators/")
+               .get(url)
                .peek()
                .then()
                .body("authenticationItemList[2].name",
@@ -195,14 +203,12 @@ public class AuthenticatorsConfigControllerTestIT
 
         @Override
         public Resource getAuthenticationConfigurationResource()
-                throws IOException
         {
             return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.xml");
         }
 
         @Override
         public Resource getAuthenticationPropertiesResource()
-                throws IOException
         {
             return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.yaml");
         }

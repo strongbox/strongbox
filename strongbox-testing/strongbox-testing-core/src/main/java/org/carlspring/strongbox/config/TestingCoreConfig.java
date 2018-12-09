@@ -22,7 +22,7 @@ public class TestingCoreConfig
     @Bean
     protected YAMLMapperFactory yamlMapperFactory()
     {
-        return contextClasses -> new TestingYamlMapper(contextClasses);
+        return TestingYamlMapper::new;
     }
 
 }

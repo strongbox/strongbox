@@ -27,6 +27,7 @@ import org.springframework.http.MediaType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 
+
 /**
  * @author Martin Todorov
  * @author Alex Oreshkevich

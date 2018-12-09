@@ -18,10 +18,15 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.*;
+import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.NOT_FOUND_ALIAS_MESSAGE;
+import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.SUCCESSFUL_ADD;
+import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.SUCCESSFUL_DELETE;
 import static org.carlspring.strongbox.web.RepositoryMethodArgumentResolver.NOT_FOUND_REPOSITORY_MESSAGE;
 import static org.carlspring.strongbox.web.RepositoryMethodArgumentResolver.NOT_FOUND_STORAGE_MESSAGE;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+
 
 /**
  * @author Przemyslaw Fusik

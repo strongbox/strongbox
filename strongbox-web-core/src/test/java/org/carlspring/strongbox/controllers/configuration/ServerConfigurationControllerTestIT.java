@@ -42,7 +42,7 @@ public class ServerConfigurationControllerTestIT
     {
         super.init();
 
-        setContextBaseUrl(getContextBaseUrl() + "/api/configuration/strongbox");
+        setContextBaseUrl("/api/configuration/strongbox");
     }
 
     @Test

@@ -37,11 +37,17 @@ public class AssetsManifestTest
 {
 
     private static final String FILE_RESOURCE = "assets-manifest.json";
+
     private static final String ROOT_PATH = "/";
+
     private static final Pattern STYLES_REGEX = Pattern.compile("\\/static\\/assets\\/styles(.+).css");
+
     private static final Pattern RUNTIME_REGEX = Pattern.compile("\\/static\\/assets\\/runtime(.+).js");
+
     private static final Pattern POLYFILLS_REGEX = Pattern.compile("\\/static\\/assets\\/polyfills(.+).js");
+
     private static final Pattern MAIN_REGEX = Pattern.compile("\\/static\\/assets\\/main(.+).js");
+
     private static List<Pattern> indexResourcePatterns;
 
     @Inject
@@ -142,4 +148,5 @@ public class AssetsManifestTest
                     .as(String.format("The resource \"%s\" is not found in index.html.", pattern.toString())).isTrue();
         }
     }
+
 }

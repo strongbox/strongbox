@@ -14,6 +14,7 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.context.WebApplicationContext;
@@ -85,7 +86,7 @@ public abstract class MavenRestAssuredBaseTest
     {
         logger.trace("[pathExists] URL -> {}", url);
 
-        return mockMvc.header("user-agent", "Maven/*")
+        return mockMvc.header(HttpHeaders.USER_AGENT, "Maven/*")
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url)

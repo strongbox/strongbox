@@ -1,21 +1,24 @@
 package org.carlspring.strongbox.forms.users;
 
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.users.domain.Privileges;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-import com.google.common.collect.Lists;
+import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+
 import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.users.domain.Privileges;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.Assertions.assertThat;
+
+import com.google.common.collect.Lists;
+
 
 /**
  * @author Pablo Tirado

@@ -23,11 +23,14 @@ import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.assertj.core.api.Assertions.assertThat;
+
 
 /**
  * @author Guido Grazioli
@@ -131,24 +134,20 @@ public class BrowseControllerTest
         assertThat(htmlResponse.contains(repositoryId)).as("Returned HTML is incorrect").isTrue();
     }
 
-    @Test
-    public void testGetRepositoriesWithStorageNotFound()
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_HTML_VALUE })
+    public void testGetRepositoriesWithStorageNotFound(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/storagefoo";
 
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(acceptHeader)
                .when()
                .get(url)
                .prettyPeek()
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value());
 
-        mockMvc.accept(MediaType.TEXT_HTML_VALUE)
-               .when()
-               .get(url)
-               .prettyPeek()
-               .then()
-               .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -196,19 +195,14 @@ public class BrowseControllerTest
         assertThat(htmlResponse.contains(link)).as("Expected to have found [ " + link + " ] in the response html").isTrue();
     }
 
-    @Test
-    public void testRepositoryContentsWithRepositoryNotFound()
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_HTML_VALUE })
+    public void testRepositoryContentsWithRepositoryNotFound(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url, STORAGE0, "repofoo")
-               .prettyPeek()
-               .then()
-               .statusCode(HttpStatus.NOT_FOUND.value());
-
-        mockMvc.accept(MediaType.TEXT_HTML_VALUE)
+        mockMvc.accept(acceptHeader)
                .when()
                .get(url, STORAGE0, "repofoo")
                .prettyPeek()
@@ -216,19 +210,14 @@ public class BrowseControllerTest
                .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
-    @Test
-    public void testRepositoryContentsWithPathNotFound()
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_HTML_VALUE })
+    public void testRepositoryContentsWithPathNotFound(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}/{artifactPath}";
 
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url, STORAGE0, "releases", "foo/bar")
-               .prettyPeek()
-               .then()
-               .statusCode(HttpStatus.NOT_FOUND.value());
-
-        mockMvc.accept(MediaType.TEXT_HTML_VALUE)
+        mockMvc.accept(acceptHeader)
                .when()
                .get(url, STORAGE0, "releases", "foo/bar")
                .prettyPeek()

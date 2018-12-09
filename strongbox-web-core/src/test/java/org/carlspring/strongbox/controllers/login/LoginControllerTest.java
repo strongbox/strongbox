@@ -59,6 +59,7 @@ public class LoginControllerTest
             throws Exception
     {
         super.init();
+        setContextBaseUrl("/api/login");
     }
 
     @AfterEach
@@ -154,15 +155,16 @@ public class LoginControllerTest
         loginInput.setUsername("przemyslaw_fusik");
         loginInput.setPassword("password");
 
+        String url = getContextBaseUrl();
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(loginInput)
                .when()
-               .post("/api/login")
+               .post(url)
                .peek()
                .then()
                .body("error", CoreMatchers.equalTo("invalid.credentials"))
-               .statusCode(401);
+               .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
@@ -179,15 +181,16 @@ public class LoginControllerTest
         loginInput.setUsername("test-disabled-user-login");
         loginInput.setPassword("1234");
 
+        String url = getContextBaseUrl();
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(loginInput)
                .when()
-               .post("/api/login")
+               .post(url)
                .peek()
                .then()
                .body("error", CoreMatchers.equalTo("User account is locked"))
-               .statusCode(401);
+               .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
@@ -232,11 +235,12 @@ public class LoginControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
+        url = getContextBaseUrl();
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(loginInput)
                .when()
-               .post("/api/login")
+               .post(url)
                .peek()
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())

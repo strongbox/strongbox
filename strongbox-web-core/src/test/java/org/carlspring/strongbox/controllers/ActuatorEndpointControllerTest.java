@@ -16,12 +16,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithUserDetails;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
+
 /**
- * @author: adavid9
+ * @author adavid9
  */
 @IntegrationTest
 public class ActuatorEndpointControllerTest
@@ -46,12 +46,11 @@ public class ActuatorEndpointControllerTest
             throws Exception
     {
         super.init();
-        setContextBaseUrl(getContextBaseUrl() + "/api/monitoring");
+        setContextBaseUrl("/api/monitoring");
     }
 
     @Test
-    @WithUserDetails("admin")
-    public void testStrongboxInfo()
+    void testStrongboxInfo()
     {
 
         String url = getContextBaseUrl() + "/info";

@@ -32,6 +32,7 @@ import org.springframework.http.MediaType;
 import static org.carlspring.strongbox.artifact.generator.ArtifactGenerator.DEFAULT_BYTES_SIZE;
 import static org.hamcrest.CoreMatchers.equalTo;
 
+
 /**
  * @author Pablo Tirado
  */

@@ -5,7 +5,6 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -28,7 +27,7 @@ public class SwaggerConfigTestIT extends RestAssuredBaseTest
     {
         String url = getContextBaseUrl() + "/docs/rest/api.html";
 
-        mockMvc.header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML_VALUE)
+        mockMvc.accept(MediaType.TEXT_HTML_VALUE)
                .when()
                .get(url)
                .peek() // Use peek() to print the output
@@ -42,7 +41,7 @@ public class SwaggerConfigTestIT extends RestAssuredBaseTest
     {
         String url = getContextBaseUrl() + "/v2/api-docs";
 
-        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek() // Use peek() to print the output

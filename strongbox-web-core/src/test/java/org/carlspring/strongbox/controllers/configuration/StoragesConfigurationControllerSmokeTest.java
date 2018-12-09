@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_REPOSITORY_SAVE;
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_SAVE_STORAGE;
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_STORAGE_REMOVAL;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 import java.io.ByteArrayOutputStream;
@@ -33,17 +33,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+
 @IntegrationTest
-public class StoragesConfigurationControllerSmokeTest extends RestAssuredBaseTest
+public class StoragesConfigurationControllerSmokeTest
+        extends RestAssuredBaseTest
 {
 
     @Inject
     private PropertiesBooter propertiesBooter;
-    
+
     @Override
     @BeforeEach
     public void init()
-        throws Exception
+            throws Exception
     {
         super.init();
 
@@ -51,27 +53,30 @@ public class StoragesConfigurationControllerSmokeTest extends RestAssuredBaseTes
     }
 
     @Test
-    public void artifactShouldBeDeployedIntoNewRepository() throws IOException
+    public void artifactShouldBeDeployedIntoNewRepository()
+            throws IOException
     {
         String storageId = "storage-sccst";
         String repositoryId = "sccst-releases";
+        String fileName = "dummy-file.zip";
         Path artifactPath = Paths.get(propertiesBooter.getVaultDirectory())
                                  .resolve("storages")
                                  .resolve(storageId)
                                  .resolve(repositoryId)
-                                 .resolve("dummy-file.zip");
+                                 .resolve(fileName);
         assertThat(Files.exists(artifactPath)).isFalse();
-        
+
         StorageForm storageForm = new StorageForm();
         storageForm.setId(storageId);
         storageForm.setBasedir("");
-        
+
         // 1. Create storage
+        String url = getContextBaseUrl();
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
                      .body(storageForm)
                      .when()
-                     .put(getContextBaseUrl())
+                     .put(url)
                      .prettyPeek()
                      .then()
                      .statusCode(OK)
@@ -86,12 +91,13 @@ public class StoragesConfigurationControllerSmokeTest extends RestAssuredBaseTes
         repositoryForm.setType(RepositoryTypeEnum.HOSTED.describe());
         repositoryForm.setPolicy(RepositoryPolicyEnum.RELEASE.describe());
         repositoryForm.setBasedir("");
-        
+
+        url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
                      .body(repositoryForm)
                      .when()
-                     .put(getContextBaseUrl()  + "/" + storageForm.getId() + "/" + repositoryForm.getId())
+                     .put(url, storageForm.getId(), repositoryForm.getId())
                      .prettyPeek()
                      .then()
                      .statusCode(OK)
@@ -101,23 +107,24 @@ public class StoragesConfigurationControllerSmokeTest extends RestAssuredBaseTes
         mockMvc.header("user-agent", "Raw/*")
                .body(createZipFile())
                .when()
-               .put(String.format("/storages/%s/%s/dummy-file.zip", storageForm.getId(), repositoryForm.getId()))
+               .put("/storages/{storageId}/{repositoryId}/{fileName}", storageForm.getId(), repositoryForm.getId(), fileName)
                .then()
                .statusCode(HttpStatus.OK.value());
-        
+
         assertThat(Files.exists(artifactPath)).isTrue();
-        
+
         // 4. Delete storage.
+        url = getContextBaseUrl() + "/{storageId}";
         givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
                      .accept(MediaType.TEXT_PLAIN_VALUE)
                      .param("force", true)
                      .when()
-                     .delete(getContextBaseUrl() + "/" + storageForm.getId())
+                     .delete(url, storageForm.getId())
                      .prettyPeek()
                      .then()
                      .statusCode(OK)
                      .body(containsString(SUCCESSFUL_STORAGE_REMOVAL));
-        
+
         assertThat(Files.exists(artifactPath)).isFalse();
     }
 
