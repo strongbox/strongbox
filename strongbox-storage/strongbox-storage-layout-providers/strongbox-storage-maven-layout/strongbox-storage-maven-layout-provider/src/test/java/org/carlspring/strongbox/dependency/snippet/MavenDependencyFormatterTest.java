@@ -57,14 +57,6 @@ public class MavenDependencyFormatterTest
     @Inject
     private SnippetGenerator snippetGenerator;
 
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
     @BeforeEach
     public void setUp()
             throws Exception
@@ -87,9 +79,7 @@ public class MavenDependencyFormatterTest
     public void removeRepositories()
             throws IOException, JAXBException
     {
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
-
-        removeRepositories(getRepositoriesToClean());
+        removeRepositories(getRepositories());
     }
 
     private void removeEntriesIfAnyExist()
@@ -118,7 +108,7 @@ public class MavenDependencyFormatterTest
         }
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    private Set<MutableRepository> getRepositories()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));

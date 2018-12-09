@@ -61,9 +61,8 @@ public class ArtifactSearchServiceImplTest
 
     @AfterEach
     public void removeRepositories()
-            throws IOException, JAXBException
+            throws Exception
     {
-        closeIndexersForRepository(STORAGE0, REPOSITORYID);
         removeRepositories(getRepositoriesToClean());
     }
 

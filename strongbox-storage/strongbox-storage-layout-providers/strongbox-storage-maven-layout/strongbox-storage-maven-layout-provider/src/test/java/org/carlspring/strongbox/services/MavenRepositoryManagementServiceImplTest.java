@@ -92,12 +92,8 @@ public class MavenRepositoryManagementServiceImplTest
 
     @AfterEach
     public void removeRepositories()
-            throws IOException, JAXBException
+            throws Exception
     {
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_MERGE_1);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_MERGE_2);
         removeRepositories(getRepositoriesToClean());
     }
 

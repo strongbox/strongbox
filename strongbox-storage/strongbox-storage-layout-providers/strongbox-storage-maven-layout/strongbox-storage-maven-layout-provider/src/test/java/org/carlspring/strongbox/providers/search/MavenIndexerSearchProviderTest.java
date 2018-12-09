@@ -286,13 +286,7 @@ public class MavenIndexerSearchProviderTest
     public void removeRepositories()
             throws Exception
     {
-        Set<MutableRepository> repositories = getRepositoriesToClean();
-        for (MutableRepository repository : repositories)
-        {
-            closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
-        }
         removeRepositories(getRepositoriesToClean());
-        cleanUp();
     }
 
 }

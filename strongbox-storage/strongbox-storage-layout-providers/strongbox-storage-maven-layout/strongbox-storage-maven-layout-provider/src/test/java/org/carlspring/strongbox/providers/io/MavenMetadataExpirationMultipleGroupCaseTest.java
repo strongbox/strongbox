@@ -9,16 +9,15 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
@@ -56,85 +55,72 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
 
     private MutableObject<Metadata> artifactLevelMetadataYahr = new MutableObject<>();
 
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean(REPOSITORY_HOSTED,
-                                       REPOSITORY_HOSTED_YAHR,
-                                       REPOSITORY_PROXY,
-                                       REPOSITORY_LOCAL_SOURCE,
-                                       REPOSITORY_LOCAL_YAHR_SOURCE,
-                                       REPOSITORY_GROUP));
-    }
-
-    private static Set<MutableRepository> getRepositoriesToClean(String... repositoryId)
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-
-        Arrays.asList(repositoryId).forEach(
-                r -> repositories.add(createRepositoryMock(STORAGE0, r, Maven2LayoutProvider.ALIAS))
-        );
-        return repositories;
-    }
-
     @BeforeEach
-    public void initialize()
+    public void initialize(TestInfo testInfo)
             throws Exception
     {
         localSourceRepository = createRepository(STORAGE0,
-                                                 REPOSITORY_LOCAL_SOURCE,
+                                                 getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                                  RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                                                  false);
 
         createRepository(STORAGE0,
-                         REPOSITORY_HOSTED,
+                         getRepositoryName(REPOSITORY_HOSTED, testInfo),
                          RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                          false);
 
         mockHostedRepositoryMetadataUpdate(localSourceRepository,
-                                           REPOSITORY_HOSTED,
-                                           REPOSITORY_LOCAL_SOURCE,
+                                           getRepositoryName(REPOSITORY_HOSTED, testInfo),
+                                           getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
                                            artifactLevelMetadata);
 
         localYahrSourceRepository = createRepository(STORAGE0,
-                                                     REPOSITORY_LOCAL_YAHR_SOURCE,
+                                                     getRepositoryName(REPOSITORY_LOCAL_YAHR_SOURCE, testInfo),
                                                      RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                                                      false);
 
         createRepository(STORAGE0,
-                         REPOSITORY_HOSTED_YAHR,
+                         getRepositoryName(REPOSITORY_HOSTED_YAHR, testInfo),
                          RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                          false);
 
         mockHostedRepositoryMetadataUpdate(localYahrSourceRepository,
-                                           REPOSITORY_HOSTED_YAHR,
-                                           REPOSITORY_LOCAL_YAHR_SOURCE,
+                                           getRepositoryName(REPOSITORY_HOSTED_YAHR, testInfo),
+                                           getRepositoryName(REPOSITORY_LOCAL_YAHR_SOURCE, testInfo),
                                            versionLevelMetadataYahr,
                                            artifactLevelMetadataYahr);
 
         createProxyRepository(STORAGE0,
-                              REPOSITORY_PROXY,
-                              "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_HOSTED + "/");
+                              getRepositoryName(REPOSITORY_PROXY, testInfo),
+                              "http://localhost:48080/storages/" + STORAGE0 + "/" +
+                              getRepositoryName(REPOSITORY_HOSTED, testInfo) + "/");
 
-        createGroup(STORAGE0, REPOSITORY_GROUP, REPOSITORY_PROXY, REPOSITORY_HOSTED_YAHR);
+        createGroup(STORAGE0,
+                    getRepositoryName(REPOSITORY_GROUP, testInfo),
+                    getRepositoryName(REPOSITORY_PROXY, testInfo),
+                    getRepositoryName(REPOSITORY_HOSTED_YAHR, testInfo));
 
-        mockResolvingProxiedRemoteArtifactsToHostedRepository();
+        mockResolvingProxiedRemoteArtifactsToHostedRepository(testInfo);
     }
 
     @Test
-    public void expiredGroupMetadataShouldFetchVersionLevelMetadataFromFirstMatch()
+    public void expiredGroupMetadataShouldFetchVersionLevelMetadataFromFirstMatch(TestInfo testInfo)
             throws Exception
     {
-        final RepositoryPath hostedPath = resolvePath(REPOSITORY_HOSTED, true, "maven-metadata.xml");
+        final RepositoryPath hostedPath = resolvePath(getRepositoryName(REPOSITORY_HOSTED, testInfo),
+                                                      true,
+                                                      "maven-metadata.xml");
 
         String sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath, EncryptionAlgorithmsEnum.SHA1));
         assertNotNull(sha1HostedPathChecksum);
 
-        final RepositoryPath proxyPath = resolvePath(REPOSITORY_PROXY, true, "maven-metadata.xml");
-        final RepositoryPath groupPath = resolvePath(REPOSITORY_GROUP, true, "maven-metadata.xml");
+
+        final RepositoryPath proxyPath = resolvePath(getRepositoryName(REPOSITORY_PROXY, testInfo), true,
+                                                     "maven-metadata.xml");
+        final RepositoryPath groupPath = resolvePath(getRepositoryName(REPOSITORY_GROUP, testInfo),
+                                                     true,
+                                                     "maven-metadata.xml");
         String sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath, EncryptionAlgorithmsEnum.SHA1));
         assertNull(sha1ProxyPathChecksum);
 
@@ -158,8 +144,8 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         assertEquals(sha1ProxyPathChecksum, calculatedGroupPathChecksum);
 
         mockHostedRepositoryMetadataUpdate(localSourceRepository,
-                                           REPOSITORY_HOSTED,
-                                           REPOSITORY_LOCAL_SOURCE,
+                                           getRepositoryName(REPOSITORY_HOSTED, testInfo),
+                                           getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
                                            artifactLevelMetadata);
 
@@ -170,8 +156,8 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         assertNotEquals(calculatedHostedPathChecksum, sha1ProxyPathChecksum);
 
         mockHostedRepositoryMetadataUpdate(localYahrSourceRepository,
-                                           REPOSITORY_HOSTED_YAHR,
-                                           REPOSITORY_LOCAL_YAHR_SOURCE,
+                                           getRepositoryName(REPOSITORY_HOSTED_YAHR, testInfo),
+                                           getRepositoryName(REPOSITORY_LOCAL_YAHR_SOURCE, testInfo),
                                            versionLevelMetadataYahr,
                                            artifactLevelMetadataYahr);
 
@@ -187,18 +173,35 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         assertEquals(calculatedGroupPathChecksum, sha1ProxyPathChecksum);
     }
 
+    private Set<MutableRepository> getRepositories(TestInfo testInfo)
+    {
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_HOSTED, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_HOSTED_YAHR, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_PROXY, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_LOCAL_YAHR_SOURCE, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_GROUP, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        return repositories;
+    }
+
     @AfterEach
-    public void removeRepositories()
+    public void removeRepositories(TestInfo testInfo)
             throws Exception
     {
-        closeIndexersForRepository(STORAGE0, REPOSITORY_HOSTED);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_HOSTED_YAHR);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_LOCAL_SOURCE);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_LOCAL_YAHR_SOURCE);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_PROXY);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_GROUP);
-        removeRepositories(getRepositoriesToClean());
-        cleanUp();
+        removeRepositories(getRepositories(testInfo));
     }
 
 }

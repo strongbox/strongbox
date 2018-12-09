@@ -76,10 +76,8 @@ public class Maven2ProxyRepositoryTest
 
     @AfterEach
     public void removeRepositories()
-            throws IOException, JAXBException
+            throws Exception
     {
-        closeIndexersForRepository(STORAGE0, REPOSITORY_PROXY);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
         removeRepositories(getRepositoriesToClean());
     }
 

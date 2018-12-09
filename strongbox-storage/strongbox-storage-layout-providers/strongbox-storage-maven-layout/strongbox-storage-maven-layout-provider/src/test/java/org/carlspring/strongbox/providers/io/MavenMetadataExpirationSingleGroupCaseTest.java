@@ -9,14 +9,13 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
@@ -44,65 +43,55 @@ public class MavenMetadataExpirationSingleGroupCaseTest
     @Inject
     private GroupRepositoryProvider groupRepositoryProvider;
 
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean(REPOSITORY_HOSTED,
-                                       REPOSITORY_PROXY,
-                                       REPOSITORY_LOCAL_SOURCE,
-                                       REPOSITORY_GROUP));
-    }
-
-    private static Set<MutableRepository> getRepositoriesToClean(String... repositoryId)
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-
-        Arrays.asList(repositoryId).forEach(
-                r -> repositories.add(createRepositoryMock(STORAGE0, r, Maven2LayoutProvider.ALIAS))
-        );
-        return repositories;
-    }
 
     @BeforeEach
-    public void initialize()
+    public void initialize(TestInfo testInfo)
             throws Exception
     {
         localSourceRepository = createRepository(STORAGE0,
-                                                 REPOSITORY_LOCAL_SOURCE,
+                                                 getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                                  RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                                                  false);
 
         createRepository(STORAGE0,
-                         REPOSITORY_HOSTED,
+                         getRepositoryName(REPOSITORY_HOSTED, testInfo),
                          RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                          false);
 
         mockHostedRepositoryMetadataUpdate(localSourceRepository,
-                                           REPOSITORY_HOSTED,
-                                           REPOSITORY_LOCAL_SOURCE,
+                                           getRepositoryName(REPOSITORY_HOSTED, testInfo),
+                                           getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
                                            artifactLevelMetadata);
 
         createProxyRepository(STORAGE0,
-                              REPOSITORY_PROXY,
-                              "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_HOSTED + "/");
+                              getRepositoryName(REPOSITORY_PROXY, testInfo),
+                              "http://localhost:48080/storages/" + STORAGE0 + "/" +
+                              getRepositoryName(REPOSITORY_HOSTED, testInfo) + "/");
 
-        createGroup(STORAGE0, REPOSITORY_GROUP, REPOSITORY_PROXY);
+        createGroup(STORAGE0,
+                    getRepositoryName(REPOSITORY_GROUP, testInfo),
+                    getRepositoryName(REPOSITORY_PROXY, testInfo));
 
-        mockResolvingProxiedRemoteArtifactsToHostedRepository();
+        mockResolvingProxiedRemoteArtifactsToHostedRepository(testInfo);
     }
 
     @Test
-    public void groupRepositoryVersionLevelMetadataShouldBeRefreshedAsItsSingleProxySubrepository()
+    public void groupRepositoryVersionLevelMetadataShouldBeRefreshedAsItsSingleProxySubrepository(TestInfo testInfo)
             throws Exception
     {
-        final RepositoryPath hostedPath = resolvePath(REPOSITORY_HOSTED, true, "maven-metadata.xml");
+        final RepositoryPath hostedPath = resolvePath(getRepositoryName(REPOSITORY_HOSTED, testInfo),
+                                                      true,
+                                                      "maven-metadata.xml");
         String sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath, EncryptionAlgorithmsEnum.SHA1));
         assertNotNull(sha1HostedPathChecksum);
 
-        final RepositoryPath proxyPath = resolvePath(REPOSITORY_PROXY, true, "maven-metadata.xml");
-        final RepositoryPath groupPath = resolvePath(REPOSITORY_GROUP, true, "maven-metadata.xml");
+        final RepositoryPath proxyPath = resolvePath(getRepositoryName(REPOSITORY_PROXY, testInfo),
+                                                     true,
+                                                     "maven-metadata.xml");
+        final RepositoryPath groupPath = resolvePath(getRepositoryName(REPOSITORY_GROUP, testInfo),
+                                                     true,
+                                                     "maven-metadata.xml");
         String sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath, EncryptionAlgorithmsEnum.SHA1));
         assertNull(sha1ProxyPathChecksum);
 
@@ -124,12 +113,13 @@ public class MavenMetadataExpirationSingleGroupCaseTest
         assertEquals(sha1ProxyPathChecksum, calculatedGroupPathChecksum);
 
         mockHostedRepositoryMetadataUpdate(localSourceRepository,
-                                           REPOSITORY_HOSTED,
-                                           REPOSITORY_LOCAL_SOURCE,
+                                           getRepositoryName(REPOSITORY_HOSTED, testInfo),
+                                           getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
                                            artifactLevelMetadata);
 
-        sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath, EncryptionAlgorithmsEnum.SHA1));
+        sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath,
+                                                                     EncryptionAlgorithmsEnum.SHA1));
         final String calculatedHostedPathChecksum = calculateChecksum(hostedPath,
                                                                       EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertEquals(sha1HostedPathChecksum, calculatedHostedPathChecksum);
@@ -138,23 +128,37 @@ public class MavenMetadataExpirationSingleGroupCaseTest
         Files.setLastModifiedTime(proxyPath, oneHourAgo());
 
         resolvedGroupPath = groupRepositoryProvider.fetchPath(groupPath);
-        sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath, EncryptionAlgorithmsEnum.SHA1));
+        sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath,
+                                                                    EncryptionAlgorithmsEnum.SHA1));
         assertEquals(sha1ProxyPathChecksum, calculatedHostedPathChecksum);
         calculatedGroupPathChecksum = calculateChecksum(resolvedGroupPath,
                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertEquals(sha1ProxyPathChecksum, calculatedGroupPathChecksum);
     }
 
+
     @AfterEach
-    public void removeRepositories()
+    public void removeRepositories(TestInfo testInfo)
             throws Exception
     {
-        closeIndexersForRepository(STORAGE0, REPOSITORY_HOSTED);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_LOCAL_SOURCE);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_PROXY);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_GROUP);
-        removeRepositories(getRepositoriesToClean());
-        cleanUp();
+        removeRepositories(getRepositories(testInfo));
     }
 
+    private Set<MutableRepository> getRepositories(TestInfo testInfo)
+    {
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_HOSTED, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_PROXY, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_GROUP, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        return repositories;
+    }
 }

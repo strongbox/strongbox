@@ -113,14 +113,14 @@ public class TestCaseWithRepository
                                        TestInfo testInfo)
     {
         String methodName = testInfo.getTestMethod().get().getName();
-        return repositoryId + methodName;
+        return repositoryId + "-" + methodName;
     }
 
     protected String getRepositoryBasedir(File repositoryBaseDir,
                                           TestInfo testInfo)
     {
         String methodName = testInfo.getTestMethod().get().getName();
-        return repositoryBaseDir.getAbsolutePath() + methodName;
+        return repositoryBaseDir.getAbsolutePath() + "-" + methodName;
     }
 
     public Configuration getConfiguration()

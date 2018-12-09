@@ -500,6 +500,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         for (MutableRepository mutableRepository : repositoriesToClean)
         {
             RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(mutableRepository));
+            closeIndexersForRepository(mutableRepository.getStorage().getId(), mutableRepository.getId());
 
             Files.delete(repositoryPath);
         }

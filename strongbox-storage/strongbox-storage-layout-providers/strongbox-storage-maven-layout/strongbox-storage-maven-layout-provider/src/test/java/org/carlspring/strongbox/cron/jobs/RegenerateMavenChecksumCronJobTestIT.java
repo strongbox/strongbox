@@ -10,9 +10,7 @@ import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -60,15 +58,6 @@ public class RegenerateMavenChecksumCronJobTestIT
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
-    private Set<MutableRepository> getRepositoriesToClean(TestInfo testInfo)
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        return repositories;
-    }
-
     @Override
     @BeforeEach
     public void init(TestInfo testInfo)
@@ -99,12 +88,21 @@ public class RegenerateMavenChecksumCronJobTestIT
                 1);
     }
 
+
+    private Set<MutableRepository> getRepositories(TestInfo testInfo)
+    {
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        return repositories;
+    }
+
     @AfterEach
     public void removeRepositories(TestInfo testInfo)
-            throws IOException, JAXBException
+            throws Exception
     {
-        closeIndexersForRepository(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo));
-        removeRepositories(getRepositoriesToClean(testInfo));
+        removeRepositories(getRepositories(testInfo));
     }
 
     @Test

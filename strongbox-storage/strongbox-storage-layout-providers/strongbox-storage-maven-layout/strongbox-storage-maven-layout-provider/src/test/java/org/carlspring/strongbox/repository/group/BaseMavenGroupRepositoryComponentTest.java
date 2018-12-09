@@ -76,16 +76,9 @@ public abstract class BaseMavenGroupRepositoryComponentTest
 
     @AfterEach
     public void removeRepositories()
-            throws IOException, JAXBException
+            throws Exception
     {
-        Set<MutableRepository> repositories = getRepositories();
-
-        for (MutableRepository repository : repositories)
-        {
-            closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
-        }
-
-        removeRepositories(repositories);
+        removeRepositories(getRepositories());
     }
 
 }

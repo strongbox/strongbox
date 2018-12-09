@@ -88,8 +88,6 @@ public class RebuildMavenIndexesCronJobTestIT
     public void removeRepositories(TestInfo testInfo)
             throws Exception
     {
-        closeIndexersForRepository(STORAGE0,
-                                   getRepositoryName(REPOSITORY_RELEASES_1, testInfo));
         removeRepositories(getRepositories(testInfo));
     }
 

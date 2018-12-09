@@ -70,8 +70,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     public void removeRepositories()
             throws Exception
     {
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_PROXIED_RELEASES);
         removeRepositories(getRepositories());
     }
 

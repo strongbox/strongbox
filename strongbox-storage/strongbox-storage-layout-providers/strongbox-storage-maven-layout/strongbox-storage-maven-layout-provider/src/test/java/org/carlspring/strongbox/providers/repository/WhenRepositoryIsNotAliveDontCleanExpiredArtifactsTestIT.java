@@ -82,9 +82,7 @@ public class WhenRepositoryIsNotAliveDontCleanExpiredArtifactsTestIT
     public void removeRepositories()
             throws Exception
     {
-        closeIndexersForRepository(STORAGE_ID, REPOSITORY_ID);
         removeRepositories(getRepositoriesToClean());
-        cleanUp();
     }
 
     @Override

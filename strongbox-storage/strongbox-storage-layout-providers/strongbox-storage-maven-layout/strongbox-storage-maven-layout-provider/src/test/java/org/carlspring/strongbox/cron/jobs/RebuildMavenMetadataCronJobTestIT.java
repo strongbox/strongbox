@@ -19,10 +19,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
@@ -63,27 +60,31 @@ public class RebuildMavenMetadataCronJobTestIT
         super.init(testInfo);
     }
 
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<MutableRepository> getRepositoriesToClean()
+    private Set<MutableRepository> getRepositories(TestInfo testInfo)
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, "rmmcjtit-snapshots", Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, "trmir-snapshots", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("rmmcjtit-snapshots", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("trmir-snapshots", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
 
         return repositories;
     }
 
-    @Test
-    public void testRebuildArtifactsMetadata()
+    @AfterEach
+    public void removeRepositories(TestInfo testInfo)
             throws Exception
     {
-        String repositoryId = "rmmcjtit-snapshots";
+        removeRepositories(getRepositories(testInfo));
+    }
+
+    @Test
+    public void testRebuildArtifactsMetadata(TestInfo testInfo)
+            throws Exception
+    {
+        String repositoryId = getRepositoryName("rmmcjtit-snapshots", testInfo);
 
         createRepository(STORAGE0,
                          repositoryId,
@@ -129,8 +130,6 @@ public class RebuildMavenMetadataCronJobTestIT
                          properties -> properties.put("basePath", "org/carlspring/strongbox/strongbox-metadata-one"));
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-
-        closeIndexersForRepository(STORAGE0, repositoryId);
     }
 
     @Test
@@ -201,8 +200,6 @@ public class RebuildMavenMetadataCronJobTestIT
                          repositoryId);
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-
-        closeIndexersForRepository(STORAGE0, repositoryId);
     }
 
 

@@ -128,7 +128,6 @@ public class StrongboxIndexerTest
 
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
 
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
         removeRepositories(getRepositoriesToClean(REPOSITORY_RELEASES_1));
     }
 
@@ -157,7 +156,6 @@ public class StrongboxIndexerTest
 
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
 
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
         removeRepositories(getRepositoriesToClean(REPOSITORY_RELEASES_2));
     }
 
@@ -195,7 +193,6 @@ public class StrongboxIndexerTest
 
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
 
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_3);
         removeRepositories(getRepositoriesToClean(REPOSITORY_RELEASES_3));
     }
 
@@ -233,7 +230,6 @@ public class StrongboxIndexerTest
 
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
 
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_4);
         removeRepositories(getRepositoriesToClean(REPOSITORY_RELEASES_4));
     }
 
@@ -261,7 +257,6 @@ public class StrongboxIndexerTest
 
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
 
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_5);
         removeRepositories(getRepositoriesToClean(REPOSITORY_RELEASES_5));
     }
 
@@ -289,7 +284,6 @@ public class StrongboxIndexerTest
 
         assertThat(response.getTotalHitsCount(), CoreMatchers.equalTo(1));
 
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_6);
         removeRepositories(getRepositoriesToClean(REPOSITORY_RELEASES_6));
     }
 }

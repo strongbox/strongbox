@@ -103,9 +103,6 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     public void removeRepositories()
             throws Exception
     {
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
-        closeIndexersForRepository(STORAGE1, REPOSITORY_RELEASES_1);
         removeRepositories(getRepositories());
     }
 
