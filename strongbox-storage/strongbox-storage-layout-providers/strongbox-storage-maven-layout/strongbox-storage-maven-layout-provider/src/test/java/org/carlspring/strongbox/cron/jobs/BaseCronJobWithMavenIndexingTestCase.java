@@ -31,9 +31,6 @@ public class BaseCronJobWithMavenIndexingTestCase
     protected static final long EVENT_TIMEOUT_SECONDS = 10L;
 
     @Inject
-    protected CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
-
-    @Inject
     protected CronTaskConfigurationService cronTaskConfigurationService;
 
     @Inject
