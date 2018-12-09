@@ -41,8 +41,6 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
 {
     protected static final String STORAGE_ID = "storage-common-proxies";
 
-    protected static final String REMOTE_URL = "http://central.maven.org/maven2/";
-
     @Inject
     protected ProxyRepositoryProvider proxyRepositoryProvider;
 
@@ -55,7 +53,7 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     @Inject
     @Named("mockedRemoteRepositoryAlivenessCacheManager")
     protected RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
-    
+
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
 
@@ -86,20 +84,6 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     }
 
     protected abstract String getVersion();
-
-    protected void synchronizeCleanupExpiredArtifacts(boolean isAlive,
-                                                      ArtifactEntry artifactEntry)
-            throws IOException, SearchException
-    {
-        synchronized (BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest.class)
-        {
-            Mockito.when(remoteRepositoryAlivenessCacheManager.isAlive(
-                    argThat(argument -> argument != null && REMOTE_URL.equals(argument.getUrl()))))
-                   .thenReturn(isAlive);
-
-            localStorageProxyRepositoryExpiredArtifactsCleaner.cleanup(5, artifactEntry.getSizeInBytes() - 1);
-        }
-    }
 
     protected ArtifactEntry downloadAndSaveArtifactEntry()
             throws Exception

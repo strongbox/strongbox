@@ -16,10 +16,11 @@ import java.util.Set;
 import org.codehaus.plexus.util.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
+import org.mockito.Mockito;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -27,6 +28,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import static org.mockito.ArgumentMatchers.argThat;
 
 /**
  * @author Przemyslaw Fusik
@@ -35,11 +38,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@Execution(CONCURRENT)
 public class WhenRepositoryIsAliveCleanExpiredArtifactsTestIT
         extends BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
 {
+
     private static final String REPOSITORY_ID = "maven-central-alive";
+
+    private static final String REMOTE_URL = "http://central.maven.org/maven2/";
 
     @Test
     public void expiredArtifactsCleanerShouldCleanupDatabaseAndStorage()
@@ -47,7 +54,11 @@ public class WhenRepositoryIsAliveCleanExpiredArtifactsTestIT
     {
         ArtifactEntry artifactEntry = downloadAndSaveArtifactEntry();
 
-        synchronizeCleanupExpiredArtifacts(true, artifactEntry);
+        Mockito.when(remoteRepositoryAlivenessCacheManager.isAlive(
+                argThat(argument -> argument != null && REMOTE_URL.equals(argument.getUrl()))))
+               .thenReturn(true);
+
+        localStorageProxyRepositoryExpiredArtifactsCleaner.cleanup(5, artifactEntry.getSizeInBytes() - 1);
 
         Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(
                 artifactEntryService.findOneArtifact(STORAGE_ID,
@@ -70,13 +81,6 @@ public class WhenRepositoryIsAliveCleanExpiredArtifactsTestIT
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_ID, Maven2LayoutProvider.ALIAS));
         return repositories;
-    }
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
     }
 
     @BeforeEach
