@@ -604,6 +604,7 @@ public class ArtifactManagementServiceImplTest
         }
         catch (IOException e)
         {
+            logger.error("Unexpected IOException while getting result:", e);
             return 0L;
         }
     }
@@ -685,10 +686,12 @@ public class ArtifactManagementServiceImplTest
                 }
                 catch (InterruptedException e1)
                 {
+                    logger.error("Returning 0. InterruptedException occurred.", e1);
                     return 0L;
                 }
                 
                 if (attempts++ > 3) {
+                    logger.info(String.format("Returning 0. Attempt [%s].", attempts));
                     return 0L;
                 }
                 
