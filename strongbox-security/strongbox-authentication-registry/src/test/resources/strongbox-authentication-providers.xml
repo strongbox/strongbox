@@ -14,8 +14,8 @@
 
     <bean class="org.carlspring.strongbox.authentication.api.impl.xml.CacheManagerAuthenticationCache"/>
 
-    <bean class="org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticationProvider" />
-    <bean class="org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticationProvider" />
+    <bean id="passwordAuthenticationProvider" class="org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticationProvider" />
+    <bean id="emptyAuthenticationProvider" class="org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticationProvider" />
 
     <bean class="org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticationProviderComponent"/>
 

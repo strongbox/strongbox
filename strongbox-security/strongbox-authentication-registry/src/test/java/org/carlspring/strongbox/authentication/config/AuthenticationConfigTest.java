@@ -2,6 +2,8 @@ package org.carlspring.strongbox.authentication.config;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.Collection;
+
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.TestConfig;
@@ -33,13 +35,18 @@ public class AuthenticationConfigTest
     @Test
     public void registryShouldNotBeNull()
     {
-        assertThat(authenticationProvidersRegistry, CoreMatchers.notNullValue());
+        assertThat(getAuthenticationProviderList(), CoreMatchers.notNullValue());
+    }
+
+    private Collection<AuthenticationProvider> getAuthenticationProviderList()
+    {
+        return authenticationProvidersRegistry.getAuthenticationProviderMap().values();
     }
 
     @Test
     public void registryShouldContainStrongboxBuiltinAuthenticationProvider()
     {
-        assertThat(Lists.newArrayList(authenticationProvidersRegistry), CoreMatchers.hasItem(
+        assertThat(getAuthenticationProviderList(), CoreMatchers.hasItem(
                 new CustomMatcher<AuthenticationProvider>("registryShouldContainStrongboxBuiltinAuthenticationProvider")
                 {
                     @Override
@@ -54,7 +61,7 @@ public class AuthenticationConfigTest
     @Test
     public void registryShouldContainEmptyAuthenticationProvider()
     {
-        assertThat(Lists.newArrayList(authenticationProvidersRegistry),
+        assertThat(Lists.newArrayList(getAuthenticationProviderList()),
                    CoreMatchers.hasItem(new CustomMatcher<AuthenticationProvider>("registryShouldContainEmptyAuthenticationProvider")
                    {
                        @Override
