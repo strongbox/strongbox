@@ -627,6 +627,7 @@ public class ArtifactManagementServiceImplTest
             this.is = is;
         }
 
+
         @Override
         public Long call()
         {
@@ -635,7 +636,7 @@ public class ArtifactManagementServiceImplTest
             try
             {
                 long result = mavenArtifactManagementService.store(repositoryPath, is);
-                logger.info(String.format("Stored [%s].", repositoryPath));
+                logger.info(String.format("Stored [%s:%s].", result, repositoryPath));
                 return result;
             }
             catch (Exception ex)
@@ -693,7 +694,7 @@ public class ArtifactManagementServiceImplTest
                 }
                 
                 if (attempts++ > 3) {
-                    logger.info(String.format("Returning 0. Attempt [%s].", attempts));
+                    logger.info(String.format("Returning 0. Attempt [%s:%s].", attempts, repositoryPath));
                     return 0L;
                 }
 
@@ -707,7 +708,7 @@ public class ArtifactManagementServiceImplTest
                 return 0L;
             }
 
-            logger.info(String.format("Returning [%s].", result));
+            logger.info(String.format("Returning [%s:%s].", result, repositoryPath));
             return result;
         }
     }
