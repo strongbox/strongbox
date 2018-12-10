@@ -593,6 +593,7 @@ public class ArtifactManagementServiceImplTest
                            RepositoryPath repositoryPath,
                            byte[][] loremIpsumContentArray)
     {
+        logger.info("Iteration [%s:%s]", i, repositoryPath);
         try
         {
             Repository repository = repositoryPath.getRepository();
