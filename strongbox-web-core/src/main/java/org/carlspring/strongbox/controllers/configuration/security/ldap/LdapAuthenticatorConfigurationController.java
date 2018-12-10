@@ -1,11 +1,12 @@
 package org.carlspring.strongbox.controllers.configuration.security.ldap;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.external.ldap.LdapAuthenticationConfigurationManager;
 import org.carlspring.strongbox.authentication.external.ldap.LdapConfiguration;
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,9 +45,9 @@ public class LdapAuthenticatorConfigurationController
 
     private static final String FAILED_PUT_LDAP_TEST = "LDAP configuration cannot be tested because the submitted form contains errors!";
 
-    private static final String ERROR_PUT_LDAP = "LDAP configuration update succeeded";
+    private static final String ERROR_PUT_LDAP = "Failed to update LDAP configuration.";
 
-    private static final String SUCCESS_PUT_LDAP = "Failed to update LDAP configuration.";
+    private static final String SUCCESS_PUT_LDAP = "LDAP configuration update succeeded";
 
     private static final String LDAP_TEST_PASSED = "LDAP configuration test passed";
 
@@ -68,9 +70,21 @@ public class LdapAuthenticatorConfigurationController
             throw new RequestBodyValidationException(FAILED_PUT_LDAP_TEST, bindingResult);
         }
 
-        boolean result = false;
-        
-        return getSuccessfulResponseEntity(result ? LDAP_TEST_PASSED : LDAP_TEST_FAILED, acceptHeader);
+        try
+        {
+            ldapAuthenticationManager.testConfiguration(form.getUsername(), form.getPassword(),
+                                                        form.getConfiguration());
+        }
+        catch (AuthenticationException e)
+        {
+            return getSuccessfulResponseEntity(LDAP_TEST_FAILED, acceptHeader);
+        }
+        catch (Exception e)
+        {
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_PUT_LDAP_TEST, e, acceptHeader);
+        }
+
+        return getSuccessfulResponseEntity(LDAP_TEST_PASSED, acceptHeader);
     }
 
     @ApiOperation(value = "Update the LDAP configuration settings")

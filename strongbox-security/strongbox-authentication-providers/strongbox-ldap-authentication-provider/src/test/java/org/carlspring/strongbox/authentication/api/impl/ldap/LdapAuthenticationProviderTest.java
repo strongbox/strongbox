@@ -39,7 +39,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  */
 @ExtendWith(SpringExtension.class)
 @ContextHierarchy({ @ContextConfiguration(classes = UsersConfig.class),
-                    @ContextConfiguration(initializers = LdapAuthenticationProviderTest.TestContextInitializer.class, locations = "/org/carlspring/strongbox/authentication/api/impl/ldap/laptApplicationContext.xml") })
+                    @ContextConfiguration(locations = "classpath:/ldapServerApplicationContext.xml"),
+                    @ContextConfiguration(initializers = LdapAuthenticationProviderTest.TestContextInitializer.class, locations = "classpath:/org/carlspring/strongbox/authentication/external/ldap/strongbox-authentication-providers.xml") })
 @ActiveProfiles(profiles = "test")
 public class LdapAuthenticationProviderTest
 {

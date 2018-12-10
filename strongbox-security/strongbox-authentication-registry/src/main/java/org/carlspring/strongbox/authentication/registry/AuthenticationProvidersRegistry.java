@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.authentication.registry;
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -190,7 +192,17 @@ public class AuthenticationProvidersRegistry
         public MergePropertiesContext(Map<String, Object> target)
         {
             super();
-            this.target = target;
+            
+            StringWriter w = new StringWriter();
+            try
+            {
+                yamlMapper.writeValue(w, target);
+                this.target = yamlMapper.readValue(new StringReader(w.toString()), Map.class);
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
 
         public MergePropertiesContext merge(String path,

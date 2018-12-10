@@ -12,12 +12,6 @@
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
                            http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
-    <context:annotation-config />
-
-    <security:ldap-server id="ldapServer" ldif="classpath:strongbox.ldif" port="53389" root="dc=carlspring,dc=com"/>
-
-    <import resource="classpath:/org/carlspring/strongbox/authentication/external/ldap/strongbox-authentication-providers.xml" /> 
-
-
+    <security:ldap-server id="ldapServer" ldif="classpath:strongbox.ldif" root="dc=carlspring,dc=com" port="53389" />
 
 </beans>

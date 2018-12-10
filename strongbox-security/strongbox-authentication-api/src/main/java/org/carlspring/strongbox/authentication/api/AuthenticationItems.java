@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.authentication.support;
+package org.carlspring.strongbox.authentication.api;
 
 import java.util.ArrayList;
 import java.util.List;

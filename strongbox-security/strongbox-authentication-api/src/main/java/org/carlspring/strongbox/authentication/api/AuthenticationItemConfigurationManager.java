@@ -1,6 +1,9 @@
-package org.carlspring.strongbox.authentication.support;
+package org.carlspring.strongbox.authentication.api;
 
 import java.io.IOException;
+import java.util.function.Predicate;
+
+import org.springframework.context.ApplicationContext;
 
 public interface AuthenticationItemConfigurationManager
 {
@@ -14,6 +17,11 @@ public interface AuthenticationItemConfigurationManager
 
     <T> void putCustomAuthenticationItem(T customAuthenticationItem,
                                          CustomAuthenticationItemMapper<T> mapper)
+        throws IOException;
+
+    <T> void testCustomAuthenticationItem(T customAuthenticationItem,
+                                          CustomAuthenticationItemMapper<T> mapper,
+                                          Predicate<ApplicationContext> p)
         throws IOException;
 
 }

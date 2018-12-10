@@ -6,29 +6,33 @@ import static org.hamcrest.CoreMatchers.startsWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
+import org.carlspring.strongbox.authentication.api.AuthenticationItem;
+import org.carlspring.strongbox.authentication.api.AuthenticationItems;
 import org.carlspring.strongbox.authentication.external.ldap.LdapAuthenticationConfigurationManager;
 import org.carlspring.strongbox.authentication.external.ldap.LdapConfiguration;
 import org.carlspring.strongbox.authentication.external.ldap.LdapRoleMapping;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
-import org.carlspring.strongbox.forms.configuration.security.ldap.LdapGroupSearchForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.restassured.http.ContentType;
@@ -36,12 +40,15 @@ import io.restassured.http.ContentType;
 /**
  * @author Przemyslaw Fusik
  * @author Pablo Tirado
+ * @author sbespalov
  */
 @IntegrationTest
+@ActiveProfiles({"LdapAuthenticatorConfigurationControllerTest","test"})
 @ExtendWith(SpringExtension.class)
 public class LdapAuthenticatorConfigurationControllerTest
         extends RestAssuredBaseTest
 {
+    
     @Inject
     private ConfigurableProviderManager providerManager;
 
@@ -57,6 +64,19 @@ public class LdapAuthenticatorConfigurationControllerTest
 
         setContextBaseUrl("/api/configuration/ldap");
         providerManager.reload();
+        
+        AuthenticationItems authenticationItems = providerManager.getAuthenticationItems();
+        List<AuthenticationItem> authenticationItemList = authenticationItems.getAuthenticationItemList();
+        for (AuthenticationItem authenticationItem : authenticationItemList)
+        {
+            if (!"ldapUserDetailsService".equals(authenticationItem.getName()))
+            {
+                continue;
+            }
+            
+            authenticationItem.setEnabled(true);
+        }
+        providerManager.updateAuthenticationItems(authenticationItems);
     }
 
     @WithMockUser(authorities = "ADMIN")
@@ -69,17 +89,19 @@ public class LdapAuthenticatorConfigurationControllerTest
                .peek()
                .then()
                .body("url", startsWith("ldap://127.0.0.1"))
-               .body("groupSearchBase", equalTo("ou=Groups"))
-               .body("groupSearchFilter", equalTo("(uniqueMember={0})"))
-               .body("searchSubtree", equalTo(true))
-               .body("groupRoleAttribute", equalTo("cn"))
-               .body("rolePrefix", equalTo(""))
-               .body("convertToUpperCase", equalTo(false))
+               .body("groupSearchBase", equalTo("ou=Users"))
+               .body("groupSearchFilter", equalTo("(uid={0})"))
                .body("roleMappingList[0].ldapRole", equalTo("Developers"))
                .body("roleMappingList[0].strongboxRole", equalTo("REPOSITORY_MANAGER"))
                .body("roleMappingList[1].ldapRole", equalTo("Contributors"))
                .body("roleMappingList[1].strongboxRole", equalTo("USER_ROLE"))
                .body("userDnPatternList[0]", equalTo("uid={0},ou=Users"))
+               .body("authorities.groupSearchBase", equalTo("ou=Groups"))
+               .body("authorities.groupSearchFilter", equalTo("(uniqueMember={0})"))
+               .body("authorities.searchSubtree", equalTo(true))
+               .body("authorities.groupRoleAttribute", equalTo("cn"))
+               .body("authorities.rolePrefix", equalTo(""))
+               .body("authorities.convertToUpperCase", equalTo(false))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -91,8 +113,8 @@ public class LdapAuthenticatorConfigurationControllerTest
 
         LdapConfiguration configuration = ldapAuthenticationConfigurationManager.getConfiguration();
 
-        configuration.setGroupSearchBase("ou=People");
-        configuration.setGroupSearchFilter("(people={0})");
+        configuration.getGroupSearch().setGroupSearchBase("ou=People");
+        configuration.getGroupSearch().setGroupSearchFilter("(people={0})");
 
         configuration.getRoleMappingList().add(new LdapRoleMapping("ArtifactsManager", "ARTIFACTS_MANAGER"));
         configuration.getRoleMappingList().add(new LdapRoleMapping("LogsManager", "LOGS_MANAGER"));
@@ -117,10 +139,12 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("url", startsWith("ldap://127.0.0.1"))
                .body("groupSearchBase", equalTo("ou=People"))
                .body("groupSearchFilter", equalTo("(people={0})"))
-               .body("searchSubtree", equalTo(true))
-               .body("groupRoleAttribute", equalTo("cn"))
-               .body("rolePrefix", equalTo(""))
-               .body("convertToUpperCase", equalTo(false))
+               .body("authorities.groupSearchBase", equalTo("ou=Groups"))
+               .body("authorities.groupSearchFilter", equalTo("(uniqueMember={0})"))
+               .body("authorities.searchSubtree", equalTo(true))
+               .body("authorities.groupRoleAttribute", equalTo("cn"))
+               .body("authorities.rolePrefix", equalTo(""))
+               .body("authorities.convertToUpperCase", equalTo(false))
                .body("roleMappingList[0].ldapRole", equalTo("Developers"))
                .body("roleMappingList[0].strongboxRole", equalTo("REPOSITORY_MANAGER"))
                .body("roleMappingList[1].ldapRole", equalTo("Contributors"))
@@ -139,6 +163,9 @@ public class LdapAuthenticatorConfigurationControllerTest
     public void ldapConfigurationTestRequiresUrl()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
+        form.setUsername("username");
+        form.setPassword("password");
+        
         form.getConfiguration().setUrl(null);
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -158,6 +185,9 @@ public class LdapAuthenticatorConfigurationControllerTest
     public void ldapConfigurationTestRequiresValidUrl()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
+        form.setUsername("username");
+        form.setPassword("password");
+        
         form.getConfiguration().setUrl("http://host:port?thisIsWrongUrl=true");
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -174,17 +204,19 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test
-    public void ldapConfigurationTestShouldFail()
+    public void ldapConfigurationTestShouldFailWithInvalidConfiguration()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
-
+        form.setUsername("mtodorov");
+        form.setPassword("password");
+        
         List<String> userDnPatterns = new ArrayList<>();
         userDnPatterns.add("uid={0},ou=AllUsers");
 
         LdapConfiguration subform = form.getConfiguration();
         subform.setUserDnPatternList(userDnPatterns);
-        subform.setGroupSearchBase("ou=Employee");
-        subform.setGroupSearchFilter("(employee={0})");
+        subform.getGroupSearch().setGroupSearchBase("ou=Employee");
+        subform.getGroupSearch().setGroupSearchFilter("(employee={0})");
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -197,14 +229,37 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("message", equalTo("LDAP configuration test failed"));
     }
 
+    @WithMockUser(authorities = "ADMIN")
+    @Test()
+    @Disabled
+    public void ldapConfigurationTestShouldFailWithWithInvalidManagerDn()
+    {
+        LdapConfigurationTestForm form = getLdapConfigurationTestForm();
+        form.getConfiguration().setManagerDn("uid=unknown,ou=system");
+        form.getConfiguration().setManagerPassword("secret");
+
+        form.setUsername("mtodorov");
+        form.setPassword("password");
+        
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+               .body("message", equalTo("Failed to test LDAP configuration."));
+    }
+    
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void ldapConfigurationTestShouldFailWithInvalidUserDn()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
-        form.getConfiguration().setManagerDn("daddy");
-        form.getConfiguration().setManagerPassword("mummy");
-
+        form.setUsername("daddy");
+        form.setPassword("mummy");
+        
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(form)
@@ -218,29 +273,12 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test
-    public void ldapConfigurationTestShouldPassWithoutUserDn()
+    public void ldapConfigurationTestShouldPassWithValidUserDn()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
-
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .contentType(ContentType.JSON)
-               .body(form)
-               .when()
-               .put(getContextBaseUrl() + "/test")
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body("message", equalTo("LDAP configuration test passed"));
-    }
-
-    @WithMockUser(authorities = "ADMIN")
-    @Test
-    public void ldapConfigurationTestShouldPassWithUserDn()
-    {
-        LdapConfigurationTestForm form = getLdapConfigurationTestForm();
-        form.getConfiguration().setManagerDn("uid=admin,ou=system");
-        form.getConfiguration().setManagerPassword("secret");
-
+        form.setUsername("mtodorov");
+        form.setPassword("password");
+        
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(form)
@@ -257,6 +295,10 @@ public class LdapAuthenticatorConfigurationControllerTest
     public void ldapConfigurationTestShouldNotAffectInternalConfiguration()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
+        
+        form.setUsername("mtodorov");
+        form.setPassword("password");
+        
         form.getConfiguration()
             .setRoleMappingList(Stream.of(new LdapRoleMapping("ArtifactsManager", "ARTIFACTS_MANAGER"),
                                           new LdapRoleMapping("LogsManager", "LOGS_MANAGER"))
@@ -275,36 +317,6 @@ public class LdapAuthenticatorConfigurationControllerTest
         shouldReturnProperLdapConfiguration();
     }
 
-    @WithMockUser(authorities = "ADMIN")
-    @Test
-    public void validationShouldWorkOnLdapFullConfiguration()
-    {
-        LdapGroupSearchForm groupSearchForm = new LdapGroupSearchForm();
-        groupSearchForm.setSearchBase("ou=People");
-
-        Map<String, String> rolesMapping = new HashMap<>();
-        rolesMapping.put("ArtifactsManager", "ARTIFACTS_MANAGER");
-        rolesMapping.put("LogsManager", "LOGS_MANAGER");
-
-        List<String> userDnPatterns = new ArrayList<>();
-        userDnPatterns.add("uid={0},ou=AllUsers");
-
-        LdapConfigurationForm form = new LdapConfigurationForm();
-        form.setGroupSearch(groupSearchForm);
-        form.setRolesMapping(rolesMapping);
-        form.setUserDnPatterns(userDnPatterns);
-        form.setUrl("ldap://127.0.0.1:33389/dc=carlspring,dc=com");
-
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
-               .contentType(ContentType.JSON)
-               .body(form)
-               .when()
-               .put(getContextBaseUrl())
-               .peek()
-               .then()
-               .statusCode(HttpStatus.BAD_REQUEST.value());
-    }
-
     private LdapConfigurationTestForm getLdapConfigurationTestForm()
     {
         LdapConfigurationTestForm form = new LdapConfigurationTestForm();
@@ -313,4 +325,12 @@ public class LdapAuthenticatorConfigurationControllerTest
         form.setConfiguration(configuration);
         return form;
     }
+    
+    @Configuration
+    @Profile("LdapAuthenticatorConfigurationControllerTest")
+    @ImportResource("classpath:/ldapServerApplicationContext.xml")
+    public static class LdapAuthenticatorConfigurationControllerTestConfiguration {
+        
+    }
+
 }

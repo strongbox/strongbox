@@ -10,9 +10,9 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
+import org.carlspring.strongbox.authentication.api.AuthenticationItem;
+import org.carlspring.strongbox.authentication.api.AuthenticationItems;
 import org.carlspring.strongbox.authentication.registry.AuthenticationResourceManager;
-import org.carlspring.strongbox.authentication.support.AuthenticationItem;
-import org.carlspring.strongbox.authentication.support.AuthenticationItems;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.jupiter.api.AfterEach;

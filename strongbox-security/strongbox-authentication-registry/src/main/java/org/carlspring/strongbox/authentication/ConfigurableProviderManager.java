@@ -8,18 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
+import org.carlspring.strongbox.authentication.api.AuthenticationItem;
+import org.carlspring.strongbox.authentication.api.AuthenticationItemConfigurationManager;
+import org.carlspring.strongbox.authentication.api.AuthenticationItems;
+import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMapper;
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry.MergePropertiesContext;
 import org.carlspring.strongbox.authentication.support.AuthenticationConfigurationContext;
-import org.carlspring.strongbox.authentication.support.AuthenticationItem;
-import org.carlspring.strongbox.authentication.support.AuthenticationItemConfigurationManager;
-import org.carlspring.strongbox.authentication.support.AuthenticationItems;
-import org.carlspring.strongbox.authentication.support.CustomAuthenticationItemMapper;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.InMemoryUserService;
@@ -180,9 +181,6 @@ public class ConfigurableProviderManager extends ProviderManager implements User
         reloadAuthenticationItems();
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.authentication.AuthenticationItemConfigurationManager#updateAuthenticationItems(org.carlspring.strongbox.authentication.AuthenticationItems)
-     */
     @Override
     public void updateAuthenticationItems(AuthenticationItems items)
         throws IOException
@@ -220,9 +218,6 @@ public class ConfigurableProviderManager extends ProviderManager implements User
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.authentication.AuthenticationItemConfigurationManager#getAuthenticationItems()
-     */
     @Override
     public AuthenticationItems getAuthenticationItems()
     {
@@ -239,9 +234,6 @@ public class ConfigurableProviderManager extends ProviderManager implements User
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.authentication.AuthenticationItemConfigurationManager#getCustomAuthenticationItem(org.carlspring.strongbox.authentication.support.CustomAuthenticationItemMapper)
-     */
     @Override
     public <T> T getCustomAuthenticationItem(CustomAuthenticationItemMapper<T> mapper)
     {
@@ -250,9 +242,6 @@ public class ConfigurableProviderManager extends ProviderManager implements User
         return mapper.map(map);
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.authentication.AuthenticationItemConfigurationManager#putCustomAuthenticationItem(T, org.carlspring.strongbox.authentication.support.CustomAuthenticationItemMapper)
-     */
     @Override
     public <T> void putCustomAuthenticationItem(T customAuthenticationItem,
                                                 CustomAuthenticationItemMapper<T> mapper)
@@ -263,6 +252,19 @@ public class ConfigurableProviderManager extends ProviderManager implements User
         authenticationProvidersRegistry.mergeProperties()
                                        .merge(itemId, mapper.map(customAuthenticationItem))
                                        .apply();
+    }
+
+    @Override
+    public <T> void testCustomAuthenticationItem(T customAuthenticationItem,
+                                                 CustomAuthenticationItemMapper<T> mapper,
+                                                 Predicate<ApplicationContext> p)
+        throws IOException
+    {
+        String itemId = mapper.getConfigurationItemId();
+
+        authenticationProvidersRegistry.mergeProperties()
+                                       .merge(itemId, mapper.map(customAuthenticationItem))
+                                       .apply(p);
     }
 
     private <T> Stream<AuthenticationItem> authenticationItemStream(Class<T> itemClass,

@@ -3,8 +3,8 @@ package org.carlspring.strongbox.controllers.configuration.security.authenticati
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
+import org.carlspring.strongbox.authentication.api.AuthenticationItems;
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
-import org.carlspring.strongbox.authentication.support.AuthenticationItems;
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
 import org.carlspring.strongbox.controllers.BaseController;
 
