@@ -631,10 +631,12 @@ public class ArtifactManagementServiceImplTest
         public Long call()
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
-            
+
             try
             {
-                return mavenArtifactManagementService.store(repositoryPath, is);
+                long result = mavenArtifactManagementService.store(repositoryPath, is);
+                logger.info(String.format("Stored [%s].", repositoryPath));
+                return result;
             }
             catch (Exception ex)
             {
@@ -694,7 +696,8 @@ public class ArtifactManagementServiceImplTest
                     logger.info(String.format("Returning 0. Attempt [%s].", attempts));
                     return 0L;
                 }
-                
+
+                logger.error(String.format("Calling this.call [%s].", repositoryPath), e);
                 return this.call();
             }
             catch (Exception ex)
@@ -704,6 +707,7 @@ public class ArtifactManagementServiceImplTest
                 return 0L;
             }
 
+            logger.info(String.format("Returning [%s].", result));
             return result;
         }
     }
