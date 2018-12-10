@@ -37,7 +37,7 @@ pipeline {
                 {
                     // sh "mvn -U clean install -T2C -Dintegration.tests -Djunit.jupiter.execution.parallel.enabled=true -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=2 -Dprepare.revision -Dmaven.test.failure.ignore=true -Pcoverage"
                     // sh "mvn -U clean install -T2C -Dintegration.tests -Dprepare.revision -Dmaven.test.failure.ignore=true -Pcoverage"
-                    sh "mvn clean test -pl strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider -Dtest=ArtifactManagementServiceImplTest -DfailIfNoTests=false"
+                    sh "mvn -U clean install -T2C -pl strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider -Dtest=ArtifactManagementServiceImplTest -DfailIfNoTests=false"
                 }
             }
         }

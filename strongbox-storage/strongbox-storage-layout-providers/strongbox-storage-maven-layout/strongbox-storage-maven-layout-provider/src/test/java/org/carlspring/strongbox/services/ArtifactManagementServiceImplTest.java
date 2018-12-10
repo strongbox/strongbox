@@ -28,6 +28,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -558,9 +559,11 @@ public class ArtifactManagementServiceImplTest
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
 
         // when
+        AtomicBoolean aBoolean = new AtomicBoolean(true);
         List<Long> resultList = IntStream.range(0, concurrency * 2)
                                          .parallel()
                                          .mapToObj(i -> getResult(i,
+                                                                  aBoolean,
                                                                   repositoryPath,
                                                                   loremIpsumContentArray))
                                          .collect(Collectors.toList());
@@ -590,6 +593,7 @@ public class ArtifactManagementServiceImplTest
     }
 
     private Long getResult(int i,
+                           AtomicBoolean aBoolean,
                            RepositoryPath repositoryPath,
                            byte[][] loremIpsumContentArray)
     {
@@ -598,8 +602,7 @@ public class ArtifactManagementServiceImplTest
         {
             Repository repository = repositoryPath.getRepository();
             String path = RepositoryFiles.relativizePath(repositoryPath);
-
-            return i % 2 == 0
+            return aBoolean.getAndSet(!aBoolean.get())
                     ? new Store(new ByteArrayInputStream(loremIpsumContentArray[i / 2]), repository, path).call()
                     : new Fetch(repository, path).call();
         }
