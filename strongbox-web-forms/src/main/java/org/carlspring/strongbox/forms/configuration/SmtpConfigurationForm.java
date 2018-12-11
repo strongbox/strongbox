@@ -3,10 +3,7 @@ package org.carlspring.strongbox.forms.configuration;
 import org.carlspring.strongbox.configuration.MutableSmtpConfiguration;
 import org.carlspring.strongbox.configuration.SmtpConfiguration;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Optional;
 
@@ -17,9 +14,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class SmtpConfigurationForm
 {
 
-    @NotBlank(message = "SMTP host must be provided", groups = SmtpConfigurationFormChecks.class)
+    @NotBlank(message = "SMTP host must be provided.", groups = SmtpConfigurationFormChecks.class)
     private String host;
 
+    @NotNull(message = "SMTP port must be provided.", groups = SmtpConfigurationFormChecks.class)
     @Min(value = 1, message = "Port number must be an integer between 1 and 65535.", groups = SmtpConfigurationFormChecks.class)
     @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.", groups = SmtpConfigurationFormChecks.class)
     private Integer port;

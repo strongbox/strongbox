@@ -231,7 +231,7 @@ public class ServerConfigurationControllerTestIT
     public void testServerSettingsShouldBeSavedWithResponseInJson()
     {
         String newBaseUrl = "http://localhost:" + 40080 + "/newurl";
-        int newPort = 18080;
+        Integer newPort = 18080;
         serverSettingsShouldBeSaved(MediaType.APPLICATION_JSON_VALUE, newBaseUrl, newPort);
     }
 
@@ -241,13 +241,13 @@ public class ServerConfigurationControllerTestIT
     public void testServerSettingsShouldBeSavedWithResponseInText()
     {
         String newBaseUrl = "http://localhost:" + 40080 + "/newurl";
-        int newPort = 18080;
+        Integer newPort = 18080;
         serverSettingsShouldBeSaved(MediaType.TEXT_PLAIN_VALUE, newBaseUrl, newPort);
     }
 
     public void serverSettingsShouldNotBeSaved(String acceptHeader,
                                                String baseUrl,
-                                               int port)
+                                               Integer port)
     {
         // assign settings to server
         ServerSettingsForm serverSettingsForm = new ServerSettingsForm(baseUrl, port);
@@ -271,7 +271,7 @@ public class ServerConfigurationControllerTestIT
     public void testWrongServerSettingsShouldNotBeSavedWithResponseInJson()
     {
         String newBaseUrl = "";
-        int newPort = 0;
+        Integer newPort = 0;
         serverSettingsShouldNotBeSaved(MediaType.APPLICATION_JSON_VALUE, newBaseUrl, newPort);
     }
 
@@ -281,7 +281,7 @@ public class ServerConfigurationControllerTestIT
     public void testWrongServerSettingsShouldNotBeSavedWithResponseInText()
     {
         String newBaseUrl = null;
-        int newPort = 65536;
+        Integer newPort = 65536;
         serverSettingsShouldNotBeSaved(MediaType.TEXT_PLAIN_VALUE, newBaseUrl, newPort);
     }
 }

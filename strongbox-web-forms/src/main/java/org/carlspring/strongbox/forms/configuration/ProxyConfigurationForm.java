@@ -3,10 +3,7 @@ package org.carlspring.strongbox.forms.configuration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +22,7 @@ public class ProxyConfigurationForm
     @NotBlank(message = "A host must be specified.", groups = ProxyConfigurationFormChecks.class)
     private String host;
 
+    @NotNull(message = "A port must be provided.", groups = ProxyConfigurationFormChecks.class)
     @Min(value = 1, message = "Port number must be an integer between 1 and 65535.", groups = ProxyConfigurationFormChecks.class)
     @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.", groups = ProxyConfigurationFormChecks.class)
     private Integer port;
