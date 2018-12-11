@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
 @Execution(CONCURRENT)
 public class DownloadRemoteMavenIndexCronJobTestIT
