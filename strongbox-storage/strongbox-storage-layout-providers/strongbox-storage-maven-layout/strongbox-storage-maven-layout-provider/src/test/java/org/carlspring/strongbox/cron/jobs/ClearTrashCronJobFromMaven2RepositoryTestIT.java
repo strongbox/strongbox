@@ -49,7 +49,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(CONCURRENT)
 public class ClearTrashCronJobFromMaven2RepositoryTestIT
         extends BaseCronJobWithMavenIndexingTestCase
