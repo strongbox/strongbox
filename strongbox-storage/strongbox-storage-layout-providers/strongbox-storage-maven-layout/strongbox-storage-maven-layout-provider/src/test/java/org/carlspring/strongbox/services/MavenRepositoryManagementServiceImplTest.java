@@ -3,7 +3,6 @@ package org.carlspring.strongbox.services;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
@@ -17,14 +16,19 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -32,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class MavenRepositoryManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -87,18 +92,13 @@ public class MavenRepositoryManagementServiceImplTest
 
     @AfterEach
     public void removeRepositories()
-            throws IOException, JAXBException, SearchException
+            throws Exception
     {
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_MERGE_1);
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_MERGE_2);
         removeRepositories(getRepositoriesToClean());
     }
 
     @Test
     public void testCreateRepository()
-            throws IOException, JAXBException
     {
         File repositoryBaseDir = new File(STORAGES_BASEDIR, STORAGE0 + "/" + REPOSITORY_RELEASES_1);
 

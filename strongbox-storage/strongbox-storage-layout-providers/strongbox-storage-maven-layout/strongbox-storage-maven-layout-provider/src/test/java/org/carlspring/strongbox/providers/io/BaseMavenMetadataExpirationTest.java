@@ -31,6 +31,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.junit.jupiter.api.TestInfo;
 import org.mockito.Mockito;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -112,9 +113,13 @@ abstract class BaseMavenMetadataExpirationTest
                                                    final String filename)
             throws Exception
     {
-        final RepositoryPath hostedPath = resolvePath(hostedRepositoryId, versionLevel, filename);
+        final RepositoryPath hostedPath = resolvePath(hostedRepositoryId,
+                                                      versionLevel,
+                                                      filename);
 
-        final RepositoryPath testDataSourcePath = resolvePath(localSourceRepositoryId, versionLevel, filename);
+        final RepositoryPath testDataSourcePath = resolvePath(localSourceRepositoryId,
+                                                              versionLevel,
+                                                              filename);
 
         try (InputStream is = Files.newInputStream(testDataSourcePath))
         {
@@ -122,7 +127,7 @@ abstract class BaseMavenMetadataExpirationTest
         }
     }
 
-    protected void mockResolvingProxiedRemoteArtifactsToHostedRepository()
+    protected void mockResolvingProxiedRemoteArtifactsToHostedRepository(final TestInfo testInfo)
     {
         final RemoteRepositoryRetryArtifactDownloadConfiguration configuration = configurationManager.getConfiguration()
                                                                                                      .getRemoteRepositoriesConfiguration()
@@ -130,13 +135,31 @@ abstract class BaseMavenMetadataExpirationTest
 
         final RestArtifactResolver artifactResolver = Mockito.mock(RestArtifactResolver.class);
 
-        mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver, true, "maven-metadata.xml");
-        mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver, true, "maven-metadata.xml.sha1");
-        mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver, true, "maven-metadata.xml.md5");
+        mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver,
+                                                             true,
+                                                             "maven-metadata.xml",
+                                                             testInfo);
+        mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver,
+                                                             true,
+                                                             "maven-metadata.xml.sha1",
+                                                             testInfo);
+        mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver,
+                                                             true,
+                                                             "maven-metadata.xml.md5",
+                                                             testInfo);
 
-        mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver, false, "maven-metadata.xml");
-        mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver, false, "maven-metadata.xml.sha1");
-        mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver, false, "maven-metadata.xml.md5");
+        mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver,
+                                                             false,
+                                                             "maven-metadata.xml",
+                                                             testInfo);
+        mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver,
+                                                             false,
+                                                             "maven-metadata.xml.sha1",
+                                                             testInfo);
+        mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver,
+                                                             false,
+                                                             "maven-metadata.xml.md5",
+                                                             testInfo);
 
         Mockito.when(artifactResolver.getConfiguration()).thenReturn(configuration);
         Mockito.when(artifactResolver.isAlive()).thenReturn(true);
@@ -146,9 +169,11 @@ abstract class BaseMavenMetadataExpirationTest
 
     private void mockResolvingProxiedRemoteArtifactToHostedRepository(final RestArtifactResolver artifactResolver,
                                                                       final boolean versionLevel,
-                                                                      final String filename)
+                                                                      final String filename,
+                                                                      final TestInfo testInfo)
     {
-        final RepositoryPath hostedRepositoryPath = resolvePath(REPOSITORY_HOSTED, versionLevel, filename);
+        final RepositoryPath hostedRepositoryPath = resolvePath(getRepositoryName(REPOSITORY_HOSTED, testInfo),
+                                                                versionLevel, filename);
         final Response response = Mockito.mock(Response.class);
         Mockito.when(response.getEntity()).thenAnswer(
                 invocation -> new Object());
@@ -159,7 +184,8 @@ abstract class BaseMavenMetadataExpirationTest
         final CloseableRestResponse restResponse = Mockito.mock(CloseableRestResponse.class);
         Mockito.when(restResponse.getResponse()).thenReturn(response);
 
-        final RepositoryPath proxiedRepositoryPath = resolvePath(REPOSITORY_PROXY, versionLevel, filename);
+        final RepositoryPath proxiedRepositoryPath = resolvePath(getRepositoryName(REPOSITORY_PROXY, testInfo),
+                                                                 versionLevel, filename);
         final String proxiedPathRelativized = FilenameUtils.separatorsToUnix(
                 proxiedRepositoryPath.relativize().toString());
 

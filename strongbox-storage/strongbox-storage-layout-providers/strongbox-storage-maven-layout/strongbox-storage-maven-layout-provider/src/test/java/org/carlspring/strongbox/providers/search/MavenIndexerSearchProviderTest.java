@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,6 +24,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
@@ -30,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class MavenIndexerSearchProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -60,34 +63,18 @@ public class MavenIndexerSearchProviderTest
     @Inject
     private Optional<MavenIndexerSearchProvider> mavenIndexerSearchProvider;
 
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
     @BeforeEach
     public void isIndexingEnabled()
     {
         Assumptions.assumeTrue(mavenIndexerSearchProvider.isPresent());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
     @BeforeEach
-    public void setUp()
+    public void setUp(TestInfo testInfo)
             throws Exception
     {
         createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                      getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED, testInfo),
                                       true,
                                       "org.carlspring:properties-injector",
                                       "1.8");
@@ -97,20 +84,21 @@ public class MavenIndexerSearchProviderTest
         repositoryConfiguration.setIndexingClassNamesEnabled(false);
 
         createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                      getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED, testInfo),
                                       repositoryConfiguration,
                                       "org.carlspring:properties-injector",
                                       "1.8");
     }
 
     @Test
-    public void shouldBeCapableToSearchByPartialSha1Checksum()
+    public void shouldBeCapableToSearchByPartialSha1Checksum(TestInfo testInfo)
             throws Exception
     {
         String sha1 = Files.readAllLines(getVaultDirectoryPath()
                                                  .resolve("storages")
                                                  .resolve(STORAGE0)
-                                                 .resolve(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED)
+                                                 .resolve(getRepositoryName(
+                                                         REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED, testInfo))
                                                  .resolve("org")
                                                  .resolve("carlspring")
                                                  .resolve("properties-injector")
@@ -121,7 +109,8 @@ public class MavenIndexerSearchProviderTest
         String query = "1:" + sha1.substring(0, 8) + "*";
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                  getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                    testInfo),
                                                   query,
                                                   MavenIndexerSearchProvider.ALIAS);
 
@@ -130,13 +119,14 @@ public class MavenIndexerSearchProviderTest
 
 
     @Test
-    public void shouldBeCapableToSearchByFullSha1Checksum()
+    public void shouldBeCapableToSearchByFullSha1Checksum(TestInfo testInfo)
             throws Exception
     {
         String sha1 = Files.readAllLines(getVaultDirectoryPath()
                                                  .resolve("storages")
                                                  .resolve(STORAGE0)
-                                                 .resolve(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED)
+                                                 .resolve(getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                            testInfo))
                                                  .resolve("org")
                                                  .resolve("carlspring")
                                                  .resolve("properties-injector")
@@ -147,7 +137,8 @@ public class MavenIndexerSearchProviderTest
         String query = "1:" + sha1;
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                  getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                    testInfo),
                                                   query,
                                                   MavenIndexerSearchProvider.ALIAS);
 
@@ -155,15 +146,18 @@ public class MavenIndexerSearchProviderTest
     }
 
     @Test
-    public void shouldBeCapableToSearchByClassNameByDefault()
+    public void shouldBeCapableToSearchByClassNameByDefault(TestInfo testInfo)
             throws Exception
     {
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+        artifactManagementService.validateAndStore(STORAGE0,
+                                                   getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                     testInfo),
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar",
                                                    jarArtifact.getInputStream());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                  getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                    testInfo),
                                                   "+classnames:propertiesresources",
                                                   MavenIndexerSearchProvider.ALIAS);
 
@@ -171,14 +165,18 @@ public class MavenIndexerSearchProviderTest
     }
 
     @Test
-    public void shouldBeCapableToSearchByFQNByDefault()
+    public void shouldBeCapableToSearchByFQNByDefault(TestInfo testInfo)
             throws Exception
     {
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+        artifactManagementService.validateAndStore(STORAGE0,
+                                                   getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                     testInfo),
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar",
                                                    jarArtifact.getInputStream());
 
-        SearchRequest request = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+        SearchRequest request = new SearchRequest(STORAGE0,
+                                                  getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                    testInfo),
                                                   "+classnames:org +classnames:carlspring +classnames:ioc +classnames:propertyvalueinjector",
                                                   MavenIndexerSearchProvider.ALIAS);
 
@@ -186,15 +184,18 @@ public class MavenIndexerSearchProviderTest
     }
 
     @Test
-    public void shouldBeCapableToSearchByClassNameFromZippedArtifactByDefault()
+    public void shouldBeCapableToSearchByClassNameFromZippedArtifactByDefault(TestInfo testInfo)
             throws Exception
     {
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+        artifactManagementService.validateAndStore(STORAGE0,
+                                                   getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                     testInfo),
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip",
                                                    zipArtifact.getInputStream());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                  getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                    testInfo),
                                                   "+classnames:propertiesresources",
                                                   MavenIndexerSearchProvider.ALIAS);
 
@@ -202,14 +203,18 @@ public class MavenIndexerSearchProviderTest
     }
 
     @Test
-    public void shouldBeCapableToSearchByFQNFromZippedArtifactByDefault()
+    public void shouldBeCapableToSearchByFQNFromZippedArtifactByDefault(TestInfo testInfo)
             throws Exception
     {
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+        artifactManagementService.validateAndStore(STORAGE0,
+                                                   getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                     testInfo),
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip",
                                                    zipArtifact.getInputStream());
 
-        SearchRequest request = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+        SearchRequest request = new SearchRequest(STORAGE0,
+                                                  getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                    testInfo),
                                                   "+classnames:org +classnames:carlspring +classnames:ioc +classnames:propertyvalueinjector",
                                                   MavenIndexerSearchProvider.ALIAS);
 
@@ -218,15 +223,18 @@ public class MavenIndexerSearchProviderTest
 
 
     @Test
-    public void shouldBeAllowedToDisableSearchByClassName()
+    public void shouldBeAllowedToDisableSearchByClassName(TestInfo testInfo)
             throws Exception
     {
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+        artifactManagementService.validateAndStore(STORAGE0,
+                                                   getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                     testInfo),
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar",
                                                    jarArtifact.getInputStream());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                  getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                    testInfo),
                                                   "+classnames:propertiesresources",
                                                   MavenIndexerSearchProvider.ALIAS);
 
@@ -234,14 +242,18 @@ public class MavenIndexerSearchProviderTest
     }
 
     @Test
-    public void shouldBeAllowedToDisableSearchByFQN()
+    public void shouldBeAllowedToDisableSearchByFQN(TestInfo testInfo)
             throws Exception
     {
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+        artifactManagementService.validateAndStore(STORAGE0,
+                                                   getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                     testInfo),
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar",
                                                    jarArtifact.getInputStream());
 
-        SearchRequest request = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+        SearchRequest request = new SearchRequest(STORAGE0,
+                                                  getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                    testInfo),
                                                   "+classnames:org +classnames:carlspring +classnames:ioc +classnames:propertyvalueinjector",
                                                   MavenIndexerSearchProvider.ALIAS);
 
@@ -249,15 +261,18 @@ public class MavenIndexerSearchProviderTest
     }
 
     @Test
-    public void shouldBeAllowedToDisableSearchByClassNameFromZippedArtifact()
+    public void shouldBeAllowedToDisableSearchByClassNameFromZippedArtifact(TestInfo testInfo)
             throws Exception
     {
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+        artifactManagementService.validateAndStore(STORAGE0,
+                                                   getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                     testInfo),
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip",
                                                    zipArtifact.getInputStream());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                  getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                    testInfo),
                                                   "+classnames:propertiesresources",
                                                   MavenIndexerSearchProvider.ALIAS);
 
@@ -265,31 +280,43 @@ public class MavenIndexerSearchProviderTest
     }
 
     @Test
-    public void shouldBeAllowedToDisableSearchByFQNFromZippedArtifact()
+    public void shouldBeAllowedToDisableSearchByFQNFromZippedArtifact(TestInfo testInfo)
             throws Exception
     {
-        artifactManagementService.validateAndStore(STORAGE0, REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+        artifactManagementService.validateAndStore(STORAGE0,
+                                                   getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                     testInfo),
                                                    "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip",
                                                    zipArtifact.getInputStream());
 
-        SearchRequest request = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+        SearchRequest request = new SearchRequest(STORAGE0,
+                                                  getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                    testInfo),
                                                   "+classnames:org +classnames:carlspring +classnames:ioc +classnames:propertyvalueinjector",
                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertFalse(mavenIndexerSearchProvider.get().contains(request));
+    }
+
+    private Set<MutableRepository> getRepositories(TestInfo testInfo)
+    {
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+
+        return repositories;
     }
 
     @AfterEach
-    public void removeRepositories()
+    public void removeRepositories(TestInfo testInfo)
             throws Exception
     {
-        Set<MutableRepository> repositories = getRepositoriesToClean();
-        for (MutableRepository repository : repositories)
-        {
-            closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
-        }
-        removeRepositories(getRepositoriesToClean());
-        cleanUp();
+        removeRepositories(getRepositories(testInfo));
     }
 
 }

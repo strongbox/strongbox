@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -17,6 +18,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
@@ -24,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ActiveProfiles({"MockedRestArtifactResolverTestConfig","test"})
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
         extends RetryDownloadArtifactTestBase
 {
@@ -31,9 +34,9 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
     
     private OneTimeBrokenArtifactInputStream brokenArtifactInputStream;
 
+
     @BeforeEach
     public void setup()
-            throws Exception
     {
         brokenArtifactInputStream = new OneTimeBrokenArtifactInputStream(jarArtifact);
         prepareArtifactResolverContext(brokenArtifactInputStream, false);
@@ -41,13 +44,15 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
 
     @Test
     public void unsupportedRangeProxyRepositoryRequestShouldSkipRetryFeature()
-            throws Exception
     {
         final String storageId = "storage-common-proxies";
         final String repositoryId = "maven-central";
-        final String path = "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar";
-        final Path destinationPath = getVaultDirectoryPath().resolve("storages").resolve(storageId).resolve(
-                repositoryId).resolve(path);
+        final String path = getJarPath();
+        final Path destinationPath = getVaultDirectoryPath()
+                                             .resolve("storages")
+                                             .resolve(storageId)
+                                             .resolve(repositoryId)
+                                             .resolve(path);
 
         // given
         assertFalse(Files.exists(destinationPath));
@@ -60,7 +65,12 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
 
         //then
         assertThat(exception.getMessage(), containsString("does not support range requests."));
+    }
 
+    @Override
+    protected String getArtifactVersion()
+    {
+        return "3.3";
     }
 
     private class OneTimeBrokenArtifactInputStream
@@ -88,6 +98,6 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
             currentReadSize++;
             return artifactInputStream.read();
         }
-
     }
+
 }

@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.generation;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
@@ -11,43 +12,49 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 
 import org.apache.maven.artifact.Artifact;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
  */
-@Disabled
+@ExtendWith(SpringExtension.class)
+@ActiveProfiles(profiles = "test")
+@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class MavenArtifactGeneratorTest
         extends MavenTestCaseWithArtifactGeneration
 {
-
-    private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                 "/storages/storage0/releases");
 
 
     @Test
     public void testArtifactGeneration()
             throws Exception
     {
-        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(
-                "org.carlspring.strongbox.testing:test-foo:1.2.3:jar");
+        File basedir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
 
-        generateArtifact(BASEDIR.getAbsolutePath(), artifact);
+        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.testing:matg:1.2.3:jar");
 
-        File artifactJarFile = new File(BASEDIR, "org/carlspring/strongbox/testing/test-foo/1.2.3/test-foo-1.2.3.jar");
-        File artifactJarFileMD5 = new File(BASEDIR,
-                                           "org/carlspring/strongbox/testing/test-foo/1.2.3/test-foo-1.2.3.jar.md5");
-        File artifactJarFileSHA1 = new File(BASEDIR,
-                                            "org/carlspring/strongbox/testing/test-foo/1.2.3/test-foo-1.2.3.jar.sha1");
+        generateArtifact(basedir.getAbsolutePath(), artifact);
 
-        File artifactPomFile = new File(BASEDIR, "org/carlspring/strongbox/testing/test-foo/1.2.3/test-foo-1.2.3.pom");
-        File artifactPomFileMD5 = new File(BASEDIR,
-                                           "org/carlspring/strongbox/testing/test-foo/1.2.3/test-foo-1.2.3.pom.md5");
-        File artifactPomFileSHA1 = new File(BASEDIR,
-                                            "org/carlspring/strongbox/testing/test-foo/1.2.3/test-foo-1.2.3.pom.sha1");
+        File artifactJarFile = new File(basedir, "org/carlspring/strongbox/testing/matg/1.2.3/matg-1.2.3.jar");
+        File artifactJarFileMD5 = new File(basedir,
+                                           "org/carlspring/strongbox/testing/matg/1.2.3/matg-1.2.3.jar.md5");
+        File artifactJarFileSHA1 = new File(basedir,
+                                            "org/carlspring/strongbox/testing/matg/1.2.3/matg-1.2.3.jar.sha1");
+
+        File artifactPomFile = new File(basedir, "org/carlspring/strongbox/testing/matg/1.2.3/matg-1.2.3.pom");
+        File artifactPomFileMD5 = new File(basedir,
+                                           "org/carlspring/strongbox/testing/matg/1.2.3/matg-1.2.3.pom.md5");
+        File artifactPomFileSHA1 = new File(basedir,
+                                            "org/carlspring/strongbox/testing/matg/1.2.3/matg-1.2.3.pom.sha1");
 
         assertTrue(artifactJarFile.exists(), "Failed to generate JAR file!");
         assertTrue(artifactJarFileMD5.exists(), "Failed to generate JAR MD5 file!");

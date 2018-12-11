@@ -4,7 +4,6 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -16,20 +15,24 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -37,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class Maven2LayoutProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -72,13 +76,6 @@ public class Maven2LayoutProviderTest
         repository.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(STORAGE0, repository);
-
-        generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
-                         "com.artifacts.to.delete.releases:delete-foo",
-                         new String[]{ "1.2.1", // testDeleteArtifact()
-                                       "1.2.2"  // testDeleteArtifactDirectory()
-                         }
-        );
     }
 
     @AfterEach
@@ -98,9 +95,12 @@ public class Maven2LayoutProviderTest
 
     @Test
     public void testDeleteArtifact()
-            throws IOException,
-                   SearchException
+            throws IOException, NoSuchAlgorithmException, XmlPullParserException
     {
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
+                         "com.artifacts.to.delete.releases:delete-foo",
+                         new String[] { "1.2.1" });
+
         Repository repository = configurationManager.getConfiguration()
                                                     .getStorage(STORAGE0)
                                                     .getRepository(REPOSITORY_RELEASES);
@@ -132,8 +132,12 @@ public class Maven2LayoutProviderTest
 
     @Test
     public void testDeleteArtifactDirectory()
-            throws IOException, SearchException
+            throws IOException, NoSuchAlgorithmException, XmlPullParserException
     {
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
+                         "com.artifacts.to.delete.releases:delete-foo",
+                         new String[] { "1.2.2" });
+
         Repository repository = configurationManager.getConfiguration()
                                                     .getStorage(STORAGE0)
                                                     .getRepository(REPOSITORY_RELEASES);

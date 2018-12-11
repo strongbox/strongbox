@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.app;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.config.ConnectionConfigOrientDB;
 import org.carlspring.strongbox.config.WebConfig;
