@@ -13,11 +13,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import org.apache.http.HttpHeaders;
-import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runners.MethodSorters;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -34,11 +32,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Steve Todorov
+ * @author Pablo Tirado
  */
 @IntegrationTest
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AccountControllerTest
         extends RestAssuredBaseTest
 {

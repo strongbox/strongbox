@@ -25,6 +25,7 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -37,6 +38,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -71,6 +73,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Alex Oreshkevich
  * @author Martin Todorov
+ * @author Pablo Tirado
  */
 @IntegrationTest
 @ExtendWith(SpringExtension.class)
@@ -80,36 +83,62 @@ public class MavenArtifactControllerTest
 
     private static final String TEST_RESOURCES = "target/test-resources";
 
-    private static final String REPOSITORY_RELEASES1 = "act-releases-1";
+    private static final String REPOSITORY_RELEASES = "releases";
 
-    private static final String REPOSITORY_RELEASES2 = "act-releases-2";
+    private static final String REPOSITORY_RELEASES1 = "mact-releases-1";
 
-    private static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
+    private static final String REPOSITORY_RELEASES2 = "mact-releases-2";
+
+    private static final String REPOSITORY_SNAPSHOTS = "mact-snapshots";
 
     private static File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
     private static String pluginXmlFilePath;
 
+    @Spy
+    private Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" +
+                                                                    "metadata-foo-maven-plugin" + ":" +
+                                                                    "3.1");
+    @Spy
+    private Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(
+            "org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.1");
+    @Spy
+    private Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(
+            "org.carlspring.strongbox.metadata" + ":" + "metadata-foo-maven-plugin" + ":" + "3.2");
+    @Spy
+    private Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC(
+            "org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.2");
+    @Spy
+    private Artifact artifact5 = ArtifactUtils.getArtifactFromGAVTC(
+            "org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.1");
+    @Spy
+    private Artifact artifact6 = ArtifactUtils.getArtifactFromGAVTC(
+            "org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.2");
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
 
     @Inject
     private ArtifactEntryService artifactEntryService;
-    
+
     private MavenArtifactDeployer defaultMavenArtifactDeployer;
-    
+
     @BeforeAll
     public static void cleanUp()
             throws Exception
     {
-        cleanUp(getRepositoriesToClean());
+        cleanUp(getRepositoriesToClean(REPOSITORY_RELEASES1,
+                                       REPOSITORY_RELEASES2,
+                                       REPOSITORY_SNAPSHOTS));
     }
 
-    @BeforeEach
-    public void setUp()
+    private static Set<MutableRepository> getRepositoriesToClean(String... repositoryId)
     {
-        MockitoAnnotations.initMocks(this);
-        defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
+
+        Arrays.asList(repositoryId).forEach(
+                r -> repositories.add(createRepositoryMock(STORAGE0, r, Maven2LayoutProvider.ALIAS))
+        );
+        return repositories;
     }
 
     @AfterAll
@@ -170,10 +199,6 @@ public class MavenArtifactControllerTest
             System.out.println("");
 
         }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
         catch (IOException e)
         {
             e.printStackTrace();
@@ -211,16 +236,6 @@ public class MavenArtifactControllerTest
         transformer.transform(source, result);
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES1, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES2, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
     @Override
     @BeforeEach
     public void init()
@@ -228,62 +243,80 @@ public class MavenArtifactControllerTest
     {
         super.init();
 
-        GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
+        MockitoAnnotations.initMocks(this);
+        defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
 
         MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
-        mavenRepositoryConfiguration.setIndexingEnabled(true);
+        mavenRepositoryConfiguration.setIndexingEnabled(false);
 
         MutableRepository repository1 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
+
         createRepository(STORAGE0, repository1);
+
 
         // Generate releases
         // Used by testPartialFetch():
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.partial:partial-foo",
-                         new String[]{ "3.1", // Used by testPartialFetch()
-                                       "3.2"  // Used by testPartialFetch()
+                         new String[]{ "3.1",
+                                       // Used by testPartialFetch()
+                                       "3.2"
+                                       // Used by testPartialFetch()
                          }
         );
+
 
         // Used by testCopy*():
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.copy:copy-foo",
-                         new String[]{ "1.1", // Used by testCopyArtifactFile()
-                                       "1.2"  // Used by testCopyArtifactDirectory()
+                         new String[]{ "1.1",
+                                       // Used by testCopyArtifactFile()
+                                       "1.2"
+                                       // Used by testCopyArtifactDirectory()
                          }
         );
+
 
         // Used by testDelete():
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-foo",
-                         new String[]{ "1.2.1", // Used by testDeleteArtifactFile
-                                       "1.2.2"  // Used by testDeleteArtifactDirectory
+                         new String[]{ "1.2.1",
+                                       // Used by testDeleteArtifactFile
+                                       "1.2.2"
+                                       // Used by testDeleteArtifactDirectory
                          }
         );
         generateMavenMetadata(STORAGE0, REPOSITORY_RELEASES1);
 
+
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.partial:partial-foo",
-                         new String[]{ "3.1", // Used by testPartialFetch()
-                                       "3.2"  // Used by testPartialFetch()
+                         new String[]{ "3.1",
+                                       // Used by testPartialFetch()
+                                       "3.2"
+                                       // Used by testPartialFetch()
                          }
         );
 
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.browse:foo-bar",
-                         new String[]{ "1.0", // Used by testDirectoryListing()
-                                       "2.4"  // Used by testDirectoryListing()
+                         new String[]{ "1.0",
+                                       // Used by testDirectoryListing()
+                                       "2.4"
+                                       // Used by testDirectoryListing()
                          }
         );
 
-        generateArtifact(getRepositoryBasedir(STORAGE0, "releases").getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
                          "org.carlspring.strongbox.test:dynamic-privileges",
-                         new String[]{ "1.0" // Used by testDynamicPrivilegeAssignmentForRepository()
+                         new String[]{ "1.0"
+                                       // Used by testDynamicPrivilegeAssignmentForRepository()
                          }
         );
+
 
         MutableRepository repository2 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES2);
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
@@ -298,7 +331,8 @@ public class MavenArtifactControllerTest
         createRepository(STORAGE0, repository3);
 
         //noinspection ResultOfMethodCallIgnored
-        new File(TEST_RESOURCES).mkdirs();
+        Files.createDirectories(Paths.get(TEST_RESOURCES));
+
     }
 
     @Override
@@ -310,12 +344,22 @@ public class MavenArtifactControllerTest
             closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES1);
             closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES2);
             closeIndexersForRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
+
+            removeRepositories();
+
+            cleanUp();
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             throw new UndeclaredThrowableException(e);
         }
         super.shutdown();
+    }
+
+    private void removeRepositories()
+            throws IOException, JAXBException
+    {
+        removeRepositories(getRepositoriesToClean());
     }
 
     /**
@@ -392,27 +436,29 @@ public class MavenArtifactControllerTest
     @Test
     public void testHeadersFetch()
             throws Exception
-    {   
-        String artifactPath;
+    {
         Headers headersFromGET, headersFromHEAD;
 
         /* Hosted Repository */
-        artifactPath = "storages/storage0/act-releases-1/org/carlspring/strongbox/browse/foo-bar/2.4/foo-bar-2.4.pom";
+        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES1;
+        String pathToPom = "/org/carlspring/strongbox/browse/foo-bar/2.4/foo-bar-2.4.pom";
+        String artifactPath = url + pathToPom;
         headersFromGET = client.getHeadersFromGET(artifactPath);
         headersFromHEAD = client.getHeadersfromHEAD(artifactPath);
-        assertHeadersEquals(headersFromGET,headersFromHEAD);
+        assertHeadersEquals(headersFromGET, headersFromHEAD);
     }
-    
-    private void assertHeadersEquals(Headers h1, Headers h2)
+
+    private void assertHeadersEquals(Headers h1,
+                                     Headers h2)
     {
         assertNotNull(h1);
         assertNotNull(h2);
 
-        for(Header header : h1)
+        for (Header header : h1)
         {
-            if(h2.hasHeaderWithName(header.getName()))
+            if (h2.hasHeaderWithName(header.getName()))
             {
-                assertEquals(header.getValue(),h2.getValue(header.getName()));
+                assertEquals(header.getValue(), h2.getValue(header.getName()));
             }
         }
     }
@@ -523,8 +569,7 @@ public class MavenArtifactControllerTest
                          new String[]{ "1.1" }
         );
 
-        final File destRepositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                    "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2);
+        final File destRepositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES2);
 
         String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.1/copy-foo-1.1.jar";
 
@@ -549,8 +594,7 @@ public class MavenArtifactControllerTest
     public void testCopyArtifactDirectory()
             throws Exception
     {
-        final File destRepositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                    "/storages/storage0/" + REPOSITORY_RELEASES2);
+        final File destRepositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES2);
 
         String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.2";
 
@@ -615,7 +659,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe/";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertTrue(response.statusCode() == 404, "Wrong response");
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.statusCode(), "Wrong response");
     }
 
     @Test
@@ -623,7 +667,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertTrue(response.statusCode() == 404, "Wrong response");
+        assertEquals(response.statusCode(), HttpStatus.NOT_FOUND.value(), "Wrong response");
     }
 
     @Test
@@ -631,7 +675,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe/who.jar";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertTrue(response.statusCode() == 404, "Wrong response");
+        assertEquals(response.statusCode(), HttpStatus.NOT_FOUND.value(), "Wrong response");
     }
 
     @Test
@@ -639,7 +683,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin/1.8/derby-maven-plugin-6.9.jar";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertTrue(response.statusCode() == 404, "Wrong response");
+        assertEquals(response.statusCode(), HttpStatus.NOT_FOUND.value(), "Wrong response");
     }
 
     @Test
@@ -671,8 +715,8 @@ public class MavenArtifactControllerTest
 
         assertFalse(repositoryRootContent.contains(".trash"),
                     ".trash directory should not be visible in directory listing!");
-        assertTrue(trashDirectoryListing.response().getStatusCode() == 404,
-                   ".trash directory should not be browsable!");
+        assertEquals(trashDirectoryListing.response().getStatusCode(), HttpStatus.NOT_FOUND.value(),
+                     ".trash directory should not be browsable!");
 
         logger.debug(directoryListingContent);
 
@@ -680,14 +724,14 @@ public class MavenArtifactControllerTest
         assertTrue(fileListingContent.contains("foo-bar-1.0.jar"));
         assertTrue(fileListingContent.contains("foo-bar-1.0.pom"));
 
-        assertTrue(invalidPath.response().getStatusCode() == 404);
+        assertEquals(invalidPath.response().getStatusCode(), HttpStatus.NOT_FOUND.value());
 
         Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
         assertFalse(repositoryRootContent.contains(".index"),
                     ".index directory should not be visible in directory listing!");
-        assertTrue(indexDirectoryListing.response().getStatusCode() == 200,
-                   ".index directory should be browsable!");
+        assertEquals(indexDirectoryListing.response().getStatusCode(), HttpStatus.OK.value(),
+                     ".index directory should be browsable!");
     }
 
     @Test
@@ -751,22 +795,6 @@ public class MavenArtifactControllerTest
         assertNotNull(versionLevelMetadata.getVersioning().getLastUpdated());
     }
 
-    @Spy
-    Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" +
-                                                            "metadata-foo-maven-plugin" + ":" +
-                                                            "3.1");
-    @Spy
-    Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.1");
-    @Spy
-    Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo-maven-plugin" + ":" + "3.2");
-    @Spy
-    Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-faa-maven-plugin" + ":" + "3.2");
-    @Spy
-    Artifact artifact5 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.1");
-
-    @Spy
-    Artifact artifact6 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata" + ":" + "metadata-foo" + ":" + "3.2");
-
     @Test
     public void testMetadataAtGroupAndArtifactIdLevel()
             throws Exception
@@ -783,7 +811,8 @@ public class MavenArtifactControllerTest
         createPluginXmlFile(groupId, artifactId1, version1);
         crateJarFile(artifactId1 + "-" + version1);
 
-        String filePath = Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId1 + "-" + version1 + ".jar";
+        String filePath =
+                Paths.get(pluginXmlFilePath).getParent().toString() + "/" + artifactId1 + "-" + version1 + ".jar";
 
         Mockito.doReturn(new File(filePath)).when(artifact1).getFile();
 
@@ -866,7 +895,8 @@ public class MavenArtifactControllerTest
         // Group level metadata
         Metadata groupLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" +
                                                                                     REPOSITORY_RELEASES2 + "/" +
-                                                                                    ArtifactUtils.getGroupLevelMetadataPath(artifact1));
+                                                                                    ArtifactUtils.getGroupLevelMetadataPath(
+                                                                                            artifact1));
 
         assertNotNull(groupLevelMetadata);
         assertEquals(2, groupLevelMetadata.getPlugins().size());
@@ -874,7 +904,8 @@ public class MavenArtifactControllerTest
         // Artifact Level metadata
         Metadata artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata("storages/" + STORAGE0 + "/" +
                                                                                        REPOSITORY_RELEASES2 + "/" +
-                                                                                       ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+                                                                                       ArtifactUtils.getArtifactLevelMetadataPath(
+                                                                                               artifact1));
 
         assertNotNull(artifactLevelMetadata);
         assertEquals(groupId, artifactLevelMetadata.getGroupId());
@@ -923,7 +954,8 @@ public class MavenArtifactControllerTest
 
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version1);
         Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2);
-        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2 + ":jar:javadoc");
+        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(
+                groupId + ":" + artifactId + ":" + version2 + ":jar:javadoc");
 
         MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
 
@@ -990,10 +1022,14 @@ public class MavenArtifactControllerTest
         String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
-        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 1));
-        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 2));
-        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 3));
-        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 4));
+        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 1));
+        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 2));
+        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 3));
+        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 4));
 
         MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
 
@@ -1040,7 +1076,7 @@ public class MavenArtifactControllerTest
     @WithUserDetails("developer01")
     public void testDynamicPrivilegeAssignmentForRepository()
     {
-        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/releases";
+        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES;
         String pathToJar = "/org/carlspring/strongbox/test/dynamic-privileges/1.0/dynamic-privileges-1.0.jar";
         String artifactPath = url + pathToJar;
 
@@ -1050,7 +1086,8 @@ public class MavenArtifactControllerTest
                                 .get(artifactPath)
                                 .getStatusCode();
 
-        assertEquals(200, statusCode, "Access was wrongly restricted for user with custom access model");
+        assertEquals(HttpStatus.OK.value(), statusCode,
+                     "Access was wrongly restricted for user with custom access model");
     }
 
     @Test
@@ -1092,7 +1129,7 @@ public class MavenArtifactControllerTest
 
         String path = String.format("org/carlspring/commons/commons-http/%s/commons-http-%s.jar",
                                     commonsHttpSnapshot.version, commonsHttpSnapshot.timestampedVersion);
-        
+
         String url = String.format("%s/storages/storage-common-proxies/carlspring/%s", getContextBaseUrl(), path);
 
         given().header("user-agent", "Maven/*")
@@ -1102,11 +1139,12 @@ public class MavenArtifactControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
-        
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact("storage-common-proxies", "carlspring", path);
+
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact("storage-common-proxies", "carlspring",
+                                                                           path);
         assertNotNull(artifactEntry);
         assertNotNull(artifactEntry.getArtifactCoordinates());
-        
+
         assertTrue(artifactEntry instanceof RemoteArtifactEntry);
         assertTrue(((RemoteArtifactEntry) artifactEntry).getIsCached());
     }
@@ -1133,9 +1171,10 @@ public class MavenArtifactControllerTest
             return null;
         }
 
-        Metadata artifactMetadata = defaultMavenArtifactDeployer.retrieveMetadata("/storages/storage-common-proxies/carlspring/" +
-                                                            "org/carlspring/commons/commons-http/" +
-                                                            commonsHttpSnapshotVersion + "/maven-metadata.xml");
+        Metadata artifactMetadata = defaultMavenArtifactDeployer.retrieveMetadata(
+                "/storages/storage-common-proxies/carlspring/" +
+                "org/carlspring/commons/commons-http/" +
+                commonsHttpSnapshotVersion + "/maven-metadata.xml");
 
         if (artifactMetadata == null)
         {

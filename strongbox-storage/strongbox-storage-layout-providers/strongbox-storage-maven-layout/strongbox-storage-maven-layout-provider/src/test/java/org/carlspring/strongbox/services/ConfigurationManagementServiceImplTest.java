@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,6 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -35,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class ConfigurationManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -191,7 +194,7 @@ public class ConfigurationManagementServiceImplTest
     {
         List<Repository> groups = configurationManagementService.getConfiguration()
                                                                 .getGroupRepositoriesContaining(STORAGE0,
-                                                                                                         REPOSITORY_RELEASES_1);
+                                                                                                REPOSITORY_RELEASES_1);
 
         assertFalse(groups.isEmpty());
 
@@ -205,7 +208,6 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void testRemoveRepositoryFromAssociatedGroups()
-            throws Exception
     {
         assertEquals(2,
                      configurationManagementService.getConfiguration()
@@ -227,7 +229,6 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void testSetProxyRepositoryMaxConnections()
-            throws IOException, JAXBException
     {
         Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
 
@@ -235,8 +236,9 @@ public class ConfigurationManagementServiceImplTest
 
         configurationManagementService.setProxyRepositoryMaxConnections(storage.getId(), repository.getId(), 10);
 
-        HttpConnectionPool pool = configurationManagementService.getConfiguration().getHttpConnectionPoolConfiguration(storage.getId(),
-                                                                                                                       repository.getId());
+        HttpConnectionPool pool = configurationManagementService.getConfiguration()
+                                                                .getHttpConnectionPoolConfiguration(storage.getId(),
+                                                                                                    repository.getId());
 
         assertNotNull(pool);
         assertEquals(10, pool.getAllocatedConnections());
@@ -244,7 +246,6 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void addAcceptedRuleSet()
-            throws Exception
     {
         final MutableRuleSet ruleSet = getRuleSet();
         final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
@@ -262,7 +263,6 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void testRemoveAcceptedRuleSet()
-            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
@@ -277,7 +277,6 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void testAddAcceptedRepo()
-            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
@@ -298,7 +297,6 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void testRemoveAcceptedRepository()
-            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
@@ -322,7 +320,6 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     public void testOverrideAcceptedRepositories()
-            throws Exception
     {
         configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
@@ -347,26 +344,24 @@ public class ConfigurationManagementServiceImplTest
     public void testCanGetRepositoriesWithStorageAndLayout()
     {
         String maven2Layout = Maven2LayoutProvider.ALIAS;
-        List<Repository> repositories = configurationManagementService.getConfiguration().getRepositoriesWithLayout(STORAGE0,
-                                                                                                                    maven2Layout);
+        List<Repository> repositories = configurationManagementService.getConfiguration()
+                                                                      .getRepositoriesWithLayout(STORAGE0,
+                                                                                                 maven2Layout);
 
         assertFalse(repositories.isEmpty());
 
-        repositories.forEach(
-                repository -> assertTrue(repository.getLayout().equals(maven2Layout))
-        );
+        repositories.forEach(repository -> assertTrue(repository.getLayout().equals(maven2Layout)));
 
-        repositories.forEach(
-                repository -> assertTrue(repository.getStorage().getId().equals(STORAGE0))
-        );
+        repositories.forEach(repository -> assertTrue(repository.getStorage().getId().equals(STORAGE0)));
     }
 
     @Test
     public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage()
     {
         String maven2Layout = Maven2LayoutProvider.ALIAS;
-        List<Repository> repositories = configurationManagementService.getConfiguration().getRepositoriesWithLayout("notExistedStorage",
-                                                                                                                    maven2Layout);
+        List<Repository> repositories = configurationManagementService.getConfiguration()
+                                                                      .getRepositoriesWithLayout("notExistedStorage",
+                                                                                                 maven2Layout);
 
         assertTrue(repositories.isEmpty());
     }

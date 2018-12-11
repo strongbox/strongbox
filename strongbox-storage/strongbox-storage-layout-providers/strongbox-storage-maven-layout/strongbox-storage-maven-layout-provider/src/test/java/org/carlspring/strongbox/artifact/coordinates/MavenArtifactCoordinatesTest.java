@@ -4,11 +4,14 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
  */
+@Execution(CONCURRENT)
 public class MavenArtifactCoordinatesTest
 {
 

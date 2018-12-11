@@ -30,10 +30,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author carlspring
@@ -42,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class ArtifactMetadataServiceReleasesTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -50,8 +53,6 @@ public class ArtifactMetadataServiceReleasesTest
 
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                             "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES);
-
-    private static MavenArtifact artifact;
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
@@ -72,6 +73,22 @@ public class ArtifactMetadataServiceReleasesTest
             throws Exception
     {
         createRepository(STORAGE0, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
+    }
+
+    public static Set<MutableRepository> getRepositoriesToClean()
+    {
+        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
+
+        return repositories;
+    }
+
+    @Test
+    public void testReleaseMetadataRebuild()
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        createRelease("org.carlspring.strongbox.metadata.nested:foo:2.1:jar");
+        createRelease("org.carlspring.strongbox.metadata.nested:bar:3.1:jar");
 
         File strongboxMetadataDir = new File(REPOSITORY_BASEDIR,
                                              "org/carlspring/strongbox/metadata/strongbox-metadata");
@@ -89,39 +106,11 @@ public class ArtifactMetadataServiceReleasesTest
         // Testing scenario where 1.1 < 1.2 < 1.3 < 1.5 <  1.4
         // which might occur when 1.4 has been updated recently
         createRelease(ga + ":1.5:jar");
-        artifact = createRelease(ga + ":1.4:jar");
+
+        MavenArtifact artifact = createRelease(ga + ":1.4:jar");
 
         changeCreationDate(artifact);
 
-        createRelease("org.carlspring.strongbox.metadata.nested:foo:2.1:jar");
-        createRelease("org.carlspring.strongbox.metadata.nested:bar:3.1:jar");
-
-        createRelease("org.carlspring.strongbox.metadata.nested:foo:2.1:jar");
-        createRelease("org.carlspring.strongbox.metadata.nested:foo:2.2:jar");
-        createRelease("org.carlspring.strongbox.metadata.nested:foo:2.3:jar");
-        createRelease("org.carlspring.strongbox.metadata.nested:bar:3.1:jar");
-        createRelease("org.carlspring.strongbox.metadata.nested:bar:3.2:jar");
-        createRelease("org.carlspring.strongbox.metadata.nested:bar:3.3:jar");
-
-        createRelease("org.carlspring.strongbox.metadata:nested:1.1:jar");
-        createRelease("org.carlspring.strongbox.metadata:nested:1.2:jar");
-
-        createRelease("org.carlspring.strongbox.metadata:utils:1.1:jar");
-        createRelease("org.carlspring.strongbox.metadata:utils:1.2:jar");
-    }
-
-    public static Set<MutableRepository> getRepositoriesToClean()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
-    @Test
-    public void testReleaseMetadataRebuild()
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
-    {
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox/metadata");
 
         Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
@@ -295,10 +284,11 @@ public class ArtifactMetadataServiceReleasesTest
     private MavenArtifact createRelease(String gavtc)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        
         MavenArtifact result = new MavenRepositoryArtifact(generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc));
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY_RELEASES, ArtifactUtils.convertArtifactToPath(result));
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       REPOSITORY_RELEASES,
+                                                                       ArtifactUtils.convertArtifactToPath(result));
         result.setPath(repositoryPath);
         
         return result;

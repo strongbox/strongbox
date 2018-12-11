@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * @author carlspring
@@ -106,6 +107,20 @@ public class TestCaseWithRepository
             //noinspection ResultOfMethodCallIgnored
             f.createNewFile();
         }
+    }
+
+    protected String getRepositoryName(String repositoryId,
+                                       TestInfo testInfo)
+    {
+        String methodName = testInfo.getTestMethod().get().getName();
+        return repositoryId + "-" + methodName;
+    }
+
+    protected String getRepositoryBasedir(File repositoryBaseDir,
+                                          TestInfo testInfo)
+    {
+        String methodName = testInfo.getTestMethod().get().getName();
+        return repositoryBaseDir.getAbsolutePath() + "-" + methodName;
     }
 
     public Configuration getConfiguration()

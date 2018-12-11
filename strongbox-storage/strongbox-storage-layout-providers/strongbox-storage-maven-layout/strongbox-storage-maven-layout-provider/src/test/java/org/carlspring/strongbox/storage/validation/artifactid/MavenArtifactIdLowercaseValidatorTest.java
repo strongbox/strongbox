@@ -6,9 +6,11 @@ import org.carlspring.strongbox.storage.validation.artifact.LowercaseValidationE
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -17,6 +19,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 /**
  * Created by dinesh on 12/10/17.
  */
+@Execution(CONCURRENT)
 public class MavenArtifactIdLowercaseValidatorTest
 {
 

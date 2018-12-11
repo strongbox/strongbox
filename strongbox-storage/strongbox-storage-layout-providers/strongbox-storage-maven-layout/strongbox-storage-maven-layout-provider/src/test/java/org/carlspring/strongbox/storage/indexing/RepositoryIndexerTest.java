@@ -18,17 +18,20 @@ import java.util.Set;
 import org.apache.maven.index.ArtifactInfo;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
+@Execution(CONCURRENT)
 public class RepositoryIndexerTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -55,9 +58,8 @@ public class RepositoryIndexerTest
 
     @AfterEach
     public void removeRepositories()
-            throws IOException, JAXBException
+            throws Exception
     {
-        closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
         removeRepositories(getRepositoriesToClean());
     }
 

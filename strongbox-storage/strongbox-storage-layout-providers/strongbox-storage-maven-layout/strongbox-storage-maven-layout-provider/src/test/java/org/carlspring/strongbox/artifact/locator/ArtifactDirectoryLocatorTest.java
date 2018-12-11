@@ -13,19 +13,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class ArtifactDirectoryLocatorTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -46,7 +47,7 @@ public class ArtifactDirectoryLocatorTest
 
     @BeforeEach
     public void setUp()
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+            throws IOException
     {
         os = new ByteArrayOutputStream();
         System.setOut(new PrintStream(os));
@@ -144,7 +145,6 @@ public class ArtifactDirectoryLocatorTest
 
     @AfterEach
     public void tearDown()
-            throws Exception
     {
         resetOutput();
         removeGeneratedArtifacts();

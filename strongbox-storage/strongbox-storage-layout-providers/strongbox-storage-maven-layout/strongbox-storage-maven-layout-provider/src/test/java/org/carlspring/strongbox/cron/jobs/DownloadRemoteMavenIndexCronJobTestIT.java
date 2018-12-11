@@ -17,8 +17,12 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -26,6 +30,7 @@ import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Martin Todorov
@@ -33,8 +38,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
+@Execution(CONCURRENT)
 public class DownloadRemoteMavenIndexCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
@@ -50,20 +57,20 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     @Inject
     private ArtifactSearchService artifactSearchService;
 
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<MutableRepository> getRepositoriesToClean()
+    private Set<MutableRepository> getRepositories()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXIED_RELEASES, Maven2LayoutProvider.ALIAS));
 
         return repositories;
+    }
+
+    @AfterEach
+    public void removeRepositories()
+            throws Exception
+    {
+        removeRepositories(getRepositories());
     }
 
     @Override

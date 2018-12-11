@@ -1,12 +1,10 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -17,19 +15,24 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.collect.Lists;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -37,6 +40,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Kate Novik.
@@ -44,7 +48,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@Execution(CONCURRENT)
 public class ClearTrashCronJobFromMaven2RepositoryTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
@@ -55,38 +61,35 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
     private static final String REPOSITORY_RELEASES_2 = "crtcj-releases-test";
 
-    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                       "/storages/" + STORAGE0 + "/" +
-                                                                       REPOSITORY_RELEASES_1);
+    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(
+            ConfigurationResourceResolver.getVaultDirectory() +
+            "/storages/" + STORAGE0 + "/" +
+            REPOSITORY_RELEASES_1);
 
-    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                       "/storages/" + STORAGE0 + "/" +
-                                                                       REPOSITORY_RELEASES_2);
+    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(
+            ConfigurationResourceResolver.getVaultDirectory() +
+            "/storages/" + STORAGE0 + "/" +
+            REPOSITORY_RELEASES_2);
 
-    private static final File REPOSITORY_RELEASES_BASEDIR_3 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                       "/storages/" + STORAGE1 + "/" +
-                                                                       REPOSITORY_RELEASES_1);
+    private static final File REPOSITORY_RELEASES_BASEDIR_3 = new File(
+            ConfigurationResourceResolver.getVaultDirectory() +
+            "/storages/" + STORAGE1 + "/" +
+            REPOSITORY_RELEASES_1);
+
     private static MutableRepository repository1;
     private static MutableRepository repository2;
     private static MutableRepository repository3;
 
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
+
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<MutableRepository> getRepositoriesToClean()
+    private static Set<MutableRepository> getRepositories()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
@@ -94,6 +97,13 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
 
         return repositories;
+    }
+
+    @AfterEach
+    public void removeRepositories()
+            throws Exception
+    {
+        removeRepositories(getRepositories());
     }
 
     @Override
@@ -139,19 +149,6 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
                          "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
     }
 
-    @AfterEach
-    public void removeRepositories()
-    {
-        try
-        {
-            removeRepositories(getRepositoriesToClean());
-        }
-        catch (IOException | JAXBException e)
-        {
-            throw new UndeclaredThrowableException(e);
-        }
-    }
-
     @Test
     public void testRemoveTrashInRepository()
             throws Exception
@@ -161,7 +158,8 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         assertNotNull(dirs, "There is no path to the repository trash!");
         assertEquals(0, dirs.length, "The repository trash isn't empty!");
 
-        RepositoryPath path = repositoryPathResolver.resolve(new Repository(repository1), "org/carlspring/strongbox/clear/strongbox-test-one/1.0");
+        RepositoryPath path = repositoryPathResolver.resolve(new Repository(repository1),
+                                                             "org/carlspring/strongbox/clear/strongbox-test-one/1.0");
         RepositoryFiles.delete(path, false);
 
         dirs = getDirs();
@@ -179,8 +177,6 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
                 assertNotNull(dirs1, "There is no path to the repository trash!");
                 assertEquals(0, dirs1.length, "The repository trash isn't empty!");
-
-                removeRepositories();
             }
         });
 
@@ -189,7 +185,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
-    private File[] getDirs() 
+    private File[] getDirs()
     {
         RepositoryPath trashPath = null;
         try
@@ -213,88 +209,6 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             throw new UndeclaredThrowableException(e);
         }
         return files.toArray(new File[0]);
-    }
-
-    @Test
-    public void testRemoveTrashAllRepositories()
-            throws Exception
-    {
-
-
-        MutableConfiguration currentConfiguration = configurationManagementService.getMutableConfigurationClone();
-        MutableConfiguration configurationBackup = configurationManagementService.getMutableConfigurationClone();
-
-        try
-        {
-            removeNotMavenRepositories(currentConfiguration);
-
-            final File basedirTrash1 = RepositoryFiles.trash(repositoryPathResolver.resolve(new Repository(repository2))).toFile();
-            File[] dirs1 = basedirTrash1.listFiles();
-
-            assertNotNull(dirs1, "There is no path to the repository trash!");
-            assertEquals(0, dirs1.length, "The repository trash isn't empty!");
-
-            LayoutProvider layoutProvider1 = layoutProviderRegistry.getProvider(repository2.getLayout());
-            RepositoryPath path1 = repositoryPathResolver.resolve(new Repository(repository2), "org/carlspring/strongbox/clear/strongbox-test-two/1.0");
-            RepositoryFiles.delete(path1, false);
-
-            final File basedirTrash2 = RepositoryFiles.trash(repositoryPathResolver.resolve(new Repository(repository3))).toFile();
-            File[] dirs2 = basedirTrash2.listFiles();
-
-            assertNotNull(dirs2, "There is no path to the repository trash!");
-            assertEquals(0, dirs2.length, "The repository trash isn't empty!");
-
-            RepositoryPath path2 = repositoryPathResolver.resolve(new Repository(repository3), "org/carlspring/strongbox/clear/strongbox-test-one/1.0");
-            RepositoryFiles.delete(path2, false);
-
-            dirs1 = basedirTrash1.listFiles();
-            dirs2 = basedirTrash1.listFiles();
-
-            assertNotNull(dirs1, "There is no path to the repository trash!");
-            assertEquals(1, dirs1.length, "The repository trash is empty!");
-            assertNotNull(dirs2, "There is no path to the repository trash!");
-            assertEquals(1, dirs2.length, "The repository trash is empty!");
-
-            // Checking if job was executed
-            final String jobName = expectedJobName;
-            jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
-            {
-                File[] dirs11 = basedirTrash1.listFiles();
-                File[] dirs22 = basedirTrash2.listFiles();
-
-                assertNotNull(dirs11, "There is no path to the repository trash!");
-                assertEquals(0, dirs11.length, "The repository trash isn't empty!");
-                assertNotNull(dirs22, "There is no path to the repository trash!");
-                assertEquals(0, dirs22.length, "The repository trash isn't empty!");
-
-                removeRepositories();
-            });
-
-            addCronJobConfig(jobName, ClearRepositoryTrashCronJob.class, null, null);
-
-            await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-        }
-        finally
-        {
-            configurationManagementService.setConfiguration(configurationBackup);
-        }
-    }
-
-    private void removeNotMavenRepositories(final MutableConfiguration currentConfiguration)
-    {
-        for (MutableStorage storage : currentConfiguration.getStorages().values())
-        {
-            Collection<MutableRepository> repositories = Lists.newArrayList(storage.getRepositories().values());
-            for (MutableRepository repository : repositories)
-            {
-                if (Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
-                {
-                    continue;
-                }
-                storage.removeRepository(repository.getId());
-            }
-        }
-        configurationManagementService.setConfiguration(currentConfiguration);
     }
 
 }
