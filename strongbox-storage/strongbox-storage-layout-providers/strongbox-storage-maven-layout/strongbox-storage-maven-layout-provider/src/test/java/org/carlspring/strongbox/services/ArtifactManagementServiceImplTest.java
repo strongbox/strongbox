@@ -597,7 +597,6 @@ public class ArtifactManagementServiceImplTest
                            RepositoryPath repositoryPath,
                            byte[][] loremIpsumContentArray)
     {
-        logger.info(String.format("Iteration [%s:%s]", i, repositoryPath));
         try
         {
             Repository repository = repositoryPath.getRepository();
@@ -639,9 +638,7 @@ public class ArtifactManagementServiceImplTest
 
             try
             {
-                long result = mavenArtifactManagementService.store(repositoryPath, is);
-                logger.info(String.format("Stored [%s:%s].", result, repositoryPath));
-                return result;
+                return mavenArtifactManagementService.store(repositoryPath, is);
             }
             catch (Exception ex)
             {
@@ -693,26 +690,21 @@ public class ArtifactManagementServiceImplTest
                 }
                 catch (InterruptedException e1)
                 {
-                    logger.error("Returning 0. InterruptedException occurred.", e1);
                     return 0L;
                 }
                 
                 if (attempts++ > 3) {
-                    logger.info(String.format("Returning 0. Attempt [%s:%s].", attempts, repositoryPath));
                     return 0L;
                 }
 
-                logger.error(String.format("Calling this.call [%s].", repositoryPath), e);
                 return this.call();
             }
             catch (Exception ex)
             {
                 logger.error(String.format("Failed to read artifact [%s]", repositoryPath), ex);
-
                 return 0L;
             }
 
-            logger.info(String.format("Returning [%s:%s].", result, repositoryPath));
             return result;
         }
     }
