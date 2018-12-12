@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.configuration;
 
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm.ProxyConfigurationFormChecks;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -16,6 +17,7 @@ import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
+import javax.validation.groups.Default;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -97,9 +99,11 @@ public class StoragesConfigurationController
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
                                                                           MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity saveStorage(@RequestBody @Validated StorageForm storageForm,
-                                      BindingResult bindingResult,
-                                      @RequestHeader(HttpHeaders.ACCEPT) String accept)
+    public ResponseEntity saveStorage(
+            @RequestBody @Validated({ Default.class,
+                                      ProxyConfigurationFormChecks.class }) StorageForm storageForm,
+            BindingResult bindingResult,
+            @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         if (bindingResult.hasErrors())
         {
@@ -217,7 +221,9 @@ public class StoragesConfigurationController
                                                 @ApiParam(value = "The repositoryId", required = true)
                                                 @PathVariable String repositoryId,
                                                 @ApiParam(value = "The repository object", required = true)
-                                                @RequestBody @Validated RepositoryForm repositoryForm,
+                                                @RequestBody @Validated({ Default.class,
+                                                                          ProxyConfigurationFormChecks.class })
+                                                        RepositoryForm repositoryForm,
                                                 BindingResult bindingResult,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {

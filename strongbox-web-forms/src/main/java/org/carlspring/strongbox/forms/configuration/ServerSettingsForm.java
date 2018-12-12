@@ -4,6 +4,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,10 +26,11 @@ public class ServerSettingsForm
     @JsonProperty
     private String baseUrl;
 
+    @NotNull(message = "A port must be specified.")
     @Min(value = 1, message = "Port number must be an integer between 1 and 65535.")
     @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.")
     @JsonProperty
-    private int port;
+    private Integer port;
 
     @Valid
     @JsonProperty
@@ -47,15 +49,16 @@ public class ServerSettingsForm
     }
 
     public ServerSettingsForm(@NotBlank(message = "A base URL must be specified.") String baseUrl,
+                              @NotNull(message = "A port must be specified.")
                               @Min(value = 1, message = "Port number must be an integer between 1 and 65535.")
-                              @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.") int port)
+                              @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.") Integer port)
     {
         this.baseUrl = baseUrl;
         this.port = port;
     }
 
     public ServerSettingsForm(String baseUrl,
-                              int port,
+                              Integer port,
                               String instanceName,
                               CorsConfigurationForm corsConfigurationForm,
                               SmtpConfigurationForm smtpConfigurationForm,
@@ -79,12 +82,12 @@ public class ServerSettingsForm
         this.baseUrl = baseUrl;
     }
 
-    public int getPort()
+    public Integer getPort()
     {
         return port;
     }
 
-    public void setPort(int port)
+    public void setPort(Integer port)
     {
         this.port = port;
     }

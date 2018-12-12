@@ -3,10 +3,8 @@ package org.carlspring.strongbox.forms.configuration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,17 +19,19 @@ import com.google.common.collect.Lists;
 public class ProxyConfigurationForm
 {
 
-    @NotBlank(message = "A host must be specified.")
+    @NotBlank(message = "A host must be specified.", groups = ProxyConfigurationFormChecks.class)
     private String host;
 
-    @Min(value = 1, message = "Port number must be an integer between 1 and 65535.")
-    @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.")
-    private int port;
+    @NotNull(message = "A port must be provided.", groups = ProxyConfigurationFormChecks.class)
+    @Min(value = 1, message = "Port number must be an integer between 1 and 65535.", groups = ProxyConfigurationFormChecks.class)
+    @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.", groups = ProxyConfigurationFormChecks.class)
+    private Integer port;
 
-    @NotBlank(message = "A proxy type must be specified.")
+    @NotBlank(message = "A proxy type must be specified.", groups = ProxyConfigurationFormChecks.class)
     @Pattern(regexp = "DIRECT|HTTP|SOCKS4|SOCKS5",
-             flags = Pattern.Flag.CASE_INSENSITIVE,
-             message = "Proxy type must contain one the following strings as value: DIRECT, HTTP, SOCKS4, SOCKS5")
+            flags = Pattern.Flag.CASE_INSENSITIVE,
+            message = "Proxy type must contain one the following strings as value: DIRECT, HTTP, SOCKS4, SOCKS5",
+            groups = ProxyConfigurationFormChecks.class)
     private String type;
 
     private String username;
@@ -45,7 +45,7 @@ public class ProxyConfigurationForm
     }
 
     public ProxyConfigurationForm(String host,
-                                  int port,
+                                  Integer port,
                                   String type,
                                   String username,
                                   String password,
@@ -59,6 +59,21 @@ public class ProxyConfigurationForm
         this.nonProxyHosts = nonProxyHosts;
     }
 
+    @JsonIgnore()
+    public static ProxyConfigurationForm fromConfiguration(ProxyConfiguration source)
+    {
+        ProxyConfiguration configuration = Optional.ofNullable(source).orElse(
+                new ProxyConfiguration(new MutableProxyConfiguration())
+        );
+
+        return new ProxyConfigurationForm(configuration.getHost(),
+                                          configuration.getPort(),
+                                          configuration.getType(),
+                                          configuration.getUsername(),
+                                          null,
+                                          configuration.getNonProxyHosts());
+    }
+
     public String getHost()
     {
         return host;
@@ -69,12 +84,12 @@ public class ProxyConfigurationForm
         this.host = host;
     }
 
-    public int getPort()
+    public Integer getPort()
     {
         return port;
     }
 
-    public void setPort(int port)
+    public void setPort(Integer port)
     {
         this.port = port;
     }
@@ -126,18 +141,9 @@ public class ProxyConfigurationForm
                                              this.nonProxyHosts);
     }
 
-    @JsonIgnore()
-    public static ProxyConfigurationForm fromConfiguration(ProxyConfiguration source)
+    public interface ProxyConfigurationFormChecks
+            extends Serializable
     {
-        ProxyConfiguration configuration = Optional.ofNullable(source).orElse(
-                new ProxyConfiguration(new MutableProxyConfiguration())
-        );
-
-        return new ProxyConfigurationForm(configuration.getHost(),
-                                          configuration.getPort(),
-                                          configuration.getType(),
-                                          configuration.getUsername(),
-                                          null,
-                                          configuration.getNonProxyHosts());
+        // validation group marker interface for fields.
     }
 }

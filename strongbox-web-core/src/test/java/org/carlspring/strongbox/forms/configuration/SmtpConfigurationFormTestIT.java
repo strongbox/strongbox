@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.forms.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.configuration.SmtpConfigurationForm.SmtpConfigurationFormChecks;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
@@ -31,9 +32,10 @@ public class SmtpConfigurationFormTestIT
 {
 
     private static final String HOST_VALID = "host";
-    private static final int PORT_VALID = 1;
-    private static final int PORT_MIN_INVALID = 0;
-    private static final int PORT_MAX_INVALID = 65536;
+    private static final Integer PORT_VALID = 1;
+    private static final Integer PORT_EMPTY = null;
+    private static final Integer PORT_MIN_INVALID = 0;
+    private static final Integer PORT_MAX_INVALID = 65536;
     private static final String CONNECTION_VALID = "plain";
     private static final String CONNECTION_INVALID = "CONNECTION_INVALID";
 
@@ -45,6 +47,16 @@ public class SmtpConfigurationFormTestIT
         return Stream.of(
                 Arguments.of(StringUtils.EMPTY, "Please set a valid SMTP connection type."),
                 Arguments.of(CONNECTION_INVALID, "Please set a valid SMTP connection type.")
+        );
+    }
+
+    private static Stream<Arguments> portsProvider()
+    {
+        final String rangeErrorMessage = "Port number must be an integer between 1 and 65535.";
+        return Stream.of(
+                Arguments.of(PORT_EMPTY, "SMTP port must be provided."),
+                Arguments.of(PORT_MIN_INVALID, rangeErrorMessage),
+                Arguments.of(PORT_MAX_INVALID, rangeErrorMessage)
         );
     }
 
@@ -69,7 +81,8 @@ public class SmtpConfigurationFormTestIT
         smtpConfigurationForm.setConnection(connection);
 
         // when
-        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm);
+        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm,
+                                                                                        SmtpConfigurationFormChecks.class);
 
         // then
         assertTrue(violations.isEmpty(), "Violations are not empty!");
@@ -85,33 +98,34 @@ public class SmtpConfigurationFormTestIT
         smtpConfigurationForm.setConnection(CONNECTION_VALID);
 
         // when
-        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm);
+        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm,
+                                                                                        SmtpConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
         assertEquals(violations.size(), 1);
-        assertThat(violations).extracting("message").containsAnyOf("SMTP host must be provided");
+        assertThat(violations).extracting("message").containsAnyOf("SMTP host must be provided.");
     }
 
     @ParameterizedTest
-    @ValueSource(ints = { PORT_MIN_INVALID,
-                          PORT_MAX_INVALID })
-    void testSmtpConfigurationFormInvalidPort(int invalidPort)
+    @MethodSource("portsProvider")
+    void testSmtpConfigurationFormInvalidPort(Integer port,
+                                              String errorMessage)
     {
         // given
         SmtpConfigurationForm smtpConfigurationForm = new SmtpConfigurationForm();
         smtpConfigurationForm.setHost(HOST_VALID);
-        smtpConfigurationForm.setPort(invalidPort);
+        smtpConfigurationForm.setPort(port);
         smtpConfigurationForm.setConnection(CONNECTION_VALID);
 
         // when
-        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm);
+        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm,
+                                                                                        SmtpConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
         assertEquals(violations.size(), 1);
-        assertThat(violations).extracting("message").containsAnyOf(
-                "Port number must be an integer between 1 and 65535.");
+        assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 
     @ParameterizedTest
@@ -126,7 +140,8 @@ public class SmtpConfigurationFormTestIT
         smtpConfigurationForm.setConnection(connection);
 
         // when
-        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm);
+        Set<ConstraintViolation<SmtpConfigurationForm>> violations = validator.validate(smtpConfigurationForm,
+                                                                                        SmtpConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");

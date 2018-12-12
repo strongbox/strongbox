@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.forms.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm.ProxyConfigurationFormChecks;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
@@ -31,14 +32,25 @@ public class ProxyConfigurationFormTestIT
 {
 
     private static final String HOST_VALID = "host";
-    private static final int PORT_VALID = 1;
-    private static final int PORT_MIN_INVALID = 0;
-    private static final int PORT_MAX_INVALID = 65536;
+    private static final Integer PORT_VALID = 1;
+    private static final Integer PORT_EMPTY = null;
+    private static final Integer PORT_MIN_INVALID = 0;
+    private static final Integer PORT_MAX_INVALID = 65536;
     private static final String TYPE_VALID = "DIRECT";
     private static final String TYPE_INVALID = "TYPE_INVALID";
 
     @Inject
     private Validator validator;
+
+    private static Stream<Arguments> portsProvider()
+    {
+        final String rangeErrorMessage = "Port number must be an integer between 1 and 65535.";
+        return Stream.of(
+                Arguments.of(PORT_EMPTY, "A port must be provided."),
+                Arguments.of(PORT_MIN_INVALID, rangeErrorMessage),
+                Arguments.of(PORT_MAX_INVALID, rangeErrorMessage)
+        );
+    }
 
     private static Stream<Arguments> typesProvider()
     {
@@ -71,7 +83,8 @@ public class ProxyConfigurationFormTestIT
         proxyConfigurationForm.setType(validType);
 
         // when
-        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm);
+        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm,
+                                                                                         ProxyConfigurationFormChecks.class);
 
         // then
         assertTrue(violations.isEmpty(), "Violations are not empty!");
@@ -87,7 +100,8 @@ public class ProxyConfigurationFormTestIT
         proxyConfigurationForm.setType(TYPE_VALID);
 
         // when
-        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm);
+        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm,
+                                                                                         ProxyConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
@@ -96,24 +110,24 @@ public class ProxyConfigurationFormTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(ints = { PORT_MIN_INVALID,
-                          PORT_MAX_INVALID })
-    void testProxyConfigurationFormInvalidPort(int invalidPort)
+    @MethodSource("portsProvider")
+    void testProxyConfigurationFormInvalidPort(Integer port,
+                                               String errorMessage)
     {
         // given
         ProxyConfigurationForm proxyConfigurationForm = new ProxyConfigurationForm();
         proxyConfigurationForm.setHost(HOST_VALID);
-        proxyConfigurationForm.setPort(invalidPort);
+        proxyConfigurationForm.setPort(port);
         proxyConfigurationForm.setType(TYPE_VALID);
 
         // when
-        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm);
+        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm,
+                                                                                         ProxyConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
         assertEquals(violations.size(), 1);
-        assertThat(violations).extracting("message").containsAnyOf(
-                "Port number must be an integer between 1 and 65535.");
+        assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 
     @ParameterizedTest
@@ -129,7 +143,8 @@ public class ProxyConfigurationFormTestIT
         proxyConfigurationForm.setType(type);
 
         // when
-        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm);
+        Set<ConstraintViolation<ProxyConfigurationForm>> violations = validator.validate(proxyConfigurationForm,
+                                                                                         ProxyConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");

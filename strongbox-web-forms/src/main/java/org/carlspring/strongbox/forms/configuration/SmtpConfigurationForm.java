@@ -3,10 +3,8 @@ package org.carlspring.strongbox.forms.configuration;
 import org.carlspring.strongbox.configuration.MutableSmtpConfiguration;
 import org.carlspring.strongbox.configuration.SmtpConfiguration;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
+import java.io.Serializable;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,18 +14,20 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class SmtpConfigurationForm
 {
 
-    @NotBlank(message = "SMTP host must be provided")
+    @NotBlank(message = "SMTP host must be provided.", groups = SmtpConfigurationFormChecks.class)
     private String host;
 
-    @Min(value = 1, message = "Port number must be an integer between 1 and 65535.")
-    @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.")
+    @NotNull(message = "SMTP port must be provided.", groups = SmtpConfigurationFormChecks.class)
+    @Min(value = 1, message = "Port number must be an integer between 1 and 65535.", groups = SmtpConfigurationFormChecks.class)
+    @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.", groups = SmtpConfigurationFormChecks.class)
     private Integer port;
 
     private String username;
 
     private String password;
 
-    @Pattern(regexp = "plain|ssl|tls", flags = Pattern.Flag.CASE_INSENSITIVE, message = "Please set a valid SMTP connection type.")
+    @Pattern(regexp = "plain|ssl|tls", flags = Pattern.Flag.CASE_INSENSITIVE, message = "Please set a valid SMTP connection type.",
+            groups = SmtpConfigurationFormChecks.class)
     private String connection;
 
     public SmtpConfigurationForm()
@@ -119,5 +119,11 @@ public class SmtpConfigurationForm
                                          configuration.getConnection(),
                                          configuration.getUsername(),
                                          null);
+    }
+
+    public interface SmtpConfigurationFormChecks
+            extends Serializable
+    {
+        // validation group marker interface for fields.
     }
 }

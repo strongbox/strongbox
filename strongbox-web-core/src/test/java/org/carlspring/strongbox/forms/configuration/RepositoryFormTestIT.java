@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.forms.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm.ProxyConfigurationFormChecks;
 import org.carlspring.strongbox.providers.datastore.StorageProviderEnum;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -10,6 +11,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import javax.validation.groups.Default;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -94,7 +96,9 @@ public class RepositoryFormTestIT
                                    String errorMessage)
     {
         // when
-        Set<ConstraintViolation<RepositoryForm>> violations = validator.validate(repositoryForm);
+        Set<ConstraintViolation<RepositoryForm>> violations = validator.validate(repositoryForm,
+                                                                                 Default.class,
+                                                                                 ProxyConfigurationFormChecks.class);
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
@@ -145,7 +149,9 @@ public class RepositoryFormTestIT
         repositoryForm.setRepositoryConfiguration(repositoryConfiguration);
 
         // when
-        Set<ConstraintViolation<RepositoryForm>> violations = validator.validate(repositoryForm);
+        Set<ConstraintViolation<RepositoryForm>> violations = validator.validate(repositoryForm,
+                                                                                 Default.class,
+                                                                                 ProxyConfigurationFormChecks.class);
 
         // then
         assertTrue(violations.isEmpty(), "Violations are not empty!");
