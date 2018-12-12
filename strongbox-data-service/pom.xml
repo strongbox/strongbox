@@ -57,10 +57,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
@@ -260,6 +256,11 @@
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo</artifactId>
             <version>5.0.0-RC1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.ThoughtWire</groupId>
+            <artifactId>hazelcast-locks</artifactId>
         </dependency>
 
     </dependencies>

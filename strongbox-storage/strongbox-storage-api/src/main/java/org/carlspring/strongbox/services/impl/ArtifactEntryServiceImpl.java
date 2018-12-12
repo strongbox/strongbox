@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
  * DAO implementation for {@link ArtifactEntry} entities.
  *
  * @author Sergey Bespalov
+ * @author Przemyslaw Fusik
  */
 @Service
 @Transactional
@@ -42,7 +43,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
 
     @Inject
     private ArtifactTagService artifactTagService;
-    
+
     @Override
     public <S extends ArtifactEntry> S save(S entity,
                                             boolean updateLastVersion)
@@ -412,7 +413,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         return coordinates.entrySet()
                           .stream()
                           .filter(e -> e.getValue() != null)
-                          .collect(Collectors.toMap(Map.Entry::getKey,
+                          .collect(Collectors.toMap(Entry::getKey,
                                                     e -> calculateParameterValue(e, strict)));
     }
 
@@ -535,6 +536,17 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         return result;
     }
 
+    @Override
+    protected ORID findId(ArtifactEntry entity)
+    {
+        return findArtifactEntryId(entity.getStorageId(), entity.getRepositoryId(), entity.getArtifactPath());
+    }
+
+    @Override
+    protected String getLockKey(ArtifactEntry entity)
+    {
+        return String.format("%s %s %s", entity.getStorageId(), entity.getRepositoryId(), entity.getArtifactPath());
+    }
 
 
 }

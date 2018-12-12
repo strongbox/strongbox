@@ -52,10 +52,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
@@ -280,11 +276,6 @@
         <dependency>
             <groupId>org.semver</groupId>
             <artifactId>api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.ThoughtWire</groupId>
-            <artifactId>hazelcast-locks</artifactId>
         </dependency>
         
     </dependencies>
