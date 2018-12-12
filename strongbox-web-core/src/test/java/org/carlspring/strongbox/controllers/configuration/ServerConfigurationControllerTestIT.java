@@ -20,8 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.FAILED_SAVE_SERVER_SETTINGS;
-import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.SUCCESSFUL_SAVE_SERVER_SETTINGS;
+import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.*;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
@@ -283,5 +282,39 @@ public class ServerConfigurationControllerTestIT
         String newBaseUrl = null;
         Integer newPort = 65536;
         serverSettingsShouldNotBeSaved(MediaType.TEXT_PLAIN_VALUE, newBaseUrl, newPort);
+    }
+
+    public void serverSettingsEmptyShouldNotBeSaved(String acceptHeader)
+    {
+        // assign settings to server
+        ServerSettingsForm serverSettingsForm = null;
+
+        String url = getContextBaseUrl() + "/serverSettings";
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(acceptHeader)
+               .body(serverSettingsForm)
+               .when()
+               .post(url)
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
+               .body(containsString(FAILED_EMPTY_FORM));
+    }
+
+    @Test
+    @WithMockUser(authorities = { "CONFIGURATION_SET_BASE_URL",
+                                  "CONFIGURATION_SET_PORT" })
+    public void testServerSettingsEmptyShouldNotBeSavedWithResponseInJson()
+    {
+        serverSettingsEmptyShouldNotBeSaved(MediaType.APPLICATION_JSON_VALUE);
+    }
+
+    @Test
+    @WithMockUser(authorities = { "CONFIGURATION_SET_BASE_URL",
+                                  "CONFIGURATION_SET_PORT" })
+    public void testServerSettingsEmptyShouldNotBeSavedWithResponseInText()
+    {
+        serverSettingsEmptyShouldNotBeSaved(MediaType.TEXT_PLAIN_VALUE);
     }
 }

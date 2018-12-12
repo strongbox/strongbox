@@ -46,6 +46,8 @@ public class ServerConfigurationController
 
     static final String FAILED_SAVE_SERVER_SETTINGS = "Server settings cannot be saved because the submitted form contains errors!";
 
+    static final String FAILED_EMPTY_FORM = "Empty form was provided";
+
     private final Validator validator;
 
     public ServerConfigurationController(ConfigurationManagementService configurationManagementService,
@@ -229,6 +231,11 @@ public class ServerConfigurationController
                                             BindingResult bindingResult,
                                             @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
+        if (serverSettingsForm == null)
+        {
+            return getBadRequestResponseEntity(FAILED_EMPTY_FORM, acceptHeader);
+        }
+
         validateServerSettingsForm(serverSettingsForm, bindingResult);
 
         if (bindingResult.hasErrors())
@@ -270,20 +277,19 @@ public class ServerConfigurationController
     private void validateServerSettingsForm(ServerSettingsForm form,
                                             BindingResult bindingResult)
     {
-        if (form != null)
+        if (!isProxyConfigurationFormEmpty(form.getProxyConfigurationForm()))
         {
-            if (!isProxyConfigurationFormEmpty(form.getProxyConfigurationForm()))
-            {
-                ValidationUtils.invokeValidator(validator, form, bindingResult, ProxyConfigurationForm.ProxyConfigurationFormChecks.class);
-            }
-
-            if (!isSmtpConfigurationFormEmpty(form.getSmtpConfigurationForm()))
-            {
-                ValidationUtils.invokeValidator(validator, form, bindingResult, SmtpConfigurationForm.SmtpConfigurationFormChecks.class);
-            }
-
-            ValidationUtils.invokeValidator(validator, form, bindingResult);
+            ValidationUtils.invokeValidator(validator, form, bindingResult,
+                                            ProxyConfigurationForm.ProxyConfigurationFormChecks.class);
         }
+
+        if (!isSmtpConfigurationFormEmpty(form.getSmtpConfigurationForm()))
+        {
+            ValidationUtils.invokeValidator(validator, form, bindingResult,
+                                            SmtpConfigurationForm.SmtpConfigurationFormChecks.class);
+        }
+
+        ValidationUtils.invokeValidator(validator, form, bindingResult);
 
     }
 
