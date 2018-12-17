@@ -341,7 +341,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         @Bean
         public Config hazelcastConfig()
         {
-            final Config config = new Config().setInstanceName("test-hazelcast-instance")
+            final Config config = new Config().setInstanceName("LdapAuthenticatorConfigurationControllerTest-hazelcast-instance")
                                               .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
                                               .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
 

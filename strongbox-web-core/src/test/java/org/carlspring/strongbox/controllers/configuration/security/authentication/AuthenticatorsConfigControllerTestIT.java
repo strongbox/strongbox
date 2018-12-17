@@ -2,6 +2,7 @@ package org.carlspring.strongbox.controllers.configuration.security.authenticati
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.CustomMatchers.equalByToString;
+import static org.carlspring.strongbox.config.HazelcastConfiguration.newDefaultMapConfig;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 
@@ -14,6 +15,7 @@ import org.carlspring.strongbox.authentication.api.AuthenticationItem;
 import org.carlspring.strongbox.authentication.api.AuthenticationItems;
 import org.carlspring.strongbox.authentication.registry.AuthenticationResourceManager;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +35,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.hazelcast.config.Config;
 
 /**
  * @author Przemyslaw Fusik
@@ -173,12 +177,18 @@ public class AuthenticatorsConfigControllerTestIT
     public static class AuthenticatorsConfigControllerTestConfig
     {
 
-        public AuthenticatorsConfigControllerTestConfig()
+        @Primary
+        @Bean
+        public Config hazelcastConfig()
         {
-            super();
-            System.out.println("!!!");
-        }
+            final Config config = new Config().setInstanceName("AuthenticatorsConfigControllerTestConfig-hazelcast-instance")
+                                              .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
+                                              .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
 
+            config.getGroupConfig().setName("strongbox").setPassword("password");
+            return config;
+        }
+        
         @Bean
         @Primary
         public AuthenticationResourceManager testAuthenticationResourceManager()
