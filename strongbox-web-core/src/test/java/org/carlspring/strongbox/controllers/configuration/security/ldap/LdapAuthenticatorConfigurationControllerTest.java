@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration.security.ldap;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.config.HazelcastConfiguration.newDefaultMapConfig;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 
@@ -19,6 +20,7 @@ import org.carlspring.strongbox.authentication.external.ldap.LdapAuthenticationC
 import org.carlspring.strongbox.authentication.external.ldap.LdapConfiguration;
 import org.carlspring.strongbox.authentication.external.ldap.LdapRoleMapping;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.Ignore;
@@ -26,14 +28,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.hazelcast.config.Config;
 
 import io.restassured.http.ContentType;
 
@@ -330,6 +336,18 @@ public class LdapAuthenticatorConfigurationControllerTest
     @Profile("LdapAuthenticatorConfigurationControllerTest")
     @ImportResource("classpath:/ldapServerApplicationContext.xml")
     public static class LdapAuthenticatorConfigurationControllerTestConfiguration {
+        
+        @Primary
+        @Bean
+        public Config hazelcastConfig()
+        {
+            final Config config = new Config().setInstanceName("test-hazelcast-instance")
+                                              .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
+                                              .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
+
+            config.getGroupConfig().setName("strongbox").setPassword("password");
+            return config;
+        }
         
     }
 
