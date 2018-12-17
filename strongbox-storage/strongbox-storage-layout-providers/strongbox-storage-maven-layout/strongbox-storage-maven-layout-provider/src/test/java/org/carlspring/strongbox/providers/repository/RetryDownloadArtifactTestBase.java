@@ -4,6 +4,7 @@ import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RestArtifactResolver;
+import org.carlspring.strongbox.config.HazelcastConfiguration;
 import org.carlspring.strongbox.config.HazelcastInstanceId;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
@@ -27,6 +28,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
@@ -160,6 +162,7 @@ public abstract class RetryDownloadArtifactTestBase
     }
 
     @Profile("MockedRestArtifactResolverTestConfig")
+    @Import(HazelcastConfiguration.class)
     @Configuration
     public static class MockedRestArtifactResolverTestConfig
     {
