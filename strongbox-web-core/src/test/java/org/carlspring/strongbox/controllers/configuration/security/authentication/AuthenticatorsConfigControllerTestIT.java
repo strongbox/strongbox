@@ -14,6 +14,7 @@ import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
 import org.carlspring.strongbox.authentication.api.AuthenticationItem;
 import org.carlspring.strongbox.authentication.api.AuthenticationItems;
 import org.carlspring.strongbox.authentication.registry.AuthenticationResourceManager;
+import org.carlspring.strongbox.config.HazelcastInstanceId;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -179,14 +180,8 @@ public class AuthenticatorsConfigControllerTestIT
 
         @Primary
         @Bean
-        public Config hazelcastConfig()
-        {
-            final Config config = new Config().setInstanceName("AuthenticatorsConfigControllerTestConfig-hazelcast-instance")
-                                              .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
-                                              .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
-
-            config.getGroupConfig().setName("strongbox").setPassword("password");
-            return config;
+        public HazelcastInstanceId hazelcastInstanceId() {
+            return new HazelcastInstanceId("AuthenticatorsConfigControllerTestConfig-hazelcast-instance");
         }
         
         @Bean

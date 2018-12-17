@@ -19,6 +19,7 @@ import org.carlspring.strongbox.authentication.api.AuthenticationItems;
 import org.carlspring.strongbox.authentication.external.ldap.LdapAuthenticationConfigurationManager;
 import org.carlspring.strongbox.authentication.external.ldap.LdapConfiguration;
 import org.carlspring.strongbox.authentication.external.ldap.LdapRoleMapping;
+import org.carlspring.strongbox.config.HazelcastInstanceId;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
@@ -339,14 +340,8 @@ public class LdapAuthenticatorConfigurationControllerTest
         
         @Primary
         @Bean
-        public Config hazelcastConfig()
-        {
-            final Config config = new Config().setInstanceName("LdapAuthenticatorConfigurationControllerTest-hazelcast-instance")
-                                              .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
-                                              .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
-
-            config.getGroupConfig().setName("strongbox").setPassword("password");
-            return config;
+        public HazelcastInstanceId hazelcastInstanceId() {
+            return new HazelcastInstanceId("LdapAuthenticatorConfigurationControllerTest-hazelcast-instance");
         }
         
     }

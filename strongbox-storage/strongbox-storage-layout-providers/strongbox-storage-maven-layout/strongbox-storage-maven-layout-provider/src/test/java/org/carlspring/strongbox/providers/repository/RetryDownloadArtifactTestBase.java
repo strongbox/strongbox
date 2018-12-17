@@ -4,6 +4,7 @@ import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RestArtifactResolver;
+import org.carlspring.strongbox.config.HazelcastInstanceId;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
@@ -162,18 +163,13 @@ public abstract class RetryDownloadArtifactTestBase
     @Configuration
     public static class MockedRestArtifactResolverTestConfig
     {
+        
         @Primary
         @Bean
-        public Config hazelcastConfig()
-        {
-            final Config config = new Config().setInstanceName("mocked-hazelcast-instance")
-                                              .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
-                                              .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
-
-            config.getGroupConfig().setName("strongbox").setPassword("password");
-            return config;
+        public HazelcastInstanceId hazelcastInstanceId() {
+            return new HazelcastInstanceId("mocked-hazelcast-instance");
         }
-
+        
         @Bean
         @Primary
         RestArtifactResolverFactory artifactResolverFactory()
