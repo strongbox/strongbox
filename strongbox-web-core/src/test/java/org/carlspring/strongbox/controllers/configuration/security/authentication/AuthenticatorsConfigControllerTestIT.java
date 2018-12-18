@@ -2,7 +2,6 @@ package org.carlspring.strongbox.controllers.configuration.security.authenticati
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.CustomMatchers.equalByToString;
-import static org.carlspring.strongbox.config.HazelcastConfiguration.newDefaultMapConfig;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 
@@ -17,7 +16,6 @@ import org.carlspring.strongbox.authentication.registry.AuthenticationResourceMa
 import org.carlspring.strongbox.config.HazelcastConfiguration;
 import org.carlspring.strongbox.config.HazelcastInstanceId;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,8 +36,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import com.hazelcast.config.Config;
 
 /**
  * @author Przemyslaw Fusik

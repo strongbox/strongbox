@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.controllers.configuration.security.ldap;
 
-import java.io.IOException;
-
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.external.ldap.LdapAuthenticationConfigurationManager;

@@ -4,20 +4,24 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
 import org.carlspring.strongbox.authentication.api.AuthenticationItems;
-import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
-import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
 import org.carlspring.strongbox.controllers.BaseController;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * @author Przemyslaw Fusik
@@ -31,17 +35,17 @@ public class AuthenticatorsConfigController
         extends BaseController
 {
 
-    static final String SUCCESSFUL_UPDATE = "Update succeeded.";
+    public static final String SUCCESSFUL_UPDATE = "Update succeeded.";
     
-    static final String SUCCESSFUL_REORDER = "Re-order succeeded.";
+    public static final String SUCCESSFUL_REORDER = "Re-order succeeded.";
 
-    static final String FAILED_REORDER = "Could not reorder authentication items.";
+    public static final String FAILED_REORDER = "Could not reorder authentication items.";
     
-    static final String FAILED_UPDATE= "Could not update authentication configuration.";
+    public static final String FAILED_UPDATE= "Could not update authentication configuration.";
 
-    static final String SUCCESSFUL_RELOAD = "Reload succeeded.";
+    public static final String SUCCESSFUL_RELOAD = "Reload succeeded.";
 
-    static final String FAILED_RELOAD = "Could not reload authentication configuration.";
+    public static final String FAILED_RELOAD = "Could not reload authentication configuration.";
 
     @Inject
     private ConfigurableProviderManager providerManager;

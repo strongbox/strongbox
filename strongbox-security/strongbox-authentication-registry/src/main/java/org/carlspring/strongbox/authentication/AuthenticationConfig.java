@@ -15,7 +15,7 @@ public class AuthenticationConfig
 
     @Bean
     @Primary
-    ConfigurableProviderManager authenticationManager()
+    public ConfigurableProviderManager authenticationManager()
     {
         return new ConfigurableProviderManager();
     }

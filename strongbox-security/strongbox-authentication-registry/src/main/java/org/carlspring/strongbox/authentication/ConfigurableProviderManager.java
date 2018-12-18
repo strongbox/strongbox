@@ -79,6 +79,8 @@ public class ConfigurableProviderManager extends ProviderManager implements User
     public void reload()
         throws IOException
     {
+        logger.info("Reloading Authentication.");
+        
         authenticationProvidersRegistry.reload();
 
         reloadAuthenticationItems();
@@ -283,7 +285,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
     }
 
     @EventListener({ ContextRefreshedEvent.class })
-    void contextRefreshedEvent(ContextRefreshedEvent e)
+    public void contextRefreshedEvent(ContextRefreshedEvent e)
         throws IOException
     {
         ApplicationContext applicationContext = e.getApplicationContext();

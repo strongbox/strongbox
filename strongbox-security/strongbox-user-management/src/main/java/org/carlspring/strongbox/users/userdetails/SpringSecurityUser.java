@@ -1,13 +1,12 @@
 package org.carlspring.strongbox.users.userdetails;
 
-import org.carlspring.strongbox.users.domain.AccessModel;
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
-
 import java.util.Collection;
 
-import com.google.common.base.Objects;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.google.common.base.Objects;
 
 public class SpringSecurityUser
         implements UserDetails
@@ -26,10 +25,6 @@ public class SpringSecurityUser
     private String url;
 
     private String securityKey;
-
-    public SpringSecurityUser()
-    {
-    }
 
     @Override
     public String getUsername()

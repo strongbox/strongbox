@@ -28,7 +28,7 @@ public class AuthenticationResourceManager
     private Resource authenticationPropertiesResource;
 
     @PostConstruct
-    private void init()
+    public void init()
         throws IOException
     {
         authenticationConfigurationResource = doGetResource(ConfigurationResourceResolver.getConfigurationResource(PROPERTY_AUTHENTICATION_PROVIDERS_LOCATION,

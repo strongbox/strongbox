@@ -9,7 +9,7 @@ public class EmptyAuthenticationProvider implements AuthenticationProvider
 {
     
     @Autowired(required = true)
-    private EmptyAuthenticationProviderComponent emptyAuthenticationProviderComponent;
+    protected EmptyAuthenticationProviderComponent emptyAuthenticationProviderComponent;
 
     @Override
     public Authentication authenticate(Authentication authentication)

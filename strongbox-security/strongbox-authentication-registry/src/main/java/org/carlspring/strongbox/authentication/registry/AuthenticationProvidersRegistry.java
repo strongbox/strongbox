@@ -25,6 +25,8 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 /**
@@ -104,10 +106,11 @@ public class AuthenticationProvidersRegistry
         authenticationContext.setClassLoader(requiredClassLoader);
         authenticationContext.load(authenticationConfigurationResource);
 
-        AuthenticationContextInitializer contextInitializer = new AuthenticationContextInitializer(new MapPropertySource(AuthenticationContextInitializer.STRONGBOX_AUTHENTICATION_PROVIDERS,
-                CollectionUtils.flattenMap(authenticationPropertiesMap)));
+        AuthenticationContextInitializer contextInitializer = new AuthenticationContextInitializer(
+                new MapPropertySource(AuthenticationContextInitializer.STRONGBOX_AUTHENTICATION_PROVIDERS,
+                        CollectionUtils.flattenMap(authenticationPropertiesMap)));
         contextInitializer.initialize(authenticationContext);
-        
+
         authenticationContext.refresh();
 
         return authenticationContext;
@@ -150,12 +153,6 @@ public class AuthenticationProvidersRegistry
         return new HashMap<>((Map<String, Object>) resutl);
     }
 
-    public void putAuthenticationProperties(String path,
-                                            Map<String, Object> propertiesMap)
-    {
-
-    }
-
     private class AutnenticationComponentOrderComparator implements Comparator<String>
     {
 
@@ -179,7 +176,7 @@ public class AuthenticationProvidersRegistry
 
     }
 
-    public MergePropertiesContext mergeProperties()
+    public MergePropertiesContext mergeProperties() throws IOException
     {
         return new MergePropertiesContext(authenticationPropertiesMap);
     }
@@ -189,20 +186,15 @@ public class AuthenticationProvidersRegistry
 
         private Map<String, Object> target;
 
-        public MergePropertiesContext(Map<String, Object> target)
+        public MergePropertiesContext(Map<String, Object> target) throws IOException
         {
             super();
-            
+
             StringWriter w = new StringWriter();
-            try
-            {
-                yamlMapper.writeValue(w, target);
-                this.target = yamlMapper.readValue(new StringReader(w.toString()), Map.class);
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException(e);
-            }
+            
+            yamlMapper.writeValue(w, target);
+            this.target = yamlMapper.readValue(new StringReader(w.toString()), Map.class);
+
         }
 
         public MergePropertiesContext merge(String path,

@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.users.userdetails.XmlUserDetailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;

@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.security.exceptions.ExpiredTokenException;
 import org.carlspring.strongbox.security.exceptions.InvalidTokenException;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
-import org.carlspring.strongbox.users.userdetails.XmlUserDetailService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

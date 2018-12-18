@@ -10,7 +10,6 @@ import javax.inject.Qualifier;
 
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.InMemoryUserService;
 import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -70,7 +70,7 @@ public class AccessModel
                 privileges.addAll(repository.getRepositoryPrivileges()
                                             .stream()
                                             .map(p -> p.getName())
-                                            .collect(Collectors.toSet()));
+                                            .collect(toSet()));
                 for (UserPathPrivelegiesReadContract pathPrivilege : repository.getPathPrivileges())
                 {
                     String normalizedPath = StringUtils.chomp(pathPrivilege.getPath(), "/");
@@ -85,7 +85,7 @@ public class AccessModel
                         privileges.addAll(pathPrivilege.getPrivileges()
                                                        .stream()
                                                        .map(p -> p.getName())
-                                                       .collect(Collectors.toSet()));
+                                                       .collect(toSet()));
                     }
                 }
             }
