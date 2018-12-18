@@ -78,6 +78,7 @@ class InMemoryOrientDbConfig
                                                                               "db/export/strongbox.export-20181218.gz").getInputStream())),
                                                               iText -> logger.info(iText));
         oDatabaseImport.setMerge(true);
+        oDatabaseImport.setPreserveClusterIDs(false);
         try
         {
             oDatabaseImport.importDatabase();
