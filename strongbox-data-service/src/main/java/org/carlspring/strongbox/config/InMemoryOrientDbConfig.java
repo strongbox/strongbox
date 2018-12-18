@@ -18,7 +18,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.*;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
@@ -71,8 +70,8 @@ class InMemoryOrientDbConfig
         ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ((OrientJdbcConnection) connection).getDatabase();
 
         ODatabaseImport oDatabaseImport = new ODatabaseImport(database,
-                                                              new ClassPathResource(
-                                                                      "db/export/strongbox.export-20181218.gz").getFile().getAbsolutePath(),
+                                                              Thread.currentThread().getContextClassLoader().getResource(
+                                                                      "db/export/strongbox.export-20181218.gz").getFile(),
                                                               iText -> logger.info(iText));
         oDatabaseImport.setMerge(true);
         try
