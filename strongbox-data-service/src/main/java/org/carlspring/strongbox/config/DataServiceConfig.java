@@ -53,7 +53,7 @@ public class DataServiceConfig
 
     @Inject
     private DataSource dataSource;
-
+/*
     @Bean(name = "liquibase")
     public SpringLiquibase springLiquibase(ResourceLoader resourceLoader)
     {
@@ -63,7 +63,7 @@ public class DataServiceConfig
         liquibase.setChangeLog("classpath:/db/changelog/db.changelog-master.xml");
         return liquibase;
     }
-
+*/
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf, HazelcastInstance hazelcastInstance)
     {
@@ -73,7 +73,7 @@ public class DataServiceConfig
     }
 
     @Bean
-    @DependsOn("liquibase")
+    @DependsOn("databaseDocument")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(ConnectionConfig connectionConfig)
     {
         Map<String, String> jpaProperties = new HashMap<>();

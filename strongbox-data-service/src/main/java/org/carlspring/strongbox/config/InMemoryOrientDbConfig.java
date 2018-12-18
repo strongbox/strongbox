@@ -3,18 +3,22 @@ package org.carlspring.strongbox.config;
 import org.carlspring.strongbox.data.server.InMemoryOrientDbServer;
 import org.carlspring.strongbox.data.server.OrientDbServer;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
+import com.orientechnologies.orient.jdbc.OrientJdbcConnection;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Condition;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.*;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
@@ -26,10 +30,6 @@ class InMemoryOrientDbConfig
         extends CommonOrientDbConfig
         implements Condition
 {
-
-    private static final String ORIENTDB_DEFAULT_USERNAME = "admin";
-
-    private static final String ORIENTDB_DEFAULT_PASSWORD = "admin";
 
     private static final Logger logger = LoggerFactory.getLogger(InMemoryOrientDbConfig.class);
 
@@ -44,22 +44,47 @@ class InMemoryOrientDbConfig
                                          connectionConfig.getUsername(),
                                          connectionConfig.getPassword(),
                                          getOrientDBConfig());
+
         if (!orientDB.exists(database))
         {
             logger.info(String.format("Creating database [%s]...", database));
             orientDB.create(database, ODatabaseType.MEMORY);
-
-            try (ODatabaseSession session = orientDB.open(database, ORIENTDB_DEFAULT_USERNAME,
-                                                          ORIENTDB_DEFAULT_PASSWORD))
-            {
-                session.command("UPDATE ouser SET password = :password WHERE name = :name",
-                                new Object[]{ connectionConfig.getPassword(),
-                                              connectionConfig.getUsername() });
-                session.commit();
-            }
         }
 
         return orientDB;
+    }
+
+    @Bean
+    protected ODatabaseDocumentInternal databaseDocument(DataSource dataSource)
+            throws IOException
+    {
+        Connection connection;
+        try
+        {
+            connection = dataSource.getConnection();
+        }
+        catch (SQLException e)
+        {
+            throw new UndeclaredThrowableException(e);
+        }
+
+        ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ((OrientJdbcConnection) connection).getDatabase();
+
+        ODatabaseImport oDatabaseImport = new ODatabaseImport(database,
+                                                              new ClassPathResource(
+                                                                      "db/export/strongbox.export-20181218.gz").getFile().getAbsolutePath(),
+                                                              iText -> logger.info(iText));
+        oDatabaseImport.setMerge(true);
+        try
+        {
+            oDatabaseImport.importDatabase();
+        }
+        finally
+        {
+            oDatabaseImport.close();
+        }
+
+        return database;
     }
 
     @Bean
