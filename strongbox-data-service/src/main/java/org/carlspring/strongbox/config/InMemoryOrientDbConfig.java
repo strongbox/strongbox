@@ -15,6 +15,7 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
+import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.jdbc.OrientJdbcConnection;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -77,8 +78,6 @@ class InMemoryOrientDbConfig
                                                                       new ClassPathResource(
                                                                               "db/export/strongbox.export-20181218.gz").getInputStream())),
                                                               iText -> logger.info(iText));
-        oDatabaseImport.setMerge(true);
-        oDatabaseImport.setPreserveClusterIDs(false);
         try
         {
             oDatabaseImport.importDatabase();
@@ -87,6 +86,8 @@ class InMemoryOrientDbConfig
         {
             oDatabaseImport.close();
         }
+
+        ((OSecurityShared) database.getMetadata().getSecurity().getUnderlying()).createMetadata();
 
         return database;
     }
