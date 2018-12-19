@@ -81,6 +81,7 @@
         <module>strongbox-web-forms</module>
         <module>strongbox-web-core</module>
         <module>strongbox-distribution</module>
+        <module>strongbox-db-export</module>
     </modules>
 
     <profiles>
