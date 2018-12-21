@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Qualifier;
 
 import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
@@ -32,6 +33,7 @@ import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.jose4j.lang.JoseException;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -144,6 +146,7 @@ public class InMemoryUserService implements UserService
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0.username")
     public void save(final UserReadContract user)
     {
         modifyInLock(users -> {
