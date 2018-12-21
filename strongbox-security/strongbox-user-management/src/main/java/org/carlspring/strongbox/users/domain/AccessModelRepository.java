@@ -10,7 +10,6 @@ import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
 import static java.util.stream.Collectors.toSet;
@@ -38,7 +37,7 @@ public class AccessModelRepository
 
     private Set<AccessModelPrivelege> immuteRepositoryPrivileges(final Set<PrivilegeDto> set)
     {
-        return set != null ? set.stream().map(p -> new AccessModelPrivelege(p)).collect(Collectors.toSet())
+        return set != null ? set.stream().map(p -> new AccessModelPrivelege(p)).collect(toSet())
                 : Collections.emptySet();
     }
 

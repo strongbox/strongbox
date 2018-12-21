@@ -136,13 +136,13 @@ public class ConfigurableProviderManager extends ProviderManager implements User
             try
             {
                 externalUserDetails = userDetailsService.loadUserByUsername(username);
+                
+                break;
             }
             catch (UsernameNotFoundException e)
             {
                 continue;
             }
-
-            break;
         }
 
         if (externalUserDetails == null)
