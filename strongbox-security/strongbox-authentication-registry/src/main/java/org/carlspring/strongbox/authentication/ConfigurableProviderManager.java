@@ -196,8 +196,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
             properties.put("order", item.getOrder());
             properties.put("enabled", Boolean.TRUE.equals(item.getEnabled()));
 
-            mergePropertiesContext = authenticationProvidersRegistry.mergeProperties()
-                                                                    .merge(item.getName(), properties);
+            mergePropertiesContext = mergePropertiesContext.merge(item.getName(), properties);
 
         }
 

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.authentication.registry;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -70,6 +71,7 @@ public class AuthenticationProvidersRegistry
 
     private void apply(Map<String, Object> authenticationPropertiesMapLocal,
                        AuthenticationConfigurationContext authenticationContextLocal)
+        throws IOException
     {
         logger.info("Applying authentication configuration...");
 
@@ -77,6 +79,14 @@ public class AuthenticationProvidersRegistry
         {
             authenticationContext.close();
         }
+
+        Resource resource = authenticationResourceManager.getAuthenticationPropertiesResource();
+
+        StringWriter writer = new StringWriter();
+        yamlMapper.writeValue(writer, authenticationPropertiesMapLocal);
+
+        authenticationResourceManager.storeAuthenticationConfigurationResource(resource, new ByteArrayInputStream(
+                writer.toString().getBytes()));
 
         this.authenticationPropertiesMap = authenticationPropertiesMapLocal;
         this.authenticationContext = authenticationContextLocal;
@@ -174,7 +184,8 @@ public class AuthenticationProvidersRegistry
 
     }
 
-    public MergePropertiesContext mergeProperties() throws IOException
+    public MergePropertiesContext mergeProperties()
+        throws IOException
     {
         return new MergePropertiesContext(authenticationPropertiesMap);
     }
@@ -184,12 +195,13 @@ public class AuthenticationProvidersRegistry
 
         private Map<String, Object> target;
 
-        public MergePropertiesContext(Map<String, Object> target) throws IOException
+        public MergePropertiesContext(Map<String, Object> target)
+            throws IOException
         {
             super();
 
             StringWriter w = new StringWriter();
-            
+
             yamlMapper.writeValue(w, target);
             this.target = yamlMapper.readValue(new StringReader(w.toString()), Map.class);
 

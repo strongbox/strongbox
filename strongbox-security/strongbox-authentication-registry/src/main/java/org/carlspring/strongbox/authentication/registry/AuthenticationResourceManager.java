@@ -1,12 +1,19 @@
 package org.carlspring.strongbox.authentication.registry;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.WritableResource;
 import org.springframework.security.util.InMemoryResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
@@ -14,6 +21,8 @@ import org.springframework.util.StreamUtils;
 @Component
 public class AuthenticationResourceManager
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationResourceManager.class);
 
     private static final String PROPERTY_AUTHENTICATION_PROVIDERS_LOCATION = "strongbox.authentication.providers.xml";
 
@@ -59,6 +68,23 @@ public class AuthenticationResourceManager
         }
 
         return resource;
+    }
+
+    public void storeAuthenticationConfigurationResource(Resource resource,
+                                                         InputStream is)
+        throws IOException
+    {
+        if (!(resource instanceof WritableResource))
+        {
+            logger.warn(String.format("Skip store of readonly resource [%s].", resource));
+
+            return;
+        }
+
+        WritableResource writableResource = (WritableResource) resource;
+        OutputStream os = writableResource.getOutputStream();
+
+        IOUtils.copy(is, os);
     }
 
 }
