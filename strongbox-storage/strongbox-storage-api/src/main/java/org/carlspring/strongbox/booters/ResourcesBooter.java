@@ -47,11 +47,7 @@ public class ResourcesBooter
         for (Resource resource : resources)
         {
             logger.debug(resource.getURL().toString());
-
-            if (resource.getURL().toString().startsWith("jar:file:"))
-            {
-                diff.add(resource);
-            }
+            diff.add(resource);
         }
 
         return diff.toArray(new Resource[diff.size()]);
