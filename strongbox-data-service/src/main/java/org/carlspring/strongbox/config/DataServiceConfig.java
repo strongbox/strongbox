@@ -15,7 +15,13 @@ import com.orientechnologies.orient.object.jpa.OJPAObjectDatabaseTxPersistencePr
 import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.transaction.ChainedTransactionManager;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -60,8 +66,7 @@ public class DataServiceConfig
     }
 
     @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf,
-                                                         HazelcastInstance hazelcastInstance)
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf, HazelcastInstance hazelcastInstance)
     {
         JpaTransactionManager jpaTransactionManager = new JpaTransactionManager(emf);
         HazelcastTransactionManager hazelcastTransactionManager = new HazelcastTransactionManager(hazelcastInstance);

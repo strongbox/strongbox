@@ -42,7 +42,6 @@ class OrientDbConfig
         return ds;
     }
 
-
     /**
      * The pool size is declared in either:
      * - org.carlspring.strongbox.config.EmbeddedOrientDbConfig#orientDBConfig
