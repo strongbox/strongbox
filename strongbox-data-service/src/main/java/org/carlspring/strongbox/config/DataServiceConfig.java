@@ -15,13 +15,7 @@ import com.orientechnologies.orient.object.jpa.OJPAObjectDatabaseTxPersistencePr
 import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.*;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.transaction.ChainedTransactionManager;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -53,8 +47,9 @@ public class DataServiceConfig
 
     @Inject
     private DataSource dataSource;
-/*
+
     @Bean(name = "liquibase")
+    @DependsOn("databaseDocument")
     public SpringLiquibase springLiquibase(ResourceLoader resourceLoader)
     {
         SpringLiquibase liquibase = new SpringLiquibase();
@@ -63,9 +58,10 @@ public class DataServiceConfig
         liquibase.setChangeLog("classpath:/db/changelog/db.changelog-master.xml");
         return liquibase;
     }
-*/
+
     @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf, HazelcastInstance hazelcastInstance)
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf,
+                                                         HazelcastInstance hazelcastInstance)
     {
         JpaTransactionManager jpaTransactionManager = new JpaTransactionManager(emf);
         HazelcastTransactionManager hazelcastTransactionManager = new HazelcastTransactionManager(hazelcastInstance);
@@ -73,7 +69,7 @@ public class DataServiceConfig
     }
 
     @Bean
-    @DependsOn("databaseDocument")
+    @DependsOn("liquibase")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(ConnectionConfig connectionConfig)
     {
         Map<String, String> jpaProperties = new HashMap<>();

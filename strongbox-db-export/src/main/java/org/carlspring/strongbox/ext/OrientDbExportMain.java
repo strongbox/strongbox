@@ -1,40 +1,27 @@
-package org.carlspring.strongbox;
-
-import org.carlspring.strongbox.ext.StrongboxODatabaseExport;
+package org.carlspring.strongbox.ext;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.orientechnologies.orient.console.OConsoleDatabaseApp;
-import com.orientechnologies.orient.core.db.tool.ODatabaseExportException;
 import org.apache.commons.cli.*;
 
 /**
  * @author Przemyslaw Fusik
  * <p>
- * http://orientdb.com/docs/3.0.x/console/Console-Command-Export.html
  */
-public class OrientDbExport
-        extends OConsoleDatabaseApp
+public class OrientDbExportMain
 {
 
+    private static final String URL = "url";
     private static final String USERNAME = "username";
     private static final String PASSWORD = "password";
     private static final String FILE_NAME = "fileName";
-    private static final String URL = "url";
     private static final String INCLUDE_RECORDS_CLUSTERS = "includeRecordsClusters";
-
-    public OrientDbExport(String[] args)
-    {
-        super(args);
-    }
 
     public static void main(String[] args)
     {
-        OrientDbExport orientDbExport = new OrientDbExport(args);
-
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd;
 
@@ -44,9 +31,13 @@ public class OrientDbExport
         }
         catch (ParseException e)
         {
-            orientDbExport.printError(e);
+            e.printStackTrace(System.err);
             return;
         }
+
+        StrongboxOConsoleDatabaseApp orientDbExport = new StrongboxOConsoleDatabaseApp(args);
+        orientDbExport.setIncludeRecordsClusters(
+                getIncludeRecordsClusters(cmd.getOptionValue(INCLUDE_RECORDS_CLUSTERS)));
 
         try
         {
@@ -56,23 +47,23 @@ public class OrientDbExport
         }
         catch (IOException e)
         {
-            orientDbExport.printError(e);
+            e.printStackTrace(System.err);
             return;
         }
 
-        orientDbExport.exportDatabase(cmd);
+        orientDbExport.exportDatabase(cmd.getOptionValue(FILE_NAME));
 
         orientDbExport.disconnect();
     }
 
     /**
-     * Not included supported options: from http://orientdb.com/docs/3.0.x/console/Console-Command-Export.html
+     * Extend for your needs: http://orientdb.com/docs/3.0.x/console/Console-Command-Export.html
      */
     private static Options prepareOptions()
     {
         Options options = new Options();
 
-        Option includeRecordsClusters = new Option(INCLUDE_RECORDS_CLUSTERS,
+        Option includeRecordsClusters = new Option("i",
                                                    INCLUDE_RECORDS_CLUSTERS,
                                                    true,
                                                    "Records of which clusters will be exported. Separated by comma.");
@@ -100,47 +91,15 @@ public class OrientDbExport
         return options;
     }
 
-    /**
-     * @see OConsoleDatabaseApp#exportDatabase(java.lang.String)
-     */
-    public void exportDatabase(final CommandLine cmd)
-
-    {
-        checkForDatabase();
-
-        String fileName = cmd.getOptionValue(FILE_NAME);
-
-        out.println(new StringBuilder("\nExporting current database to: ").append(fileName).append(
-                " in GZipped JSON format ..."));
-
-        StrongboxODatabaseExport export = null;
-        try
-        {
-            export = new StrongboxODatabaseExport(currentDatabase, fileName, this);
-            export.setIncludeRecordsClusters(getIncludeRecordsClusters(cmd));
-            export.exportDatabase();
-        }
-        catch (IOException | ODatabaseExportException e)
-        {
-            printError(e);
-        }
-        finally
-        {
-            if (export != null)
-            {
-                export.close();
-            }
-        }
-    }
-
-    private Set<String> getIncludeRecordsClusters(CommandLine cmd)
+    private static Set<String> getIncludeRecordsClusters(String includeRecordsClusters)
     {
         Set<String> result = null;
-        String includeRecordsClusters = cmd.getOptionValue(INCLUDE_RECORDS_CLUSTERS);
         if (includeRecordsClusters != null)
         {
             result = new HashSet<>(Arrays.asList(includeRecordsClusters.split(",")));
         }
         return result;
     }
+
+
 }
