@@ -3,7 +3,6 @@ package org.carlspring.strongbox.authentication.external.ldap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.inject.Inject;
 
