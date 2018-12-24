@@ -11,4 +11,4 @@ strongbox:
       enabled: false      
     xmlUserDetailService:
       order: 0
-      enabled: true    
+      enabled: true
