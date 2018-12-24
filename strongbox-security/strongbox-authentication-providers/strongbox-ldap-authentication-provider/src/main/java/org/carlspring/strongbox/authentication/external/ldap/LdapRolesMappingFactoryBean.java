@@ -52,7 +52,7 @@ public class LdapRolesMappingFactoryBean extends AbstractFactoryBean<Map<String,
             else if (propertyName.endsWith("strongboxRole"))
             {
                 strongboxRolesMap.put(propertyName.replace("strongbox.authentication.ldap.rolesMapping", ""),
-                                 env.getProperty(propertyName));
+                                      env.getProperty(propertyName));
             }
         }
         
