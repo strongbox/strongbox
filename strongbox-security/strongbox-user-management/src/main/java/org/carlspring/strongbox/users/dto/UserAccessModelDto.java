@@ -16,13 +16,16 @@ import java.util.Set;
  */
 @XmlRootElement(name = "features")
 @XmlAccessorType(XmlAccessType.NONE)
-public class UserAccessModelDto
+public class UserAccessModelDto implements UserAccessModelReadContract
 {
 
     @XmlElement(name = "storage")
     @XmlElementWrapper(name = "storages")
     private Set<UserStorageDto> storages = new LinkedHashSet<>();
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserAccessModelReadContract#getStorages()
+     */
     public Set<UserStorageDto> getStorages()
     {
         return storages;
@@ -32,4 +35,5 @@ public class UserAccessModelDto
     {
         return storages.stream().filter(s -> s.getStorageId().equals(storageId)).findFirst();
     }
+    
 }

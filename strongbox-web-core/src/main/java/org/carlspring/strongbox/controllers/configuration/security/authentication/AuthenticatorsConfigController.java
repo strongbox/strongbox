@@ -1,19 +1,27 @@
 package org.carlspring.strongbox.controllers.configuration.security.authentication;
 
-import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
-import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
-import org.carlspring.strongbox.controllers.BaseController;
+import javax.inject.Inject;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
+import org.carlspring.strongbox.authentication.api.AuthenticationItems;
+import org.carlspring.strongbox.controllers.BaseController;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * @author Przemyslaw Fusik
@@ -27,49 +35,41 @@ public class AuthenticatorsConfigController
         extends BaseController
 {
 
-    static final String SUCCESSFUL_REORDER = "Re-order succeeded.";
+    public static final String SUCCESSFUL_UPDATE = "Update succeeded.";
+    
+    public static final String SUCCESSFUL_REORDER = "Re-order succeeded.";
 
-    static final String FAILED_REORDER = "Could not reorder authenticators registry.";
+    public static final String FAILED_REORDER = "Could not reorder authentication items.";
+    
+    public static final String FAILED_UPDATE= "Could not update authentication configuration.";
 
-    static final String SUCCESSFUL_RELOAD = "Reload succeeded.";
+    public static final String SUCCESSFUL_RELOAD = "Authentication configuration re-load succeeded.";
 
-    static final String FAILED_RELOAD = "Could not reload authenticators registry.";
+    public static final String FAILED_RELOAD = "Could not reload authentication configuration.";
 
-    private final AuthenticatorsRegistry authenticatorsRegistry;
-
-    private final AuthenticatorsScanner authenticatorsScanner;
-
-
-    public AuthenticatorsConfigController(AuthenticatorsRegistry authenticatorsRegistry,
-                                          AuthenticatorsScanner authenticatorsScanner)
-    {
-        this.authenticatorsRegistry = authenticatorsRegistry;
-        this.authenticatorsScanner = authenticatorsScanner;
-    }
+    @Inject
+    private ConfigurableProviderManager providerManager;
 
     @ApiOperation(value = "Enumerates ordered collection of authenticators with order number and name")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned successfully.") })
-    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity list()
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public AuthenticationItems list()
     {
-        return ResponseEntity.ok(authenticatorsRegistry);
+        return providerManager.getAuthenticationItems();
     }
 
-    @ApiOperation(value = "Reorders authenticators by their indexes")
+    @ApiOperation(value = "Reorders authenticators by their names")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REORDER),
                             @ApiResponse(code = 400, message = FAILED_REORDER) })
     @PutMapping(path = "/reorder/{first}/{second}",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity reorder(@PathVariable int first,
-                                  @PathVariable int second,
+                produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity reorder(@PathVariable String first,
+                                  @PathVariable String second,
                                   @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         try
         {
-            authenticatorsRegistry.reorder(first, second);
+            providerManager.reorder(first, second);
             return getSuccessfulResponseEntity(SUCCESSFUL_REORDER, acceptHeader);
         }
         catch (Exception e)
@@ -78,6 +78,24 @@ public class AuthenticatorsConfigController
         }
     }
 
+    @ApiOperation(value = "Reorders authenticators by their indexes")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REORDER),
+                            @ApiResponse(code = 400, message = FAILED_REORDER) })
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity update(@RequestBody AuthenticationItems authenticationItems,
+                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    {
+        try
+        {
+            providerManager.updateAuthenticationItems(authenticationItems);
+            return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE, acceptHeader);
+        }
+        catch (Exception e)
+        {
+            return getExceptionResponseEntity(HttpStatus.BAD_REQUEST, FAILED_UPDATE, e, acceptHeader);
+        }
+    }
+    
     @ApiOperation(value = "Reloads authenticators registry")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_RELOAD),
                             @ApiResponse(code = 500, message = FAILED_RELOAD) })
@@ -89,7 +107,7 @@ public class AuthenticatorsConfigController
     {
         try
         {
-            authenticatorsScanner.scanAndReloadRegistry();
+            providerManager.reload();
             return getSuccessfulResponseEntity(SUCCESSFUL_RELOAD, acceptHeader);
         }
         catch (Exception e)

@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.authentication;
 
-import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 
 import org.springframework.context.annotation.Configuration;

@@ -6,6 +6,7 @@ import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
@@ -36,6 +37,7 @@ public class AccountController
 {
 
     @Inject
+    @XmlUserServiceQualifier
     private UserService userService;
 
     @ApiOperation(value = "Get the account details of the currently logged user")

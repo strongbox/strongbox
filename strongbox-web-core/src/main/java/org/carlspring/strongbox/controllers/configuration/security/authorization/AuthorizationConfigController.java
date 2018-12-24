@@ -8,6 +8,7 @@ import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
 import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
@@ -63,6 +64,7 @@ public class AuthorizationConfigController
     private AuthorizationConfigService authorizationConfigService;
 
     @Inject
+    @XmlUserServiceQualifier
     private UserService userService;
 
     @Inject

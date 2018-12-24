@@ -19,7 +19,7 @@ import java.util.Set;
 @XmlRootElement(name = "path-privilege")
 @XmlAccessorType(XmlAccessType.NONE)
 public class UserPathPrivilegesDto
-        implements Serializable
+        implements Serializable, UserPathPrivelegiesReadContract
 {
 
     @XmlAttribute(required = true)
@@ -32,6 +32,9 @@ public class UserPathPrivilegesDto
     @XmlElementWrapper(name = "privileges")
     private Set<PrivilegeDto> privileges = new LinkedHashSet<>();
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract#getPath()
+     */
     public String getPath()
     {
         return path;
@@ -42,11 +45,17 @@ public class UserPathPrivilegesDto
         this.path = path;
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract#isWildcard()
+     */
     public boolean isWildcard()
     {
         return wildcard;
     }
 
+    /* (non-Javadoc)
+     * @see org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract#getPrivileges()
+     */
     public Set<PrivilegeDto> getPrivileges()
     {
         return privileges;

@@ -4,7 +4,9 @@ import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -34,6 +36,7 @@ public class UserServiceTest
     private static final Logger logger = LoggerFactory.getLogger(UserServiceTest.class);
 
     @Inject
+    @XmlUserServiceQualifier
     UserService userService;
 
     @BeforeEach
@@ -68,7 +71,7 @@ public class UserServiceTest
         user.setPassword("test-password");
         user.setSecurityTokenKey("some-security-token");
 
-        userService.add(user);
+        userService.save(user);
 
         User foundEntity = userService.findByUserName(testUserName);
 
@@ -96,7 +99,7 @@ public class UserServiceTest
         userAdd.setPassword("test-password");
         userAdd.setSecurityTokenKey("before");
 
-        userService.add(userAdd);
+        userService.save(userAdd);
 
         User addedEntity = userService.findByUserName(testUserName);
         assertNotNull(addedEntity, "Unable to locate user " + testUserName + ". Save operation failed!");
@@ -111,7 +114,7 @@ public class UserServiceTest
         userUpdate.setSecurityTokenKey("after");
         userUpdate.setEnabled(false);
 
-        userService.updateByUsername(userUpdate);
+        userService.save(userUpdate);
 
         User updatedEntity = userService.findByUserName(testUserName);
         assertNotNull(updatedEntity, "Unable to locate updated user " + testUserName + ". Update operation failed!");
@@ -140,7 +143,7 @@ public class UserServiceTest
         userAdd.setUsername(testUserName);
         userAdd.setPassword("initial");
 
-        userService.add(userAdd);
+        userService.save(userAdd);
 
         User addedEntity = userService.findByUserName(testUserName);
         assertNotNull(addedEntity, "Unable to locate user " + testUserName + ". Save operation failed!");
@@ -154,7 +157,7 @@ public class UserServiceTest
         userNullPassUpdate.setUsername(testUserName);
         userNullPassUpdate.setPassword(null);
 
-        userService.updateByUsername(userNullPassUpdate);
+        userService.save(userNullPassUpdate);
 
         User updatedEntity = userService.findByUserName(testUserName);
         assertNotNull(updatedEntity, "Unable to locate updated user " + testUserName + ". Update operation failed!");
@@ -170,7 +173,7 @@ public class UserServiceTest
         userBlankPassUpdate.setUsername(testUserName);
         userBlankPassUpdate.setPassword(null);
 
-        userService.updateByUsername(userBlankPassUpdate);
+        userService.save(userBlankPassUpdate);
 
         updatedEntity = userService.findByUserName(testUserName);
         assertNotNull(updatedEntity, "Unable to locate updated user " + testUserName + ". Update operation failed!");
@@ -192,7 +195,7 @@ public class UserServiceTest
         userAdd.setPassword("test-password");
         userAdd.setSecurityTokenKey("before");
 
-        userService.add(userAdd);
+        userService.save(userAdd);
 
         User addedEntity = userService.findByUserName(testUserName);
         assertNotNull(addedEntity, "Unable to locate user " + testUserName + ". Save operation failed!");
@@ -232,7 +235,7 @@ public class UserServiceTest
         UserDto user = new UserDto();
         user.setUsername("admin");
 
-        userService.add(user);
+        userService.save(user);
 
         assertThat(userService.findAll().getUsers().stream().filter(u -> "admin".equals(u.getUsername())).collect(
                 Collectors.toList()).size(), CoreMatchers.equalTo(1));
@@ -247,14 +250,14 @@ public class UserServiceTest
         assertNotNull(user, "Unable to find user by name developer01");
 
         // Display the access model
-        AccessModel accessModel = user.getAccessModel();
+        UserAccessModelReadContract accessModel = user.getUserAccessModel();
 
         logger.debug(accessModel.toString());
 
         // Make sure that the privileges were correctly assigned for the example paths
         Collection<String> privileges;
 
-        privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
                                                    "org/carlspring/foo/1.1/foo-1.1.jar");
 
         assertNotNull(privileges);
@@ -263,7 +266,7 @@ public class UserServiceTest
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
         assertTrue(privileges.contains("ARTIFACTS_DELETE"));
 
-        privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
                                                    "com/carlspring/foo/1.2/foo-1.2.jar");
 
         assertNotNull(privileges);
@@ -272,7 +275,7 @@ public class UserServiceTest
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
         assertTrue(privileges.contains("ARTIFACTS_VIEW"));
 
-        privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
                                                    "com/mycorp/foo/1.2/foo-1.2.jar");
 
         assertNotNull(privileges);
@@ -280,7 +283,7 @@ public class UserServiceTest
         assertThat(privileges.size(), CoreMatchers.equalTo(1));
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
 
-        privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
                                                    "com/mycorp/");
 
         assertNotNull(privileges);
@@ -305,7 +308,7 @@ public class UserServiceTest
         userAdd.setPassword("test-password");
         userAdd.setSecurityTokenKey("before");
 
-        userService.add(userAdd);
+        userService.save(userAdd);
 
         User addedEntity = userService.findByUserName(testUserName);
         assertNotNull(addedEntity, "Unable to locate user " + testUserName + ". Delete operation failed!");

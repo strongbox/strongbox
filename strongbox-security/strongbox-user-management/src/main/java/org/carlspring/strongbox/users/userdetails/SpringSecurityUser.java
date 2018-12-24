@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.users.userdetails;
 
-import org.carlspring.strongbox.users.domain.AccessModel;
-
 import java.util.Collection;
 
-import com.google.common.base.Objects;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.google.common.base.Objects;
 
 public class SpringSecurityUser
         implements UserDetails
@@ -20,15 +20,11 @@ public class SpringSecurityUser
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    private AccessModel accessModel;
+    private UserAccessModelReadContract accessModel;
 
     private String url;
 
     private String securityKey;
-
-    SpringSecurityUser()
-    {
-    }
 
     @Override
     public String getUsername()
@@ -92,12 +88,12 @@ public class SpringSecurityUser
         this.authorities = authorities;
     }
 
-    public AccessModel getAccessModel()
+    public UserAccessModelReadContract getAccessModel()
     {
         return accessModel;
     }
 
-    public void setAccessModel(AccessModel accessModel)
+    public void setAccessModel(UserAccessModelReadContract accessModel)
     {
         this.accessModel = accessModel;
     }

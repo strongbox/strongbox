@@ -5,8 +5,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,7 +18,7 @@ import java.util.Set;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UserDto
-        implements Serializable
+        implements Serializable, UserReadContract
 {
 
     @XmlElement
@@ -36,16 +38,20 @@ public class UserDto
     @XmlElementWrapper(name = "authorities")
     private Set<String> authorities = new HashSet<>();
 
-    @XmlElement(name = "access-model")
-    private UserAccessModelDto userAccessModel;
+    @XmlElement(name = "access-model", type = UserAccessModelDto.class)
+    private UserAccessModelReadContract userAccessModel;
 
     @XmlElement(name = "security-token-key")
     private String securityTokenKey;
 
+    @XmlTransient
+    private Date lastUpdate;
+    
     public UserDto()
     {
     }
 
+    @Override
     public String getUsername()
     {
         return username;
@@ -56,6 +62,7 @@ public class UserDto
         this.username = username;
     }
 
+    @Override
     public String getPassword()
     {
         return password;
@@ -66,6 +73,7 @@ public class UserDto
         this.password = password;
     }
 
+    @Override
     public Set<String> getRoles()
     {
         return roles;
@@ -91,6 +99,7 @@ public class UserDto
         return roles.contains(role);
     }
 
+    @Override
     public Set<String> getAuthorities()
     {
         return authorities;
@@ -101,16 +110,18 @@ public class UserDto
         this.authorities = authorities;
     }
 
-    public UserAccessModelDto getUserAccessModel()
+    @Override
+    public UserAccessModelReadContract getUserAccessModel()
     {
         return userAccessModel;
     }
 
-    public void setUserAccessModel(UserAccessModelDto userAccessModel)
+    public void setUserAccessModel(UserAccessModelReadContract userAccessModel)
     {
         this.userAccessModel = userAccessModel;
     }
 
+    @Override
     public String getSecurityTokenKey()
     {
         return securityTokenKey;
@@ -121,6 +132,7 @@ public class UserDto
         this.securityTokenKey = securityTokenKey;
     }
 
+    @Override
     public boolean isEnabled()
     {
         return enabled;
@@ -129,6 +141,18 @@ public class UserDto
     public void setEnabled(final boolean enabled)
     {
         this.enabled = enabled;
+    }
+
+
+    @Override
+    public Date getLastUpdate()
+    {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate)
+    {
+        this.lastUpdate = lastUpdate;
     }
 
     @Override

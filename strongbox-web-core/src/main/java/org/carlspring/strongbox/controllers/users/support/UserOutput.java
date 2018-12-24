@@ -99,7 +99,7 @@ public class UserOutput
         output.setRoles(user.getRoles());
         output.setAuthorities(user.getAuthorities());
         output.setUsername(user.getUsername());
-        output.setAccessModel(AccessModelToAccessModelOutputConverter.INSTANCE.convert(user.getAccessModel()));
+        output.setAccessModel(AccessModelToAccessModelOutputConverter.INSTANCE.convert(user.getUserAccessModel()));
         output.setSecurityTokenKey(user.getSecurityTokenKey());
         return output;
     }

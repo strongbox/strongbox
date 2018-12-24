@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
@@ -81,20 +82,9 @@ public class ConfigurationResourceResolver
         }
         else
         {
-            if (Files.exists(Paths.get(propertyDefaultValue)))
-            {
-                filename = propertyDefaultValue;
-                logger.info(String.format("Using default resource path [%s]", filename));
-
-                return new FileSystemResource(Paths.get(filename).toAbsolutePath().toString());
-            }
-            else
-            {
-                logger.info(String.format("Using classpath resource path [%s]", propertyDefaultValue));
-                // This should only really be used for development and testing
-                // of Strongbox and is not advised for production.
-                resource = new ClassPathResource(propertyDefaultValue);
-            }
+            logger.info(String.format("Using default resource path [%s]", propertyDefaultValue));
+            
+            return new DefaultResourceLoader().getResource(propertyDefaultValue);
         }
 
         return resource;

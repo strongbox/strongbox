@@ -1,91 +1,31 @@
 package org.carlspring.strongbox.authentication.external.ldap;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
+import java.util.Set;
 
-/**
- * @author Przemyslaw Fusik
- */
-@XmlAccessorType(XmlAccessType.NONE)
-public class LdapAuthoritiesPopulator
+import javax.inject.Inject;
+
+import org.springframework.ldap.core.ContextSource;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
+
+public class LdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopulator
 {
 
-    @XmlAttribute(name = "group-search-base")
-    private String groupSearchBase = "ou=Groups";
+    @Inject
+    private GrantedAuthoritiesMapper authoritiesMapper;
 
-    @XmlAttribute(name = "search-subtree")
-    private boolean searchSubtree = true;
-
-    @XmlAttribute(name = "group-search-filter")
-    private String groupSearchFilter = "(uniqueMember={0})";
-
-    @XmlAttribute(name = "group-role-attribute")
-    private String groupRoleAttribute = "cn";
-
-    @XmlAttribute(name = "role-prefix")
-    private String rolePrefix = "";
-
-    @XmlAttribute(name = "convert-to-upper-case")
-    private boolean convertToUpperCase;
-
-    public String getGroupSearchBase()
+    public LdapAuthoritiesPopulator(ContextSource contextSource,
+                                    String groupSearchBase)
     {
-        return groupSearchBase;
+        super(contextSource, groupSearchBase);
     }
 
-    public void setGroupSearchBase(final String groupSearchBase)
+    @Override
+    public Set<GrantedAuthority> getGroupMembershipRoles(String userDn,
+                                                         String username)
     {
-        this.groupSearchBase = groupSearchBase;
+        return (Set<GrantedAuthority>) authoritiesMapper.mapAuthorities(super.getGroupMembershipRoles(userDn, username));
     }
 
-    public boolean isSearchSubtree()
-    {
-        return searchSubtree;
-    }
-
-    public void setSearchSubtree(final boolean searchSubtree)
-    {
-        this.searchSubtree = searchSubtree;
-    }
-
-    public String getGroupSearchFilter()
-    {
-        return groupSearchFilter;
-    }
-
-    public void setGroupSearchFilter(final String groupSearchFilter)
-    {
-        this.groupSearchFilter = groupSearchFilter;
-    }
-
-    public String getGroupRoleAttribute()
-    {
-        return groupRoleAttribute;
-    }
-
-    public void setGroupRoleAttribute(final String groupRoleAttribute)
-    {
-        this.groupRoleAttribute = groupRoleAttribute;
-    }
-
-    public String getRolePrefix()
-    {
-        return rolePrefix;
-    }
-
-    public void setRolePrefix(final String rolePrefix)
-    {
-        this.rolePrefix = rolePrefix;
-    }
-
-    public boolean isConvertToUpperCase()
-    {
-        return convertToUpperCase;
-    }
-
-    public void setConvertToUpperCase(final boolean convertToUpperCase)
-    {
-        this.convertToUpperCase = convertToUpperCase;
-    }
 }

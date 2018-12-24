@@ -594,6 +594,11 @@
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
                 <version>${version.jackson}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
@@ -836,6 +841,11 @@
                 <artifactId>junit-platform-runner</artifactId>
                 <version>${version.junit.platform}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+              <groupId>org.junit.platform</groupId>
+              <artifactId>junit-platform-launcher</artifactId>
+              <version>${version.junit.platform}</version>
             </dependency>
 
             <dependency>
@@ -1195,6 +1205,11 @@
             <version>2.4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+        </dependency>        
     </dependencies>
 
     <profiles>

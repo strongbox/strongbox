@@ -56,9 +56,15 @@ public class HazelcastConfiguration
     }
 
     @Bean
-    public Config hazelcastConfig()
+    public HazelcastInstanceId hazelcastInstanceId() 
     {
-        final Config config = new Config().setInstanceName("strongbox")
+        return new HazelcastInstanceId("strongbox");
+    }
+    
+    @Bean
+    public Config hazelcastConfig(HazelcastInstanceId hazelcastInstanceId)
+    {
+        final Config config = new Config().setInstanceName(hazelcastInstanceId.getInstanceName())
                                           .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
                                           .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS))
                                           .addMapConfig(authenticationCacheConfig(CacheName.User.AUTHENTICATIONS));

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:cache="http://www.springframework.org/schema/cache"
+    xmlns:security="http://www.springframework.org/schema/security"
+
+    xmlns="http://www.springframework.org/schema/beans"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <context:annotation-config />
+    <cache:annotation-driven />
+
+    <bean id="xmlUserDetailService" class="org.carlspring.strongbox.users.userdetails.XmlUserDetailService"/>
+
+    <bean
+        class="org.carlspring.strongbox.authentication.api.impl.xml.CacheManagerAuthenticationCache" />
+
+    <bean id="passwordAuthenticationProvider"
+        class="org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticationProvider" />
+    <bean id="jwtAuthenticationProvider"
+        class="org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthenticationProvider" />
+    <bean id="securityTokenAuthenticationProvider"
+        class="org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthenticationProvider" />
+
+    <import resource="classpath:/org/carlspring/strongbox/authentication/external/ldap/strongbox-authentication-providers.xml" />
+    
+</beans>

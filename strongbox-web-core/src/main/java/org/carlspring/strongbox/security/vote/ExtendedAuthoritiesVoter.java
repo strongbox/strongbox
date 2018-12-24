@@ -7,6 +7,7 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInvocation;
 import org.carlspring.strongbox.controllers.layout.maven.MavenArtifactController;
 import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.utils.UrlUtils;
 import org.springframework.security.access.ConfigAttribute;
@@ -77,7 +78,7 @@ public class ExtendedAuthoritiesVoter extends PreInvocationAuthorizationAdviceVo
             }
 
             SpringSecurityUser userDetails = (SpringSecurityUser) authentication.getPrincipal();
-            AccessModel accessModel = userDetails.getAccessModel();
+            UserAccessModelReadContract accessModel = userDetails.getAccessModel();
             if (accessModel == null)
             {
                 return authorities;
@@ -97,7 +98,7 @@ public class ExtendedAuthoritiesVoter extends PreInvocationAuthorizationAdviceVo
             }
 
             // assign privileges based on custom user access model
-            final Collection<String> customAuthorities = accessModel.getPathPrivileges(UrlUtils.getRequestUri());
+            final Collection<String> customAuthorities = AccessModel.getPathPrivileges(accessModel, UrlUtils.getRequestUri());
             if (customAuthorities == null || customAuthorities.isEmpty())
             {
                 return authorities;

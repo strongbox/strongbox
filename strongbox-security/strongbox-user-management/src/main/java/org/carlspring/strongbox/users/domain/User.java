@@ -1,13 +1,18 @@
 package org.carlspring.strongbox.users.domain;
 
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.UserReadContract;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -15,7 +20,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Przemyslaw Fusik
  */
 @Immutable
-public class User implements Serializable
+public class User implements Serializable, UserReadContract
 {
 
     public static final String SECURITY_TOKEN_KEY = "security-token-key";
@@ -32,8 +37,22 @@ public class User implements Serializable
 
     private final String securityTokenKey;
 
-    private final AccessModel accessModel;
+    private final UserAccessModelReadContract accessModel;
 
+    private final Date lastUpdate;
+    
+    public User(final UserDetails source) 
+    {
+        this.username = source.getUsername();
+        this.password = source.getPassword();
+        this.enabled = source.isEnabled();
+        this.roles = source.getAuthorities().stream().map(a -> a.getAuthority()).collect(Collectors.toSet());
+        this.authorities = null;
+        this.securityTokenKey = null;
+        this.accessModel = null;
+        this.lastUpdate = null;        
+    }
+    
     public User(final UserDto source)
     {
         this.username = source.getUsername();
@@ -42,7 +61,13 @@ public class User implements Serializable
         this.roles = immuteRoles(source.getRoles());
         this.authorities = source.getAuthorities();
         this.securityTokenKey = source.getSecurityTokenKey();
-        this.accessModel = immuteAccessModel(source.getUserAccessModel());
+        this.accessModel = source.getUserAccessModel();
+        this.lastUpdate = immuteDate(source.getLastUpdate());
+    }
+
+    private Date immuteDate(Date date)
+    {
+        return date == null ? null : new Date(date.getTime());
     }
 
     private Set<String> immuteRoles(final Set<String> source)
@@ -80,7 +105,7 @@ public class User implements Serializable
         return securityTokenKey;
     }
 
-    public AccessModel getAccessModel()
+    public UserAccessModelReadContract getUserAccessModel()
     {
         return accessModel;
     }
@@ -88,6 +113,11 @@ public class User implements Serializable
     public boolean isEnabled()
     {
         return enabled;
+    }
+
+    public Date getLastUpdate()
+    {
+        return lastUpdate;
     }
 
     @Override

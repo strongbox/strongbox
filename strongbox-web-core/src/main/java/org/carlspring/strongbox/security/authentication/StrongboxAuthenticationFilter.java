@@ -8,11 +8,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSuppliers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,16 +26,16 @@ public class StrongboxAuthenticationFilter
 
     private static final Logger logger = LoggerFactory.getLogger(StrongboxAuthenticationFilter.class);
 
-    private final AuthenticatorsRegistry authenticatorsRegistry;
+    private final AuthenticationManager authenticationManager;
 
     private final AuthenticationSuppliers authenticationSuppliers;
 
     public StrongboxAuthenticationFilter(AuthenticationSuppliers authenticationSuppliers,
-                                         AuthenticatorsRegistry authenticatorsRegistry)
+                                         AuthenticationManager authenticationManager)
     {
         super();
         this.authenticationSuppliers = authenticationSuppliers;
-        this.authenticatorsRegistry = authenticatorsRegistry;
+        this.authenticationManager = authenticationManager;
     }
 
     @Override
@@ -76,26 +75,8 @@ public class StrongboxAuthenticationFilter
             return authentication;
         }
 
-        Authentication authResult = authentication;
-
-        for (Authenticator authenticator : authenticatorsRegistry)
-        {
-            AuthenticationProvider authenticationProvider = authenticator.getAuthenticationProvider();
-            String authenticationProviderName = authenticationProvider.getClass().getName();
-
-            if (!authenticationProvider.supports(authentication.getClass()))
-            {
-                logger.debug("Authentication provider {} does not support {}", authenticationProviderName,
-                             authenticationName);
-                continue;
-            }
-
-            logger.debug("Try to authenticate {} with {}", authenticationName, authenticationProviderName);
-            authResult = authenticationProvider.authenticate(authentication);
-            logger.debug("Got success {} with {}", authenticationName, authenticationProviderName);
-
-            break;
-        }
+        Authentication authResult = authenticationManager.authenticate(authentication);
+        logger.debug("Authenticated with {}", authenticationName);
 
         return authResult;
     }

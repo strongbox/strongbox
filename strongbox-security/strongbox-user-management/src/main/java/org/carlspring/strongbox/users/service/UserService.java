@@ -4,8 +4,7 @@ import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.dto.UsersDto;
-
+import org.carlspring.strongbox.users.dto.UserReadContract;
 import org.jose4j.lang.JoseException;
 
 /**
@@ -45,8 +44,6 @@ public interface UserService
 
     void updateSecurityToken(UserDto userToUpdate);
 
-    void updateByUsername(UserDto userToUpdate);
-
     /**
      * This method is mainly necessary for the UI - for users to be able to update their own account data
      * (i.e. change password or securityToken)
@@ -55,13 +52,11 @@ public interface UserService
      */
     void updateAccountDetailsByUsername(UserDto userToUpdate);
 
-    void setUsers(UsersDto users);
-
     Users findAll();
 
     void revokeEveryone(String roleToRevoke);
 
-    void add(UserDto user);
+    void save(UserReadContract user);
 
     void delete(String username);
 

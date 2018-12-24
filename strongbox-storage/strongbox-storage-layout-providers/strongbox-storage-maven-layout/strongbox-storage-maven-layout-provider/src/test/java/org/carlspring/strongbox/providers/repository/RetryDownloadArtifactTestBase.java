@@ -1,36 +1,37 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.client.CloseableRestResponse;
-import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
-import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
-import org.carlspring.strongbox.client.RestArtifactResolver;
-import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Path;
 
-import com.google.common.collect.ImmutableMap;
-import com.hazelcast.config.Config;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+
+import org.carlspring.strongbox.client.CloseableRestResponse;
+import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.client.RestArtifactResolver;
+import org.carlspring.strongbox.config.HazelcastConfiguration;
+import org.carlspring.strongbox.config.HazelcastInstanceId;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
+import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import static org.carlspring.strongbox.config.HazelcastConfiguration.newDefaultMapConfig;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * @author Przemyslaw Fusik
@@ -159,21 +160,18 @@ public abstract class RetryDownloadArtifactTestBase
     }
 
     @Profile("MockedRestArtifactResolverTestConfig")
+    @Import(HazelcastConfiguration.class)
     @Configuration
     public static class MockedRestArtifactResolverTestConfig
     {
+        
         @Primary
         @Bean
-        public Config hazelcastConfig()
+        public HazelcastInstanceId hazelcastInstanceId() 
         {
-            final Config config = new Config().setInstanceName("mocked-hazelcast-instance")
-                                              .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
-                                              .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS));
-
-            config.getGroupConfig().setName("strongbox").setPassword("password");
-            return config;
+            return new HazelcastInstanceId("mocked-hazelcast-instance");
         }
-
+        
         @Bean
         @Primary
         RestArtifactResolverFactory artifactResolverFactory()

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.users.domain;
 
 import org.carlspring.strongbox.users.dto.UserRepositoryDto;
 import org.carlspring.strongbox.users.dto.UserStorageDto;
+import org.carlspring.strongbox.users.dto.UserStorageReadContract;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
@@ -16,7 +17,7 @@ import static java.util.stream.Collectors.toSet;
  */
 @Immutable
 public class AccessModelStorage
-        implements Serializable
+        implements Serializable, UserStorageReadContract
 {
 
     private final Set<AccessModelRepository> repositories;

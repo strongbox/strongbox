@@ -6,6 +6,12 @@ import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.AccessModelPathPrivileges;
 import org.carlspring.strongbox.users.domain.AccessModelRepository;
 import org.carlspring.strongbox.users.domain.AccessModelStorage;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
+import org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract;
+import org.carlspring.strongbox.users.dto.UserRepositoryReadContract;
+import org.carlspring.strongbox.users.dto.UserStorageReadContract;
+
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.core.convert.converter.Converter;
@@ -14,12 +20,12 @@ import org.springframework.core.convert.converter.Converter;
  * @author Przemyslaw Fusik
  */
 public enum AccessModelToAccessModelOutputConverter
-        implements Converter<AccessModel, AccessModelOutput>
+        implements Converter<UserAccessModelReadContract, AccessModelOutput>
 {
     INSTANCE;
 
     @Override
-    public AccessModelOutput convert(final AccessModel source)
+    public AccessModelOutput convert(final UserAccessModelReadContract source)
     {
         if (source == null)
         {
@@ -27,9 +33,9 @@ public enum AccessModelToAccessModelOutputConverter
         }
 
         AccessModelOutput result = new AccessModelOutput();
-        for (AccessModelStorage storage : source.getStorages())
+        for (UserStorageReadContract storage : source.getStorages())
         {
-            for (AccessModelRepository repository : storage.getRepositories())
+            for (UserRepositoryReadContract repository : storage.getRepositories())
             {
                 if (CollectionUtils.isNotEmpty(repository.getRepositoryPrivileges()))
                 {
@@ -38,9 +44,13 @@ public enum AccessModelToAccessModelOutputConverter
                                                                                                   repository.getRepositoryId(),
                                                                                                   null,
                                                                                                   false);
-                    repositoryAccess.getPrivileges().addAll(repository.getRepositoryPrivileges());
+                    repositoryAccess.getPrivileges()
+                                    .addAll(repository.getRepositoryPrivileges()
+                                                      .stream()
+                                                      .map(p -> p.getName())
+                                                      .collect(Collectors.toSet()));
                 }
-                for (AccessModelPathPrivileges pathPrivilege : repository.getPathPrivileges())
+                for (UserPathPrivelegiesReadContract pathPrivilege : repository.getPathPrivileges())
                 {
                     RepositoryAccessModelOutput repositoryAccess = getRepositoryAccessOrAddNewOne(result,
                                                                                                   storage.getStorageId(),
@@ -48,7 +58,10 @@ public enum AccessModelToAccessModelOutputConverter
                                                                                                   pathPrivilege.getPath(),
                                                                                                   pathPrivilege.isWildcard());
 
-                    repositoryAccess.getPrivileges().addAll(pathPrivilege.getPrivileges());
+                    repositoryAccess.getPrivileges().addAll(pathPrivilege.getPrivileges()
+                                                                         .stream()
+                                                                         .map(p -> p.getName())
+                                                                         .collect(Collectors.toSet()));
                 }
             }
         }

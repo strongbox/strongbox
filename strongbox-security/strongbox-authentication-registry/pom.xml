@@ -113,6 +113,11 @@
             <artifactId>strongbox-authentication-support</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-user-management</artifactId>
+            <version>${project.version}</version>
+        </dependency>        
 
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -160,6 +165,12 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        
     </dependencies>
 
 </project>
