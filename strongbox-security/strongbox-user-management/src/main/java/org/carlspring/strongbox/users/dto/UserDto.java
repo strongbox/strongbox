@@ -51,9 +51,7 @@ public class UserDto
     {
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.users.dto.UserReadContract#getUsername()
-     */
+    @Override
     public String getUsername()
     {
         return username;
@@ -64,9 +62,7 @@ public class UserDto
         this.username = username;
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.users.dto.UserReadContract#getPassword()
-     */
+    @Override
     public String getPassword()
     {
         return password;
@@ -77,9 +73,7 @@ public class UserDto
         this.password = password;
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.users.dto.UserReadContract#getRoles()
-     */
+    @Override
     public Set<String> getRoles()
     {
         return roles;
@@ -105,9 +99,7 @@ public class UserDto
         return roles.contains(role);
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.users.dto.UserReadContract#getAuthorities()
-     */
+    @Override
     public Set<String> getAuthorities()
     {
         return authorities;
@@ -118,9 +110,7 @@ public class UserDto
         this.authorities = authorities;
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.users.dto.UserReadContract#getUserAccessModel()
-     */
+    @Override
     public UserAccessModelReadContract getUserAccessModel()
     {
         return userAccessModel;
@@ -131,9 +121,7 @@ public class UserDto
         this.userAccessModel = userAccessModel;
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.users.dto.UserReadContract#getSecurityTokenKey()
-     */
+    @Override
     public String getSecurityTokenKey()
     {
         return securityTokenKey;
@@ -144,9 +132,7 @@ public class UserDto
         this.securityTokenKey = securityTokenKey;
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.users.dto.UserReadContract#isEnabled()
-     */
+    @Override
     public boolean isEnabled()
     {
         return enabled;
@@ -157,9 +143,8 @@ public class UserDto
         this.enabled = enabled;
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.users.dto.UserReadContract#getLastUpdate()
-     */
+
+    @Override
     public Date getLastUpdate()
     {
         return lastUpdate;

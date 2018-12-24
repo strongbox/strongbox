@@ -70,7 +70,8 @@ public class LdapAuthenticatorConfigurationController
 
         try
         {
-            ldapAuthenticationManager.testConfiguration(form.getUsername(), form.getPassword(),
+            ldapAuthenticationManager.testConfiguration(form.getUsername(), 
+                                                        form.getPassword(),
                                                         form.getConfiguration());
         }
         catch (AuthenticationException e)

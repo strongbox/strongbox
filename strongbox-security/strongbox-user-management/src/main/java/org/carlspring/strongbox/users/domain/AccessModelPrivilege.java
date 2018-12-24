@@ -6,13 +6,13 @@ import org.carlspring.strongbox.authorization.dto.PrivelegieReadContract;
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
 
 @Immutable
-public class AccessModelPrivelege implements PrivelegieReadContract
+public class AccessModelPrivilege implements PrivelegieReadContract
 {
 
     private final String name;
     private final String description;
 
-    public AccessModelPrivelege(PrivilegeDto dto)
+    public AccessModelPrivilege(PrivilegeDto dto)
     {
         super();
         this.name = dto.getName();

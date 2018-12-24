@@ -43,7 +43,7 @@ public class AuthenticatorsConfigController
     
     public static final String FAILED_UPDATE= "Could not update authentication configuration.";
 
-    public static final String SUCCESSFUL_RELOAD = "Reload succeeded.";
+    public static final String SUCCESSFUL_RELOAD = "Authentication configuration re-load succeeded.";
 
     public static final String FAILED_RELOAD = "Could not reload authentication configuration.";
 

@@ -204,13 +204,11 @@ public class AuthenticationProvidersRegistry
 
             yamlMapper.writeValue(w, target);
             this.target = yamlMapper.readValue(new StringReader(w.toString()), Map.class);
-
         }
 
         public MergePropertiesContext merge(String path,
                                             Map<String, Object> map)
         {
-
             CollectionUtils.putMapValue(STRONGBOX_AUTHENTICATION_PROPERTIES_PREFIX + "." + path, map, target);
 
             return this;
@@ -219,7 +217,6 @@ public class AuthenticationProvidersRegistry
         public boolean apply(Predicate<ApplicationContext> p)
             throws IOException
         {
-
             AuthenticationConfigurationContext authenticationContextLocal = createAuthenticationContext(target);
             if (!p.test(authenticationContextLocal))
             {

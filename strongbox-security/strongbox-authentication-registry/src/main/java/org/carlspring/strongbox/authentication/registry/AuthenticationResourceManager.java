@@ -75,7 +75,7 @@ public class AuthenticationResourceManager
     {
         if (!(resource instanceof WritableResource))
         {
-            logger.warn(String.format("Skip store of readonly resource [%s].", resource));
+            logger.warn(String.format("Could not store read-only resource [%s].", resource));
 
             return;
         }

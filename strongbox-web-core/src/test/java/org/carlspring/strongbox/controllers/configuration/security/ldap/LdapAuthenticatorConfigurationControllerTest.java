@@ -334,7 +334,8 @@ public class LdapAuthenticatorConfigurationControllerTest
     @Profile("LdapAuthenticatorConfigurationControllerTest")
     @Import(HazelcastConfiguration.class)
     @ImportResource("classpath:/ldapServerApplicationContext.xml")
-    public static class LdapAuthenticatorConfigurationControllerTestConfiguration {
+    public static class LdapAuthenticatorConfigurationControllerTestConfiguration 
+    {
         
         @Primary
         @Bean

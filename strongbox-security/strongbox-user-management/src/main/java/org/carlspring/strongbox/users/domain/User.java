@@ -41,7 +41,8 @@ public class User implements Serializable, UserReadContract
 
     private final Date lastUpdate;
     
-    public User(final UserDetails source) {
+    public User(final UserDetails source) 
+    {
         this.username = source.getUsername();
         this.password = source.getPassword();
         this.enabled = source.isEnabled();

@@ -24,7 +24,7 @@ public class AccessModelRepository
 
     private final String repositoryId;
 
-    private final Set<AccessModelPrivelege> repositoryPrivileges;
+    private final Set<AccessModelPrivilege> repositoryPrivileges;
 
     private final Set<AccessModelPathPrivileges> pathPrivileges;
 
@@ -35,9 +35,9 @@ public class AccessModelRepository
         this.pathPrivileges = immutePathPrivileges(delegate.getPathPrivileges());
     }
 
-    private Set<AccessModelPrivelege> immuteRepositoryPrivileges(final Set<PrivilegeDto> set)
+    private Set<AccessModelPrivilege> immuteRepositoryPrivileges(final Set<PrivilegeDto> set)
     {
-        return set != null ? set.stream().map(p -> new AccessModelPrivelege(p)).collect(toSet())
+        return set != null ? set.stream().map(p -> new AccessModelPrivilege(p)).collect(toSet())
                 : Collections.emptySet();
     }
 

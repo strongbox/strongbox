@@ -27,7 +27,7 @@ public class AccessModelPathPrivileges
      */
     private final boolean wildcard;
 
-    private final Set<AccessModelPrivelege> privileges;
+    private final Set<AccessModelPrivilege> privileges;
 
     public AccessModelPathPrivileges(final UserPathPrivilegesDto delegate)
     {
@@ -37,10 +37,10 @@ public class AccessModelPathPrivileges
     }
 
 
-    private Set<AccessModelPrivelege> immutePrivileges(final Set<PrivilegeDto> source)
+    private Set<AccessModelPrivilege> immutePrivileges(final Set<PrivilegeDto> source)
     {
         return source != null ?
-               ImmutableSet.copyOf(source.stream().map(p -> new AccessModelPrivelege(p)).collect(toSet())) :
+               ImmutableSet.copyOf(source.stream().map(p -> new AccessModelPrivilege(p)).collect(toSet())) :
                Collections.emptySet();
     }
 
@@ -54,7 +54,7 @@ public class AccessModelPathPrivileges
         return wildcard;
     }
 
-    public Set<AccessModelPrivelege> getPrivileges()
+    public Set<AccessModelPrivilege> getPrivileges()
     {
         return privileges;
     }
