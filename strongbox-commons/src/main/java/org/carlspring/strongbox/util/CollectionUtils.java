@@ -63,8 +63,7 @@ public class CollectionUtils
 
     public static Map<String, Object> flattenMap(Map<String, Object> map)
     {
-        return flatten(map)
-                           .collect(HashMap<String, Object>::new, flattenedEntryConsumer(null), HashMap::putAll);
+        return flatten(map).collect(HashMap<String, Object>::new, flattenedEntryConsumer(null), HashMap::putAll);
     }
 
     public static Object flattenObject(Object o)

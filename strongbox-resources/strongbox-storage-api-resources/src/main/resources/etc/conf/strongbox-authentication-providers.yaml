@@ -34,4 +34,4 @@ strongbox:
         convertToUpperCase: false
         groupRoleAttribute: cn
         rolePrefix: ''
-        searchSubtree: true      
+        searchSubtree: true

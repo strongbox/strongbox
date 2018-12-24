@@ -56,7 +56,8 @@ public class HazelcastConfiguration
     }
 
     @Bean
-    public HazelcastInstanceId hazelcastInstanceId() {
+    public HazelcastInstanceId hazelcastInstanceId() 
+    {
         return new HazelcastInstanceId("strongbox");
     }
     
