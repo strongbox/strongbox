@@ -1,15 +1,14 @@
 package org.carlspring.strongbox.resource;
 
-import org.carlspring.strongbox.booters.PropertiesBooter;
-
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -19,23 +18,28 @@ import org.springframework.core.io.Resource;
  */
 public class ConfigurationResourceResolver
 {
-    
-    private static final Logger logger = LoggerFactory.getLogger(ConfigurationResourceResolver.class);
 
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationResourceResolver.class);
 
     public static Resource getConfigurationResource(String propertyKey,
                                                     String propertyDefaultValue)
     {
-        final String configurationPath = ConfigurationResourceResolver.getHomeDirectory() + "/" + propertyDefaultValue;
+        final String configurationPath = propertyDefaultValue != null && !propertyDefaultValue.startsWith("classpath:")
+                ? ConfigurationResourceResolver.getHomeDirectory() + "/" + propertyDefaultValue
+                : propertyDefaultValue;
 
         return getConfigurationResource(configurationPath, propertyKey, propertyDefaultValue);
     }
 
     /**
-     * @param configurationPath    The configuration file's path. If null, either propertyKey,
-     *                             or propertyKeyDefaultValue must be specified.
-     * @param propertyKey          The system property key to use when trying to load the configuration.
-     * @param propertyDefaultValue The default property key value.
+     * @param configurationPath
+     *            The configuration file's path. If null, either propertyKey,
+     *            or propertyKeyDefaultValue must be specified.
+     * @param propertyKey
+     *            The system property key to use when trying to load the
+     *            configuration.
+     * @param propertyDefaultValue
+     *            The default property key value.
      * @return
      * @throws IOException
      */
@@ -43,51 +47,52 @@ public class ConfigurationResourceResolver
                                                     String propertyKey,
                                                     String propertyDefaultValue)
     {
-        String filename;
-        Resource resource;
+        DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
+        resourceLoader.addProtocolResolver((l,
+                                            r) -> {
+
+            File file = new File(l);
+            if (!file.exists())
+            {
+                return null;
+            }
+
+            return new FileSystemResource(file);
+        });
 
         if (System.getProperty(propertyKey) != null)
         {
-            filename = System.getProperty(propertyKey);
+            String filename = System.getProperty(propertyKey);
 
-            // logger.info(String.format("Using provided resource path [%s]", filename));
+            logger.info(String.format("Using configured resource path [%s]", filename));
 
-            return new FileSystemResource(Paths.get(filename).toAbsolutePath().toString());
-        } 
-        
+            return resourceLoader.getResource(filename);
+        }
+
         logger.info(String.format("Try to fetch configuration resource path [%s]", configurationPath));
 
         if (configurationPath != null &&
-            (!configurationPath.startsWith("classpath") && !(Files.exists(Paths.get(configurationPath)))))
+                (!configurationPath.startsWith("classpath") && !(Files.exists(Paths.get(configurationPath)))))
         {
             logger.info(String.format(
-                    "Configuration resource [%s] does not exist, will try to resolve with configured location [%s].",
-                    configurationPath, propertyKey));
+                                      "Configuration resource [%s] does not exist, will try to resolve with configured location [%s].",
+                                      configurationPath, propertyKey));
 
             configurationPath = null;
         }
-        
+
         if (configurationPath != null)
         {
-            if (configurationPath.toLowerCase().startsWith("classpath"))
-            {
-                // Load the resource from the classpath
-                resource = new ClassPathResource(configurationPath);
-            }
-            else
-            {
-                // Load the resource from the file system
-                resource = new FileSystemResource(Paths.get(configurationPath).toAbsolutePath().toString());
-            }
+            logger.info(String.format("Using provided resource path [%s]", configurationPath));
+
+            return resourceLoader.getResource(configurationPath);
         }
         else
         {
             logger.info(String.format("Using default resource path [%s]", propertyDefaultValue));
-            
-            return new DefaultResourceLoader().getResource(propertyDefaultValue);
-        }
 
-        return resource;
+            return resourceLoader.getResource(propertyDefaultValue);
+        }
     }
 
     public static String getHomeDirectory()
@@ -101,7 +106,7 @@ public class ConfigurationResourceResolver
     }
 
     public static String getTempDirectory()
-            throws IOException
+        throws IOException
     {
         final String tempDirectory = PropertiesBooter.getTempDirectory();
         final Path tempDirectoryPath = Paths.get(tempDirectory);
