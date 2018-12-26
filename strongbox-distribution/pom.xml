@@ -274,6 +274,7 @@
                                     <systemProperty>strongbox.orientdb.studio.enabled=%STRONGBOX_ORIENTDB_STUDIO_ENABLED%</systemProperty>
                                     <systemProperty>strongbox.nuget.download.feed=%STRONGBOX_NUGET_DOWNLOAD_FEED%</systemProperty>
                                     <systemProperty>strongbox.download.indexes=%STRONGBOX_DOWNLOAD_INDEXES%</systemProperty>
+                                    <systemProperty>strongbox.authentication.providers.yaml=%STRONGBOX_HOME%/etc/conf/strongbox-authentication-providers.yaml</systemProperty>
                                 </systemProperties>
                             </jvmSettings>
                         </daemon>
