@@ -12,6 +12,7 @@ import org.carlspring.strongbox.storage.validation.artifact.version.VersionValid
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,7 @@ public class RedeploymentValidator
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, coordinates);
         
         if (repository.acceptsReleases() &&
-            (!repository.allowsDeployment() && layoutProvider.containsPath(repositoryPath)))
+            (!repository.allowsDeployment() && RepositoryFiles.artifactExists(repositoryPath)))
         {
             throw new VersionValidationException("The " + repository.getStorage().getId() + ":" +
                                                  repository.toString() +

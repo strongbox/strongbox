@@ -33,6 +33,7 @@ import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.javatuples.Pair;
@@ -69,7 +70,7 @@ public class MavenMetadataManager
         Repository repository = repositoryPath.getRepository();
         
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        if (!layoutProvider.containsPath(repositoryPath))
+        if (!RepositoryFiles.artifactExists(repositoryPath))
         {
             throw new IOException("Artifact " + artifact.toString() + " does not exist in repository " + repository +
                     " !");
@@ -163,7 +164,7 @@ public class MavenMetadataManager
     {
         Repository repository = artifactGroupDirectoryPath.getRepository();
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        if (!layoutProvider.containsPath(artifactGroupDirectoryPath))
+        if (!RepositoryFiles.artifactExists(artifactGroupDirectoryPath))
         {
             logger.error("Artifact metadata generation failed: " + artifactGroupDirectoryPath + ").");
             
@@ -358,7 +359,7 @@ public class MavenMetadataManager
         Repository repository = repositoryPath.getRepository();
         
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        if (!layoutProvider.containsPath(repositoryPath))
+        if (!RepositoryFiles.artifactExists(repositoryPath))
         {
             throw new IOException("Artifact " + artifact.toString() + " does not exist in repository " + repository +
                     " !");

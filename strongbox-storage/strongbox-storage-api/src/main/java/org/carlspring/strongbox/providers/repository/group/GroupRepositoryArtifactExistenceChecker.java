@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.springframework.stereotype.Component;
 
 /**
@@ -72,7 +73,7 @@ public class GroupRepositoryArtifactExistenceChecker
                 final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(subRepository.getLayout());
                 RepositoryPath subRepositoryPath = repositoryPathResolver.resolve(subRepository, repositoryPath.relativize());
                 
-                if (layoutProvider.containsPath(subRepositoryPath))
+                if (RepositoryFiles.artifactExists(subRepositoryPath))
                 {
                     repositoryArtifactExistence.get(storageAndRepositoryId).setTrue();
                     return true;

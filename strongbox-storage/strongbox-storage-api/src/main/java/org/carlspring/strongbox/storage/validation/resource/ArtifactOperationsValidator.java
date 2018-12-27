@@ -16,6 +16,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -122,7 +123,7 @@ public class ArtifactOperationsValidator
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, coordinates);
-        if (layoutProvider.containsPath(repositoryPath) && !repository.allowsRedeployment())
+        if (RepositoryFiles.artifactExists(repositoryPath) && !repository.allowsRedeployment())
         {
             throw new ArtifactStorageException("Re-deployment of artifacts to " +
                                                repository.getStorage().getId() + ":" + repository.getId() +
