@@ -12,6 +12,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 
 import org.codehaus.plexus.util.StringUtils;
 import org.hamcrest.CoreMatchers;
@@ -70,8 +71,8 @@ public class WhenRepositoryIsAliveCleanExpiredArtifactsTestIT
         final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
-        assertFalse(layoutProvider.containsPath(repositoryPathResolver.resolve(repository, getPath())));
-        assertTrue(layoutProvider.containsPath(repositoryPathResolver.resolve(repository, StringUtils.replace(getPath(),
+        assertFalse(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(repository, getPath())));
+        assertTrue(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(repository, StringUtils.replace(getPath(),
                                                                                                               "1.3/maven-commons-1.3.jar",
                                                                                                               "maven-metadata.xml"))));
     }

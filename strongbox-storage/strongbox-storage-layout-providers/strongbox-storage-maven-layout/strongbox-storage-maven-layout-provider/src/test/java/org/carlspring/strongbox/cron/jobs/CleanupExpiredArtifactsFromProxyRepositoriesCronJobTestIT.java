@@ -33,6 +33,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.awaitility.Awaitility.await;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -138,8 +139,8 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
                 try
                 {
-                    assertFalse(layoutProvider.containsPath(repositoryPathResolver.resolve(repository, path)));
-                    assertTrue(layoutProvider.containsPath(repositoryPathResolver.resolve(repository,
+                    assertFalse(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(repository, path)));
+                    assertTrue(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(repository,
                                                                                           StringUtils.replace(path,
                                                                                                               "1.5/properties-injector-1.5.jar",
                                                                                                               "maven-metadata.xml"))));

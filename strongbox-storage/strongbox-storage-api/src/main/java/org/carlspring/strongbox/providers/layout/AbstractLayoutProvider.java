@@ -65,13 +65,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                      .collect(Collectors.toSet());
     }
 
-    @Override
-    public boolean containsPath(RepositoryPath repositoryPath)
-            throws IOException
-    {
-        return Files.exists(repositoryPath);
-    }
-
     public boolean isChecksum(RepositoryPath repositoryPath)
     {
         return isChecksum(repositoryPath.getFileName().toString());

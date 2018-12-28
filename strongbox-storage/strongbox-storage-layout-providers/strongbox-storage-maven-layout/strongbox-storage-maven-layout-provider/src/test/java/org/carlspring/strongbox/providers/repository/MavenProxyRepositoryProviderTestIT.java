@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -169,7 +170,7 @@ public class MavenProxyRepositoryProviderTestIT
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
-        assertTrue(layoutProvider.containsPath(
+        assertTrue(RepositoryFiles.artifactExists(
                 repositoryPathResolver.resolve(repository, "org/carlspring/properties-injector/maven-metadata.xml")));
     }
 
@@ -196,7 +197,7 @@ public class MavenProxyRepositoryProviderTestIT
         FileUtils.copyDirectory(mavenCentralArtifactBaseBath.toFile(), carlspringArtifactBaseBath.toFile());
 
         // 4. confirm maven-metadata.xml lies in the carlspring repository
-        assertTrue(layoutProvider.containsPath(
+        assertTrue(RepositoryFiles.artifactExists(
                 repositoryPathResolver.resolve(repository, "javax/media/jai_core/maven-metadata.xml")));
 
         // 5. confirm some pre-merge state

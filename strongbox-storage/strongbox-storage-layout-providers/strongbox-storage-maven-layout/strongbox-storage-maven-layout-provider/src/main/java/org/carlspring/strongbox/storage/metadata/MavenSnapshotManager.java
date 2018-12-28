@@ -59,7 +59,7 @@ public class MavenSnapshotManager
     {
         Repository repository = basePath.getRepository();
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        if (!layoutProvider.containsPath(basePath))
+        if (!RepositoryFiles.artifactExists(basePath))
         {
             logger.error("Removal of timestamped Maven snapshot artifact: " + basePath + ".");
             
