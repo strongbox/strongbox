@@ -70,3 +70,4 @@ To accept, please:
 | Sevastyan Pigarev			         |                              										  | Barnaul, Russian Federation				         | 2018-03-27 |
 | Michael Altenburger          | 						                             				  | Vienna, Austria                     				| 2018-09-29 |
 | Benjamin March               |                             			          | Munich, Germany                     				| 2018-10-28 |
+| Konstantina Papadopoulou	   |										  | Thessaloniki, Greece					| 2018-12-28 |
