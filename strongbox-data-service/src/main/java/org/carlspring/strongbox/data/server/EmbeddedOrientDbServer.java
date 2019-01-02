@@ -63,6 +63,9 @@ public class EmbeddedOrientDbServer
     @Inject
     private ConnectionConfig connectionConfig;
 
+    @Value("${strongbox.server.database.path:strongbox-vault/db}")
+    private String databasePath;
+
     @PostConstruct
     public void start()
     {
@@ -220,7 +223,7 @@ public class EmbeddedOrientDbServer
 
         // add other properties
         List<OServerEntryConfiguration> properties = new LinkedList<>();
-        properties.add(buildProperty("server.database.path", getDatabasePath()));
+        properties.add(buildProperty("server.database.path", databasePath));
         properties.add(buildProperty("plugin.dynamic", "false"));
         properties.add(buildProperty("log.console.level", "info"));
         properties.add(buildProperty("orientdb.www.path", getStudioPath()));
@@ -260,11 +263,6 @@ public class EmbeddedOrientDbServer
         property.value = value;
 
         return property;
-    }
-
-    private String getDatabasePath()
-    {
-        return PropertiesBooter.getVaultDirectory() + "/db";
     }
 
     private String getStudioPath()

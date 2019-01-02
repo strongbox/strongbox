@@ -184,6 +184,28 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>unpack-db-snapshot</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-db-snapshot</artifactId>
+                                    <version>${project.version}</version>
+                                    <classifier>db-snapshot</classifier>
+                                    <type>zip</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.outputDirectory}/db-snapshot</outputDirectory>
+                                    <includes>**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>unpack-web-ui</id>
                         <phase>process-resources</phase>
                         <goals>
@@ -393,6 +415,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-web-ui</artifactId>
             <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-db-snapshot</artifactId>
+            <version>${project.version}</version>
+            <classifier>db-snapshot</classifier>
             <type>zip</type>
         </dependency>
         <dependency>
