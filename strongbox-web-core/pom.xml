@@ -108,7 +108,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-
+                <dependencies>
+                    <dependency>
+                        <groupId>${project.groupId}</groupId>
+                        <artifactId>strongbox-db-snapshot</artifactId>
+                        <version>${project.version}</version>
+                        <classifier>db-snapshot</classifier>
+                        <type>zip</type>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>unpack-resources-logging</id>
@@ -415,13 +423,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-web-ui</artifactId>
             <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-db-snapshot</artifactId>
-            <version>${project.version}</version>
-            <classifier>db-snapshot</classifier>
             <type>zip</type>
         </dependency>
         <dependency>
