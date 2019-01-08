@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotEmpty;
 
+import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
 import org.carlspring.strongbox.validation.LdapUri;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,7 +29,7 @@ public class LdapConfiguration
 
     private LdapGroupSearch groupSearch = new LdapGroupSearch();
 
-    private List<LdapRoleMapping> roleMappingList = new ArrayList<>();
+    private List<ExternalRoleMapping> roleMappingList = new ArrayList<>();
 
     private List<String> userDnPatternList = new ArrayList<>();
 
@@ -84,12 +85,12 @@ public class LdapConfiguration
         this.managerPassword = managerPassword;
     }
 
-    public List<LdapRoleMapping> getRoleMappingList()
+    public List<ExternalRoleMapping> getRoleMappingList()
     {
         return roleMappingList;
     }
 
-    public void setRoleMappingList(List<LdapRoleMapping> roleMappingList)
+    public void setRoleMappingList(List<ExternalRoleMapping> roleMappingList)
     {
         this.roleMappingList = roleMappingList;
     }

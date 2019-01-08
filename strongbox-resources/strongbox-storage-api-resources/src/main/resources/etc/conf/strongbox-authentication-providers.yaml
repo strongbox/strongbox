@@ -20,9 +20,9 @@ strongbox:
       managerDn: cn=manager,ou=users,dc=carlspring,dc=com
       managerPassword: password
       rolesMapping:
-      - ldapRole: Developers
+      - externalRole: Developers
         strongboxRole: REPOSITORY_MANAGER
-      - ldapRole: Contributors
+      - externalRole: Contributors
         strongboxRole: USER_ROLE
       userDnPatterns:
       - uid={0},ou=Users
