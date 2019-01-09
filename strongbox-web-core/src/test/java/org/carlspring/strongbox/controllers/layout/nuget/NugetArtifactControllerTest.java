@@ -428,7 +428,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                    .then()
                    .statusCode(HttpStatus.OK.value())
                    .assertThat()
-                   .header("Content-Length", equalTo(String.valueOf(1490223)));
+                   .header("Content-Length", equalTo(String.valueOf(1499857)));
         }
         finally
         {
