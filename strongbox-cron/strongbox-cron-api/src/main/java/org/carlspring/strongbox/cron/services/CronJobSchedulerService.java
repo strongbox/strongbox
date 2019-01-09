@@ -11,7 +11,7 @@ public interface CronJobSchedulerService
 
     void scheduleJob(CronTaskConfigurationDto cronTaskConfiguration);
 
-    void deleteJob(String cronTaskConfigurationName);
+    void deleteJob(String cronTaskConfigurationUuid);
 
-    public GroovyScriptNamesDto getGroovyScriptsName();
+    GroovyScriptNamesDto getGroovyScriptsName();
 }

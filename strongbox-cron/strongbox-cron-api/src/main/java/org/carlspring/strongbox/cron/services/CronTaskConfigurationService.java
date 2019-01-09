@@ -13,12 +13,12 @@ public interface CronTaskConfigurationService
     void saveConfiguration(CronTaskConfigurationDto cronTaskConfiguration)
             throws Exception;
 
-    void deleteConfiguration(String cronTaskConfigurationName)
+    void deleteConfiguration(String cronTaskConfigurationUuid)
             throws SchedulerException,
                    CronTaskNotFoundException,
                    ClassNotFoundException;
 
-    CronTaskConfigurationDto getTaskConfigurationDto(String cronTaskConfigurationName);
+    CronTaskConfigurationDto getTaskConfigurationDto(String cronTaskConfigurationUuid);
 
     CronTasksConfigurationDto getTasksConfigurationDto();
 

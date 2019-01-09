@@ -14,6 +14,8 @@ import com.google.common.collect.ImmutableMap;
 public class CronTaskConfiguration
 {
 
+    private final String uuid;
+
     private final String name;
 
     private final Map<String, String> properties;
@@ -24,6 +26,7 @@ public class CronTaskConfiguration
 
     public CronTaskConfiguration(final CronTaskConfigurationDto source)
     {
+        this.uuid = source.getUuid();
         this.name = source.getName();
         this.properties = immuteProperties(source.getProperties());
         this.oneTimeExecution = source.isOneTimeExecution();
@@ -33,6 +36,11 @@ public class CronTaskConfiguration
     private Map<String, String> immuteProperties(final Map<String, String> source)
     {
         return source != null ? ImmutableMap.copyOf(source) : Collections.emptyMap();
+    }
+
+    public String getUuid()
+    {
+        return uuid;
     }
 
     public String getName()
@@ -74,12 +82,12 @@ public class CronTaskConfiguration
             return false;
         }
         final CronTaskConfiguration that = (CronTaskConfiguration) o;
-        return Objects.equals(name, that.name);
+        return Objects.equals(uuid, that.uuid);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(name);
+        return Objects.hash(uuid);
     }
 }
