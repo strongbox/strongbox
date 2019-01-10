@@ -4,19 +4,21 @@ import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author carlspring
  */
+@Execution(CONCURRENT)
 public class NpmDependencyFormatterTest
 {
 
 
     @Test
     public void testNpmDependencyGenerationWithoutScope()
-            throws ProviderImplementationException
     {
         DependencySynonymFormatter formatter = new NpmDependencyFormatter();
 
@@ -37,7 +39,6 @@ public class NpmDependencyFormatterTest
 
     @Test
     public void testNpmDependencyGenerationWithScope()
-            throws ProviderImplementationException
     {
         DependencySynonymFormatter formatter = new NpmDependencyFormatter();
 

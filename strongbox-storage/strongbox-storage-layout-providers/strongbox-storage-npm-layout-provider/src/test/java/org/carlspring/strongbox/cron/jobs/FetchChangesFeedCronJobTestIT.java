@@ -45,6 +45,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.beans.BeansException;
@@ -62,10 +63,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @ContextConfiguration(classes = { NpmLayoutProviderCronTasksTestConfig.class })
 @ActiveProfiles(profiles = { "test", "FetchChangesFeedCronJobTestConfig" })
 @ExtendWith(SpringExtension.class)
+@Execution(CONCURRENT)
 public class FetchChangesFeedCronJobTestIT
         extends NpmRepositoryTestCase implements ApplicationListener<CronTaskEvent>, ApplicationContextAware
 {
