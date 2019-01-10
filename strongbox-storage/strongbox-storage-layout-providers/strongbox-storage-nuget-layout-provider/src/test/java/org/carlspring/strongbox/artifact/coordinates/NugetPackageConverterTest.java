@@ -1,14 +1,16 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
+@Execution(CONCURRENT)
 public class NugetPackageConverterTest
 {
 
     @Test
     public void testArtifactPathToCoordinatesConversion()
-        throws Exception
     {
         String path = "Org.Carlspring.Strongbox.Examples.Nuget.Mono/1.0/Org.Carlspring.Strongbox.Examples.Nuget.Mono.1.0.nupkg";
         NugetArtifactCoordinates nac = NugetArtifactCoordinates.parse(path);
