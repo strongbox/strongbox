@@ -38,19 +38,6 @@ pipeline {
                 }
             }
         }
-        stage('Code Analysis') {
-            steps {
-                withMavenPlus(mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534', publisherStrategy: 'EXPLICIT')
-                {
-                    withCredentials([
-                        string(credentialsId: '5aa5789f-dd6a-48c2-a76c-10d8b16a4e53', variable: 'CODACY_API_TOKEN'),
-                        string(credentialsId: 'b3d644ac-5a8c-4a07-bf6e-6953a46ac33f', variable: 'CODACY_PROJECT_TOKEN_STRONGBOX')
-                    ]) {
-                        sh "mvn com.gavinmogan:codacy-maven-plugin:coverage -Pcodacy"
-                    }
-                }
-            }
-        }
         stage('Deploy') {
             when {
                 expression { BRANCH_NAME == 'master' && (currentBuild.result == null || currentBuild.result == 'SUCCESS') }
