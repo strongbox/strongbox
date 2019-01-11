@@ -25,11 +25,13 @@ import java.util.Set;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Kate Novik.
@@ -37,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = NugetLayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
+@Execution(CONCURRENT)
 public class RegenerateNugetChecksumCronJobTestIT
         extends BaseCronJobWithNugetIndexingTestCase
 {
