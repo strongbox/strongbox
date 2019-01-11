@@ -25,7 +25,7 @@ Work conduct
 General
 -------
 * Do your homework (when possible)
-* Use the [Gitter channel](https://gitter.im/strongbox/strongbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) for help
+* Use our chat channel to ask for help [![RocketChat.Community.Channel](https://chat.carlspring.org/images/join-chat.svg)](https://chat.carlspring.org/channel/community)
 * If you're new to the project:
  * Read:
    * [Getting Started Guide](https://github.com/strongbox/strongbox/wiki/Getting-Started)
