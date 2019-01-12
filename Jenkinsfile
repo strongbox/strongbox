@@ -38,54 +38,6 @@ pipeline {
                 }
             }
         }
-        stage('Code Analysis') {
-            steps {
-                withMavenPlus(mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534', publisherStrategy: 'EXPLICIT')
-                {
-                    script
-                    {
-                        if(BRANCH_NAME == 'master')
-                        {
-                            withSonarQubeEnv('sonar')
-                            {
-                                // requires SonarQube Scanner for Maven 3.2+
-                                sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar " +
-                                   "-Dintegration.tests " +
-                                   "-Dprepare.revision" +
-                                   "-Ddownloader.quick.query.timestamp=false " +
-                                   "-Dformat=XML " +
-                                   "-Dsonar.dependencyCheck.reportPath=${WORKSPACE}/dependency-check-report.xml " +
-                                   "-Pdependency-check "
-                            }
-                        }
-                        else {
-                            if(BRANCH_NAME.startsWith("PR-"))
-                            {
-                                withSonarQubeEnv('sonar')
-                                {
-                                    def PR_NUMBER = env.CHANGE_ID
-                                    echo "Triggering sonar analysis in comment-only mode for PR: ${PR_NUMBER}."
-                                    sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar " +
-                                       "-Dintegration.tests " +
-                                       "-Dprepare.revision " +
-                                       "-Dsonar.github.repository=${REPO_NAME} " +
-                                       "-Dsonar.github.pullRequest=${PR_NUMBER} " +
-                                       "-Dsonar.dependencyCheck.reportPath=${WORKSPACE}/dependency-check-report.xml " +
-                                       "-Ddownloader.quick.query.timestamp=false " +
-                                       "-Dformat=XML " +
-                                       "-Pdependency-check " +
-                                       "-Psonar-github"
-                                }
-                            }
-                            else
-                            {
-                                echo "This step is skipped for branches other than master or PR-*"
-                            }
-                        }
-                    }
-                }
-            }
-        }
         stage('Deploy') {
             when {
                 expression { BRANCH_NAME == 'master' && (currentBuild.result == null || currentBuild.result == 'SUCCESS') }
@@ -123,10 +75,6 @@ pipeline {
                     notifyFixed((BRANCH_NAME == "master") ? notifyMaster : notifyBranch)
                 }
             }
-        }
-        always {
-            // (fallback) record test results even if withMaven should have done that already.
-            junit '**/target/*-reports/*.xml'
         }
         cleanup {
             script {
