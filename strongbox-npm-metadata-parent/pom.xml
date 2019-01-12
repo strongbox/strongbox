@@ -10,11 +10,11 @@
     </parent>
     
     <groupId>org.carlspring.strongbox</groupId>
-    <artifactId>npm-metadata-parent</artifactId>
+    <artifactId>strongbox-npm-metadata-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <url>https://github.com/strongbox/npm-metadata</url>
+    <url>https://github.com/strongbox/strongbox-npm-metadata</url>
 
     <licenses>
         <license>
@@ -32,9 +32,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:strongbox/npm-metedata.git</connection>
-        <url>scm:git:git@github.com:strongbox/npm-metedata.git</url>
-        <developerConnection>scm:git:git@github.com:strongbox/npm-metedata.git</developerConnection>
+        <connection>scm:git:git@github.com:strongbox/strongbox-npm-metadata.git</connection>
+        <url>scm:git:git@github.com:strongbox/strongbox-npm-metadata.git</url>
+        <developerConnection>scm:git:git@github.com:strongbox/strongbox-npm-metadata.git</developerConnection>
     </scm>
 
     <properties>
