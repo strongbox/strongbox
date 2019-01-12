@@ -5,15 +5,15 @@
 
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
-        <artifactId>npm-metadata-parent</artifactId>
+        <artifactId>strongbox-npm-metadata-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../npm-metadata-parent</relativePath>
+        <relativePath>../strongbox-npm-metadata-parent</relativePath>
     </parent>
 
-    <artifactId>npm-metadata-jackson</artifactId>
+    <artifactId>strongbox-npm-metadata-jackson</artifactId>
     <packaging>jar</packaging>
 
-    <url>https://github.com/strongbox/npm-metadata</url>
+    <url>https://github.com/strongbox/strongbox-npm-metadata</url>
     <licenses>
         <license>
             <name>Apache 2.0</name>
@@ -30,9 +30,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:strongbox/npm-metedata.git</connection>
-        <url>scm:git:git@github.com:strongbox/npm-metedata.git</url>
-        <developerConnection>scm:git:git@github.com:strongbox/npm-metedata.git</developerConnection>
+        <connection>scm:git:git@github.com:strongbox/strongbox-npm-metadata.git</connection>
+        <url>scm:git:git@github.com:strongbox/strongbox-npm-metadata.git</url>
+        <developerConnection>scm:git:git@github.com:strongbox/strongbox-npm-metadata.git</developerConnection>
     </scm>
 
     <build>
@@ -64,7 +64,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
-                                    <artifactId>npm-metadata-schema</artifactId>
+                                    <artifactId>strongbox-npm-metadata-schema</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
                                     <outputDirectory>${project.basedir}/target/generated-resources</outputDirectory>
