@@ -201,10 +201,10 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.carlspring.strongbox</groupId>
-            <artifactId>npm-metadata-jackson</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-npm-metadata-jackson</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
