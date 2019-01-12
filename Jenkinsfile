@@ -78,7 +78,7 @@ pipeline {
         }
         always {
             // (fallback) record test results even if withMaven should have done that already.
-            junit '**/target/*-reports/*.xml'
+            //! junit '**/target/*-reports/*.xml'
         }
         cleanup {
             script {
