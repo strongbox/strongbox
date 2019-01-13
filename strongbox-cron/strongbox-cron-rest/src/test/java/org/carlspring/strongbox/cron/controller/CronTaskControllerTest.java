@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import io.restassured.module.mockmvc.response.MockMvcResponse;
@@ -29,6 +28,7 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.cron.controller.CronTaskController.CRON_CONFIG_FILE_NAME_KEY;
 import static org.carlspring.strongbox.cron.controller.CronTaskController.CRON_CONFIG_JOB_CLASS_KEY;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -55,13 +55,18 @@ public class CronTaskControllerTest
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
     public void createNewCronJob()
     {
-        CronTaskConfigurationForm configurationForm = createForm();
+        final String name = "Cron Job Test";
+        final String cronExpression = "0 0 0 * * ?";
+        final String className = MyTask.class.getName();
 
-        // Create cron job.
+        // 1. Create cron job.
+        CronTaskConfigurationForm configurationForm = createForm(name, cronExpression, className);
         createConfig(configurationForm);
 
-        // Delete cron job.
-        deleteConfig(configurationForm.getUuid());
+        final String cronUuid = getCronUuid(name);
+
+        // 2. Delete cron job.
+        deleteConfig(cronUuid);
     }
 
     @Test
@@ -73,7 +78,7 @@ public class CronTaskControllerTest
         final String newCronExpression = "0 0 0 * * ?";
 
         List<CronTaskConfigurationDto> configurationList = getDownloadRemoteMavenIndexOfCarlspringCronJobs();
-        assertEquals(configurationList.size(), 1);
+        assertFalse(configurationList.isEmpty());
 
         CronTaskConfigurationDto configuration = configurationList.get(0);
         assertEquals(configuration.getProperties().keySet().size(), 4);
@@ -93,7 +98,7 @@ public class CronTaskControllerTest
                .statusCode(OK);
 
         configurationList = getDownloadRemoteMavenIndexOfCarlspringCronJobs();
-        assertEquals(configurationList.size(), 1);
+        assertFalse(configurationList.isEmpty());
 
         configuration = configurationList.get(0);
         assertEquals(configuration.getProperties().keySet().size(), 4);
@@ -116,10 +121,18 @@ public class CronTaskControllerTest
     @Test
     public void testJavaCronTaskConfiguration()
     {
-        final String cronUuid = "adf64aa4-fba4-11e8-8eb2-f2801f1b9fd1";
         final String cronName = "CRJ001";
+        final String cronExpression = "0 11 11 11 11 ? 2100";
+        final String className = MyTask.class.getName();
 
-        saveCronConfig("0 11 11 11 11 ? 2100", cronUuid, cronName, MyTask.class.getName());
+        // 1. Create cron config.
+        CronTaskConfigurationForm configurationForm = createForm(cronName, cronExpression, className);
+        createConfig(configurationForm);
+
+        final String cronUuid = getCronUuid(cronName);
+
+        // 2. Update cron config.
+        saveCronConfig(cronUuid, configurationForm);
 
         // Remove comments to test cron job execution
         // saveCronConfig("0 0/2 * 1/1 * ? *", cronUuid, cronName, MyTask.class.getName());
@@ -127,14 +140,22 @@ public class CronTaskControllerTest
         deleteConfig(cronUuid);
     }
 
+
     @Test
     public void testGroovyCronTaskConfiguration()
             throws Exception
     {
-        final String cronUuid = "b5a288db-3768-4c79-8cc9-ea6ea3af6f5a";
         final String cronName = "CRJG001";
+        final String cronExpression = "0 11 11 11 11 ? 2100";
 
-        saveCronConfig("0 11 11 11 11 ? 2100", cronUuid, cronName, null);
+        // 1. Create cron config.
+        CronTaskConfigurationForm configurationForm = createForm(cronName, cronExpression, null);
+        createConfig(configurationForm);
+
+        final String cronUuid = getCronUuid(cronName);
+
+        // 2. Update cron config.
+        saveCronConfig(cronUuid, configurationForm);
         uploadGroovyScript(cronUuid);
 
         // Remove comments to test cron job execution *
@@ -144,13 +165,19 @@ public class CronTaskControllerTest
         deleteConfig(cronUuid);
     }
 
-    private CronTaskConfigurationForm createForm()
+    private CronTaskConfigurationForm createForm(String name,
+                                                 String cronExpression,
+                                                 String className)
     {
         CronTaskConfigurationForm form = new CronTaskConfigurationForm();
-        form.setUuid(UUID.randomUUID().toString());
-        form.setName("Cron Job Test");
-        form.addProperty("cronExpression", "0 0 0 * * ?");
-        form.addProperty(CRON_CONFIG_JOB_CLASS_KEY, MyTask.class.getName());
+        form.setName(name);
+        form.addProperty("cronExpression", cronExpression);
+
+        if (className != null)
+        {
+            form.addProperty(CRON_CONFIG_JOB_CLASS_KEY, className);
+        }
+
         form.setOneTimeExecution(true);
         form.setImmediateExecution(true);
 
@@ -162,11 +189,6 @@ public class CronTaskControllerTest
         MockMvcResponse response = createCronConfig(configurationForm);
 
         assertEquals(OK, response.getStatusCode(), "Failed to create cron config job: " + response.getStatusLine());
-
-        // Retrieve created config
-        response = getCronConfig(configurationForm.getUuid());
-
-        assertEquals(OK, response.getStatusCode(), "Cron task config does not exist!");
     }
 
     private MockMvcResponse createCronConfig(CronTaskConfigurationForm configurationForm)
@@ -203,7 +225,6 @@ public class CronTaskControllerTest
     private CronTaskConfigurationForm convertToForm(CronTaskConfigurationDto configuration)
     {
         CronTaskConfigurationForm form = new CronTaskConfigurationForm();
-        form.setUuid(configuration.getUuid());
         form.setName(configuration.getName());
         form.setProperties(configuration.getProperties());
         form.setOneTimeExecution(configuration.isOneTimeExecution());
@@ -213,31 +234,14 @@ public class CronTaskControllerTest
     }
 
 
-    private void saveCronConfig(String cronExpression,
-                                String uuid,
-                                String name,
-                                String className)
+    private void saveCronConfig(String uuid,
+                                CronTaskConfigurationForm form)
     {
-        logger.debug("Cron Expression: {}", cronExpression);
-
-        CronTaskConfigurationForm configuration = new CronTaskConfigurationForm();
-        configuration.setUuid(uuid);
-        configuration.setName(name);
-        configuration.addProperty("cronExpression", cronExpression);
-
-        if (className != null)
-        {
-            configuration.addProperty(CRON_CONFIG_JOB_CLASS_KEY, className);
-        }
-
-        configuration.setOneTimeExecution(true);
-        configuration.setImmediateExecution(false);
-
         MockMvcResponse response = given().contentType(MediaType.APPLICATION_JSON_VALUE)
                                           .accept(MediaType.APPLICATION_JSON_VALUE)
-                                          .body(configuration)
+                                          .body(form)
                                           .when()
-                                          .put(getContextBaseUrl() + "/" + configuration.getUuid())
+                                          .put(getContextBaseUrl() + "/" + uuid)
                                           .peek();
 
         int status = response.getStatusCode();
@@ -249,7 +253,7 @@ public class CronTaskControllerTest
         assertEquals(OK, status, "Failed to schedule job!");
 
         // Retrieve saved config
-        response = getCronConfig(configuration.getUuid());
+        response = getCronConfig(uuid);
 
         assertEquals(OK, response.getStatusCode(), "Failed to get cron task config! " + response.getStatusLine());
 
@@ -321,6 +325,23 @@ public class CronTaskControllerTest
                       .when()
                       .get(getContextBaseUrl() + "/" + uuid)
                       .peek();
+    }
+
+    private String getCronUuid(String cronName)
+    {
+        final CronTasksConfigurationDto cronTasksConfiguration = given().accept(MediaType.APPLICATION_XML_VALUE)
+                                                                        .when()
+                                                                        .get(getContextBaseUrl() + "/")
+                                                                        .peek()
+                                                                        .as(CronTasksConfigurationDto.class);
+
+        final CronTaskConfigurationDto cronTaskConfiguration = cronTasksConfiguration.getCronTaskConfigurations()
+                                                                                     .stream()
+                                                                                     .filter(p -> cronName.equals(
+                                                                                             p.getName()))
+                                                                                     .findFirst().get();
+
+        return cronTaskConfiguration.getUuid();
     }
 
 }

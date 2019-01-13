@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.forms.cron;
 
-import org.carlspring.strongbox.validation.cron.UniqueCronTaskConfiguration;
-
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Map;
@@ -17,10 +15,6 @@ public class CronTaskConfigurationForm
         implements Serializable
 {
 
-    @NotEmpty(message = "Configuration UUID is required!")
-    @UniqueCronTaskConfiguration(groups = NewConfiguration.class, message = "Configuration UUID is already taken.")
-    private String uuid;
-
     @NotEmpty(message = "Configuration name is required!")
     private String name;
 
@@ -29,17 +23,6 @@ public class CronTaskConfigurationForm
     private boolean oneTimeExecution;
 
     private boolean immediateExecution;
-
-
-    public String getUuid()
-    {
-        return uuid;
-    }
-
-    public void setUuid(String uuid)
-    {
-        this.uuid = uuid;
-    }
 
     public String getName()
     {
@@ -84,17 +67,5 @@ public class CronTaskConfigurationForm
     public void setImmediateExecution(boolean immediateExecution)
     {
         this.immediateExecution = immediateExecution;
-    }
-
-    public interface NewConfiguration
-            extends Serializable
-    {
-        // validation group marker interface for new configurations.
-    }
-
-    public interface ExistingConfiguration
-            extends Serializable
-    {
-        // validation group marker interface for existing configurations.
     }
 }

@@ -18,7 +18,6 @@ public enum CronTaskConfigurationFormToCronTaskConfigurationDtoConverter
     public CronTaskConfigurationDto convert(CronTaskConfigurationForm configurationForm)
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
-        configuration.setUuid(configurationForm.getUuid());
         configuration.setName(configurationForm.getName());
         configuration.setProperties(configurationForm.getProperties());
         configuration.setOneTimeExecution(configurationForm.isOneTimeExecution());

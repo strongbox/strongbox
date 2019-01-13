@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -93,10 +92,10 @@ public class CronTaskController
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity saveConfiguration(@RequestBody @Validated(CronTaskConfigurationForm.NewConfiguration.class)
-                                            CronTaskConfigurationForm cronTaskConfigurationForm,
-                                            BindingResult bindingResult,
-                                            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    public ResponseEntity createConfiguration(
+            @RequestBody @Validated CronTaskConfigurationForm cronTaskConfigurationForm,
+            BindingResult bindingResult,
+            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         if (bindingResult.hasErrors())
         {
@@ -126,9 +125,8 @@ public class CronTaskController
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity updateConfiguration(@PathVariable("UUID") String uuid,
-                                              @RequestBody
-                                              @Validated(CronTaskConfigurationForm.ExistingConfiguration.class)
-                                              CronTaskConfigurationForm cronTaskConfigurationForm,
+                                              @RequestBody @Validated
+                                                      CronTaskConfigurationForm cronTaskConfigurationForm,
                                               BindingResult bindingResult,
                                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
@@ -137,15 +135,17 @@ public class CronTaskController
             throw new RequestBodyValidationException(FAILED_UPDATE_CONFIGURATION, bindingResult);
         }
 
+        CronTaskConfigurationDto configuration = cronTaskConfigurationService.getTaskConfigurationDto(uuid);
+        if (configuration == null)
+        {
+            return getBadRequestResponseEntity(FAILED_UPDATE_CONFIGURATION, acceptHeader);
+        }
+
         try
         {
-            if (!StringUtils.equals(uuid, cronTaskConfigurationForm.getUuid()))
-            {
-                return getBadRequestResponseEntity(FAILED_UPDATE_CONFIGURATION, acceptHeader);
-            }
-
             CronTaskConfigurationDto cronTaskConfiguration = conversionService.convert(cronTaskConfigurationForm,
                                                                                        CronTaskConfigurationDto.class);
+            cronTaskConfiguration.setUuid(uuid);
             cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
 
             return getSuccessfulResponseEntity(SUCCESSFUL_SAVE_CONFIGURATION, acceptHeader);

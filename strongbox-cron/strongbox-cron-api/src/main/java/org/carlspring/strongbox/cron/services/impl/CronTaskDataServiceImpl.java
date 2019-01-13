@@ -4,6 +4,7 @@ import org.carlspring.strongbox.cron.config.CronTasksConfigurationFileManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
+import org.carlspring.strongbox.cron.exceptions.CronTaskUUIDNotUniqueException;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.cron.services.support.CronTaskConfigurationSearchCriteria;
 
@@ -150,7 +151,15 @@ public class CronTaskDataServiceImpl
         if (StringUtils.isBlank(dto.getUuid()))
         {
             dto.setUuid(UUID.randomUUID().toString());
+
+            if (exists(dto.getUuid()))
+            {
+                String errorMessage = String.format("Cron task configuration UUID '%s' already exists", dto.getUuid());
+                throw new CronTaskUUIDNotUniqueException(errorMessage);
+            }
+
         }
+
         modifyInLock(configuration ->
                      {
                          configuration.getCronTaskConfigurations()
@@ -197,6 +206,11 @@ public class CronTaskDataServiceImpl
         {
             writeLock.unlock();
         }
+    }
+
+    private boolean exists(String uuid)
+    {
+        return this.getTaskConfigurationDto(uuid) != null;
     }
 
 }
