@@ -2,7 +2,8 @@
 <cron-tasks-configuration>
 
     <cron-task-configuration>
-        <name>Clear Every Repository Trash Cron Job</name>
+        <uuid>463ff872-b7b2-4cb9-aff9-37b3baed4f14</uuid>
+        <name>Clear Each Repository's Trash Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
@@ -14,7 +15,8 @@
     </cron-task-configuration>
 
     <cron-task-configuration>
-        <name>Regenerate Artifacts Checksums Cron Job</name>
+        <uuid>9dd9a6ef-d953-4ce0-be3d-3031fcfd993b</uuid>
+        <name>Re-generate Artifacts Checksums Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
@@ -28,6 +30,7 @@
     </cron-task-configuration>
 
     <cron-task-configuration>
+        <uuid>6d62a2b0-cc4b-4f61-a49e-f4e6d58a9810</uuid>
         <name>Remote index download for storage-common-proxies:carlspring</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
@@ -43,6 +46,7 @@
         - By default, this cron job is enabled by the system for every maven repository supporting indexing.
         - Override, if needed.
     <cron-task-configuration>
+        <uuid>648c0ca3-5727-4cb8-a726-e3b63d36d061</uuid>
         <name>Rebuild maven-central Local Indexes Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
@@ -57,7 +61,8 @@
     -->
 
     <cron-task-configuration>
-        <name>Rebuild All Maven Repositories Metadata Files Cron Job</name>
+        <uuid>b44164a5-c900-43ff-8d13-7a0d0e509d1d</uuid>
+        <name>Re-build All Maven Repositories Metadata Files Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
@@ -70,6 +75,7 @@
     </cron-task-configuration>
 
     <cron-task-configuration>
+        <uuid>c9e7eeef-4e97-4500-aa12-e714a246c2dc</uuid>
         <name>Remove Timestamped Maven Snapshots Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
@@ -88,6 +94,7 @@
         - By default, this cron job is enabled by the system for every nuget proxy repository
         - Override, if needed.
     <cron-task-configuration>
+        <uuid>2c28b782-f545-4c80-b5a4-14ebc392ac12</uuid>
         <name>Remote feed download for storage-nuget:nuget-releases</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>

@@ -8,6 +8,7 @@ import org.carlspring.strongbox.converters.configuration.ProxyConfigurationFormC
 import org.carlspring.strongbox.converters.configuration.RemoteRepositoryFormConverter;
 import org.carlspring.strongbox.converters.configuration.RepositoryFormConverter;
 import org.carlspring.strongbox.converters.configuration.StorageFormConverter;
+import org.carlspring.strongbox.converters.cron.CronTaskConfigurationFormToCronTaskConfigurationDtoConverter;
 import org.carlspring.strongbox.converters.storage.routing.RoutingRuleFormToRoutingRuleConverter;
 import org.carlspring.strongbox.converters.storage.routing.RuleSetFormToRuleSetConverter;
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
@@ -36,11 +37,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.format.FormatterRegistry;
-import org.springframework.http.converter.ByteArrayHttpMessageConverter;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.ResourceHttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
@@ -254,6 +251,7 @@ public class WebConfig
         registry.addConverter(StorageFormConverter.INSTANCE);
         registry.addConverter(RepositoryFormConverter.INSTANCE);
         registry.addConverter(RemoteRepositoryFormConverter.INSTANCE);
+        registry.addConverter(CronTaskConfigurationFormToCronTaskConfigurationDtoConverter.INSTANCE);
     }
 
     @Bean

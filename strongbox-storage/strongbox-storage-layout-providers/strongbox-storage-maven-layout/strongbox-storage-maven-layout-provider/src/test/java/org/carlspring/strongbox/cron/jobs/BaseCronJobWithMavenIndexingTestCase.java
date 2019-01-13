@@ -4,7 +4,6 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
-import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
@@ -83,6 +82,7 @@ public class BaseCronJobWithMavenIndexingTestCase
         CronTaskConfigurationDto cronTaskConfiguration = new CronTaskConfigurationDto();
         cronTaskConfiguration.setOneTimeExecution(true);
         cronTaskConfiguration.setImmediateExecution(true);
+        cronTaskConfiguration.setUuid(jobName);
         cronTaskConfiguration.setName(jobName);
         cronTaskConfiguration.addProperty("jobClass", className.getName());
 

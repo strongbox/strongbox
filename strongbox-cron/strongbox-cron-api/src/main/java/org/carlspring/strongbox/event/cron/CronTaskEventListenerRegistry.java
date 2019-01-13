@@ -17,38 +17,38 @@ public class CronTaskEventListenerRegistry
     private static final Logger logger = LoggerFactory.getLogger(CronTaskEventListenerRegistry.class);
 
 
-    public void dispatchCronTaskCreatedEvent(String name)
+    public void dispatchCronTaskCreatedEvent(String uuid)
     {
-        CronTaskEvent event = new CronTaskEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_SAVED.getType(), name);
+        CronTaskEvent event = new CronTaskEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_SAVED.getType(), uuid);
 
-        logger.debug("Dispatching CronTaskEventTypeEnum.EVENT_CRON_TASK_SAVED event for '" + name + "'...");
+        logger.debug("Dispatching CronTaskEventTypeEnum.EVENT_CRON_TASK_SAVED event for '{}'...", uuid);
 
         dispatchEvent(event);
     }
 
-    public void dispatchCronTaskDeletedEvent(String name)
+    public void dispatchCronTaskDeletedEvent(String uuid)
     {
-        CronTaskEvent event = new CronTaskEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_DELETED.getType(), name);
+        CronTaskEvent event = new CronTaskEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_DELETED.getType(), uuid);
 
-        logger.debug("Dispatching CronTaskEventTypeEnum.EVENT_CRON_TASK_DELETED event for '" + name + "'...");
+        logger.debug("Dispatching CronTaskEventTypeEnum.EVENT_CRON_TASK_DELETED event for '{}'...", uuid);
 
         dispatchEvent(event);
     }
 
-    public void dispatchCronTaskExecutingEvent(String name)
+    public void dispatchCronTaskExecutingEvent(String uuid)
     {
-        CronTaskEvent event = new CronTaskEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTING.getType(), name);
+        CronTaskEvent event = new CronTaskEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTING.getType(), uuid);
 
-        logger.debug("Dispatching CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTING event for '" + name + "'...");
+        logger.debug("Dispatching CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTING event for '{}'...", uuid);
 
         dispatchEvent(event);
     }
 
-    public void dispatchCronTaskExecutedEvent(String name)
+    public void dispatchCronTaskExecutedEvent(String uuid)
     {
-        CronTaskEvent event = new CronTaskEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType(), name);
+        CronTaskEvent event = new CronTaskEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType(), uuid);
 
-        logger.debug("Dispatching CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE event for '" + name + "'...");
+        logger.debug("Dispatching CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE event for '{}'...", uuid);
 
         dispatchEvent(event);
     }

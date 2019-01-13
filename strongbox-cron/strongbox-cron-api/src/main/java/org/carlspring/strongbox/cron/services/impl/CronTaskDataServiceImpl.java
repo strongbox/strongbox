@@ -4,16 +4,13 @@ import org.carlspring.strongbox.cron.config.CronTasksConfigurationFileManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
-import org.carlspring.strongbox.cron.exceptions.CronTaskConfigurationException;
+import org.carlspring.strongbox.cron.exceptions.CronTaskUUIDNotUniqueException;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.cron.services.support.CronTaskConfigurationSearchCriteria;
 
 import javax.inject.Inject;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -101,7 +98,7 @@ public class CronTaskDataServiceImpl
     }
 
     @Override
-    public CronTaskConfigurationDto getTaskConfigurationDto(String cronTaskConfigurationName)
+    public CronTaskConfigurationDto getTaskConfigurationDto(String cronTaskConfigurationUuid)
     {
         final Lock readLock = cronTasksConfigurationLock.readLock();
         readLock.lock();
@@ -110,7 +107,7 @@ public class CronTaskDataServiceImpl
         {
             Optional<CronTaskConfigurationDto> cronTaskConfiguration = configuration.getCronTaskConfigurations()
                                                                                     .stream()
-                                                                                    .filter(conf -> cronTaskConfigurationName.equals(conf.getName()))
+                                                                                    .filter(conf -> cronTaskConfigurationUuid.equals(conf.getUuid()))
                                                                                     .findFirst();
             return cronTaskConfiguration.map(SerializationUtils::clone).orElse(null);
         }
@@ -151,16 +148,23 @@ public class CronTaskDataServiceImpl
     @Override
     public void save(final CronTaskConfigurationDto dto)
     {
-        if (StringUtils.isBlank(dto.getName()))
+        if (StringUtils.isBlank(dto.getUuid()))
         {
-            throw new CronTaskConfigurationException(String.format("Cron task name '%s' should not be blank",
-                                                                   dto.getName()));
+            dto.setUuid(UUID.randomUUID().toString());
+
+            if (exists(dto.getUuid()))
+            {
+                String errorMessage = String.format("Cron task configuration UUID '%s' already exists", dto.getUuid());
+                throw new CronTaskUUIDNotUniqueException(errorMessage);
+            }
+
         }
+
         modifyInLock(configuration ->
                      {
                          configuration.getCronTaskConfigurations()
                                       .stream()
-                                      .filter(conf -> StringUtils.equals(dto.getName(), conf.getName()))
+                                      .filter(conf -> StringUtils.equals(dto.getUuid(), conf.getUuid()))
                                       .findFirst()
                                       .ifPresent(conf -> configuration.getCronTaskConfigurations().remove(conf));
                          configuration.getCronTaskConfigurations().add(dto);
@@ -168,16 +172,14 @@ public class CronTaskDataServiceImpl
     }
 
     @Override
-    public void delete(final String name)
+    public void delete(final String uuid)
     {
         modifyInLock(configuration ->
-                     {
-                         configuration.getCronTaskConfigurations()
-                                      .stream()
-                                      .filter(conf -> name.equals(conf.getName()))
-                                      .findFirst()
-                                      .ifPresent(conf -> configuration.getCronTaskConfigurations().remove(conf));
-                     });
+                             configuration.getCronTaskConfigurations()
+                                          .stream()
+                                          .filter(conf -> uuid.equals(conf.getUuid()))
+                                          .findFirst()
+                                          .ifPresent(conf -> configuration.getCronTaskConfigurations().remove(conf)));
     }
 
     private void modifyInLock(final Consumer<CronTasksConfigurationDto> operation)
@@ -204,6 +206,11 @@ public class CronTaskDataServiceImpl
         {
             writeLock.unlock();
         }
+    }
+
+    private boolean exists(String uuid)
+    {
+        return this.getTaskConfigurationDto(uuid) != null;
     }
 
 }
