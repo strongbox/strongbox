@@ -9,13 +9,16 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +54,39 @@ public class ArtifactEntryServiceTest
 
     @Inject
     CacheManager cacheManager;
+
+    @Test
+    public void testParallelSaveTheSameArtifactToDifferentRepositories(TestInfo testInfo)
+    {
+        List<ArtifactEntry> artifactEntries = new ArrayList<>();
+        int concurrency = 64;
+        IntStream.range(0, concurrency * 2)
+                 .parallel()
+                 .forEach(i -> artifactEntries.addAll(
+                         createArtifacts("org.carlspring",
+                                         "fss-concrnt-tst",
+                                         storageId,
+                                         "repo-fss-concrnt-tst-" + testInfo.getTestMethod().get().getName() + "-" +
+                                         i)));
+
+        artifactEntryService.delete(artifactEntries);
+    }
+
+    @Test
+    public void testParallelSaveTheSameArtifactToTheSameRepository(TestInfo testInfo)
+    {
+        List<ArtifactEntry> artifactEntries = new ArrayList<>();
+        int concurrency = 64;
+        IntStream.range(0, concurrency * 2)
+                 .parallel()
+                 .forEach(i -> artifactEntries.addAll(createArtifacts("org.carlspring",
+                                                                      "sm-rptr-tst",
+                                                                      storageId,
+                                                                      "repo-sm-rptr-tst-" +
+                                                                      testInfo.getTestMethod().get().getName())));
+
+        artifactEntryService.delete(artifactEntries);
+    }
 
     @Test
     public void saveEntityShouldWork()
@@ -303,19 +339,22 @@ public class ArtifactEntryServiceTest
         result.forEach(artifactEntry -> logger.debug("Found artifact " + artifactEntry));
     }
 
-    public void createArtifacts(String groupId,
+    public List<ArtifactEntry> createArtifacts(String groupId,
                                 String artifactId,
                                 String storageId,
                                 String repositoryId)
     {
+        List<ArtifactEntry> artifactEntries = new ArrayList<>();
         // create 3 artifacts, one will have coordinates that matches our query, one - not
         ArtifactCoordinates coordinates1 = new NullArtifactCoordinates(String.format("%s/%s/%s/%s", groupId, artifactId + "123", "1.2.3", "jar"));
         ArtifactCoordinates coordinates2 = new NullArtifactCoordinates(String.format("%s/%s/%s/%s", groupId, artifactId, "1.2.3", "jar"));
         ArtifactCoordinates coordinates3 = new NullArtifactCoordinates(String.format("%s/%s/%s/%s", groupId  + "myId", artifactId + "321", "1.2.3", "jar"));
 
-        createArtifactEntry(coordinates1, storageId, repositoryId);
-        createArtifactEntry(coordinates2, storageId, repositoryId);
-        createArtifactEntry(coordinates3, storageId, repositoryId);
+        artifactEntries.add(createArtifactEntry(coordinates1, storageId, repositoryId));
+        artifactEntries.add(createArtifactEntry(coordinates2, storageId, repositoryId));
+        artifactEntries.add(createArtifactEntry(coordinates3, storageId, repositoryId));
+
+        return artifactEntries;
     }
 
     public ArtifactEntry createArtifactEntry(ArtifactCoordinates coordinates,
