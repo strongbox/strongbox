@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
+@Disabled
 public class MavenIndexerSearchProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
