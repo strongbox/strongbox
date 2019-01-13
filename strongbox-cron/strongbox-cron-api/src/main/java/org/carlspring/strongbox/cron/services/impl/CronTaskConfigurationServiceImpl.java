@@ -63,26 +63,26 @@ class CronTaskConfigurationServiceImpl
             cronJobSchedulerService.scheduleJob(configuration);
         }
 
-        cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(configuration.getName());
+        cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(configuration.getUuid());
     }
 
-    public void deleteConfiguration(String cronTaskConfigurationName)
+    public void deleteConfiguration(String cronTaskConfigurationUuid)
             throws SchedulerException,
                    CronTaskNotFoundException,
                    ClassNotFoundException
     {
-        logger.debug("Deleting cron task configuration {}", cronTaskConfigurationName);
+        logger.debug("Deleting cron task configuration {}", cronTaskConfigurationUuid);
 
-        cronTaskDataService.delete(cronTaskConfigurationName);
-        cronJobSchedulerService.deleteJob(cronTaskConfigurationName);
+        cronTaskDataService.delete(cronTaskConfigurationUuid);
+        cronJobSchedulerService.deleteJob(cronTaskConfigurationUuid);
 
-        cronTaskEventListenerRegistry.dispatchCronTaskDeletedEvent(cronTaskConfigurationName);
+        cronTaskEventListenerRegistry.dispatchCronTaskDeletedEvent(cronTaskConfigurationUuid);
     }
 
     @Override
-    public CronTaskConfigurationDto getTaskConfigurationDto(String name)
+    public CronTaskConfigurationDto getTaskConfigurationDto(String uuid)
     {
-        return cronTaskDataService.getTaskConfigurationDto(name);
+        return cronTaskDataService.getTaskConfigurationDto(uuid);
     }
 
     public CronTasksConfigurationDto getTasksConfigurationDto()
