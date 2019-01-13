@@ -189,6 +189,9 @@ public class EmbeddedOrientDbServer
 
         logger.info(String.format("Initialized Embedded OrientDB server for [%s]", database));
 
+        // Don't touch below line. Don't move it down the code. It needs to be called before OServerMain.create()
+        System.setProperty("network.binary.maxLength", "64000");
+
         server = OServerMain.create();
         serverConfiguration = new OServerConfiguration();
 
