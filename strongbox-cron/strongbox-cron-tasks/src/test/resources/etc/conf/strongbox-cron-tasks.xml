@@ -2,7 +2,8 @@
 <cron-tasks-configuration>
 
     <cron-task-configuration>
-        <name>Clear Every Repository Trash Cron Job</name>
+        <uuid>463ff872-b7b2-4cb9-aff9-37b3baed4f14</uuid>
+        <name>Clear Each Repository's Trash Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>
@@ -14,7 +15,8 @@
     </cron-task-configuration>
 
     <cron-task-configuration>
-        <name>Regenerate Artifacts Checksums Cron Job</name>
+        <uuid>9dd9a6ef-d953-4ce0-be3d-3031fcfd993b</uuid>
+        <name>Re-generate Artifacts Checksums Cron Job</name>
         <one-time-execution>false</one-time-execution>
         <immediate-execution>false</immediate-execution>
         <properties>

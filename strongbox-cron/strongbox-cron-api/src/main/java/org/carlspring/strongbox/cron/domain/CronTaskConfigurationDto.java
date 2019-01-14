@@ -15,12 +15,16 @@ import org.springframework.util.Assert;
 
 /**
  * @author Yougeshwar
+ * @author Pablo Tirado
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public class CronTaskConfigurationDto
         implements Serializable
 {
+
+    @XmlElement(name = "uuid", required = true)
+    private String uuid;
 
     @XmlElement(name = "name", required = true)
     private String name;
@@ -38,6 +42,16 @@ public class CronTaskConfigurationDto
 
     public CronTaskConfigurationDto()
     {
+    }
+
+    public String getUuid()
+    {
+        return uuid;
+    }
+
+    public void setUuid(String uuid)
+    {
+        this.uuid = uuid;
     }
 
     public String getName()
@@ -112,6 +126,7 @@ public class CronTaskConfigurationDto
     public String toString()
     {
         final StringBuilder sb = new StringBuilder("CronTaskConfiguration{");
+        sb.append("uuid='").append(uuid).append('\'');
         sb.append("name='").append(name).append('\'');
         sb.append(", properties=").append(properties);
         sb.append(", oneTimeExecution=").append(oneTimeExecution);
@@ -134,12 +149,12 @@ public class CronTaskConfigurationDto
 
         final CronTaskConfigurationDto that = (CronTaskConfigurationDto) o;
 
-        return getName() != null ? getName().equals(that.getName()) : that.getName() == null;
+        return getUuid() != null ? getUuid().equals(that.getUuid()) : that.getUuid() == null;
     }
 
     @Override
     public int hashCode()
     {
-        return getName() != null ? getName().hashCode() : 0;
+        return getUuid() != null ? getUuid().hashCode() : 0;
     }
 }

@@ -46,14 +46,14 @@ public class CronJobSchedulerServiceImpl
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("config", cronTaskConfiguration);
 
-        JobKey jobKey = JobKey.jobKey(cronTaskConfiguration.getName());
+        JobKey jobKey = JobKey.jobKey(cronTaskConfiguration.getUuid());
         JobDetail jobDetail = JobBuilder.newJob(jobClass)
                                         .withIdentity(jobKey)
                                         .setJobData(jobDataMap)
                                         .storeDurably()
                                         .build();
 
-        TriggerKey triggerKey = TriggerKey.triggerKey(cronTaskConfiguration.getName());
+        TriggerKey triggerKey = TriggerKey.triggerKey(cronTaskConfiguration.getUuid());
         TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger()
                                                                .withIdentity(triggerKey)
                                                                .forJob(jobDetail);
@@ -73,7 +73,7 @@ public class CronJobSchedulerServiceImpl
             return;
         }
 
-        logger.debug("Job '" + cronTaskConfiguration.getName() + "' scheduled.");
+        logger.debug("Job '{}' scheduled.", cronTaskConfiguration.getUuid());
     }
 
     private void doScheduleJob(CronTaskConfigurationDto cronTaskConfiguration,
@@ -92,9 +92,9 @@ public class CronJobSchedulerServiceImpl
     }
 
     @Override
-    public void deleteJob(String cronTaskConfigurationName)
+    public void deleteJob(String cronTaskConfigurationUuid)
     {
-        JobKey jobKey = JobKey.jobKey(cronTaskConfigurationName);
+        JobKey jobKey = JobKey.jobKey(cronTaskConfigurationUuid);
 
         try
         {
@@ -105,7 +105,7 @@ public class CronJobSchedulerServiceImpl
             logger.error(String.format("Failed to delete cron job [%s]", jobKey));
         }
 
-        logger.debug("Job '" + cronTaskConfigurationName + "' un-scheduled.");
+        logger.debug("Job '{}' un-scheduled.", cronTaskConfigurationUuid);
     }
 
     @Override

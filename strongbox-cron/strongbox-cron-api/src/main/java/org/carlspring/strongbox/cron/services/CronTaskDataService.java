@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.cron.services;
 
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.support.CronTaskConfigurationSearchCriteria;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 public interface CronTaskDataService
 {
 
-    CronTaskConfigurationDto getTaskConfigurationDto(String cronTaskConfigurationName);
+    CronTaskConfigurationDto getTaskConfigurationDto(String cronTaskConfigurationUuid);
 
     CronTasksConfigurationDto getTasksConfigurationDto();
 
@@ -21,7 +21,7 @@ public interface CronTaskDataService
 
     void save(CronTaskConfigurationDto configuration);
 
-    void delete(String name);
+    void delete(String uuid);
 
 
 }

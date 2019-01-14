@@ -101,6 +101,7 @@ public class BaseCronJobWithNugetIndexingTestCase
         CronTaskConfigurationDto cronTaskConfiguration = new CronTaskConfigurationDto();
         cronTaskConfiguration.setOneTimeExecution(true);
         cronTaskConfiguration.setImmediateExecution(true);
+        cronTaskConfiguration.setUuid(jobName);
         cronTaskConfiguration.setName(jobName);
         cronTaskConfiguration.addProperty("jobClass", className.getName());
 
