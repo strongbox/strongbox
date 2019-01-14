@@ -10,6 +10,11 @@ import com.orientechnologies.orient.core.db.OrientDBConfig;
  */
 abstract class CommonOrientDbConfig
 {
+    static
+    {
+        // Has to be called before com.orientechnologies.orient.core.config.OGlobalConfiguration.readConfiguration
+        System.setProperty("network.binary.maxLength", "64000");
+    }
 
     @Inject
     protected ConnectionConfig connectionConfig;
