@@ -10,15 +10,11 @@ import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -51,6 +47,7 @@ public class MavenRepositoryManagementServiceImplTest
 
     private static final String REPOSITORY_RELEASES_MERGE_2 = "rmsi-releases-merge-2";
 
+
     @BeforeAll
     public static void cleanUp()
             throws Exception
@@ -69,37 +66,12 @@ public class MavenRepositoryManagementServiceImplTest
         return repositories;
     }
 
-    @BeforeEach
-    public void initialize()
+    @Test
+    public void testCreateRepository()
             throws Exception
     {
         createRepository(STORAGE0, REPOSITORY_RELEASES_1, true);
 
-        createRepository(STORAGE0, REPOSITORY_RELEASES_2, true);
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES_MERGE_1,
-                                      true,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "6.2.2");
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES_MERGE_2,
-                                      true,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "6.2.3");
-    }
-
-    @AfterEach
-    public void removeRepositories()
-            throws Exception
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
-
-    @Test
-    public void testCreateRepository()
-    {
         File repositoryBaseDir = new File(STORAGES_BASEDIR, STORAGE0 + "/" + REPOSITORY_RELEASES_1);
 
         assertTrue(repositoryBaseDir.exists(), "Failed to create repository '" + REPOSITORY_RELEASES_1 + "'!");
@@ -109,6 +81,8 @@ public class MavenRepositoryManagementServiceImplTest
     public void testCreateAndDelete()
             throws Exception
     {
+        createRepository(STORAGE0, REPOSITORY_RELEASES_2, true);
+
         File basedir = new File(STORAGES_BASEDIR + "/" + STORAGE0);
         File repositoryDir = new File(basedir, REPOSITORY_RELEASES_2);
 
@@ -127,6 +101,18 @@ public class MavenRepositoryManagementServiceImplTest
     public void testMerge()
             throws Exception
     {
+        createRepositoryWithArtifacts(STORAGE0,
+                                      REPOSITORY_RELEASES_MERGE_1,
+                                      true,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "6.2.2");
+
+        createRepositoryWithArtifacts(STORAGE0,
+                                      REPOSITORY_RELEASES_MERGE_2,
+                                      true,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "6.2.3");
+
         // dumpIndex(STORAGE0, REPOSITORY_RELEASES_MERGE_1, IndexTypeEnum.LOCAL.getType());
 
         // 1) Check that an exists in the first repository
