@@ -50,23 +50,23 @@ public class StoragesConfigurationController
 
     static final String FAILED_SAVE_STORAGE_FORM_ERROR = "Storage cannot be created because the submitted form contains errors!";
 
-    private static final String FAILED_SAVE_STORAGE_ERROR = "Storage was not created.";
+    static final String FAILED_SAVE_STORAGE_ERROR = "Storage was not created.";
 
-    private static final String SUCCESSFUL_UPDATE_STORAGE = "Storage was updated successfully.";
+    static final String SUCCESSFUL_UPDATE_STORAGE = "Storage was updated successfully.";
 
-    private static final String FAILED_UPDATE_STORAGE_FORM_ERROR = "Storage cannot be updated because the submitted form contains errors!";
+    static final String FAILED_UPDATE_STORAGE_FORM_ERROR = "Storage cannot be updated because the submitted form contains errors!";
 
-    private static final String FAILED_UPDATE_STORAGE_ERROR = "Storage was not updated.";
+    static final String FAILED_UPDATE_STORAGE_ERROR = "Storage was not updated.";
 
-    private static final String FAILED_SAVE_REPOSITORY = "Repository cannot be saved because the submitted form contains errors!";
+    static final String FAILED_SAVE_REPOSITORY = "Repository cannot be saved because the submitted form contains errors!";
 
-    private static final String SUCCESSFUL_REPOSITORY_SAVE = "repository was updated successfully.";
+    static final String SUCCESSFUL_REPOSITORY_SAVE = "repository was updated successfully.";
 
-    private static final String FAILED_REPOSITORY_SAVE = "Repository was not saved.";
+    static final String FAILED_REPOSITORY_SAVE = "Repository was not saved.";
 
-    private static final String SUCCESSFUL_STORAGE_REMOVAL = "Storage was removed successfully.";
+    static final String SUCCESSFUL_STORAGE_REMOVAL = "Storage was removed successfully.";
 
-    private static final String SUCCESSFUL_REPOSITORY_REMOVAL = "Repository was removed successfully.";
+    static final String SUCCESSFUL_REPOSITORY_REMOVAL = "Repository was removed successfully.";
 
     private static final String FAILED_STORAGE_REMOVAL = "Failed to remove storage !";
 
@@ -132,7 +132,7 @@ public class StoragesConfigurationController
         }
         catch (ConfigurationException | IOException e)
         {
-            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_UPDATE_STORAGE_ERROR, e, accept);
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_SAVE_STORAGE_ERROR, e, accept);
         }
     }
 

@@ -27,7 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.HttpServerErrorException;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.FAILED_SAVE_STORAGE_FORM_ERROR;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.*;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
@@ -179,7 +179,8 @@ public class StoragesConfigurationControllerTestIT
                      .put(url)
                      .prettyPeek()
                      .then()
-                     .statusCode(OK);
+                     .statusCode(OK)
+                     .body(containsString(SUCCESSFUL_SAVE_STORAGE));
 
         addRepository(r0, storage1);
         addRepository(r1, storage1);
@@ -230,6 +231,27 @@ public class StoragesConfigurationControllerTestIT
                .body(containsString(FAILED_SAVE_STORAGE_FORM_ERROR));
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    public void testUpdatingStorageWithEmptyBasedirShouldFail(String acceptHeader)
+    {
+        StorageForm form = buildStorageForm(EXISTING_STORAGE_ID);
+        form.setBasedir(null);
+
+        String url = getContextBaseUrl() + "/" + EXISTING_STORAGE_ID;
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(acceptHeader)
+               .body(form)
+               .when()
+               .put(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .body(containsString(FAILED_UPDATE_STORAGE_FORM_ERROR));
+    }
+
     private StorageForm buildStorageForm(final String storageId)
     {
         final String basedir = getBaseDir(storageId);
@@ -262,7 +284,8 @@ public class StoragesConfigurationControllerTestIT
                      .put(url)
                      .prettyPeek()
                      .then()
-                     .statusCode(OK);
+                     .statusCode(OK)
+                     .body(containsString(SUCCESSFUL_UPDATE_STORAGE));
 
         addRepository(r0, storage0);
         addRepository(r1, storage0);
@@ -423,7 +446,8 @@ public class StoragesConfigurationControllerTestIT
                          .when()
                          .put(url)
                          .then()
-                         .statusCode(OK);
+                         .statusCode(OK)
+                         .body(containsString(SUCCESSFUL_REPOSITORY_SAVE));
 
         }
         catch (RuntimeException e)
@@ -444,7 +468,8 @@ public class StoragesConfigurationControllerTestIT
                      .when()
                      .delete(url)
                      .then()
-                     .statusCode(OK);
+                     .statusCode(OK)
+                     .body(containsString(SUCCESSFUL_REPOSITORY_REMOVAL));
     }
 
     @Test
@@ -466,7 +491,8 @@ public class StoragesConfigurationControllerTestIT
                      .put(url)
                      .peek() // Use peek() to print the output
                      .then()
-                     .statusCode(OK);
+                     .statusCode(OK)
+                     .body(containsString(SUCCESSFUL_SAVE_STORAGE));
 
         // 1.1. Add repositories to storage.
         addRepository(r0, storage2);
@@ -488,7 +514,7 @@ public class StoragesConfigurationControllerTestIT
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
         assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
 
-        url = getContextBaseUrl() + "/" + storageId + "/" + repositoryId0;
+        url = getContextBaseUrl() + "/" + storageId;
 
         logger.debug(url);
 
@@ -500,9 +526,10 @@ public class StoragesConfigurationControllerTestIT
                      .delete(url)
                      .peek() // Use peek() to print the output
                      .then()
-                     .statusCode(OK);
+                     .statusCode(OK)
+                     .body(containsString(SUCCESSFUL_STORAGE_REMOVAL));
 
-        url = getContextBaseUrl() + "/" + storageId + "/" + repositoryId0;
+        url = getContextBaseUrl() + "/" + storageId;
 
         logger.debug(storageId);
         logger.debug(repositoryId0);
@@ -514,8 +541,5 @@ public class StoragesConfigurationControllerTestIT
                      .peek() // Use peek() to print the output
                      .then()
                      .statusCode(HttpStatus.NOT_FOUND.value());
-
-        // 5. Delete repositories from deleted storage.
-        deleteRepository(storageId, repositoryId1);
     }
 }
