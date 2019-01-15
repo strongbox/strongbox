@@ -35,7 +35,7 @@ class EmbeddedOrientDbConfig
     @Value("${strongbox.server.database.path:strongbox-vault/db}")
     private String databasePath;
 
-    @Value("${strongbox.database.snapshot.resource:classpath:/db-snapshot}")
+    @Value("${strongbox.database.snapshot.resource:classpath:/db-import}")
     private Resource databaseSnapshotResource;
 
     @Bean(destroyMethod = "close")
