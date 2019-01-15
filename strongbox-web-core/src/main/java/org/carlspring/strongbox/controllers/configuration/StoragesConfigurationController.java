@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.annotations.*;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -45,14 +46,19 @@ import org.springframework.web.bind.annotation.*;
 public class StoragesConfigurationController
         extends BaseConfigurationController
 {
+    static final String SUCCESSFUL_SAVE_STORAGE = "Storage was created successfully.";
 
-    private static final String FAILED_SAVE_STORAGE = "Storage cannot be saved because the submitted form contains errors!";
+    static final String FAILED_SAVE_STORAGE_FORM_ERROR = "Storage cannot be created because the submitted form contains errors!";
+
+    private static final String FAILED_SAVE_STORAGE_ERROR = "Storage was not created.";
+
+    private static final String SUCCESSFUL_UPDATE_STORAGE = "Storage was updated successfully.";
+
+    private static final String FAILED_UPDATE_STORAGE_FORM_ERROR = "Storage cannot be updated because the submitted form contains errors!";
+
+    private static final String FAILED_UPDATE_STORAGE_ERROR = "Storage was not updated.";
 
     private static final String FAILED_SAVE_REPOSITORY = "Repository cannot be saved because the submitted form contains errors!";
-
-    private static final String SUCCESSFUL_STORAGE_SAVE = "Storage was saved successfully.";
-
-    private static final String FAILED_STORAGE_SAVE = "Storage was not saved.";
 
     private static final String SUCCESSFUL_REPOSITORY_SAVE = "repository was updated successfully.";
 
@@ -93,22 +99,25 @@ public class StoragesConfigurationController
         this.repositoryIndexManager = repositoryIndexManager;
     }
 
-    @ApiOperation(value = "Add/update a storage.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was updated successfully."),
+    @ApiOperation(value = "Adds a storage.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was created successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
-                                                                          MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity saveStorage(
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity createStorage(
             @RequestBody @Validated({ Default.class,
+                                      StorageForm.NewStorage.class,
                                       ProxyConfigurationFormChecks.class }) StorageForm storageForm,
             BindingResult bindingResult,
             @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         if (bindingResult.hasErrors())
         {
-            throw new RequestBodyValidationException(FAILED_SAVE_STORAGE, bindingResult);
+            throw new RequestBodyValidationException(FAILED_SAVE_STORAGE_FORM_ERROR, bindingResult);
         }
+
         try
         {
             MutableStorage storage = conversionService.convert(storageForm, MutableStorage.class);
@@ -119,13 +128,51 @@ public class StoragesConfigurationController
                 storageManagementService.createStorage(storage);
             }
 
-            return getSuccessfulResponseEntity(SUCCESSFUL_STORAGE_SAVE, accept);
+            return getSuccessfulResponseEntity(SUCCESSFUL_SAVE_STORAGE, accept);
         }
         catch (ConfigurationException | IOException e)
         {
-            logger.error(e.getMessage(), e);
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_UPDATE_STORAGE_ERROR, e, accept);
+        }
+    }
 
-            return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_STORAGE_SAVE, accept);
+    @ApiOperation(value = "Updates a storage.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was updated successfully."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
+    @PutMapping(value = "{storageId}",
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity updateStorage(
+            @ApiParam(value = "The storageId", required = true)
+            @PathVariable String storageId,
+            @RequestBody @Validated({ Default.class,
+                                      StorageForm.ExistingStorage.class,
+                                      ProxyConfigurationFormChecks.class }) StorageForm storageFormToUpdate,
+            BindingResult bindingResult,
+            @RequestHeader(HttpHeaders.ACCEPT) String accept)
+    {
+        if (bindingResult.hasErrors())
+        {
+            throw new RequestBodyValidationException(FAILED_UPDATE_STORAGE_FORM_ERROR, bindingResult);
+        }
+
+        if (!StringUtils.equals(storageId, storageFormToUpdate.getId()))
+        {
+            return getNotFoundResponseEntity(FAILED_UPDATE_STORAGE_ERROR, accept);
+        }
+
+        try
+        {
+            MutableStorage storage = conversionService.convert(storageFormToUpdate, MutableStorage.class);
+            configurationManagementService.saveStorage(storage);
+
+            return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE_STORAGE, accept);
+        }
+        catch (ConfigurationException e)
+        {
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_UPDATE_STORAGE_ERROR, e, accept);
         }
     }
 
@@ -196,9 +243,7 @@ public class StoragesConfigurationController
             }
             catch (ConfigurationException | IOException e)
             {
-                logger.error(e.getMessage(), e);
-
-                return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_STORAGE_REMOVAL, accept);
+                return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_STORAGE_REMOVAL, e, accept);
             }
         }
         else
@@ -249,9 +294,7 @@ public class StoragesConfigurationController
         }
         catch (IOException | ConfigurationException | RepositoryManagementStrategyException e)
         {
-            logger.error(e.getMessage(), e);
-
-            return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_SAVE, accept);
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_SAVE, e, accept);
         }
     }
 
@@ -286,10 +329,8 @@ public class StoragesConfigurationController
         }
         catch (Exception e)
         {
-            logger.error(e.getMessage(), e);
-
-            return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_GET_REPOSITORY,
-                                           MediaType.APPLICATION_JSON_VALUE);
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_GET_REPOSITORY, e,
+                                              MediaType.APPLICATION_JSON_VALUE);
         }
     }
 
@@ -334,9 +375,7 @@ public class StoragesConfigurationController
             }
             catch (IOException | ConfigurationException e)
             {
-                logger.error(e.getMessage(), e);
-
-                return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_REMOVAL, accept);
+                return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_REMOVAL, e, accept);
             }
         }
         else

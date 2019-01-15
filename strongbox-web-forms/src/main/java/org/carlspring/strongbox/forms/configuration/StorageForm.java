@@ -1,18 +1,24 @@
 package org.carlspring.strongbox.forms.configuration;
 
+import org.carlspring.strongbox.validation.configuration.UniqueStorage;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
 public class StorageForm
 {
 
     @NotEmpty(message = "An id must be specified.")
+    @UniqueStorage(groups = NewStorage.class, message = "Storage id is already taken.")
     private String id;
 
+    @NotEmpty(message = "A base directory must be specified.")
     private String basedir;
 
     @Valid
@@ -46,5 +52,17 @@ public class StorageForm
     public void setRepositories(final List<RepositoryForm> repositories)
     {
         this.repositories = repositories;
+    }
+
+    public interface NewStorage
+            extends Serializable
+    {
+        // validation group marker interface for new storages.
+    }
+
+    public interface ExistingStorage
+            extends Serializable
+    {
+        // validation group marker interface for existing storages.
     }
 }
