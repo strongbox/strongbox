@@ -113,7 +113,6 @@
                         <groupId>${project.groupId}</groupId>
                         <artifactId>strongbox-db-snapshot</artifactId>
                         <version>${project.version}</version>
-                        <classifier>db-snapshot</classifier>
                         <type>zip</type>
                     </dependency>
                 </dependencies>
@@ -203,7 +202,6 @@
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>strongbox-db-snapshot</artifactId>
                                     <version>${project.version}</version>
-                                    <classifier>db-snapshot</classifier>
                                     <type>zip</type>
 
                                     <overWrite>true</overWrite>
