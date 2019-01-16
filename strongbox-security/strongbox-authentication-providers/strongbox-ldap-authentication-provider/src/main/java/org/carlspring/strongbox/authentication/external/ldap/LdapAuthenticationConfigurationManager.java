@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.api.AuthenticationItemConfigurationManager;
 import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMapper;
+import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -111,7 +112,7 @@ public class LdapAuthenticationConfigurationManager implements CustomAuthenticat
                          .map(rm -> new HashMap<String, String>()
                          {
                              {
-                                 put("ldapRole", rm.getLdapRole());
+                                 put("externalRole", rm.getExternalRole());
                                  put("strongboxRole", rm.getStrongboxRole());
                              }
                          })
@@ -158,8 +159,8 @@ public class LdapAuthenticationConfigurationManager implements CustomAuthenticat
         result.setUserDnPatternList((List<String>) source.get(USER_DN_PATTERNS));
 
         result.setRoleMappingList(((List<Map<String, String>>) source.get(ROLES_MAPPING)).stream()
-                                                                                         .map(rm -> new LdapRoleMapping(
-                                                                                                 rm.get("ldapRole"),
+                                                                                         .map(rm -> new ExternalRoleMapping(
+                                                                                                 rm.get("externalRole"),
                                                                                                  rm.get("strongboxRole")))
                                                                                          .collect(Collectors.toList()));
 
