@@ -1,22 +1,27 @@
 package org.carlspring.strongbox.controllers.configuration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.apache.http.pool.PoolStats;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.forms.configuration.*;
+import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.RemoteRepositoryForm;
+import org.carlspring.strongbox.forms.configuration.RepositoryForm;
+import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
-
-import javax.inject.Inject;
-import java.util.List;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import io.restassured.config.ObjectMapperConfig;
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import org.apache.http.pool.PoolStats;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +29,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.HttpServerErrorException;
-import static org.junit.jupiter.api.Assertions.*;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 
 /**
  * @author Pablo Tirado
@@ -74,6 +84,7 @@ public class StoragesConfigurationControllerTestIT
                      .peek()
                      .then()
                      .statusCode(200);
+        
     }
 
     @Test
@@ -279,6 +290,53 @@ public class StoragesConfigurationControllerTestIT
         deleteRepository(storage0.getId(), r0_1.getId());
         deleteRepository(storage0.getId(), r0_2.getId());
     }
+    
+    @Test
+    public void testAddUpdateRepositoryNotFound()
+    {
+        StorageForm storage1 = new StorageForm();
+        String storageId = "storage1";
+        storage1.setId(storageId);
+
+        RepositoryForm r0_1 = new RepositoryForm();
+        r0_1.setId("repository0_1");
+        r0_1.setAllowsRedeployment(true);
+        r0_1.setSecured(true);
+        r0_1.setLayout(Maven2LayoutProvider.ALIAS);
+        MavenRepositoryConfigurationForm mavenRepositoryConfigurationForm = new MavenRepositoryConfigurationForm();
+        mavenRepositoryConfigurationForm.setIndexingEnabled(true);
+        mavenRepositoryConfigurationForm.setIndexingClassNamesEnabled(false);
+        r0_1.setRepositoryConfiguration(mavenRepositoryConfigurationForm);
+        r0_1.setType("hosted");
+        r0_1.setPolicy("release");
+        r0_1.setImplementation("file-system");
+        r0_1.setStatus("In Service");
+
+        Integer maxConnectionsRepository2 = 30;
+
+        RepositoryForm r0_2 = new RepositoryForm();
+        r0_2.setId("repository0_2");
+        r0_2.setAllowsForceDeletion(true);
+        r0_2.setTrashEnabled(true);
+        r0_2.setProxyConfiguration(createProxyConfiguration());
+        r0_2.setLayout(Maven2LayoutProvider.ALIAS);
+        r0_2.setType("proxy");
+        r0_2.setPolicy("release");
+        r0_2.setImplementation("file-system");
+        r0_2.setStatus("In Service");
+        r0_2.setGroupRepositories(ImmutableSet.of("repository0"));
+        r0_2.setHttpConnectionPool(maxConnectionsRepository2);
+
+        String secondRepositoryUrl = "http://abc.def";
+
+        RemoteRepositoryForm remoteRepositoryForm = new RemoteRepositoryForm();
+        remoteRepositoryForm.setUrl(secondRepositoryUrl);
+        remoteRepositoryForm.setCheckIntervalSeconds(1000);
+        r0_2.setRemoteRepository(remoteRepositoryForm);
+
+        addRepositoryNotFound(r0_1, storage1);
+        addRepositoryNotFound(r0_2, storage1);
+    }
 
     private Storage getStorage(String storageId)
     {
@@ -342,6 +400,53 @@ public class StoragesConfigurationControllerTestIT
 
         return status;
     }
+    
+    private int addRepositoryNotFound(RepositoryForm repository,
+            final StorageForm storage)
+	{
+		String url;
+		if (repository == null)
+		{
+		logger.error("Unable to add non-existing repository.");
+		
+		throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR,
+		                             "Unable to add non-existing repository.");
+		}
+		
+		if (storage == null)
+		{
+		logger.error("Storage associated with repo is null.");
+		
+		throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR,
+		                             "Storage associated with repo is null.");
+		}
+		
+		try
+		{
+		url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storage.getId() +
+		"/" +
+		repository.getId();
+		}
+		catch (RuntimeException e)
+		{
+		logger.error("Unable to create web resource.", e);
+		
+		throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		int status = givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+		                .accept(MediaType.APPLICATION_JSON_VALUE)
+		                .body(repository)
+		                .when()
+		                .put(url)
+		                .then()
+		                .statusCode(404)
+		                .extract()
+		                .statusCode();
+		
+		return status;
+	}
+    
 
     private void deleteRepository(String storageId,
                                   String repositoryId)
