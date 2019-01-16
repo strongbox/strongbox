@@ -31,14 +31,19 @@
         <property name="password" value="${strongbox.authentication.ldap.managerPassword}"/>
     </bean>
 
-    <bean id="ldapAuthoritiesPopulator" class="org.carlspring.strongbox.authentication.external.ldap.LdapAuthoritiesPopulator">
-        <constructor-arg ref="contextSource"/>
-        <constructor-arg value="${strongbox.authentication.ldap.authorities.groupSearchBase}"/>
-        <property name="groupSearchFilter" value="${strongbox.authentication.ldap.authorities.groupSearchFilter}"/>
-        <property name="convertToUpperCase" value="${strongbox.authentication.ldap.authorities.convertToUpperCase}"/>
-        <property name="groupRoleAttribute" value="${strongbox.authentication.ldap.authorities.groupRoleAttribute}"/>
-        <property name="rolePrefix" value="${strongbox.authentication.ldap.authorities.rolePrefix}"/>
-        <property name="searchSubtree" value="${strongbox.authentication.ldap.authorities.searchSubtree}"/> 
+    <bean id="ldapAuthoritiesPopulator" class="org.carlspring.strongbox.authentication.external.ldap.MappedAuthoritiesPopulator">
+        <constructor-arg ref="ldapAuthoritiesExternalToInternalMapper"/>
+        <property name="delegate">
+            <bean class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
+                <constructor-arg ref="contextSource"/>
+                <constructor-arg value="${strongbox.authentication.ldap.authorities.groupSearchBase}"/>
+                <property name="groupSearchFilter" value="${strongbox.authentication.ldap.authorities.groupSearchFilter}"/>
+                <property name="convertToUpperCase" value="${strongbox.authentication.ldap.authorities.convertToUpperCase}"/>
+                <property name="groupRoleAttribute" value="${strongbox.authentication.ldap.authorities.groupRoleAttribute}"/>
+                <property name="rolePrefix" value="${strongbox.authentication.ldap.authorities.rolePrefix}"/>
+                <property name="searchSubtree" value="${strongbox.authentication.ldap.authorities.searchSubtree}"/>
+            </bean>
+        </property> 
     </bean>
 
     <bean id="ldapUserDetailsService" class="org.springframework.security.ldap.userdetails.LdapUserDetailsService">
