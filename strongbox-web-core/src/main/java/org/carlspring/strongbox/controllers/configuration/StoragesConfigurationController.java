@@ -168,9 +168,14 @@ public class StoragesConfigurationController
             MutableStorage storage = conversionService.convert(storageFormToUpdate, MutableStorage.class);
             configurationManagementService.saveStorage(storage);
 
+            if (!storage.existsOnFileSystem())
+            {
+                storageManagementService.createStorage(storage);
+            }
+
             return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE_STORAGE, accept);
         }
-        catch (ConfigurationException e)
+        catch (ConfigurationException | IOException e)
         {
             return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_UPDATE_STORAGE_ERROR, e, accept);
         }

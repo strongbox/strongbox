@@ -159,7 +159,7 @@ public class StoragesConfigurationControllerTestIT
     }
 
     @Test
-    public void testCreateAndGetStorage()
+    public void testCreateAndUpdateStorage()
     {
         final String storageId = VALID_STORAGE_ID;
         final String repositoryId0 = r0.getId();
@@ -172,6 +172,7 @@ public class StoragesConfigurationControllerTestIT
         logger.debug("Using storage class " + storage1.getClass()
                                                       .getName());
 
+        // 1. Create storage
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
                      .body(storage1)
@@ -182,33 +183,29 @@ public class StoragesConfigurationControllerTestIT
                      .statusCode(OK)
                      .body(containsString(SUCCESSFUL_SAVE_STORAGE));
 
-        addRepository(r0, storage1);
-        addRepository(r1, storage1);
-
         Storage storage = getStorage(storageId);
-        Repository repository0 = storage.getRepositories().get(repositoryId0);
-        Repository repository1 = storage.getRepositories().get(repositoryId1);
-
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
-        assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
-        assertTrue(repository0.allowsRedeployment(),
-                   "Failed to get storage (" + storageId + ")!");
-        assertTrue(repository0.isSecured(),
-                   "Failed to get storage (" + storageId + ")!");
-        assertTrue(repository1.allowsForceDeletion(),
-                   "Failed to get storage (" + storageId + ")!");
-        assertTrue(repository1.isTrashEnabled(),
-                   "Failed to get storage (" + storageId + ")!");
+        assertEquals(storage.getBasedir(), storage1.getBasedir());
 
+        // 2. Update storage.
+        url = getContextBaseUrl() + "/" + storageId;
+        String newBasedir = getBaseDir(storageId) + "-updated";
+        storage1.setBasedir(newBasedir);
 
-        assertNotNull(repository1.getProxyConfiguration().getHost(),
-                      "Failed to get storage (" + storageId + ")!");
-        assertEquals("localhost",
-                     repository1.getProxyConfiguration().getHost(),
-                     "Failed to get storage (" + storageId + ")!");
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .body(storage1)
+                     .when()
+                     .put(url)
+                     .prettyPeek()
+                     .then()
+                     .statusCode(OK)
+                     .body(containsString(SUCCESSFUL_UPDATE_STORAGE));
 
-        deleteRepository(storageId, repositoryId0);
-        deleteRepository(storageId, repositoryId1);
+        storage = getStorage(storageId);
+        assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
+        assertEquals(storage.getBasedir(), storage1.getBasedir(),
+                     "Failed to update storage (" + storageId + ") basedir!");
     }
 
     @ParameterizedTest
@@ -261,59 +258,6 @@ public class StoragesConfigurationControllerTestIT
         form.setBasedir(basedir);
 
         return form;
-    }
-
-    @Test
-    public void testUpdateStorage()
-    {
-        final String storageId = EXISTING_STORAGE_ID;
-        final String repositoryId0 = r0.getId();
-        final String repositoryId1 = r1.getId();
-
-        StorageForm storage0 = buildStorageForm(storageId);
-
-        String url = getContextBaseUrl() + "/" + storageId;
-
-        logger.debug("Using storage class " + storage0.getClass()
-                                                      .getName());
-
-        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
-                     .accept(MediaType.APPLICATION_JSON_VALUE)
-                     .body(storage0)
-                     .when()
-                     .put(url)
-                     .prettyPeek()
-                     .then()
-                     .statusCode(OK)
-                     .body(containsString(SUCCESSFUL_UPDATE_STORAGE));
-
-        addRepository(r0, storage0);
-        addRepository(r1, storage0);
-
-        Storage storage = getStorage(storageId);
-        Repository repository0 = storage.getRepositories().get(repositoryId0);
-        Repository repository1 = storage.getRepositories().get(repositoryId1);
-
-        assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
-        assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
-        assertTrue(repository0.allowsRedeployment(),
-                   "Failed to get storage (" + storageId + ")!");
-        assertTrue(repository0.isSecured(),
-                   "Failed to get storage (" + storageId + ")!");
-        assertTrue(repository1.allowsForceDeletion(),
-                   "Failed to get storage (" + storageId + ")!");
-        assertTrue(repository1.isTrashEnabled(),
-                   "Failed to get storage (" + storageId + ")!");
-
-
-        assertNotNull(repository1.getProxyConfiguration().getHost(),
-                      "Failed to get storage (" + storageId + ")!");
-        assertEquals("localhost",
-                     repository1.getProxyConfiguration().getHost(),
-                     "Failed to get storage (" + storageId + ")!");
-
-        deleteRepository(storageId, repositoryId0);
-        deleteRepository(storageId, repositoryId1);
     }
 
     @Test
