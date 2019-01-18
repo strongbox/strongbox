@@ -6,14 +6,11 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import org.apache.commons.io.input.ProxyInputStream;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
