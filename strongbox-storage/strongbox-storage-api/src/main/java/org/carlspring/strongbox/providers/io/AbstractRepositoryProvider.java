@@ -157,16 +157,7 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
     public void onAfterWrite(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        logger.debug(String.format("Closing [%s]", repositoryPath));
-               
-        ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
-        if (artifactEntry == null)
-        {          
-            return;
-        }
-        
-        CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
-        artifactEntry.setSizeInBytes(cos.getByteCount());
+        logger.debug(String.format("Closing [%s]", repositoryPath));             
     }
 
     @Override
@@ -204,11 +195,13 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
         
         repositoryPath.artifactEntry = null;
-
         if (artifactEntry == null)
         {
             return;
         }
+        
+        CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
+        artifactEntry.setSizeInBytes(cos.getByteCount());
         
         artifactEntryService.save(artifactEntry, true);
     }
