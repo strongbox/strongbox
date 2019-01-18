@@ -84,6 +84,9 @@ public class ArtifactManagementService
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
     
+    @Inject
+    protected RepositoryPathLock repositoryPathLock;
+
     @Transactional
     public long validateAndStore(RepositoryPath repositoryPath,
                                  InputStream is)
@@ -92,8 +95,19 @@ public class ArtifactManagementService
         NoSuchAlgorithmException,
         ArtifactCoordinatesValidationException
     {
-        performRepositoryAcceptanceValidation(repositoryPath);
-        return doStore(repositoryPath, is);
+        ReadWriteLock lock = repositoryPathLock.lock(repositoryPath);
+        lock.writeLock().lock();
+
+        try
+        {
+            performRepositoryAcceptanceValidation(repositoryPath);
+
+            return doStore(repositoryPath, is);
+        } 
+        finally
+        {
+            lock.writeLock().unlock();
+        }
     }
     
     @Deprecated
@@ -117,7 +131,18 @@ public class ArtifactManagementService
                       InputStream is)
         throws IOException
     {
-        return doStore(repositoryPath, is);
+        ReadWriteLock lockSource = repositoryPathLock.lock(repositoryPath);
+        Lock lock = lockSource.writeLock();
+        lock.lock();
+        
+        try
+        {
+            return doStore(repositoryPath, is);
+        } 
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     private long doStore(RepositoryPath repositoryPath,
@@ -135,7 +160,6 @@ public class ArtifactManagementService
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(repositoryPath))
         {
             result = writeArtifact(repositoryPath, is, aos);
-            aos.flush();
         }
         catch (IOException e)
         {

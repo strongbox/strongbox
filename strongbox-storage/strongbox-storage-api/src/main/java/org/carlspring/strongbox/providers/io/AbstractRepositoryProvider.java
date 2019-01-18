@@ -1,16 +1,5 @@
 package org.carlspring.strongbox.providers.io;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.nio.file.Path;
-import java.util.Date;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
-import org.apache.commons.io.output.CountingOutputStream;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -19,7 +8,9 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.event.artifact.ArtifactEvent;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.io.RepositoryStreamReadContext;
 import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
 import org.carlspring.strongbox.io.StreamUtils;
@@ -28,9 +19,22 @@ import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.Date;
+import java.util.Optional;
+
+import org.apache.commons.io.output.CountingOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 /**
@@ -197,22 +201,6 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(ctx.getPath());
     }
 
-    @Override
-    public void commit(RepositoryStreamWriteContext ctx) throws IOException
-    {
-        RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
-        
-        repositoryPath.artifactEntry = null;
-
-        if (artifactEntry == null)
-        {
-            return;
-        }
-        
-        artifactEntryService.save(artifactEntry, true);
-    }
-
     protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
     {
         return Optional.ofNullable(repositoryPath.getArtifactEntry())
@@ -256,6 +244,36 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         selector.where(createPredicate(storageId, repositoryId, p));
         
         return selector;
+    }
+
+    @Component
+    private static class ArtifactStoredEventListener
+    {
+        
+        @Inject
+        private ArtifactEntryService artifactEntryService;
+        
+        @EventListener
+        public void handleEvent(ArtifactEvent<RepositoryPath> event)
+        {
+            if (ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED.getType() != event.getType())
+            {
+                return;
+            }
+            
+            RepositoryPath repositoryPath = event.getPath();
+            ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
+            
+            repositoryPath.artifactEntry = null;
+
+            if (artifactEntry == null)
+            {
+                return;
+            }
+            
+            artifactEntryService.save(artifactEntry, true);
+        }
+        
     }
     
 }
