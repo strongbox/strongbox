@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.ArtifactGroup;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 
@@ -27,5 +28,8 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     Set<String> getDefaultArtifactCoordinateValidators();
 
     String getAlias();
+
+    Set<ArtifactGroup> getArtifactGroups(RepositoryPath path)
+            throws IOException;
 
 }
