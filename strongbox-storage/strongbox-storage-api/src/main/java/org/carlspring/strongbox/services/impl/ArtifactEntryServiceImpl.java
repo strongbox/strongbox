@@ -5,8 +5,10 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
+import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 
 import javax.inject.Inject;
@@ -15,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.google.common.collect.Sets;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
@@ -42,7 +45,13 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
 
     @Inject
     private ArtifactTagService artifactTagService;
-    
+
+    @Inject
+    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
+
+    @Inject
+    private ArtifactCoordinatesService artifactCoordinatesService;
+
     @Override
     public <S extends ArtifactEntry> S save(S entity,
                                             boolean updateLastVersion)
@@ -50,24 +59,34 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         //this needed to update `ArtifactEntry.path` property
         entity.setArtifactCoordinates(entity.getArtifactCoordinates());
 
-        if(artifactEntryIsSavedForTheFirstTime(entity))
+        if (artifactEntryIsSavedForTheFirstTime(entity))
         {
             entity.setCreated(new Date());
         }
 
-
-        ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
-        if (coordinates == null)
-        {
-            return super.save(entity);
-        }
+        RepositoryArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(
+                entity.getStorageId(),
+                entity.getRepositoryId(),
+                entity.getArtifactCoordinates().getId()
+        );
 
         if (updateLastVersion)
         {
-            updateLastVersionTag(entity);
+            updateLastVersionTag(entity, artifactGroup);
         }
 
-        return super.save(entity);
+        return saveWithGroup(entity, artifactGroup);
+    }
+
+    private <S extends ArtifactEntry> S saveWithGroup(S entity,
+                                                      RepositoryArtifactIdGroup artifactGroup)
+    {
+        S result = super.save(entity);
+
+        artifactGroup.addArtifactEntry(result);
+        repositoryArtifactIdGroupService.save(artifactGroup);
+
+        return result;
     }
 
     private boolean artifactEntryIsSavedForTheFirstTime(ArtifactEntry artifactEntry)
@@ -81,50 +100,75 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         return save(entity, false);
     }
 
-    private <S extends ArtifactEntry> void updateLastVersionTag(S entity)
+    private <S extends ArtifactEntry> void updateLastVersionTag(S entity,
+                                                                RepositoryArtifactIdGroup artifactGroup)
     {
         ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
         Assert.notNull(coordinates, "coordinates should not be null");
-        
+
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
-        Set<ArtifactTag> tagSet = new HashSet<>();
-        tagSet.add(lastVersionTag);
-        
-        Map<String, String> coordinatesMap = coordinates.dropVersion();
-        
-        List<ArtifactEntry> lastVersionArtifactList = findArtifactList(entity.getStorageId(),
-                                                                       entity.getRepositoryId(),
-                                                                       coordinatesMap, tagSet,
-                                                                       0,
-                                                                       -1,
-                                                                       "uuid", true).stream()
-                                                                                    .map(e -> (ArtifactEntry) getDelegate().detachAll(e,
-                                                                                                                                      true))
-                                                                                    .collect(Collectors.toList());
-        ArtifactEntry lastVersionEntry = lastVersionArtifactList.stream().findFirst().orElse(entity);
-        Optional<ArtifactCoordinates> lastVersionCoordinates = Optional.ofNullable(lastVersionEntry.getArtifactCoordinates());
-        if (lastVersionEntry.equals(entity))
+
+        Set<ArtifactEntry> lastVersionEntries = findLastVersionArtifactEntries(artifactGroup,
+                                                                               lastVersionTag,
+                                                                               entity);
+        lastVersionEntries.stream()
+                          .forEach(lastVersionEntry -> {
+                              checkAndUpdateLastVersionTagIfNeeded(lastVersionEntry, entity, lastVersionTag);
+                          });
+    }
+
+    private <S extends ArtifactEntry> void checkAndUpdateLastVersionTagIfNeeded(S lastVersionEntry,
+                                                                                S entity,
+                                                                                ArtifactTag lastVersionTag)
+    {
+        int artifactCoordinatesComparison = entity.getArtifactCoordinates()
+                                                  .compareTo(lastVersionEntry.getArtifactCoordinates());
+
+        ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
+        if (artifactCoordinatesComparison == 0)
         {
-            logger.debug(String.format("Set [%s] last version to [%s]", entity.getArtifactPath(),
+            logger.debug(String.format("Set [%s] last version to [%s]",
+                                       entity.getArtifactPath(),
                                        coordinates.getVersion()));
             entity.getTagSet().add(lastVersionTag);
         }
-        else if (entity.getArtifactCoordinates().compareTo(lastVersionEntry.getArtifactCoordinates()) >= 0)
+        else if (artifactCoordinatesComparison > 0)
         {
-            logger.debug(String.format("Update [%s] last version from [%s] to [%s]", entity.getArtifactPath(),
-                                       lastVersionCoordinates.map(c -> c.getVersion()).orElse("undefined"),
+            logger.debug(String.format("Update [%s] last version from [%s] to [%s]",
+                                       entity.getArtifactPath(),
+                                       lastVersionEntry.getArtifactCoordinates().getVersion(),
                                        coordinates.getVersion()));
             entity.getTagSet().add(lastVersionTag);
+
             lastVersionEntry.getTagSet().remove(lastVersionTag);
-            
+
             super.save(lastVersionEntry);
         }
         else
         {
-            logger.debug(String.format("Keep [%s] last version [%s]", entity.getArtifactPath(),
-                                       lastVersionCoordinates.map(c -> c.getVersion()).orElse("undefined")));
+            logger.debug(String.format("Keep [%s] last version [%s]",
+                                       entity.getArtifactPath(),
+                                       lastVersionEntry.getArtifactCoordinates().getVersion()));
             entity.getTagSet().remove(lastVersionTag);
         }
+    }
+
+    private <S extends ArtifactEntry> Set<ArtifactEntry> findLastVersionArtifactEntries(RepositoryArtifactIdGroup artifactGroup,
+                                                                                        ArtifactTag lastVersionTag,
+                                                                                        S defaultArtifactEntry)
+    {
+        Set<ArtifactEntry> result = artifactGroup.getArtifactEntries()
+                                                 .stream()
+                                                 .filter(artifactEntry -> artifactEntry.getTagSet()
+                                                                                       .contains(lastVersionTag))
+                                                 .collect(Collectors.toSet());
+
+        if (result.size() == 0)
+        {
+            result = Sets.newHashSet(defaultArtifactEntry);
+        }
+
+        return result;
     }
 
     @Override
@@ -157,7 +201,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         Map<String, ArtifactTagEntry> tagMap = tagSet.stream()
                                                      .collect(Collectors.toMap(t -> String.format("%sTag", t.getName().replaceAll("-", "")),
                                                                                t -> (ArtifactTagEntry) t));
-        
+
         String sQuery = buildCoordinatesQuery(toList(storageId, repositoryId), coordinates.keySet(), tagMap.keySet(),
                                               skip,
                                               limit, orderBy, strict);
@@ -174,7 +218,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         }
 
         tagMap.entrySet().stream().forEach(e -> parameterMap.put(e.getKey(), e.getValue().getName()));
-        
+
         List<ArtifactEntry> entries = getDelegate().command(oQuery).execute(parameterMap);
 
         return entries;
@@ -234,7 +278,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         }
         return findArtifactList(storageId, repositoryId, coordinates.getCoordinates(), true);
     }
-    
+
     @Override
     public Long countCoordinates(Collection<Pair<String, String>> storageRepositoryPairList,
                                  Map<String, String> coordinates,
@@ -344,7 +388,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                  .forEach(idx -> c2.append(idx > 0 ? " OR " : "")
                                    .append(calculateStorageAndRepositoryCondition(storageRepositoryPairArray[idx], idx)));
         sb.append(c2.length() > 0 ? c2.toString() : "true");
-        
+
         //TAGS
         tagNameSet.stream().forEach(t -> sb.append(String.format(" AND tagSet contains (name = :%s)", t)));
 
@@ -446,7 +490,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                        .map(e -> detach(e))
                        .orElse(null);
     }
-    
+
     @Override
     public void delete(String id)
     {
