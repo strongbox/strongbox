@@ -2,25 +2,60 @@ package org.carlspring.strongbox.domain;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
-import javax.persistence.ManyToMany;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToMany;
 import java.util.Set;
 
 /**
  * @author Przemyslaw Fusik
  */
+@MappedSuperclass
 public abstract class ArtifactGroup
         extends GenericEntity
 {
 
-    @ManyToMany
+    public ArtifactGroup()
+    {
+        type = getClass().getName();
+    }
+
+    @OneToMany
     private Set<ArtifactEntry> artifactEntries;
 
-    public abstract void setName(String name);
+    /**
+     * Should be unique per type
+     */
+    private String name;
 
-    public abstract String getName();
+    private String type;
+
+    public Set<ArtifactEntry> getArtifactEntries()
+    {
+        return artifactEntries;
+    }
+
+    public void setArtifactEntries(Set<ArtifactEntry> artifactEntries)
+    {
+        this.artifactEntries = artifactEntries;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
 
     public String getType()
     {
-        return getClass().getName();
+        return type;
+    }
+
+    public void setType(String type)
+    {
+        this.type = type;
     }
 }

@@ -1,25 +1,18 @@
 package org.carlspring.strongbox.domain;
 
+import javax.persistence.Entity;
+
 /**
  * @author Przemyslaw Fusik
  */
+@Entity
 public class ArtifactIdGroup
         extends ArtifactGroup
 {
 
-    private String artifactId;
-
-    @Override
-    public void setName(String name)
+    public String getArtifactId()
     {
-        artifactId = name;
+        return getName();
     }
-
-    @Override
-    public String getName()
-    {
-        return artifactId;
-    }
-
 
 }
