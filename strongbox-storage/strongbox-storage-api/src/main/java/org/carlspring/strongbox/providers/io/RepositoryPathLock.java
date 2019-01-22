@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import org.apache.commons.io.input.ProxyInputStream;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -61,7 +62,8 @@ public class RepositoryPathLock
     {
         if (RepositoryFiles.isArtifact(repositoryPath))
         {
-            return RepositoryFiles.readCoordinates(repositoryPath).toResource();
+            ArtifactCoordinates c = RepositoryFiles.readCoordinates(repositoryPath);
+            return URI.create(c.getId());
         }
 
         final URI lock = repositoryPath.toUri();

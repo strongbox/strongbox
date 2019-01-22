@@ -155,7 +155,7 @@ public class MavenArtifactCoordinates
     @Override
     public String getId()
     {
-        return artifactId;
+        return String.format("%s/%s", getGroupId(), getArtifactId());
     }
 
     @Override
