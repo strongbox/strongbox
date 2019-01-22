@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import org.apache.commons.io.input.ProxyInputStream;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -37,13 +38,13 @@ public class RepositoryPathLock
         lockService = DistributedLockService.newHazelcastLockService(hazelcastInstance);
     }
 
-    public ReadWriteLock lock(final @Nonnull RepositoryPath repositoryPath)
+    public ReadWriteLock lock(final @Nonnull RepositoryPath repositoryPath) throws IOException
     {
         return lock(repositoryPath, null);
     }
 
     public ReadWriteLock lock(final @Nonnull RepositoryPath repositoryPath,
-                              String id)
+                              String id) throws IOException
     {
         URI lock = getLock(repositoryPath);
 
@@ -54,7 +55,7 @@ public class RepositoryPathLock
         return lockService.getReentrantReadWriteLock(lockName);
     }
 
-    private URI getLock(final @Nonnull RepositoryPath repositoryPath)
+    private URI getLock(final @Nonnull RepositoryPath repositoryPath) throws IOException
     {
         if (RepositoryFiles.isArtifact(repositoryPath))
         {
