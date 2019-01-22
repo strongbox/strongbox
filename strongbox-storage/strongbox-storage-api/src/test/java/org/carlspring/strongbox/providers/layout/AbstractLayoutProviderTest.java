@@ -60,16 +60,14 @@ class AbstractLayoutProviderTest
     private static final Path REPOSITORY_BASEDIR = Paths.get(ConfigurationResourceResolver.getVaultDirectory(),
                                                              "storages", "storage0", "releases");
 
-    private MutableRepository repository;
-
     private LayoutFileSystem repositoryFileSystem;
 
 
     @BeforeEach
-    public void setup()
+    public void setUp()
             throws IOException
     {
-        repository = new MutableRepository();
+        MutableRepository repository = new MutableRepository();
         repository.setBasedir(REPOSITORY_BASEDIR.toAbsolutePath().toString());
 
         repositoryFileSystem = new LayoutFileSystem(new Repository(repository), FileSystems.getDefault(), null)

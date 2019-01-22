@@ -4,8 +4,11 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactGroup;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.services.ArtifactGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 
@@ -42,6 +45,12 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
 
     @Inject
     private ArtifactTagService artifactTagService;
+
+    @Inject
+    private ArtifactGroupService artifactGroupService;
+
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
     
     @Override
     public <S extends ArtifactEntry> S save(S entity,
@@ -59,7 +68,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
         if (coordinates == null)
         {
-            return super.save(entity);
+            return saveWithGroups(entity);
         }
 
         if (updateLastVersion)
@@ -67,7 +76,19 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
             updateLastVersionTag(entity);
         }
 
-        return super.save(entity);
+        return saveWithGroups(entity);
+    }
+
+    private <S extends ArtifactEntry> S saveWithGroups(S entity)
+    {
+        S result = super.save(entity);
+        entity.getArtifactGroups().stream()
+              .forEach(ag -> {
+                  ag.addArtifactEntry(result);
+                  artifactGroupService.save(ag);
+              });
+
+        return result;
     }
 
     private boolean artifactEntryIsSavedForTheFirstTime(ArtifactEntry artifactEntry)
@@ -85,24 +106,28 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     {
         ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
         Assert.notNull(coordinates, "coordinates should not be null");
-        
+
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
-        Set<ArtifactTag> tagSet = new HashSet<>();
-        tagSet.add(lastVersionTag);
-        
-        Map<String, String> coordinatesMap = coordinates.dropVersion();
-        
-        List<ArtifactEntry> lastVersionArtifactList = findArtifactList(entity.getStorageId(),
-                                                                       entity.getRepositoryId(),
-                                                                       coordinatesMap, tagSet,
-                                                                       0,
-                                                                       -1,
-                                                                       "uuid", true).stream()
-                                                                                    .map(e -> (ArtifactEntry) getDelegate().detachAll(e,
-                                                                                                                                      true))
-                                                                                    .collect(Collectors.toList());
-        ArtifactEntry lastVersionEntry = lastVersionArtifactList.stream().findFirst().orElse(entity);
-        Optional<ArtifactCoordinates> lastVersionCoordinates = Optional.ofNullable(lastVersionEntry.getArtifactCoordinates());
+
+        entity.getArtifactGroups()
+              .stream()
+              .forEach(artifactGroup ->
+                       {
+                           ArtifactEntry lastVersionEntry = findLastVersionArtifactEntry(artifactGroup, lastVersionTag,
+                                                                                         entity);
+                           setLastVersionTag(lastVersionEntry, entity, lastVersionTag);
+                       }
+              );
+    }
+
+    private <S extends ArtifactEntry> void setLastVersionTag(ArtifactEntry lastVersionEntry,
+                                                             S entity,
+                                                             ArtifactTag lastVersionTag)
+    {
+        Optional<ArtifactCoordinates> lastVersionCoordinates = Optional.ofNullable(
+                lastVersionEntry.getArtifactCoordinates());
+
+        ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
         if (lastVersionEntry.equals(entity))
         {
             logger.debug(String.format("Set [%s] last version to [%s]", entity.getArtifactPath(),
@@ -116,7 +141,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                        coordinates.getVersion()));
             entity.getTagSet().add(lastVersionTag);
             lastVersionEntry.getTagSet().remove(lastVersionTag);
-            
+
             super.save(lastVersionEntry);
         }
         else
@@ -125,6 +150,17 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                        lastVersionCoordinates.map(c -> c.getVersion()).orElse("undefined")));
             entity.getTagSet().remove(lastVersionTag);
         }
+    }
+
+    private <S extends ArtifactEntry> ArtifactEntry findLastVersionArtifactEntry(ArtifactGroup artifactGroup,
+                                                                                 ArtifactTag lastVersionTag,
+                                                                                 S defaultArtifactEntry)
+    {
+        return artifactGroup.getArtifactEntries()
+                            .stream()
+                            .filter(artifactEntry -> artifactEntry.getTagSet().contains(lastVersionTag))
+                            .findFirst()
+                            .orElse(defaultArtifactEntry);
     }
 
     @Override

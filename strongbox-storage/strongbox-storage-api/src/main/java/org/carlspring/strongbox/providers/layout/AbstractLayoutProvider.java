@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -225,6 +226,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         T artifactCoordinates = getArtifactCoordinates(path);
         String groupName = artifactCoordinates.getId();
         ArtifactIdGroup artifactIdGroup = artifactGroupService.findOneOrCreate(ArtifactIdGroup.class, groupName);
-        return Collections.singleton(artifactIdGroup);
+        return Sets.newHashSet(artifactIdGroup);
     }
 }

@@ -29,6 +29,7 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     String getAlias();
 
+    @Nonnull
     Set<ArtifactGroup> getArtifactGroups(RepositoryPath path)
             throws IOException;
 

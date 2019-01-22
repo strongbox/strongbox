@@ -2,8 +2,11 @@ package org.carlspring.strongbox.domain;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
+import javax.annotation.Nonnull;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -13,11 +16,6 @@ import java.util.Set;
 public abstract class ArtifactGroup
         extends GenericEntity
 {
-
-    public ArtifactGroup()
-    {
-        type = getClass().getName();
-    }
 
     @OneToMany
     private Set<ArtifactEntry> artifactEntries;
@@ -29,14 +27,29 @@ public abstract class ArtifactGroup
 
     private String type;
 
+    public ArtifactGroup()
+    {
+        type = getClass().getName();
+    }
+
+    @Nonnull
     public Set<ArtifactEntry> getArtifactEntries()
     {
-        return artifactEntries;
+        return artifactEntries != null ? artifactEntries : Collections.emptySet();
     }
 
     public void setArtifactEntries(Set<ArtifactEntry> artifactEntries)
     {
         this.artifactEntries = artifactEntries;
+    }
+
+    public void addArtifactEntry(ArtifactEntry artifactEntry)
+    {
+        if (artifactEntries == null)
+        {
+            artifactEntries = new HashSet<>();
+        }
+        artifactEntries.add(artifactEntry);
     }
 
     public String getName()

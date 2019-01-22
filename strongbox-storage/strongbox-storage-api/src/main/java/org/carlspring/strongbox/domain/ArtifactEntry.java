@@ -5,16 +5,14 @@ import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
+import javax.annotation.Nonnull;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * @author carlspring
@@ -50,6 +48,9 @@ public class ArtifactEntry
     private Date created;
 
     private Integer downloadCount = Integer.valueOf(0);
+
+    @Transient
+    private Set<ArtifactGroup> artifactGroups;
 
     public ArtifactEntry()
     {
@@ -155,6 +156,17 @@ public class ArtifactEntry
         this.artifactArchiveListing = artifactArchiveListing;
     }
 
+    public void setArtifactGroups(Set<ArtifactGroup> artifactGroups)
+    {
+        this.artifactGroups = artifactGroups;
+    }
+
+    @Nonnull
+    public Set<ArtifactGroup> getArtifactGroups()
+    {
+        return artifactGroups != null ? artifactGroups : Collections.emptySet();
+    }
+
     @Transient
     public String getArtifactPath()
     {
@@ -184,4 +196,6 @@ public class ArtifactEntry
 
         return sb.toString();
     }
+
+
 }
