@@ -11,7 +11,6 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import org.apache.commons.io.input.ProxyInputStream;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -39,14 +38,12 @@ public class RepositoryPathLock
     }
 
     public ReadWriteLock lock(final @Nonnull RepositoryPath repositoryPath)
-        throws IOException
     {
         return lock(repositoryPath, null);
     }
 
     public ReadWriteLock lock(final @Nonnull RepositoryPath repositoryPath,
                               String id)
-        throws IOException
     {
         URI lock = getLock(repositoryPath);
 
@@ -58,7 +55,6 @@ public class RepositoryPathLock
     }
 
     private URI getLock(final @Nonnull RepositoryPath repositoryPath)
-        throws IOException
     {
         if (RepositoryFiles.isArtifact(repositoryPath))
         {
@@ -67,6 +63,7 @@ public class RepositoryPathLock
         }
 
         final URI lock = repositoryPath.toUri();
+
         Assert.isTrue(lock.isAbsolute(), String.format("Unable to lock relative path %s", lock));
 
         return lock;
