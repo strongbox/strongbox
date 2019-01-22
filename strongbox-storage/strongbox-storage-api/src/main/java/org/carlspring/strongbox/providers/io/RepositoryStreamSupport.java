@@ -95,7 +95,7 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
         }
     }
 
-    public void close()
+    protected void close()
         throws IOException
     {
         RepositoryStreamContext ctx = getContext();
@@ -128,7 +128,7 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
         }
     }
     
-    public void commit() throws IOException
+    protected void commit() throws IOException
     {
         commit((RepositoryStreamWriteContext) getContext());
     }
