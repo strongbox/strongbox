@@ -60,6 +60,9 @@ public class RepositoryPathLock
         if (RepositoryFiles.isArtifact(repositoryPath))
         {
             ArtifactCoordinates c = RepositoryFiles.readCoordinates(repositoryPath);
+            // We should lock all the ArtifactIdGroup because there can be
+            // `ArtifactEntryServiceImpl.updateLastVersionTag()` operations
+            // which affetcs on other artifacts from group.
             return URI.create(c.getId());
         }
 
