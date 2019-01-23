@@ -12,14 +12,12 @@ import org.carlspring.strongbox.services.ArtifactGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import com.google.common.collect.Sets;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
@@ -115,14 +113,9 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
               .stream()
               .forEach(artifactGroup ->
                        {
-                           Set<ArtifactEntry> lastVersionEntries = findLastVersionArtifactEntries(artifactGroup,
-                                                                                                  lastVersionTag,
-                                                                                                  entity);
-                           lastVersionEntries.stream()
-                                             .forEach(lastVersionEntry -> {
-                                                 setLastVersionTag(lastVersionEntry, entity, lastVersionTag);
-                                             });
-
+                           ArtifactEntry lastVersionEntry = findLastVersionArtifactEntry(artifactGroup, lastVersionTag,
+                                                                                         entity);
+                           setLastVersionTag(lastVersionEntry, entity, lastVersionTag);
                        }
               );
     }
@@ -141,52 +134,33 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                        coordinates.getVersion()));
             entity.getTagSet().add(lastVersionTag);
         }
+        else if (entity.getArtifactCoordinates().compareTo(lastVersionEntry.getArtifactCoordinates()) >= 0)
+        {
+            logger.debug(String.format("Update [%s] last version from [%s] to [%s]", entity.getArtifactPath(),
+                                       lastVersionCoordinates.map(c -> c.getVersion()).orElse("undefined"),
+                                       coordinates.getVersion()));
+            entity.getTagSet().add(lastVersionTag);
+            lastVersionEntry.getTagSet().remove(lastVersionTag);
+
+            super.save(lastVersionEntry);
+        }
         else
         {
-            int artifactCoordinatesComparison = entity.getArtifactCoordinates()
-                                                      .compareTo(lastVersionEntry.getArtifactCoordinates());
-
-            switch ((int) Math.signum(artifactCoordinatesComparison))
-            {
-                case 0:
-                    logger.debug(String.format("Adding last version tag to [%s]", entity.getArtifactPath()));
-                    entity.getTagSet().add(lastVersionTag);
-                    break;
-                case 1:
-                    logger.debug(String.format("Update [%s] last version from [%s] to [%s]", entity.getArtifactPath(),
-                                               lastVersionCoordinates.map(c -> c.getVersion()).orElse("undefined"),
-                                               coordinates.getVersion()));
-                    entity.getTagSet().add(lastVersionTag);
-                    lastVersionEntry.getTagSet().remove(lastVersionTag);
-
-                    super.save(lastVersionEntry);
-                    break;
-                case -1:
-                    logger.debug(String.format("Keep [%s] last version [%s]", entity.getArtifactPath(),
-                                               lastVersionCoordinates.map(c -> c.getVersion()).orElse("undefined")));
-                    entity.getTagSet().remove(lastVersionTag);
-                    break;
-            }
+            logger.debug(String.format("Keep [%s] last version [%s]", entity.getArtifactPath(),
+                                       lastVersionCoordinates.map(c -> c.getVersion()).orElse("undefined")));
+            entity.getTagSet().remove(lastVersionTag);
         }
     }
 
-    @Nonnull
-    private <S extends ArtifactEntry> Set<ArtifactEntry> findLastVersionArtifactEntries(ArtifactGroup artifactGroup,
-                                                                                        ArtifactTag lastVersionTag,
-                                                                                        S defaultArtifactEntry)
+    private <S extends ArtifactEntry> ArtifactEntry findLastVersionArtifactEntry(ArtifactGroup artifactGroup,
+                                                                                 ArtifactTag lastVersionTag,
+                                                                                 S defaultArtifactEntry)
     {
-        Set<ArtifactEntry> result = artifactGroup.getArtifactEntries()
-                                                 .stream()
-                                                 .filter(artifactEntry -> artifactEntry.getTagSet()
-                                                                                       .contains(lastVersionTag))
-                                                 .collect(Collectors.toSet());
-
-        if (result.size() == 0)
-        {
-            result = Sets.newHashSet(defaultArtifactEntry);
-        }
-
-        return result;
+        return artifactGroup.getArtifactEntries()
+                            .stream()
+                            .filter(artifactEntry -> artifactEntry.getTagSet().contains(lastVersionTag))
+                            .findFirst()
+                            .orElse(defaultArtifactEntry);
     }
 
     @Override
