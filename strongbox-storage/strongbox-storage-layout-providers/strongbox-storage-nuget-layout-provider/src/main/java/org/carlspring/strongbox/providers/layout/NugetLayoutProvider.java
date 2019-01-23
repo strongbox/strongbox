@@ -72,11 +72,6 @@ public class NugetLayoutProvider
         return path.getFileName().toString().endsWith(".nuspec");
     }
 
-    @Override
-    public void deleteMetadata(RepositoryPath repositoryPath)
-    {
-    }
-
     protected String toBase64(byte[] digest)
     {
         byte[] encoded = Base64.getEncoder()

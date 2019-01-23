@@ -276,13 +276,17 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     {
         logger.debug("Deleting in (" + path + ")...");
         
+        RepositoryPath repositoryPath=(RepositoryPath) path;
+        
         if (!Files.exists(path))
         {
             logger.warn(String.format("Path not found: path-[%s]", path));
             
             return;
         }
-
+        
+        deleteMetadata(repositoryPath);
+        
         super.delete(path, force);
 
         artifactEventListenerRegistry.dispatchArtifactPathDeletedEvent(path);
@@ -372,4 +376,6 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         return getLayoutProvider().getRepositoryFileAttributes(repositoryRelativePath, attributeTypes);
     }
     
+    protected abstract void deleteMetadata(RepositoryPath repositoryPath)
+            throws IOException;
 }

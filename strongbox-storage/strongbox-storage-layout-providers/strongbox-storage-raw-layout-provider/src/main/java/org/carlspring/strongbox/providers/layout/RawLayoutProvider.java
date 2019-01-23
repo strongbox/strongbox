@@ -60,12 +60,6 @@ public class RawLayoutProvider
     }
 
     @Override
-    public void deleteMetadata(RepositoryPath repositoryPath)
-    {
-        // Note: There's no known metadata for this format, hence no action is taken here
-    }
-
-    @Override
     public RawRepositoryManagementStrategy getRepositoryManagementStrategy()
     {
         return rawRepositoryManagementStrategy;

@@ -49,12 +49,6 @@ public class P2LayoutProvider
     }
 
     @Override
-    public void deleteMetadata(RepositoryPath repositoryPath)
-    {
-
-    }
-
-    @Override
     public Set<String> getDefaultArtifactCoordinateValidators()
     {
         return p2RepositoryFeatures.getDefaultArtifactCoordinateValidators();

@@ -61,12 +61,6 @@ public class NpmLayoutProvider
         return NpmArtifactCoordinates.parse(RepositoryFiles.relativizePath(path));
     }
 
-    @Override
-    public void deleteMetadata(RepositoryPath repositoryPath)
-    {
-
-    }
-
     public boolean isArtifactMetadata(RepositoryPath path)
     {
         return path.getFileName().toString().endsWith("package.json");
