@@ -161,7 +161,7 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
     public void onAfterWrite(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        logger.debug(String.format("Closing [%s]", repositoryPath));             
+        logger.debug(String.format("Complete writing [%s]", repositoryPath));             
     }
 
     @Override
@@ -189,7 +189,10 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
     @Override
     public void onAfterRead(RepositoryStreamReadContext ctx)
     {
-        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(ctx.getPath());
+        RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
+        logger.debug(String.format("Complete reading [%s]", repositoryPath));
+        
+        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(repositoryPath);
     }
 
     @Override
