@@ -12,12 +12,14 @@ import org.carlspring.strongbox.services.ArtifactGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.google.common.collect.Sets;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
@@ -51,7 +53,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-    
+
     @Override
     public <S extends ArtifactEntry> S save(S entity,
                                             boolean updateLastVersion)
@@ -113,9 +115,14 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
               .stream()
               .forEach(artifactGroup ->
                        {
-                           ArtifactEntry lastVersionEntry = findLastVersionArtifactEntry(artifactGroup, lastVersionTag,
-                                                                                         entity);
-                           setLastVersionTag(lastVersionEntry, entity, lastVersionTag);
+                           Set<ArtifactEntry> lastVersionEntries = findLastVersionArtifactEntries(artifactGroup,
+                                                                                                  lastVersionTag,
+                                                                                                  entity);
+                           lastVersionEntries.stream()
+                                             .forEach(lastVersionEntry -> {
+                                                 setLastVersionTag(lastVersionEntry, entity, lastVersionTag);
+                                             });
+
                        }
               );
     }
@@ -163,15 +170,23 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         }
     }
 
-    private <S extends ArtifactEntry> ArtifactEntry findLastVersionArtifactEntry(ArtifactGroup artifactGroup,
-                                                                                 ArtifactTag lastVersionTag,
-                                                                                 S defaultArtifactEntry)
+    @Nonnull
+    private <S extends ArtifactEntry> Set<ArtifactEntry> findLastVersionArtifactEntries(ArtifactGroup artifactGroup,
+                                                                                        ArtifactTag lastVersionTag,
+                                                                                        S defaultArtifactEntry)
     {
-        return artifactGroup.getArtifactEntries()
-                            .stream()
-                            .filter(artifactEntry -> artifactEntry.getTagSet().contains(lastVersionTag))
-                            .findFirst()
-                            .orElse(defaultArtifactEntry);
+        Set<ArtifactEntry> result = artifactGroup.getArtifactEntries()
+                                                 .stream()
+                                                 .filter(artifactEntry -> artifactEntry.getTagSet()
+                                                                                       .contains(lastVersionTag))
+                                                 .collect(Collectors.toSet());
+
+        if (result.size() == 0)
+        {
+            result = Sets.newHashSet(defaultArtifactEntry);
+        }
+
+        return result;
     }
 
     @Override
@@ -204,7 +219,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         Map<String, ArtifactTagEntry> tagMap = tagSet.stream()
                                                      .collect(Collectors.toMap(t -> String.format("%sTag", t.getName().replaceAll("-", "")),
                                                                                t -> (ArtifactTagEntry) t));
-        
+
         String sQuery = buildCoordinatesQuery(toList(storageId, repositoryId), coordinates.keySet(), tagMap.keySet(),
                                               skip,
                                               limit, orderBy, strict);
@@ -221,7 +236,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         }
 
         tagMap.entrySet().stream().forEach(e -> parameterMap.put(e.getKey(), e.getValue().getName()));
-        
+
         List<ArtifactEntry> entries = getDelegate().command(oQuery).execute(parameterMap);
 
         return entries;
@@ -281,7 +296,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         }
         return findArtifactList(storageId, repositoryId, coordinates.getCoordinates(), true);
     }
-    
+
     @Override
     public Long countCoordinates(Collection<Pair<String, String>> storageRepositoryPairList,
                                  Map<String, String> coordinates,
@@ -391,7 +406,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                  .forEach(idx -> c2.append(idx > 0 ? " OR " : "")
                                    .append(calculateStorageAndRepositoryCondition(storageRepositoryPairArray[idx], idx)));
         sb.append(c2.length() > 0 ? c2.toString() : "true");
-        
+
         //TAGS
         tagNameSet.stream().forEach(t -> sb.append(String.format(" AND tagSet contains (name = :%s)", t)));
 
@@ -493,7 +508,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                        .map(e -> detach(e))
                        .orElse(null);
     }
-    
+
     @Override
     public void delete(String id)
     {
