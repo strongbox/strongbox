@@ -7,12 +7,8 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * @author carlspring
