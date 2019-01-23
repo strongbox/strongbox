@@ -59,7 +59,7 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
         }
 
         RepositoryPath path = (RepositoryPath) ctx.getPath();
-        logger.info(String.format("Locking [%s]", path));
+        logger.debug(String.format("Locking [%s]", path));
         
         ReadWriteLock lockSource = repositoryPathLock.lock(path);
         Lock lock;
@@ -75,7 +75,7 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
         ctx.setLock(lock);
         lock.lock();
 
-        logger.info(String.format("Locked [%s]", path));
+        logger.debug(String.format("Locked [%s]", path));
         
         doOpen(ctx);
     }
