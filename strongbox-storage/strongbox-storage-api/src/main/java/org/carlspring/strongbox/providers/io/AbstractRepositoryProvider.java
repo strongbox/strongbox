@@ -257,35 +257,5 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         
         return selector;
     }
-
-    @Component
-    private static class ArtifactStoredEventListener
-    {
-        
-        @Inject
-        private ArtifactEntryService artifactEntryService;
-        
-        @EventListener
-        public void handleEvent(ArtifactEvent<RepositoryPath> event)
-        {
-            if (ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED.getType() != event.getType())
-            {
-                return;
-            }
-            
-            RepositoryPath repositoryPath = event.getPath();
-            ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
-            
-            repositoryPath.artifactEntry = null;
-
-            if (artifactEntry == null)
-            {
-                return;
-            }
-            
-            artifactEntryService.save(artifactEntry, true);
-        }
-        
-    }
     
 }

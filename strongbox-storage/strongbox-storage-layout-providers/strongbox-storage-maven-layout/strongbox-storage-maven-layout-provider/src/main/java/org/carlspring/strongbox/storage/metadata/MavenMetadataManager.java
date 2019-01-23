@@ -340,19 +340,13 @@ public class MavenMetadataManager
             try
             {
                 Files.createDirectories(metadataBasePath);
-            }
-            catch (IOException e)
-            {
-                throw new UndeclaredThrowableException(e);
-            }
-            try
-            {
                 storeMetadata(metadataBasePath, null, mergeMetadata, MetadataType.ARTIFACT_ROOT_LEVEL);
             }
             catch (IOException e)
             {
                 throw new UndeclaredThrowableException(e);
             }
+
         });
     }
 
