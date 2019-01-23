@@ -134,21 +134,32 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                        coordinates.getVersion()));
             entity.getTagSet().add(lastVersionTag);
         }
-        else if (entity.getArtifactCoordinates().compareTo(lastVersionEntry.getArtifactCoordinates()) >= 0)
-        {
-            logger.debug(String.format("Update [%s] last version from [%s] to [%s]", entity.getArtifactPath(),
-                                       lastVersionCoordinates.map(c -> c.getVersion()).orElse("undefined"),
-                                       coordinates.getVersion()));
-            entity.getTagSet().add(lastVersionTag);
-            lastVersionEntry.getTagSet().remove(lastVersionTag);
-
-            super.save(lastVersionEntry);
-        }
         else
         {
-            logger.debug(String.format("Keep [%s] last version [%s]", entity.getArtifactPath(),
-                                       lastVersionCoordinates.map(c -> c.getVersion()).orElse("undefined")));
-            entity.getTagSet().remove(lastVersionTag);
+            int artifactCoordinatesComparison = entity.getArtifactCoordinates()
+                                                      .compareTo(lastVersionEntry.getArtifactCoordinates());
+
+            switch ((int) Math.signum(artifactCoordinatesComparison))
+            {
+                case 0:
+                    logger.debug(String.format("Adding last version tag to [%s]", entity.getArtifactPath()));
+                    entity.getTagSet().add(lastVersionTag);
+                    break;
+                case 1:
+                    logger.debug(String.format("Update [%s] last version from [%s] to [%s]", entity.getArtifactPath(),
+                                               lastVersionCoordinates.map(c -> c.getVersion()).orElse("undefined"),
+                                               coordinates.getVersion()));
+                    entity.getTagSet().add(lastVersionTag);
+                    lastVersionEntry.getTagSet().remove(lastVersionTag);
+
+                    super.save(lastVersionEntry);
+                    break;
+                case -1:
+                    logger.debug(String.format("Keep [%s] last version [%s]", entity.getArtifactPath(),
+                                               lastVersionCoordinates.map(c -> c.getVersion()).orElse("undefined")));
+                    entity.getTagSet().remove(lastVersionTag);
+                    break;
+            }
         }
     }
 
