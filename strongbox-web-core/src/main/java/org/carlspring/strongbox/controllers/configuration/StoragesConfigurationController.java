@@ -227,12 +227,14 @@ public class StoragesConfigurationController
                                                 BindingResult bindingResult,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        if (bindingResult.hasErrors())
-        {
-            throw new RequestBodyValidationException(FAILED_SAVE_REPOSITORY, bindingResult);
-        }
+        
         if(configurationManagementService.getConfiguration().getStorage(storageId) != null) 
         {
+        	if (bindingResult.hasErrors())
+            {
+                throw new RequestBodyValidationException(FAILED_SAVE_REPOSITORY, bindingResult);
+            }
+        	
 	        try
 	        {
 	            MutableRepository repository = conversionService.convert(repositoryForm, MutableRepository.class);
@@ -258,7 +260,7 @@ public class StoragesConfigurationController
         }
         else 
         {
-        	return getFailedResponseEntity(HttpStatus.NOT_FOUND,REPOSITORY_NOT_FOUND, accept);
+        	return getFailedResponseEntity(HttpStatus.NOT_FOUND,STORAGE_NOT_FOUND, accept);
         }
     }
 

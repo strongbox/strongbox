@@ -292,50 +292,19 @@ public class StoragesConfigurationControllerTestIT
     }
     
     @Test
-    public void testAddUpdateRepositoryNotFound()
+    public void testUpdatingRepositoryWithNonExistingStorage()
     {
-        StorageForm storage1 = new StorageForm();
-        String storageId = "storage1";
-        storage1.setId(storageId);
-
-        RepositoryForm r0_1 = new RepositoryForm();
-        r0_1.setId("repository0_1");
-        r0_1.setAllowsRedeployment(true);
-        r0_1.setSecured(true);
-        r0_1.setLayout(Maven2LayoutProvider.ALIAS);
-        MavenRepositoryConfigurationForm mavenRepositoryConfigurationForm = new MavenRepositoryConfigurationForm();
-        mavenRepositoryConfigurationForm.setIndexingEnabled(true);
-        mavenRepositoryConfigurationForm.setIndexingClassNamesEnabled(false);
-        r0_1.setRepositoryConfiguration(mavenRepositoryConfigurationForm);
-        r0_1.setType("hosted");
-        r0_1.setPolicy("release");
-        r0_1.setImplementation("file-system");
-        r0_1.setStatus("In Service");
-
-        Integer maxConnectionsRepository2 = 30;
-
-        RepositoryForm r0_2 = new RepositoryForm();
-        r0_2.setId("repository0_2");
-        r0_2.setAllowsForceDeletion(true);
-        r0_2.setTrashEnabled(true);
-        r0_2.setProxyConfiguration(createProxyConfiguration());
-        r0_2.setLayout(Maven2LayoutProvider.ALIAS);
-        r0_2.setType("proxy");
-        r0_2.setPolicy("release");
-        r0_2.setImplementation("file-system");
-        r0_2.setStatus("In Service");
-        r0_2.setGroupRepositories(ImmutableSet.of("repository0"));
-        r0_2.setHttpConnectionPool(maxConnectionsRepository2);
-
-        String secondRepositoryUrl = "http://abc.def";
-
-        RemoteRepositoryForm remoteRepositoryForm = new RemoteRepositoryForm();
-        remoteRepositoryForm.setUrl(secondRepositoryUrl);
-        remoteRepositoryForm.setCheckIntervalSeconds(1000);
-        r0_2.setRemoteRepository(remoteRepositoryForm);
-
-        addRepositoryNotFound(r0_1, storage1);
-        addRepositoryNotFound(r0_2, storage1);
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/non-existing-storage/fake-repository";
+        RepositoryForm form = new RepositoryForm();
+        
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+        			 .accept(MediaType.APPLICATION_JSON_VALUE)
+        			 .body(form)
+        			 .when()
+        			 .put(url)
+        			 .peek()
+        			 .then()
+        			 .statusCode(404);
     }
 
     private Storage getStorage(String storageId)
@@ -401,53 +370,6 @@ public class StoragesConfigurationControllerTestIT
         return status;
     }
     
-    private int addRepositoryNotFound(RepositoryForm repository,
-            final StorageForm storage)
-	{
-		String url;
-		if (repository == null)
-		{
-		logger.error("Unable to add non-existing repository.");
-		
-		throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR,
-		                             "Unable to add non-existing repository.");
-		}
-		
-		if (storage == null)
-		{
-		logger.error("Storage associated with repo is null.");
-		
-		throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR,
-		                             "Storage associated with repo is null.");
-		}
-		
-		try
-		{
-		url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storage.getId() +
-		"/" +
-		repository.getId();
-		}
-		catch (RuntimeException e)
-		{
-		logger.error("Unable to create web resource.", e);
-		
-		throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		
-		int status = givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
-		                .accept(MediaType.APPLICATION_JSON_VALUE)
-		                .body(repository)
-		                .when()
-		                .put(url)
-		                .then()
-		                .statusCode(404)
-		                .extract()
-		                .statusCode();
-		
-		return status;
-	}
-    
-
     private void deleteRepository(String storageId,
                                   String repositoryId)
     {
