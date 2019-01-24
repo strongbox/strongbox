@@ -45,4 +45,10 @@ public class NugetFileSystemProvider extends LayoutFileSystemProvider
         result.setDigestStringifier(layoutProvider::toBase64);
         return result;
     }
+
+	@Override
+	protected void deleteMetadata(RepositoryPath repositoryPath) throws IOException {
+		
+		
+	}
 }
