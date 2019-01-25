@@ -272,29 +272,37 @@ public class StoragesConfigurationController
                                                 BindingResult bindingResult,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        if (bindingResult.hasErrors())
+
+        if (configurationManagementService.getConfiguration().getStorage(storageId) != null)
         {
-            throw new RequestBodyValidationException(FAILED_SAVE_REPOSITORY, bindingResult);
-        }
-        try
-        {
-            MutableRepository repository = conversionService.convert(repositoryForm, MutableRepository.class);
-
-            logger.debug("Creating repository " + storageId + ":" + repositoryId + "...");
-
-            configurationManagementService.saveRepository(storageId, repository);
-
-            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
-            if (!Files.exists(repositoryPath))
+            if (bindingResult.hasErrors())
             {
-                repositoryManagementService.createRepository(storageId, repository.getId());
+                throw new RequestBodyValidationException(FAILED_SAVE_REPOSITORY, bindingResult);
             }
 
-            return getSuccessfulResponseEntity(SUCCESSFUL_REPOSITORY_SAVE, accept);
+            try
+            {
+                MutableRepository repository = conversionService.convert(repositoryForm, MutableRepository.class);
+
+                logger.debug("Creating repository " + storageId + ":" + repositoryId + "...");
+
+                configurationManagementService.saveRepository(storageId, repository);
+
+                final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
+                if (!Files.exists(repositoryPath))
+                {
+                    repositoryManagementService.createRepository(storageId, repository.getId());
+                }
+
+                return getSuccessfulResponseEntity(SUCCESSFUL_REPOSITORY_SAVE, accept);
+            }
+            catch (IOException | ConfigurationException | RepositoryManagementStrategyException e)
+            {
+                return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_SAVE, e, accept);}
         }
-        catch (IOException | ConfigurationException | RepositoryManagementStrategyException e)
+        else
         {
-            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_SAVE, e, accept);
+            return getFailedResponseEntity(HttpStatus.NOT_FOUND, STORAGE_NOT_FOUND, accept);
         }
     }
 

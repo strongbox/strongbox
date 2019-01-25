@@ -114,6 +114,7 @@ public class StoragesConfigurationControllerTestIT
                      .peek()
                      .then()
                      .statusCode(OK);
+
     }
 
     @Test
@@ -324,6 +325,22 @@ public class StoragesConfigurationControllerTestIT
 
         deleteRepository(storage0.getId(), repositoryForm0_1.getId());
         deleteRepository(storage0.getId(), repositoryForm0_2.getId());
+    }
+
+    @Test
+    public void testUpdatingRepositoryWithNonExistingStorage()
+    {
+        String url = getContextBaseUrl() + "/non-existing-storage/fake-repository";
+        RepositoryForm form = new RepositoryForm();
+
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .body(form)
+                     .when()
+                     .put(url)
+                     .peek()
+                     .then()
+                     .statusCode(404);
     }
 
     private Storage getStorage(String storageId)
