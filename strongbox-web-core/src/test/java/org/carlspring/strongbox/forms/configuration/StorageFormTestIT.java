@@ -90,12 +90,12 @@ public class StorageFormTestIT
     }
 
     @Test
-    void testStorageFormInvalidEmptyIdAndBaseDir()
+    void testStorageFormInvalidEmptyId()
     {
         // given
         StorageForm storageForm = new StorageForm();
         storageForm.setId(StringUtils.EMPTY);
-        storageForm.setBasedir(null);
+        storageForm.setBasedir(BASEDIR_VALID);
         storageForm.setRepositories(repositories);
 
         // when
@@ -103,11 +103,8 @@ public class StorageFormTestIT
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 2);
-        assertThat(violations).extracting("message").containsAnyOf(
-                "An id must be specified.",
-                "A base directory must be specified."
-        );
+        assertEquals(violations.size(), 1);
+        assertThat(violations).extracting("message").containsAnyOf("An id must be specified.");
     }
 
     @Test

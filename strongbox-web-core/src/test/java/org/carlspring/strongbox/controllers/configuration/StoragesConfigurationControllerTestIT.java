@@ -43,8 +43,8 @@ public class StoragesConfigurationControllerTestIT
 
     private static final String VALID_STORAGE_ID = "storage1";
     private static final String EXISTING_STORAGE_ID = STORAGE0;
-    private RepositoryForm r0;
-    private RepositoryForm r1;
+    private RepositoryForm repositoryForm0;
+    private RepositoryForm repositoryForm1;
 
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
@@ -73,27 +73,27 @@ public class StoragesConfigurationControllerTestIT
         super.init();
         setContextBaseUrl("/api/configuration/strongbox/storages");
 
-        r0 = new RepositoryForm();
-        r0.setId("repository0");
-        r0.setAllowsRedeployment(true);
-        r0.setSecured(true);
-        r0.setLayout(Maven2LayoutProvider.ALIAS);
-        r0.setType("hosted");
-        r0.setPolicy("release");
-        r0.setImplementation("file-system");
-        r0.setStatus("In Service");
+        repositoryForm0 = new RepositoryForm();
+        repositoryForm0.setId("repository0");
+        repositoryForm0.setAllowsRedeployment(true);
+        repositoryForm0.setSecured(true);
+        repositoryForm0.setLayout(Maven2LayoutProvider.ALIAS);
+        repositoryForm0.setType("hosted");
+        repositoryForm0.setPolicy("release");
+        repositoryForm0.setImplementation("file-system");
+        repositoryForm0.setStatus("In Service");
 
-        r1 = new RepositoryForm();
-        r1.setId("repository1");
-        r1.setAllowsForceDeletion(true);
-        r1.setTrashEnabled(true);
-        r1.setProxyConfiguration(createProxyConfiguration());
-        r1.setLayout(Maven2LayoutProvider.ALIAS);
-        r1.setType("hosted");
-        r1.setPolicy("release");
-        r1.setImplementation("file-system");
-        r1.setStatus("In Service");
-        r1.setGroupRepositories(ImmutableSet.of("repository0"));
+        repositoryForm1 = new RepositoryForm();
+        repositoryForm1.setId("repository1");
+        repositoryForm1.setAllowsForceDeletion(true);
+        repositoryForm1.setTrashEnabled(true);
+        repositoryForm1.setProxyConfiguration(createProxyConfiguration());
+        repositoryForm1.setLayout(Maven2LayoutProvider.ALIAS);
+        repositoryForm1.setType("hosted");
+        repositoryForm1.setPolicy("release");
+        repositoryForm1.setImplementation("file-system");
+        repositoryForm1.setStatus("In Service");
+        repositoryForm1.setGroupRepositories(ImmutableSet.of("repository0"));
     }
 
     private String getBaseDir(String storageId)
@@ -162,8 +162,8 @@ public class StoragesConfigurationControllerTestIT
     public void testCreateAndUpdateStorage()
     {
         final String storageId = VALID_STORAGE_ID;
-        final String repositoryId0 = r0.getId();
-        final String repositoryId1 = r1.getId();
+        final String repositoryId0 = repositoryForm0.getId();
+        final String repositoryId1 = repositoryForm1.getId();
 
         StorageForm storage1 = buildStorageForm(storageId);
 
@@ -228,27 +228,6 @@ public class StoragesConfigurationControllerTestIT
                .body(containsString(FAILED_SAVE_STORAGE_FORM_ERROR));
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.TEXT_PLAIN_VALUE })
-    public void testUpdatingStorageWithEmptyBasedirShouldFail(String acceptHeader)
-    {
-        StorageForm form = buildStorageForm(EXISTING_STORAGE_ID);
-        form.setBasedir(null);
-
-        String url = getContextBaseUrl() + "/" + EXISTING_STORAGE_ID;
-
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(acceptHeader)
-               .body(form)
-               .when()
-               .put(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.BAD_REQUEST.value())
-               .body(containsString(FAILED_UPDATE_STORAGE_FORM_ERROR));
-    }
-
     private StorageForm buildStorageForm(final String storageId)
     {
         final String basedir = getBaseDir(storageId);
@@ -267,48 +246,48 @@ public class StoragesConfigurationControllerTestIT
 
         StorageForm storage0 = buildStorageForm(storageId);
 
-        RepositoryForm r0_1 = new RepositoryForm();
-        r0_1.setId("repository0_1");
-        r0_1.setAllowsRedeployment(true);
-        r0_1.setSecured(true);
-        r0_1.setLayout(Maven2LayoutProvider.ALIAS);
+        RepositoryForm repositoryForm0_1 = new RepositoryForm();
+        repositoryForm0_1.setId("repository0_1");
+        repositoryForm0_1.setAllowsRedeployment(true);
+        repositoryForm0_1.setSecured(true);
+        repositoryForm0_1.setLayout(Maven2LayoutProvider.ALIAS);
         MavenRepositoryConfigurationForm mavenRepositoryConfigurationForm = new MavenRepositoryConfigurationForm();
         mavenRepositoryConfigurationForm.setIndexingEnabled(true);
         mavenRepositoryConfigurationForm.setIndexingClassNamesEnabled(false);
-        r0_1.setRepositoryConfiguration(mavenRepositoryConfigurationForm);
-        r0_1.setType("hosted");
-        r0_1.setPolicy("release");
-        r0_1.setImplementation("file-system");
-        r0_1.setStatus("In Service");
+        repositoryForm0_1.setRepositoryConfiguration(mavenRepositoryConfigurationForm);
+        repositoryForm0_1.setType("hosted");
+        repositoryForm0_1.setPolicy("release");
+        repositoryForm0_1.setImplementation("file-system");
+        repositoryForm0_1.setStatus("In Service");
 
         Integer maxConnectionsRepository2 = 30;
 
-        RepositoryForm r0_2 = new RepositoryForm();
-        r0_2.setId("repository0_2");
-        r0_2.setAllowsForceDeletion(true);
-        r0_2.setTrashEnabled(true);
-        r0_2.setProxyConfiguration(createProxyConfiguration());
-        r0_2.setLayout(Maven2LayoutProvider.ALIAS);
-        r0_2.setType("proxy");
-        r0_2.setPolicy("release");
-        r0_2.setImplementation("file-system");
-        r0_2.setStatus("In Service");
-        r0_2.setGroupRepositories(ImmutableSet.of("repository0"));
-        r0_2.setHttpConnectionPool(maxConnectionsRepository2);
+        RepositoryForm repositoryForm0_2 = new RepositoryForm();
+        repositoryForm0_2.setId("repository0_2");
+        repositoryForm0_2.setAllowsForceDeletion(true);
+        repositoryForm0_2.setTrashEnabled(true);
+        repositoryForm0_2.setProxyConfiguration(createProxyConfiguration());
+        repositoryForm0_2.setLayout(Maven2LayoutProvider.ALIAS);
+        repositoryForm0_2.setType("proxy");
+        repositoryForm0_2.setPolicy("release");
+        repositoryForm0_2.setImplementation("file-system");
+        repositoryForm0_2.setStatus("In Service");
+        repositoryForm0_2.setGroupRepositories(ImmutableSet.of("repository0"));
+        repositoryForm0_2.setHttpConnectionPool(maxConnectionsRepository2);
 
         String secondRepositoryUrl = "http://abc.def";
 
         RemoteRepositoryForm remoteRepositoryForm = new RemoteRepositoryForm();
         remoteRepositoryForm.setUrl(secondRepositoryUrl);
         remoteRepositoryForm.setCheckIntervalSeconds(1000);
-        r0_2.setRemoteRepository(remoteRepositoryForm);
+        repositoryForm0_2.setRemoteRepository(remoteRepositoryForm);
 
-        addRepository(r0_1, storage0);
-        addRepository(r0_2, storage0);
+        addRepository(repositoryForm0_1, storage0);
+        addRepository(repositoryForm0_2, storage0);
 
         Storage storage = getStorage(storageId);
-        Repository repository0 = storage.getRepositories().get(r0_1.getId());
-        Repository repository1 = storage.getRepositories().get(r0_2.getId());
+        Repository repository0 = storage.getRepositories().get(repositoryForm0_1.getId());
+        Repository repository1 = storage.getRepositories().get(repositoryForm0_2.getId());
 
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
         assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
@@ -343,8 +322,8 @@ public class StoragesConfigurationControllerTestIT
                      poolStatsRepository2.getMax(),
                      "Max connections for proxy repository not set accordingly!");
 
-        deleteRepository(storage0.getId(), r0_1.getId());
-        deleteRepository(storage0.getId(), r0_2.getId());
+        deleteRepository(storage0.getId(), repositoryForm0_1.getId());
+        deleteRepository(storage0.getId(), repositoryForm0_2.getId());
     }
 
     private Storage getStorage(String storageId)
@@ -420,8 +399,8 @@ public class StoragesConfigurationControllerTestIT
     public void testCreateAndDeleteStorage()
     {
         final String storageId = "storage2";
-        final String repositoryId0 = r0.getId();
-        final String repositoryId1 = r1.getId();
+        final String repositoryId0 = repositoryForm0.getId();
+        final String repositoryId1 = repositoryForm1.getId();
 
         StorageForm storage2 = buildStorageForm(storageId);
 
@@ -439,8 +418,8 @@ public class StoragesConfigurationControllerTestIT
                      .body(containsString(SUCCESSFUL_SAVE_STORAGE));
 
         // 1.1. Add repositories to storage.
-        addRepository(r0, storage2);
-        addRepository(r1, storage2);
+        addRepository(repositoryForm0, storage2);
+        addRepository(repositoryForm1, storage2);
 
         url = "/api/configuration/strongbox/proxy-configuration";
 

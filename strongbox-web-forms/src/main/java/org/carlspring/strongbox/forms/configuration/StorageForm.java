@@ -18,7 +18,6 @@ public class StorageForm
     @UniqueStorage(groups = NewStorage.class, message = "Storage id is already taken.")
     private String id;
 
-    @NotEmpty(message = "A base directory must be specified.")
     private String basedir;
 
     @Valid
