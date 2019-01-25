@@ -71,3 +71,4 @@ To accept, please:
 | Michael Altenburger          | 						                             				  | Vienna, Austria                     				| 2018-09-29 |
 | Benjamin March               |                             			          | Munich, Germany                     				| 2018-10-28 |
 | Konstantina Papadopoulou	   |										  | Thessaloniki, Greece					| 2018-12-28 |
+| Jitesh Golatkar           |                                          | Charlotte, USA                      | 2019-01-25 |
