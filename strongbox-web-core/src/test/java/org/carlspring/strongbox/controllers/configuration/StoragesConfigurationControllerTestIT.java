@@ -298,13 +298,13 @@ public class StoragesConfigurationControllerTestIT
         RepositoryForm form = new RepositoryForm();
         
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
-        			 .accept(MediaType.APPLICATION_JSON_VALUE)
-        			 .body(form)
-        			 .when()
-        			 .put(url)
-        			 .peek()
-        			 .then()
-        			 .statusCode(404);
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .body(form)
+                     .when()
+                     .put(url)
+                     .peek()
+                     .then()
+                     .statusCode(404);
     }
 
     private Storage getStorage(String storageId)
