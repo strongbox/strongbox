@@ -6,13 +6,12 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import org.apache.commons.io.input.ProxyInputStream;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -39,13 +38,13 @@ public class RepositoryPathLock
         lockService = DistributedLockService.newHazelcastLockService(hazelcastInstance);
     }
 
-    public ReadWriteLock lock(final @Nonnull RepositoryPath repositoryPath)
+    public ReadWriteLock lock(final @Nonnull RepositoryPath repositoryPath) throws IOException
     {
         return lock(repositoryPath, null);
     }
 
     public ReadWriteLock lock(final @Nonnull RepositoryPath repositoryPath,
-                              String id)
+                              String id) throws IOException
     {
         URI lock = getLock(repositoryPath);
 
@@ -56,8 +55,17 @@ public class RepositoryPathLock
         return lockService.getReentrantReadWriteLock(lockName);
     }
 
-    private URI getLock(final @Nonnull RepositoryPath repositoryPath)
+    private URI getLock(final @Nonnull RepositoryPath repositoryPath) throws IOException
     {
+        if (RepositoryFiles.isArtifact(repositoryPath))
+        {
+            ArtifactCoordinates c = RepositoryFiles.readCoordinates(repositoryPath);
+            // We should lock all the ArtifactIdGroup because there can be
+            // `ArtifactEntryServiceImpl.updateLastVersionTag()` operations
+            // which affetcs on other artifacts from group.
+            return URI.create(c.getId());
+        }
+
         final URI lock = repositoryPath.toUri();
 
         Assert.isTrue(lock.isAbsolute(), String.format("Unable to lock relative path %s", lock));

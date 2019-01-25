@@ -161,16 +161,7 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
     public void onAfterWrite(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        logger.debug(String.format("Closing [%s]", repositoryPath));
-               
-        ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
-        if (artifactEntry == null)
-        {          
-            return;
-        }
-        
-        CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
-        artifactEntry.setSizeInBytes(cos.getByteCount());
+        logger.debug(String.format("Complete writing [%s]", repositoryPath));             
     }
 
     @Override
@@ -198,7 +189,28 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
     @Override
     public void onAfterRead(RepositoryStreamReadContext ctx)
     {
-        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(ctx.getPath());
+        RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
+        logger.debug(String.format("Complete reading [%s]", repositoryPath));
+        
+        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(repositoryPath);
+    }
+
+    @Override
+    public void commit(RepositoryStreamWriteContext ctx) throws IOException
+    {
+        RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
+        ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
+        
+        repositoryPath.artifactEntry = null;
+        if (artifactEntry == null)
+        {
+            return;
+        }
+        
+        CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
+        artifactEntry.setSizeInBytes(cos.getByteCount());
+        
+        artifactEntryService.save(artifactEntry, true);
     }
 
     protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
@@ -244,36 +256,6 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         selector.where(createPredicate(storageId, repositoryId, p));
         
         return selector;
-    }
-
-    @Component
-    private static class ArtifactStoredEventListener
-    {
-        
-        @Inject
-        private ArtifactEntryService artifactEntryService;
-        
-        @EventListener
-        public void handleEvent(ArtifactEvent<RepositoryPath> event)
-        {
-            if (ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED.getType() != event.getType())
-            {
-                return;
-            }
-            
-            RepositoryPath repositoryPath = event.getPath();
-            ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
-            
-            repositoryPath.artifactEntry = null;
-
-            if (artifactEntry == null)
-            {
-                return;
-            }
-            
-            artifactEntryService.save(artifactEntry, true);
-        }
-        
     }
     
 }

@@ -5,6 +5,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+
+import javax.inject.Inject;
 
 import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.io.input.ProxyInputStream;
@@ -27,6 +31,9 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
 
     private ThreadLocal<RepositoryStreamContext> ctx = new ThreadLocal<RepositoryStreamContext>();
 
+    @Inject
+    protected RepositoryPathLock repositoryPathLock;
+    
     protected void initContext(RepositoryStreamContext ctx)
     {
         this.ctx.set(ctx);
@@ -51,6 +58,25 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
             return;
         }
 
+        RepositoryPath path = (RepositoryPath) ctx.getPath();
+        logger.debug(String.format("Locking [%s]", path));
+        
+        ReadWriteLock lockSource = repositoryPathLock.lock(path);
+        Lock lock;
+        if (ctx instanceof RepositoryStreamWriteContext)
+        {
+            lock = lockSource.writeLock();
+        }
+        else
+        {
+            lock = lockSource.readLock();
+        }
+
+        ctx.setLock(lock);
+        lock.lock();
+
+        logger.debug(String.format("Locked [%s]", path));
+        
         doOpen(ctx);
     }
 
@@ -69,7 +95,7 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
         }
     }
 
-    public void close()
+    protected void close()
         throws IOException
     {
         RepositoryStreamContext ctx = getContext();
@@ -84,7 +110,7 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
         } 
         finally
         {
-            Optional.ofNullable(ctx.getLock()).ifPresent(l -> l.unlock());
+            ctx.getLock().unlock();
             clearContext();
         }
     }
@@ -100,6 +126,11 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
         {
             onAfterRead((RepositoryStreamReadContext) ctx);
         }
+    }
+    
+    protected void commit() throws IOException
+    {
+        commit((RepositoryStreamWriteContext) getContext());
     }
 
     public class RepositoryOutputStream extends ProxyOutputStream
@@ -123,6 +154,14 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
             open();
             
             super.beforeWrite(n);
+        }
+
+
+        public void flush()
+            throws IOException
+        {
+            RepositoryStreamSupport.this.commit();
+            super.flush();
         }
 
         @Override

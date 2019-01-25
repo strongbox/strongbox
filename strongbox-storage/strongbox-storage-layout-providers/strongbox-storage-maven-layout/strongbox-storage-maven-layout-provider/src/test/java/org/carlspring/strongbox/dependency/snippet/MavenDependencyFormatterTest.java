@@ -7,6 +7,7 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
@@ -28,7 +29,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author carlspring
@@ -36,14 +37,14 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
-@Execution(CONCURRENT)
+@Execution(SAME_THREAD)
 public class MavenDependencyFormatterTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String REPOSITORY_RELEASES = "mdft-releases";
 
-    public static final String REPOSITORY_BASEDIR = "target/strongbox-vault/storages/storage0/" + REPOSITORY_RELEASES;
+    public static final String REPOSITORY_BASEDIR = ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/" + REPOSITORY_RELEASES;
 
     @Inject
     private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;
@@ -70,7 +71,7 @@ public class MavenDependencyFormatterTest
                                       "org.carlspring.strongbox:maven-snippet",
                                       "1.0");
 
-        generateArtifact(REPOSITORY_BASEDIR, "org.carlspring.strongbox:maven-snippet:jar:sources");
+        generateArtifact(REPOSITORY_BASEDIR, "org.carlspring.strongbox:maven-snippet:1.0:jar:sources");
 
         reIndex(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox");
     }
@@ -91,7 +92,7 @@ public class MavenDependencyFormatterTest
                                                          "jar"));
         removeEntryIfExists(new MavenArtifactCoordinates("org.carlspring.strongbox",
                                                          "maven-snippet",
-                                                         "2.0",
+                                                         "1.0",
                                                          "sources",
                                                          "jar"));
     }
@@ -198,6 +199,7 @@ public class MavenDependencyFormatterTest
 
         SearchResult searchResult = mavenIndexerSearchProvider.get().findExact(request);
 
+        assertNotNull(searchResult);
         assertFalse(searchResult.getSnippets().isEmpty());
 
         for (CodeSnippet codeSnippet : searchResult.getSnippets())
