@@ -1,22 +1,27 @@
 package org.carlspring.strongbox.controllers.configuration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.apache.http.pool.PoolStats;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.forms.configuration.*;
+import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.RemoteRepositoryForm;
+import org.carlspring.strongbox.forms.configuration.RepositoryForm;
+import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
-
-import javax.inject.Inject;
-import java.util.List;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import io.restassured.config.ObjectMapperConfig;
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import org.apache.http.pool.PoolStats;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +29,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.HttpServerErrorException;
-import static org.junit.jupiter.api.Assertions.*;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 
 /**
  * @author Pablo Tirado
@@ -74,6 +84,7 @@ public class StoragesConfigurationControllerTestIT
                      .peek()
                      .then()
                      .statusCode(200);
+        
     }
 
     @Test
@@ -279,6 +290,22 @@ public class StoragesConfigurationControllerTestIT
         deleteRepository(storage0.getId(), r0_1.getId());
         deleteRepository(storage0.getId(), r0_2.getId());
     }
+    
+    @Test
+    public void testUpdatingRepositoryWithNonExistingStorage()
+    {
+        String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/non-existing-storage/fake-repository";
+        RepositoryForm form = new RepositoryForm();
+        
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .body(form)
+                     .when()
+                     .put(url)
+                     .peek()
+                     .then()
+                     .statusCode(404);
+    }
 
     private Storage getStorage(String storageId)
     {
@@ -342,7 +369,7 @@ public class StoragesConfigurationControllerTestIT
 
         return status;
     }
-
+    
     private void deleteRepository(String storageId,
                                   String repositoryId)
     {
