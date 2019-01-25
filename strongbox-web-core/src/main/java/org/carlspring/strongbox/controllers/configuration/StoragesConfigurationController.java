@@ -227,40 +227,40 @@ public class StoragesConfigurationController
                                                 BindingResult bindingResult,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        
-        if(configurationManagementService.getConfiguration().getStorage(storageId) != null) 
+
+        if (configurationManagementService.getConfiguration().getStorage(storageId) != null)
         {
-        	if (bindingResult.hasErrors())
+            if (bindingResult.hasErrors())
             {
                 throw new RequestBodyValidationException(FAILED_SAVE_REPOSITORY, bindingResult);
             }
-        	
-	        try
-	        {
-	            MutableRepository repository = conversionService.convert(repositoryForm, MutableRepository.class);
-	
-	            logger.debug("Creating repository " + storageId + ":" + repositoryId + "...");
-	
-	            configurationManagementService.saveRepository(storageId, repository);
-	
-	            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
-	            if (!Files.exists(repositoryPath))
-	            {
-	                repositoryManagementService.createRepository(storageId, repository.getId());
-	            }
-	
-	            return getSuccessfulResponseEntity(SUCCESSFUL_REPOSITORY_SAVE, accept);
-	        }
-	        catch (IOException | ConfigurationException | RepositoryManagementStrategyException e)
-	        {
-	            logger.error(e.getMessage(), e);
-	
-	            return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_SAVE, accept);
-	        }
+
+            try
+            {
+                MutableRepository repository = conversionService.convert(repositoryForm, MutableRepository.class);
+
+                logger.debug("Creating repository " + storageId + ":" + repositoryId + "...");
+
+                configurationManagementService.saveRepository(storageId, repository);
+
+                final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
+                if (!Files.exists(repositoryPath))
+                {
+                    repositoryManagementService.createRepository(storageId, repository.getId());
+                }
+
+                return getSuccessfulResponseEntity(SUCCESSFUL_REPOSITORY_SAVE, accept);
+            }
+            catch (IOException | ConfigurationException | RepositoryManagementStrategyException e)
+            {
+                logger.error(e.getMessage(), e);
+
+                return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_SAVE, accept);
+            }
         }
-        else 
+        else
         {
-        	return getFailedResponseEntity(HttpStatus.NOT_FOUND,STORAGE_NOT_FOUND, accept);
+            return getFailedResponseEntity(HttpStatus.NOT_FOUND, STORAGE_NOT_FOUND, accept);
         }
     }
 
