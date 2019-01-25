@@ -32,9 +32,5 @@ public class RawFileSystemProvider extends LayoutFileSystemProvider
         return layoutProvider;
     }
 
-	@Override
-	protected void deleteMetadata(RepositoryPath repositoryPath) throws IOException {
-		
-	}
 
 }

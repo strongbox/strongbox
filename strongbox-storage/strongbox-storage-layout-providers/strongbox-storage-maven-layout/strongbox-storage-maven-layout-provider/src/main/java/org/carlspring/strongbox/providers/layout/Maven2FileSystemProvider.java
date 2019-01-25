@@ -81,8 +81,6 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
             cleanupDirectory(repositoryPath.relativize(), force);
         }
 
-        deleteMetadata(repositoryPath);
-
         super.delete(repositoryPath, force);
     }
 

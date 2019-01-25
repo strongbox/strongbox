@@ -46,9 +46,4 @@ public class NugetFileSystemProvider extends LayoutFileSystemProvider
         return result;
     }
 
-	@Override
-	protected void deleteMetadata(RepositoryPath repositoryPath) throws IOException {
-		
-		
-	}
 }
