@@ -18,6 +18,10 @@ public class ConnectionConfigOrientDB implements ConnectionConfig
 
     public static final String PROPERTY_STUDIO_ENABLED = "strongbox.orientdb.studio.enabled";
     
+    public static final String PROPERTY_STUDIO_IP_ADDRESS = "strongbox.orientdb.studio.ip.address";
+
+    public static final String PROPERTY_STUDIO_PORT = "strongbox.orientdb.studio.port";
+    
     public static final String PROFILE_MEMORY = "orientdb_MEMORY";
 
     public static final String PROFILE_EMBEDDED = "orientdb_EMBEDDED";
