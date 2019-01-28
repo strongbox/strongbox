@@ -8,18 +8,21 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactGroup;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.io.RepositoryStreamReadContext;
 import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
 import org.carlspring.strongbox.io.StreamUtils;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +31,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.io.output.CountingOutputStream;
 import org.slf4j.Logger;
@@ -209,8 +213,20 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         
         CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
         artifactEntry.setSizeInBytes(cos.getByteCount());
-        
+
+        artifactEntry.setArtifactGroups(getArtifactGroups(repositoryPath));
+
         artifactEntryService.save(artifactEntry, true);
+    }
+
+    @Nonnull
+    private Set<ArtifactGroup> getArtifactGroups(final RepositoryPath repositoryPath)
+            throws IOException
+    {
+        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repositoryPath.getRepository()
+                                                                                               .getLayout());
+
+        return layoutProvider.getArtifactGroups(repositoryPath);
     }
 
     protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
