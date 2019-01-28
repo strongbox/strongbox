@@ -101,7 +101,13 @@ public abstract class CommonCrudService<T extends GenericEntity>
 
         });
 
-        return getDelegate().save(entity);
+        logger.error("###################################### [{}][{}] ########################",
+                    entity.getClass(),
+                    entity);
+
+        S result = getDelegate().save(entity);
+
+        return result;
     }
 
     private Set<CascadeType> exposeCascadeType(Annotation a)
