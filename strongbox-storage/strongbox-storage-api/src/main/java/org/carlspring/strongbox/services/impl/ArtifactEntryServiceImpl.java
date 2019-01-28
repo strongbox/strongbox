@@ -144,8 +144,8 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         {
             logger.debug(String.format("Update [%s] last version from [%s] to [%s]",
                                        entity.getArtifactPath(),
-                                       lastVersionEntry.getArtifactCoordinates().getVersion()),
-                                       coordinates.getVersion());
+                                       lastVersionEntry.getArtifactCoordinates().getVersion(),
+                                       coordinates.getVersion()));
             entity.getTagSet().add(lastVersionTag);
             lastVersionEntry.getTagSet().remove(lastVersionTag);
 
