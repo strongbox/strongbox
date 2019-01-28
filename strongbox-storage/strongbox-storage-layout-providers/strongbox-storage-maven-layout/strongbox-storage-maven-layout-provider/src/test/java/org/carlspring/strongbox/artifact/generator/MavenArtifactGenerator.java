@@ -120,6 +120,8 @@ public class MavenArtifactGenerator
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
             createRandomSizeFile(zos);
+            
+            zos.flush();
         }
         generateChecksumsForArtifact(artifactFile);
     }
@@ -292,12 +294,14 @@ public class MavenArtifactGenerator
             try (OutputStream os = newOutputStream(checksumPath.toFile()))
             {
                 IOUtils.write(md5, os, Charset.forName("UTF-8"));
+                os.flush();
             }
 
             checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.SHA1.getExtension());
             try (OutputStream os = newOutputStream(checksumPath.toFile()))
             {
                 IOUtils.write(sha1, os, Charset.forName("UTF-8"));
+                os.flush();
             }
         }
     }

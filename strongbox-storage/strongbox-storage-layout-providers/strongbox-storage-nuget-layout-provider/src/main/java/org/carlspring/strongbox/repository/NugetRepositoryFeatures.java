@@ -35,6 +35,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -108,7 +110,7 @@ public class NugetRepositoryFeatures
 
     public void downloadRemoteFeed(String storageId,
                                    String repositoryId)
-            throws ArtifactTransportException
+            throws ArtifactTransportException, IOException
     {
         downloadRemoteFeed(storageId, repositoryId, new NugetSearchRequest());
     }
@@ -116,7 +118,7 @@ public class NugetRepositoryFeatures
     public void downloadRemoteFeed(String storageId,
                                    String repositoryId,
                                    NugetSearchRequest nugetSearchRequest)
-            throws ArtifactTransportException
+            throws ArtifactTransportException, IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -139,7 +141,7 @@ public class NugetRepositoryFeatures
                                       NugetSearchRequest nugetSearchRequest,
                                       int skip,
                                       int top)
-        throws ArtifactTransportException
+        throws ArtifactTransportException, IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -191,7 +193,7 @@ public class NugetRepositoryFeatures
     }
 
     private void parseFeed(Repository repository,
-                           PackageFeed packageFeed)
+                           PackageFeed packageFeed) throws IOException
     {
         String repositoryId = repository.getId();
         String storageId = repository.getStorage().getId();
@@ -277,7 +279,7 @@ public class NugetRepositoryFeatures
         }
 
         @EventListener
-        public void handle(RemoteRepositorySearchEvent event)
+        public void handle(RemoteRepositorySearchEvent event) throws IOException
         {
             if (nugetSearchRequest == null)
             {

@@ -124,7 +124,7 @@ public class MavenMetadataManager
     public void storeMetadata(final RepositoryPath metadataBasePath,
                               final String version,
                               final Metadata metadata,
-                              final MetadataType metadataType)
+                              final MetadataType metadataType) throws IOException
     {
 
         doInLock(metadataBasePath, path ->
@@ -268,7 +268,7 @@ public class MavenMetadataManager
         }
     }
 
-    private void generateMavenPluginMetadata(String groupId, String aritfactId, RepositoryPath pluginMetadataPath, List<Plugin> plugins)
+    private void generateMavenPluginMetadata(String groupId, String aritfactId, RepositoryPath pluginMetadataPath, List<Plugin> plugins) throws IOException
     {
         Metadata pluginMetadata = new Metadata();
         pluginMetadata.setPlugins(plugins);
@@ -315,7 +315,7 @@ public class MavenMetadataManager
     }
 
     public void mergeAndStore(final RepositoryPath metadataBasePath,
-                              final Metadata mergeMetadata)
+                              final Metadata mergeMetadata) throws IOException
     {
         doInLock(metadataBasePath, path ->
         {
@@ -340,12 +340,13 @@ public class MavenMetadataManager
             try
             {
                 Files.createDirectories(metadataBasePath);
+                storeMetadata(metadataBasePath, null, mergeMetadata, MetadataType.ARTIFACT_ROOT_LEVEL);
             }
             catch (IOException e)
             {
                 throw new UndeclaredThrowableException(e);
             }
-            storeMetadata(metadataBasePath, null, mergeMetadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+
         });
     }
 
@@ -384,7 +385,7 @@ public class MavenMetadataManager
 
     public void mergeAndStore(final RepositoryPath metadataBasePath,
                               final Metadata metadata,
-                              final Metadata mergeMetadata)
+                              final Metadata mergeMetadata) throws IOException
     {
         doInLock(metadataBasePath, path ->
         {
@@ -400,12 +401,19 @@ public class MavenMetadataManager
                 versioning.getSnapshotVersions().sort(new SnapshotVersionComparator());
             }
 
-            storeMetadata(metadataBasePath, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+            try
+            {
+                storeMetadata(metadataBasePath, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+            }
+            catch (IOException e)
+            {
+                throw new UndeclaredThrowableException(e);
+            }
         });
     }
 
     private void doInLock(RepositoryPath metadataBasePath,
-                          Consumer<Path> operation)
+                          Consumer<Path> operation) throws IOException
     {
         Lock lock = repositoryPathLock.lock(metadataBasePath).writeLock();
         lock.lock();

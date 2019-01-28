@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.annotations.*;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -45,32 +46,37 @@ import org.springframework.web.bind.annotation.*;
 public class StoragesConfigurationController
         extends BaseConfigurationController
 {
+    static final String SUCCESSFUL_SAVE_STORAGE = "The storage was created successfully.";
 
-    private static final String FAILED_SAVE_STORAGE = "Storage cannot be saved because the submitted form contains errors!";
+    static final String FAILED_SAVE_STORAGE_FORM_ERROR = "The storage cannot be created because the submitted form contains errors!";
 
-    private static final String FAILED_SAVE_REPOSITORY = "Repository cannot be saved because the submitted form contains errors!";
+    static final String FAILED_SAVE_STORAGE_ERROR = "The storage was not created.";
 
-    private static final String SUCCESSFUL_STORAGE_SAVE = "Storage was saved successfully.";
+    static final String SUCCESSFUL_UPDATE_STORAGE = "The storage was updated successfully.";
 
-    private static final String FAILED_STORAGE_SAVE = "Storage was not saved.";
+    static final String FAILED_UPDATE_STORAGE_FORM_ERROR = "The storage cannot be updated because the submitted form contains errors!";
 
-    private static final String SUCCESSFUL_REPOSITORY_SAVE = "repository was updated successfully.";
+    static final String FAILED_UPDATE_STORAGE_ERROR = "The storage was not updated.";
 
-    private static final String FAILED_REPOSITORY_SAVE = "Repository was not saved.";
+    static final String FAILED_SAVE_REPOSITORY = "The repository cannot be saved because the submitted form contains errors!";
 
-    private static final String SUCCESSFUL_STORAGE_REMOVAL = "Storage was removed successfully.";
+    static final String SUCCESSFUL_REPOSITORY_SAVE = "The repository was updated successfully.";
 
-    private static final String SUCCESSFUL_REPOSITORY_REMOVAL = "Repository was removed successfully.";
+    static final String FAILED_REPOSITORY_SAVE = "The repository was not saved.";
 
-    private static final String FAILED_STORAGE_REMOVAL = "Failed to remove storage !";
+    static final String SUCCESSFUL_STORAGE_REMOVAL = "The storage was removed successfully.";
 
-    private static final String STORAGE_NOT_FOUND = "Storage was not found.";
+    static final String SUCCESSFUL_REPOSITORY_REMOVAL = "The repository was removed successfully.";
 
-    private static final String FAILED_REPOSITORY_REMOVAL = "Failed to remove repository !";
+    private static final String FAILED_STORAGE_REMOVAL = "Failed to remove the storage !";
 
-    private static final String REPOSITORY_NOT_FOUND = "Repository was not found.";
+    private static final String STORAGE_NOT_FOUND = "The storage was not found.";
 
-    private static final String FAILED_GET_REPOSITORY = "Failed to get repository !";
+    private static final String FAILED_REPOSITORY_REMOVAL = "Failed to remove the repository !";
+
+    private static final String REPOSITORY_NOT_FOUND = "The repository was not found.";
+
+    private static final String FAILED_GET_REPOSITORY = "Failed to get the repository !";
 
     private final StorageManagementService storageManagementService;
 
@@ -93,22 +99,24 @@ public class StoragesConfigurationController
         this.repositoryIndexManager = repositoryIndexManager;
     }
 
-    @ApiOperation(value = "Add/update a storage.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was updated successfully."),
+    @ApiOperation(value = "Adds a storage.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was created successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
                                                                           MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity saveStorage(
+    public ResponseEntity createStorage(
             @RequestBody @Validated({ Default.class,
+                                      StorageForm.NewStorage.class,
                                       ProxyConfigurationFormChecks.class }) StorageForm storageForm,
             BindingResult bindingResult,
             @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         if (bindingResult.hasErrors())
         {
-            throw new RequestBodyValidationException(FAILED_SAVE_STORAGE, bindingResult);
+            throw new RequestBodyValidationException(FAILED_SAVE_STORAGE_FORM_ERROR, bindingResult);
         }
+
         try
         {
             MutableStorage storage = conversionService.convert(storageForm, MutableStorage.class);
@@ -119,13 +127,54 @@ public class StoragesConfigurationController
                 storageManagementService.createStorage(storage);
             }
 
-            return getSuccessfulResponseEntity(SUCCESSFUL_STORAGE_SAVE, accept);
+            return getSuccessfulResponseEntity(SUCCESSFUL_SAVE_STORAGE, accept);
         }
         catch (ConfigurationException | IOException e)
         {
-            logger.error(e.getMessage(), e);
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_SAVE_STORAGE_ERROR, e, accept);
+        }
+    }
 
-            return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_STORAGE_SAVE, accept);
+    @ApiOperation(value = "Updates a storage.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was updated successfully."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
+    @PutMapping(value = "{storageId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                                                                 MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity updateStorage(
+            @ApiParam(value = "The storageId", required = true)
+            @PathVariable String storageId,
+            @RequestBody @Validated({ Default.class,
+                                      StorageForm.ExistingStorage.class,
+                                      ProxyConfigurationFormChecks.class }) StorageForm storageFormToUpdate,
+            BindingResult bindingResult,
+            @RequestHeader(HttpHeaders.ACCEPT) String accept)
+    {
+        if (bindingResult.hasErrors())
+        {
+            throw new RequestBodyValidationException(FAILED_UPDATE_STORAGE_FORM_ERROR, bindingResult);
+        }
+
+        if (!StringUtils.equals(storageId, storageFormToUpdate.getId()))
+        {
+            return getNotFoundResponseEntity(FAILED_UPDATE_STORAGE_ERROR, accept);
+        }
+
+        try
+        {
+            MutableStorage storage = conversionService.convert(storageFormToUpdate, MutableStorage.class);
+            configurationManagementService.saveStorage(storage);
+
+            if (!storage.existsOnFileSystem())
+            {
+                storageManagementService.createStorage(storage);
+            }
+
+            return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE_STORAGE, accept);
+        }
+        catch (ConfigurationException | IOException e)
+        {
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_UPDATE_STORAGE_ERROR, e, accept);
         }
     }
 
@@ -145,7 +194,7 @@ public class StoragesConfigurationController
     @JsonView(Views.LongStorage.class)
     @ApiOperation(value = "Retrieve the configuration of a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 404, message = "Storage ${storageId} was not found.") })
+                            @ApiResponse(code = 404, message = "The storage ${storageId} was not found.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
     @GetMapping(value = "/{storageId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getStorage(@ApiParam(value = "The storageId", required = true)
@@ -165,7 +214,7 @@ public class StoragesConfigurationController
 
     @ApiOperation(value = "Deletes a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was removed successfully."),
-                            @ApiResponse(code = 404, message = "Storage ${storageId} not found!"),
+                            @ApiResponse(code = 404, message = "The storage ${storageId} was not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove storage ${storageId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_STORAGE_CONFIGURATION')")
     @DeleteMapping(value = "/{storageId}", produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -196,9 +245,7 @@ public class StoragesConfigurationController
             }
             catch (ConfigurationException | IOException e)
             {
-                logger.error(e.getMessage(), e);
-
-                return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_STORAGE_REMOVAL, accept);
+                return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_STORAGE_REMOVAL, e, accept);
             }
         }
         else
@@ -209,13 +256,11 @@ public class StoragesConfigurationController
 
     @ApiOperation(value = "Adds or updates a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully."),
-                            @ApiResponse(code = 404, message = "Repository ${repositoryId} not found!"),
-                            @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!") })
+                            @ApiResponse(code = 404, message = "The repository ${repositoryId} was not found!"),
+                            @ApiResponse(code = 500, message = "Failed to remove the repository ${repositoryId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
-    @PutMapping(value = "/{storageId}/{repositoryId}",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
+    @PutMapping(value = "/{storageId}/{repositoryId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                                                                                 MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addOrUpdateRepository(@ApiParam(value = "The storageId", required = true)
                                                 @PathVariable String storageId,
                                                 @ApiParam(value = "The repositoryId", required = true)
@@ -227,31 +272,37 @@ public class StoragesConfigurationController
                                                 BindingResult bindingResult,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        if (bindingResult.hasErrors())
+
+        if (configurationManagementService.getConfiguration().getStorage(storageId) != null)
         {
-            throw new RequestBodyValidationException(FAILED_SAVE_REPOSITORY, bindingResult);
-        }
-        try
-        {
-            MutableRepository repository = conversionService.convert(repositoryForm, MutableRepository.class);
-
-            logger.debug("Creating repository " + storageId + ":" + repositoryId + "...");
-
-            configurationManagementService.saveRepository(storageId, repository);
-
-            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
-            if (!Files.exists(repositoryPath))
+            if (bindingResult.hasErrors())
             {
-                repositoryManagementService.createRepository(storageId, repository.getId());
+                throw new RequestBodyValidationException(FAILED_SAVE_REPOSITORY, bindingResult);
             }
 
-            return getSuccessfulResponseEntity(SUCCESSFUL_REPOSITORY_SAVE, accept);
-        }
-        catch (IOException | ConfigurationException | RepositoryManagementStrategyException e)
-        {
-            logger.error(e.getMessage(), e);
+            try
+            {
+                MutableRepository repository = conversionService.convert(repositoryForm, MutableRepository.class);
 
-            return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_SAVE, accept);
+                logger.debug("Creating repository " + storageId + ":" + repositoryId + "...");
+
+                configurationManagementService.saveRepository(storageId, repository);
+
+                final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
+                if (!Files.exists(repositoryPath))
+                {
+                    repositoryManagementService.createRepository(storageId, repository.getId());
+                }
+
+                return getSuccessfulResponseEntity(SUCCESSFUL_REPOSITORY_SAVE, accept);
+            }
+            catch (IOException | ConfigurationException | RepositoryManagementStrategyException e)
+            {
+                return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_SAVE, e, accept);}
+        }
+        else
+        {
+            return getFailedResponseEntity(HttpStatus.NOT_FOUND, STORAGE_NOT_FOUND, accept);
         }
     }
 
@@ -260,7 +311,7 @@ public class StoragesConfigurationController
                                          message = "The repository was updated successfully.",
                                          response = MutableRepository.class),
                             @ApiResponse(code = 404,
-                                         message = "Repository ${storageId}:${repositoryId} was not found!") })
+                                         message = "The repository ${storageId}:${repositoryId} was not found!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
     @GetMapping(value = "/{storageId}/{repositoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getRepository(@ApiParam(value = "The storageId", required = true)
@@ -286,17 +337,15 @@ public class StoragesConfigurationController
         }
         catch (Exception e)
         {
-            logger.error(e.getMessage(), e);
-
-            return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_GET_REPOSITORY,
-                                           MediaType.APPLICATION_JSON_VALUE);
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_GET_REPOSITORY, e,
+                                              MediaType.APPLICATION_JSON_VALUE);
         }
     }
 
     @ApiOperation(value = "Deletes a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was deleted successfully."),
-                            @ApiResponse(code = 404, message = "Repository ${storageId}:${repositoryId} was not found!"),
-                            @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!") })
+                            @ApiResponse(code = 404, message = "The repository ${storageId}:${repositoryId} was not found!"),
+                            @ApiResponse(code = 500, message = "Failed to remove the repository ${repositoryId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_REPOSITORY')")
     @DeleteMapping(value = "/{storageId}/{repositoryId}", produces = { MediaType.TEXT_PLAIN_VALUE,
                                                                        MediaType.APPLICATION_JSON_VALUE })
@@ -334,9 +383,7 @@ public class StoragesConfigurationController
             }
             catch (IOException | ConfigurationException e)
             {
-                logger.error(e.getMessage(), e);
-
-                return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_REMOVAL, accept);
+                return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_REMOVAL, e, accept);
             }
         }
         else

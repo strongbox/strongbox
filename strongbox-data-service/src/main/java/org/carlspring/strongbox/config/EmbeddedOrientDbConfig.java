@@ -43,7 +43,8 @@ class EmbeddedOrientDbConfig
     OrientDB orientDB()
             throws IOException, URISyntaxException
     {
-        OrientDB orientDB = new OrientDB(StringUtils.substringBeforeLast(connectionConfig.getUrl(), "/"),
+        String url = StringUtils.substringBeforeLast(connectionConfig.getUrl(), "/");
+        OrientDB orientDB = new OrientDB(url,
                                          connectionConfig.getUsername(),
                                          connectionConfig.getPassword(),
                                          getOrientDBConfig());
@@ -52,7 +53,7 @@ class EmbeddedOrientDbConfig
         if (!orientDB.exists(database))
         {
             logger.info(String.format("Database does not exist. Copying fresh database snapshot from [%s]...",
-                                      databaseSnapshotResource.getURI()));
+                                      databaseSnapshotResource));
 
             Path snapshotPath;
             try

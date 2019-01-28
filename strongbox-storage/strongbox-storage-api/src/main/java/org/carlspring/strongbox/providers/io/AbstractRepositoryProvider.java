@@ -8,22 +8,18 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.ArtifactGroup;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.io.RepositoryStreamReadContext;
 import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
 import org.carlspring.strongbox.io.StreamUtils;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.ArtifactGroupService;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +28,6 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.Optional;
-import java.util.Set;
 
 import org.apache.commons.io.output.CountingOutputStream;
 import org.slf4j.Logger;
@@ -166,16 +161,7 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
     public void onAfterWrite(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        logger.debug(String.format("Closing [%s]", repositoryPath));
-               
-        ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
-        if (artifactEntry == null)
-        {          
-            return;
-        }
-        
-        CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
-        artifactEntry.setSizeInBytes(cos.getByteCount());
+        logger.debug(String.format("Complete writing [%s]", repositoryPath));             
     }
 
     @Override
@@ -203,7 +189,28 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
     @Override
     public void onAfterRead(RepositoryStreamReadContext ctx)
     {
-        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(ctx.getPath());
+        RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
+        logger.debug(String.format("Complete reading [%s]", repositoryPath));
+        
+        artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(repositoryPath);
+    }
+
+    @Override
+    public void commit(RepositoryStreamWriteContext ctx) throws IOException
+    {
+        RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
+        ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
+        
+        repositoryPath.artifactEntry = null;
+        if (artifactEntry == null)
+        {
+            return;
+        }
+        
+        CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
+        artifactEntry.setSizeInBytes(cos.getByteCount());
+        
+        artifactEntryService.save(artifactEntry, true);
     }
 
     protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
@@ -250,53 +257,5 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         
         return selector;
     }
-
-    @Component
-    private static class ArtifactStoredEventListener
-    {
-        @Inject
-        private LayoutProviderRegistry layoutProviderRegistry;
-        
-        @Inject
-        private ArtifactEntryService artifactEntryService;
-
-        @Inject
-        private ArtifactGroupService artifactGroupService;
-        
-        @EventListener
-        public void handleEvent(ArtifactEvent<RepositoryPath> event)
-                throws IOException
-        {
-            if (ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED.getType() != event.getType())
-            {
-                return;
-            }
-            
-            RepositoryPath repositoryPath = event.getPath();
-            ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
-            
-            repositoryPath.artifactEntry = null;
-
-            if (artifactEntry == null)
-            {
-                return;
-            }
-
-            artifactEntry.setArtifactGroups(getArtifactGroups(repositoryPath));
-
-            artifactEntryService.save(artifactEntry, true);
-        }
-
-        @Nonnull
-        private Set<ArtifactGroup> getArtifactGroups(final RepositoryPath repositoryPath)
-                throws IOException
-        {
-            final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repositoryPath.getRepository()
-                                                                                                   .getLayout());
-
-            return layoutProvider.getArtifactGroups(repositoryPath);
-        }
-
-    }
-
+    
 }
