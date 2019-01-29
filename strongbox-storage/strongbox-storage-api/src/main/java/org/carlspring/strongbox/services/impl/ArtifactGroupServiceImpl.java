@@ -46,7 +46,7 @@ public class ArtifactGroupServiceImpl
 
         try
         {
-            return getDelegate().detach(save(artifactGroup));
+            return save(artifactGroup);
         }
         catch (ONeedRetryException ex)
         {
