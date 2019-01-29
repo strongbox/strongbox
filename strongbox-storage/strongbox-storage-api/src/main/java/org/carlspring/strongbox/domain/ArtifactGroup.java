@@ -25,22 +25,20 @@ public abstract class ArtifactGroup
      */
     private String name;
 
-    private String type;
-
-    public ArtifactGroup()
+    protected ArtifactGroup()
     {
-        type = getClass().getName();
+        this(null);
+    }
+
+    protected ArtifactGroup(final String name)
+    {
+        this.name = name;
     }
 
     @Nonnull
     public Set<ArtifactEntry> getArtifactEntries()
     {
         return artifactEntries != null ? artifactEntries : Collections.emptySet();
-    }
-
-    public void setArtifactEntries(Set<ArtifactEntry> artifactEntries)
-    {
-        this.artifactEntries = artifactEntries;
     }
 
     public void addArtifactEntry(ArtifactEntry artifactEntry)
@@ -55,20 +53,5 @@ public abstract class ArtifactGroup
     public String getName()
     {
         return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public String getType()
-    {
-        return type;
-    }
-
-    public void setType(String type)
-    {
-        this.type = type;
     }
 }

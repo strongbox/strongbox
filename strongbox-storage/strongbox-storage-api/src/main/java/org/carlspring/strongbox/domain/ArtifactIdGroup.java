@@ -10,6 +10,16 @@ public class ArtifactIdGroup
         extends ArtifactGroup
 {
 
+    public ArtifactIdGroup()
+    {
+        super();
+    }
+
+    public ArtifactIdGroup(final String name)
+    {
+        super(name);
+    }
+
     public String getArtifactId()
     {
         return getName();

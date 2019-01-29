@@ -102,6 +102,6 @@ class AbstractLayoutProviderTest
         MatcherAssert.assertThat(artifactGroups.size(), CoreMatchers.equalTo(1));
         ArtifactGroup artifactGroup = artifactGroups.iterator().next();
         MatcherAssert.assertThat(artifactGroup.getName(), CoreMatchers.equalTo("abs-lay-prov-test"));
-        MatcherAssert.assertThat(artifactGroup.getType(), CoreMatchers.equalTo(ArtifactIdGroup.class.getName()));
+        MatcherAssert.assertThat(artifactGroup.getClass(), CoreMatchers.equalTo(ArtifactIdGroup.class));
     }
 }

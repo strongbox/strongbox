@@ -65,13 +65,13 @@ public class ArtifactGroupServiceImpl
         T artifactGroup;
         try
         {
-            artifactGroup = type.newInstance();
+            artifactGroup = type.getConstructor(String.class)
+                                .newInstance(name);
         }
         catch (Exception e)
         {
             throw new UndeclaredThrowableException(e);
         }
-        artifactGroup.setName(name);
         return artifactGroup;
     }
 
@@ -79,10 +79,9 @@ public class ArtifactGroupServiceImpl
                                                           String name)
     {
         Map<String, String> params = new HashMap<>();
-        params.put("type", type.getName());
         params.put("name", name);
 
-        String sQuery = buildQuery(params);
+        String sQuery = buildQuery(params, type);
 
         OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);

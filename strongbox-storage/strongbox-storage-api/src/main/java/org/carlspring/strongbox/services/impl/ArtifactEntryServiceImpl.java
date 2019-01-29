@@ -6,7 +6,6 @@ import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactGroup;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
@@ -49,9 +48,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
 
     @Inject
     private ArtifactGroupService artifactGroupService;
-
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Override
     public <S extends ArtifactEntry> S save(S entity,
