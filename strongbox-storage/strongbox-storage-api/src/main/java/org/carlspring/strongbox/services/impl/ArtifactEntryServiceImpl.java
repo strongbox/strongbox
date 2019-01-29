@@ -5,6 +5,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactGroup;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactGroupService;
@@ -56,34 +57,28 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         //this needed to update `ArtifactEntry.path` property
         entity.setArtifactCoordinates(entity.getArtifactCoordinates());
 
-        if(artifactEntryIsSavedForTheFirstTime(entity))
+        if (artifactEntryIsSavedForTheFirstTime(entity))
         {
             entity.setCreated(new Date());
         }
 
-
-        ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
-        if (coordinates == null)
-        {
-            return saveWithGroups(entity);
-        }
-
+        ArtifactGroup artifactGroup = artifactGroupService.findOneOrCreate(ArtifactIdGroup.class,
+                                                                           entity.getArtifactCoordinates().getId());
         if (updateLastVersion)
         {
-            updateLastVersionTag(entity);
+            updateLastVersionTag(entity, artifactGroup);
         }
 
-        return saveWithGroups(entity);
+        return saveWithGroup(entity, artifactGroup);
     }
 
-    private <S extends ArtifactEntry> S saveWithGroups(S entity)
+    private <S extends ArtifactEntry> S saveWithGroup(S entity,
+                                                      ArtifactGroup artifactGroup)
     {
         S result = super.save(entity);
-        entity.getArtifactGroups().stream()
-              .forEach(ag -> {
-                  ag.addArtifactEntry(result);
-                  artifactGroupService.save(ag);
-              });
+
+        artifactGroup.addArtifactEntry(result);
+        artifactGroupService.save(artifactGroup);
 
         return result;
     }
@@ -99,26 +94,21 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         return save(entity, false);
     }
 
-    private <S extends ArtifactEntry> void updateLastVersionTag(S entity)
+    private <S extends ArtifactEntry> void updateLastVersionTag(S entity,
+                                                                ArtifactGroup artifactGroup)
     {
         ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
         Assert.notNull(coordinates, "coordinates should not be null");
 
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
 
-        entity.getArtifactGroups()
-              .stream()
-              .forEach(artifactGroup ->
-                       {
-                           Set<ArtifactEntry> lastVersionEntries = findLastVersionArtifactEntries(artifactGroup,
-                                                                                                  lastVersionTag,
-                                                                                                  entity);
-                           lastVersionEntries.stream()
-                                             .forEach(lastVersionEntry -> {
-                                                 setLastVersionTag(lastVersionEntry, entity, lastVersionTag);
-                                             });
-                       }
-              );
+        Set<ArtifactEntry> lastVersionEntries = findLastVersionArtifactEntries(artifactGroup,
+                                                                               lastVersionTag,
+                                                                               entity);
+        lastVersionEntries.stream()
+                          .forEach(lastVersionEntry -> {
+                              setLastVersionTag(lastVersionEntry, entity, lastVersionTag);
+                          });
     }
 
     private <S extends ArtifactEntry> void setLastVersionTag(ArtifactEntry lastVersionEntry,
