@@ -49,6 +49,8 @@ class AbstractLayoutProviderTest
     @Inject
     private ApplicationContext ctx;
 
+    @SuppressWarnings({ "PMD.UnusedPrivateField",
+                        "PMD.SingularField" })
     @Spy
     private ArtifactGroupService artifactGroupService;
 
