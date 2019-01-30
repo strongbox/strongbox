@@ -56,7 +56,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
     @Inject
     private ArtifactGroupService artifactGroupService;
-    
+
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
 
@@ -65,7 +65,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     protected abstract boolean isArtifactMetadata(RepositoryPath repositoryPath);
 
     protected abstract T getArtifactCoordinates(RepositoryPath repositoryPath) throws IOException;
-    
+
     protected Set<String> getDigestAlgorithmSet()
     {
         return Stream.of(MessageDigestAlgorithms.MD5, MessageDigestAlgorithms.SHA_1)
@@ -86,11 +86,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                 return true;
             }
         }
-        
+
         return false;
     }
 
-    
+
     protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryPath,
                                                                                    RepositoryFileAttributeType... attributeTypes)
         throws IOException
@@ -109,11 +109,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             default:
                 Map<RepositoryFileAttributeType, Object> attributesLocal;
                 value = null;
-                
+
                 break;
             case CHECKSUM:
                 value = isChecksum(repositoryPath);
-                
+
                 break;
             case TEMP:
                 value = repositoryPath.isAbsolute()
@@ -127,44 +127,44 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                         && repositoryPath.startsWith(repositoryPath.getFileSystem()
                                                                    .getRootDirectory()
                                                                    .resolve(LayoutFileSystem.TRASH));
-                
+
                 break;
             case METADATA:
                 value = isArtifactMetadata(repositoryPath);
-                
+
                 break;
             case ARTIFACT:
                 attributesLocal = getRepositoryFileAttributes(repositoryPath,
                                                               RepositoryFileAttributeType.CHECKSUM);
-                
+
                 boolean isChecksum = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.CHECKSUM));
                 boolean isDirectory = Files.isDirectory(repositoryPath);
-                
+
                 value = !isChecksum && !isDirectory;
-                
+
                 break;
             case COORDINATES:
                 attributesLocal = getRepositoryFileAttributes(repositoryPath,
                                                               RepositoryFileAttributeType.ARTIFACT);
-                
+
                 boolean isArtifact = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.ARTIFACT));
-                
+
                 value = isArtifact ? getArtifactCoordinates(repositoryPath) : null;
                 break;
             case RESOURCE_URL:
                 value = resolveResource(repositoryPath);
-                
+
                 break;
             case ARTIFACT_PATH:
                 value = RepositoryFiles.relativizePath(repositoryPath);
 
                 break;
-                
+
             case STORAGE_ID:
                 value = repositoryPath.getRepository().getStorage().getId();
 
                 break;
-                
+
             case REPOSITORY_ID:
                 value = repositoryPath.getRepository().getId();
 
@@ -183,7 +183,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
         return result;
     }
-    
+
     public URL resolveResource(RepositoryPath repositoryPath)
             throws IOException
     {
@@ -224,8 +224,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             throws IOException
     {
         T artifactCoordinates = getArtifactCoordinates(path);
-        String groupName = artifactCoordinates.getId();
-        ArtifactIdGroup artifactIdGroup = artifactGroupService.findOneOrCreate(ArtifactIdGroup.class, groupName);
+        ArtifactIdGroup artifactIdGroup = artifactGroupService.findOneOrCreate(ArtifactIdGroup.class,
+                                                                               ArtifactIdGroup.createName(
+                                                                                       artifactCoordinates));
         return Sets.newHashSet(artifactIdGroup);
     }
 }

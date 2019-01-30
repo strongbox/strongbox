@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
@@ -30,6 +31,7 @@ class ArtifactGroupServiceImplTest
     ArtifactGroupService artifactGroupService;
 
     @Test
+    @Disabled // requires https://github.com/strongbox/strongbox-db/pull/5/files
     public void artifactIdGroupShouldBeProtectedByNameIndex()
     {
         Assertions.assertThrows(ORecordDuplicatedException.class, () -> {

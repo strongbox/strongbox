@@ -66,7 +66,8 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         }
 
         ArtifactGroup artifactGroup = artifactGroupService.findOneOrCreate(ArtifactIdGroup.class,
-                                                                           entity.getArtifactCoordinates().getId());
+                                                                           ArtifactIdGroup.createName(
+                                                                                   entity.getArtifactCoordinates()));
         if (updateLastVersion)
         {
             updateLastVersionTag(entity, artifactGroup);

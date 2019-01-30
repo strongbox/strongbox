@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.domain;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+
 import javax.persistence.Entity;
 
 /**
@@ -23,6 +25,11 @@ public class ArtifactIdGroup
     public String getArtifactId()
     {
         return getName();
+    }
+
+    public static String createName(ArtifactCoordinates artifactCoordinates)
+    {
+        return String.format("%s/%s", artifactCoordinates.getClass().getSimpleName(), artifactCoordinates.getId());
     }
 
 }
