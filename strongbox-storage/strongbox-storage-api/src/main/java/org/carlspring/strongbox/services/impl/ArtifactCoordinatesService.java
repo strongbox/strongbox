@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
 import org.carlspring.strongbox.data.service.CommonCrudService;
-
-import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import org.springframework.stereotype.Component;
 
 import com.orientechnologies.orient.core.id.ORID;
@@ -48,20 +45,6 @@ public class ArtifactCoordinatesService extends CommonCrudService<AbstractArtifa
         entity.setObjectId(objectId.toString());
 
         return true;
-    }
-
-    @Override
-    protected <S extends AbstractArtifactCoordinates> S cascadeEntitySave(AbstractArtifactCoordinates entity)
-    {
-        try
-        {
-            return super.cascadeEntitySave(entity);
-        }
-        catch (OConcurrentModificationException ex)
-        {
-            return (S) findOne(entity.getObjectId())
-                               .orElseThrow(() -> ex);
-        }
     }
 
     @Override
