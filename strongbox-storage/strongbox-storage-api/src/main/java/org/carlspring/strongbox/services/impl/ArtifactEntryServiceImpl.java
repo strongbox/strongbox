@@ -50,6 +50,9 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     @Inject
     private ArtifactGroupService artifactGroupService;
 
+    @Inject
+    private ArtifactCoordinatesService artifactCoordinatesService;
+
     @Override
     public <S extends ArtifactEntry> S save(S entity,
                                             boolean updateLastVersion)
@@ -111,7 +114,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                           });
     }
 
-    private <S extends ArtifactEntry> void setLastVersionTag(ArtifactEntry lastVersionEntry,
+    private <S extends ArtifactEntry> void setLastVersionTag(S lastVersionEntry,
                                                              S entity,
                                                              ArtifactTag lastVersionTag)
     {
@@ -133,7 +136,10 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                        lastVersionEntry.getArtifactCoordinates().getVersion(),
                                        coordinates.getVersion()));
             entity.getTagSet().add(lastVersionTag);
+
             lastVersionEntry.getTagSet().remove(lastVersionTag);
+            // OConcurrentModificationException
+            reloadArtifactCoordinates(lastVersionEntry);
 
             super.save(lastVersionEntry);
         }
@@ -144,6 +150,12 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                        lastVersionEntry.getArtifactCoordinates().getVersion()));
             entity.getTagSet().remove(lastVersionTag);
         }
+    }
+
+    private <S extends ArtifactEntry> void reloadArtifactCoordinates(S entity)
+    {
+        entity.setArtifactCoordinates(
+                artifactCoordinatesService.findOne(entity.getArtifactCoordinates().getObjectId()).get());
     }
 
     private <S extends ArtifactEntry> Set<ArtifactEntry> findLastVersionArtifactEntries(ArtifactGroup artifactGroup,
