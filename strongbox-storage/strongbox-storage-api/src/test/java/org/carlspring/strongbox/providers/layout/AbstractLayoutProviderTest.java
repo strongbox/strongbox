@@ -103,7 +103,8 @@ class AbstractLayoutProviderTest
         MatcherAssert.assertThat(artifactGroups, Matchers.notNullValue());
         MatcherAssert.assertThat(artifactGroups.size(), CoreMatchers.equalTo(1));
         ArtifactGroup artifactGroup = artifactGroups.iterator().next();
-        MatcherAssert.assertThat(artifactGroup.getName(), CoreMatchers.equalTo("abs-lay-prov-test"));
+        MatcherAssert.assertThat(artifactGroup.getName(), CoreMatchers.endsWith("/abs-lay-prov-test"));
+        MatcherAssert.assertThat(artifactGroup.getName(), CoreMatchers.startsWith("AbstractArtifactCoordinates"));
         MatcherAssert.assertThat(artifactGroup.getClass(), CoreMatchers.equalTo(ArtifactIdGroup.class));
     }
 }
