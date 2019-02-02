@@ -35,7 +35,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 /**
  * @author Kate Novik.
  */
-@ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
@@ -74,7 +73,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                          RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                          false);
 
-        File repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS);
+        File repositoryBasedir = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo));
 
         createTimestampedSnapshotArtifact(repositoryBasedir.getAbsolutePath(),
                                           "org.carlspring.strongbox",
@@ -120,7 +119,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     {
         final String jobName = expectedJobName;
 
-        String artifactPath = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS) +
+        String artifactPath = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo)) +
                               "/org/carlspring/strongbox/strongbox-timestamped-first";
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
@@ -163,7 +162,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     {
         final String jobName = expectedJobName;
 
-        String artifactPath = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS) +
+        String artifactPath = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo)) +
                               "/org/carlspring/strongbox/strongbox-timestamped-second";
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
