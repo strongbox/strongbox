@@ -51,6 +51,12 @@ public class EmbeddedOrientDbServer
 
     @Value("${" + ConnectionConfigOrientDB.PROPERTY_STUDIO_ENABLED + ":true}")
     private boolean studioEnabled;
+    
+    @Value("${" + ConnectionConfigOrientDB.PROPERTY_STUDIO_IP_ADDRESS + ":127.0.0.1}")
+    private String studioIpAddress;
+    
+    @Value("${" + ConnectionConfigOrientDB.PROPERTY_STUDIO_PORT + ":2480}")
+    private int studioPort;    
 
     @Inject
     private ConnectionConfig connectionConfig;
@@ -98,8 +104,8 @@ public class EmbeddedOrientDbServer
         
         
         OServerNetworkListenerConfiguration httpListener = new OServerNetworkListenerConfiguration();
-        httpListener.ipAddress = connectionConfig.getHost();
-        httpListener.portRange = "2480";
+        httpListener.ipAddress = studioIpAddress;
+        httpListener.portRange = String.valueOf(studioPort);
         httpListener.protocol = "http";
         httpListener.socket = "default";
 
@@ -184,9 +190,6 @@ public class EmbeddedOrientDbServer
         String database = connectionConfig.getDatabase();
 
         logger.info(String.format("Initialized Embedded OrientDB server for [%s]", database));
-
-        // Don't touch below line. Don't move it down the code. It needs to be called before OServerMain.create()
-        System.setProperty("network.binary.maxLength", "64000");
 
         server = OServerMain.create();
         serverConfiguration = new OServerConfiguration();

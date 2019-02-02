@@ -2,6 +2,7 @@ package org.carlspring.strongbox.forms.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.datastore.StorageProviderEnum;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
@@ -31,7 +32,9 @@ public class StorageFormTestIT
         extends RestAssuredBaseTest
 {
 
-    private static final String ID_VALID = "id";
+    private static final String ID_VALID = "new-storage";
+    private static final String BASEDIR_VALID =
+            ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + ID_VALID;
     private List<RepositoryForm> repositories;
 
     @Inject
@@ -76,6 +79,7 @@ public class StorageFormTestIT
         // given
         StorageForm storageForm = new StorageForm();
         storageForm.setId(ID_VALID);
+        storageForm.setBasedir(BASEDIR_VALID);
         storageForm.setRepositories(repositories);
 
         // when
@@ -91,6 +95,7 @@ public class StorageFormTestIT
         // given
         StorageForm storageForm = new StorageForm();
         storageForm.setId(StringUtils.EMPTY);
+        storageForm.setBasedir(BASEDIR_VALID);
         storageForm.setRepositories(repositories);
 
         // when
@@ -108,6 +113,7 @@ public class StorageFormTestIT
         // given
         StorageForm storageForm = new StorageForm();
         storageForm.setId(ID_VALID);
+        storageForm.setBasedir(BASEDIR_VALID);
 
         repositories.forEach(r -> r.setHttpConnectionPool(-1));
         storageForm.setRepositories(repositories);

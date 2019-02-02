@@ -180,21 +180,7 @@ public class MavenTestCaseWithArtifactGeneration
                     repositoryPath = RepositoryFiles.trash(repositoryPath);
                 }
                 
-                RepositoryPath finalRepositoryPath = repositoryPath;
-                OutputStream outputStream = hostedRepositoryProvider.getOutputStream(repositoryPath);
-                outputStream = new FilterOutputStream(outputStream) {
-
-                    @Override
-                    public void close()
-                        throws IOException
-                    {
-                        super.close();
-                        artifactEventListenerRegistry.dispatchArtifactStoredEvent(finalRepositoryPath);
-                    }
-                    
-                };
-                
-                return outputStream;
+                return hostedRepositoryProvider.getOutputStream(repositoryPath);
             }
             
         };

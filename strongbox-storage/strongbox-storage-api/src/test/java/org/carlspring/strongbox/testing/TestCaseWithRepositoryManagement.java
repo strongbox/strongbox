@@ -116,9 +116,9 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
                     fos.write(buffer, 0, len);
                 }
             }
+            
+            fos.flush();
         }
-        
-        artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
     }
 
 }

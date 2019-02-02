@@ -51,9 +51,7 @@ Welcome to the Strongbox artifact repository manager's home.
 * Logging:
   * Retrieve logs over HTTP
 
-## What's in the works (Q4/2018):
-* Layout providers
-  * PyPi layout provider
+## What's in the works (Q1/2019):
 * Web UI
 * Spring Bootification
 * RPM distribution ([#855](https://github.com/strongbox/strongbox/pull/855))

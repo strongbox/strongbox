@@ -2,8 +2,12 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.server.OrientDbServer;
+import org.carlspring.strongbox.util.FileSystemUtils;
+import org.carlspring.strongbox.util.JarFileUtils;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -15,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.core.io.Resource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-import org.springframework.util.FileSystemUtils;
 
 /**
  * @author Przemyslaw Fusik
@@ -32,15 +35,16 @@ class EmbeddedOrientDbConfig
     @Value("${strongbox.server.database.path:strongbox-vault/db}")
     private String databasePath;
 
-    @Value("${strongbox.database.snapshot.resource:classpath:/db-snapshot}")
+    @Value("${strongbox.database.snapshot.resource:classpath:/db-import}")
     private Resource databaseSnapshotResource;
 
     @Bean(destroyMethod = "close")
     @DependsOn("orientDbServer")
     OrientDB orientDB()
-            throws IOException
+            throws IOException, URISyntaxException
     {
-        OrientDB orientDB = new OrientDB(StringUtils.substringBeforeLast(connectionConfig.getUrl(), "/"),
+        String url = StringUtils.substringBeforeLast(connectionConfig.getUrl(), "/");
+        OrientDB orientDB = new OrientDB(url,
                                          connectionConfig.getUsername(),
                                          connectionConfig.getPassword(),
                                          getOrientDBConfig());
@@ -49,9 +53,17 @@ class EmbeddedOrientDbConfig
         if (!orientDB.exists(database))
         {
             logger.info(String.format("Database does not exist. Copying fresh database snapshot from [%s]...",
-                                      databaseSnapshotResource.getURI()));
+                                      databaseSnapshotResource));
 
-            Path snapshotPath = Paths.get(databaseSnapshotResource.getURI());
+            Path snapshotPath;
+            try
+            {
+                snapshotPath = Paths.get(databaseSnapshotResource.getURI());
+            }
+            catch (FileSystemNotFoundException ex)
+            {
+                snapshotPath = JarFileUtils.resolvePathInJar(databaseSnapshotResource.getURI().toString());
+            }
             FileSystemUtils.copyRecursively(snapshotPath, Paths.get(databasePath));
         }
         else
