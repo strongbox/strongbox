@@ -65,7 +65,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                          false);
 
         snapshotArtifact_1 = createTimestampedSnapshotArtifact(
-                getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath(),
+                getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo)).getAbsolutePath(),
                 "org.carlspring.strongbox",
                 "strongbox-checksum-one",
                 "2.0",
@@ -73,7 +73,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                 null,
                 1);
         snapshotArtifact_2 = createTimestampedSnapshotArtifact(
-                getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath(),
+                getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo)).getAbsolutePath(),
                 "org.carlspring.strongbox",
                 "strongbox-checksum-second",
                 "2.0",
@@ -105,7 +105,7 @@ public class RegenerateMavenChecksumCronJobTestIT
     {
         final String jobName = expectedJobName;
 
-        String artifactPath = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath() +
+        String artifactPath = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo)).getAbsolutePath() +
                               "/org/carlspring/strongbox/strongbox-checksum-one";
 
         artifactMetadataService.rebuildMetadata(STORAGE0,
@@ -176,7 +176,7 @@ public class RegenerateMavenChecksumCronJobTestIT
     {
         final String jobName = expectedJobName;
 
-        String artifactPath = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath() +
+        String artifactPath = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo)).getAbsolutePath() +
                               "/org/carlspring/strongbox/strongbox-checksum-second";
 
         artifactMetadataService.rebuildMetadata(STORAGE0,
