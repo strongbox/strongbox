@@ -44,7 +44,7 @@ public class MavenDependencyFormatterTest
 
     private static final String REPOSITORY_RELEASES = "mdft-releases";
 
-    public static final String REPOSITORY_BASEDIR = ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/" + REPOSITORY_RELEASES;
+    public static final String REPOSITORY_BASEDIR = "target/strongbox-vault/storages/storage0/" + REPOSITORY_RELEASES;
 
     @Inject
     private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;

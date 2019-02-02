@@ -32,9 +32,13 @@ public class StorageFormTestIT
         extends RestAssuredBaseTest
 {
 
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
     private static final String ID_VALID = "new-storage";
-    private static final String BASEDIR_VALID =
-            ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + ID_VALID;
+
+    private static final String BASEDIR_VALID = "storages/" + ID_VALID;
+
     private List<RepositoryForm> repositories;
 
     @Inject
@@ -79,7 +83,7 @@ public class StorageFormTestIT
         // given
         StorageForm storageForm = new StorageForm();
         storageForm.setId(ID_VALID);
-        storageForm.setBasedir(BASEDIR_VALID);
+        storageForm.setBasedir(configurationResourceResolver.getVaultDirectory() + "/" + BASEDIR_VALID);
         storageForm.setRepositories(repositories);
 
         // when
@@ -95,7 +99,7 @@ public class StorageFormTestIT
         // given
         StorageForm storageForm = new StorageForm();
         storageForm.setId(StringUtils.EMPTY);
-        storageForm.setBasedir(BASEDIR_VALID);
+        storageForm.setBasedir(configurationResourceResolver.getVaultDirectory() + "/" + BASEDIR_VALID);
         storageForm.setRepositories(repositories);
 
         // when
@@ -113,7 +117,7 @@ public class StorageFormTestIT
         // given
         StorageForm storageForm = new StorageForm();
         storageForm.setId(ID_VALID);
-        storageForm.setBasedir(BASEDIR_VALID);
+        storageForm.setBasedir(configurationResourceResolver.getVaultDirectory() + "/" + BASEDIR_VALID);
 
         repositories.forEach(r -> r.setHttpConnectionPool(-1));
         storageForm.setRepositories(repositories);

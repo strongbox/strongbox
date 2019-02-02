@@ -42,12 +42,19 @@ public class StoragesConfigurationControllerTestIT
 {
 
     private static final String VALID_STORAGE_ID = "storage1";
+
     private static final String EXISTING_STORAGE_ID = STORAGE0;
+
     private RepositoryForm repositoryForm0;
+
     private RepositoryForm repositoryForm1;
 
     @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
+    @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+
 
     static ProxyConfigurationForm createProxyConfiguration()
     {
@@ -57,6 +64,7 @@ public class StoragesConfigurationControllerTestIT
         proxyConfiguration.setUsername("user1");
         proxyConfiguration.setPassword("pass2");
         proxyConfiguration.setType("http");
+
         List<String> nonProxyHosts = Lists.newArrayList();
         nonProxyHosts.add("localhost");
         nonProxyHosts.add("some-hosts.com");
@@ -71,6 +79,7 @@ public class StoragesConfigurationControllerTestIT
             throws Exception
     {
         super.init();
+
         setContextBaseUrl("/api/configuration/strongbox/storages");
 
         repositoryForm0 = new RepositoryForm();
@@ -98,13 +107,13 @@ public class StoragesConfigurationControllerTestIT
 
     private String getBaseDir(String storageId)
     {
-        String directory = ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + storageId;
+        String directory = configurationResourceResolver.getVaultDirectory() + "/storages/" + storageId;
+
         return Paths.get(directory).toAbsolutePath().toString();
     }
 
     @Test
     public void testGetStorages()
-            throws Exception
     {
         String url = getContextBaseUrl();
 
@@ -114,12 +123,10 @@ public class StoragesConfigurationControllerTestIT
                      .peek()
                      .then()
                      .statusCode(OK);
-
     }
 
     @Test
     public void testGetStorage()
-            throws Exception
     {
         String url = getContextBaseUrl() + "/" + EXISTING_STORAGE_ID;
 
@@ -133,7 +140,6 @@ public class StoragesConfigurationControllerTestIT
 
     @Test
     public void testGetGroupRepository()
-            throws Exception
     {
         String url = getContextBaseUrl() + "/storage-common-proxies/group-common-proxies";
 
@@ -147,7 +153,6 @@ public class StoragesConfigurationControllerTestIT
 
     @Test
     public void testGetMavenRepository()
-            throws Exception
     {
         String url = getContextBaseUrl() + "/" + EXISTING_STORAGE_ID + "/releases";
 
@@ -163,15 +168,12 @@ public class StoragesConfigurationControllerTestIT
     public void testCreateAndUpdateStorage()
     {
         final String storageId = VALID_STORAGE_ID;
-        final String repositoryId0 = repositoryForm0.getId();
-        final String repositoryId1 = repositoryForm1.getId();
 
         StorageForm storage1 = buildStorageForm(storageId);
 
         String url = getContextBaseUrl();
 
-        logger.debug("Using storage class " + storage1.getClass()
-                                                      .getName());
+        logger.debug("Using storage class " + storage1.getClass().getName());
 
         // 1. Create storage
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -185,6 +187,7 @@ public class StoragesConfigurationControllerTestIT
                      .body(containsString(SUCCESSFUL_SAVE_STORAGE));
 
         Storage storage = getStorage(storageId);
+
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
         assertEquals(storage.getBasedir(), storage1.getBasedir());
 
@@ -204,6 +207,7 @@ public class StoragesConfigurationControllerTestIT
                      .body(containsString(SUCCESSFUL_UPDATE_STORAGE));
 
         storage = getStorage(storageId);
+
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
         assertEquals(storage.getBasedir(), storage1.getBasedir(),
                      "Failed to update storage (" + storageId + ") basedir!");
@@ -347,12 +351,11 @@ public class StoragesConfigurationControllerTestIT
     {
         String url = getContextBaseUrl() + "/" + storageId;
 
-        return givenCustom()
-                       .accept(MediaType.APPLICATION_JSON_VALUE)
-                       .when()
-                       .get(url)
-                       .prettyPeek()
-                       .as(Storage.class);
+        return givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
+                            .when()
+                            .get(url)
+                            .prettyPeek()
+                            .as(Storage.class);
     }
 
     private void addRepository(RepositoryForm repository,
@@ -378,7 +381,6 @@ public class StoragesConfigurationControllerTestIT
         try
         {
             url = getContextBaseUrl() + "/" + storage.getId() + "/" + repository.getId();
-
 
             givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                          .accept(MediaType.APPLICATION_JSON_VALUE)
