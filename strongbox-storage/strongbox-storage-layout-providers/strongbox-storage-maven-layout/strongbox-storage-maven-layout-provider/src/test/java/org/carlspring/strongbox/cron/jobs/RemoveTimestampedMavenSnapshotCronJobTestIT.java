@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 /**
  * @author Kate Novik.
  */
+@ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
