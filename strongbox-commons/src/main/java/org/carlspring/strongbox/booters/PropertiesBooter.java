@@ -20,8 +20,11 @@ public class PropertiesBooter
     @Value("${strongbox.etc:strongbox/etc}")
     private String etcDirectory;
 
-    @Value("k${strongbox.temp:strongbox/tmp}")
+    @Value("${strongbox.temp:strongbox/tmp}")
     private String tempDirectory;
+
+    @Value("${logging.dir:strongbox-vault/logs}")
+    private String logsDirectory;
 
     @Value("${strongbox.storage.booter.basedir:strongbox-vault/storages}")
     private String storageBooterBasedir;
@@ -97,6 +100,16 @@ public class PropertiesBooter
         this.tempDirectory = tempDirectory;
     }
 
+    public String getLogsDirectory()
+    {
+        return logsDirectory;
+    }
+
+    public void setLogsDirectory(String logsDirectory)
+    {
+        this.logsDirectory = logsDirectory;
+    }
+
     public String getStorageBooterBasedir()
     {
         return storageBooterBasedir;
@@ -146,4 +159,5 @@ public class PropertiesBooter
     {
         this.strongboxNugetDownloadFeed = strongboxNugetDownloadFeed;
     }
+
 }

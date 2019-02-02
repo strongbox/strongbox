@@ -44,7 +44,6 @@ public class LoggingManagementControllerTestIT
     @Inject
     private PropertiesBooter propertiesBooter;
 
-    private final String logsHomeDirectory = propertiesBooter.getVaultDirectory() + "/logs";
 
     @Override
     @BeforeEach
@@ -234,7 +233,7 @@ public class LoggingManagementControllerTestIT
             throws Exception
     {
         String testLogName = "strongbox-test.log";
-        Files.createFile(Paths.get(logsHomeDirectory, testLogName))
+        Files.createFile(Paths.get(propertiesBooter.getLogsDirectory(), testLogName))
              .toFile()
              .deleteOnExit();
 
@@ -423,12 +422,12 @@ public class LoggingManagementControllerTestIT
             
             if (shouldICreateATestSubDirectory)
             {
-                logDirectoryPath = Paths.get(logsHomeDirectory, "/test");
+                logDirectoryPath = Paths.get(propertiesBooter.getLogsDirectory(), "/test");
                 Files.createDirectory(logDirectoryPath);
             }
             else
             {
-                logDirectoryPath = Paths.get(logsHomeDirectory);
+                logDirectoryPath = Paths.get(propertiesBooter.getLogsDirectory());
             }
             
             //Create 4 temporary log files from 0 to 3.
@@ -474,15 +473,15 @@ public class LoggingManagementControllerTestIT
         {
             if (wasATestSubDirectoryCreated)
             {
-                Path pathToLogHomeDirectory = Paths.get(logsHomeDirectory, "/test");
+                Path pathToLogHomeDirectory = Paths.get(propertiesBooter.getLogsDirectory(), "/test");
 
                 Files.walkFileTree(pathToLogHomeDirectory, new LogFileVisitor());
 
-                Files.delete(Paths.get(logsHomeDirectory, "/test"));
+                Files.delete(Paths.get(propertiesBooter.getLogsDirectory(), "/test"));
             }
             else
             {
-                Path pathToLogHomeDirectory = Paths.get(logsHomeDirectory);
+                Path pathToLogHomeDirectory = Paths.get(propertiesBooter.getLogsDirectory());
 
                 Files.walkFileTree(pathToLogHomeDirectory, new LogFileVisitor());
             }
