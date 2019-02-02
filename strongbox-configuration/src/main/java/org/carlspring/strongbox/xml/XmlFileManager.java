@@ -3,6 +3,7 @@ package org.carlspring.strongbox.xml;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -23,6 +24,7 @@ public abstract class XmlFileManager<T>
 {
 
     private final GenericParser<T> parser;
+
 
     public XmlFileManager()
     {
@@ -51,10 +53,11 @@ public abstract class XmlFileManager<T>
 
     public abstract String getDefaultLocation();
 
+    public abstract ConfigurationResourceResolver getConfigurationResourceResolver();
+
     public Resource getResource()
-            throws IOException
     {
-        return ConfigurationResourceResolver.getConfigurationResource(getPropertyKey(), getDefaultLocation());
+        return getConfigurationResourceResolver().getConfigurationResource(getPropertyKey(), getDefaultLocation());
     }
 
     public void store(final T configuration)
@@ -72,18 +75,12 @@ public abstract class XmlFileManager<T>
     public T read()
     {
         Resource resource;
-        try
+        resource = getResource();
+        if (!resource.exists())
         {
-            resource = getResource();
-            if (!resource.exists())
-            {
-                return null;
-            }
+            return null;
         }
-        catch (IOException e)
-        {
-            throw new UndeclaredThrowableException(e);
-        }
+        
         try (InputStream inputStream = new BufferedInputStream(resource.getInputStream()))
         {
             return parser.parse(inputStream);

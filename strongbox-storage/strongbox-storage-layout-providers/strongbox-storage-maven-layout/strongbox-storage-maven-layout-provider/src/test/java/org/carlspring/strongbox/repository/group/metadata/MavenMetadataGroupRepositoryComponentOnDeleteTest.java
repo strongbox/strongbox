@@ -6,7 +6,6 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.IndexedMaven2FileSystemProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -57,22 +56,6 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
 
     private static final String REPOSITORY_LEAF_K = "leaf-repo-k";
 
-    private static final File REPOSITORY_LEAF_L_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                   "/storages/" + STORAGE0 + "/" +
-                                                                   REPOSITORY_LEAF_L);
-
-    private static final File REPOSITORY_LEAF_D_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                   "/storages/" + STORAGE0 + "/" +
-                                                                   REPOSITORY_LEAF_D);
-
-    private static final File REPOSITORY_LEAF_G_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                   "/storages/" + STORAGE0 + "/" +
-                                                                   REPOSITORY_LEAF_G);
-
-    private static final File REPOSITORY_LEAF_K_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                   "/storages/" + STORAGE0 + "/" +
-                                                                   REPOSITORY_LEAF_K);
-
     private static final String REPOSITORY_GROUP_A = "group-repo-a";
 
     private static final String REPOSITORY_GROUP_B = "group-repo-b";
@@ -82,6 +65,7 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
     private static final String REPOSITORY_GROUP_F = "group-repo-f";
 
     private static final String REPOSITORY_GROUP_H = "group-repo-h";
+
 
     protected Set<MutableRepository> getRepositories()
     {
@@ -118,25 +102,25 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
         createGroup(REPOSITORY_GROUP_F, STORAGE0, REPOSITORY_GROUP_C, REPOSITORY_LEAF_D, REPOSITORY_LEAF_L);
         createGroup(REPOSITORY_GROUP_H, STORAGE0, REPOSITORY_GROUP_F, REPOSITORY_LEAF_K);
 
-        generateArtifact(REPOSITORY_LEAF_L_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_L).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-group",
                          new String[]{ "1.2.1",
                                        "1.2.2" }
         );
 
-        generateArtifact(REPOSITORY_LEAF_G_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_G).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-group",
                          new String[]{ "1.2.1",
                                        "1.2.2" }
         );
 
-        generateArtifact(REPOSITORY_LEAF_D_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_D).getAbsolutePath(),
                          "com.artifacts.to.update.releases:update-group",
                          new String[]{ "1.2.1",
                                        "1.2.2" }
         );
 
-        generateArtifact(REPOSITORY_LEAF_K_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_K).getAbsolutePath(),
                          "com.artifacts.to.update.releases:update-group",
                          new String[]{ "1.2.1" }
         );

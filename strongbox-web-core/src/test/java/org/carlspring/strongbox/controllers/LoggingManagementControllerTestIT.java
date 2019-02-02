@@ -4,6 +4,7 @@ import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -40,7 +41,10 @@ public class LoggingManagementControllerTestIT
 
     private static final String LOGGER_APPENDER = "CONSOLE";
 
-    private static final String LOGS_HOME_DIRECTORY = PropertiesBooter.getVaultDirectory() + "/logs";
+    @Inject
+    private PropertiesBooter propertiesBooter;
+
+    private final String logsHomeDirectory = propertiesBooter.getVaultDirectory() + "/logs";
 
     @Override
     @BeforeEach
@@ -230,7 +234,7 @@ public class LoggingManagementControllerTestIT
             throws Exception
     {
         String testLogName = "strongbox-test.log";
-        Files.createFile(Paths.get(LOGS_HOME_DIRECTORY, testLogName))
+        Files.createFile(Paths.get(logsHomeDirectory, testLogName))
              .toFile()
              .deleteOnExit();
 
@@ -408,7 +412,7 @@ public class LoggingManagementControllerTestIT
     }
     
     //This method creates temporary log files, and if necessary for subdirectory browsing, a log subdirectory.
-    private static Path[] createTestLogFilesAndDirectories(boolean shouldICreateATestSubDirectory)
+    private Path[] createTestLogFilesAndDirectories(boolean shouldICreateATestSubDirectory)
     {
         //If a test directory is needed, a new directory called `test` under `/logs/` will be created.
         //Otherwise the path of `/logs` will be returned.
@@ -419,12 +423,12 @@ public class LoggingManagementControllerTestIT
             
             if (shouldICreateATestSubDirectory)
             {
-                logDirectoryPath = Paths.get(LOGS_HOME_DIRECTORY, "/test");
+                logDirectoryPath = Paths.get(logsHomeDirectory, "/test");
                 Files.createDirectory(logDirectoryPath);
             }
             else
             {
-                logDirectoryPath = Paths.get(LOGS_HOME_DIRECTORY);
+                logDirectoryPath = Paths.get(logsHomeDirectory);
             }
             
             //Create 4 temporary log files from 0 to 3.
@@ -442,7 +446,7 @@ public class LoggingManagementControllerTestIT
     }
     
     //This method deletes temporary log files, and if used for subdirectory browsing, the test log subdirectory.
-    private static void deleteTestLogFilesAndDirectories(boolean wasATestSubDirectoryCreated)
+    private void deleteTestLogFilesAndDirectories(boolean wasATestSubDirectoryCreated)
     {
         
         //This local class extends the SimpleFileVisitor and overrides the `visitFile` method to delete any
@@ -470,15 +474,15 @@ public class LoggingManagementControllerTestIT
         {
             if (wasATestSubDirectoryCreated)
             {
-                Path pathToLogHomeDirectory = Paths.get(LOGS_HOME_DIRECTORY, "/test");
+                Path pathToLogHomeDirectory = Paths.get(logsHomeDirectory, "/test");
 
                 Files.walkFileTree(pathToLogHomeDirectory, new LogFileVisitor());
 
-                Files.delete(Paths.get(LOGS_HOME_DIRECTORY, "/test"));
+                Files.delete(Paths.get(logsHomeDirectory, "/test"));
             }
             else
             {
-                Path pathToLogHomeDirectory = Paths.get(LOGS_HOME_DIRECTORY);
+                Path pathToLogHomeDirectory = Paths.get(logsHomeDirectory);
 
                 Files.walkFileTree(pathToLogHomeDirectory, new LogFileVisitor());
             }

@@ -34,13 +34,16 @@ public class TrustStoreServiceImpl
     @Inject
     private KeyStoreManager keyStoreManager;
 
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
+
     @PostConstruct
     public void init()
-            throws IOException
+    throws IOException
     {
         trustStore = getTrustStoreResource();
     }
-
 
     @Override
     public void addSslCertificatesToTrustStore(String host)
@@ -64,9 +67,9 @@ public class TrustStoreServiceImpl
     }
 
     private Resource getTrustStoreResource()
-            throws IOException
     {
-        return ConfigurationResourceResolver.getConfigurationResource("strongbox.truststore.jks",
+        return configurationResourceResolver.getConfigurationResource("strongbox.truststore.jks",
                                                                       "etc/ssl/truststore.jks");
     }
+
 }

@@ -7,25 +7,34 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
+
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
+@Component
 public class ConfigurationResourceResolver
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationResourceResolver.class);
 
-    public static Resource getConfigurationResource(String propertyKey,
-                                                    String propertyDefaultValue)
+    @Inject
+    private PropertiesBooter propertiesBooter;
+
+
+    public Resource getConfigurationResource(String propertyKey,
+                                             String propertyDefaultValue)
     {
         final String configurationPath = propertyDefaultValue != null && !propertyDefaultValue.startsWith("classpath:")
-                ? ConfigurationResourceResolver.getHomeDirectory() + "/" + propertyDefaultValue
+                ? getHomeDirectory() + "/" + propertyDefaultValue
                 : propertyDefaultValue;
 
         return getConfigurationResource(configurationPath, propertyKey, propertyDefaultValue);
@@ -43,9 +52,9 @@ public class ConfigurationResourceResolver
      * @return
      * @throws IOException
      */
-    public static Resource getConfigurationResource(String configurationPath,
-                                                    String propertyKey,
-                                                    String propertyDefaultValue)
+    public Resource getConfigurationResource(String configurationPath,
+                                             String propertyKey,
+                                             String propertyDefaultValue)
     {
         DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
         resourceLoader.addProtocolResolver((l,
@@ -72,10 +81,9 @@ public class ConfigurationResourceResolver
         logger.info(String.format("Try to fetch configuration resource path [%s]", configurationPath));
 
         if (configurationPath != null &&
-                (!configurationPath.startsWith("classpath") && !(Files.exists(Paths.get(configurationPath)))))
+            (!configurationPath.startsWith("classpath") && !(Files.exists(Paths.get(configurationPath)))))
         {
-            logger.info(String.format(
-                                      "Configuration resource [%s] does not exist, will try to resolve with configured location [%s].",
+            logger.info(String.format("Configuration resource [%s] does not exist, will try to resolve with configured location [%s].",
                                       configurationPath, propertyKey));
 
             configurationPath = null;
@@ -95,20 +103,20 @@ public class ConfigurationResourceResolver
         }
     }
 
-    public static String getHomeDirectory()
+    public String getHomeDirectory()
     {
-        return PropertiesBooter.getHomeDirectory();
+        return propertiesBooter.getHomeDirectory();
     }
 
-    public static String getVaultDirectory()
+    public String getVaultDirectory()
     {
-        return PropertiesBooter.getVaultDirectory();
+        return propertiesBooter.getVaultDirectory();
     }
 
-    public static String getTempDirectory()
+    public String getTempDirectory()
         throws IOException
     {
-        final String tempDirectory = PropertiesBooter.getTempDirectory();
+        final String tempDirectory = propertiesBooter.getTempDirectory();
         final Path tempDirectoryPath = Paths.get(tempDirectory);
         if (Files.notExists(tempDirectoryPath))
         {
@@ -118,8 +126,9 @@ public class ConfigurationResourceResolver
         return tempDirectory;
     }
 
-    public static String getEtcDirectory()
+    public String getEtcDirectory()
     {
-        return PropertiesBooter.getEtcDirectory();
+        return propertiesBooter.getEtcDirectory();
     }
+
 }

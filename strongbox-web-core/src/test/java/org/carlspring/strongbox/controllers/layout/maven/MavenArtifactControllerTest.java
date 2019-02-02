@@ -91,8 +91,6 @@ public class MavenArtifactControllerTest
 
     private static final String REPOSITORY_SNAPSHOTS = "mact-snapshots";
 
-    private static File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
-
     private static String pluginXmlFilePath;
 
     @Spy
@@ -121,6 +119,10 @@ public class MavenArtifactControllerTest
     private ArtifactEntryService artifactEntryService;
 
     private MavenArtifactDeployer defaultMavenArtifactDeployer;
+
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
 
     @BeforeAll
     public static void cleanUp()
@@ -756,7 +758,7 @@ public class MavenArtifactControllerTest
         Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion3);
         Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion4);
 
-        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(Paths.get(configurationResourceResolver.getTempDirectory()));
 
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, STORAGE0, REPOSITORY_SNAPSHOTS);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, STORAGE0, REPOSITORY_SNAPSHOTS);
@@ -881,7 +883,7 @@ public class MavenArtifactControllerTest
         PluginArtifact c = new PluginArtifact(p3, artifact3);
         PluginArtifact d = new PluginArtifact(p4, artifact4);
 
-        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(Paths.get(configurationResourceResolver.getTempDirectory()));
 
         // When
         artifactDeployer.generateAndDeployArtifact(a, STORAGE0, REPOSITORY_RELEASES2);
@@ -957,7 +959,7 @@ public class MavenArtifactControllerTest
         Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(
                 groupId + ":" + artifactId + ":" + version2 + ":jar:javadoc");
 
-        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(Paths.get(configurationResourceResolver.getTempDirectory()));
 
         artifactDeployer.generateAndDeployArtifact(artifact1, STORAGE0, REPOSITORY_RELEASES2);
         artifactDeployer.generateAndDeployArtifact(artifact2, STORAGE0, REPOSITORY_RELEASES2);
@@ -1031,7 +1033,7 @@ public class MavenArtifactControllerTest
         Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(
                 ga + ":" + createSnapshotVersion("3.1", 4));
 
-        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR.toPath());
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(Paths.get(configurationResourceResolver.getTempDirectory()));
 
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, STORAGE0, REPOSITORY_SNAPSHOTS);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, STORAGE0, REPOSITORY_SNAPSHOTS);

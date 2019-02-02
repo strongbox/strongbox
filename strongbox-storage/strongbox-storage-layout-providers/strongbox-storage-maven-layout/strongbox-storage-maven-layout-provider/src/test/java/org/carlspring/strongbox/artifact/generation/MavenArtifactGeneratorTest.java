@@ -38,7 +38,7 @@ public class MavenArtifactGeneratorTest
     public void testArtifactGeneration()
             throws Exception
     {
-        File basedir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
+        File basedir = getRepositoryBasedir(STORAGE0, "releases").getAbsoluteFile();
 
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.testing:matg:1.2.3:jar");
 

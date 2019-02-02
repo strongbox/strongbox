@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -35,14 +36,18 @@ public class AuthenticationResourceManager
 
     private Resource authenticationPropertiesResource;
 
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
+
     @PostConstruct
     public void init()
         throws IOException
     {
-        authenticationConfigurationResource = doGetResource(ConfigurationResourceResolver.getConfigurationResource(PROPERTY_AUTHENTICATION_PROVIDERS_LOCATION,
+        authenticationConfigurationResource = doGetResource(configurationResourceResolver.getConfigurationResource(PROPERTY_AUTHENTICATION_PROVIDERS_LOCATION,
                                                                                                                    DEFAULT_AUTHENTICATION_PROVIDERS_LOCATION));
 
-        authenticationPropertiesResource = doGetResource(ConfigurationResourceResolver.getConfigurationResource(PROPERTY_AUTHENTICATION_PROVIDERS_CONFIG_LOCATION,
+        authenticationPropertiesResource = doGetResource(configurationResourceResolver.getConfigurationResource(PROPERTY_AUTHENTICATION_PROVIDERS_CONFIG_LOCATION,
                                                                                                                 DEFAULT_AUTHENTICATION_PROVIDERS_CONFIG_LOCATION));
     }
 

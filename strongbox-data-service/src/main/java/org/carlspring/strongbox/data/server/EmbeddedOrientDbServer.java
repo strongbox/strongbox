@@ -26,15 +26,7 @@ import java.util.jar.JarFile;
 import com.orientechnologies.orient.graph.server.command.OServerCommandGetGephi;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
-import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
-import com.orientechnologies.orient.server.config.OServerConfiguration;
-import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
-import com.orientechnologies.orient.server.config.OServerHookConfiguration;
-import com.orientechnologies.orient.server.config.OServerNetworkConfiguration;
-import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
-import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfiguration;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
-import com.orientechnologies.orient.server.config.OServerUserConfiguration;
+import com.orientechnologies.orient.server.config.*;
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetStaticContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +57,10 @@ public class EmbeddedOrientDbServer
 
     @Value("${strongbox.server.database.path:strongbox-vault/db}")
     private String databasePath;
+
+    @Inject
+    private PropertiesBooter propertiesBooter;
+    
 
     @PostConstruct
     public void start()
@@ -270,7 +266,7 @@ public class EmbeddedOrientDbServer
 
     private String getStudioPath()
     {
-        return Paths.get(PropertiesBooter.getVaultDirectory() + "/www").toAbsolutePath().normalize().toString();
+        return Paths.get(propertiesBooter.getVaultDirectory() + "/www").toAbsolutePath().normalize().toString();
     }
 
     

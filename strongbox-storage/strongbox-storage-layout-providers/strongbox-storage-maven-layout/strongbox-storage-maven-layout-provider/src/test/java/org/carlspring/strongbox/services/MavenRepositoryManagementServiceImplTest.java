@@ -4,7 +4,6 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
@@ -36,8 +35,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 public class MavenRepositoryManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
-
-    private static final String STORAGES_BASEDIR = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
 
     private static final String REPOSITORY_RELEASES_1 = "rmsi-releases-1";
 
@@ -72,7 +69,7 @@ public class MavenRepositoryManagementServiceImplTest
     {
         createRepository(STORAGE0, REPOSITORY_RELEASES_1, true);
 
-        File repositoryBaseDir = new File(STORAGES_BASEDIR, STORAGE0 + "/" + REPOSITORY_RELEASES_1);
+        File repositoryBaseDir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_1).getAbsoluteFile();
 
         assertTrue(repositoryBaseDir.exists(), "Failed to create repository '" + REPOSITORY_RELEASES_1 + "'!");
     }
@@ -83,8 +80,7 @@ public class MavenRepositoryManagementServiceImplTest
     {
         createRepository(STORAGE0, REPOSITORY_RELEASES_2, true);
 
-        File basedir = new File(STORAGES_BASEDIR + "/" + STORAGE0);
-        File repositoryDir = new File(basedir, REPOSITORY_RELEASES_2);
+        File repositoryDir = getRepositoryBasedir(STORAGE0,  REPOSITORY_RELEASES_2).getAbsoluteFile();
 
         assertTrue(repositoryDir.exists(),
                    "Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!");

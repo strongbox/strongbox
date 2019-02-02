@@ -28,6 +28,10 @@ public class TestCaseWithNugetPackageGeneration
 
     @Inject
     protected ArtifactManagementService artifactManagementService;
+
+    @Inject
+    private PropertiesBooter propertiesBooter;
+
     
     public void generateRepositoryPackages(String storageId,
                                            String repositoryId,
@@ -60,7 +64,7 @@ public class TestCaseWithNugetPackageGeneration
                JAXBException,
                IOException
     {
-        String basedir = PropertiesBooter.getHomeDirectory() + "/tmp";
+        String basedir = propertiesBooter.getHomeDirectory() + "/tmp";
         return generatePackageFile(basedir, packageId, packageVersion, dependencyList);
     }
 

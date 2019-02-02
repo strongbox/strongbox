@@ -37,17 +37,13 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
     @Inject
     private ConfigurationManager configurationManager;
 
+
     @Override
     @BeforeEach
     public void init()
             throws Exception
     {
         super.init();
-        Path storageBasedir = Paths.get(ConfigurationResourceResolver.getVaultDirectory(), "storages", "storage0",
-                                        "org", "carlspring", "strongbox", "strongbox-utils", "8.2",
-                                        "strongbox-utils-8.2.jar");
-
-        generateArtifact(storageBasedir.toAbsolutePath().toString());
     }
 
     @Test

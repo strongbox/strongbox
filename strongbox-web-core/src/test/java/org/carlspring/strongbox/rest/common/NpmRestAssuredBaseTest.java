@@ -50,7 +50,7 @@ public abstract class NpmRestAssuredBaseTest
     protected RestAssuredArtifactClient client;
 
     @Inject
-    NpmRepositoryFactory npmRepositoryFactory;
+    private NpmRepositoryFactory npmRepositoryFactory;
 
     private String contextBaseUrl;
 

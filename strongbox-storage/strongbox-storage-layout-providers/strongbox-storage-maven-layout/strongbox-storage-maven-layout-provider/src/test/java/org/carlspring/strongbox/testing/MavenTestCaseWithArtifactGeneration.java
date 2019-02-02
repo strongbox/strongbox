@@ -67,6 +67,9 @@ public class MavenTestCaseWithArtifactGeneration
     protected MavenRepositoryFactory mavenRepositoryFactory;
 
     @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
+    @Inject
     protected ConfigurationManagementService configurationManagementService;
 
     @Inject
@@ -478,12 +481,12 @@ public class MavenTestCaseWithArtifactGeneration
 
     public File getStorageBasedir(String storageId)
     {
-        return new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + storageId);
+        return new File(configurationResourceResolver.getVaultDirectory() + "/storages/" + storageId);
     }
 
     public File getRepositoryBasedir(String storageId, String repositoryId)
     {
-        return new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + storageId + "/" + repositoryId);
+        return new File(configurationResourceResolver.getVaultDirectory() + "/storages/" + storageId + "/" + repositoryId);
     }
 
     public MavenRepositoryFeatures getFeatures()

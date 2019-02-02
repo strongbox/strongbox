@@ -76,6 +76,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     protected Optional<RepositoryIndexManager> repositoryIndexManager;
 
     @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
+    @Inject
     protected RepositoryManagementService repositoryManagementService;
 
     @Inject
@@ -172,15 +175,14 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                                  String repositoryId,
                                                  String policy,
                                                  MutableMavenRepositoryConfiguration repositoryConfiguration)
-        throws IOException,
-        JAXBException,
-        RepositoryManagementStrategyException
+            throws IOException,
+                   JAXBException,
+                   RepositoryManagementStrategyException
     {
         MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
         repository.setPolicy(policy);
         repository.setRepositoryConfiguration(repositoryConfiguration);
-        repository.setBasedir(ConfigurationResourceResolver.getVaultDirectory()
-                + String.format("/storages/%s/%s", storageId, repositoryId));
+        repository.setBasedir(getRepositoryBasedir(storageId, repositoryId).getAbsolutePath());
         
         createRepository(storageId, repository);
         
@@ -232,8 +234,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     {
         for (String version : versions)
         {
-            String repositoryBaseDir = ConfigurationResourceResolver.getVaultDirectory() +
-                                       "/storages/" + storageId + "/" + repositoryId;
+            String repositoryBaseDir = getRepositoryBasedir(storageId, repositoryId).getAbsolutePath();
 
             generateArtifact(repositoryBaseDir, ga + ":" + version + ":jar");
         }
@@ -402,10 +403,10 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
 
     protected Path getVaultDirectoryPath()
     {
-        String base = FilenameUtils.normalize(ConfigurationResourceResolver.getVaultDirectory());
+        String base = FilenameUtils.normalize(configurationResourceResolver.getVaultDirectory());
         if (StringUtils.isBlank(base))
         {
-            throw new IllegalStateException("ConfigurationResourceResolver.getVaultDirectory() resolves to '" + base +
+            throw new IllegalStateException("configurationResourceResolver.getVaultDirectory() resolves to '" + base +
                                             "' which is illegal base path here.");
         }
         return Paths.get(base);

@@ -18,12 +18,12 @@ import static org.mockito.Matchers.any;
  * @author Przemyslaw Fusik
  */
 @Configuration
-@Import({ StorageCoreConfig.class,
-          MockedRemoteRepositoriesHeartbeatConfig.class,
+@Import({ MockedRemoteRepositoriesHeartbeatConfig.class,
           CommonConfig.class,
           ClientConfig.class,
           DataServiceConfig.class,
           EventsConfig.class,
+          StorageCoreConfig.class,
           StorageApiConfig.class
 })
 public class StorageApiTestConfig

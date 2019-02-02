@@ -50,12 +50,11 @@ public class ConfigurationManagerTest
     private ConfigurationManager configurationManager;
 
     @Inject
-    private ArtifactResolutionService artifactResolutionService;
+    private ConfigurationResourceResolver configurationResourceResolver;
 
 
     @BeforeEach
     public void setUp()
-            throws Exception
     {
         File xmlDir = new File(CONFIGURATION_BASEDIR);
         if (!xmlDir.exists())
@@ -126,7 +125,7 @@ public class ConfigurationManagerTest
 
         MutableStorage storage = new MutableStorage();
         storage.setId("myStorageId");
-        storage.setBasedir(new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages" + STORAGE0)
+        storage.setBasedir(new File(configurationResourceResolver.getVaultDirectory() + "/storages" + STORAGE0)
                                    .getAbsolutePath());
         storage.addRepository(repository1);
         storage.addRepository(repository2);
@@ -153,7 +152,7 @@ public class ConfigurationManagerTest
         repository3.addRepositoryToGroup(repository2.getId());
 
         MutableStorage storage = new MutableStorage("storage0");
-        storage.setBasedir(new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages" + STORAGE0)
+        storage.setBasedir(new File(configurationResourceResolver.getVaultDirectory() + "/storages" + STORAGE0)
                                    .getAbsolutePath());
         storage.addRepository(repository1);
         storage.addRepository(repository2);

@@ -8,7 +8,6 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -51,9 +50,6 @@ public class ArtifactMetadataServiceReleasesTest
 
     private static final String REPOSITORY_RELEASES = "amsr-releases";
 
-    private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                            "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES);
-
     @Inject
     private ArtifactMetadataService artifactMetadataService;
     
@@ -90,7 +86,7 @@ public class ArtifactMetadataServiceReleasesTest
         createRelease("org.carlspring.strongbox.metadata.nested:foo:2.1:jar");
         createRelease("org.carlspring.strongbox.metadata.nested:bar:3.1:jar");
 
-        File strongboxMetadataDir = new File(REPOSITORY_BASEDIR,
+        File strongboxMetadataDir = new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES),
                                              "org/carlspring/strongbox/metadata/strongbox-metadata");
 
         String ga = "org.carlspring.strongbox.metadata:strongbox-metadata";
@@ -207,7 +203,7 @@ public class ArtifactMetadataServiceReleasesTest
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         // Create plugin artifact
-        generatePluginArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+        generatePluginArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
                                "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin",
                                "1.0");
 
@@ -284,7 +280,8 @@ public class ArtifactMetadataServiceReleasesTest
     private MavenArtifact createRelease(String gavtc)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        MavenArtifact result = new MavenRepositoryArtifact(generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc));
+        File repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES);
+        MavenArtifact result = new MavenRepositoryArtifact(generateArtifact(repositoryBasedir.getAbsolutePath(), gavtc));
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                        REPOSITORY_RELEASES,

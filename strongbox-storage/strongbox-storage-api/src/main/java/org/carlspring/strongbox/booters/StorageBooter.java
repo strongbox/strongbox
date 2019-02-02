@@ -25,10 +25,12 @@ import java.util.Map;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
+@Component
 public class StorageBooter
 {
 
@@ -46,7 +48,10 @@ public class StorageBooter
     @Inject
     private GroupRepositorySetCollector groupRepositorySetCollector;
 
-    private Path lockFile = Paths.get(ConfigurationResourceResolver.getVaultDirectory()).resolve("storage-booter.lock");
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
+    private Path lockFile;
 
 
     public StorageBooter()
@@ -57,6 +62,8 @@ public class StorageBooter
     public void initialize()
             throws IOException, RepositoryManagementStrategyException
     {
+        lockFile = Paths.get(configurationResourceResolver.getVaultDirectory()).resolve("storage-booter.lock");
+
         if (!lockExists())
         {
             createLockFile();
@@ -100,11 +107,11 @@ public class StorageBooter
         logger.debug("Removed lock file '" + lockFile.toAbsolutePath().toString() + "'.");
     }
 
-    public static void createTempDir()
+    public void createTempDir()
             throws IOException
     {
         String tempDirLocation = System.getProperty("java.io.tmpdir",
-                                                    Paths.get(ConfigurationResourceResolver.getVaultDirectory(), "tmp")
+                                                    Paths.get(configurationResourceResolver.getVaultDirectory(), "tmp")
                                                          .toAbsolutePath()
                                                          .toString());
         Path tempDirPath = Paths.get(tempDirLocation).toAbsolutePath();
@@ -142,7 +149,7 @@ public class StorageBooter
     {
         if (Files.exists(lockFile))
         {
-            logger.debug(" -> Lock found: '" + ConfigurationResourceResolver.getVaultDirectory() + "'!");
+            logger.debug(" -> Lock found: '" + configurationResourceResolver.getVaultDirectory() + "'!");
 
             return true;
         }
@@ -168,7 +175,7 @@ public class StorageBooter
         else
         {
             // Assuming this invocation is related to tests:
-            basedir = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
+            basedir = configurationResourceResolver.getVaultDirectory() + "/storages";
         }
 
         for (Map.Entry<String, Storage> stringStorageEntry : storages.entrySet())

@@ -108,7 +108,7 @@ public class RepositoryTest
     public void testMarshallAndUnmarshallStrongboxConfiguration()
             throws JAXBException, IOException
     {
-        File file = new File(ConfigurationResourceResolver.getHomeDirectory() + "/etc/conf/strongbox.xml");
+        File file = new File("target/strongbox/etc/conf/strongbox.xml");
 
         GenericParser<MutableConfiguration> parser = new GenericParser<>(MutableConfiguration.class);
         MutableConfiguration configuration = parser.parse(file.toURI().toURL());

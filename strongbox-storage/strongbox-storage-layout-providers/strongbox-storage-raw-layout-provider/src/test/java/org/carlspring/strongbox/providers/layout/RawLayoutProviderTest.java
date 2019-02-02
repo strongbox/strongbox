@@ -45,19 +45,23 @@ public class RawLayoutProviderTest
     public static final String REPOSITORY = "raw-releases";
 
     @Inject
-    ConfigurationManagementService configurationManagementService;
+    private ConfigurationManagementService configurationManagementService;
 
     @Inject
-    StorageManagementService storageManagementService;
+    private ConfigurationResourceResolver configurationResourceResolver;
 
     @Inject
-    RepositoryManagementService repositoryManagementService;
+    private StorageManagementService storageManagementService;
 
     @Inject
-    ArtifactManagementService artifactManagementService;
+    private RepositoryManagementService repositoryManagementService;
+
+    @Inject
+    private ArtifactManagementService artifactManagementService;
     
     @Inject
-    ArtifactResolutionService artifactResolutionService;
+    private ArtifactResolutionService artifactResolutionService;
+
 
     @BeforeAll
     public static void cleanUp()
@@ -73,7 +77,6 @@ public class RawLayoutProviderTest
 
         return repositories;
     }
-
 
     @BeforeEach
     public void setUp()
@@ -120,7 +123,7 @@ public class RawLayoutProviderTest
                                                    createZipFile());
 
         
-        File artifactFile = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + STORAGE + "/" + REPOSITORY + "/" + path);
+        File artifactFile = new File(configurationResourceResolver.getVaultDirectory() + "/storages/" + STORAGE + "/" + REPOSITORY + "/" + path);
         assertTrue(artifactFile.exists(), "Failed to deploy artifact!");
         assertTrue(artifactFile.length() > 0, "Failed to deploy artifact!");
 
@@ -164,7 +167,7 @@ public class RawLayoutProviderTest
     }
 
     private void createRepository(String storageId, String repositoryId)
-            throws IOException, JAXBException, RepositoryManagementStrategyException
+            throws IOException, RepositoryManagementStrategyException
     {
         MutableRepository repository = new MutableRepository(repositoryId);
         repository.setAllowsRedeployment(true);
@@ -178,7 +181,7 @@ public class RawLayoutProviderTest
     }
 
     private void createStorage(String storageId)
-            throws IOException, JAXBException
+            throws IOException
     {
         MutableStorage storage = new MutableStorage(storageId);
 

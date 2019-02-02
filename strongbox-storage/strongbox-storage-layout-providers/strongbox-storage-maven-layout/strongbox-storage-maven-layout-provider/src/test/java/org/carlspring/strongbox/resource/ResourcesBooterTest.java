@@ -29,19 +29,20 @@ public class ResourcesBooterTest
     @Inject
     private ResourcesBooter resourcesBooter;
 
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
 
     @BeforeAll
     public static void cleanUp()
-            throws Exception
     {
         // No need to clean up anything, just overriding the method from the parent
     }
 
     @Test
     public void testResourceBooting()
-            throws Exception
     {
-        File file = new File(ConfigurationResourceResolver.getHomeDirectory() + "/etc/conf/strongbox.xml");
+        File file = new File(configurationResourceResolver.getHomeDirectory() + "/etc/conf/strongbox.xml");
 
         assertTrue(file.exists(), "Failed to copy configuration resource from classpath!");
     }

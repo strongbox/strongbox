@@ -30,6 +30,7 @@ public class TestCaseWithRepository
     @Inject
     protected ConfigurationManagementService configurationManagementService;
 
+
     public static void cleanUp(Set<MutableRepository> repositoriesToClean)
             throws Exception
     {
@@ -46,7 +47,7 @@ public class TestCaseWithRepository
                                                   String repositoryId)
             throws IOException
     {
-        File repositoryBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory(),
+        File repositoryBaseDir = new File(System.getProperty("strongbox.vault"),
                                           "/storages/" + storageId + "/" + repositoryId);
 
         if (repositoryBaseDir.exists())

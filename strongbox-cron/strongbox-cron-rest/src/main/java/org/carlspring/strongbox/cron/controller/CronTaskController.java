@@ -11,6 +11,7 @@ import org.carlspring.strongbox.forms.cron.CronTaskConfigurationForm;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,20 +71,18 @@ public class CronTaskController
 
     private static final String SUCCESSFUL_GET_GROOVY_SCRIPTS = "The groovy scripts named retrieved successfully.";
 
+    @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
+    @Inject
     private CronJobSchedulerService cronJobSchedulerService;
 
+    @Inject
     private ConversionService conversionService;
 
-    public CronTaskController(CronTaskConfigurationService cronTaskConfigurationService,
-                              CronJobSchedulerService cronJobSchedulerService,
-                              ConversionService conversionService)
-    {
-        this.cronTaskConfigurationService = cronTaskConfigurationService;
-        this.cronJobSchedulerService = cronJobSchedulerService;
-        this.conversionService = conversionService;
-    }
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
 
     @ApiOperation(value = "Used to save a new configuration")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_SAVE_CONFIGURATION),
@@ -92,10 +91,9 @@ public class CronTaskController
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity createConfiguration(
-            @RequestBody @Validated CronTaskConfigurationForm cronTaskConfigurationForm,
-            BindingResult bindingResult,
-            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    public ResponseEntity createConfiguration(@RequestBody @Validated CronTaskConfigurationForm cronTaskConfigurationForm,
+                                              BindingResult bindingResult,
+                                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         if (bindingResult.hasErrors())
         {
@@ -112,7 +110,9 @@ public class CronTaskController
         }
         catch (Exception e)
         {
-            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_SAVE_CONFIGURATION, e,
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
+                                              FAILED_SAVE_CONFIGURATION,
+                                              e,
                                               acceptHeader);
         }
     }
@@ -125,8 +125,7 @@ public class CronTaskController
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity updateConfiguration(@PathVariable("UUID") String uuid,
-                                              @RequestBody @Validated
-                                                      CronTaskConfigurationForm cronTaskConfigurationForm,
+                                              @RequestBody @Validated CronTaskConfigurationForm cronTaskConfigurationForm,
                                               BindingResult bindingResult,
                                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
@@ -265,7 +264,7 @@ public class CronTaskController
         logger.info(">> CRON NAME: {}", cronTaskConfiguration.getName());
         logger.info(">> Properties: {}",  cronTaskConfiguration.getProperties());
 
-        String path = ConfigurationResourceResolver.getVaultDirectory() + "/etc/conf/cron/groovy";
+        String path = configurationResourceResolver.getVaultDirectory() + "/etc/conf/cron/groovy";
 
         cronTaskConfiguration.addProperty(CRON_CONFIG_FILE_NAME_KEY, fileName);
         cronTaskConfiguration.addProperty(CRON_CONFIG_JOB_CLASS_KEY, GroovyCronJob.class.getName());

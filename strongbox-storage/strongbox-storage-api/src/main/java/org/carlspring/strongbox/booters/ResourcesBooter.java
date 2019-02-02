@@ -3,6 +3,7 @@ package org.carlspring.strongbox.booters;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,16 +15,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
+@Component
 public class ResourcesBooter
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ResourcesBooter.class);
 
     private PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
 
 
     @PostConstruct
@@ -59,7 +65,7 @@ public class ResourcesBooter
         final Resource[] resources = getResourcesExistingOnClasspathOnly(
                 getConfigurationResourcesFromClasspath(resourcesBasedir));
 
-        final Path configDir = Paths.get(ConfigurationResourceResolver.getHomeDirectory(), resourcesBasedir);
+        final Path configDir = Paths.get(configurationResourceResolver.getHomeDirectory(), resourcesBasedir);
         if (!Files.exists(configDir))
         {
             Files.createDirectories(configDir);

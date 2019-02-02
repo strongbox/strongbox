@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import java.io.File;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,12 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class RepositoryPathTest
 {
 
-    private static final Path REPOSITORY_BASEDIR = Paths.get(ConfigurationResourceResolver.getVaultDirectory(),
-                                                             "storages", "storage0", "releases");
+    private static final Path REPOSITORY_BASEDIR = Paths.get(new File("target/strongbox-vault/storages/storage0/releases").getAbsolutePath());
 
     private MutableRepository repository;
 
     private LayoutFileSystem repositoryFileSystem;
+
 
     @BeforeEach
     public void setup()

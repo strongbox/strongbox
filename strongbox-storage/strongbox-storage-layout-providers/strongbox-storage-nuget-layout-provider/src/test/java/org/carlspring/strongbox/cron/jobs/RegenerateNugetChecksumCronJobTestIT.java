@@ -15,7 +15,6 @@ import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,13 +24,11 @@ import java.util.Set;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Kate Novik.
@@ -51,17 +48,8 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     private static final String REPOSITORY_ALPHA = "rnccj-alpha";
 
-    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                       "/storages/" + STORAGE1 + "/" +
-                                                                       REPOSITORY_RELEASES);
-
-    private static final File REPOSITORY_ALPHA_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                  "/storages/" + STORAGE1 + "/" +
-                                                                  REPOSITORY_ALPHA);
-
-    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                       "/storages/" + STORAGE2 + "/" +
-                                                                       REPOSITORY_RELEASES);
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
@@ -80,6 +68,18 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     @Inject
     private NugetRepositoryFactory nugetRepositoryFactory;
+
+    private final File REPOSITORY_RELEASES_BASEDIR_1 = new File(configurationResourceResolver.getVaultDirectory() +
+                                                                "/storages/" + STORAGE1 + "/" +
+                                                                REPOSITORY_RELEASES);
+
+    private final File REPOSITORY_ALPHA_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
+                                                           "/storages/" + STORAGE1 + "/" +
+                                                           REPOSITORY_ALPHA);
+
+    private final File REPOSITORY_RELEASES_BASEDIR_2 = new File(configurationResourceResolver.getVaultDirectory() +
+                                                                "/storages/" + STORAGE2 + "/" +
+                                                                REPOSITORY_RELEASES);
 
 
     @BeforeAll
@@ -121,7 +121,6 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     @AfterEach
     public void removeRepositories()
-            throws IOException, JAXBException
     {
         removeRepositories(getRepositoriesToClean());
     }
@@ -336,7 +335,6 @@ public class RegenerateNugetChecksumCronJobTestIT
                                   String repositoryId,
                                   String policy)
             throws IOException,
-                   JAXBException,
                    RepositoryManagementStrategyException
     {
         MutableRepository repository = nugetRepositoryFactory.createRepository(repositoryId);
@@ -347,7 +345,6 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     private void createRepository(String storageId, MutableRepository repository)
             throws IOException,
-                   JAXBException,
                    RepositoryManagementStrategyException
     {
         configurationManagementService.saveRepository(storageId, repository);
@@ -357,13 +354,13 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     private void createStorage(String storageId)
-            throws IOException, JAXBException
+            throws IOException
     {
         createStorage(new MutableStorage(storageId));
     }
 
     private void createStorage(MutableStorage storage)
-            throws IOException, JAXBException
+            throws IOException
     {
         configurationManagementService.saveStorage(storage);
         storageManagementService.createStorage(storage);
@@ -385,8 +382,7 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                   String repositoryId)
             throws IOException
     {
-        File repositoryBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory(),
-                                          "/storages/" + storageId + "/" + repositoryId);
+        File repositoryBaseDir = new File("target/strongbox-vault/storages/" + storageId + "/" + repositoryId);
 
         if (repositoryBaseDir.exists())
         {
@@ -395,7 +391,6 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     public void removeRepositories(Set<MutableRepository> repositoriesToClean)
-            throws IOException, JAXBException
     {
         for (MutableRepository repository : repositoriesToClean)
         {

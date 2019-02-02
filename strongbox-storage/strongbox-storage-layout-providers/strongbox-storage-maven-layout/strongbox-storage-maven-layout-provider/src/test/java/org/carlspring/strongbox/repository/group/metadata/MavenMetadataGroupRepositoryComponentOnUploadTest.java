@@ -5,13 +5,11 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -56,21 +54,20 @@ public class MavenMetadataGroupRepositoryComponentOnUploadTest
 
     private static final String REPOSITORY_LEAF_AK = "leaf-repo-ak";
 
-    private static final File REPOSITORY_LEAF_AL_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_LEAF_AL);
-
-    private static final File REPOSITORY_LEAF_AD_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_LEAF_AD);
-
-    private static final File REPOSITORY_LEAF_AG_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_LEAF_AG);
-
-    private static final File REPOSITORY_LEAF_AK_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_LEAF_AK);
+//    @Inject
+//    private ConfigurationResourceResolver configurationResourceResolver;
+//
+//    private final File REPOSITORY_LEAF_AL_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
+//                                                             "/storages/" + STORAGE0 + "/" + REPOSITORY_LEAF_AL);
+//
+//    private final File REPOSITORY_LEAF_AD_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
+//                                                             "/storages/" + STORAGE0 + "/" + REPOSITORY_LEAF_AD);
+//
+//    private final File REPOSITORY_LEAF_AG_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
+//                                                             "/storages/" + STORAGE0 + "/" + REPOSITORY_LEAF_AG);
+//
+//    private final File REPOSITORY_LEAF_AK_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
+//                                                             "/storages/" + STORAGE0 + "/" + REPOSITORY_LEAF_AK);
 
     private static final String REPOSITORY_GROUP_AA = "group-repo-aa";
 
@@ -120,25 +117,25 @@ public class MavenMetadataGroupRepositoryComponentOnUploadTest
         createGroup(REPOSITORY_GROUP_AF, STORAGE0, REPOSITORY_GROUP_AC, REPOSITORY_LEAF_AD, REPOSITORY_LEAF_AL);
         createGroup(REPOSITORY_GROUP_AH, STORAGE0, REPOSITORY_GROUP_AF, REPOSITORY_LEAF_AK);
 
-        generateArtifact(REPOSITORY_LEAF_AL_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_AL).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-group",
                          new String[]{ "1.2.1",
                                        "1.2.2" }
         );
 
-        generateArtifact(REPOSITORY_LEAF_AG_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_AG).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-group",
                          new String[]{ "1.2.1",
                                        "1.2.2" }
         );
 
-        generateArtifact(REPOSITORY_LEAF_AD_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_AD).getAbsolutePath(),
                          "com.artifacts.to.update.releases:update-group",
                          new String[]{ "1.2.1",
                                        "1.2.2" }
         );
 
-        generateArtifact(REPOSITORY_LEAF_AK_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_AK).getAbsolutePath(),
                          "com.artifacts.to.update.releases:update-group",
                          new String[]{ "1.2.1" }
         );

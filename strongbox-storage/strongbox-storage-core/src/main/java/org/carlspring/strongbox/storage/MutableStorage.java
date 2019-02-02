@@ -1,14 +1,9 @@
 package org.carlspring.strongbox.storage;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.nio.file.Files;
@@ -16,6 +11,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * @author mtodorov
@@ -31,7 +28,13 @@ public class MutableStorage
     
     @XmlAttribute
     private String basedir;
-    
+
+    @Value("${strongbox.storage.booter.basedir:strongbox-vault/storages}")
+    private String storageBooterBasedir;
+
+    @Value("${strongbox.vault:strongbox-vault}")
+    private String vaultDirectory;
+
     @XmlElement(name = "repositories")
     @XmlJavaTypeAdapter(RepositoryMapAdapter.class)
     private Map<String, MutableRepository> repositories = new LinkedHashMap<>();
@@ -84,8 +87,9 @@ public class MutableStorage
             else
             {
                 // Assuming this invocation is related to tests:
-                basedir = Paths.get(ConfigurationResourceResolver.getVaultDirectory()).resolve("storages");
+                basedir = Paths.get(vaultDirectory).resolve("storages");
             }
+            
             return basedir.resolve(id).toString();
         }
         else

@@ -4,7 +4,6 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -46,9 +45,6 @@ public class Maven2LayoutProviderTest
 {
 
     private static final String REPOSITORY_RELEASES = "m2lp-releases";
-
-    private static final File REPOSITORY_RELEASES_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                     "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES);
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -97,7 +93,7 @@ public class Maven2LayoutProviderTest
     public void testDeleteArtifact()
             throws IOException, NoSuchAlgorithmException, XmlPullParserException
     {
-        generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-foo",
                          new String[] { "1.2.1" });
 
@@ -134,7 +130,7 @@ public class Maven2LayoutProviderTest
     public void testDeleteArtifactDirectory()
             throws IOException, NoSuchAlgorithmException, XmlPullParserException
     {
-        generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-foo",
                          new String[] { "1.2.2" });
 

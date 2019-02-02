@@ -44,12 +44,14 @@ public class RebuildMavenIndexesCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
 
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
     private static final String REPOSITORY_RELEASES_1 = "rmicj-releases";
 
-    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(
-            ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/" + STORAGE0 + "/" +
-            REPOSITORY_RELEASES_1);
+    private final File REPOSITORY_RELEASES_BASEDIR_1 = new File(configurationResourceResolver.getVaultDirectory() +
+                                                                "/storages/" + STORAGE0 + "/" +
+                                                                REPOSITORY_RELEASES_1);
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_INDEXES = "org/carlspring/strongbox/indexes/strongbox-test-one";
 

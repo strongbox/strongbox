@@ -4,7 +4,6 @@ import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -38,18 +37,13 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(CONCURRENT)
 public class RegenerateMavenChecksumCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
 
     private static final String REPOSITORY_SNAPSHOTS = "rmccj-snapshots";
-
-    private static final File REPOSITORY_SNAPSHOTS_BASEDIR = new File(
-            ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/" + STORAGE0 + "/" +
-            REPOSITORY_SNAPSHOTS);
 
     private MavenArtifact snapshotArtifact_1;
 
@@ -71,7 +65,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                          false);
 
         snapshotArtifact_1 = createTimestampedSnapshotArtifact(
-                getRepositoryBasedir(REPOSITORY_SNAPSHOTS_BASEDIR, testInfo),
+                getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath(),
                 "org.carlspring.strongbox",
                 "strongbox-checksum-one",
                 "2.0",
@@ -79,7 +73,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                 null,
                 1);
         snapshotArtifact_2 = createTimestampedSnapshotArtifact(
-                getRepositoryBasedir(REPOSITORY_SNAPSHOTS_BASEDIR, testInfo),
+                getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath(),
                 "org.carlspring.strongbox",
                 "strongbox-checksum-second",
                 "2.0",
@@ -111,7 +105,7 @@ public class RegenerateMavenChecksumCronJobTestIT
     {
         final String jobName = expectedJobName;
 
-        String artifactPath = getRepositoryBasedir(REPOSITORY_SNAPSHOTS_BASEDIR, testInfo) +
+        String artifactPath = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath() +
                               "/org/carlspring/strongbox/strongbox-checksum-one";
 
         artifactMetadataService.rebuildMetadata(STORAGE0,
@@ -182,7 +176,7 @@ public class RegenerateMavenChecksumCronJobTestIT
     {
         final String jobName = expectedJobName;
 
-        String artifactPath = getRepositoryBasedir(REPOSITORY_SNAPSHOTS_BASEDIR, testInfo) +
+        String artifactPath = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath() +
                               "/org/carlspring/strongbox/strongbox-checksum-second";
 
         artifactMetadataService.rebuildMetadata(STORAGE0,

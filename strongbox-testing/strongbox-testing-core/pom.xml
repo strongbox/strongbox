@@ -111,6 +111,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
         </dependency>
@@ -170,10 +175,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>ru.aristar.nuget</groupId>
-            <artifactId>jnuget-core</artifactId>
         </dependency>
     </dependencies>
     

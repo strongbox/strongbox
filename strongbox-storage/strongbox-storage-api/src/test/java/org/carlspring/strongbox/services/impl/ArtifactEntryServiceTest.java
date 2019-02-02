@@ -42,24 +42,30 @@ public class ArtifactEntryServiceTest
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryServiceTest.class);
+
     final String storageId = "storage0";
+
     final String repositoryId = "release";
+
     final String groupId = "org.carlspring.strongbox";
+
     final String artifactId = "coordinates-test";
+
     @Inject
     ArtifactEntryService artifactEntryService;
 
-    @Inject
-    CacheManager cacheManager;
 
     @Test
     public void saveEntityShouldWork()
-        throws Exception
     {
         ArtifactEntry artifactEntry = new ArtifactEntry();
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
-        artifactEntry.setArtifactCoordinates(new NullArtifactCoordinates(String.format("%s/%s/%s/%s", groupId, artifactId + "123", "1.2.3", "jar")));
+        artifactEntry.setArtifactCoordinates(new NullArtifactCoordinates(String.format("%s/%s/%s/%s",
+                                                                                       groupId,
+                                                                                       artifactId + "123",
+                                                                                       "1.2.3",
+                                                                                       "jar")));
 
         assertThat(artifactEntry.getCreated(), CoreMatchers.nullValue());
 
@@ -77,7 +83,6 @@ public class ArtifactEntryServiceTest
 
     @Test
     public void cascadeUpdateShouldWork()
-        throws Exception
     {
         artifactEntryService.deleteAll();
         createArtifacts(groupId, artifactId, storageId, repositoryId);

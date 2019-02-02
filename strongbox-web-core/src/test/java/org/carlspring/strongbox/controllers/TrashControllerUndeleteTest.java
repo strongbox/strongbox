@@ -2,7 +2,6 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -43,15 +42,9 @@ public class TrashControllerUndeleteTest
         extends MavenRestAssuredBaseTest
 {
 
-    private static final String BASEDIR = Paths.get(
-            ConfigurationResourceResolver.getVaultDirectory()).toAbsolutePath().toString();
-
     private static final String REPOSITORY_WITH_TRASH = "tcut-releases-with-trash";
 
     private static final String REPOSITORY_RELEASES = "tcut-releases";
-
-    private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR +
-                                                                "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
@@ -180,11 +173,11 @@ public class TrashControllerUndeleteTest
                        "The trash for '" + STORAGE0 + ":" + REPOSITORY_WITH_TRASH +
                        "' was restored successfully."));
 
-        final Path artifactFileRestoredFromTrash = Paths.get(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
+        final Path artifactFileRestoredFromTrash = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/" +
                                                              "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
                                                              "test-artifact-undelete-1.0.jar");
 
-        final Path artifactFileInTrash = Paths.get(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
+        final Path artifactFileInTrash = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/.trash/" +
                                                    "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
                                                    "test-artifact-undelete-1.0.jar");
 
@@ -209,7 +202,7 @@ public class TrashControllerUndeleteTest
                                           "+v:1.1 " +
                                           "+p:jar"));
 
-        final Path artifactFileInTrash = Paths.get(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
+        final Path artifactFileInTrash = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/.trash/" +
                                                    "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/" +
                                                    "test-artifact-undelete-1.1.jar");
 
@@ -226,7 +219,7 @@ public class TrashControllerUndeleteTest
                .statusCode(HttpStatus.OK.value())
                .body(equalTo("The trash for all repositories was successfully restored."));
 
-        final Path artifactFileRestoredFromTrash = Paths.get(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
+        final Path artifactFileRestoredFromTrash = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/" +
                                                              "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/" +
                                                              "test-artifact-undelete-1.1.jar");
 
@@ -255,7 +248,7 @@ public class TrashControllerUndeleteTest
                                           "+v:1.1 " +
                                           "+p:jar"));
 
-        final Path artifactFileInTrash = Paths.get(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
+        final Path artifactFileInTrash = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/.trash/" +
                                                    "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/" +
                                                    "test-artifact-undelete-1.1.jar");
 
@@ -272,7 +265,7 @@ public class TrashControllerUndeleteTest
                .statusCode(HttpStatus.OK.value())
                .body("message", equalTo("The trash for all repositories was successfully restored."));
 
-        final Path artifactFileRestoredFromTrash = Paths.get(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
+        final Path artifactFileRestoredFromTrash = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/" +
                                                              "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/" +
                                                              "test-artifact-undelete-1.1.jar");
 
