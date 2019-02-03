@@ -223,8 +223,7 @@ public class CronTaskController
     @ApiOperation(value = "Used to get list of all the configurations")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIGURATIONS),
                             @ApiResponse(code = 404, message = NOT_FOUND_CONFIGURATIONS) })
-    @GetMapping(value = "/",
-                produces = { MediaType.APPLICATION_JSON_VALUE,
+    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.APPLICATION_XML_VALUE })
     public ResponseEntity getConfigurations(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
