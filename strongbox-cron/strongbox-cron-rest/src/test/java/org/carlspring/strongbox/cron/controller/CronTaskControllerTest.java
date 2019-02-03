@@ -9,6 +9,7 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,8 +29,8 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.cron.controller.CronTaskController.CRON_CONFIG_FILE_NAME_KEY;
 import static org.carlspring.strongbox.cron.controller.CronTaskController.CRON_CONFIG_JOB_CLASS_KEY;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Alex Oreshkevich
@@ -49,6 +50,18 @@ public class CronTaskControllerTest
     {
         super.init();
         setContextBaseUrl("/api/configuration/crontasks");
+    }
+
+    @Test
+    public void getConfigurations()
+            throws IOException
+    {
+        MockMvcResponse response = getCronConfigurations();
+
+        assertEquals(OK, response.getStatusCode(), "Failed to get list of cron tasks: " + response.getStatusLine());
+
+        CronTasksConfigurationDto cronTasks = response.as(CronTasksConfigurationDto.class);
+        assertFalse(cronTasks.getCronTaskConfigurations().isEmpty(), "List of cron tasks is empty!");
     }
 
     @Test
@@ -315,6 +328,15 @@ public class CronTaskControllerTest
                       .accept(MediaType.APPLICATION_JSON_VALUE)
                       .when()
                       .delete(getContextBaseUrl() + "/" + uuid)
+                      .peek();
+    }
+
+    private MockMvcResponse getCronConfigurations()
+    {
+        return given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                      .accept(MediaType.APPLICATION_JSON_VALUE)
+                      .when()
+                      .get(getContextBaseUrl())
                       .peek();
     }
 
