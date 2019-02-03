@@ -10,7 +10,10 @@ import org.carlspring.strongbox.validation.configuration.LayoutProviderValue;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.LinkedHashSet;
 import java.util.Set;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * @author Przemyslaw Fusik
@@ -73,7 +76,7 @@ public class RepositoryForm
     @Valid
     private CustomRepositoryConfigurationForm repositoryConfiguration;
 
-    private Set<String> groupRepositories;
+    private Set<String> groupRepositories ;
 
     private Set<String> artifactCoordinateValidators;
 
@@ -282,6 +285,7 @@ public class RepositoryForm
         return groupRepositories;
     }
 
+    @JsonDeserialize(as=LinkedHashSet.class)
     public void setGroupRepositories(final Set<String> groupRepositories)
     {
         this.groupRepositories = groupRepositories;

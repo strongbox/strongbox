@@ -12,7 +12,7 @@ import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConf
 
 import javax.inject.Inject;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.*;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -260,6 +260,12 @@ public class StoragesConfigurationControllerTestIT
         repositoryForm0_1.setPolicy("release");
         repositoryForm0_1.setImplementation("file-system");
         repositoryForm0_1.setStatus("In Service");
+        Set<String> groupRepositories = new LinkedHashSet<>();
+        String groupRepository1 = "maven-central";
+        String groupRepository2 = "carlspring";
+        groupRepositories.add(groupRepository1);
+        groupRepositories.add(groupRepository2);
+        repositoryForm0_1.setGroupRepositories(groupRepositories);
 
         Integer maxConnectionsRepository2 = 30;
 
@@ -290,6 +296,11 @@ public class StoragesConfigurationControllerTestIT
         Repository repository0 = storage.getRepositories().get(repositoryForm0_1.getId());
         Repository repository1 = storage.getRepositories().get(repositoryForm0_2.getId());
 
+        Map<String, String> groupRepositoriesMap = repository0.getGroupRepositories();
+        Map<String, String> groupRepositoriesMapExpected = new LinkedHashMap<>();
+        groupRepositoriesMapExpected.put(groupRepository1, groupRepository1);
+        groupRepositoriesMapExpected.put(groupRepository2, groupRepository2);
+
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
         assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
         assertTrue(repository0.allowsRedeployment(),
@@ -305,6 +316,7 @@ public class StoragesConfigurationControllerTestIT
         assertFalse(
                 ((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingClassNamesEnabled(),
                 "Failed to get storage (" + storageId + ")!");
+        assertEquals(groupRepositoriesMapExpected, groupRepositoriesMap);
 
         assertTrue(repository1.allowsForceDeletion(),
                    "Failed to get storage (" + storageId + ")!");
