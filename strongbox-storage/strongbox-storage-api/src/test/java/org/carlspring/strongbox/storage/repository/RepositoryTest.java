@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.storage.repository;
 
 import org.carlspring.strongbox.configuration.MutableConfiguration;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.aws.MutableAwsConfiguration;
 import org.carlspring.strongbox.storage.repository.gcs.MutableGoogleCloudConfiguration;

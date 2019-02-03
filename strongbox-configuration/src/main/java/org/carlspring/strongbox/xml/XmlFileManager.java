@@ -3,7 +3,6 @@ package org.carlspring.strongbox.xml;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
-import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.BufferedInputStream;
 import java.io.IOException;

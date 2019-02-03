@@ -3,7 +3,6 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;

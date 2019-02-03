@@ -7,7 +7,6 @@ import org.carlspring.strongbox.security.certificates.KeyStoreManager;
 import org.carlspring.strongbox.services.TrustStoreService;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Paths;
 

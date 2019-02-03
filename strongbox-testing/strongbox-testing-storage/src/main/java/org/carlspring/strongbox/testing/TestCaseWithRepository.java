@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.testing;
 
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
