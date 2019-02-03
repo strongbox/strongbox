@@ -2,7 +2,7 @@ package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.domain.ArtifactIdGroup;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
 import org.carlspring.strongbox.services.ArtifactGroupService;
 
 import javax.inject.Inject;
@@ -35,10 +35,16 @@ class ArtifactGroupServiceImplTest
     public void artifactIdGroupShouldBeProtectedByNameIndex()
     {
         Assertions.assertThrows(ORecordDuplicatedException.class, () -> {
-            ArtifactIdGroup g1 = new ArtifactIdGroup("strongbox");
+            RepositoryArtifactIdGroup g1 = new RepositoryArtifactIdGroup();
+            g1.setId("strongbox-art");
+            g1.setRepositoryId("strongbox-rId");
+            g1.setStorageId("strongbox-sId");
             artifactGroupService.save(g1);
 
-            ArtifactIdGroup g2 = new ArtifactIdGroup("strongbox");
+            RepositoryArtifactIdGroup g2 = new RepositoryArtifactIdGroup();
+            g2.setId("strongbox-art");
+            g2.setRepositoryId("strongbox-rId");
+            g2.setStorageId("strongbox-sId");
             artifactGroupService.save(g2);
         });
     }

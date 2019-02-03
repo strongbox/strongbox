@@ -4,11 +4,12 @@ import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactGroup;
-import org.carlspring.strongbox.domain.ArtifactIdGroup;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactGroupService;
+import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -69,7 +70,13 @@ class AbstractLayoutProviderTest
     public void setUp()
             throws IOException
     {
+        MutableStorage storage = new MutableStorage();
+        storage.setId("storage0");
+
         MutableRepository repository = new MutableRepository();
+        repository.setStorage(storage);
+        repository.setId("releases");
+
         repository.setBasedir(REPOSITORY_BASEDIR.toAbsolutePath().toString());
 
         repositoryFileSystem = new LayoutFileSystem(new Repository(repository), FileSystems.getDefault(), null)
@@ -103,8 +110,11 @@ class AbstractLayoutProviderTest
         MatcherAssert.assertThat(artifactGroups, Matchers.notNullValue());
         MatcherAssert.assertThat(artifactGroups.size(), CoreMatchers.equalTo(1));
         ArtifactGroup artifactGroup = artifactGroups.iterator().next();
-        MatcherAssert.assertThat(artifactGroup.getName(), CoreMatchers.endsWith("/abs-lay-prov-test"));
-        MatcherAssert.assertThat(artifactGroup.getName(), CoreMatchers.startsWith("AbstractArtifactCoordinates"));
-        MatcherAssert.assertThat(artifactGroup.getClass(), CoreMatchers.equalTo(ArtifactIdGroup.class));
+        MatcherAssert.assertThat(artifactGroup, CoreMatchers.instanceOf(RepositoryArtifactIdGroup.class));
+        RepositoryArtifactIdGroup repositoryArtifactIdGroup = (RepositoryArtifactIdGroup) artifactGroup;
+        MatcherAssert.assertThat(repositoryArtifactIdGroup.getId(), CoreMatchers.equalTo("abs-lay-prov-test"));
+        MatcherAssert.assertThat(repositoryArtifactIdGroup.getRepositoryId(), CoreMatchers.equalTo("releases"));
+        MatcherAssert.assertThat(repositoryArtifactIdGroup.getStorageId(), CoreMatchers.equalTo("storage0"));
+        MatcherAssert.assertThat(artifactGroup.getClass(), CoreMatchers.equalTo(RepositoryArtifactIdGroup.class));
     }
 }

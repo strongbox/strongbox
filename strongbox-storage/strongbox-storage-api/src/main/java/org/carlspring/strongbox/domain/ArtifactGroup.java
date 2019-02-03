@@ -20,21 +20,6 @@ public abstract class ArtifactGroup
     @OneToMany
     private Set<ArtifactEntry> artifactEntries;
 
-    /**
-     * Should be unique per type
-     */
-    private String name;
-
-    protected ArtifactGroup()
-    {
-        this(null);
-    }
-
-    protected ArtifactGroup(final String name)
-    {
-        this.name = name;
-    }
-
     @Nonnull
     public Set<ArtifactEntry> getArtifactEntries()
     {
@@ -48,10 +33,5 @@ public abstract class ArtifactGroup
             artifactEntries = new HashSet<>();
         }
         artifactEntries.add(artifactEntry);
-    }
-
-    public String getName()
-    {
-        return name;
     }
 }

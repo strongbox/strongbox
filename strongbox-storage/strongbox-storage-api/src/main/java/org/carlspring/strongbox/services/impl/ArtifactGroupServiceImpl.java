@@ -3,9 +3,9 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.data.service.CommonCrudService;
 import org.carlspring.strongbox.domain.ArtifactGroup;
 import org.carlspring.strongbox.services.ArtifactGroupService;
+import org.carlspring.strongbox.util.BeanUtils;
 
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,15 +34,15 @@ public class ArtifactGroupServiceImpl
 
     @Override
     public <T extends ArtifactGroup> T findOneOrCreate(Class<T> type,
-                                                       String name)
+                                                       Map<String, ? extends Object> properties)
     {
-        Optional<T> optional = tryFind(type, name);
+        Optional<T> optional = tryFind(type, properties);
         if (optional.isPresent())
         {
             return optional.get();
         }
 
-        T artifactGroup = instantiateNew(type, name);
+        T artifactGroup = instantiateNew(type, properties);
 
         try
         {
@@ -50,7 +50,7 @@ public class ArtifactGroupServiceImpl
         }
         catch (ONeedRetryException ex)
         {
-            optional = tryFind(type, name);
+            optional = tryFind(type, properties);
             if (optional.isPresent())
             {
                 return optional.get();
@@ -60,13 +60,13 @@ public class ArtifactGroupServiceImpl
     }
 
     private <T extends ArtifactGroup> T instantiateNew(Class<T> type,
-                                                       String name)
+                                                       Map<String, ? extends Object> properties)
     {
         T artifactGroup;
         try
         {
-            artifactGroup = type.getConstructor(String.class)
-                                .newInstance(name);
+            artifactGroup = type.newInstance();
+            BeanUtils.populate(artifactGroup, properties);
         }
         catch (Exception e)
         {
@@ -76,18 +76,15 @@ public class ArtifactGroupServiceImpl
     }
 
     private <T extends ArtifactGroup> Optional<T> tryFind(Class<T> type,
-                                                          String name)
+                                                          Map<String, ? extends Object> properties)
     {
-        Map<String, String> params = new HashMap<>();
-        params.put("name", name);
-
-        String sQuery = buildQuery(params, type);
+        String sQuery = buildQuery(properties, type);
 
         OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);
 
         List<T> resultList = getDelegate().command(oQuery)
-                                          .execute(params);
+                                          .execute(properties);
         return resultList.stream()
                          .findFirst();
     }

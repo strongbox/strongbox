@@ -5,7 +5,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactGroup;
-import org.carlspring.strongbox.domain.ArtifactIdGroup;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactGroupService;
@@ -65,9 +65,14 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
             entity.setCreated(new Date());
         }
 
-        ArtifactGroup artifactGroup = artifactGroupService.findOneOrCreate(ArtifactIdGroup.class,
-                                                                           ArtifactIdGroup.createName(
-                                                                                   entity.getArtifactCoordinates()));
+        RepositoryArtifactIdGroup artifactGroup = artifactGroupService.findOneOrCreate(
+                RepositoryArtifactIdGroup.class,
+                RepositoryArtifactIdGroup.properties(
+                        entity.getStorageId(),
+                        entity.getRepositoryId(),
+                        entity.getArtifactCoordinates().getId()
+                ));
+
         if (updateLastVersion)
         {
             updateLastVersionTag(entity, artifactGroup);
