@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.server.OrientDbServer;
 import org.carlspring.strongbox.util.FileSystemUtils;
 import org.carlspring.strongbox.util.JarFileUtils;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystemNotFoundException;
@@ -32,11 +34,12 @@ class EmbeddedOrientDbConfig
 
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedOrientDbConfig.class);
 
-    @Value("${strongbox.server.database.path:strongbox-vault/db}")
-    private String databasePath;
+    @Inject
+    private PropertiesBooter propertiesBooter;
 
     @Value("${strongbox.database.snapshot.resource:classpath:/db-import}")
     private Resource databaseSnapshotResource;
+
 
     @Bean(destroyMethod = "close")
     @DependsOn("orientDbServer")
@@ -64,7 +67,8 @@ class EmbeddedOrientDbConfig
             {
                 snapshotPath = JarFileUtils.resolvePathInJar(databaseSnapshotResource.getURI().toString());
             }
-            FileSystemUtils.copyRecursively(snapshotPath, Paths.get(databasePath));
+
+            FileSystemUtils.copyRecursively(snapshotPath, Paths.get(propertiesBooter.getVaultDirectory() + "/db"));
         }
         else
         {

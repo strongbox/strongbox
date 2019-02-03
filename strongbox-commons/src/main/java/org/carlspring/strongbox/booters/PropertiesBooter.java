@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.booters;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
  */
-//TODO: SB-1266
 @Component
 public class PropertiesBooter
 {
@@ -26,7 +27,7 @@ public class PropertiesBooter
     @Value("${logging.dir:strongbox-vault/logs}")
     private String logsDirectory;
 
-    @Value("${strongbox.storage.booter.basedir:strongbox-vault/storages}")
+    @Value("${strongbox.storage.booter.basedir:../strongbox-vault/storages}")
     private String storageBooterBasedir;
 
     @Value("${strongbox.config.xml:strongbox/etc/conf/strongbox.xml}")
@@ -42,22 +43,35 @@ public class PropertiesBooter
     private boolean strongboxNugetDownloadFeed;
 
 
-//        -Dstrongbox.home=/java/opensource/carlspring/strongbox/strongbox-web-core/target/strongbox
-//        -Dstrongbox.vault=/java/opensource/carlspring/strongbox/strongbox-web-core/target/strongbox-vault
-//        -Dstrongbox.storage.booter.basedir=/java/opensource/carlspring/strongbox/strongbox-web-core/target/strongbox-vault/storages
-//        -Dstrongbox.config.xml=/java/opensource/carlspring/strongbox/strongbox-web-core/target/strongbox/etc/conf/strongbox.xml
-//        -Dstrongbox.host=localhost
-//        -Dstrongbox.port=48080
-//        -Dstrongbox.nuget.download.feed=false
-//
-//        -Dlogging.dir=/java/opensource/carlspring/strongbox/strongbox-web-core/target/strongbox-vault/logs
-//        -Dlogging.config.file=/java/opensource/carlspring/strongbox/strongbox-web-core/target/strongbox/etc/logback-debug.xml
-//        -Djava.io.tmpdir=/java/opensource/carlspring/strongbox/strongbox-web-core/target/strongbox-vault/tmp
-//        -Dehcache.disk.store.dir=/java/opensource/carlspring/strongbox/strongbox-web-core/target/strongbox/cache
-
-
     public PropertiesBooter()
     {
+    }
+
+    /**
+     * Initialization method that sets default system properties, if none are set.
+     */
+    @PostConstruct
+    public void init()
+    {
+        if (System.getProperty("logging.dir") == null)
+        {
+            System.setProperty("logging.dir", getVaultDirectory() + "/logs");
+        }
+
+        if (System.getProperty("logging.config.file") == null)
+        {
+            System.setProperty("logging.config.file", getHomeDirectory() + "/etc/logback.xml");
+        }
+
+        if (System.getProperty("java.io.tmpdir") == null)
+        {
+            System.setProperty("java.io.tmpdir", getVaultDirectory() + "/tmp");
+        }
+
+        if (System.getProperty("ehcache.disk.store.dir") == null)
+        {
+            System.setProperty("ehcache.disk.store.dir", getHomeDirectory() + "/cache");
+        }
     }
 
     public String getHomeDirectory()
