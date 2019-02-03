@@ -144,8 +144,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
             entity.getTagSet().add(lastVersionTag);
 
             lastVersionEntry.getTagSet().remove(lastVersionTag);
-            // OConcurrentModificationException
-            reloadArtifactCoordinates(lastVersionEntry);
 
             super.save(lastVersionEntry);
         }
@@ -156,12 +154,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                        lastVersionEntry.getArtifactCoordinates().getVersion()));
             entity.getTagSet().remove(lastVersionTag);
         }
-    }
-
-    private <S extends ArtifactEntry> void reloadArtifactCoordinates(S entity)
-    {
-        entity.setArtifactCoordinates(
-                artifactCoordinatesService.findOne(entity.getArtifactCoordinates().getObjectId()).get());
     }
 
     private <S extends ArtifactEntry> Set<ArtifactEntry> findLastVersionArtifactEntries(ArtifactGroup artifactGroup,

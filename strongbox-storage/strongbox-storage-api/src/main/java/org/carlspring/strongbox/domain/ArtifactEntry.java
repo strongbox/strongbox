@@ -75,7 +75,7 @@ public class ArtifactEntry
         this.repositoryId = repositoryId;
     }
 
-    public AbstractArtifactCoordinates getArtifactCoordinates()
+    public ArtifactCoordinates getArtifactCoordinates()
     {
         return artifactCoordinates;
     }
