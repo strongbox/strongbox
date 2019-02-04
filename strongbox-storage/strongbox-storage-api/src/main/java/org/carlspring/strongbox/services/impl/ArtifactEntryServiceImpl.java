@@ -104,7 +104,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     }
 
     private <S extends ArtifactEntry> void updateLastVersionTag(S entity,
-                                                                ArtifactGroup artifactGroup)
+                                                                RepositoryArtifactIdGroup artifactGroup)
     {
         ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
         Assert.notNull(coordinates, "coordinates should not be null");
@@ -156,7 +156,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         }
     }
 
-    private <S extends ArtifactEntry> Set<ArtifactEntry> findLastVersionArtifactEntries(ArtifactGroup artifactGroup,
+    private <S extends ArtifactEntry> Set<ArtifactEntry> findLastVersionArtifactEntries(RepositoryArtifactIdGroup artifactGroup,
                                                                                         ArtifactTag lastVersionTag,
                                                                                         S defaultArtifactEntry)
     {
