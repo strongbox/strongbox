@@ -112,7 +112,7 @@
                     <dependency>
                         <groupId>${project.groupId}</groupId>
                         <artifactId>strongbox-db-import</artifactId>
-                        <version>${project.version}</version>
+                        <version>PR-5-1.0-SNAPSHOT</version>
                         <type>zip</type>
                     </dependency>
                 </dependencies>
@@ -201,7 +201,7 @@
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>strongbox-db-import</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>PR-5-1.0-SNAPSHOT</version>
                                     <type>zip</type>
 
                                     <overWrite>true</overWrite>
