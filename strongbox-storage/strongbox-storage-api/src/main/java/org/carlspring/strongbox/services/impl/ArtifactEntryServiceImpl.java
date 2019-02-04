@@ -5,8 +5,8 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactGroup;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
@@ -116,13 +116,13 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
                                                                                entity);
         lastVersionEntries.stream()
                           .forEach(lastVersionEntry -> {
-                              setLastVersionTag(lastVersionEntry, entity, lastVersionTag);
+                              checkAndUpdateLastVersionTagIfNeeded(lastVersionEntry, entity, lastVersionTag);
                           });
     }
 
-    private <S extends ArtifactEntry> void setLastVersionTag(S lastVersionEntry,
-                                                             S entity,
-                                                             ArtifactTag lastVersionTag)
+    private <S extends ArtifactEntry> void checkAndUpdateLastVersionTagIfNeeded(S lastVersionEntry,
+                                                                                S entity,
+                                                                                ArtifactTag lastVersionTag)
     {
         int artifactCoordinatesComparison = entity.getArtifactCoordinates()
                                                   .compareTo(lastVersionEntry.getArtifactCoordinates());
