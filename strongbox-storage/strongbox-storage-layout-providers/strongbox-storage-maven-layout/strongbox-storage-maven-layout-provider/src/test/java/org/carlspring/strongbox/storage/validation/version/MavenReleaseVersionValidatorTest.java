@@ -71,12 +71,10 @@ public class MavenReleaseVersionValidatorTest
          * Test invalid artifacts
          */
         Artifact invalidArtifact1 = generateArtifact("1.0-SNAPSHOT");
-        Artifact invalidArtifact2 = generateArtifact("1.0-20131004");
         Artifact invalidArtifact3 = generateArtifact("1.0-20131004.115330");
         Artifact invalidArtifact4 = generateArtifact("1.0-20131004.115330-1");
 
         ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates(invalidArtifact1);
-        ArtifactCoordinates coordinates2 = new MockedMavenArtifactCoordinates(invalidArtifact2);
         ArtifactCoordinates coordinates3 = new MockedMavenArtifactCoordinates(invalidArtifact3);
         ArtifactCoordinates coordinates4 = new MockedMavenArtifactCoordinates(invalidArtifact4);
 
@@ -84,15 +82,6 @@ public class MavenReleaseVersionValidatorTest
         {
             validator.validate(new Repository(repository), coordinates1);
             fail("Incorrectly validated artifact with version 1.0-SNAPSHOT!");
-        }
-        catch (VersionValidationException e)
-        {
-        }
-
-        try
-        {
-            validator.validate(new Repository(repository), coordinates2);
-            fail("Incorrectly validated artifact with version 1.0-20131004!");
         }
         catch (VersionValidationException e)
         {
