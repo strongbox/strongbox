@@ -267,16 +267,10 @@ public abstract class CommonCrudService<T extends GenericEntity>
         }
     }
 
-    protected String buildQuery(Map<String, ? extends Object> map)
-    {
-        return buildQuery(map, getEntityClass());
-    }
-
-    protected <S extends T> String buildQuery(Map<String, ? extends Object> map,
-                                              Class<S> entityClass)
+    protected String buildQuery(Map<String, String> map)
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM ").append(entityClass.getSimpleName());
+        sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
 
         if (map == null || map.isEmpty())
         {

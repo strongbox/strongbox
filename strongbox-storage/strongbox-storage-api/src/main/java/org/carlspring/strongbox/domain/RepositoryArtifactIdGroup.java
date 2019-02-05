@@ -12,6 +12,19 @@ public class RepositoryArtifactIdGroup
         extends ArtifactGroup
 {
 
+    public RepositoryArtifactIdGroup(String storageId,
+                                     String repositoryId,
+                                     String id)
+    {
+        this.storageId = storageId;
+        this.repositoryId = repositoryId;
+        this.id = id;
+    }
+
+    public RepositoryArtifactIdGroup()
+    {
+    }
+
     private String storageId;
 
     private String repositoryId;

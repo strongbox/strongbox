@@ -4,12 +4,11 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.ArtifactGroup;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.ArtifactGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
+import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 
 import javax.inject.Inject;
@@ -48,7 +47,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     private ArtifactTagService artifactTagService;
 
     @Inject
-    private ArtifactGroupService artifactGroupService;
+    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
 
     @Inject
     private ArtifactCoordinatesService artifactCoordinatesService;
@@ -65,13 +64,11 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
             entity.setCreated(new Date());
         }
 
-        RepositoryArtifactIdGroup artifactGroup = artifactGroupService.findOneOrCreate(
-                RepositoryArtifactIdGroup.class,
-                RepositoryArtifactIdGroup.properties(
-                        entity.getStorageId(),
-                        entity.getRepositoryId(),
-                        entity.getArtifactCoordinates().getId()
-                ));
+        RepositoryArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(
+                entity.getStorageId(),
+                entity.getRepositoryId(),
+                entity.getArtifactCoordinates().getId()
+        );
 
         if (updateLastVersion)
         {
@@ -82,12 +79,12 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     }
 
     private <S extends ArtifactEntry> S saveWithGroup(S entity,
-                                                      ArtifactGroup artifactGroup)
+                                                      RepositoryArtifactIdGroup artifactGroup)
     {
         S result = super.save(entity);
 
         artifactGroup.addArtifactEntry(result);
-        artifactGroupService.save(artifactGroup);
+        repositoryArtifactIdGroupService.save(artifactGroup);
 
         return result;
     }

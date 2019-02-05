@@ -11,6 +11,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactGroupService;
+import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -55,7 +56,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     private ConfigurationManager configurationManager;
 
     @Inject
-    private ArtifactGroupService artifactGroupService;
+    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
 
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
@@ -227,13 +228,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         String storageId = path.getRepository().getStorage().getId();
 
         T artifactCoordinates = getArtifactCoordinates(path);
-        RepositoryArtifactIdGroup artifactIdGroup = artifactGroupService.findOneOrCreate(
-                RepositoryArtifactIdGroup.class,
-                RepositoryArtifactIdGroup.properties(
-                        storageId,
-                        repositoryId,
-                        artifactCoordinates.getId()
-                ));
+        RepositoryArtifactIdGroup artifactIdGroup = repositoryArtifactIdGroupService.findOneOrCreate(storageId, repositoryId, artifactCoordinates.getId());
         return Sets.newHashSet(artifactIdGroup);
     }
 }
