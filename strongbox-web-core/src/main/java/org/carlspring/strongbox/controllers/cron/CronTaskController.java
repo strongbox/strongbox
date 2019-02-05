@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.cron.controller;
+package org.carlspring.strongbox.controllers.cron;
 
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
