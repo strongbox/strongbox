@@ -92,8 +92,7 @@ abstract class BaseMavenMetadataExpirationTest
                                                          MutableObject<Metadata> artifactLevelMetadata)
             throws Exception
     {
-        Artifact snapshotArtifact = new MavenRepositoryArtifact(groupId, artifactId,
-                                                                MavenArtifactUtils.getSnapshotBaseVersion("1.0"));
+        Artifact snapshotArtifact = new MavenRepositoryArtifact(groupId, artifactId, "1.0-20131004.115330-1");
         MavenArtifactGenerator mavenArtifactGenerator = new MavenArtifactGenerator(localSourceRepository.getBasedir());
 
         versionLevelMetadata.setValue(
