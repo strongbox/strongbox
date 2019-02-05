@@ -1,6 +1,6 @@
-package org.carlspring.strongbox.cron.controller;
+package org.carlspring.strongbox.controllers.cron;
 
-import org.carlspring.strongbox.cron.context.CronTaskRestTest;
+import org.carlspring.strongbox.config.CronTaskRestTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.MyTask;
@@ -26,8 +26,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.cron.controller.CronTaskController.CRON_CONFIG_FILE_NAME_KEY;
-import static org.carlspring.strongbox.cron.controller.CronTaskController.CRON_CONFIG_JOB_CLASS_KEY;
+import static org.carlspring.strongbox.controllers.cron.CronTaskController.CRON_CONFIG_FILE_NAME_KEY;
+import static org.carlspring.strongbox.controllers.cron.CronTaskController.CRON_CONFIG_JOB_CLASS_KEY;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -333,8 +333,7 @@ public class CronTaskControllerTest
 
     private MockMvcResponse getCronConfigurations()
     {
-        return given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                      .accept(MediaType.APPLICATION_JSON_VALUE)
+        return given().accept(MediaType.APPLICATION_JSON_VALUE)
                       .when()
                       .get(getContextBaseUrl())
                       .peek();
