@@ -1,7 +1,5 @@
-package org.carlspring.strongbox.cron.context;
+package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.config.RestAssuredConfig;
-import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.rest.common.RestAssuredTestExecutionListener;
