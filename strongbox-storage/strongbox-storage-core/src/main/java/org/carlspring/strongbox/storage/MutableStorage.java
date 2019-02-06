@@ -12,8 +12,6 @@ import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
-
 /**
  * @author mtodorov
  */
@@ -28,12 +26,6 @@ public class MutableStorage
     
     @XmlAttribute
     private String basedir;
-
-    @Value("${strongbox.storage.booter.basedir:strongbox-vault/storages}")
-    private String storageBooterBasedir;
-
-    @Value("${strongbox.vault:strongbox-vault}")
-    private String vaultDirectory;
 
     @XmlElement(name = "repositories")
     @XmlJavaTypeAdapter(RepositoryMapAdapter.class)
@@ -79,18 +71,9 @@ public class MutableStorage
         }
         else if (id != null)
         {
-            Path basedir;
-            if (System.getProperty("strongbox.storage.booter.basedir") != null)
-            {
-                basedir = Paths.get(System.getProperty("strongbox.storage.booter.basedir"));
-            }
-            else
-            {
-                // Assuming this invocation is related to tests:
-                basedir = Paths.get(vaultDirectory).resolve("storages");
-            }
-            
-            return basedir.resolve(id).toString();
+            Path basedirPath = Paths.get(System.getProperty("strongbox.storage.booter.basedir"));
+            basedir = basedirPath.resolve(id).toString();
+            return basedir;
         }
         else
         {
