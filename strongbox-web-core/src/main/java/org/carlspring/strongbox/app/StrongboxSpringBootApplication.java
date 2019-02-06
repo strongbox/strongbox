@@ -27,12 +27,18 @@ import org.springframework.context.annotation.Import;
 public class StrongboxSpringBootApplication
 {
 
-
     private static final Logger logger = LoggerFactory.getLogger(StrongboxSpringBootApplication.class);
-
 
     public static void main(String[] args)
     {
+        if (System.getProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE) == null)
+        {
+            logger.info(String.format("OrientDB profile not set, will use [%s] profile as default",
+                                      ConnectionConfigOrientDB.PROFILE_EMBEDDED));
+
+            System.setProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE, ConnectionConfigOrientDB.PROFILE_EMBEDDED);
+        }
+
         ConfigurableApplicationContext applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class,
                                                                                   args);
         applicationContext.start();
@@ -49,15 +55,6 @@ public class StrongboxSpringBootApplication
         void init()
         {
             System.setProperty("strongbox.storage.booter.basedir", propertiesBooter.getStorageBooterBasedir());
-
-            if (System.getProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE) == null)
-            {
-                logger.info(String.format("OrientDB profile not set, will use [%s] profile as default",
-                                          ConnectionConfigOrientDB.PROFILE_EMBEDDED));
-
-                System.setProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE,
-                                   ConnectionConfigOrientDB.PROFILE_EMBEDDED);
-            }
         }
     }
 
