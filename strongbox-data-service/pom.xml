@@ -82,10 +82,21 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-db-liquibase</artifactId>
-            <version>PR-5-1.0-SNAPSHOT</version>
+            <artifactId>strongbox-db-server</artifactId>
+            <version>1.0-PR-5-SNAPSHOT</version>
         </dependency>
-
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-db-liquibase</artifactId>
+            <version>1.0-PR-5-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-db-import</artifactId>
+            <version>1.0-PR-5-SNAPSHOT</version>
+            <classifier>schema</classifier>
+        </dependency>
+        
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
@@ -250,11 +261,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-        </dependency>
-
-        <dependency>            
-            <groupId>org.webjars</groupId>
-            <artifactId>orientdb-studio</artifactId>
         </dependency>
 
         <dependency>

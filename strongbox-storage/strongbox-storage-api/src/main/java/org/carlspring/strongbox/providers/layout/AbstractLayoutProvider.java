@@ -1,21 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.artifact.archive.*;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.domain.ArtifactGroup;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.LayoutFileSystem;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.services.ArtifactGroupService;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -27,12 +11,33 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import javax.inject.Inject;
+
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.carlspring.strongbox.artifact.ArtifactGroup;
+import org.carlspring.strongbox.artifact.archive.ArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.Bzip2ArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.CompositeArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.TarArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.TarGzArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.ZipArchiveListingFunction;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
+import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.io.LayoutFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 /**
  * @author mtodorov
@@ -224,11 +229,16 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     public Set<ArtifactGroup> getArtifactGroups(RepositoryPath path)
             throws IOException
     {
-        String repositoryId = path.getRepository().getId();
-        String storageId = path.getRepository().getStorage().getId();
-
-        T artifactCoordinates = getArtifactCoordinates(path);
-        RepositoryArtifactIdGroup artifactIdGroup = repositoryArtifactIdGroupService.findOneOrCreate(storageId, repositoryId, artifactCoordinates.getId());
-        return Sets.newHashSet(artifactIdGroup);
+        if (!RepositoryFiles.isArtifact(path))
+        {
+            return Collections.emptySet();
+        }
+        
+        Repository repository = path.getFileSystem().getRepository();
+        Storage storage = repository.getStorage();
+        ArtifactCoordinates c = RepositoryFiles.readCoordinates(path);
+        RepositoryArtifactIdGroupEntry artifactIdGroup = repositoryArtifactIdGroupService.findOne(storage.getId(), repository.getId(), c.getId());
+        
+        return artifactIdGroup == null ? Collections.emptySet() : Sets.newHashSet(artifactIdGroup);
     }
 }

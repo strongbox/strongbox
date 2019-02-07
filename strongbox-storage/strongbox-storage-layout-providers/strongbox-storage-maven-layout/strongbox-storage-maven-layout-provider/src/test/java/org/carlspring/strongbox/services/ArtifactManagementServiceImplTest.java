@@ -41,6 +41,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -720,6 +721,7 @@ public class ArtifactManagementServiceImplTest
         catch (IOException e)
         {
             logger.error("Unexpected IOException while getting result:", e);
+            e.printStackTrace();
             return 0L;
         }
     }
@@ -805,7 +807,7 @@ public class ArtifactManagementServiceImplTest
                     return 0L;
                 }
                 
-                if (attempts++ > 3) {
+                if (attempts++ > 5) {
                     return 0L;
                 }
 

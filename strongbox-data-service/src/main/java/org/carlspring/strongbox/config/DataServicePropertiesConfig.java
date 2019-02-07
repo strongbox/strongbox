@@ -4,17 +4,18 @@ import java.io.IOException;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 @Configuration
 public class DataServicePropertiesConfig
 {
 
     @Bean
-    public ConnectionConfig connectionConfig()
+    public OrientDBProfile connectionConfig(Environment environment)
         throws IOException
     {
-        ConnectionConfigOrientDB.bootstrap();
+        OrientDBProfile.bootstrap();
 
-        return new ConnectionConfigOrientDB();
+        return OrientDBProfile.resolveProfile(environment);
     }
 }

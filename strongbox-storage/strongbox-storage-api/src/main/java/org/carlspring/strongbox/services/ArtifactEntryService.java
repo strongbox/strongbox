@@ -26,8 +26,6 @@ public interface ArtifactEntryService
         extends CrudService<ArtifactEntry, String>
 {
 
-    <S extends ArtifactEntry> S save(S entity, boolean updateLastVersion);
-    
     /**
      * Returns list of artifacts that matches search query defined as {@link ArtifactCoordinates} fields. By default all
      * fields are optional and combined using logical AND operator. If all coordinates aren't present this query will
